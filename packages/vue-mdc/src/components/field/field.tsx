@@ -27,9 +27,6 @@ export const Field = defineComponent({
         this.animateLabelIfNeeded()
     },
     beforeUpdate() {
-        this.populated = this.defaultPopulated
-        this.focused = this.defaultFocused
-
         if (this.disabled && this.focused) {
             this.focused = false
         }
