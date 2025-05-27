@@ -6,4 +6,4 @@
 
 export { NavigationRailTab } from './navigation-rail-tab'
 
-export { type TNavigationRailPosition, type TNavigationRailTabProps, type TNavigationRailTabSlots } from './navigation-rail-tab.definition'
+export { type TNavigationRailTabProps, type TNavigationRailTabSlots } from './navigation-rail-tab.definition'
