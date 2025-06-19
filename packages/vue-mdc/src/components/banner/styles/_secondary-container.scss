@@ -1,0 +1,15 @@
+@use 'sass:map';
+@use '../../../tokens';
+
+@mixin styles() {
+    $tokens: tokens.md-comp-secondary-container-banner-values();
+
+    // Only use the logical properties.
+    $tokens: map.remove($tokens, 'container-shape');
+
+    & {
+        @each $token, $value in $tokens {
+            --_#{$token}: #{$value};
+        }
+    }
+}

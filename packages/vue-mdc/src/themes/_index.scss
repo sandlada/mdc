@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: MIT
 //
 
+@forward '../components/banner/theme' as md-comp-*;
 @forward '../components/bottom-app-bar/theme' as md-comp-*;
 @forward '../components/button/theme' as md-comp-*;
 @forward '../components/checkbox/theme' as md-comp-*;

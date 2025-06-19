@@ -1,0 +1,71 @@
+//
+// Copyright 2025 glare-labs & bre97-web
+// SPDX-License-Identifier: MIT
+//
+
+@use 'sass:map';
+@use 'sass:string';
+@use './internal/shape';
+@use './internal/validate';
+@use './md-sys-color';
+@use './md-sys-shape';
+@use './md-sys-elevation';
+@use './md-sys-state';
+@use './md-sys-typescale';
+@use './v0_192/md-comp-banner-secondary-container';
+
+$_default: (
+    'md-sys-color': md-sys-color.values-light(),
+    'md-sys-elevation': md-sys-elevation.values(),
+    'md-sys-shape': md-sys-shape.values(),
+    'md-sys-typescale': md-sys-typescale.values(),
+);
+
+// prettier-ignore
+$supported-tokens: (
+    'container-color',
+    'container-elevation',
+    'container-shape',
+    'container-shape-end-end',
+    'container-shape-end-start',
+    'container-shape-start-end',
+    'container-shape-start-start',
+    'desktop-with-single-line-container-height',
+    'desktop-with-two-lines-with-image-container-height',
+    'desktop-with-three-lines-container-height',
+    'mobile-with-single-line-container-height',
+    'mobile-with-two-lines-container-height',
+    'mobile-with-two-lines-with-image-container-height',
+    'supporting-text-font',
+    'supporting-text-color',
+    'supporting-text-line-height',
+    'supporting-text-size',
+    'supporting-text-tracking',
+    'supporting-text-type',
+    'supporting-text-weight',
+    'with-image-image-shape',
+    'with-image-image-size',
+);
+
+// prettier-ignore
+$unsupported-tokens: ();
+
+@function values($deps: $_default, $exclude-hardcoded-values: false, $exclude-custom-properties: false) {
+    $tokens: md-comp-banner-secondary-container.values($deps, $exclude-hardcoded-values);
+    $new-tokens: shape.get-new-logical-shape-tokens($tokens, 'container-shape');
+
+    $tokens: validate.values($tokens, $supported-tokens: $supported-tokens, $unsupported-tokens: $unsupported-tokens, $new-tokens: $new-tokens);
+
+    @if not $exclude-custom-properties {
+        @each $token, $value in $tokens {
+            @if string.index($token, 'container-shape-') == 1 {
+                // Add fallback to shorthand for logical shape properties.
+                $value: var(--md-secondary-container-banner-container-shape, #{$value});
+            }
+
+            $tokens: map.set($tokens, $token, var(--md-secondary-container-banner-#{$token}, #{$value}));
+        }
+    }
+
+    @return $tokens;
+}

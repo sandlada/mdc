@@ -5,7 +5,11 @@
 
 @forward './md-comp-assist-chip' as md-comp-assist-chip-*;
 @forward './md-comp-badge' as md-comp-badge-*;
-@forward './md-comp-banner' as md-comp-banner-*;
+@forward './md-comp-banner-error-container' as md-comp-banner-error-container-*;
+@forward './md-comp-banner-primary-container' as md-comp-banner-primary-container-*;
+@forward './md-comp-banner-secondary-container' as md-comp-banner-secondary-container-*;
+@forward './md-comp-banner-surface-container-low' as md-comp-banner-surface-container-low-*;
+@forward './md-comp-banner-tertiary-container' as md-comp-banner-tertiary-container-*;
 @forward './md-comp-bottom-app-bar' as md-comp-bottom-app-bar-*;
 @forward './md-comp-carousel-item' as md-comp-carousel-item-*;
 @forward './md-comp-checkbox' as md-comp-checkbox-*;

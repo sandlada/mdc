@@ -1,0 +1,21 @@
+//
+// Copyright 2025 glare-labs & bre97-web
+// SPDX-License-Identifier: MIT
+//
+
+@use 'sass:list';
+@use '../../../tokens';
+
+@mixin theme($tokens) {
+    $supported-tokens: tokens.$md-comp-surface-container-low-banner-supported-tokens;
+
+    @each $token, $value in $tokens {
+        @if list.index($supported-tokens, $token) ==null {
+            @error 'Token `#{$token}` is not a supported token.';
+        }
+
+        @if $value {
+            --md-surface-container-low-banner-#{$token}: #{$value};
+        }
+    }
+}

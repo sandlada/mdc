@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
+import { Banner } from '../components/banner'
 import { BottomAppBar } from '../components/bottom-app-bar/bottom-app-bar'
 import { Button } from '../components/button/button'
 import { Checkbox } from '../components/checkbox/checkbox'
@@ -38,6 +39,7 @@ import { componentNamePrefix } from '../internals/component-name-prefix/componen
 
 export const registerComponents = (prefix = componentNamePrefix) => ({
     install: (instance: import('vue').App<any>) => {
+        instance.component(`${prefix}-banner`, Banner)
         instance.component(`${prefix}-bottom-app-bar`, BottomAppBar)
         instance.component(`${prefix}-button`, Button)
         instance.component(`${prefix}-checkbox`, Checkbox)

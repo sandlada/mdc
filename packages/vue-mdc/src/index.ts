@@ -6,6 +6,7 @@
 
 export * from './component-register'
 
+export * from './components/banner'
 export * from './components/bottom-app-bar'
 export * from './components/button'
 export * from './components/checkbox'
