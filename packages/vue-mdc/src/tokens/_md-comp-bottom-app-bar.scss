@@ -43,7 +43,7 @@ $unsupported-tokens: ();
         @each $token, $value in $tokens {
             @if string.index($token, 'container-shape-') == 1 {
                 // Add fallback to shorthand for logical shape properties.
-                $value: var(--md-checkbox-container-shape, #{$value});
+                $value: var(--md-bottom-app-bar-container-shape, #{$value});
             }
 
             $tokens: map.set($tokens, $token, var(--md-bottom-app-bar-#{$token}, #{$value}));
