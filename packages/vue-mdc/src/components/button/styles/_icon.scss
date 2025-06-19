@@ -8,6 +8,8 @@
 // SPDX-License-Identifier: MIT
 //
 
+@use '../../../themes';
+
 @mixin styles() {
     // The icon CSS class overrides styles defined in the .material-icons CSS
     // class, which is loaded separately so the order of CSS definitions is not
@@ -22,6 +24,12 @@
         font-size: var(--_icon-size);
         inline-size: var(--_icon-size);
         block-size: var(--_icon-size);
+
+        @include themes.md-comp-icon-theme(
+            (
+                size: var(--_icon-size),
+            )
+        );
     }
 
     &:hover [data-component='icon'] {
