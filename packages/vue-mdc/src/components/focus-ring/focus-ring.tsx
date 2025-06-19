@@ -3,10 +3,10 @@
  * Copyright 2021 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  *
- * [Modified by glare-labs & bre97-web]
+ * [Modified by Sandlada & Kai Orion]
  *
  * @license
- * Copyright 2025 glare-labs & bre97-web
+ * Copyright 2025 Sandlada & Kai Orion
  * SPDX-License-Identifier: MIT
  */
 

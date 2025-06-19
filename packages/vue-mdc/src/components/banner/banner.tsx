@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright 2025 Sandlada & Kai Orion
+ * SPDX-License-Identifier: MIT
+ */
+
 import { useReflectAttribute } from '@glare-labs/vue-reflect-attribute'
 import { defineComponent, ref, type SlotsType } from 'vue'
 import { componentNamePrefix } from '../../internals/component-name-prefix/component-name-prefix'

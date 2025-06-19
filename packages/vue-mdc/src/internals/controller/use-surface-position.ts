@@ -5,10 +5,10 @@
  *
  * @link https://github.com/material-components/material-web/blob/main/menu/internal/controllers/surfacePositionController.ts
  *
- * [Modified by glare-labs & bre97-web]
+ * [Modified by Sandlada & Kai Orion]
  *
  * @license
- * Copyright 2025 glare-labs & bre97-web
+ * Copyright 2025 Sandlada & Kai Orion
  * SPDX-License-Identifier: MIT
  */
 

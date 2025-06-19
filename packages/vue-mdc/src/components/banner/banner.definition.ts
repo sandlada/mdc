@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright 2025 Sandlada & Kai Orion
+ * SPDX-License-Identifier: MIT
+ */
+
 import { ExtractPublicPropTypes, PropType, VNode } from 'vue'
 
 export const BannerAppearance = {

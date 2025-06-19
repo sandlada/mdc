@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2024 glare-labs & bre97-web
+ * Copyright 2024 sandlada & Kai Orion
  * SPDX-License-Identifier: MIT
  */
 
