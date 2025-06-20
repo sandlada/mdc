@@ -19,9 +19,9 @@
             (
                 'focus-icon-color': map.get($tokens, focus-icon-color),
                 'hover-icon-color': map.get($tokens, hover-icon-color),
+                'container-color': map.get($tokens, container-color),
                 'icon-color': map.get($tokens, icon-color),
                 'pressed-icon-color': map.get($tokens, pressed-icon-color),
-                'container-color': map.get($tokens, container-color),
                 'label-text-color': map.get($tokens, label-text-color),
                 'hover-label-text-color': map.get($tokens, hover-label-text-color),
                 'focus-label-text-color': map.get($tokens, focus-label-text-color),
@@ -74,6 +74,54 @@
                 'hover-label-text-color': map.get($tokens, tertiary-hover-label-text-color),
                 'focus-label-text-color': map.get($tokens, tertiary-focus-label-text-color),
                 'pressed-label-text-color': map.get($tokens, tertiary-pressed-label-text-color),
+            )
+        );
+    }
+
+    &.tonal-primary {
+        @include color(
+            (
+                'container-color': map.get($tokens, tonal-primary-container-color),
+                'focus-icon-color': map.get($tokens, tonal-primary-focus-icon-color),
+                'hover-icon-color': map.get($tokens, tonal-primary-hover-icon-color),
+                'icon-color': map.get($tokens, tonal-primary-icon-color),
+                'pressed-icon-color': map.get($tokens, tonal-primary-pressed-icon-color),
+                'label-text-color': map.get($tokens, tonal-primary-label-text-color),
+                'hover-label-text-color': map.get($tokens, tonal-primary-hover-label-text-color),
+                'focus-label-text-color': map.get($tokens, tonal-primary-focus-label-text-color),
+                'pressed-label-text-color': map.get($tokens, tonal-primary-pressed-label-text-color),
+            )
+        );
+    }
+
+    &.tonal-secondary {
+        @include color(
+            (
+                'container-color': map.get($tokens, tonal-secondary-container-color),
+                'focus-icon-color': map.get($tokens, tonal-secondary-focus-icon-color),
+                'hover-icon-color': map.get($tokens, tonal-secondary-hover-icon-color),
+                'icon-color': map.get($tokens, tonal-secondary-icon-color),
+                'pressed-icon-color': map.get($tokens, tonal-secondary-pressed-icon-color),
+                'label-text-color': map.get($tokens, tonal-secondary-label-text-color),
+                'hover-label-text-color': map.get($tokens, tonal-secondary-hover-label-text-color),
+                'focus-label-text-color': map.get($tokens, tonal-secondary-focus-label-text-color),
+                'pressed-label-text-color': map.get($tokens, tonal-secondary-pressed-label-text-color),
+            )
+        );
+    }
+
+    &.tonal-tertiary {
+        @include color(
+            (
+                'container-color': map.get($tokens, tonal-tertiary-container-color),
+                'focus-icon-color': map.get($tokens, tonal-tertiary-focus-icon-color),
+                'hover-icon-color': map.get($tokens, tonal-tertiary-hover-icon-color),
+                'icon-color': map.get($tokens, tonal-tertiary-icon-color),
+                'pressed-icon-color': map.get($tokens, tonal-tertiary-pressed-icon-color),
+                'label-text-color': map.get($tokens, tonal-tertiary-label-text-color),
+                'hover-label-text-color': map.get($tokens, tonal-tertiary-hover-label-text-color),
+                'focus-label-text-color': map.get($tokens, tonal-tertiary-focus-label-text-color),
+                'pressed-label-text-color': map.get($tokens, tonal-tertiary-pressed-label-text-color),
             )
         );
     }

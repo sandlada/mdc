@@ -10,7 +10,7 @@ import { componentNamePrefix } from "../../internals/component-name-prefix/compo
 import { Elevation } from "../elevation/elevation"
 import { FocusRing } from "../focus-ring"
 import { Ripple } from "../ripple/ripple"
-import { FabSize, props, type TFabSlots } from './fab.definition'
+import { props, type TFabSlots } from './fab.definition'
 import css from "./styles/fab.module.scss"
 
 export const Fab = defineComponent({
@@ -25,14 +25,14 @@ export const Fab = defineComponent({
          */
         const _size = ref(props.size)
         const _label = ref<string | null>(props.label)
-        const _variant = ref(props.variant)
+        const _appearance = ref(props.appearance)
         const _lowered = ref(props.lowered)
 
         useReflectAttribute(root, {
             attributes: [
                 { attribute: 'size', ref: _size, reflect: true, type: 'string', },
                 { attribute: 'label', ref: _label, reflect: true, type: 'string', },
-                { attribute: 'variant', ref: _variant, reflect: true, type: 'string', },
+                { attribute: 'appearance', ref: _appearance, reflect: true, type: 'string', },
                 { attribute: 'lowered', ref: _lowered, reflect: true, type: 'boolean', },
             ]
         })
@@ -40,16 +40,9 @@ export const Fab = defineComponent({
         /**
          * Computed
          */
-        const isMediumSize = computed(() => _size.value === FabSize.Medium)
-        const isExtended = computed(() => _label.value !== null && _label.value.length !== 0)
+        const isExtended = computed(() => _label.value !== null && _label.value !== '' && _label.value.length !== 0)
 
         return () => {
-            if (isExtended.value && !isMediumSize.value) {
-                console.warn(
-                    `The label and icon can only be set at the same time when the size is medium. If the size attribute of your fab component is not medium, please remove the label attribute.`
-                )
-            }
-
             const renderIcon = (
                 <span class={css.icon}>
                     {slots.default && slots.default()}
@@ -63,10 +56,11 @@ export const Fab = defineComponent({
                     data-component="fab"
                     class={[
                         css.fab,
-                        isExtended.value && isMediumSize.value && css.extended,
+                        isExtended.value && css.extended,
                         css[_size.value],
-                        css[_variant.value],
+                        css[_appearance.value],
                         _lowered.value && css.lowered,
+                        slots.default && css['has-icon']
                     ]}
                     ref={root}
                 >
@@ -77,7 +71,7 @@ export const Fab = defineComponent({
                     <span class={css["touch-target"]}></span>
 
                     {renderIcon}
-                    {isExtended.value && isMediumSize.value && renderLabel}
+                    {isExtended.value && renderLabel}
                 </button>
             )
         }

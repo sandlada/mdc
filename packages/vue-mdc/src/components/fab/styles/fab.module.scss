@@ -10,32 +10,24 @@
 @use './shared';
 
 @layer mdc-fab {
-    @layer elevation {
-        .fab {
+    .fab {
+        @layer elevation {
             @include elevation.styles();
         }
-    }
 
-    @layer focus-ring {
-        .fab {
+        @layer focus-ring {
             @include focus-ring.styles();
         }
-    }
 
-    @layer ripple {
-        .fab {
+        @layer ripple {
             @include ripple.styles();
         }
-    }
 
-    @layer color {
-        .fab {
+        @layer appearance {
             @include color.styles();
         }
-    }
 
-    @layer shared {
-        .fab {
+        @layer shared {
             @include shared.styles();
         }
     }

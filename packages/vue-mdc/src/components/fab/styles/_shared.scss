@@ -18,33 +18,33 @@ $_md-sys-motion: tokens.md-sys-motion-values();
     $tokens: tokens.md-comp-fab-values();
 
     & {
-        $tokens: map.remove($tokens, 'container-shape', 'large-container-shape', 'small-container-shape');
+        $tokens: map.remove($tokens, 'container-shape', 'large-container-shape', 'medium-container-shape');
 
         @each $token, $value in $tokens {
             --_#{$token}: #{$value};
         }
     }
 
-    &.small[touch-target='wrapper'] {
-        margin: max(0px, 48px - var(--_small-container-height));
+    &.baseline[touch-target='wrapper'] {
+        margin: max(0px, 48px - var(--_container-height));
     }
 
     &.medium[touch-target='wrapper'] {
-        margin: max(0px, 48px - var(--_container-height));
+        margin: max(0px, 48px - var(--_medium-container-height));
     }
 
     &.large[touch-target='wrapper'] {
         margin: max(0px, 48px - var(--_large-container-height));
     }
 
-    &.small .touch-target {
-        height: calc(var(--_small-container-height) + 8px);
-        width: calc(var(--_small-container-width) + 8px);
+    &.baseline .touch-target {
+        height: calc(var(--_container-height) + 8px);
+        width: calc(var(--_container-width) + 8px);
     }
 
     &.medium .touch-target {
-        height: calc(var(--_container-height) + 8px);
-        width: calc(var(--_container-width) + 8px);
+        height: calc(var(--_medium-container-height) + 8px);
+        width: calc(var(--_medium-container-width) + 8px);
     }
 
     &.large .touch-target {
@@ -93,37 +93,44 @@ $_md-sys-motion: tokens.md-sys-motion-values();
     }
 
     /* Container Size */
-
-    &.small {
-        width: var(--_small-container-width);
-        height: var(--_small-container-height);
-    }
-    &.medium.extended {
+    &.baseline.extended {
         width: inherit;
         height: var(--_container-height);
     }
-    &.medium:not(.extended) {
+    &.baseline:not(.extended) {
         width: var(--_container-width);
         height: var(--_container-height);
     }
-    &.large {
+    &.medium.extended {
+        width: inherit;
+        height: var(--_medium-container-height);
+    }
+    &.medium:not(.extended) {
+        width: var(--_medium-container-width);
+        height: var(--_medium-container-height);
+    }
+    &.large.extended {
+        width: inherit;
+        height: var(--_large-container-height);
+    }
+    &.large:not(.extended) {
         width: var(--_large-container-width);
         height: var(--_large-container-height);
     }
 
     /* Shape */
 
-    &.small {
-        border-start-start-radius: var(--_small-container-shape-start-start);
-        border-start-end-radius: var(--_small-container-shape-start-end);
-        border-end-start-radius: var(--_small-container-shape-end-start);
-        border-end-end-radius: var(--_small-container-shape-end-end);
-    }
-    &.medium {
+    &.baseline {
         border-start-start-radius: var(--_container-shape-start-start);
         border-start-end-radius: var(--_container-shape-start-end);
         border-end-start-radius: var(--_container-shape-end-start);
         border-end-end-radius: var(--_container-shape-end-end);
+    }
+    &.medium {
+        border-start-start-radius: var(--_medium-container-shape-start-start);
+        border-start-end-radius: var(--_medium-container-shape-start-end);
+        border-end-start-radius: var(--_medium-container-shape-end-start);
+        border-end-end-radius: var(--_medium-container-shape-end-end);
     }
     &.large {
         border-start-start-radius: var(--_large-container-shape-start-start);
@@ -133,26 +140,38 @@ $_md-sys-motion: tokens.md-sys-motion-values();
     }
 
     /* Padding */
-    // The default content is needed because we do a bit of trickery. If there is
-    // no slotted icon we need to have `padding-inline: 20px` but if there is, we
-    // need `padding-inline: 16px 20px`.
-    //
-    // So what this approach does is make the margin / padding-inline of the outer
-    // button `padding-inline: 16px 20px`, so if there is something slotted, it
-    // renders correctly. This default content span then fills the extra `4px`
-    // inline spacing if nothing is slotted which effectively makes the button's
-    // inline spacing `20px/20px`.
 
-    &.extended {
-        padding-inline-start: 16px;
-        padding-inline-end: 20px;
+    &.baseline.extended {
+        padding-inline-start: 12px;
+        padding-inline-end: 16px;
     }
-    &.extended .icon {
+    &.medium.extended {
+        padding-inline-start: 20px;
+        padding-inline-end: 26px;
+    }
+    &.large.extended {
+        padding-inline-start: 20px;
+        padding-inline-end: 28px;
+    }
+
+    &.baseline.extended .icon {
         padding-inline-start: 4px;
     }
+    &.medium.extended .icon {
+        padding-inline-start: 6px;
+    }
+    &.large.extended .icon {
+        padding-inline-start: 8px;
+    }
 
-    &.extended .icon {
+    &.has-icon.baseline.extended .icon {
+        margin-inline-end: 8px;
+    }
+    &.has-icon.medium.extended .icon {
         margin-inline-end: 12px;
+    }
+    &.has-icon.large.extended .icon {
+        margin-inline-end: 16px;
     }
 
     & [data-component='ripple'],
@@ -170,17 +189,17 @@ $_md-sys-motion: tokens.md-sys-motion-values();
 
     /* Icon */
 
-    &.small .icon [data-component='icon'] {
+    &.baseline .icon [data-component='icon'] {
         @include themes.md-comp-icon-theme(
             (
-                size: map.get($tokens, small-icon-size),
+                size: map.get($tokens, icon-size),
             )
         );
     }
     &.medium .icon [data-component='icon'] {
         @include themes.md-comp-icon-theme(
             (
-                size: map.get($tokens, icon-size),
+                size: map.get($tokens, medium-icon-size),
             )
         );
     }
@@ -192,24 +211,52 @@ $_md-sys-motion: tokens.md-sys-motion-values();
         );
     }
 
+    /* Typo */
+
     & .label {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+    }
+    &.baseline .label {
         font-family: var(--_label-text-font);
         font-size: var(--_label-text-size);
         line-height: var(--_label-text-line-height);
         font-weight: var(--_label-text-weight);
+        letter-spacing: var(--_label-text-tracking);
+    }
+    &.medium .label {
+        font-family: var(--_medium-label-text-font);
+        font-size: var(--_medium-label-text-size);
+        line-height: var(--_medium-label-text-line-height);
+        font-weight: var(--_medium-label-text-weight);
+        letter-spacing: var(--_medium-label-text-tracking);
+    }
+    &.large .label {
+        font-family: var(--_large-label-text-font);
+        font-size: var(--_large-label-text-size);
+        line-height: var(--_large-label-text-line-height);
+        font-weight: var(--_large-label-text-weight);
+        letter-spacing: var(--_large-label-text-tracking);
     }
 
     @media (forced-colors: active) {
         & {
             border: 1px solid ButtonText;
         }
-        &.extended {
-            // Adjust the padding-inline to account for the 1px border in HCM.
-            padding-inline-start: 15px;
-            padding-inline-end: 19px;
+        // Adjust the padding-inline to account for the 1px border in HCM.
+
+        &.baseline.extended {
+            padding-inline-start: 11px;
+            padding-inline-end: 15px;
+        }
+        &.medium.extended {
+            padding-inline-start: 19px;
+            padding-inline-end: 25px;
+        }
+        &.large.extended {
+            padding-inline-start: 19px;
+            padding-inline-end: 27px;
         }
     }
 }
