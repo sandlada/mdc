@@ -8,6 +8,4 @@ export { Typography } from './typography'
 
 export { vTypography } from './typography-directive'
 
-export { TypographyVariant, type TTypographyVariant } from './typography-variant'
-
-export { type TTypograhyProps, type TTypograhySlots } from './typography.definition'
+export { TypographyVariant, type TTypograhyProps, type TTypograhySlots, type TTypographyVariant } from './typography.definition'
