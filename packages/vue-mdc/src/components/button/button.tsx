@@ -25,6 +25,8 @@ export const Button = defineComponent({
          * Props
          */
         const _appearance = ref(props.appearance)
+        const _size = ref(props.size)
+        const _shape = ref(props.shape)
         const _disabled = ref(props.disabled)
         const _type = ref(props.type)
         const _href = ref(props.href)
@@ -36,6 +38,8 @@ export const Button = defineComponent({
         useReflectAttribute(root, {
             attributes: [
                 { attribute: 'appearance', ref: _appearance, reflect: true, type: 'string' },
+                { attribute: 'size', ref: _size, reflect: true, type: 'string' },
+                { attribute: 'shape', ref: _shape, reflect: true, type: 'string' },
                 { attribute: 'disabled', ref: _disabled, reflect: true, type: 'boolean' },
                 { attribute: 'type', ref: _type, reflect: true, type: 'string' },
                 { attribute: 'href', ref: _href, reflect: true, type: 'string' },
@@ -46,7 +50,7 @@ export const Button = defineComponent({
             ]
         })
 
-        const handleClick = (e: MouseEvent) => {
+        const handleClick = async (e: MouseEvent) => {
             if (_href.value && _disabled.value) {
                 e.stopImmediatePropagation()
                 e.preventDefault()
@@ -59,6 +63,7 @@ export const Button = defineComponent({
                 return
             }
             root.value?.addEventListener('click', handleClick)
+            root.value?.addEventListener('mouseenter', handleClick)
         })
 
         onBeforeUnmount(() => {
@@ -88,7 +93,7 @@ export const Button = defineComponent({
             const renderButtonWrapper = (
                 <button
                     data-component="button"
-                    class={[css[_appearance.value], iconState, _disabled.value && css.disabled]}
+                    class={[css[_appearance.value], iconState, _disabled.value && css.disabled, css[_size.value], css[_shape.value]]}
                     role='button'
                     ref={root}
                     tabindex={_disabled.value ? -1 : 0}
@@ -107,7 +112,7 @@ export const Button = defineComponent({
             const renderLinkWrapper = (
                 <a
                     data-component="button"
-                    class={[css[_appearance.value], iconState, _disabled.value && css.disabled]}
+                    class={[css[_appearance.value], iconState, _disabled.value && css.disabled, css[_size.value], css[_shape.value]]}
                     role='button'
                     ref={root}
                     tabindex={_disabled.value ? -1 : 0}

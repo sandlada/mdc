@@ -13,14 +13,9 @@
 @mixin styles() {
     & {
         all: unset;
-        border-start-start-radius: var(--_container-shape-start-start);
-        border-start-end-radius: var(--_container-shape-start-end);
-        border-end-start-radius: var(--_container-shape-end-start);
-        border-end-end-radius: var(--_container-shape-end-end);
         box-sizing: border-box;
         cursor: pointer;
         display: inline-flex;
-        gap: 8px;
         // min-height instead of height so that label can wrap and expand height
         min-height: var(--_container-height);
         outline: none;
@@ -30,8 +25,7 @@
         // bigger).
         $single-line-height: max(var(--_label-text-line-height), var(--_icon-size));
         padding-block: calc((var(--_container-height) - $single-line-height) / 2);
-        padding-inline-start: var(--_leading-space);
-        padding-inline-end: var(--_trailing-space);
+
         place-content: center;
         place-items: center;
         position: relative;
@@ -50,6 +44,137 @@
         // default "baseline" value causes buttons to be misaligned next to each
         // other if one button has an icon and the other does not.
         vertical-align: top;
+
+        transition-property: all;
+        transition-duration: 200ms;
+    }
+
+    /* Shape */
+
+    &.round {
+        &.extra-small {
+            border-start-start-radius: min(var(--_extra-small-container-shape-round-start-start), calc(var(--_extra-small-container-height) / 2));
+            border-start-end-radius: min(var(--_extra-small-container-shape-round-start-end), calc(var(--_extra-small-container-height) / 2));
+            border-end-start-radius: min(var(--_extra-small-container-shape-round-end-start), calc(var(--_extra-small-container-height) / 2));
+            border-end-end-radius: min(var(--_extra-small-container-shape-round-end-end), calc(var(--_extra-small-container-height) / 2));
+        }
+        &.small {
+            border-start-start-radius: min(var(--_small-container-shape-round-start-start), calc(var(--_small-container-height) / 2));
+            border-start-end-radius: min(var(--_small-container-shape-round-start-end), calc(var(--_small-container-height) / 2));
+            border-end-start-radius: min(var(--_small-container-shape-round-end-start), calc(var(--_small-container-height) / 2));
+            border-end-end-radius: min(var(--_small-container-shape-round-end-end), calc(var(--_small-container-height) / 2));
+        }
+        &.medium {
+            border-start-start-radius: min(var(--_medium-container-shape-round-start-start), calc(var(--_medium-container-height) / 2));
+            border-start-end-radius: min(var(--_medium-container-shape-round-start-end), calc(var(--_medium-container-height) / 2));
+            border-end-start-radius: min(var(--_medium-container-shape-round-end-start), calc(var(--_medium-container-height) / 2));
+            border-end-end-radius: min(var(--_medium-container-shape-round-end-end), calc(var(--_medium-container-height) / 2));
+        }
+        &.large {
+            border-start-start-radius: min(var(--_large-container-shape-round-start-start), calc(var(--_large-container-height) / 2));
+            border-start-end-radius: min(var(--_large-container-shape-round-start-end), calc(var(--_large-container-height) / 2));
+            border-end-start-radius: min(var(--_large-container-shape-round-end-start), calc(var(--_large-container-height) / 2));
+            border-end-end-radius: min(var(--_large-container-shape-round-end-end), calc(var(--_large-container-height) / 2));
+        }
+        &.extra-large {
+            border-start-start-radius: min(var(--_extra-large-container-shape-round-start-start), calc(var(--_extra-large-container-height) / 2));
+            border-start-end-radius: min(var(--_extra-large-container-shape-round-start-end), calc(var(--_extra-large-container-height) / 2));
+            border-end-start-radius: min(var(--_extra-large-container-shape-round-end-start), calc(var(--_extra-large-container-height) / 2));
+            border-end-end-radius: min(var(--_extra-large-container-shape-round-end-end), calc(var(--_extra-large-container-height) / 2));
+        }
+    }
+    &.square {
+        &.extra-small {
+            border-start-start-radius: min(var(--_extra-small-container-shape-square-start-start), calc(var(--_extra-small-container-height) / 2));
+            border-start-end-radius: min(var(--_extra-small-container-shape-square-start-end), calc(var(--_extra-small-container-height) / 2));
+            border-end-start-radius: min(var(--_extra-small-container-shape-square-end-start), calc(var(--_extra-small-container-height) / 2));
+            border-end-end-radius: min(var(--_extra-small-container-shape-square-end-end), calc(var(--_extra-small-container-height) / 2));
+        }
+        &.small {
+            border-start-start-radius: min(var(--_small-container-shape-square-start-start), calc(var(--_small-container-height) / 2));
+            border-start-end-radius: min(var(--_small-container-shape-square-start-end), calc(var(--_small-container-height) / 2));
+            border-end-start-radius: min(var(--_small-container-shape-square-end-start), calc(var(--_small-container-height) / 2));
+            border-end-end-radius: min(var(--_small-container-shape-square-end-end), calc(var(--_small-container-height) / 2));
+        }
+        &.medium {
+            border-start-start-radius: min(var(--_medium-container-shape-square-start-start), calc(var(--_medium-container-height) / 2));
+            border-start-end-radius: min(var(--_medium-container-shape-square-start-end), calc(var(--_medium-container-height) / 2));
+            border-end-start-radius: min(var(--_medium-container-shape-square-end-start), calc(var(--_medium-container-height) / 2));
+            border-end-end-radius: min(var(--_medium-container-shape-square-end-end), calc(var(--_medium-container-height) / 2));
+        }
+        &.large {
+            border-start-start-radius: min(var(--_large-container-shape-square-start-start), calc(var(--_large-container-height) / 2));
+            border-start-end-radius: min(var(--_large-container-shape-square-start-end), calc(var(--_large-container-height) / 2));
+            border-end-start-radius: min(var(--_large-container-shape-square-end-start), calc(var(--_large-container-height) / 2));
+            border-end-end-radius: min(var(--_large-container-shape-square-end-end), calc(var(--_large-container-height) / 2));
+        }
+        &.extra-large {
+            border-start-start-radius: min(var(--_extra-large-container-shape-square-start-start), calc(var(--_extra-large-container-height) / 2));
+            border-start-end-radius: min(var(--_extra-large-container-shape-square-start-end), calc(var(--_extra-large-container-height) / 2));
+            border-end-start-radius: min(var(--_extra-large-container-shape-square-end-start), calc(var(--_extra-large-container-height) / 2));
+            border-end-end-radius: min(var(--_extra-large-container-shape-square-end-end), calc(var(--_extra-large-container-height) / 2));
+        }
+    }
+
+    /* Size */
+    &.extra-small {
+        height: var(--_extra-small-container-height);
+    }
+    &.small {
+        height: var(--_small-container-height);
+    }
+    &.medium {
+        height: var(--_medium-container-height);
+    }
+    &.large {
+        height: var(--_large-container-height);
+    }
+    &.extra-large {
+        height: var(--_extra-large-container-height);
+    }
+
+    /* Spacing */
+    &.extra-small {
+        padding-inline-start: var(--_extra-small-leading-space);
+        padding-inline-end: var(--_extra-small-trailing-space);
+        gap: var(--_extra-small-between-icon-label-space);
+    }
+    &.small {
+        padding-inline-start: var(--_small-leading-space);
+        padding-inline-end: var(--_small-trailing-space);
+        gap: var(--_small-between-icon-label-space);
+    }
+    &.medium {
+        padding-inline-start: var(--_medium-leading-space);
+        padding-inline-end: var(--_medium-trailing-space);
+        gap: var(--_medium-between-icon-label-space);
+    }
+    &.large {
+        padding-inline-start: var(--_large-leading-space);
+        padding-inline-end: var(--_large-trailing-space);
+        gap: var(--_large-between-icon-label-space);
+    }
+    &.extra-large {
+        padding-inline-start: var(--_extra-large-leading-space);
+        padding-inline-end: var(--_extra-large-trailing-space);
+        gap: var(--_extra-large-between-icon-label-space);
+    }
+
+    /* Min Width */
+    &.extra-small {
+        min-width: calc(64px - var(--_extra-small-leading-space) - var(--_extra-small-trailing-space));
+    }
+    &.small {
+        min-width: calc(64px - var(--_small-leading-space) - var(--_small-trailing-space));
+    }
+    &.medium {
+        min-width: calc(64px - var(--_medium-leading-space) - var(--_medium-trailing-space));
+    }
+    &.large {
+        min-width: calc(64px - var(--_large-leading-space) - var(--_large-trailing-space));
+    }
+    &.extra-large {
+        min-width: calc(64px - var(--_extra-large-leading-space) - var(--_extra-large-trailing-space));
     }
 
     &:is([disabled], .disabled) {
@@ -72,7 +197,6 @@
         // Buttons have a default min-width of 64px. This can be overridden by
         // setting a smaller min-width on the host. The 64px button will be centered
         // within the bounds of the smaller host element.
-        min-width: calc(64px - var(--_leading-space) - var(--_trailing-space));
         width: 100%;
         z-index: 0; // Place content on top of elevation and ripple
         height: 100%;
@@ -147,16 +271,6 @@
         }
     }
 
-    &:has([data-component='icon']).left {
-        padding-inline-start: var(--_with-leading-icon-leading-space);
-        padding-inline-end: var(--_with-leading-icon-trailing-space);
-    }
-
-    &:has([data-component='icon']).right {
-        padding-inline-start: var(--_with-trailing-icon-leading-space);
-        padding-inline-end: var(--_with-trailing-icon-trailing-space);
-    }
-
     & .touch {
         position: absolute;
         top: 50%;
@@ -176,5 +290,40 @@
 
     & :is(.touch, .label, .background, .button, .outline) {
         pointer-events: none;
+    }
+
+    /* Selection Pressed */
+
+    &.togglable:active {
+        &.extra-small {
+            border-start-start-radius: var(--_extra-small-pressed-container-shape-morph-start-start);
+            border-start-end-radius: var(--_extra-small-pressed-container-shape-morph-start-end);
+            border-end-start-radius: var(--_extra-small-pressed-container-shape-morph-end-start);
+            border-end-end-radius: var(--_extra-small-pressed-container-shape-morph-end-end);
+        }
+        &.small {
+            border-start-start-radius: var(--_small-pressed-container-shape-morph-start-start);
+            border-start-end-radius: var(--_small-pressed-container-shape-morph-start-end);
+            border-end-start-radius: var(--_small-pressed-container-shape-morph-end-start);
+            border-end-end-radius: var(--_small-pressed-container-shape-morph-end-end);
+        }
+        &.medium {
+            border-start-start-radius: var(--_medium-pressed-container-shape-morph-start-start);
+            border-start-end-radius: var(--_medium-pressed-container-shape-morph-start-end);
+            border-end-start-radius: var(--_medium-pressed-container-shape-morph-end-start);
+            border-end-end-radius: var(--_medium-pressed-container-shape-morph-end-end);
+        }
+        &.large {
+            border-start-start-radius: var(--_large-pressed-container-shape-morph-start-start);
+            border-start-end-radius: var(--_large-pressed-container-shape-morph-start-end);
+            border-end-start-radius: var(--_large-pressed-container-shape-morph-end-start);
+            border-end-end-radius: var(--_large-pressed-container-shape-morph-end-end);
+        }
+        &.extra-large {
+            border-start-start-radius: var(--_extra-large-pressed-container-shape-morph-start-start);
+            border-start-end-radius: var(--_extra-large-pressed-container-shape-morph-start-end);
+            border-end-start-radius: var(--_extra-large-pressed-container-shape-morph-end-start);
+            border-end-end-radius: var(--_extra-large-pressed-container-shape-morph-end-end);
+        }
     }
 }

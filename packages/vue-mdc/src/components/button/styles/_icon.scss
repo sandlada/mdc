@@ -24,10 +24,40 @@
         font-size: var(--_icon-size);
         inline-size: var(--_icon-size);
         block-size: var(--_icon-size);
+    }
 
+    &.extra-small [data-component='icon'] {
         @include themes.md-comp-icon-theme(
             (
-                size: var(--_icon-size),
+                size: var(--_extra-small-icon-size),
+            )
+        );
+    }
+    &.small [data-component='icon'] {
+        @include themes.md-comp-icon-theme(
+            (
+                size: var(--_small-icon-size),
+            )
+        );
+    }
+    &.medium [data-component='icon'] {
+        @include themes.md-comp-icon-theme(
+            (
+                size: var(--_medium-icon-size),
+            )
+        );
+    }
+    &.large [data-component='icon'] {
+        @include themes.md-comp-icon-theme(
+            (
+                size: var(--_large-icon-size),
+            )
+        );
+    }
+    &.extra-large [data-component='icon'] {
+        @include themes.md-comp-icon-theme(
+            (
+                size: var(--_extra-large-icon-size),
             )
         );
     }

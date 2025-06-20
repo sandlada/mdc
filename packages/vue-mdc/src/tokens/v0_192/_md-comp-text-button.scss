@@ -2,14 +2,11 @@
 // Copyright 2023 Google LLC
 // SPDX-License-Identifier: Apache-2.0
 //
+// [Modified by Sandlada & Kai Orion]
 //
-// !!! THIS FILE WAS AUTOMATICALLY GENERATED !!!
-// !!! DO NOT MODIFY IT BY HAND !!!
-// Design system display name: Google Material 3
-// Design system version: v0.192
-// User-configured context group "Audience": "3P"
-// User-configured context group "Platform": "Web"
-// User-configured context group "Scheme": "Dynamic"
+// @license
+// Copyright 2025 Sandlada & Kai Orion
+// SPDX-License-Identifier: MIT
 //
 
 @use 'sass:map';
@@ -27,8 +24,58 @@ $_default: (
 
 @function values($deps: $_default, $exclude-hardcoded-values: false) {
     @return (
-        'container-height': if($exclude-hardcoded-values, null, 40px),
-        'container-shape': map.get($deps, 'md-sys-shape', 'corner-full'),
+        'extra-small-container-height': if($exclude-hardcoded-values, null, 32px),
+        'small-container-height': if($exclude-hardcoded-values, null, 40px),
+        'medium-container-height': if($exclude-hardcoded-values, null, 56px),
+        'large-container-height': if($exclude-hardcoded-values, null, 96px),
+        'extra-large-container-height': if($exclude-hardcoded-values, null, 136px),
+        'extra-small-icon-size': if($exclude-hardcoded-values, null, 20px),
+        'small-icon-size': if($exclude-hardcoded-values, null, 20px),
+        'medium-icon-size': if($exclude-hardcoded-values, null, 24px),
+        'large-icon-size': if($exclude-hardcoded-values, null, 32px),
+        'extra-large-icon-size': if($exclude-hardcoded-values, null, 40px),
+        'extra-small-container-shape-round': map.get($deps, 'md-sys-shape', 'corner-full'),
+        'small-container-shape-round': map.get($deps, 'md-sys-shape', 'corner-full'),
+        'medium-container-shape-round': map.get($deps, 'md-sys-shape', 'corner-full'),
+        'large-container-shape-round': map.get($deps, 'md-sys-shape', 'corner-full'),
+        'extra-large-container-shape-round': map.get($deps, 'md-sys-shape', 'corner-full'),
+        'extra-small-container-shape-square': map.get($deps, 'md-sys-shape', 'corner-medium'),
+        'small-container-shape-square': map.get($deps, 'md-sys-shape', 'corner-medium'),
+        'medium-container-shape-square': map.get($deps, 'md-sys-shape', 'corner-large'),
+        'large-container-shape-square': map.get($deps, 'md-sys-shape', 'corner-extra-large'),
+        'extra-large-container-shape-square': map.get($deps, 'md-sys-shape', 'corner-extra-large'),
+        'extra-small-leading-space': if($exclude-hardcoded-values, null, 12px),
+        'small-leading-space': if($exclude-hardcoded-values, null, 16px),
+        'medium-leading-space': if($exclude-hardcoded-values, null, 24px),
+        'large-leading-space': if($exclude-hardcoded-values, null, 48px),
+        'extra-large-leading-space': if($exclude-hardcoded-values, null, 64px),
+        'extra-small-between-icon-label-space': if($exclude-hardcoded-values, null, 8px),
+        'small-between-icon-label-space': if($exclude-hardcoded-values, null, 8px),
+        'medium-between-icon-label-space': if($exclude-hardcoded-values, null, 8px),
+        'large-between-icon-label-space': if($exclude-hardcoded-values, null, 12px),
+        'extra-large-between-icon-label-space': if($exclude-hardcoded-values, null, 16px),
+        'extra-small-trailing-space': if($exclude-hardcoded-values, null, 12px),
+        'small-trailing-space': if($exclude-hardcoded-values, null, 16px),
+        'medium-trailing-space': if($exclude-hardcoded-values, null, 24px),
+        'large-trailing-space': if($exclude-hardcoded-values, null, 48px),
+        'extra-large-trailing-space': if($exclude-hardcoded-values, null, 64px),
+        'extra-small-pressed-container-shape-morph': map.get($deps, 'md-sys-shape', 'corner-small'),
+        'small-pressed-container-shape-morph': map.get($deps, 'md-sys-shape', 'corner-small'),
+        'medium-pressed-container-shape-morph': map.get($deps, 'md-sys-shape', 'corner-medium'),
+        'large-pressed-container-shape-morph': map.get($deps, 'md-sys-shape', 'corner-large'),
+        'extra-large-pressed-container-shape-morph': map.get($deps, 'md-sys-shape', 'corner-large'),
+        'extra-small-toggle-selected-container-shape-round': map.get($deps, 'md-sys-shape', 'corner-medium'),
+        'small-toggle-selected-container-shape-round': map.get($deps, 'md-sys-shape', 'corner-medium'),
+        'medium-toggle-selected-container-shape-round': map.get($deps, 'md-sys-shape', 'corner-large'),
+        'large-toggle-selected-container-shape-round': map.get($deps, 'md-sys-shape', 'corner-extra-large'),
+        'extra-large-toggle-selected-container-shape-round': map.get($deps, 'md-sys-shape', 'corner-extra-large'),
+        'extra-small-toggle-selected-container-shape-square': map.get($deps, 'md-sys-shape', 'corner-full'),
+        'small-toggle-selected-container-shape-square': map.get($deps, 'md-sys-shape', 'corner-full'),
+        'medium-toggle-selected-container-shape-square': map.get($deps, 'md-sys-shape', 'corner-full'),
+        'large-toggle-selected-container-shape-square': map.get($deps, 'md-sys-shape', 'corner-full'),
+        'extra-large-toggle-selected-container-shape-square': map.get($deps, 'md-sys-shape', 'corner-full'),
+        'disabled-container-color': map.get($deps, 'md-sys-color', 'on-surface'),
+        'disabled-container-opacity': if($exclude-hardcoded-values, null, 0.1),
         'disabled-label-text-color': map.get($deps, 'md-sys-color', 'on-surface'),
         'disabled-label-text-opacity': if($exclude-hardcoded-values, null, 0.38),
         'focus-label-text-color': map.get($deps, 'md-sys-color', 'primary'),
@@ -42,23 +89,21 @@ $_default: (
         'label-text-line-height': map.get($deps, 'md-sys-typescale', 'label-large-line-height'),
         'label-text-size': map.get($deps, 'md-sys-typescale', 'label-large-size'),
         'label-text-tracking': map.get($deps, 'md-sys-typescale', 'label-large-tracking'),
-        'label-text-type':
-            /** Warning: risk of reduced fidelity from using this composite typography token. Tokens md.comp.text-button.label-text.tracking cannot be represented in the "font" property shorthand. Consider using the discrete properties instead. */
-            if(
-                $exclude-hardcoded-values,
-                null,
-                map.get($deps, 'md-sys-typescale', 'label-large-weight') map.get($deps, 'md-sys-typescale', 'label-large-size') #{'/'} map.get($deps, 'md-sys-typescale', 'label-large-line-height') map.get($deps, 'md-sys-typescale', 'label-large-font')
-            ),
         'label-text-weight': map.get($deps, 'md-sys-typescale', 'label-large-weight'),
         'pressed-label-text-color': map.get($deps, 'md-sys-color', 'primary'),
         'pressed-state-layer-color': map.get($deps, 'md-sys-color', 'primary'),
         'pressed-state-layer-opacity': map.get($deps, 'md-sys-state', 'pressed-state-layer-opacity'),
-        'with-icon-disabled-icon-color': map.get($deps, 'md-sys-color', 'on-surface'),
-        'with-icon-disabled-icon-opacity': if($exclude-hardcoded-values, null, 0.38),
-        'with-icon-focus-icon-color': map.get($deps, 'md-sys-color', 'primary'),
-        'with-icon-hover-icon-color': map.get($deps, 'md-sys-color', 'primary'),
-        'with-icon-icon-color': map.get($deps, 'md-sys-color', 'primary'),
-        'with-icon-icon-size': if($exclude-hardcoded-values, null, 18px),
-        'with-icon-pressed-icon-color': map.get($deps, 'md-sys-color', 'primary')
+        'disabled-icon-color': map.get($deps, 'md-sys-color', 'on-surface'),
+        'disabled-icon-opacity': if($exclude-hardcoded-values, null, 0.38),
+        'focus-icon-color': map.get($deps, 'md-sys-color', 'primary'),
+        'hover-icon-color': map.get($deps, 'md-sys-color', 'primary'),
+        'icon-color': map.get($deps, 'md-sys-color', 'primary'),
+        'pressed-icon-color': map.get($deps, 'md-sys-color', 'primary'),
+        'label-text-type':
+            if(
+                $exclude-hardcoded-values,
+                null,
+                map.get($deps, 'md-sys-typescale', 'label-large-weight') map.get($deps, 'md-sys-typescale', 'label-large-size') #{'/'} map.get($deps, 'md-sys-typescale', 'label-large-line-height') map.get($deps, 'md-sys-typescale', 'label-large-font')
+            )
     );
 }

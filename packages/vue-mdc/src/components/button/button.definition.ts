@@ -18,10 +18,35 @@ export const ButtonAppearance = {
 
 export type TButtonAppearance = typeof ButtonAppearance[keyof typeof ButtonAppearance]
 
+export const ButtonSize = {
+    ExtraSmall: 'extra-small',
+    Small: 'small',
+    Medium: 'medium',
+    Large: 'large',
+    ExtraLarge: 'extra-large',
+} as const
+
+export const ButtonShape = {
+    Round: 'round',
+    Suare: 'square',
+} as const
+
+export type TButtonShape = typeof ButtonShape[keyof typeof ButtonShape]
+
+export type TButtonSize = typeof ButtonSize[keyof typeof ButtonSize]
+
 export const props = {
     appearance: {
         type: String as PropType<TButtonAppearance>,
         default: ButtonAppearance.Filled,
+    },
+    size: {
+        type: String as PropType<TButtonSize>,
+        default: ButtonSize.Small,
+    },
+    shape: {
+        type: String as PropType<TButtonShape>,
+        default: ButtonShape.Round,
     },
     disabled: {
         type: Boolean,

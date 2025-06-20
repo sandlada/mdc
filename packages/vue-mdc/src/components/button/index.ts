@@ -6,4 +6,4 @@
 
 export { Button } from './button'
 
-export { ButtonAppearance, type TButtonAppearance, type TButtonProps, type TButtonSlots } from './button.definition'
+export { ButtonAppearance, ButtonShape, ButtonSize, type TButtonAppearance, type TButtonProps, type TButtonShape, type TButtonSize, type TButtonSlots } from './button.definition'
