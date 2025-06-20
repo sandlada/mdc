@@ -1,6 +1,6 @@
 {
-    "name": "@glare-labs/vue-mdc",
-    "version": "0.0.1-pre.2.1",
+    "name": "@sandlada/vue-mdc",
+    "version": "0.1.0-pre.1000",
     "publishConfig": {
         "access": "public"
     },
@@ -9,12 +9,12 @@
     "author": "bre97-web",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/glare-labs/vue-mdc.git"
+        "url": "git+https://github.com/sandlada/vue-mdc.git"
     },
     "bugs": {
-        "url": "https://github.com/glare-labs/vue-mdc/issues"
+        "url": "https://github.com/sandlada/vue-mdc/issues"
     },
-    "homepage": "https://github.com/glare-labs/vue-mdc",
+    "homepage": "https://github.com/sandlada/vue-mdc",
     "keywords": [
         "vue",
         "components",
@@ -28,145 +28,176 @@
         "ui"
     ],
     "devDependencies": {
-        "@rollup/plugin-node-resolve": "^15.3.0",
-        "@types/node": "22.7.4",
-        "@vitejs/plugin-vue-jsx": "^4.0.1",
-        "autoprefixer": "^10.4.20",
-        "postcss": "^8.4.47",
-        "postcss-nesting": "^13.0.0",
-        "sass": "^1.79.4",
-        "terser": "^5.34.1",
-        "typescript": "~5.6.2",
-        "vite": "^5.4.8",
-        "vite-plugin-dts": "^4.2.3",
-        "vue": "^3.5.11"
+        "@glare-labs/vue-reflect-attribute": "^0.0.1-pre.2",
+        "@rollup/plugin-node-resolve": "^16.0.1",
+        "@rollup/plugin-typescript": "^12.1.3",
+        "@types/node": "24.0.3",
+        "@vitejs/plugin-vue-jsx": "^4.2.0",
+        "autoprefixer": "^10.4.21",
+        "magic-string": "^0.30.17",
+        "postcss": "^8.5.6",
+        "rollup": "^4.44.0",
+        "sass": "^1.89.2",
+        "terser": "^5.43.1",
+        "tslib": "^2.8.1",
+        "typescript": "~5.8.3",
+        "vite": "^6.3.5",
+        "vue": "^3.5.17"
     },
     "scripts": {
-        "build": "npx vite build && node ./scripts/bundle-size.js",
-        "bundle-size": "node ./scripts/bundle-size.js"
+        "build": "npx vite build"
     },
     "main": "build/index.js",
     "module": "build/index.js",
     "exports": {
+        "./bottom-app-bar": {
+            "import": "./build/components/bottom-app-bar/index.js",
+            "types": "./build/components/bottom-app-bar/index.d.ts",
+            "default": "./build/components/bottom-app-bar/index.js"
+        },
+        "./banner": {
+            "import": "./build/components/banner/index.js",
+            "types": "./build/components/banner/index.d.ts",
+            "default": "./build/components/banner/index.js"
+        },
         "./button": {
-            "import": "./build/button.js",
-            "default": "./build/button.js",
-            "types": "./build/components/button/index.d.ts"
+            "import": "./build/components/button/index.js",
+            "types": "./build/components/button/index.d.ts",
+            "default": "./build/components/button/index.js"
         },
         "./checkbox": {
-            "import": "./build/checkbox.js",
-            "default": "./build/checkbox.js",
-            "types": "./build/components/checkbox/index.d.ts"
-        },
-        "./dialog": {
-            "import": "./build/dialog.js",
-            "default": "./build/dialog.js",
-            "types": "./build/components/dialog/index.d.ts"
-        },
-        "./divider": {
-            "import": "./build/divider.js",
-            "default": "./build/divider.js",
-            "types": "./build/components/divider/index.d.ts"
-        },
-        "./elevation": {
-            "import": "./build/elevation.js",
-            "default": "./build/elevation.js",
-            "types": "./build/components/elevation/index.d.ts"
-        },
-        "./fab": {
-            "import": "./build/fab.js",
-            "default": "./build/fab.js",
-            "types": "./build/components/fab/index.d.ts"
-        },
-        "./field": {
-            "import": "./build/field.js",
-            "default": "./build/field.js",
-            "types": "./build/components/field/index.d.ts"
-        },
-        "./focus-ring": {
-            "import": "./build/focus-ring.js",
-            "default": "./build/focus-ring.js",
-            "types": "./build/components/focus-ring/index.d.ts"
-        },
-        "./icon": {
-            "import": "./build/icon.js",
-            "default": "./build/icon.js",
-            "types": "./build/components/icon/index.d.ts"
-        },
-        "./icon-button": {
-            "import": "./build/icon-button.js",
-            "default": "./build/icon-button.js",
-            "types": "./build/components/icon-button/index.d.ts"
-        },
-        "./navigation-bar": {
-            "import": "./build/navigation-bar.js",
-            "default": "./build/navigation-bar.js",
-            "types": "./build/components/navigation-bar/index.d.ts"
-        },
-        "./navigation-tab": {
-            "import": "./build/navigation-tab.js",
-            "default": "./build/navigation-tab.js",
-            "types": "./build/components/navigation-tab/index.d.ts"
-        },
-        "./navigation-rail": {
-            "import": "./build/navigation-rail.js",
-            "default": "./build/navigation-rail.js",
-            "types": "./build/components/navigation-rail/index.d.ts"
-        },
-        "./navigation-rail-tab": {
-            "import": "./build/navigation-rail-tab.js",
-            "default": "./build/navigation-rail-tab.js",
-            "types": "./build/components/navigation-rail-tab/index.d.ts"
-        },
-        "./progress": {
-            "import": "./build/progress.js",
-            "default": "./build/progress.js",
-            "types": "./build/components/progress/index.d.ts"
-        },
-        "./provider": {
-            "import": "./build/provider.js",
-            "default": "./build/provider.js",
-            "types": "./build/components/provider/index.d.ts"
-        },
-        "./radio": {
-            "import": "./build/radio.js",
-            "default": "./build/radio.js",
-            "types": "./build/components/radio/index.d.ts"
-        },
-        "./ripple": {
-            "import": "./build/ripple.js",
-            "default": "./build/ripple.js",
-            "types": "./build/components/ripple/index.d.ts"
-        },
-        "./switch": {
-            "import": "./build/switch.js",
-            "default": "./build/switch.js",
-            "types": "./build/components/switch/index.d.ts"
-        },
-        "./typography": {
-            "import": "./build/typography.js",
-            "default": "./build/typography.js",
-            "types": "./build/components/typography/index.d.ts"
+            "import": "./build/components/checkbox/index.js",
+            "types": "./build/components/checkbox/index.d.ts",
+            "default": "./build/components/checkbox/index.js"
         },
         "./component-register": {
-            "import": "./build/component-register.js",
-            "default": "./build/component-register.js",
-            "types": "./build/component-register/index.d.ts"
+            "import": "./build/component-register/index.js",
+            "types": "./build/component-register/index.d.ts",
+            "default": "./build/component-register/index.js"
         },
-        "./colors": {
-            "import": "./build/colors.js",
-            "default": "./build/colors.js",
-            "types": "./build/colors/index.d.ts"
+        "./dialog": {
+            "import": "./build/components/dialog/index.js",
+            "types": "./build/components/dialog/index.d.ts",
+            "default": "./build/components/dialog/index.js"
         },
-        "./utils": {
-            "import": "./build/utils.js",
-            "default": "./build/utils.js",
-            "types": "./build/utils/index.d.ts"
+        "./divider": {
+            "import": "./build/components/divider/index.js",
+            "types": "./build/components/divider/index.d.ts",
+            "default": "./build/components/divider/index.js"
+        },
+        "./elevation": {
+            "import": "./build/components/elevation/index.js",
+            "types": "./build/components/elevation/index.d.ts",
+            "default": "./build/components/elevation/index.js"
+        },
+        "./fab": {
+            "import": "./build/components/fab/index.js",
+            "types": "./build/components/fab/index.d.ts",
+            "default": "./build/components/fab/index.js"
+        },
+        "./field": {
+            "import": "./build/components/field/index.js",
+            "types": "./build/components/field/index.d.ts",
+            "default": "./build/components/field/index.js"
+        },
+        "./focus-ring": {
+            "import": "./build/components/focus-ring/index.js",
+            "types": "./build/components/focus-ring/index.d.ts",
+            "default": "./build/components/focus-ring/index.js"
+        },
+        "./icon-button": {
+            "import": "./build/components/icon-button/index.js",
+            "types": "./build/components/icon-button/index.d.ts",
+            "default": "./build/components/icon-button/index.js"
+        },
+        "./icon": {
+            "import": "./build/components/icon/index.js",
+            "types": "./build/components/icon/index.d.ts",
+            "default": "./build/components/icon/index.js"
         },
         "./internals": {
-            "import": "./build/internals.js",
-            "default": "./build/internals.js",
-            "types": "./build/internals/index.d.ts"
+            "import": "./build/internals/index.js",
+            "types": "./build/internals/index.d.ts",
+            "default": "./build/internals/index.js"
+        },
+        "./navigation-bar": {
+            "import": "./build/components/navigation-bar/index.js",
+            "types": "./build/components/navigation-bar/index.d.ts",
+            "default": "./build/components/navigation-bar/index.js"
+        },
+        "./navigation-drawer": {
+            "import": "./build/components/navigation-drawer/index.js",
+            "types": "./build/components/navigation-drawer/index.d.ts",
+            "default": "./build/components/navigation-drawer/index.js"
+        },
+        "./navigation-rail-tab": {
+            "import": "./build/components/navigation-rail-tab/index.js",
+            "types": "./build/components/navigation-rail-tab/index.d.ts",
+            "default": "./build/components/navigation-rail-tab/index.js"
+        },
+        "./navigation-rail": {
+            "import": "./build/components/navigation-rail/index.js",
+            "types": "./build/components/navigation-rail/index.d.ts",
+            "default": "./build/components/navigation-rail/index.js"
+        },
+        "./navigation-tab": {
+            "import": "./build/components/navigation-tab/index.js",
+            "types": "./build/components/navigation-tab/index.d.ts",
+            "default": "./build/components/navigation-tab/index.js"
+        },
+        "./progress": {
+            "import": "./build/components/progress/index.js",
+            "types": "./build/components/progress/index.d.ts",
+            "default": "./build/components/progress/index.js"
+        },
+        "./provider": {
+            "import": "./build/components/provider/index.js",
+            "types": "./build/components/provider/index.d.ts",
+            "default": "./build/components/provider/index.js"
+        },
+        "./radio": {
+            "import": "./build/components/radio/index.js",
+            "types": "./build/components/radio/index.d.ts",
+            "default": "./build/components/radio/index.js"
+        },
+        "./ripple": {
+            "import": "./build/components/ripple/index.js",
+            "types": "./build/components/ripple/index.d.ts",
+            "default": "./build/components/ripple/index.js"
+        },
+        "./split-button": {
+            "import": "./build/components/split-button/index.js",
+            "types": "./build/components/split-button/index.d.ts",
+            "default": "./build/components/split-button/index.js"
+        },
+        "./switch": {
+            "import": "./build/components/switch/index.js",
+            "types": "./build/components/switch/index.d.ts",
+            "default": "./build/components/switch/index.js"
+        },
+        "./tooltip": {
+            "import": "./build/components/tooltip/index.js",
+            "types": "./build/components/tooltip/index.d.ts",
+            "default": "./build/components/tooltip/index.js"
+        },
+        "./typography": {
+            "import": "./build/components/typography/index.js",
+            "types": "./build/components/typography/index.d.ts",
+            "default": "./build/components/typography/index.js"
+        },
+        "./utils": {
+            "import": "./build/utils/index.js",
+            "types": "./build/utils/index.d.ts",
+            "default": "./build/utils/index.js"
+        },
+        "./css/*": {
+            "import": "./build/css/*",
+            "default": "./build/css/*"
+        },
+        ".": {
+            "import": "./build/index.js",
+            "types": "./build/index.d.ts",
+            "default": "./build/index.js"
         },
         "./*": {
             "import": "./*",
@@ -174,9 +205,13 @@
         }
     },
     "files": [
-        "build/**/*"
+        "build/**/*",
+        "src/**/*",
+        "LICENSES/**/*",
+        "LICENSE",
+        "README.md"
     ],
-    "dependencies": {
-        "@glare-labs/vue-reflect-attribute": "^0.0.1-pre.1"
+    "peerDependencies": {
+        "vue": "^3.0.0"
     }
 }
