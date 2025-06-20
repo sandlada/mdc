@@ -2,6 +2,12 @@
 // Copyright 2023 Google LLC
 // SPDX-License-Identifier: Apache-2.0
 //
+// [Modified by Sandlada & Kai Orion]
+//
+// @license
+// Copyright 2025 Sandlada & Kai Orion
+// SPDX-License-Identifier: MIT
+//
 
 @use 'sass:map';
 @use 'sass:string';
@@ -12,16 +18,24 @@
 @use './md-sys-shape';
 @use './md-sys-state';
 @use './md-sys-typescale';
-@use './v0_192/md-comp-extended-fab-primary';
-@use './v0_192/md-comp-extended-fab-secondary';
-@use './v0_192/md-comp-extended-fab-surface';
-@use './v0_192/md-comp-extended-fab-tertiary';
-@use './v0_192/md-comp-fab-primary';
-@use './v0_192/md-comp-fab-secondary';
-@use './v0_192/md-comp-fab-surface';
+@use './v0_192/md-comp-extended-fab-primary-baseline';
+@use './v0_192/md-comp-extended-fab-secondary-baseline';
+@use './v0_192/md-comp-extended-fab-tertiary-baseline';
+@use './v0_192/md-comp-extended-fab-tonal-primary-baseline';
+@use './v0_192/md-comp-extended-fab-tonal-secondary-baseline';
+@use './v0_192/md-comp-extended-fab-tonal-tertiary-baseline';
+@use './v0_192/md-comp-extended-fab-surface-baseline';
+@use './v0_192/md-comp-extended-fab-surface-medium';
+@use './v0_192/md-comp-extended-fab-surface-large';
+@use './v0_192/md-comp-fab-primary-baseline';
+@use './v0_192/md-comp-fab-secondary-baseline';
+@use './v0_192/md-comp-fab-tertiary-baseline';
+@use './v0_192/md-comp-fab-tonal-primary-baseline';
+@use './v0_192/md-comp-fab-tonal-secondary-baseline';
+@use './v0_192/md-comp-fab-tonal-tertiary-baseline';
+@use './v0_192/md-comp-fab-surface-baseline';
+@use './v0_192/md-comp-fab-surface-medium';
 @use './v0_192/md-comp-fab-surface-large';
-@use './v0_192/md-comp-fab-surface-small';
-@use './v0_192/md-comp-fab-tertiary';
 
 $supported-tokens: (
     'container-color',
@@ -49,6 +63,19 @@ $supported-tokens: (
     'label-text-line-height',
     'label-text-size',
     'label-text-weight',
+    'label-text-tracking',
+    'medium-container-height',
+    'medium-container-shape',
+    'medium-container-shape-end-end',
+    'medium-container-shape-end-start',
+    'medium-container-shape-start-end',
+    'medium-container-shape-start-start',
+    'medium-container-width',
+    'medium-icon-size',
+    'medium-label-text-font',
+    'medium-label-text-line-height',
+    'medium-label-text-size',
+    'medium-label-text-weight',
     'large-container-height',
     'large-container-shape',
     'large-container-shape-end-end',
@@ -57,6 +84,10 @@ $supported-tokens: (
     'large-container-shape-start-start',
     'large-container-width',
     'large-icon-size',
+    'large-label-text-font',
+    'large-label-text-line-height',
+    'large-label-text-size',
+    'large-label-text-weight',
     'lowered-container-color',
     'lowered-container-elevation',
     'lowered-focus-container-elevation',
@@ -78,6 +109,17 @@ $supported-tokens: (
     'primary-pressed-icon-color',
     'primary-pressed-label-text-color',
     'primary-pressed-state-layer-color',
+    'tonal-primary-container-color',
+    'tonal-primary-focus-icon-color',
+    'tonal-primary-focus-label-text-color',
+    'tonal-primary-hover-icon-color',
+    'tonal-primary-hover-label-text-color',
+    'tonal-primary-hover-state-layer-color',
+    'tonal-primary-icon-color',
+    'tonal-primary-label-text-color',
+    'tonal-primary-pressed-icon-color',
+    'tonal-primary-pressed-label-text-color',
+    'tonal-primary-pressed-state-layer-color',
     'secondary-container-color',
     'secondary-focus-icon-color',
     'secondary-focus-label-text-color',
@@ -89,14 +131,17 @@ $supported-tokens: (
     'secondary-pressed-icon-color',
     'secondary-pressed-label-text-color',
     'secondary-pressed-state-layer-color',
-    'small-container-height',
-    'small-container-shape',
-    'small-container-shape-end-end',
-    'small-container-shape-end-start',
-    'small-container-shape-start-end',
-    'small-container-shape-start-start',
-    'small-container-width',
-    'small-icon-size',
+    'tonal-secondary-container-color',
+    'tonal-secondary-focus-icon-color',
+    'tonal-secondary-focus-label-text-color',
+    'tonal-secondary-hover-icon-color',
+    'tonal-secondary-hover-label-text-color',
+    'tonal-secondary-hover-state-layer-color',
+    'tonal-secondary-icon-color',
+    'tonal-secondary-label-text-color',
+    'tonal-secondary-pressed-icon-color',
+    'tonal-secondary-pressed-label-text-color',
+    'tonal-secondary-pressed-state-layer-color',
     'tertiary-container-color',
     'tertiary-focus-icon-color',
     'tertiary-focus-label-text-color',
@@ -107,39 +152,67 @@ $supported-tokens: (
     'tertiary-label-text-color',
     'tertiary-pressed-icon-color',
     'tertiary-pressed-label-text-color',
-    'tertiary-pressed-state-layer-color'
+    'tertiary-pressed-state-layer-color',
+    'tonal-tertiary-container-color',
+    'tonal-tertiary-focus-icon-color',
+    'tonal-tertiary-focus-label-text-color',
+    'tonal-tertiary-hover-icon-color',
+    'tonal-tertiary-hover-label-text-color',
+    'tonal-tertiary-hover-state-layer-color',
+    'tonal-tertiary-icon-color',
+    'tonal-tertiary-label-text-color',
+    'tonal-tertiary-pressed-icon-color',
+    'tonal-tertiary-pressed-label-text-color',
+    'tonal-tertiary-pressed-state-layer-color'
 );
 
 // prettier-ignore
 $unsupported-tokens: (
     'focus-state-layer-color',
-    'focus-state-layer-opacity'
+    'focus-state-layer-opacity',
+    'label-text-type',
 );
 
 @function _get-new-tokens($deps, $exclude-hardcoded-values) {
+    // For Container Size
     $large-tokens: md-comp-fab-surface-large.values($deps, $exclude-hardcoded-values);
-    $small-tokens: md-comp-fab-surface-small.values($deps, $exclude-hardcoded-values);
-    $primary-tokens: md-comp-fab-primary.values($deps, $exclude-hardcoded-values);
-    $secondary-tokens: md-comp-fab-secondary.values($deps, $exclude-hardcoded-values);
-    $tertiary-tokens: md-comp-fab-tertiary.values($deps, $exclude-hardcoded-values);
-    $extended-surface-tokens: md-comp-extended-fab-surface.values($deps, $exclude-hardcoded-values);
-    $extended-primary-tokens: md-comp-extended-fab-primary.values($deps, $exclude-hardcoded-values);
-    $extended-secondary-tokens: md-comp-extended-fab-secondary.values($deps, $exclude-hardcoded-values);
-    $extended-tertiary-tokens: md-comp-extended-fab-tertiary.values($deps, $exclude-hardcoded-values);
+    $medium-tokens: md-comp-fab-surface-medium.values($deps, $exclude-hardcoded-values);
+
+    // For Color
+    $primary-tokens: md-comp-fab-primary-baseline.values($deps, $exclude-hardcoded-values);
+    $secondary-tokens: md-comp-fab-secondary-baseline.values($deps, $exclude-hardcoded-values);
+    $tertiary-tokens: md-comp-fab-tertiary-baseline.values($deps, $exclude-hardcoded-values);
+    $tonal-primary-tokens: md-comp-fab-tonal-primary-baseline.values($deps, $exclude-hardcoded-values);
+    $tonal-secondary-tokens: md-comp-fab-tonal-secondary-baseline.values($deps, $exclude-hardcoded-values);
+    $tonal-tertiary-tokens: md-comp-fab-tonal-tertiary-baseline.values($deps, $exclude-hardcoded-values);
+    $extended-primary-tokens: md-comp-extended-fab-primary-baseline.values($deps, $exclude-hardcoded-values);
+    $extended-secondary-tokens: md-comp-extended-fab-secondary-baseline.values($deps, $exclude-hardcoded-values);
+    $extended-tertiary-tokens: md-comp-extended-fab-tertiary-baseline.values($deps, $exclude-hardcoded-values);
+    $extended-tonal-primary-tokens: md-comp-extended-fab-tonal-primary-baseline.values($deps, $exclude-hardcoded-values);
+    $extended-tonal-secondary-tokens: md-comp-extended-fab-tonal-secondary-baseline.values($deps, $exclude-hardcoded-values);
+    $extended-tonal-tertiary-tokens: md-comp-extended-fab-tonal-tertiary-baseline.values($deps, $exclude-hardcoded-values);
+
+    // For Label
+    $label-medium-tokens: md-comp-extended-fab-surface-medium.values($deps, $exclude-hardcoded-values);
+    $label-large-tokens: md-comp-extended-fab-surface-large.values($deps, $exclude-hardcoded-values);
 
     @return (
-        'focus-label-text-color': map.get($extended-surface-tokens, 'focus-label-text-color'),
-        'hover-label-text-color': map.get($extended-surface-tokens, 'hover-label-text-color'),
-        'label-text-color': map.get($extended-surface-tokens, 'label-text-color'),
-        'label-text-font': map.get($extended-surface-tokens, 'label-text-font'),
-        'label-text-line-height': map.get($extended-surface-tokens, 'label-text-line-height'),
-        'label-text-size': map.get($extended-surface-tokens, 'label-text-size'),
-        'label-text-weight': map.get($extended-surface-tokens, 'label-text-weight'),
+        'medium-container-height': map.get($medium-tokens, 'container-height'),
+        'medium-container-shape': map.get($medium-tokens, 'container-shape'),
+        'medium-container-width': map.get($medium-tokens, 'container-width'),
+        'medium-icon-size': map.get($medium-tokens, 'icon-size'),
+        'medium-label-text-font': map.get($label-medium-tokens, 'label-text-font'),
+        'medium-label-text-line-height': map.get($label-medium-tokens, 'label-text-line-height'),
+        'medium-label-text-size': map.get($label-medium-tokens, 'label-text-size'),
+        'medium-label-text-weight': map.get($label-medium-tokens, 'label-text-weight'),
         'large-container-height': map.get($large-tokens, 'container-height'),
         'large-container-shape': map.get($large-tokens, 'container-shape'),
         'large-container-width': map.get($large-tokens, 'container-width'),
         'large-icon-size': map.get($large-tokens, 'icon-size'),
-        'pressed-label-text-color': map.get($extended-surface-tokens, 'pressed-label-text-color'),
+        'large-label-text-font': map.get($label-large-tokens, 'label-text-font'),
+        'large-label-text-line-height': map.get($label-large-tokens, 'label-text-line-height'),
+        'large-label-text-size': map.get($label-large-tokens, 'label-text-size'),
+        'large-label-text-weight': map.get($label-large-tokens, 'label-text-weight'),
         'primary-container-color': map.get($primary-tokens, 'container-color'),
         'primary-focus-icon-color': map.get($primary-tokens, 'focus-icon-color'),
         'primary-focus-label-text-color': map.get($extended-primary-tokens, 'focus-label-text-color'),
@@ -151,6 +224,17 @@ $unsupported-tokens: (
         'primary-pressed-icon-color': map.get($primary-tokens, 'pressed-icon-color'),
         'primary-pressed-label-text-color': map.get($extended-primary-tokens, 'pressed-label-text-color'),
         'primary-pressed-state-layer-color': map.get($primary-tokens, 'pressed-state-layer-color'),
+        'tonal-primary-container-color': map.get($tonal-primary-tokens, 'container-color'),
+        'tonal-primary-focus-icon-color': map.get($tonal-primary-tokens, 'focus-icon-color'),
+        'tonal-primary-focus-label-text-color': map.get($extended-tonal-primary-tokens, 'focus-label-text-color'),
+        'tonal-primary-hover-icon-color': map.get($tonal-primary-tokens, 'hover-icon-color'),
+        'tonal-primary-hover-label-text-color': map.get($extended-tonal-primary-tokens, 'hover-label-text-color'),
+        'tonal-primary-hover-state-layer-color': map.get($tonal-primary-tokens, 'hover-state-layer-color'),
+        'tonal-primary-icon-color': map.get($tonal-primary-tokens, 'icon-color'),
+        'tonal-primary-label-text-color': map.get($extended-tonal-primary-tokens, 'label-text-color'),
+        'tonal-primary-pressed-icon-color': map.get($tonal-primary-tokens, 'pressed-icon-color'),
+        'tonal-primary-pressed-label-text-color': map.get($extended-tonal-primary-tokens, 'pressed-label-text-color'),
+        'tonal-primary-pressed-state-layer-color': map.get($tonal-primary-tokens, 'pressed-state-layer-color'),
         'secondary-container-color': map.get($secondary-tokens, 'container-color'),
         'secondary-focus-icon-color': map.get($secondary-tokens, 'focus-icon-color'),
         'secondary-focus-label-text-color': map.get($extended-secondary-tokens, 'focus-label-text-color'),
@@ -162,10 +246,17 @@ $unsupported-tokens: (
         'secondary-pressed-icon-color': map.get($secondary-tokens, 'pressed-icon-color'),
         'secondary-pressed-label-text-color': map.get($extended-secondary-tokens, 'pressed-label-text-color'),
         'secondary-pressed-state-layer-color': map.get($secondary-tokens, 'pressed-state-layer-color'),
-        'small-container-height': map.get($small-tokens, 'container-height'),
-        'small-container-shape': map.get($small-tokens, 'container-shape'),
-        'small-container-width': map.get($small-tokens, 'container-width'),
-        'small-icon-size': map.get($small-tokens, 'icon-size'),
+        'tonal-secondary-container-color': map.get($tonal-secondary-tokens, 'container-color'),
+        'tonal-secondary-focus-icon-color': map.get($tonal-secondary-tokens, 'focus-icon-color'),
+        'tonal-secondary-focus-label-text-color': map.get($extended-tonal-secondary-tokens, 'focus-label-text-color'),
+        'tonal-secondary-hover-icon-color': map.get($tonal-secondary-tokens, 'hover-icon-color'),
+        'tonal-secondary-hover-label-text-color': map.get($extended-tonal-secondary-tokens, 'hover-label-text-color'),
+        'tonal-secondary-hover-state-layer-color': map.get($tonal-secondary-tokens, 'hover-state-layer-color'),
+        'tonal-secondary-icon-color': map.get($tonal-secondary-tokens, 'icon-color'),
+        'tonal-secondary-label-text-color': map.get($extended-tonal-secondary-tokens, 'label-text-color'),
+        'tonal-secondary-pressed-icon-color': map.get($tonal-secondary-tokens, 'pressed-icon-color'),
+        'tonal-secondary-pressed-label-text-color': map.get($extended-tonal-secondary-tokens, 'pressed-label-text-color'),
+        'tonal-secondary-pressed-state-layer-color': map.get($tonal-secondary-tokens, 'pressed-state-layer-color'),
         'tertiary-container-color': map.get($tertiary-tokens, 'container-color'),
         'tertiary-focus-icon-color': map.get($tertiary-tokens, 'focus-icon-color'),
         'tertiary-focus-label-text-color': map.get($extended-tertiary-tokens, 'focus-label-text-color'),
@@ -176,7 +267,18 @@ $unsupported-tokens: (
         'tertiary-label-text-color': map.get($extended-tertiary-tokens, 'label-text-color'),
         'tertiary-pressed-icon-color': map.get($tertiary-tokens, 'pressed-icon-color'),
         'tertiary-pressed-label-text-color': map.get($extended-tertiary-tokens, 'pressed-label-text-color'),
-        'tertiary-pressed-state-layer-color': map.get($tertiary-tokens, 'pressed-state-layer-color')
+        'tertiary-pressed-state-layer-color': map.get($tertiary-tokens, 'pressed-state-layer-color'),
+        'tonal-tertiary-container-color': map.get($tonal-tertiary-tokens, 'container-color'),
+        'tonal-tertiary-focus-icon-color': map.get($tonal-tertiary-tokens, 'focus-icon-color'),
+        'tonal-tertiary-focus-label-text-color': map.get($extended-tonal-tertiary-tokens, 'focus-label-text-color'),
+        'tonal-tertiary-hover-icon-color': map.get($tonal-tertiary-tokens, 'hover-icon-color'),
+        'tonal-tertiary-hover-label-text-color': map.get($extended-tonal-tertiary-tokens, 'hover-label-text-color'),
+        'tonal-tertiary-hover-state-layer-color': map.get($tonal-tertiary-tokens, 'hover-state-layer-color'),
+        'tonal-tertiary-icon-color': map.get($tonal-tertiary-tokens, 'icon-color'),
+        'tonal-tertiary-label-text-color': map.get($extended-tonal-tertiary-tokens, 'label-text-color'),
+        'tonal-tertiary-pressed-icon-color': map.get($tonal-tertiary-tokens, 'pressed-icon-color'),
+        'tonal-tertiary-pressed-label-text-color': map.get($extended-tonal-tertiary-tokens, 'pressed-label-text-color'),
+        'tonal-tertiary-pressed-state-layer-color': map.get($tonal-tertiary-tokens, 'pressed-state-layer-color')
     );
 }
 
@@ -189,17 +291,17 @@ $_default: (
 );
 
 @function values($deps: $_default, $exclude-hardcoded-values: false, $exclude-custom-properties: false) {
-    $tokens: md-comp-fab-surface.values($deps, $exclude-hardcoded-values);
+    $tokens: md-comp-fab-surface-baseline.values($deps, $exclude-hardcoded-values);
+    $tokens: map.merge($tokens, md-comp-extended-fab-surface-baseline.values($deps, $exclude-hardcoded-values));
     $new-tokens: _get-new-tokens($deps, $exclude-hardcoded-values);
     $new-tokens: map.merge($new-tokens, shape.get-new-logical-shape-tokens($tokens, 'container-shape'));
-
-    $new-tokens: map.merge($new-tokens, shape.get-new-logical-shape-tokens($new-tokens, 'large-container-shape', 'small-container-shape'));
+    $new-tokens: map.merge($new-tokens, shape.get-new-logical-shape-tokens($new-tokens, 'large-container-shape', 'medium-container-shape'));
 
     $tokens: validate.values($tokens, $supported-tokens: $supported-tokens, $unsupported-tokens: $unsupported-tokens, $new-tokens: $new-tokens);
 
     @if not $exclude-custom-properties {
         @each $token, $value in $tokens {
-            $shape-tokens: ('container-shape', 'large-container-shape', 'small-container-shape');
+            $shape-tokens: ('container-shape', 'large-container-shape', 'medium-container-shape');
 
             @each $shape-token in $shape-tokens {
                 @if string.index($token, '#{$shape-token}-') == 1 {
