@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { ExtractPublicPropTypes, PropType, VNode } from 'vue'
+import { type ExtractPublicPropTypes, type PropType, type VNode } from 'vue'
 
 export const BannerAppearance = {
     PrimaryContainer: 'primary-container',
@@ -41,5 +41,5 @@ export type TBannerProps = ExtractPublicPropTypes<typeof props>
 export type TBannerSlots = {
     default?: VNode
     icon?: VNode
-    actions: VNode
+    actions?: VNode
 }
