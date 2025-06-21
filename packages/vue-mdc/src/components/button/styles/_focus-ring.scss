@@ -12,14 +12,270 @@
 @use '../../../themes';
 
 @mixin styles() {
-    & {
-        @include themes.md-comp-focus-ring-theme(
-            (
-                'shape-start-start': var(--_container-shape-start-start),
-                'shape-start-end': var(--_container-shape-start-end),
-                'shape-end-end': var(--_container-shape-end-end),
-                'shape-end-start': var(--_container-shape-end-start),
-            )
-        );
+    &.round {
+        &.extra-small {
+            @include themes.md-comp-focus-ring-theme(
+                (
+                    'shape-start-start': var(--_extra-small-container-shape-round-start-start),
+                    'shape-start-end': var(--_extra-small-container-shape-round-start-end),
+                    'shape-end-end': var(--_extra-small-container-shape-round-end-end),
+                    'shape-end-start': var(--_extra-small-container-shape-round-end-start),
+                )
+            );
+        }
+        &.small {
+            @include themes.md-comp-focus-ring-theme(
+                (
+                    'shape-start-start': var(--_small-container-shape-round-start-start),
+                    'shape-start-end': var(--_small-container-shape-round-start-end),
+                    'shape-end-end': var(--_small-container-shape-round-end-end),
+                    'shape-end-start': var(--_small-container-shape-round-end-start),
+                )
+            );
+        }
+        &.medium {
+            @include themes.md-comp-focus-ring-theme(
+                (
+                    'shape-start-start': var(--_medium-container-shape-round-start-start),
+                    'shape-start-end': var(--_medium-container-shape-round-start-end),
+                    'shape-end-end': var(--_medium-container-shape-round-end-end),
+                    'shape-end-start': var(--_medium-container-shape-round-end-start),
+                )
+            );
+        }
+        &.large {
+            @include themes.md-comp-focus-ring-theme(
+                (
+                    'shape-start-start': var(--_large-container-shape-round-start-start),
+                    'shape-start-end': var(--_large-container-shape-round-start-end),
+                    'shape-end-end': var(--_large-container-shape-round-end-end),
+                    'shape-end-start': var(--_large-container-shape-round-end-start),
+                )
+            );
+        }
+        &.extra-large {
+            @include themes.md-comp-focus-ring-theme(
+                (
+                    'shape-start-start': var(--_extra-large-container-shape-round-start-start),
+                    'shape-start-end': var(--_extra-large-container-shape-round-start-end),
+                    'shape-end-end': var(--_extra-large-container-shape-round-end-end),
+                    'shape-end-start': var(--_extra-large-container-shape-round-end-start),
+                )
+            );
+        }
+    }
+    &.square {
+        &.extra-small {
+            @include themes.md-comp-focus-ring-theme(
+                (
+                    'shape-start-start': var(--_extra-small-container-shape-square-start-start),
+                    'shape-start-end': var(--_extra-small-container-shape-square-start-end),
+                    'shape-end-end': var(--_extra-small-container-shape-square-end-end),
+                    'shape-end-start': var(--_extra-small-container-shape-square-end-start),
+                )
+            );
+        }
+        &.small {
+            @include themes.md-comp-focus-ring-theme(
+                (
+                    'shape-start-start': var(--_small-container-shape-square-start-start),
+                    'shape-start-end': var(--_small-container-shape-square-start-end),
+                    'shape-end-end': var(--_small-container-shape-square-end-end),
+                    'shape-end-start': var(--_small-container-shape-square-end-start),
+                )
+            );
+        }
+        &.medium {
+            @include themes.md-comp-focus-ring-theme(
+                (
+                    'shape-start-start': var(--_medium-container-shape-square-start-start),
+                    'shape-start-end': var(--_medium-container-shape-square-start-end),
+                    'shape-end-end': var(--_medium-container-shape-square-end-end),
+                    'shape-end-start': var(--_medium-container-shape-square-end-start),
+                )
+            );
+        }
+        &.large {
+            @include themes.md-comp-focus-ring-theme(
+                (
+                    'shape-start-start': var(--_large-container-shape-square-start-start),
+                    'shape-start-end': var(--_large-container-shape-square-start-end),
+                    'shape-end-end': var(--_large-container-shape-square-end-end),
+                    'shape-end-start': var(--_large-container-shape-square-end-start),
+                )
+            );
+        }
+        &.extra-large {
+            @include themes.md-comp-focus-ring-theme(
+                (
+                    'shape-start-start': var(--_extra-large-container-shape-square-start-start),
+                    'shape-start-end': var(--_extra-large-container-shape-square-start-end),
+                    'shape-end-end': var(--_extra-large-container-shape-square-end-end),
+                    'shape-end-start': var(--_extra-large-container-shape-square-end-start),
+                )
+            );
+        }
+    }
+
+    /* Toggle */
+
+    &.togglable.round.selected {
+        &.extra-small {
+            @include themes.md-comp-focus-ring-theme(
+                (
+                    shape-start-start: var(--_extra-small-toggle-selected-container-shape-round-start-start),
+                    shape-start-end: var(--_extra-small-toggle-selected-container-shape-round-start-end),
+                    shape-end-start: var(--_extra-small-toggle-selected-container-shape-round-end-start),
+                    shape-end-end: var(--_extra-small-toggle-selected-container-shape-round-end-end),
+                )
+            );
+        }
+        &.small {
+            @include themes.md-comp-focus-ring-theme(
+                (
+                    shape-start-start: var(--_small-toggle-selected-container-shape-round-start-start),
+                    shape-start-end: var(--_small-toggle-selected-container-shape-round-start-end),
+                    shape-end-start: var(--_small-toggle-selected-container-shape-round-end-start),
+                    shape-end-end: var(--_small-toggle-selected-container-shape-round-end-end),
+                )
+            );
+        }
+        &.medium {
+            @include themes.md-comp-focus-ring-theme(
+                (
+                    shape-start-start: var(--_medium-toggle-selected-container-shape-round-start-start),
+                    shape-start-end: var(--_medium-toggle-selected-container-shape-round-start-end),
+                    shape-end-start: var(--_medium-toggle-selected-container-shape-round-end-start),
+                    shape-end-end: var(--_medium-toggle-selected-container-shape-round-end-end),
+                )
+            );
+        }
+        &.large {
+            @include themes.md-comp-focus-ring-theme(
+                (
+                    shape-start-start: var(--_large-toggle-selected-container-shape-round-start-start),
+                    shape-start-end: var(--_large-toggle-selected-container-shape-round-start-end),
+                    shape-end-start: var(--_large-toggle-selected-container-shape-round-end-start),
+                    shape-end-end: var(--_large-toggle-selected-container-shape-round-end-end),
+                )
+            );
+        }
+        &.extra-large {
+            @include themes.md-comp-focus-ring-theme(
+                (
+                    shape-start-start: var(--_extra-large-toggle-selected-container-shape-round-start-start),
+                    shape-start-end: var(--_extra-large-toggle-selected-container-shape-round-start-end),
+                    shape-end-start: var(--_extra-large-toggle-selected-container-shape-round-end-start),
+                    shape-end-end: var(--_extra-large-toggle-selected-container-shape-round-end-end),
+                )
+            );
+        }
+    }
+    &.togglable.square.selected {
+        &.extra-small {
+            @include themes.md-comp-focus-ring-theme(
+                (
+                    shape-start-start: var(--_extra-small-toggle-selected-container-shape-square-start-start),
+                    shape-start-end: var(--_extra-small-toggle-selected-container-shape-square-start-end),
+                    shape-end-start: var(--_extra-small-toggle-selected-container-shape-square-end-start),
+                    shape-end-end: var(--_extra-small-toggle-selected-container-shape-square-end-end),
+                )
+            );
+        }
+        &.small {
+            @include themes.md-comp-focus-ring-theme(
+                (
+                    shape-start-start: var(--_small-toggle-selected-container-shape-square-start-start),
+                    shape-start-end: var(--_small-toggle-selected-container-shape-square-start-end),
+                    shape-end-start: var(--_small-toggle-selected-container-shape-square-end-start),
+                    shape-end-end: var(--_small-toggle-selected-container-shape-square-end-end),
+                )
+            );
+        }
+        &.medium {
+            @include themes.md-comp-focus-ring-theme(
+                (
+                    shape-start-start: var(--_medium-toggle-selected-container-shape-square-start-start),
+                    shape-start-end: var(--_medium-toggle-selected-container-shape-square-start-end),
+                    shape-end-start: var(--_medium-toggle-selected-container-shape-square-end-start),
+                    shape-end-end: var(--_medium-toggle-selected-container-shape-square-end-end),
+                )
+            );
+        }
+        &.large {
+            @include themes.md-comp-focus-ring-theme(
+                (
+                    shape-start-start: var(--_large-toggle-selected-container-shape-square-start-start),
+                    shape-start-end: var(--_large-toggle-selected-container-shape-square-start-end),
+                    shape-end-start: var(--_large-toggle-selected-container-shape-square-end-start),
+                    shape-end-end: var(--_large-toggle-selected-container-shape-square-end-end),
+                )
+            );
+        }
+        &.extra-large {
+            @include themes.md-comp-focus-ring-theme(
+                (
+                    shape-start-start: var(--_extra-large-toggle-selected-container-shape-square-start-start),
+                    shape-start-end: var(--_extra-large-toggle-selected-container-shape-square-start-end),
+                    shape-end-start: var(--_extra-large-toggle-selected-container-shape-square-end-start),
+                    shape-end-end: var(--_extra-large-toggle-selected-container-shape-square-end-end),
+                )
+            );
+        }
+    }
+
+    /* Pressed */
+
+    &:is(.round, .square, .toggle.selected, .toggle.unselected):is(:active) {
+        &.extra-small {
+            @include themes.md-comp-focus-ring-theme(
+                (
+                    shape-start-start: var(--_extra-small-pressed-container-shape-morph-start-start),
+                    shape-start-end: var(--_extra-small-pressed-container-shape-morph-start-end),
+                    shape-end-start: var(--_extra-small-pressed-container-shape-morph-end-start),
+                    shape-end-end: var(--_extra-small-pressed-container-shape-morph-end-end),
+                )
+            );
+        }
+        &.small {
+            @include themes.md-comp-focus-ring-theme(
+                (
+                    shape-start-start: var(--_small-pressed-container-shape-morph-start-start),
+                    shape-start-end: var(--_small-pressed-container-shape-morph-start-end),
+                    shape-end-start: var(--_small-pressed-container-shape-morph-end-start),
+                    shape-end-end: var(--_small-pressed-container-shape-morph-end-end),
+                )
+            );
+        }
+        &.medium {
+            @include themes.md-comp-focus-ring-theme(
+                (
+                    shape-start-start: var(--_medium-pressed-container-shape-morph-start-start),
+                    shape-start-end: var(--_medium-pressed-container-shape-morph-start-end),
+                    shape-end-start: var(--_medium-pressed-container-shape-morph-end-start),
+                    shape-end-end: var(--_medium-pressed-container-shape-morph-end-end),
+                )
+            );
+        }
+        &.large {
+            @include themes.md-comp-focus-ring-theme(
+                (
+                    shape-start-start: var(--_large-pressed-container-shape-morph-start-start),
+                    shape-start-end: var(--_large-pressed-container-shape-morph-start-end),
+                    shape-end-start: var(--_large-pressed-container-shape-morph-end-start),
+                    shape-end-end: var(--_large-pressed-container-shape-morph-end-end),
+                )
+            );
+        }
+        &.extra-large {
+            @include themes.md-comp-focus-ring-theme(
+                (
+                    shape-start-start: var(--_extra-large-pressed-container-shape-morph-start-start),
+                    shape-start-end: var(--_extra-large-pressed-container-shape-morph-start-end),
+                    shape-end-start: var(--_extra-large-pressed-container-shape-morph-end-start),
+                    shape-end-end: var(--_extra-large-pressed-container-shape-morph-end-end),
+                )
+            );
+        }
     }
 }

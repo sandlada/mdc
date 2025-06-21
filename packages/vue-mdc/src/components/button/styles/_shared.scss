@@ -180,6 +180,39 @@
         }
     }
 
+    &:is(.round, .square, .toggle.selected, .toggle.unselected):is(:active) {
+        &.extra-small {
+            border-start-start-radius: var(--_extra-small-pressed-container-shape-morph-start-start);
+            border-start-end-radius: var(--_extra-small-pressed-container-shape-morph-start-end);
+            border-end-start-radius: var(--_extra-small-pressed-container-shape-morph-end-start);
+            border-end-end-radius: var(--_extra-small-pressed-container-shape-morph-end-end);
+        }
+        &.small {
+            border-start-start-radius: var(--_small-pressed-container-shape-morph-start-start);
+            border-start-end-radius: var(--_small-pressed-container-shape-morph-start-end);
+            border-end-start-radius: var(--_small-pressed-container-shape-morph-end-start);
+            border-end-end-radius: var(--_small-pressed-container-shape-morph-end-end);
+        }
+        &.medium {
+            border-start-start-radius: var(--_medium-pressed-container-shape-morph-start-start);
+            border-start-end-radius: var(--_medium-pressed-container-shape-morph-start-end);
+            border-end-start-radius: var(--_medium-pressed-container-shape-morph-end-start);
+            border-end-end-radius: var(--_medium-pressed-container-shape-morph-end-end);
+        }
+        &.large {
+            border-start-start-radius: var(--_large-pressed-container-shape-morph-start-start);
+            border-start-end-radius: var(--_large-pressed-container-shape-morph-start-end);
+            border-end-start-radius: var(--_large-pressed-container-shape-morph-end-start);
+            border-end-end-radius: var(--_large-pressed-container-shape-morph-end-end);
+        }
+        &.extra-large {
+            border-start-start-radius: var(--_extra-large-pressed-container-shape-morph-start-start);
+            border-start-end-radius: var(--_extra-large-pressed-container-shape-morph-start-end);
+            border-end-start-radius: var(--_extra-large-pressed-container-shape-morph-end-start);
+            border-end-end-radius: var(--_extra-large-pressed-container-shape-morph-end-end);
+        }
+    }
+
     /* Size */
     &.extra-small {
         height: var(--_extra-small-container-height);
@@ -356,40 +389,7 @@
         pointer-events: none;
     }
 
-    /* Selection Pressed */
-
-    &.togglable:active {
-        &.extra-small {
-            border-start-start-radius: var(--_extra-small-pressed-container-shape-morph-start-start);
-            border-start-end-radius: var(--_extra-small-pressed-container-shape-morph-start-end);
-            border-end-start-radius: var(--_extra-small-pressed-container-shape-morph-end-start);
-            border-end-end-radius: var(--_extra-small-pressed-container-shape-morph-end-end);
-        }
-        &.small {
-            border-start-start-radius: var(--_small-pressed-container-shape-morph-start-start);
-            border-start-end-radius: var(--_small-pressed-container-shape-morph-start-end);
-            border-end-start-radius: var(--_small-pressed-container-shape-morph-end-start);
-            border-end-end-radius: var(--_small-pressed-container-shape-morph-end-end);
-        }
-        &.medium {
-            border-start-start-radius: var(--_medium-pressed-container-shape-morph-start-start);
-            border-start-end-radius: var(--_medium-pressed-container-shape-morph-start-end);
-            border-end-start-radius: var(--_medium-pressed-container-shape-morph-end-start);
-            border-end-end-radius: var(--_medium-pressed-container-shape-morph-end-end);
-        }
-        &.large {
-            border-start-start-radius: var(--_large-pressed-container-shape-morph-start-start);
-            border-start-end-radius: var(--_large-pressed-container-shape-morph-start-end);
-            border-end-start-radius: var(--_large-pressed-container-shape-morph-end-start);
-            border-end-end-radius: var(--_large-pressed-container-shape-morph-end-end);
-        }
-        &.extra-large {
-            border-start-start-radius: var(--_extra-large-pressed-container-shape-morph-start-start);
-            border-start-end-radius: var(--_extra-large-pressed-container-shape-morph-start-end);
-            border-end-start-radius: var(--_extra-large-pressed-container-shape-morph-end-start);
-            border-end-end-radius: var(--_extra-large-pressed-container-shape-morph-end-end);
-        }
-    }
+    /* Selection */
 
     &.togglable.selected {
         & {

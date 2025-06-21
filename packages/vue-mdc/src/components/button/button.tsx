@@ -5,9 +5,10 @@
  */
 
 import { useReflectAttribute } from '@glare-labs/vue-reflect-attribute'
-import { computed, defineComponent, onBeforeUnmount, onMounted, ref, type SlotsType } from 'vue'
+import { computed, defineComponent, onBeforeUnmount, onMounted, ref, toRef, type SlotsType } from 'vue'
 import { componentNamePrefix } from '../../internals/component-name-prefix/component-name-prefix'
 import { isServer } from '../../utils/is-server'
+import { useObserveProps } from '../../utils/observe-props'
 import { Elevation } from '../elevation/elevation'
 import { FocusRing } from '../focus-ring'
 import { Ripple } from '../ripple/ripple'
@@ -51,7 +52,7 @@ export const Button = defineComponent({
                 { attribute: 'size', ref: _size, reflect: true, type: 'string' },
                 { attribute: 'shape', ref: _shape, reflect: true, type: 'string' },
                 { attribute: 'togglable', ref: _togglable, reflect: true, type: 'boolean' },
-                { attribute: 'defaultSelected', ref: _defaultSelected, reflect: true, type: 'boolean' },
+                { attribute: 'default-selected', ref: _defaultSelected, reflect: true, type: 'boolean' },
                 { attribute: 'disabled', ref: _disabled, reflect: true, type: 'boolean' },
                 { attribute: 'type', ref: _type, reflect: true, type: 'string' },
                 { attribute: 'href', ref: _href, reflect: true, type: 'string' },
@@ -59,9 +60,21 @@ export const Button = defineComponent({
                 { attribute: 'form', ref: _form, reflect: true, type: 'string' },
                 { attribute: 'name', ref: _name, reflect: true, type: 'string' },
                 { attribute: 'value', ref: _value, reflect: true, type: 'string' },
-            ]
+            ],
+            onAttributeChange: (attr, oldValue, newValue) => {
+            }
         })
 
+        useObserveProps([
+            { id: 'size', property: toRef(props, 'size'), callback: (value) => { _size.value = value } },
+            { id: 'appearance', property: toRef(props, 'appearance'), callback: (value) => { _appearance.value = value } },
+            { id: 'size', property: toRef(props, 'size'), callback: (value) => { _size.value = value } },
+            { id: 'shape', property: toRef(props, 'shape'), callback: (value) => { _shape.value = value } },
+            { id: 'togglable', property: toRef(props, 'togglable'), callback: (value) => { _togglable.value = value } },
+            { id: 'disabled', property: toRef(props, 'disabled'), callback: (value) => { _disabled.value = value } },
+            { id: 'type', property: toRef(props, 'type'), callback: (value) => { _type.value = value } },
+            { id: 'href', property: toRef(props, 'href'), callback: (value) => { _href.value = value } },
+        ])
 
         const handleClick = async (e: MouseEvent) => {
             if (_href.value && _disabled.value) {
