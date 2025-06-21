@@ -44,6 +44,14 @@ export const props = {
         type: String as PropType<TButtonSize>,
         default: ButtonSize.Small,
     },
+    togglable: {
+        type: Boolean as PropType<boolean>,
+        default: false,
+    },
+    defaultSelected: {
+        type: Boolean as PropType<boolean>,
+        default: false,
+    },
     shape: {
         type: String as PropType<TButtonShape>,
         default: ButtonShape.Round,

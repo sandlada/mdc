@@ -25,6 +25,51 @@
         inline-size: var(--_icon-size);
         block-size: var(--_icon-size);
     }
+    &:hover [data-component='icon'] {
+        color: var(--_hover-icon-color);
+    }
+
+    &:focus-within [data-component='icon'] {
+        color: var(--_focus-icon-color);
+    }
+
+    &:active [data-component='icon'] {
+        color: var(--_pressed-icon-color);
+    }
+
+    /* Selected */
+
+    &.togglable.selected [data-component='icon'] {
+        color: var(--_toggle-selected-icon-color);
+    }
+    &:hover [data-component='icon'] {
+        color: var(--_toggle-selected-hover-icon-color);
+    }
+
+    &.togglable.selected:focus-within [data-component='icon'] {
+        color: var(--_toggle-selected-focus-icon-color);
+    }
+
+    &.togglable.selected:active [data-component='icon'] {
+        color: var(--_toggle-selected-pressed-icon-color);
+    }
+
+    /* Unselected */
+
+    &.togglable.unselected [data-component='icon'] {
+        color: var(--_toggle-unselected-icon-color);
+    }
+    &.togglable.unselected:hover [data-component='icon'] {
+        color: var(--_toggle-unselected-hover-icon-color);
+    }
+
+    &.togglable.unselected:focus-within [data-component='icon'] {
+        color: var(--_toggle-unselected-focus-icon-color);
+    }
+
+    &.togglable.unselected:active [data-component='icon'] {
+        color: var(--_toggle-unselected-pressed-icon-color);
+    }
 
     &.extra-small [data-component='icon'] {
         @include themes.md-comp-icon-theme(
@@ -60,18 +105,6 @@
                 size: var(--_extra-large-icon-size),
             )
         );
-    }
-
-    &:hover [data-component='icon'] {
-        color: var(--_hover-icon-color);
-    }
-
-    &:focus-within [data-component='icon'] {
-        color: var(--_focus-icon-color);
-    }
-
-    &:active [data-component='icon'] {
-        color: var(--_pressed-icon-color);
     }
 
     &[disabled] [data-component='icon'] {

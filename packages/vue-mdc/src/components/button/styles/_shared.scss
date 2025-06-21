@@ -115,6 +115,70 @@
             border-end-end-radius: min(var(--_extra-large-container-shape-square-end-end), calc(var(--_extra-large-container-height) / 2));
         }
     }
+    &.togglable.selected.round {
+        &.extra-small {
+            border-start-start-radius: min(var(--_extra-small-toggle-selected-container-shape-round-start-start), calc(var(--_extra-small-container-height) / 2));
+            border-start-end-radius: min(var(--_extra-small-toggle-selected-container-shape-round-start-end), calc(var(--_extra-small-container-height) / 2));
+            border-end-start-radius: min(var(--_extra-small-toggle-selected-container-shape-round-end-start), calc(var(--_extra-small-container-height) / 2));
+            border-end-end-radius: min(var(--_extra-small-toggle-selected-container-shape-round-end-end), calc(var(--_extra-small-container-height) / 2));
+        }
+        &.small {
+            border-start-start-radius: min(var(--_small-toggle-selected-container-shape-round-start-start), calc(var(--_small-container-height) / 2));
+            border-start-end-radius: min(var(--_small-toggle-selected-container-shape-round-start-end), calc(var(--_small-container-height) / 2));
+            border-end-start-radius: min(var(--_small-toggle-selected-container-shape-round-end-start), calc(var(--_small-container-height) / 2));
+            border-end-end-radius: min(var(--_small-toggle-selected-container-shape-round-end-end), calc(var(--_small-container-height) / 2));
+        }
+        &.medium {
+            border-start-start-radius: min(var(--_medium-toggle-selected-container-shape-round-start-start), calc(var(--_medium-container-height) / 2));
+            border-start-end-radius: min(var(--_medium-toggle-selected-container-shape-round-start-end), calc(var(--_medium-container-height) / 2));
+            border-end-start-radius: min(var(--_medium-toggle-selected-container-shape-round-end-start), calc(var(--_medium-container-height) / 2));
+            border-end-end-radius: min(var(--_medium-toggle-selected-container-shape-round-end-end), calc(var(--_medium-container-height) / 2));
+        }
+        &.large {
+            border-start-start-radius: min(var(--_large-toggle-selected-container-shape-round-start-start), calc(var(--_large-container-height) / 2));
+            border-start-end-radius: min(var(--_large-toggle-selected-container-shape-round-start-end), calc(var(--_large-container-height) / 2));
+            border-end-start-radius: min(var(--_large-toggle-selected-container-shape-round-end-start), calc(var(--_large-container-height) / 2));
+            border-end-end-radius: min(var(--_large-toggle-selected-container-shape-round-end-end), calc(var(--_large-container-height) / 2));
+        }
+        &.extra-large {
+            border-start-start-radius: min(var(--_extra-large-toggle-selected-container-shape-round-start-start), calc(var(--_extra-large-container-height) / 2));
+            border-start-end-radius: min(var(--_extra-large-toggle-selected-container-shape-round-start-end), calc(var(--_extra-large-container-height) / 2));
+            border-end-start-radius: min(var(--_extra-large-toggle-selected-container-shape-round-end-start), calc(var(--_extra-large-container-height) / 2));
+            border-end-end-radius: min(var(--_extra-large-toggle-selected-container-shape-round-end-end), calc(var(--_extra-large-container-height) / 2));
+        }
+    }
+    &.togglable.selected.square {
+        &.extra-small {
+            border-start-start-radius: min(var(--_extra-small-toggle-selected-container-shape-square-start-start), calc(var(--_extra-small-container-height) / 2));
+            border-start-end-radius: min(var(--_extra-small-toggle-selected-container-shape-square-start-end), calc(var(--_extra-small-container-height) / 2));
+            border-end-start-radius: min(var(--_extra-small-toggle-selected-container-shape-square-end-start), calc(var(--_extra-small-container-height) / 2));
+            border-end-end-radius: min(var(--_extra-small-toggle-selected-container-shape-square-end-end), calc(var(--_extra-small-container-height) / 2));
+        }
+        &.small {
+            border-start-start-radius: min(var(--_small-toggle-selected-container-shape-square-start-start), calc(var(--_small-container-height) / 2));
+            border-start-end-radius: min(var(--_small-toggle-selected-container-shape-square-start-end), calc(var(--_small-container-height) / 2));
+            border-end-start-radius: min(var(--_small-toggle-selected-container-shape-square-end-start), calc(var(--_small-container-height) / 2));
+            border-end-end-radius: min(var(--_small-toggle-selected-container-shape-square-end-end), calc(var(--_small-container-height) / 2));
+        }
+        &.medium {
+            border-start-start-radius: min(var(--_medium-toggle-selected-container-shape-square-start-start), calc(var(--_medium-container-height) / 2));
+            border-start-end-radius: min(var(--_medium-toggle-selected-container-shape-square-start-end), calc(var(--_medium-container-height) / 2));
+            border-end-start-radius: min(var(--_medium-toggle-selected-container-shape-square-end-start), calc(var(--_medium-container-height) / 2));
+            border-end-end-radius: min(var(--_medium-toggle-selected-container-shape-square-end-end), calc(var(--_medium-container-height) / 2));
+        }
+        &.large {
+            border-start-start-radius: min(var(--_large-toggle-selected-container-shape-square-start-start), calc(var(--_large-container-height) / 2));
+            border-start-end-radius: min(var(--_large-toggle-selected-container-shape-square-start-end), calc(var(--_large-container-height) / 2));
+            border-end-start-radius: min(var(--_large-toggle-selected-container-shape-square-end-start), calc(var(--_large-container-height) / 2));
+            border-end-end-radius: min(var(--_large-toggle-selected-container-shape-square-end-end), calc(var(--_large-container-height) / 2));
+        }
+        &.extra-large {
+            border-start-start-radius: min(var(--_extra-large-toggle-selected-container-shape-square-start-start), calc(var(--_extra-large-container-height) / 2));
+            border-start-end-radius: min(var(--_extra-large-toggle-selected-container-shape-square-start-end), calc(var(--_extra-large-container-height) / 2));
+            border-end-start-radius: min(var(--_extra-large-toggle-selected-container-shape-square-end-start), calc(var(--_extra-large-container-height) / 2));
+            border-end-end-radius: min(var(--_extra-large-toggle-selected-container-shape-square-end-end), calc(var(--_extra-large-container-height) / 2));
+        }
+    }
 
     /* Size */
     &.extra-small {
@@ -324,6 +388,49 @@
             border-start-end-radius: var(--_extra-large-pressed-container-shape-morph-start-end);
             border-end-start-radius: var(--_extra-large-pressed-container-shape-morph-end-start);
             border-end-end-radius: var(--_extra-large-pressed-container-shape-morph-end-end);
+        }
+    }
+
+    &.togglable.selected {
+        & {
+        }
+        & .background {
+            background-color: var(--_toggle-selected-container-color);
+        }
+        & .button {
+            color: var(--_toggle-selected-label-text-color);
+        }
+        &:hover .button {
+            color: var(--_toggle-selected-hover-label-text-color);
+        }
+
+        &:focus-within .button {
+            color: var(--_toggle-selected-focus-label-text-color);
+        }
+
+        &:active .button {
+            color: var(--_toggle-selected-pressed-label-text-color);
+        }
+    }
+    &.togglable.unselected {
+        & {
+        }
+        & .background {
+            background-color: var(--_toggle-unselected-container-color);
+        }
+        & .button {
+            color: var(--_toggle-unselected-label-text-color);
+        }
+        &:hover .button {
+            color: var(--_toggle-unselected-hover-label-text-color);
+        }
+
+        &:focus-within .button {
+            color: var(--_toggle-unselected-focus-label-text-color);
+        }
+
+        &:active .button {
+            color: var(--_toggle-unselected-pressed-label-text-color);
         }
     }
 }

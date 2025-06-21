@@ -5,7 +5,7 @@
  */
 
 import { useReflectAttribute } from '@glare-labs/vue-reflect-attribute'
-import { defineComponent, onBeforeUnmount, onMounted, ref, type SlotsType } from 'vue'
+import { computed, defineComponent, onBeforeUnmount, onMounted, ref, type SlotsType } from 'vue'
 import { componentNamePrefix } from '../../internals/component-name-prefix/component-name-prefix'
 import { isServer } from '../../utils/is-server'
 import { Elevation } from '../elevation/elevation'
@@ -21,12 +21,22 @@ export const Button = defineComponent({
     setup(props, { slots }) {
         const root = ref<HTMLElement | null>(null)
 
+        const _selected = ref(props.defaultSelected)
+        const selected = computed({
+            get: () => _selected.value,
+            set: (value: boolean) => {
+                _selected.value = value
+            }
+        })
+
         /**
          * Props
          */
         const _appearance = ref(props.appearance)
         const _size = ref(props.size)
         const _shape = ref(props.shape)
+        const _togglable = ref(props.togglable)
+        const _defaultSelected = ref(props.defaultSelected)
         const _disabled = ref(props.disabled)
         const _type = ref(props.type)
         const _href = ref(props.href)
@@ -40,6 +50,8 @@ export const Button = defineComponent({
                 { attribute: 'appearance', ref: _appearance, reflect: true, type: 'string' },
                 { attribute: 'size', ref: _size, reflect: true, type: 'string' },
                 { attribute: 'shape', ref: _shape, reflect: true, type: 'string' },
+                { attribute: 'togglable', ref: _togglable, reflect: true, type: 'boolean' },
+                { attribute: 'defaultSelected', ref: _defaultSelected, reflect: true, type: 'boolean' },
                 { attribute: 'disabled', ref: _disabled, reflect: true, type: 'boolean' },
                 { attribute: 'type', ref: _type, reflect: true, type: 'string' },
                 { attribute: 'href', ref: _href, reflect: true, type: 'string' },
@@ -50,12 +62,15 @@ export const Button = defineComponent({
             ]
         })
 
+
         const handleClick = async (e: MouseEvent) => {
             if (_href.value && _disabled.value) {
                 e.stopImmediatePropagation()
                 e.preventDefault()
                 return
             }
+
+            selected.value = !selected.value
         }
 
         onMounted(() => {
@@ -63,7 +78,6 @@ export const Button = defineComponent({
                 return
             }
             root.value?.addEventListener('click', handleClick)
-            root.value?.addEventListener('mouseenter', handleClick)
         })
 
         onBeforeUnmount(() => {
@@ -93,7 +107,7 @@ export const Button = defineComponent({
             const renderButtonWrapper = (
                 <button
                     data-component="button"
-                    class={[css[_appearance.value], iconState, _disabled.value && css.disabled, css[_size.value], css[_shape.value]]}
+                    class={[css[_appearance.value], iconState, _disabled.value && css.disabled, css[_size.value], css[_shape.value], _togglable.value && css.togglable, _togglable.value && (selected.value ? css.selected : css.unselected)]}
                     role='button'
                     ref={root}
                     tabindex={_disabled.value ? -1 : 0}
@@ -112,7 +126,7 @@ export const Button = defineComponent({
             const renderLinkWrapper = (
                 <a
                     data-component="button"
-                    class={[css[_appearance.value], iconState, _disabled.value && css.disabled, css[_size.value], css[_shape.value]]}
+                    class={[css[_appearance.value], iconState, _disabled.value && css.disabled, css[_size.value], css[_shape.value], _togglable.value && css.togglable, _togglable.value && (selected.value ? css.selected : css.unselected)]}
                     role='button'
                     ref={root}
                     tabindex={_disabled.value ? -1 : 0}
