@@ -16,24 +16,11 @@
         box-sizing: border-box;
         cursor: pointer;
         display: inline-flex;
-        // min-height instead of height so that label can wrap and expand height
-        min-height: var(--_container-height);
         outline: none;
-        // Add extra space between label and the edge for if the label text wraps.
-        // The padding added should be relative to the height of the container and
-        // the height of its content on a single line (label or icon, whichever is
-        // bigger).
-        $single-line-height: max(var(--_label-text-line-height), var(--_icon-size));
-        padding-block: calc((var(--_container-height) - $single-line-height) / 2);
-
         place-content: center;
         place-items: center;
         position: relative;
         z-index: 0;
-        font-family: var(--_label-text-font);
-        font-size: var(--_label-text-size);
-        line-height: var(--_label-text-line-height);
-        font-weight: var(--_label-text-weight);
         // Long labels are cut off with ellipsis by default. `text-overflow` and
         // `text-wrap` can customize this.
         text-overflow: ellipsis;
@@ -46,7 +33,8 @@
         vertical-align: top;
 
         transition-property: all;
-        transition-duration: 200ms;
+        transition-duration: 350ms;
+        transition-timing-function: cubic-bezier(0.42, 1.67, 0.21, 0.9);
     }
 
     /* Shape */
@@ -230,6 +218,43 @@
         height: var(--_extra-large-container-height);
     }
 
+    /* Label Size */
+    &.extra-small .label {
+        font-family: var(--_extra-small-label-text-font);
+        font-weight: var(--_extra-small-label-text-weight);
+        line-height: var(--_extra-small-label-text-line-height);
+        letter-spacing: var(--_extra-small-label-text-tracking);
+        font-size: var(--_extra-small-label-text-size);
+    }
+    &.small .label {
+        font-family: var(--_small-label-text-font);
+        font-weight: var(--_small-label-text-weight);
+        line-height: var(--_small-label-text-line-height);
+        letter-spacing: var(--_small-label-text-tracking);
+        font-size: var(--_small-label-text-size);
+    }
+    &.medium .label {
+        font-family: var(--_medium-label-text-font);
+        font-weight: var(--_medium-label-text-weight);
+        line-height: var(--_medium-label-text-line-height);
+        letter-spacing: var(--_medium-label-text-tracking);
+        font-size: var(--_medium-label-text-size);
+    }
+    &.large .label {
+        font-family: var(--_large-label-text-font);
+        font-weight: var(--_large-label-text-weight);
+        line-height: var(--_large-label-text-line-height);
+        letter-spacing: var(--_large-label-text-tracking);
+        font-size: var(--_large-label-text-size);
+    }
+    &.extra-large .label {
+        font-family: var(--_extra-large-label-text-font);
+        font-weight: var(--_extra-large-label-text-weight);
+        line-height: var(--_extra-large-label-text-line-height);
+        letter-spacing: var(--_extra-large-label-text-tracking);
+        font-size: var(--_extra-large-label-text-size);
+    }
+
     /* Spacing */
     &.extra-small {
         padding-inline-start: var(--_extra-small-leading-space);
@@ -297,8 +322,6 @@
         width: 100%;
         z-index: 0; // Place content on top of elevation and ripple
         height: 100%;
-        font: inherit;
-        color: var(--_label-text-color);
         padding: 0;
         gap: inherit;
         // Override the user-agent text-transform: none of <button> and <a>
@@ -310,14 +333,16 @@
         }
     }
 
+    /* Label Color */
+    & .button {
+        color: var(--_label-text-color);
+    }
     &:hover .button {
         color: var(--_hover-label-text-color);
     }
-
     &:focus-within .button {
         color: var(--_focus-label-text-color);
     }
-
     &:active .button {
         color: var(--_pressed-label-text-color);
     }

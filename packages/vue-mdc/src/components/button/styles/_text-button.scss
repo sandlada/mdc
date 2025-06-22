@@ -26,4 +26,43 @@
         --_disabled-container-color: none;
         --_disabled-container-opacity: 0;
     }
+
+    &.togglable.selected {
+        & .background {
+            background-color: var(--_container-color);
+        }
+        & .button {
+            color: var(--_label-text-color);
+        }
+        &:hover .button {
+            color: var(--_hover-label-text-color);
+        }
+
+        &:focus-within .button {
+            color: var(--_focus-label-text-color);
+        }
+
+        &:active .button {
+            color: var(--_pressed-label-text-color);
+        }
+    }
+    &.togglable.unselected {
+        & .background {
+            background-color: var(--_container-color);
+        }
+        & .button {
+            color: var(--_label-text-color);
+        }
+        &:hover .button {
+            color: var(--_hover-label-text-color);
+        }
+
+        &:focus-within .button {
+            color: var(--_focus-label-text-color);
+        }
+
+        &:active .button {
+            color: var(--_pressed-label-text-color);
+        }
+    }
 }

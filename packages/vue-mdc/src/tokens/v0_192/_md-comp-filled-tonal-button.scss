@@ -105,11 +105,6 @@ $_default: (
         'label-text-color': map.get($deps, 'md-sys-color', 'on-secondary-container'),
         'toggle-unselected-label-text-color': map.get($deps, 'md-sys-color', 'on-secondary-container'),
         'toggle-selected-label-text-color': map.get($deps, 'md-sys-color', 'on-secondary'),
-        'label-text-font': map.get($deps, 'md-sys-typescale', 'label-large-font'),
-        'label-text-line-height': map.get($deps, 'md-sys-typescale', 'label-large-line-height'),
-        'label-text-size': map.get($deps, 'md-sys-typescale', 'label-large-size'),
-        'label-text-tracking': map.get($deps, 'md-sys-typescale', 'label-large-tracking'),
-        'label-text-weight': map.get($deps, 'md-sys-typescale', 'label-large-weight'),
         'pressed-container-elevation': map.get($deps, 'md-sys-elevation', 'level0'),
         'pressed-label-text-color': map.get($deps, 'md-sys-color', 'on-secondary-container'),
         'toggle-unselected-pressed-label-text-color': map.get($deps, 'md-sys-color', 'on-secondary-container'),
@@ -132,11 +127,60 @@ $_default: (
         'pressed-icon-color': map.get($deps, 'md-sys-color', 'on-secondary-container'),
         'toggle-unselected-pressed-icon-color': map.get($deps, 'md-sys-color', 'on-secondary-container'),
         'toggle-selected-pressed-icon-color': map.get($deps, 'md-sys-color', 'on-secondary'),
-        'label-text-type':
+        'extra-small-label-text-font': map.get($deps, 'md-sys-typescale', 'label-large-font'),
+        'extra-small-label-text-line-height': map.get($deps, 'md-sys-typescale', 'label-large-line-height'),
+        'extra-small-label-text-size': map.get($deps, 'md-sys-typescale', 'label-large-size'),
+        'extra-small-label-text-tracking': map.get($deps, 'md-sys-typescale', 'label-large-tracking'),
+        'extra-small-label-text-weight': map.get($deps, 'md-sys-typescale', 'label-large-weight'),
+        'extra-small-label-text-type':
             if(
                 $exclude-hardcoded-values,
                 null,
                 map.get($deps, 'md-sys-typescale', 'label-large-weight') map.get($deps, 'md-sys-typescale', 'label-large-size') #{'/'} map.get($deps, 'md-sys-typescale', 'label-large-line-height') map.get($deps, 'md-sys-typescale', 'label-large-font')
+            ),
+        'small-label-text-font': map.get($deps, 'md-sys-typescale', 'label-large-font'),
+        'small-label-text-line-height': map.get($deps, 'md-sys-typescale', 'label-large-line-height'),
+        'small-label-text-size': map.get($deps, 'md-sys-typescale', 'label-large-size'),
+        'small-label-text-tracking': map.get($deps, 'md-sys-typescale', 'label-large-tracking'),
+        'small-label-text-weight': map.get($deps, 'md-sys-typescale', 'label-large-weight'),
+        'small-label-text-type':
+            if(
+                $exclude-hardcoded-values,
+                null,
+                map.get($deps, 'md-sys-typescale', 'label-large-weight') map.get($deps, 'md-sys-typescale', 'label-large-size') #{'/'} map.get($deps, 'md-sys-typescale', 'label-large-line-height') map.get($deps, 'md-sys-typescale', 'label-large-font')
+            ),
+        'medium-label-text-font': map.get($deps, 'md-sys-typescale', 'title-medium-font'),
+        'medium-label-text-line-height': map.get($deps, 'md-sys-typescale', 'title-medium-line-height'),
+        'medium-label-text-size': map.get($deps, 'md-sys-typescale', 'title-medium-size'),
+        'medium-label-text-tracking': map.get($deps, 'md-sys-typescale', 'title-medium-tracking'),
+        'medium-label-text-weight': map.get($deps, 'md-sys-typescale', 'title-medium-weight'),
+        'medium-label-text-type':
+            if(
+                $exclude-hardcoded-values,
+                null,
+                map.get($deps, 'md-sys-typescale', 'title-medium-weight') map.get($deps, 'md-sys-typescale', 'title-medium-size') #{'/'} map.get($deps, 'md-sys-typescale', 'title-medium-line-height') map.get($deps, 'md-sys-typescale', 'title-medium-font')
+            ),
+        'large-label-text-font': map.get($deps, 'md-sys-typescale', 'headline-small-font'),
+        'large-label-text-line-height': map.get($deps, 'md-sys-typescale', 'headline-small-line-height'),
+        'large-label-text-size': map.get($deps, 'md-sys-typescale', 'headline-small-size'),
+        'large-label-text-tracking': map.get($deps, 'md-sys-typescale', 'headline-small-tracking'),
+        'large-label-text-weight': map.get($deps, 'md-sys-typescale', 'headline-small-weight'),
+        'large-label-text-type':
+            if(
+                $exclude-hardcoded-values,
+                null,
+                map.get($deps, 'md-sys-typescale', 'headline-small-weight') map.get($deps, 'md-sys-typescale', 'headline-small-size') #{'/'} map.get($deps, 'md-sys-typescale', 'headline-small-line-height') map.get($deps, 'md-sys-typescale', 'headline-small-font')
+            ),
+        'extra-large-label-text-font': map.get($deps, 'md-sys-typescale', 'headline-large-font'),
+        'extra-large-label-text-line-height': map.get($deps, 'md-sys-typescale', 'headline-large-line-height'),
+        'extra-large-label-text-size': map.get($deps, 'md-sys-typescale', 'headline-large-size'),
+        'extra-large-label-text-tracking': map.get($deps, 'md-sys-typescale', 'headline-large-tracking'),
+        'extra-large-label-text-weight': map.get($deps, 'md-sys-typescale', 'headline-large-weight'),
+        'extra-large-label-text-type':
+            if(
+                $exclude-hardcoded-values,
+                null,
+                map.get($deps, 'md-sys-typescale', 'headline-large-weight') map.get($deps, 'md-sys-typescale', 'headline-large-size') #{'/'} map.get($deps, 'md-sys-typescale', 'headline-large-line-height') map.get($deps, 'md-sys-typescale', 'headline-large-font')
             )
     );
 }

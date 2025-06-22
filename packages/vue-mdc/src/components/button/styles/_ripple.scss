@@ -12,13 +12,47 @@
 @use '../../../themes';
 
 @mixin styles() {
-    & {
+    & [data-component='ripple'] {
         @include themes.md-comp-ripple-theme(
             (
                 hover-color: var(--_hover-state-layer-color),
                 pressed-color: var(--_pressed-state-layer-color),
                 hover-opacity: var(--_hover-state-layer-opacity),
                 pressed-opacity: var(--_pressed-state-layer-opacity),
+            )
+        );
+    }
+
+    &.togglable.selected [data-component='ripple'] {
+        @include themes.md-comp-ripple-theme(
+            (
+                hover-color: var(--_toggle-selected-hover-state-layer-color),
+                pressed-color: var(--_toggle-selected-pressed-state-layer-color),
+            )
+        );
+    }
+    &.togglable.unselected [data-component='ripple'] {
+        @include themes.md-comp-ripple-theme(
+            (
+                hover-color: var(--_toggle-unselected-hover-state-layer-color),
+                pressed-color: var(--_toggle-unselected-pressed-state-layer-color),
+            )
+        );
+    }
+
+    &.text.togglable.selected [data-component='ripple'] {
+        @include themes.md-comp-ripple-theme(
+            (
+                hover-color: var(--_hover-state-layer-color),
+                pressed-color: var(--_pressed-state-layer-color),
+            )
+        );
+    }
+    &.text.togglable.unselected [data-component='ripple'] {
+        @include themes.md-comp-ripple-theme(
+            (
+                hover-color: var(--_hover-state-layer-color),
+                pressed-color: var(--_pressed-state-layer-color),
             )
         );
     }

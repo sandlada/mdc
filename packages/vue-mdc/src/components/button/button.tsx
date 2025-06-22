@@ -106,6 +106,18 @@ export const Button = defineComponent({
             const iconState = slots['leading-icon'] ? css.left : slots['trailing-icon'] ? css.right : null
             const isLink = _href.value !== null
 
+            const isTogglable = _appearance.value !== 'text' && _togglable.value
+
+            const className = [
+                css[_appearance.value],
+                iconState,
+                _disabled.value && css.disabled,
+                css[_size.value],
+                css[_shape.value],
+                isTogglable && css.togglable,
+                isTogglable && (selected.value ? css.selected : css.unselected),
+            ]
+
             const renderContent = (
                 <span class={css.button}>
                     <span class={css.touch}></span>
@@ -120,7 +132,7 @@ export const Button = defineComponent({
             const renderButtonWrapper = (
                 <button
                     data-component="button"
-                    class={[css[_appearance.value], iconState, _disabled.value && css.disabled, css[_size.value], css[_shape.value], _togglable.value && css.togglable, _togglable.value && (selected.value ? css.selected : css.unselected)]}
+                    class={className}
                     role='button'
                     ref={root}
                     tabindex={_disabled.value ? -1 : 0}
@@ -139,7 +151,7 @@ export const Button = defineComponent({
             const renderLinkWrapper = (
                 <a
                     data-component="button"
-                    class={[css[_appearance.value], iconState, _disabled.value && css.disabled, css[_size.value], css[_shape.value], _togglable.value && css.togglable, _togglable.value && (selected.value ? css.selected : css.unselected)]}
+                    class={className}
                     role='button'
                     ref={root}
                     tabindex={_disabled.value ? -1 : 0}
