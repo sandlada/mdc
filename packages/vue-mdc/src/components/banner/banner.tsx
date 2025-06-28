@@ -8,7 +8,7 @@ import { useReflectAttribute } from '@glare-labs/vue-reflect-attribute'
 import { defineComponent, ref, type SlotsType } from 'vue'
 import { componentNamePrefix } from '../../internals/component-name-prefix/component-name-prefix'
 import { Elevation } from '../elevation'
-import { props, TBannerSlots } from './banner.definition'
+import { props, type TBannerSlots } from './banner.definition'
 import css from './styles/banner.module.scss'
 
 export const Banner = defineComponent({
