@@ -5,12 +5,24 @@
  */
 
 import type { ExtractPublicPropTypes, PropType, VNode } from 'vue'
-import { type TIconButtonAppearance, IconButtonAppearance } from './shared.definition'
+import { type TIconButtonAppearance, type TIconButtonShape, type TIconButtonSize, type TIconButtonWidth, IconButtonAppearance, IconButtonShape, IconButtonSize, IconButtonWidth } from './shared.definition'
 
 export const props = {
     appearance: {
         type: String as PropType<TIconButtonAppearance>,
         default: IconButtonAppearance.Standard,
+    },
+    size: {
+        type: String as PropType<TIconButtonSize>,
+        default: IconButtonSize.Small,
+    },
+    width: {
+        type: String as PropType<TIconButtonWidth>,
+        default: IconButtonWidth.Default,
+    },
+    shape: {
+        type: String as PropType<TIconButtonShape>,
+        default: IconButtonShape.Round,
     },
     disabled: {
         type: Boolean,

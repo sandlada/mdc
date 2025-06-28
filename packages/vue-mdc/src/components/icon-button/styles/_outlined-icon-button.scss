@@ -34,110 +34,50 @@
         );
     }
 
-    & {
-        color: var(--_icon-color);
-
-        &:hover {
-            color: var(--_hover-icon-color);
-        }
-
-        &:focus {
-            color: var(--_focus-icon-color);
-        }
-
-        &:active {
-            color: var(--_pressed-icon-color);
-        }
-
-        &:is(:disabled, .disabled, [disabled]) {
-            color: var(--_disabled-icon-color);
-        }
-    }
-
-    & .background {
-        // Background color, separate node for opacity changes
-        background-color: transparent;
-        border-radius: inherit;
-        inset: 0;
-        position: absolute;
-        z-index: -1; // place behind content
-    }
-
     & .outline {
-        // Background color, separate node for opacity changes
         border-radius: inherit;
-        content: '';
         inset: 0;
         position: absolute;
-        z-index: -1; // place behind content
-        border-color: var(--_outline-color);
-        border-width: var(--_outline-width);
+        z-index: -1;
         border-style: solid;
     }
 
-    &:is(:disabled, .disabled, [disabled]) .outline {
+    /* Outline - Outline Width */
+
+    &.extra-small .outline {
+        border-width: var(--_extra-small-outline-width);
+    }
+    &.small .outline {
+        border-width: var(--_small-outline-width);
+    }
+    &.medium .outline {
+        border-width: var(--_medium-outline-width);
+    }
+    &.large .outline {
+        border-width: var(--_large-outline-width);
+    }
+    &.extra-large .outline {
+        border-width: var(--_extra-large-outline-width);
+    }
+
+    /* Outline - Color */
+
+    & .outline {
+        border-color: var(--_outline-color);
+    }
+    &.togglable.selected .outline {
+        border-color: var(--_toggle-selected-outline-color);
+    }
+    &.togglable.unselected .outline {
+        border-color: var(--_toggle-unselected-outline-color);
+    }
+
+
+    /* Disabled - Background */
+
+    &.togglable.disabled .outline,
+    &.disabled .outline {
         border-color: var(--_disabled-outline-color);
-        opacity: var(--_disabled-outline-opacity);
-    }
-
-    &:is(:disabled, .disabled, [disabled]) .icon {
-        opacity: var(--_disabled-icon-opacity);
-    }
-
-    & .background {
-        block-size: 100%;
-        border-radius: inherit;
-        box-sizing: border-box;
-        content: '';
-        inline-size: 100%;
-        inset: 0;
-        pointer-events: none;
-        position: absolute;
-        z-index: -1; // place behind content
-    }
-
-    // Selected toggle buttons have no outline.
-    &.selected .outline {
-        border-width: 0;
-    }
-
-    // Selected icon button toggle.
-    &.selected {
-        &:not(:disabled) {
-            color: var(--_selected-icon-color);
-
-            &:hover {
-                color: var(--_selected-hover-icon-color);
-            }
-
-            &:focus {
-                color: var(--_selected-focus-icon-color);
-            }
-
-            &:active {
-                color: var(--_selected-pressed-icon-color);
-            }
-        }
-
-        @include themes.md-comp-ripple-theme(
-            (
-                hover-color: var(--_selected-hover-state-layer-color),
-                hover-opacity: var(--_hover-state-layer-opacity),
-                pressed-color: var(--_selected-pressed-state-layer-color),
-                pressed-opacity: var(--_pressed-state-layer-opacity),
-            )
-        );
-    }
-
-    &.selected:not(:disabled) .background,
-    &.selected:not(.disabled) .background {
-        background-color: var(--_selected-container-color);
-    }
-
-    &.selected.disabled .background,
-    &.selected:disabled .background {
-        background-color: var(--_disabled-selected-container-color);
-        opacity: var(--_disabled-selected-container-opacity);
     }
 
     @media (forced-colors: active) {
@@ -156,7 +96,7 @@
             &:is(:disabled, .disabled, [disabled]) .background {
                 border-color: GrayText;
                 opacity: 1;
-            }
+            } 
         }
     }
 }

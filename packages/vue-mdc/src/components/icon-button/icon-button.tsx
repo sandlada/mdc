@@ -23,6 +23,9 @@ export const IconButton = defineComponent({
          * Props
          */
         const _appearance = ref(props.appearance)
+        const _size = ref(props.size)
+        const _width = ref(props.width)
+        const _shape = ref(props.shape)
         const _disabled = ref(props.disabled)
         const _type = ref(props.type)
         const _href = ref(props.href)
@@ -34,6 +37,9 @@ export const IconButton = defineComponent({
         useReflectAttribute(root, {
             attributes: [
                 { attribute: 'appearance', ref: _appearance, reflect: true, type: 'string', },
+                { attribute: 'size', ref: _size, reflect: true, type: 'string', },
+                { attribute: 'width', ref: _width, reflect: true, type: 'string', },
+                { attribute: 'shape', ref: _shape, reflect: true, type: 'string', },
                 { attribute: 'disabled', ref: _disabled, reflect: true, type: 'boolean', },
                 { attribute: 'type', ref: _type, reflect: true, type: 'string', },
                 { attribute: 'href', ref: _href, reflect: true, type: 'string', },
@@ -46,6 +52,14 @@ export const IconButton = defineComponent({
 
         return () => {
             const isLink = _href.value !== null
+
+            const classes = [
+                css[_appearance.value],
+                _disabled.value && css.disabled,
+                css[_size.value],
+                css[_width.value],
+                css[_shape.value],
+            ]
 
             const renderIcon = (
                 <span class={css.icon}>
@@ -64,7 +78,7 @@ export const IconButton = defineComponent({
             )
             const renderLink = (
                 <a
-                    class={[css[_appearance.value], _disabled.value && css.disabled]}
+                    class={classes}
                     data-component="icon-button"
                     href={_href.value}
                     ref={root}
@@ -74,7 +88,7 @@ export const IconButton = defineComponent({
             )
             const renderButton = (
                 <button
-                    class={[css[_appearance.value], _disabled.value && css.disabled]}
+                    class={classes}
                     data-component="icon-button"
                     ref={root}
                 >

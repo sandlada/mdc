@@ -33,6 +33,9 @@ export const ToggleIconButton = defineComponent({
          * Props
          */
         const _appearance = ref(props.appearance)
+        const _size = ref(props.size)
+        const _width = ref(props.width)
+        const _shape = ref(props.shape)
         const _disabled = ref(props.disabled)
         const _name = ref(props.name)
         const _value = ref(props.value)
@@ -40,6 +43,9 @@ export const ToggleIconButton = defineComponent({
         useReflectAttribute(root, {
             attributes: [
                 { attribute: 'appearance', ref: _appearance, reflect: true, type: 'string', },
+                { attribute: 'size', ref: _size, reflect: true, type: 'string', },
+                { attribute: 'width', ref: _width, reflect: true, type: 'string', },
+                { attribute: 'shape', ref: _shape, reflect: true, type: 'string', },
                 { attribute: 'disabled', ref: _disabled, reflect: true, type: 'boolean', },
                 { attribute: 'name', ref: _name, reflect: true, type: 'string', },
                 { attribute: 'value', ref: _value, reflect: true, type: 'string', },
@@ -90,6 +96,7 @@ export const ToggleIconButton = defineComponent({
         })
 
         return () => {
+
             const renderIcon = (
                 <span class={css.icon}>
                     {slots.default && slots.default()}
@@ -100,9 +107,12 @@ export const ToggleIconButton = defineComponent({
                 <button
                     class={[
                         css[_appearance.value],
-                        css['toggle-icon-button'],
-                        _selected.value && css.selected,
+                        css['togglable'],
+                        _selected.value ? css.selected : css.unselected,
                         _disabled.value && css.disabled,
+                        css[_size.value],
+                        css[_width.value],
+                        css[_shape.value],
                     ]}
                     data-component="togglable-icon-button"
                     role='checkbox'

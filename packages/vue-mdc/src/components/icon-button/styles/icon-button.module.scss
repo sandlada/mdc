@@ -4,6 +4,8 @@
 //
 
 @use './shared';
+@use './focus-ring';
+@use './ripple';
 @use './filled-icon-button';
 @use './filled-tonal-icon-button';
 @use './outlined-icon-button';
@@ -16,6 +18,24 @@
         .filled-tonal,
         .outlined {
             @include shared.styles();
+        }
+    }
+
+    @layer focus-ring {
+        .standard,
+        .filled,
+        .filled-tonal,
+        .outlined {
+            @include focus-ring.styles();
+        }
+    }
+
+    @layer ripple {
+        .standard,
+        .filled,
+        .filled-tonal,
+        .outlined {
+            @include ripple.styles();
         }
     }
 

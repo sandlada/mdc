@@ -7,12 +7,24 @@
 import type { ExtractPublicPropTypes, PropType, VNode } from 'vue'
 import { FormSubmitterType, type TFormSubmitterType } from '../../internals/controller/form-submitter'
 import type { TButtonTarget } from '../../utils/button-target-type'
-import { IconButtonAppearance, type TIconButtonAppearance } from './shared.definition'
+import { IconButtonAppearance, IconButtonShape, IconButtonSize, IconButtonWidth, type TIconButtonAppearance, type TIconButtonShape, type TIconButtonSize, type TIconButtonWidth } from './shared.definition'
 
 export const props = {
     appearance: {
         type: String as PropType<TIconButtonAppearance>,
         default: IconButtonAppearance.Standard,
+    },
+    size: {
+        type: String as PropType<TIconButtonSize>,
+        default: IconButtonSize.Small,
+    },
+    width: {
+        type: String as PropType<TIconButtonWidth>,
+        default: IconButtonWidth.Default,
+    },
+    shape: {
+        type: String as PropType<TIconButtonShape>,
+        default: IconButtonShape.Round,
     },
     disabled: {
         type: Boolean,
