@@ -13,7 +13,7 @@
 @use '../../../tokens';
 
 @mixin styles() {
-    $tokens: tokens.md-comp-icon-button-values();
+    $tokens: tokens.md-comp-standard-icon-button-values();
 
     & {
         // Only use the logical properties.

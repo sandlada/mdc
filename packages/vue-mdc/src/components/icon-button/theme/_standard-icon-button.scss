@@ -12,7 +12,7 @@
 @use '../../../tokens';
 
 @mixin theme($tokens) {
-    $supported-tokens: tokens.$md-comp-icon-button-supported-tokens;
+    $supported-tokens: tokens.$md-comp-standard-icon-button-supported-tokens;
 
     @each $token, $value in $tokens {
         @if list.index($supported-tokens, $token) ==null {

@@ -2,14 +2,11 @@
 // Copyright 2023 Google LLC
 // SPDX-License-Identifier: Apache-2.0
 //
+// [Modified by Sandlada & Kai Orion]
 //
-// !!! THIS FILE WAS AUTOMATICALLY GENERATED !!!
-// !!! DO NOT MODIFY IT BY HAND !!!
-// Design system display name: Google Material 3
-// Design system version: v0.192
-// User-configured context group "Audience": "3P"
-// User-configured context group "Platform": "Web"
-// User-configured context group "Scheme": "Dynamic"
+// @license
+// Copyright 2025 Sandlada & Kai Orion
+// SPDX-License-Identifier: MIT
 //
 
 @use 'sass:map';
@@ -25,40 +22,118 @@ $_default: (
 
 @function values($deps: $_default, $exclude-hardcoded-values: false) {
     @return (
+        'extra-small-container-height': if($exclude-hardcoded-values, null, 32px),
+        'small-container-height': if($exclude-hardcoded-values, null, 40px),
+        'medium-container-height': if($exclude-hardcoded-values, null, 56px),
+        'large-container-height': if($exclude-hardcoded-values, null, 96px),
+        'extra-large-container-height': if($exclude-hardcoded-values, null, 136px),
+
+        'extra-small-icon-size': if($exclude-hardcoded-values, null, 20px),
+        'small-icon-size': if($exclude-hardcoded-values, null, 24px),
+        'medium-icon-size': if($exclude-hardcoded-values, null, 24px),
+        'large-icon-size': if($exclude-hardcoded-values, null, 32px),
+        'extra-large-icon-size': if($exclude-hardcoded-values, null, 40px),
+
+        'extra-small-narrow-leading-space': if($exclude-hardcoded-values, null, 4px),
+        'extra-small-narrow-trailing-space': if($exclude-hardcoded-values, null, 4px),
+        'extra-small-default-leading-space': if($exclude-hardcoded-values, null, 6px),
+        'extra-small-default-trailing-space': if($exclude-hardcoded-values, null, 6px),
+        'extra-small-wide-leading-space': if($exclude-hardcoded-values, null, 10px),
+        'extra-small-wide-trailing-space': if($exclude-hardcoded-values, null, 10px),
+        'small-narrow-leading-space': if($exclude-hardcoded-values, null, 4px),
+        'small-narrow-trailing-space': if($exclude-hardcoded-values, null, 4px),
+        'small-default-leading-space': if($exclude-hardcoded-values, null, 8px),
+        'small-default-trailing-space': if($exclude-hardcoded-values, null, 8px),
+        'small-wide-leading-space': if($exclude-hardcoded-values, null, 14px),
+        'small-wide-trailing-space': if($exclude-hardcoded-values, null, 14px),
+        'medium-narrow-leading-space': if($exclude-hardcoded-values, null, 12px),
+        'medium-narrow-trailing-space': if($exclude-hardcoded-values, null, 12px),
+        'medium-default-leading-space': if($exclude-hardcoded-values, null, 16px),
+        'medium-default-trailing-space': if($exclude-hardcoded-values, null, 16px),
+        'medium-wide-leading-space': if($exclude-hardcoded-values, null, 24px),
+        'medium-wide-trailing-space': if($exclude-hardcoded-values, null, 24px),
+        'large-narrow-leading-space': if($exclude-hardcoded-values, null, 16px),
+        'large-narrow-trailing-space': if($exclude-hardcoded-values, null, 16px),
+        'large-default-leading-space': if($exclude-hardcoded-values, null, 32px),
+        'large-default-trailing-space': if($exclude-hardcoded-values, null, 32px),
+        'large-wide-leading-space': if($exclude-hardcoded-values, null, 48px),
+        'large-wide-trailing-space': if($exclude-hardcoded-values, null, 48px),
+        'extra-large-narrow-leading-space': if($exclude-hardcoded-values, null, 32px),
+        'extra-large-narrow-trailing-space': if($exclude-hardcoded-values, null, 32px),
+        'extra-large-default-leading-space': if($exclude-hardcoded-values, null, 48px),
+        'extra-large-default-trailing-space': if($exclude-hardcoded-values, null, 48px),
+        'extra-large-wide-leading-space': if($exclude-hardcoded-values, null, 72px),
+        'extra-large-wide-trailing-space': if($exclude-hardcoded-values, null, 72px),
+
+        'extra-small-container-shape-round': map.get($deps, 'md-sys-shape', 'corner-full'),
+        'extra-small-container-shape-square': map.get($deps, 'md-sys-shape', 'corner-medium'),
+        'small-container-shape-round': map.get($deps, 'md-sys-shape', 'corner-full'),
+        'small-container-shape-square': map.get($deps, 'md-sys-shape', 'corner-medium'),
+        'medium-container-shape-round': map.get($deps, 'md-sys-shape', 'corner-full'),
+        'medium-container-shape-square': map.get($deps, 'md-sys-shape', 'corner-large'),
+        'large-container-shape-round': map.get($deps, 'md-sys-shape', 'corner-full'),
+        'large-container-shape-square': map.get($deps, 'md-sys-shape', 'corner-extra-large'),
+        'extra-large-container-shape-round': map.get($deps, 'md-sys-shape', 'corner-full'),
+        'extra-large-container-shape-square': map.get($deps, 'md-sys-shape', 'corner-extra-large'),
+
+        'extra-small-outline-width': if($exclude-hardcoded-values, null, 1px),
+        'small-outline-width': if($exclude-hardcoded-values, null, 1px),
+        'medium-outline-width': if($exclude-hardcoded-values, null, 1px),
+        'large-outline-width': if($exclude-hardcoded-values, null, 2px),
+        'extra-large-outline-width': if($exclude-hardcoded-values, null, 3px),
+
+        'extra-small-shape-pressed-morph': map.get($deps, 'md-sys-shape', 'corner-small'),
+        'small-shape-pressed-morph': map.get($deps, 'md-sys-shape', 'corner-small'),
+        'medium-shape-pressed-morph': map.get($deps, 'md-sys-shape', 'corner-medium'),
+        'large-shape-pressed-morph': map.get($deps, 'md-sys-shape', 'corner-large'),
+        'extra-large-shape-pressed-morph': map.get($deps, 'md-sys-shape', 'corner-large'),
+
+        'extra-small-toggle-selected-container-shape-round': map.get($deps, 'md-sys-shape', 'corner-medium'),
+        'extra-small-toggle-selected-container-shape-square': map.get($deps, 'md-sys-shape', 'corner-full'),
+        'small-toggle-selected-container-shape-round': map.get($deps, 'md-sys-shape', 'corner-medium'),
+        'small-toggle-selected-container-shape-square': map.get($deps, 'md-sys-shape', 'corner-full'),
+        'medium-toggle-selected-container-shape-round': map.get($deps, 'md-sys-shape', 'corner-large'),
+        'medium-toggle-selected-container-shape-square': map.get($deps, 'md-sys-shape', 'corner-full'),
+        'large-toggle-selected-container-shape-round': map.get($deps, 'md-sys-shape', 'corner-extra-large'),
+        'large-toggle-selected-container-shape-square': map.get($deps, 'md-sys-shape', 'corner-full'),
+        'extra-large-toggle-selected-container-shape-round': map.get($deps, 'md-sys-shape', 'corner-extra-large'),
+        'extra-large-toggle-selected-container-shape-square': map.get($deps, 'md-sys-shape', 'corner-full'),
+
         'container-color': map.get($deps, 'md-sys-color', 'secondary-container'),
-        'container-height': if($exclude-hardcoded-values, null, 40px),
-        'container-shape': map.get($deps, 'md-sys-shape', 'corner-full'),
-        'container-width': if($exclude-hardcoded-values, null, 40px),
+        'toggle-unselected-container-color': map.get($deps, 'md-sys-color', 'secondary-container'),
+        'toggle-selected-container-color': map.get($deps, 'md-sys-color', 'secondary'),
+        'icon-color': map.get($deps, 'md-sys-color', 'on-secondary-container'),
+        'toggle-unselected-icon-color': map.get($deps, 'md-sys-color', 'on-secondary-container'),
+        'toggle-selected-icon-color': map.get($deps, 'md-sys-color', 'on-secondary'),
+
         'disabled-container-color': map.get($deps, 'md-sys-color', 'on-surface'),
-        'disabled-container-opacity': if($exclude-hardcoded-values, null, 0.12),
+        'disabled-container-opacity': if($exclude-hardcoded-values, null, 0.1),
         'disabled-icon-color': map.get($deps, 'md-sys-color', 'on-surface'),
         'disabled-icon-opacity': if($exclude-hardcoded-values, null, 0.38),
-        'focus-icon-color': map.get($deps, 'md-sys-color', 'on-secondary-container'),
-        'focus-state-layer-color': map.get($deps, 'md-sys-color', 'on-secondary-container'),
-        'focus-state-layer-opacity': map.get($deps, 'md-sys-state', 'focus-state-layer-opacity'),
-        'hover-icon-color': map.get($deps, 'md-sys-color', 'on-secondary-container'),
+
         'hover-state-layer-color': map.get($deps, 'md-sys-color', 'on-secondary-container'),
+        'toggle-unselected-hover-state-layer-color': map.get($deps, 'md-sys-color', 'on-secondary-container'),
+        'toggle-selected-hover-state-layer-color': map.get($deps, 'md-sys-color', 'on-secondary'),
         'hover-state-layer-opacity': map.get($deps, 'md-sys-state', 'hover-state-layer-opacity'),
-        'icon-color': map.get($deps, 'md-sys-color', 'on-secondary-container'),
-        'icon-size': if($exclude-hardcoded-values, null, 24px),
-        'pressed-icon-color': map.get($deps, 'md-sys-color', 'on-secondary-container'),
+        'hover-icon-color': map.get($deps, 'md-sys-color', 'on-secondary-container'),
+        'toggle-unselected-hover-icon-color': map.get($deps, 'md-sys-color', 'on-secondary-container'),
+        'toggle-selected-hover-icon-color': map.get($deps, 'md-sys-color', 'on-secondary'),
+
+        'focus-state-layer-color': map.get($deps, 'md-sys-color', 'on-secondary-container'),
+        'toggle-unselected-focus-state-layer-color': map.get($deps, 'md-sys-color', 'on-secondary-container'),
+        'toggle-selected-focus-state-layer-color': map.get($deps, 'md-sys-color', 'on-secondary'),
+        'focus-state-layer-opacity': map.get($deps, 'md-sys-state', 'focus-state-layer-opacity'),
+        'focus-icon-color': map.get($deps, 'md-sys-color', 'on-secondary-container'),
+        'toggle-unselected-focus-icon-color': map.get($deps, 'md-sys-color', 'on-secondary-container'),
+        'toggle-selected-focus-icon-color': map.get($deps, 'md-sys-color', 'on-secondary'),
+
         'pressed-state-layer-color': map.get($deps, 'md-sys-color', 'on-secondary-container'),
+        'toggle-unselected-pressed-state-layer-color': map.get($deps, 'md-sys-color', 'on-secondary-container'),
+        'toggle-selected-pressed-state-layer-color': map.get($deps, 'md-sys-color', 'on-secondary'),
         'pressed-state-layer-opacity': map.get($deps, 'md-sys-state', 'pressed-state-layer-opacity'),
-        'selected-container-color': map.get($deps, 'md-sys-color', 'secondary-container'),
-        'toggle-selected-focus-icon-color': map.get($deps, 'md-sys-color', 'on-secondary-container'),
-        'toggle-selected-focus-state-layer-color': map.get($deps, 'md-sys-color', 'on-secondary-container'),
-        'toggle-selected-hover-icon-color': map.get($deps, 'md-sys-color', 'on-secondary-container'),
-        'toggle-selected-hover-state-layer-color': map.get($deps, 'md-sys-color', 'on-secondary-container'),
-        'toggle-selected-icon-color': map.get($deps, 'md-sys-color', 'on-secondary-container'),
-        'toggle-selected-pressed-icon-color': map.get($deps, 'md-sys-color', 'on-secondary-container'),
-        'toggle-selected-pressed-state-layer-color': map.get($deps, 'md-sys-color', 'on-secondary-container'),
-        'toggle-unselected-focus-icon-color': map.get($deps, 'md-sys-color', 'on-surface-variant'),
-        'toggle-unselected-focus-state-layer-color': map.get($deps, 'md-sys-color', 'on-surface-variant'),
-        'toggle-unselected-hover-icon-color': map.get($deps, 'md-sys-color', 'on-surface-variant'),
-        'toggle-unselected-hover-state-layer-color': map.get($deps, 'md-sys-color', 'on-surface-variant'),
-        'toggle-unselected-icon-color': map.get($deps, 'md-sys-color', 'on-surface-variant'),
-        'toggle-unselected-pressed-icon-color': map.get($deps, 'md-sys-color', 'on-surface-variant'),
-        'toggle-unselected-pressed-state-layer-color': map.get($deps, 'md-sys-color', 'on-surface-variant'),
-        'unselected-container-color': map.get($deps, 'md-sys-color', 'surface-container-highest')
+        'pressed-icon-color': map.get($deps, 'md-sys-color', 'on-secondary-container'),
+        'toggle-unselected-pressed-icon-color': map.get($deps, 'md-sys-color', 'on-secondary-container'),
+        'toggle-selected-pressed-icon-color': map.get($deps, 'md-sys-color', 'on-secondary'),
+
     );
 }
