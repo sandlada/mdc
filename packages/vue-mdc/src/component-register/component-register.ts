@@ -15,7 +15,6 @@ import { Fab } from '../components/fab/fab'
 import { Field } from '../components/field/field'
 import { FocusRing } from '../components/focus-ring/focus-ring'
 import { IconButton } from '../components/icon-button/icon-button'
-import { ToggleIconButton } from '../components/icon-button/toggle-icon-button'
 import { Icon } from '../components/icon/icon'
 import { NavigationBar } from '../components/navigation-bar/navigation-bar'
 import { NavigationDrawer, } from '../components/navigation-drawer/navigation-drawer'
@@ -51,7 +50,6 @@ export const registerComponents = (prefix = componentNamePrefix) => ({
         instance.component(`${prefix}-focus-ring`, FocusRing)
         instance.component(`${prefix}-icon`, Icon)
         instance.component(`${prefix}-icon-button`, IconButton)
-        instance.component(`${prefix}-toggle-icon-button`, ToggleIconButton)
         instance.component(`${prefix}-navigation-bar`, NavigationBar)
         instance.component(`${prefix}-navigation-drawer`, NavigationDrawer)
         instance.component(`${prefix}-navigation-drawer-headline`, NavigationDrawerHeadline)

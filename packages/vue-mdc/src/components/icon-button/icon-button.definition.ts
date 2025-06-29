@@ -7,7 +7,41 @@
 import type { ExtractPublicPropTypes, PropType, VNode } from 'vue'
 import { FormSubmitterType, type TFormSubmitterType } from '../../internals/controller/form-submitter'
 import type { TButtonTarget } from '../../utils/button-target-type'
-import { IconButtonAppearance, IconButtonShape, IconButtonSize, IconButtonWidth, type TIconButtonAppearance, type TIconButtonShape, type TIconButtonSize, type TIconButtonWidth } from './shared.definition'
+
+export const IconButtonAppearance = {
+    Filled: 'filled',
+    Outlined: 'outlined',
+    FilledTonal: 'filled-tonal',
+    Standard: 'standard',
+} as const
+
+export type TIconButtonAppearance = typeof IconButtonAppearance[keyof typeof IconButtonAppearance]
+
+export const IconButtonSize = {
+    ExtraSmall: 'extra-small',
+    Small: 'small',
+    Medium: 'medium',
+    Large: 'large',
+    ExtraLarge: 'extra-large',
+} as const
+
+export type TIconButtonSize = typeof IconButtonSize[keyof typeof IconButtonSize]
+
+export const IconButtonWidth = {
+    Narrow: 'narrow',
+    Default: 'default',
+    Wide: 'wide',
+} as const
+
+export type TIconButtonWidth = typeof IconButtonWidth[keyof typeof IconButtonWidth]
+
+export const IconButtonShape = {
+    Round: 'round',
+    Suare: 'square',
+} as const
+
+export type TIconButtonShape = typeof IconButtonShape[keyof typeof IconButtonShape]
+
 
 export const props = {
     appearance: {
@@ -26,8 +60,12 @@ export const props = {
         type: String as PropType<TIconButtonShape>,
         default: IconButtonShape.Round,
     },
+    togglable: {
+        type: Boolean as PropType<boolean>,
+        default: false,
+    },
     disabled: {
-        type: Boolean,
+        type: Boolean as PropType<boolean>,
         default: false,
     },
     type: {
@@ -52,6 +90,14 @@ export const props = {
     },
     value: {
         type: String as PropType<string>,
+        default: null,
+    },
+    defaultSelected: {
+        type: Boolean as PropType<boolean>,
+        default: false,
+    },
+    modelValue: {
+        type: Boolean as PropType<boolean>,
         default: null,
     },
 } as const
