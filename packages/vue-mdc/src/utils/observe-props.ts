@@ -2,7 +2,7 @@ import { watch, type Ref, type WatchCallback, type WatchHandle, type WatchOption
 
 type TObserveProp = {
     id: string
-    property: Ref<boolean | string | number>
+    property: Ref<boolean | string | number> | object
     callback: WatchCallback
     options?: WatchOptions
 }
@@ -12,7 +12,7 @@ export function useObserveProps(propMap: Array<TObserveProp>) {
     let map: Map<
         string,
         {
-            property: Ref<boolean | string | number>,
+            property: Ref<boolean | string | number> | object,
             callback: WatchCallback,
             options: WatchOptions | undefined,
             watchHandle: WatchHandle
