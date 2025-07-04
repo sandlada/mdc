@@ -1,0 +1,373 @@
+//
+// Copyright 2025 Sandlada & Kai Orion
+// SPDX-License-Identifier: MIT
+//
+
+@use 'sass:map';
+@use '../../../tokens';
+@use '../../../themes';
+
+@mixin styles() {
+    $tokens: tokens.md-comp-slider-values();
+
+    @layer mdc-slider {
+
+        @layer variable {
+            .slider.variable {
+                --_start-fraction: 0;
+                --_end-fraction: 0;
+                --_tick-count: 0;
+                --_track-gap: 6px;
+                --_state-layer-size: 4px;
+            }
+        }
+
+        @layer base.track {
+            .track {
+                position: absolute;
+                inset: 0;
+                display: flex;
+                align-items: center;
+            }
+
+            .track .active,
+            .track .inactive.left,
+            .track .inactive.right {
+                position: absolute;
+                display: block;
+                inset-inline-start: 0px;
+                inset-inline-end: 0px;
+                pointer-events: none;
+            }
+
+            /* Track Position & Shape*/
+
+            .extra-small.slider {
+                --_inset-ltr: inset(
+                    0 /* 上 */
+                    calc((1 - var(--_end-fraction)) * 100% + var(--_track-gap)) /* 右 */
+                    0 /* 下 */
+                    0 /* 左 */
+                    round var(--_extra-small-active-track-leading-shape) var(--_active-track-inner-corner-size) var(--_active-track-inner-corner-size) var(--_extra-small-active-track-leading-shape)
+                );
+                --_inset-rtl: inset(
+                    0 /* 上 */
+                    0 /* 右 */
+                    0 /* 下 */
+                    calc(var(--_end-fraction) * 100% + var(--_track-gap)) /* 左 */
+                    round var(--_active-track-inner-corner-size) var(--_extra-small-active-track-leading-shape) var(--_extra-small-active-track-leading-shape) var(--_active-track-inner-corner-size)
+                );
+            }
+            .small.slider {
+                --_inset-ltr: inset(
+                    0 /* 上 */
+                    calc((1 - var(--_end-fraction)) * 100% + var(--_track-gap)) /* 右 */
+                    0 /* 下 */
+                    0 /* 左 */
+                    round var(--_small-active-track-leading-shape) var(--_active-track-inner-corner-size) var(--_active-track-inner-corner-size)  var(--_small-active-track-leading-shape)
+                );
+                --_inset-rtl: inset(
+                    0 /* 上 */
+                    0 /* 右 */
+                    0 /* 下 */
+                    calc(var(--_end-fraction) * 100% + var(--_track-gap)) /* 左 */
+                    round var(--_active-track-inner-corner-size) var(--_small-active-track-leading-shape) var(--_small-active-track-leading-shape) var(--_active-track-inner-corner-size)
+                );
+            }
+            .medium.slider {
+                --_inset-ltr: inset(
+                    0 /* 上 */
+                    calc((1 - var(--_end-fraction)) * 100% + var(--_track-gap)) /* 右 */
+                    0 /* 下 */
+                    0 /* 左 */
+                    round var(--_medium-active-track-leading-shape) var(--_active-track-inner-corner-size) var(--_active-track-inner-corner-size) var(--_medium-active-track-leading-shape)
+                );
+                --_inset-rtl: inset(
+                    0 /* 上 */
+                    0 /* 右 */
+                    0 /* 下 */
+                    calc(var(--_end-fraction) * 100% + var(--_track-gap)) /* 左 */
+                    round var(--_active-track-inner-corner-size) var(--_medium-active-track-leading-shape) var(--_medium-active-track-leading-shape) var(--_active-track-inner-corner-size)
+                );
+            }
+            .large.slider {
+                --_inset-ltr: inset(
+                    0 /* 上 */
+                    calc((1 - var(--_end-fraction)) * 100% + var(--_track-gap)) /* 右 */
+                    0 /* 下 */
+                    0 /* 左 */
+                    round var(--_large-active-track-leading-shape) var(--_active-track-inner-corner-size) var(--_active-track-inner-corner-size) var(--_large-active-track-leading-shape)
+                );
+                --_inset-rtl: inset(
+                    0 /* 上 */
+                    0 /* 右 */
+                    0 /* 下 */
+                    calc(var(--_end-fraction) * 100% + var(--_track-gap)) /* 左 */
+                    round var(--_active-track-inner-corner-size) var(--_large-active-track-leading-shape) var(--_large-active-track-leading-shape) var(--_active-track-inner-corner-size)
+                );
+            }
+            .extra-large.slider {
+                --_inset-ltr: inset(
+                    0 /* 上 */
+                    calc((1 - var(--_end-fraction)) * 100% + var(--_track-gap)) /* 右 */
+                    0 /* 下 */
+                    0 /* 左 */
+                    round var(--_extra-large-active-track-leading-shape) var(--_active-track-inner-corner-size) var(--_active-track-inner-corner-size) var(--_extra-large-active-track-leading-shape)
+                );
+                --_inset-rtl: inset(
+                    0 /* 上 */
+                    0 /* 右 */
+                    0 /* 下 */
+                    calc(var(--_end-fraction) * 100% + var(--_track-gap)) /* 左 */
+                    round var(--_active-track-inner-corner-size) var(--_extra-large-active-track-leading-shape) var(--_extra-large-active-track-leading-shape) var(--_active-track-inner-corner-size)
+                );
+            }
+
+            /* Track Size */
+
+            .extra-small .track .inactive.left,
+            .extra-small .track .inactive.right {
+                block-size: var(--_extra-small-inactive-track-height);
+            }
+            .small .track .inactive.left,
+            .small .track .inactive.right {
+                block-size: var(--_small-inactive-track-height);
+            }
+            .medium .track .inactive.left,
+            .medium .track .inactive.right {
+                block-size: var(--_medium-inactive-track-height);
+            }
+            .large .track .inactive.left,
+            .large .track .inactive.right {
+                block-size: var(--_large-inactive-track-height);
+            }
+            .extra-large .track .inactive.left,
+            .extra-large .track .inactive.right {
+                block-size: var(--_extra-large-inactive-track-height);
+            }
+
+            .extra-small .track .active {
+                block-size: var(--_extra-small-active-track-height);
+            }
+            .small .track .active {
+                block-size: var(--_small-active-track-height);
+            }
+            .medium .track .active {
+                block-size: var(--_medium-active-track-height);
+            }
+            .large .track .active {
+                block-size: var(--_large-active-track-height);
+            }
+            .extra-large .track .active {
+                block-size: var(--_extra-large-active-track-height);
+            }
+
+
+            /* Track Color */
+
+            .track .inactive.left,
+            .track .inactive.right {
+                background: var(--_inactive-track-color);
+            }
+            .slider[disabled] .track .inactive.left,
+            .slider[disabled] .track .inactive.right {
+                // Note, the active track opacity is applied to the entire host,
+                // so the inactive track is calc'd to compensate.
+                opacity: calc((1 / var(--_disabled-active-track-opacity)) * var(--_disabled-inactive-track-opacity));
+                background: var(--_disabled-inactive-track-color);
+            }
+            .track .active {
+                background: var(--_active-track-color);
+            }
+            .slider[disabled] .track .active {
+                background: var(--_disabled-active-track-color);
+            }
+
+            // rtl for active track clipping
+            .track:dir(rtl)::after {
+                // clip-path: inset(0 $_active-track-start-clip 0 $_active-track-end-clip);
+            }
+            .tickmarks:dir(rtl)::after {
+                // clip-path: inset(0 $_active-track-start-clip 0 $_active-track-end-clip);
+            }
+            .track .inactive.left {
+                clip-path: var(--_inset-rtl);
+            }
+            .track .active {
+                clip-path: var(--_inset-ltr);
+            }
+
+            .slider:not(.ranged) .track .inactive.right {
+                display: none;
+            }
+
+            /* Track Ranged */
+
+            .extra-small.slider.ranged {
+                 --_inset-left-track: inset(
+                    0 /* 上 */
+                    calc((1 - var(--_start-fraction)) * 100% + var(--_track-gap)) /* 右 */
+                    0 /* 下 */
+                    0 /* 左 */
+                    round var(--_extra-small-active-track-leading-shape) var(--_active-track-inner-corner-size) var(--_active-track-inner-corner-size)  var(--_extra-small-active-track-leading-shape)
+                );
+                  --_inset-right-track: inset(
+                    0 /* 上 */
+                    0 /* 右 */
+                    0 /* 下 */
+                    calc(var(--_end-fraction) * 100% + var(--_track-gap)) /* 左 */
+                    round var(--_active-track-inner-corner-size) var(--_extra-small-active-track-leading-shape) var(--_extra-small-active-track-leading-shape) var(--_active-track-inner-corner-size)
+
+                );
+                  --_inset-range-fill: inset(
+                    0 /* 上 */
+                    calc((1 - var(--_end-fraction)) * 100% + var(--_track-gap)) /* 右 */
+                    0 /* 下 */
+                    calc(var(--_start-fraction) * 100% + var(--_track-gap)) /* 左 */
+                    round var(--_active-track-inner-corner-size)
+                );
+            }
+            .small.slider.ranged {
+                --_inset-left-track: inset(
+                    0 /* 上 */
+                    calc((1 - var(--_start-fraction)) * 100% + var(--_track-gap)) /* 右 */
+                    0 /* 下 */
+                    0 /* 左 */
+                    round var(--_small-active-track-leading-shape) var(--_active-track-inner-corner-size) var(--_active-track-inner-corner-size)  var(--_small-active-track-leading-shape)
+                );
+                  --_inset-right-track: inset(
+                    0 /* 上 */
+                    0 /* 右 */
+                    0 /* 下 */
+                    calc(var(--_end-fraction) * 100% + var(--_track-gap)) /* 左 */
+                    round var(--_active-track-inner-corner-size) var(--_small-active-track-leading-shape) var(--_small-active-track-leading-shape) var(--_active-track-inner-corner-size)
+
+                );
+                  --_inset-range-fill: inset(
+                    0 /* 上 */
+                    calc((1 - var(--_end-fraction)) * 100% + var(--_track-gap)) /* 右 */
+                    0 /* 下 */
+                    calc(var(--_start-fraction) * 100% + var(--_track-gap)) /* 左 */
+                    round var(--_active-track-inner-corner-size)
+                );
+            }
+            .medium.slider.ranged {
+                --_inset-left-track: inset(
+                    0 /* 上 */
+                    calc((1 - var(--_start-fraction)) * 100% + var(--_track-gap)) /* 右 */
+                    0 /* 下 */
+                    0 /* 左 */
+                    round var(--_medium-active-track-leading-shape) var(--_active-track-inner-corner-size) var(--_active-track-inner-corner-size)  var(--_medium-active-track-leading-shape)
+                );
+                  --_inset-right-track: inset(
+                    0 /* 上 */
+                    0 /* 右 */
+                    0 /* 下 */
+                    calc(var(--_end-fraction) * 100% + var(--_track-gap)) /* 左 */
+                    round var(--_active-track-inner-corner-size) var(--_medium-active-track-leading-shape) var(--_medium-active-track-leading-shape) var(--_active-track-inner-corner-size)
+
+                );
+                  --_inset-range-fill: inset(
+                    0 /* 上 */
+                    calc((1 - var(--_end-fraction)) * 100% + var(--_track-gap)) /* 右 */
+                    0 /* 下 */
+                    calc(var(--_start-fraction) * 100% + var(--_track-gap)) /* 左 */
+                    round var(--_active-track-inner-corner-size)
+                );
+            }
+            .large.slider.ranged {
+                --_inset-left-track: inset(
+                    0 /* 上 */
+                    calc((1 - var(--_start-fraction)) * 100% + var(--_track-gap)) /* 右 */
+                    0 /* 下 */
+                    0 /* 左 */
+                    round var(--_large-active-track-leading-shape) var(--_active-track-inner-corner-size) var(--_active-track-inner-corner-size)  var(--_large-active-track-leading-shape)
+                );
+                  --_inset-right-track: inset(
+                    0 /* 上 */
+                    0 /* 右 */
+                    0 /* 下 */
+                    calc(var(--_end-fraction) * 100% + var(--_track-gap)) /* 左 */
+                    round var(--_active-track-inner-corner-size) var(--_large-active-track-leading-shape) var(--_large-active-track-leading-shape) var(--_active-track-inner-corner-size)
+
+                );
+                  --_inset-range-fill: inset(
+                    0 /* 上 */
+                    calc((1 - var(--_end-fraction)) * 100% + var(--_track-gap)) /* 右 */
+                    0 /* 下 */
+                    calc(var(--_start-fraction) * 100% + var(--_track-gap)) /* 左 */
+                    round var(--_active-track-inner-corner-size)
+                );
+            }
+            .extra-large.slider.ranged {
+                --_inset-left-track: inset(
+                    0 /* 上 */
+                    calc((1 - var(--_start-fraction)) * 100% + var(--_track-gap)) /* 右 */
+                    0 /* 下 */
+                    0 /* 左 */
+                    round var(--_extra-large-active-track-leading-shape) var(--_active-track-inner-corner-size) var(--_active-track-inner-corner-size)  var(--_extra-large-active-track-leading-shape)
+                );
+                  --_inset-right-track: inset(
+                    0 /* 上 */
+                    0 /* 右 */
+                    0 /* 下 */
+                    calc(var(--_end-fraction) * 100% + var(--_track-gap)) /* 左 */
+                    round var(--_active-track-inner-corner-size) var(--_extra-large-active-track-leading-shape) var(--_extra-large-active-track-leading-shape) var(--_active-track-inner-corner-size)
+                );
+                  --_inset-range-fill: inset(
+                    0 /* 上 */
+                    calc((1 - var(--_end-fraction)) * 100% + var(--_track-gap)) /* 右 */
+                    0 /* 下 */
+                    calc(var(--_start-fraction) * 100% + var(--_track-gap)) /* 左 */
+                    round var(--_active-track-inner-corner-size)
+                );
+            }
+
+            // clip left side of "start" input
+            .ranged .track .active {
+                clip-path: var(--_inset-range-fill);
+            }
+
+            // in 'rtl', clip right side of "lesser" input
+            .ranged input.start:dir(rtl) {
+                // clip-path: inset(0 0 0 $_clip-to-end);
+            }
+
+            // clip right side of "end" input
+
+            .ranged {
+                --_raned-center: calc((var(--_end-fraction) - var(--_start-fraction)) / 2);
+                --_right-length: calc(1 - var(--_end-fraction));
+            }
+
+            .ranged input.start {
+                clip-path: inset(
+                    0
+                    calc((var(--_right-length) + var(--_raned-center)) * 100%)
+                    0
+                    0
+                );
+            }
+            .ranged .track .inactive.left {
+                clip-path: var(--_inset-left-track);
+            }
+            .ranged input.end {
+                clip-path: inset(
+                0
+                0
+                0
+                calc((var(--_start-fraction) + var(--_raned-center)) * 100%)
+            );
+
+            }
+            .ranged .track .inactive.right {
+                clip-path: var(--_inset-right-track);
+            }
+
+            // in 'rtl', clip left side of "greater" input
+            .ranged input.end:dir(rtl) {
+                // clip-path: inset(0 $_clip-to-start 0 0);
+            }
+        }
+    }
+}

@@ -1,0 +1,112 @@
+//
+// Copyright 2025 Sandlada & Kai Orion
+// SPDX-License-Identifier: MIT
+//
+
+@use 'sass:map';
+@use '../../../tokens';
+@use '../../../themes';
+
+@mixin styles() {
+    $tokens: tokens.md-comp-slider-values();
+
+    @layer mdc-slider {
+
+        @layer base.handle {
+
+            .slider {
+
+                & .handle {
+                    position: absolute;
+                    inline-size: var(--_handle-width);
+                    border-radius: var(--_handle-shape);
+                    display: flex;
+                    place-content: center;
+                    place-items: center;
+                }
+
+                & .handleNub {
+                    position: absolute;
+                    width: var(--_handle-width);
+                    border-radius: var(--_handle-shape);
+                }
+
+                /* Handle Size*/
+
+                &.extra-small .handle {
+                    block-size: var(--_extra-small-active-handle-height);
+                }
+                &.small .handle {
+                    block-size: var(--_small-active-handle-height);
+                }
+                &.medium .handle {
+                    block-size: var(--_medium-active-handle-height);
+                }
+                &.large .handle {
+                    block-size: var(--_large-active-handle-height);
+                }
+                &.extra-large .handle {
+                    block-size: var(--_extra-large-active-handle-height);
+                }
+
+                /* Handle Height */
+
+                &.extra-small .handleNub {
+                    height: var(--_extra-small-active-handle-height);
+                }
+                &.small .handleNub {
+                    height: var(--_small-active-handle-height);
+                }
+                &.medium .handleNub {
+                    height: var(--_medium-active-handle-height);
+                }
+                &.large .handleNub {
+                    height: var(--_large-active-handle-height);
+                }
+                &.extra-large .handleNub {
+                    height: var(--_extra-large-active-handle-height);
+                }
+
+                /* Handle Color */
+
+                & .handleNub {
+                    background: var(--_handle-color);
+                }
+                &[disabled] .handleNub {
+                    background: var(--_disabled-handle-color);
+                    opacity: var(--_disabled-handle-opacity);
+                    width: var(--_disabled-handle-width);
+                }
+                &:not(.ranged) > .handleContainerPadded .handle.hover > .handleNub {
+                    width: var(--_hover-handle-width);
+                }
+                &.ranged:not([disabled]) {
+                    .handleContainerPadded .handle.hover.end > .handleNub,
+                    .handleContainerPadded .handle.hover.start > .handleNub {
+                        width: var(--_focus-handle-width);
+                    }
+                }
+                &:not([disabled]) {
+                    input.end:focus ~ .handleContainerPadded .handle.end > .handleNub,
+                    input.start:focus ~ .handleContainerPadded .handle.start > .handleNub {
+                        width: var(--_focus-handle-width);
+                    }
+                }
+                &:not([disabled]) {
+                    input.end:active ~ .handleContainerPadded .handle.end > .handleNub,
+                    input.start:active ~ .handleContainerPadded .handle.start > .handleNub {
+                        background: var(--_pressed-handle-color);
+                        width: var(--_pressed-handle-width);
+                    }
+                }
+
+                & .handle.start {
+                    inset-inline-start: calc(0px - var(--_handle-width) / 2);
+                }
+                & .handle.end {
+                    inset-inline-end: calc(0px - var(--_handle-width) / 2);
+                }
+            }
+        }
+    }
+}

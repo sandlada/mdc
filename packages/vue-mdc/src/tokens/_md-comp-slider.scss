@@ -2,6 +2,12 @@
 // Copyright 2023 Google LLC
 // SPDX-License-Identifier: Apache-2.0
 //
+// [Modified by Sandlada & Kai Orion]
+//
+// @license
+// Copyright 2025 Sandlada & Kai Orion
+// SPDX-License-Identifier: MIT
+//
 
 @use 'sass:map';
 @use './internal/validate';
@@ -13,64 +19,86 @@
 @use './v0_192/md-comp-slider';
 
 $supported-tokens: (
+    'extra-small-active-track-height',
+    'extra-small-active-track-leading-shape',
+    'extra-small-inactive-track-height',
+    'extra-small-inactive-track-trailing-shape',
+    'extra-small-active-handle-height',
+    'small-active-track-height',
+    'small-active-track-leading-shape',
+    'small-inactive-track-height',
+    'small-inactive-track-trailing-shape',
+    'small-active-handle-height',
+    'medium-active-track-height',
+    'medium-active-track-leading-shape',
+    'medium-inactive-track-height',
+    'medium-inactive-track-trailing-shape',
+    'medium-active-handle-height',
+    'large-active-track-height',
+    'large-active-track-leading-shape',
+    'large-inactive-track-height',
+    'large-inactive-track-trailing-shape',
+    'large-active-handle-height',
+    'extra-large-active-track-height',
+    'extra-large-active-track-leading-shape',
+    'extra-large-inactive-track-height',
+    'extra-large-inactive-track-trailing-shape',
+    'extra-large-active-handle-height',
+    'medium-icon-padding',
+    'medium-icon-size',
+    'large-icon-padding',
+    'large-icon-size',
+    'extra-large-icon-padding',
+    'extra-large-icon-size',
+    'stop-indicator-size',
+    'stop-indicator-shape',
+    'stop-indicator-trailing-space',
+    'active-stop-indicator-color',
+    'inactive-stop-indicator-color',
+    'active-stop-indicator-container-color',
+    'active-stop-indicator-container-opacity',
+    'inactive-stop-indicator-container-color',
+    'inactive-stop-indicator-container-opacity',
+    'active-track-inner-corner-size',
     'active-track-color',
-    'active-track-height',
-    'active-track-shape',
-    'disabled-active-track-color',
-    'disabled-active-track-opacity',
-    'disabled-handle-color',
-    'disabled-handle-elevation',
-    'disabled-inactive-track-color',
-    'disabled-inactive-track-opacity',
-    'focus-handle-color',
-    'handle-color',
-    'handle-elevation',
-    'handle-height',
-    'handle-shadow-color',
-    'handle-shape',
-    'handle-width',
-    'hover-handle-color',
-    'hover-state-layer-color',
-    'hover-state-layer-opacity',
     'inactive-track-color',
-    'inactive-track-height',
-    'inactive-track-shape',
-    'label-container-color',
-    'label-container-height',
-    'label-text-color',
-    'label-text-font',
-    'label-text-line-height',
-    'label-text-size',
-    'label-text-weight',
+    'handle-width',
+    'active-handle-width',
+    'handle-shape',
+    'active-handle-shape',
+    'handle-color',
+    'active-handle-color',
+    'active-handle-leading-space',
+    'active-handle-trailing-space',
+    'active-handle-padding',
+    'disabled-active-stop-indicator-color',
+    'disabled-inactive-stop-indicator-color',
+    'disabled-active-track-color',
+    'disabled-inactive-track-color',
+    'disabled-active-track-opacity',
+    'disabled-inactive-track-opacity',
+    'disabled-handle-color',
+    'disabled-handle-opacity',
+    'disabled-handle-width',
+    'hover-handle-width',
+    'focus-active-track-color',
+    'focus-inactive-track-color',
+    'focus-handle-width',
     'pressed-handle-color',
-    'pressed-state-layer-color',
-    'pressed-state-layer-opacity',
-    'state-layer-size',
-    'with-overlap-handle-outline-color',
-    'with-overlap-handle-outline-width',
-    'with-tick-marks-active-container-color',
-    'with-tick-marks-container-size',
-    'with-tick-marks-disabled-container-color',
-    'with-tick-marks-inactive-container-color'
+    'pressed-handle-width',
+    'pressed-active-track-color',
+    'pressed-inactive-track-color',
+    'pressed-inactive-container-color',
+    'pressed-value-indicator-label-color',
+    'pressed-value-indicator-label-font',
+    'pressed-value-indicator-label-line-height',
+    'pressed-value-indicator-label-size',
+    'pressed-value-indicator-label-tracking',
+    'pressed-value-indicator-label-weight',
+    'pressed-value-indicator-active-bottom-space',
 );
 
 $unsupported-tokens: (
-    'disabled-handle-opacity',
-    'label-container-elevation',
-    'label-text-type',
-    'label-text-tracking',
-    'track-elevation',
-    // for efficiency, tick marks are rendered as radial-gradients and
-    // have more limited customization
-    'with-tick-marks-container-shape',
-    // Due to how opacity is multiplied together in the browser, using
-    // these tokens results in low contrast tick marks.
-    'with-tick-marks-active-container-opacity',
-    'with-tick-marks-disabled-container-opacity',
-    'with-tick-marks-inactive-container-opacity',
-    // focus tokens no longer used.
-    'focus-state-layer-color',
-    'focus-state-layer-opacity'
 );
 
 $_default: (
@@ -85,16 +113,7 @@ $_default: (
     $tokens: validate.values(
         md-comp-slider.values($deps, $exclude-hardcoded-values),
         $supported-tokens: $supported-tokens,
-        $unsupported-tokens: $unsupported-tokens,
-        $renamed-tokens: (
-            'label-label-text-color': 'label-text-color',
-            'label-label-text-type': 'label-text-type',
-            'label-label-text-font': 'label-text-font',
-            'label-label-text-line-height': 'label-text-line-height',
-            'label-label-text-size': 'label-text-size',
-            'label-label-text-tracking': 'label-text-tracking',
-            'label-label-text-weight': 'label-text-weight',
-        )
+        $unsupported-tokens: $unsupported-tokens
     );
 
     @if not $exclude-custom-properties {

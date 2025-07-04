@@ -2,14 +2,11 @@
 // Copyright 2023 Google LLC
 // SPDX-License-Identifier: Apache-2.0
 //
+// [Modified by Sandlada & Kai Orion]
 //
-// !!! THIS FILE WAS AUTOMATICALLY GENERATED !!!
-// !!! DO NOT MODIFY IT BY HAND !!!
-// Design system display name: Google Material 3
-// Design system version: v0.192
-// User-configured context group "Audience": "3P"
-// User-configured context group "Platform": "Web"
-// User-configured context group "Scheme": "Dynamic"
+// @license
+// Copyright 2025 Sandlada & Kai Orion
+// SPDX-License-Identifier: MIT
 //
 
 @use 'sass:map';
@@ -37,31 +34,31 @@ $_default: (
         'extra-small-active-track-height': if($exclude-hardcoded-values, null, 16px),
         'extra-small-active-track-leading-shape': if($exclude-hardcoded-values, null, 8px),
         'extra-small-inactive-track-height': if($exclude-hardcoded-values, null, 16px),
-        'extra-small-inactive-track-leading-shape': if($exclude-hardcoded-values, null, 8px),
+        'extra-small-inactive-track-trailing-shape': if($exclude-hardcoded-values, null, 8px),
         'extra-small-active-handle-height': if($exclude-hardcoded-values, null, 44px),
 
         'small-active-track-height': if($exclude-hardcoded-values, null, 24px),
         'small-active-track-leading-shape': if($exclude-hardcoded-values, null, 8px),
         'small-inactive-track-height': if($exclude-hardcoded-values, null, 24px),
-        'small-inactive-track-leading-shape': if($exclude-hardcoded-values, null, 8px),
+        'small-inactive-track-trailing-shape': if($exclude-hardcoded-values, null, 8px),
         'small-active-handle-height': if($exclude-hardcoded-values, null, 44px),
 
         'medium-active-track-height': if($exclude-hardcoded-values, null, 40px),
         'medium-active-track-leading-shape': if($exclude-hardcoded-values, null, 12px),
         'medium-inactive-track-height': if($exclude-hardcoded-values, null, 40px),
-        'medium-inactive-track-leading-shape': if($exclude-hardcoded-values, null, 12px),
+        'medium-inactive-track-trailing-shape': if($exclude-hardcoded-values, null, 12px),
         'medium-active-handle-height': if($exclude-hardcoded-values, null, 44px),
 
         'large-active-track-height': if($exclude-hardcoded-values, null, 56px),
         'large-active-track-leading-shape': if($exclude-hardcoded-values, null, 16px),
         'large-inactive-track-height': if($exclude-hardcoded-values, null, 56px),
-        'large-inactive-track-leading-shape': if($exclude-hardcoded-values, null, 16px),
+        'large-inactive-track-trailing-shape': if($exclude-hardcoded-values, null, 16px),
         'large-active-handle-height': if($exclude-hardcoded-values, null, 68px),
 
         'extra-large-active-track-height': if($exclude-hardcoded-values, null, 96px),
         'extra-large-active-track-leading-shape': if($exclude-hardcoded-values, null, 28px),
         'extra-large-inactive-track-height': if($exclude-hardcoded-values, null, 96px),
-        'extra-large-inactive-track-leading-shape': if($exclude-hardcoded-values, null, 28px),
+        'extra-large-inactive-track-trailing-shape': if($exclude-hardcoded-values, null, 28px),
         'extra-large-active-handle-height': if($exclude-hardcoded-values, null, 108px),
 
         'medium-icon-padding': if($exclude-hardcoded-values, null, 6px),
@@ -86,6 +83,7 @@ $_default: (
         'inactive-stop-indicator-container-color':  map.get($deps, 'md-sys-color', 'on-secondary'),
         'inactive-stop-indicator-container-opacity':  if($exclude-hardcoded-values, null, 1),
 
+        'active-track-inner-corner-size': if($exclude-hardcoded-values, null, 2px),
         'active-track-color': map.get($deps, 'md-sys-color', 'primary'),
         'inactive-track-color': map.get($deps, 'md-sys-color', 'secondary-container'),
 

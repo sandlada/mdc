@@ -28,6 +28,7 @@ import { LinearProgress } from '../components/progress/linear-progress'
 import { ThemeProvider } from '../components/provider/theme-provider'
 import { Radio } from '../components/radio/radio'
 import { Ripple } from '../components/ripple/ripple'
+import { Slider } from '../components/slider'
 import { SplitButton } from '../components/split-button/split-button'
 import { SplitButtonGroup } from '../components/split-button/split-button-group'
 import { Switch } from '../components/switch/switch'
@@ -62,6 +63,7 @@ export const registerComponents = (prefix = componentNamePrefix) => ({
         instance.component(`${prefix}-theme-provider`, ThemeProvider)
         instance.component(`${prefix}-radio`, Radio)
         instance.component(`${prefix}-ripple`, Ripple)
+        instance.component(`${prefix}-slider`, Slider)
         instance.component(`${prefix}-split-button`, SplitButton)
         instance.component(`${prefix}-split-button-group`, SplitButtonGroup)
         instance.component(`${prefix}-switch`, Switch)
