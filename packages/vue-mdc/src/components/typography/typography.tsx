@@ -14,10 +14,9 @@ export const Typography = defineComponent({
     props: props,
     slots: {} as SlotsType<TTypograhySlots>,
     setup(props, { slots }) {
-
         return () => h(props.tag, {
             'data-component': 'typography',
-            class: [css.typography, css[props.variant]],
+            class: [css.typography, css[props.variant], props.emphasized && css.emphasized],
         },
             slots.default ? slots.default() : '',
         )

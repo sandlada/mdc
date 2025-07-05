@@ -6,6 +6,6 @@
 
 export { Typography } from './typography'
 
-export { vTypography } from './typography-directive'
+export { vEmphasized, vTypography } from './typography-directive'
 
 export { TypographyVariant, type TTypograhyProps, type TTypograhySlots, type TTypographyVariant } from './typography.definition'

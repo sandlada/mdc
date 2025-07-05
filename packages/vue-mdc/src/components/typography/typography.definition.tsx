@@ -31,6 +31,10 @@ export const props = {
         default: TypographyVariant.BodyMedium,
         type: String as PropType<TTypographyVariant>,
     },
+    emphasized: {
+        default: false,
+        type: Boolean as PropType<boolean>,
+    },
     tag: {
         default: 'span',
         type: String as PropType<keyof HTMLElementTagNameMap>
