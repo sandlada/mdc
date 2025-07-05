@@ -41,6 +41,14 @@ export const props = {
         type: Boolean as PropType<boolean>,
         default: false,
     },
+    hideInactiveTicks: {
+        type: Boolean as PropType<boolean>,
+        default: false,
+    },
+    hideActiveTicks: {
+        type: Boolean as PropType<boolean>,
+        default: false,
+    },
     labeled: {
         type: Boolean as PropType<boolean>,
         default: false,

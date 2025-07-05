@@ -32,7 +32,7 @@ export const Slider = defineComponent({
          */
         const { action, finishAction, startAction, clampAction, flipAction, isActionFlipped, needsClamping } = useAction(inputStart, inputEnd)
         const renderValueStart: Ref<null | number> = ref(props.valueStart)
-        const renderValueEnd: Ref<null | number> = ref(props.valueEnd)
+        const renderValueEnd: Ref<null | number> = ref(props.range ? props.valueEnd : props.value)
         const startOnTop: Ref<boolean> = ref(false)
         const handleStartHover = ref<boolean>(false)
         const handleEndHover = ref<boolean>(false)
@@ -50,6 +50,8 @@ export const Slider = defineComponent({
         const _max = ref(props.max)
         const _step = ref(props.step)
         const _ticks = ref(props.ticks)
+        const _hideInactiveTicks = ref(props.hideInactiveTicks)
+        const _hideActiveTicks = ref(props.hideActiveTicks)
         const _labeled = ref(props.labeled)
         const _range = ref(props.range)
         const _value = ref(props.value)
@@ -73,6 +75,8 @@ export const Slider = defineComponent({
                 { attribute: 'max', ref: _max, reflect: true, type: 'number', },
                 { attribute: 'step', ref: _step, reflect: true, type: 'number', },
                 { attribute: 'ticks', ref: _ticks, reflect: true, type: 'boolean', },
+                { attribute: 'hide-inactive-ticks', ref: _hideInactiveTicks, reflect: true, type: 'boolean', },
+                { attribute: 'hide-active-ticks', ref: _hideActiveTicks, reflect: true, type: 'boolean', },
                 { attribute: 'labeled', ref: _labeled, reflect: true, type: 'boolean', },
                 { attribute: 'range', ref: _range, reflect: true, type: 'boolean', },
                 { attribute: 'value', ref: _value, reflect: true, type: 'number', },
@@ -290,6 +294,20 @@ export const Slider = defineComponent({
             </div>
         )
 
+        const RenderTickmarks = () => (
+            <div
+                class={[
+                    css.tickmarks,
+                    _hideActiveTicks.value && css['hide-active-ticks'],
+                    _hideInactiveTicks.value && css['hide-inactive-ticks'],
+                ]}
+            >
+                <span class={css.active}></span>
+                <span class={[css.inactive, css.left]}></span>
+                <span class={[css.inactive, css.right]}></span>
+            </div>
+        )
+
         const RenderHandle = (props: { start: boolean, label: Ref<string>, hover: Ref<boolean> }) => (
             <div class={[css.handle, props.start && startOnTop.value && css['on-top'], props.start ? css.start : css.end, props.hover.value && css.hover]}>
                 <FocusRing for={props.start ? focusRingIdStart.value : focusRingIdEnd.value}></FocusRing>
@@ -353,10 +371,9 @@ export const Slider = defineComponent({
                 <div
                     ref={root}
                     data-component="slider"
-                    class={[css.slider, css.variable, css[_size.value], _range.value && css.ranged]}
-                    style={`--_start-fraction: ${String(startFraction.value)}; --_end-fraction: ${String(endFraction.value)};`}
+                    class={[css.slider, css.variable, css[_size.value], _range.value && css.ranged, _ticks.value && css.ticks]}
+                    style={`--_start-fraction: ${String(startFraction.value)}; --_end-fraction: ${String(endFraction.value)}; --_tick-count: ${String(range.value / step.value)}`}
                 >
-
 
                     {
                         _range.value && <RenderInput ref={inputStart} start={true} value={renderValueStart.value ?? 0} ariaLabel={ariaLabelStart.value} ariaValueText={ariaValueTextStart.value} ariaMin={_min.value} ariaMax={_max.value}></RenderInput>
@@ -365,6 +382,8 @@ export const Slider = defineComponent({
                     <RenderInput ref={inputEnd} start={false} value={renderValueEnd.value ?? 0} ariaLabel={ariaLabelEnd.value} ariaValueText={ariaValueTextEnd.value} ariaMin={_min.value} ariaMax={_max.value}></RenderInput>
 
                     <RenderTrack></RenderTrack>
+
+                    <RenderTickmarks></RenderTickmarks>
 
                     <div class={css.handleContainerPadded}>
                         <div class={css.handleContainerBlock}>

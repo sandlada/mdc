@@ -28,7 +28,6 @@
                 --_tick-count: 0;
                 --_track-gap: 6px;
                 --_state-layer-size: 4px;
-
             }
         }
 
@@ -293,15 +292,7 @@
     }
 }
 
-// Returns a background-image with sized circular ticks of the given color.
-@function _get-tick-image($color) {
-    @return radial-gradient(
-        circle at var(--_stop-indicator-size) center,
-        #{$color} 0,
-        #{$color} calc(var(--_stop-indicator-size) / 2),
-        transparent calc(var(--_stop-indicator-size) / 2)
-    );
-}
+
 
 // Webkit on iOS requires _some_ size on the thumb. We want to make this the
 // same as --_handle-size but also be centered on the handle.

@@ -75,12 +75,12 @@ $_default: (
         'stop-indicator-size': if($exclude-hardcoded-values, null, 4px),
         'stop-indicator-shape': map.get($deps, 'md-sys-shape', 'corner-full'),
         'stop-indicator-trailing-space': if($exclude-hardcoded-values, null, 4px),
-        'active-stop-indicator-color': map.get($deps, 'md-sys-color', 'on-primary'),
-        'inactive-stop-indicator-color': map.get($deps, 'md-sys-color', 'on-secondary'),
+        'active-stop-indicator-color': map.get($deps, 'md-sys-color', 'on-secondary-container'),
+        'inactive-stop-indicator-color': map.get($deps, 'md-sys-color', 'on-primary'),
 
         'active-stop-indicator-container-color':  map.get($deps, 'md-sys-color', 'on-primary'),
         'active-stop-indicator-container-opacity':  if($exclude-hardcoded-values, null, 1),
-        'inactive-stop-indicator-container-color':  map.get($deps, 'md-sys-color', 'on-secondary'),
+        'inactive-stop-indicator-container-color':  map.get($deps, 'md-sys-color', 'on-secondary-container'),
         'inactive-stop-indicator-container-opacity':  if($exclude-hardcoded-values, null, 1),
 
         'active-track-inner-corner-size': if($exclude-hardcoded-values, null, 2px),

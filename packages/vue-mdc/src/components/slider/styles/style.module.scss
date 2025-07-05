@@ -1,7 +1,9 @@
 @use './handle';
 @use './shared';
+@use './tickmarks';
 @use './track';
 
 @include handle.styles();
 @include shared.styles();
+@include tickmarks.styles();
 @include track.styles();

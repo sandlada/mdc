@@ -1,0 +1,159 @@
+//
+// Copyright 2025 Sandlada & Kai Orion
+// SPDX-License-Identifier: MIT
+//
+
+@use 'sass:map';
+@use '../../../tokens';
+@use '../../../themes';
+
+@mixin styles() {
+    $tokens: tokens.md-comp-slider-values();
+
+    @layer mdc-slider {
+
+        @layer base.handle {
+
+            .slider {
+
+                .tickmarks {
+                    position: absolute;
+                    inset: 0;
+                    display: flex;
+                    align-items: center;
+                }
+
+                .tickmarks .active,
+                .tickmarks .inactive.left,
+                .tickmarks .inactive.right {
+                    position: absolute;
+                    inset-inline-start: 0;
+                    inset-inline-end: 0;
+                }
+
+                &.ticks {
+                    .tickmarks .active,
+                    .tickmarks .inactive.left,
+                    .tickmarks .inactive.right {
+                        background-size: calc((100% - var(--_stop-indicator-size) * 2) / var(--_tick-count)) 100%;
+                    }
+
+                    &:not(.ranged) .tickmarks .active {
+                        clip-path: var(--_inset-ltr);
+                    }
+                    &:not(.ranged) .tickmarks .inactive.left {
+                        display: none;
+                    }
+                    &:not(.ranged) .tickmarks .inactive.right {
+                        clip-path: var(--_inset-rtl);
+                    }
+
+                    &.ranged .tickmarks .active {
+                        clip-path: var(--_inset-range-fill);
+                    }
+                    &.ranged .tickmarks .inactive.left {
+                        clip-path: var(--_inset-left-track);
+                    }
+                    &.ranged .tickmarks .inactive.right {
+                        clip-path: var(--_inset-right-track);
+                    }
+
+                    & .tickmarks.hide-active-ticks .active {
+                        display: none;
+                    }
+                    & .tickmarks.hide-inactive-ticks .inactive {
+                        display: none;
+                    }
+                }
+
+                &:not(.ticks) {
+                    .tickmarks .active,
+                    .tickmarks .inactive.left,
+                    .tickmarks .inactive.right {
+                        background-size: calc((100% - var(--_stop-indicator-size) * 2)) 100%;
+                    }
+
+                    &:not(.ranged) .tickmarks .active {
+                        clip-path: var(--_inset-ltr);
+                    }
+                    &:not(.ranged) .tickmarks .inactive.left {
+                        display: none;
+                    }
+                    &:not(.ranged) .tickmarks .inactive.right {
+                        clip-path: var(--_inset-rtl);
+                    }
+                    &.ranged .tickmarks .active {
+                        display: none;
+                    }
+                    &.ranged .tickmarks .inactive.left {
+                        clip-path: var(--_inset-left-track);
+                    }
+                    &.ranged .tickmarks .inactive.right {
+                        clip-path: var(--_inset-right-track);
+                    }
+
+                    &:not(.ranged) .tickmarks.hide-active-ticks .active {
+                        display: none;
+                    }
+                    &:not(.ranged) .tickmarks.hide-inactive-ticks .inactive {
+                        display: none;
+                    }
+                }
+
+                /* Height */
+
+                &.extra-small .tickmarks .inactive {
+                    block-size: var(--_extra-small-inactive-track-height);
+                }
+                &.small .tickmarks .inactive {
+                    block-size: var(--_small-inactive-track-height);
+                }
+                &.medium .tickmarks .inactive {
+                    block-size: var(--_medium-inactive-track-height);
+                }
+                &.large .tickmarks .inactive {
+                    block-size: var(--_large-inactive-track-height);
+                }
+                &.extra-large .tickmarks .inactive {
+                    block-size: var(--_extra-large-inactive-track-height);
+                }
+                &.extra-small .tickmarks .active {
+                    block-size: var(--_extra-small-active-track-height);
+                }
+                &.small .tickmarks .active {
+                    block-size: var(--_small-active-track-height);
+                }
+                &.medium .tickmarks .active {
+                    block-size: var(--_medium-active-track-height);
+                }
+                &.large .tickmarks .active {
+                    block-size: var(--_large-active-track-height);
+                }
+                &.extra-large .tickmarks .active {
+                    block-size: var(--_extra-large-active-track-height);
+                }
+
+                /* Stop Indicator Symbol */
+
+                .tickmarks .inactive {
+                    background-image: _get-tick-image(var(--_inactive-stop-indicator-container-color));
+                }
+                .tickmarks .active {
+                    background-image: _get-tick-image(var(--_active-stop-indicator-container-color));
+                }
+            }
+
+        }
+
+    }
+}
+
+// Returns a background-image with sized circular ticks of the given color.
+@function _get-tick-image($color) {
+    @return radial-gradient(
+        circle at var(--_stop-indicator-size) center,
+        #{$color} 0,
+        #{$color} calc(var(--_stop-indicator-size) / 2),
+        transparent calc(var(--_stop-indicator-size) / 2)
+    );
+}
