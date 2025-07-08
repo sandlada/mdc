@@ -84,3 +84,4 @@ AUTHORS text eol=lf
 *.woff binary
 *.pyc binary
 *.pdf binary
+*.psd binary
