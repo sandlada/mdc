@@ -4,11 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-    internals,
-    type WithElementInternals,
-} from '@utils/behaviors/element-internals'
+
 import { isServer, ReactiveElement } from 'lit'
+import { type WithElementInternals, internals } from '../behaviors/element-internals'
 
 /**
  * A string indicating the form submission behavior of the element.

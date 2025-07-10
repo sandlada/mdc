@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { type MixinBase, type MixinReturn } from '@utils/behaviors/mixin'
 import { LitElement, ReactiveElement, isServer } from 'lit'
+import type { MixinBase, MixinReturn } from '../behaviors/mixin'
 import { AriaProperties, ariaPropertyToAttribute, isARIAAttribute } from './aria'
 
 // Private symbols

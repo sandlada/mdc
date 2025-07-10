@@ -3,11 +3,10 @@
  * Copyright 2023 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
-import { internals, type WithElementInternals } from '@utils/behaviors/element-internals'
-import { type MixinBase, type MixinReturn } from '@utils/behaviors/mixin'
 import { LitElement, type PropertyDeclaration } from 'lit'
 import { property } from 'lit/decorators.js'
+import { type WithElementInternals, internals } from '../behaviors/element-internals'
+import type { MixinBase, MixinReturn } from '../behaviors/mixin'
 
 /**
  * A form-associated element.
@@ -233,7 +232,7 @@ export function mixinFormAssociated<
         }
 
         @property({ type: Boolean, noAccessor: true })
-        get disabled() {
+        get  disabled() {
             return this.hasAttribute('disabled')
         }
         set disabled(disabled: boolean) {
