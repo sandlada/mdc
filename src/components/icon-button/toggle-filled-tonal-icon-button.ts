@@ -1,3 +1,8 @@
+/**
+ * @license
+ * Copyright 2025 Kai-Orion & Sandlada
+ * SPDX-License-Identifier: MIT
+ */
 import { customElement } from 'lit/decorators.js'
 import { filledTonalIconButtonStyle } from './icon-button.style'
 import { TogglableIconButton } from './togglable-icon-button'

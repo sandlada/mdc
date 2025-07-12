@@ -1,3 +1,8 @@
+/**
+ * @license
+ * Copyright 2025 Kai-Orion & Sandlada
+ * SPDX-License-Identifier: MIT
+ */
 import { html, LitElement } from 'lit'
 import { property } from 'lit/decorators.js'
 import { mixinDelegatesAria } from '../../utils/aria/delegate'

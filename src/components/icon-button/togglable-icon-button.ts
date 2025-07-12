@@ -1,3 +1,8 @@
+/**
+ * @license
+ * Copyright 2025 Kai-Orion & Sandlada
+ * SPDX-License-Identifier: MIT
+ */
 import { html, isServer } from 'lit'
 import { property, query } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'

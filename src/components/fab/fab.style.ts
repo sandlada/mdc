@@ -3,7 +3,7 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { css, unsafeCSS } from 'lit'
+import { css } from 'lit'
 import type { ElevationDefinition } from '../../component-definitions/elevation.definition'
 import { PrimaryExtendedFabDefinition, PrimaryFabDefinition, SecondaryExtendedFabDefinition, SecondaryFabDefinition, TertiaryExtendedFabDefinition, TertiaryFabDefinition, TonalPrimaryExtendedFabDefinition, TonalPrimaryFabDefinition, TonalSecondaryExtendedFabDefinition, TonalSecondaryFabDefinition, TonalTertiaryExtendedFabDefinition, TonalTertiaryFabDefinition } from '../../component-definitions/fab.definition'
 import type { FocusRingDefinition } from '../../component-definitions/focus-ring.definition'
@@ -25,27 +25,27 @@ const PrimaryExtendedFabToken = createWrappedTokens('--mdc-primary-extended-fab'
 const secondaryExtendedFabToken = createWrappedTokens('--mdc-secondary-extended-fab', SecondaryExtendedFabDefinition)
 const tertiaryExtendedFabToken = createWrappedTokens('--mdc-tertiary-extended-fab', TertiaryExtendedFabDefinition)
 
-const tonalPrimaryFabTokenString = unsafeCSS(stringTokens(tonalPrimaryFabToken))
-const tonalSecondaryFabTokenString = unsafeCSS(stringTokens(tonalSecondaryFabToken))
-const tonalTertiaryFabTokenString = unsafeCSS(stringTokens(tonalTertiaryFabToken))
-const PrimaryFabTokenString = unsafeCSS(stringTokens(primaryFabToken))
-const secondaryFabTokenString = unsafeCSS(stringTokens(secondaryFabToken))
-const tertiaryFabTokenString = unsafeCSS(stringTokens(tertiaryFabToken))
-const tonalPrimaryExtendedFabTokenString = unsafeCSS(stringTokens(tonalPrimaryExtendedFabToken))
-const tonalSecondaryExtendedFabTokenString = unsafeCSS(stringTokens(tonalSecondaryExtendedFabToken))
-const tonalTertiaryExtendedFabTokenString = unsafeCSS(stringTokens(tonalTertiaryExtendedFabToken))
-const primaryExtendedFabTokenString = unsafeCSS(stringTokens(PrimaryExtendedFabToken))
-const secondaryExtendedFabTokenString = unsafeCSS(stringTokens(secondaryExtendedFabToken))
-const tertiaryExtendedFabTokenString = unsafeCSS(stringTokens(tertiaryExtendedFabToken))
+const tonalPrimaryFabTokenString = stringTokens(tonalPrimaryFabToken)
+const tonalSecondaryFabTokenString = stringTokens(tonalSecondaryFabToken)
+const tonalTertiaryFabTokenString = stringTokens(tonalTertiaryFabToken)
+const PrimaryFabTokenString = stringTokens(primaryFabToken)
+const secondaryFabTokenString = stringTokens(secondaryFabToken)
+const tertiaryFabTokenString = stringTokens(tertiaryFabToken)
+const tonalPrimaryExtendedFabTokenString = stringTokens(tonalPrimaryExtendedFabToken)
+const tonalSecondaryExtendedFabTokenString = stringTokens(tonalSecondaryExtendedFabToken)
+const tonalTertiaryExtendedFabTokenString = stringTokens(tonalTertiaryExtendedFabToken)
+const primaryExtendedFabTokenString = stringTokens(PrimaryExtendedFabToken)
+const secondaryExtendedFabTokenString = stringTokens(secondaryExtendedFabToken)
+const tertiaryExtendedFabTokenString = stringTokens(tertiaryExtendedFabToken)
 
 const getElevationStyles = () => {
-    const getSingleStateLevelStyles = (state: string) => unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
+    const getSingleStateLevelStyles = (state: string) => stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
         "level": `var(--_${state}container-elevation)`,
-    })))
+    }))
 
-    const getShadowColorStyles = () => unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
+    const getShadowColorStyles = () => stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
         "shadow-color": `var(--_container-shadow-color)`,
-    })))
+    }))
 
     return css`
         mdc-elevation {
@@ -65,12 +65,12 @@ const getElevationStyles = () => {
     `
 }
 const getFocusRingStyles = () => {
-    const getShapes = (size: string) => unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof FocusRingDefinition>('--mdc-focus-ring', {
+    const getShapes = (size: string) => stringTokens(overrideComponentTokens<keyof typeof FocusRingDefinition>('--mdc-focus-ring', {
         "shape-end-end": `var(--_${size}-container-shape-end-end)`,
         "shape-end-start": `var(--_${size}-container-shape-end-start)`,
         "shape-start-end": `var(--_${size}-container-shape-start-end)`,
         "shape-start-start": `var(--_${size}-container-shape-start-start)`,
-    })))
+    }))
     return css`
         .button.small mdc-focus-ring {
             ${getShapes('small')};
@@ -85,12 +85,12 @@ const getFocusRingStyles = () => {
     `
 }
 const getRippleStyles = () => {
-    const styles = unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', {
+    const styles = stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', {
         "hovered-color": `var(--_hovered-state-layer-color)`,
         "hovered-opacity": `var(--_hovered-state-layer-opacity)`,
         "pressed-color": `var(--_pressed-state-layer-color)`,
         "pressed-opacity": `var(--_pressed-state-layer-opacity)`,
-    })))
+    }))
 
     return css`
         .button mdc-ripple {
@@ -124,13 +124,13 @@ const iconStyle = css`
     }
 
     .button.small mdc-icon {
-        ${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_small-icon-size)` })))};
+        ${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_small-icon-size)` }))};
     }
     .button.medium mdc-icon {
-        ${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_medium-icon-size)` })))};
+        ${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_medium-icon-size)` }))};
     }
     .button.large mdc-icon {
-        ${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_large-icon-size)` })))};
+        ${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_large-icon-size)` }))};
     }
 
     :host ::slotted(*) {

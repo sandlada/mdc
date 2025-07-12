@@ -3,12 +3,12 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { css, unsafeCSS } from 'lit'
+import { css } from 'lit'
 import { IconDefinition } from '../../component-definitions/icon.definition'
 import { createWrappedTokens, stringTokens } from '../../utils/tokens'
 
 const tokens = createWrappedTokens('--mdc-icon', IconDefinition)
-const tokenString = unsafeCSS(stringTokens(tokens))
+const tokenString = stringTokens(tokens)
 
 export const styles = css`
     @layer mdc.icon {

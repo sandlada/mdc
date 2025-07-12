@@ -1,9 +1,14 @@
-import { css, unsafeCSS } from 'lit'
+/**
+ * @license
+ * Copyright 2025 Kai-Orion & Sandlada
+ * SPDX-License-Identifier: MIT
+ */
+import { css } from 'lit'
 import { DividerDefinition } from '../../component-definitions/divider.definition'
 import { createWrappedTokens, stringTokens } from '../../utils/tokens'
 
 const tokens = createWrappedTokens('--mdc-divider', DividerDefinition)
-const tokenString = unsafeCSS(stringTokens(tokens))
+const tokenString = stringTokens(tokens)
 
 export const DividerStyles = css`
     @layer mdc.divider.variant {

@@ -5,7 +5,6 @@
  *
  * [Modified by Kai-Orion & Sandlada]
  */
-
 import { isServer, LitElement } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { type IAttachable, AttachableController } from '../../utils/controller/attachable-controller'

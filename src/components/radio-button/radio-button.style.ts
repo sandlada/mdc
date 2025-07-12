@@ -1,3 +1,8 @@
+/**
+ * @license
+ * Copyright 2025 Kai-Orion & Sandlada
+ * SPDX-License-Identifier: MIT
+ */
 import { Easing } from '@sandlada/mdk'
 import { css, unsafeCSS } from 'lit'
 import { RadioButtonDefinition } from '../../component-definitions/radio-button.definition'
@@ -5,7 +10,7 @@ import type { RippleDefinition } from '../../component-definitions/ripple.defini
 import { createWrappedTokens, overrideComponentTokens, stringTokens } from '../../utils/tokens'
 
 const tokens = createWrappedTokens('--mdc-radio-button', RadioButtonDefinition)
-const tokenString = unsafeCSS(stringTokens(tokens))
+const tokenString = stringTokens(tokens)
 
 const easing = unsafeCSS(Easing.ExpressiveFastSpatial)
 

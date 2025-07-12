@@ -9,7 +9,7 @@ import { FocusRingDefinition } from '../../component-definitions/focus-ring.defi
 import { createWrappedTokens, stringTokens } from '../../utils/tokens'
 
 const tokens = createWrappedTokens('--mdc-focus-ring', FocusRingDefinition)
-const tokenString = unsafeCSS(stringTokens(tokens))
+const tokenString = stringTokens(tokens)
 
 export const styles = css`
 
@@ -30,6 +30,10 @@ export const styles = css`
             display: none;
             pointer-events: none;
             position: absolute;
+        }
+
+        :host([disabled]) {
+            display: none;
         }
 
         :host([visible]) {

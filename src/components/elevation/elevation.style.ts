@@ -3,12 +3,12 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { css, unsafeCSS } from 'lit'
+import { css } from 'lit'
 import { ElevationDefinition } from '../../component-definitions/elevation.definition'
 import { createWrappedTokens, stringTokens } from '../../utils/tokens'
 
 const tokens = createWrappedTokens('--mdc-elevation', ElevationDefinition)
-const tokenString = unsafeCSS(stringTokens(tokens))
+const tokenString = stringTokens(tokens)
 
 export const styles = css`
     @layer mdc.elevation {

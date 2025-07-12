@@ -12,20 +12,20 @@ import { SwitchDefinition } from '../../component-definitions/switch.definition'
 import { createWrappedTokens, overrideComponentTokens, stringTokens } from '../../utils/tokens'
 
 const switchTokens = createWrappedTokens('--mdc-switch', SwitchDefinition)
-const switchTokenString = unsafeCSS(stringTokens(switchTokens))
+const switchTokenString = stringTokens(switchTokens)
 
-const focusRingShape = unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof FocusRingDefinition>('--mdc-focus-ring', {
+const focusRingShape = stringTokens(overrideComponentTokens<keyof typeof FocusRingDefinition>('--mdc-focus-ring', {
     "shape-end-end": `var(--_track-shape-end-end)`,
     "shape-end-start": `var(--_track-shape-end-start)`,
     "shape-start-end": `var(--_track-shape-start-end)`,
     "shape-start-start": `var(--_track-shape-start-start)`,
-})))
-const rippleStyles = (state: 'selected' | 'unselected') => unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', {
+}))
+const rippleStyles = (state: 'selected' | 'unselected') => stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', {
     "hovered-color": `var(--_hovered-state-layer-color-${state})`,
     "hovered-opacity": `var(--_hovered-state-layer-opacity-${state})`,
     "pressed-color": `var(--_pressed-state-layer-color-${state})`,
     "pressed-opacity": `var(--_pressed-state-layer-opacity-${state})`,
-})))
+}))
 
 const handleContainerEasing = unsafeCSS(Easing.ExpressiveFastSpatial)
 const handleEasing = unsafeCSS(Easing.Standard)

@@ -1,3 +1,8 @@
+/**
+ * @license
+ * Copyright 2025 Kai-Orion & Sandlada
+ * SPDX-License-Identifier: MIT
+ */
 import { customElement } from 'lit/decorators.js'
 import { IconButton } from './icon-button'
 import { standardIconButtonStyle } from './icon-button.style'

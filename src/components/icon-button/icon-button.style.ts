@@ -1,3 +1,8 @@
+/**
+ * @license
+ * Copyright 2025 Kai-Orion & Sandlada
+ * SPDX-License-Identifier: MIT
+ */
 import { css, unsafeCSS } from 'lit'
 import { FilledIconButtonDefinition, FilledTonalIconButtonDefinition, OutlinedIconButtonDefinition, StandardIconButtonDefinition } from '../../component-definitions/icon-button.definition'
 import type { IconDefinition } from '../../component-definitions/icon.definition'
@@ -5,13 +10,14 @@ import type { RippleDefinition } from '../../component-definitions/ripple.defini
 import { createWrappedTokens, overrideComponentTokens, stringTokens } from '../../utils/tokens'
 
 const filledIconButtonTokens = createWrappedTokens('--mdc-filled-icon-button', FilledIconButtonDefinition)
-const filledString = unsafeCSS(stringTokens(filledIconButtonTokens))
 const filledTonalIconButtonTokens = createWrappedTokens('--mdc-filled-tonal-icon-button', FilledTonalIconButtonDefinition)
-const filledTonalString = unsafeCSS(stringTokens(filledTonalIconButtonTokens))
 const outlinedIconButtonTokens = createWrappedTokens('--mdc-outlined-icon-button', OutlinedIconButtonDefinition)
-const outlinedString = unsafeCSS(stringTokens(outlinedIconButtonTokens))
 const standardIconButtonTokens = createWrappedTokens('--mdc-standard-icon-button', StandardIconButtonDefinition)
-const standardString = unsafeCSS(stringTokens(standardIconButtonTokens))
+
+const filledString = stringTokens(filledIconButtonTokens)
+const filledTonalString = stringTokens(filledTonalIconButtonTokens)
+const outlinedString = stringTokens(outlinedIconButtonTokens)
+const standardString = stringTokens(standardIconButtonTokens)
 
 const getShapes = (token: string) => {
     return unsafeCSS(`
