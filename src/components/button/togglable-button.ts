@@ -80,6 +80,8 @@ export class TogglableButton extends mixinDelegatesAria(mixinConstraintValidatio
 
     protected override render() {
         const classes = classMap({
+            'has-icon': this.hasIcon,
+            'has-label': this.hasLabel,
             'trailing-icon': this.trailingIcon,
             'disabled': this.disabled,
             [this.size]: true,

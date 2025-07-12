@@ -37,11 +37,11 @@ const getSharedShapes = (mode: 'container-shape-round' | 'container-shape-square
     `
 
     return css`
-        &.extra-small { ${unsafeCSS(size('extra-small'))}; }
-        &.small { ${unsafeCSS(size('small'))}; }
-        &.medium { ${unsafeCSS(size('medium'))}; }
-        &.large { ${unsafeCSS(size('large'))}; }
-        &.extra-large { ${unsafeCSS(size('extra-large'))}; }
+        &.extra-small { ${size('extra-small')}; }
+        &.small { ${size('small')}; }
+        &.medium { ${size('medium')}; }
+        &.large { ${size('large')}; }
+        &.extra-large { ${size('extra-large')}; }
     `
 }
 
@@ -71,9 +71,6 @@ const shared = css`
             text-wrap: nowrap;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
-            // Override vertical-align with shortest value "top". Vertical-align's
-            // default "baseline" value causes buttons to be misaligned next to each
-            // other if one button has an icon and the other does not.
             vertical-align: top;
             transition-property: border-radius;
             transition-duration: 350ms;
@@ -88,23 +85,23 @@ const shared = css`
         /* Root Shape */
 
         .surface.round  {
-            ${unsafeCSS(getSharedShapes('container-shape-round'))}
+            ${getSharedShapes('container-shape-round')};
         }
         .surface.square {
-            ${unsafeCSS(getSharedShapes('container-shape-square'))}
+            ${getSharedShapes('container-shape-square')};
         }
 
         .surface.round.togglable.selected {
-            ${unsafeCSS(getSharedShapes('container-shape-round-toggle-selected'))}
+            ${getSharedShapes('container-shape-round-toggle-selected')};
         }
         .surface.square.togglable.selected {
-            ${unsafeCSS(getSharedShapes('container-shape-square-toggle-selected'))}
+            ${getSharedShapes('container-shape-square-toggle-selected')};
         }
 
         /* Pressed Shape */
 
         .surface:is(.round, .square, .togglable.selected, .togglable.unselected):active {
-            ${unsafeCSS(getSharedShapes('container-shape-pressed-morph'))}
+            ${getSharedShapes('container-shape-pressed-morph')};
         }
 
         /* Root Width & Height */
@@ -158,6 +155,10 @@ const shared = css`
             padding-inline-start: var(--_extra-large-leading-space);
             padding-inline-end: var(--_extra-large-trailing-space);
             gap: var(--_extra-large-between-icon-label-space);
+        }
+
+        .surface:not(.has-label) .label {
+            display: none;
         }
 
         /* Label Size */
@@ -309,8 +310,6 @@ const shared = css`
             opacity: var(--_disabled-container-opacity);
         }
 
-        // Inherit text-overflow down through label and slotted content so that it
-        // can be customized on the .root.
         :is(.button, .label, .label *) {
             text-overflow: inherit;
         }
@@ -319,9 +318,6 @@ const shared = css`
 
         @media (forced-colors: active) {
             .background {
-                // Use CanvasText to increase visibility of buttons when the background
-                // is not rendered. Buttons that use outlines by default should change The
-                // outline color to GrayText when disabled.
                 border: 1px solid CanvasText;
             }
 
@@ -358,38 +354,38 @@ const elevation = css`
         mdc-elevation {
             transition-duration: 0ms;
 
-            ${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { level: `var(--_container-elevation)`, 'shadow-color': `var(--_container-shadow-color)` })))}
+            ${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { level: `var(--_container-elevation)`, 'shadow-color': `var(--_container-shadow-color)` }))};
         }
 
         :host(:is([disabled], [soft-disabled])) mdc-elevation {
             transition: none;
-            ${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { level: `var(--_disabled-container-elevation)` })))}
+            ${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { level: `var(--_disabled-container-elevation)` }))};
         }
 
         :host(:focus-within) mdc-elevation {
-            ${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { level: `var(--_focused-container-elevation)` })))}
+            ${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { level: `var(--_focused-container-elevation)` }))};
         }
 
         :host(:active) mdc-elevation {
-            ${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { level: `var(--_pressed-container-elevation)` })))}
+            ${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { level: `var(--_pressed-container-elevation)` }))};
         }
     }
 `
 
 const getFocusRingShapes = (mode: 'container-shape-round' | 'container-shape-square' | 'container-shape-round-toggle-selected' | 'container-shape-square-toggle-selected' | 'container-shape-pressed-morph') => {
-    const getSizeShape = (size: string) => unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof FocusRingDefinition>('--mdc-focus-ring', {
+    const getSizeShape = (size: string) => stringTokens(overrideComponentTokens<keyof typeof FocusRingDefinition>('--mdc-focus-ring', {
         'shape-start-start': `min(var(--_${size}-${mode}-start-start), calc(var(--_${size}-container-height) / 2))`,
         'shape-start-end': `min(var(--_${size}-${mode}-start-end), calc(var(--_${size}-container-height) / 2))`,
         'shape-end-end': `min(var(--_${size}-${mode}-end-end), calc(var(--_${size}-container-height) / 2))`,
         'shape-end-start': `min(var(--_${size}-${mode}-end-start), calc(var(--_${size}-container-height) / 2))`,
-    })))
+    }))
 
     return css`
-        &.extra-small mdc-focus-ring {${unsafeCSS(getSizeShape('extra-small'))};}
-        &.small mdc-focus-ring {${unsafeCSS(getSizeShape('small'))};}
-        &.medium mdc-focus-ring {${unsafeCSS(getSizeShape('medium'))};}
-        &.large mdc-focus-ring {${unsafeCSS(getSizeShape('large'))};}
-        &.extra-large mdc-focus-ring {${unsafeCSS(getSizeShape('extra-small'))};}
+        &.extra-small mdc-focus-ring {${getSizeShape('extra-small')};}
+        &.small mdc-focus-ring {${getSizeShape('small')};}
+        &.medium mdc-focus-ring {${getSizeShape('medium')};}
+        &.large mdc-focus-ring {${getSizeShape('large')};}
+        &.extra-large mdc-focus-ring {${getSizeShape('extra-small')};}
     `
 }
 
@@ -397,26 +393,25 @@ const focusRing = css`
     @layer mdc.button.composite.focus-ring {
 
         .surface.round {
-            ${unsafeCSS(getFocusRingShapes('container-shape-round'))}
+            ${getFocusRingShapes('container-shape-round')};
         }
-
         .surface.square {
-            ${unsafeCSS(getFocusRingShapes('container-shape-square'))}
+            ${getFocusRingShapes('container-shape-square')};
         }
 
         /* Toggle */
 
         .surface.togglable.selected.round {
-            ${unsafeCSS(getFocusRingShapes('container-shape-round-toggle-selected'))}
+            ${getFocusRingShapes('container-shape-round-toggle-selected')};
         }
         .surface.togglable.selected.square {
-            ${unsafeCSS(getFocusRingShapes('container-shape-square-toggle-selected'))}
+            ${getFocusRingShapes('container-shape-square-toggle-selected')};
         }
 
         /* Pressed */
 
         .surface:is(.round, .square, .togglable.selected):active {
-            ${unsafeCSS(getFocusRingShapes('container-shape-pressed-morph'))}
+            ${getFocusRingShapes('container-shape-pressed-morph')};
         }
     }
 `
@@ -424,14 +419,13 @@ const focusRing = css`
 const ripple = css`
     @layer mdc.button.composite.ripple {
         mdc-ripple {
-            ${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', { 'hovered-color': `var(--_hovered-state-layer-color)`, 'pressed-color': `var(--_pressed-state-layer-color)`, 'hovered-opacity': `var(--_hovered-state-layer-opacity)`, 'pressed-opacity': `var(--_pressed-state-layer-opacity)`, })))};
+            ${stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', { 'hovered-color': `var(--_hovered-state-layer-color)`, 'pressed-color': `var(--_pressed-state-layer-color)`, 'hovered-opacity': `var(--_hovered-state-layer-opacity)`, 'pressed-opacity': `var(--_pressed-state-layer-opacity)`, }))};
         }
-
         .surface.togglable.selected mdc-ripple {
-            ${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', { 'hovered-color': `var(--_hovered-state-layer-color-toggle-selected)`, 'pressed-color': `var(--_pressed-state-layer-color-toggle-selected)` })))};
+            ${stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', { 'hovered-color': `var(--_hovered-state-layer-color-toggle-selected)`, 'pressed-color': `var(--_pressed-state-layer-color-toggle-selected)` }))};
         }
         .surface.togglable.unselected mdc-ripple {
-            ${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', { 'hovered-color': `var(--_hovered-state-layer-color-toggle-unselected)`, 'pressed-color': `var(--_pressed-state-layer-color-toggle-unselected)` })))};
+            ${stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', { 'hovered-color': `var(--_hovered-state-layer-color-toggle-unselected)`, 'pressed-color': `var(--_pressed-state-layer-color-toggle-unselected)` }))};
         }
     }
 `
@@ -439,9 +433,6 @@ const ripple = css`
 const icon = css`
     @layer mdc.button.composite.icon {
 
-        // The icon CSS class overrides styles defined in the .material-icons CSS
-        // class, which is loaded separately so the order of CSS definitions is not
-        // guaranteed. Therefore, increase specifity to ensure overrides apply.
         ::slotted([slot="icon"]) {
             display: inline-flex;
             position: relative;
@@ -450,7 +441,6 @@ const icon = css`
             flex-shrink: 0;
             color: var(--_icon-color);
         }
-
         :host(:hover) ::slotted([slot="icon"]) {
             color: var(--_hovered-icon-color);
         }
@@ -505,38 +495,38 @@ const icon = css`
             font-size: var(--_extra-small-icon-size);
             inline-size: var(--_extra-small-icon-size);
             block-size: var(--_extra-small-icon-size);
-            ${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_extra-small-icon-size)` })))}
+            ${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_extra-small-icon-size)` }))};
         }
 
         .surface.small ::slotted([slot="icon"]) {
             font-size: var(--_small-icon-size);
             inline-size: var(--_small-icon-size);
             block-size: var(--_small-icon-size);
-            ${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_small-icon-size)` })))}
+            ${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_small-icon-size)` }))};
         }
 
         .surface.medium ::slotted([slot="icon"]) {
             font-size: var(--_medium-icon-size);
             inline-size: var(--_medium-icon-size);
             block-size: var(--_medium-icon-size);
-            ${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_medium-icon-size)` })))}
+            ${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_medium-icon-size)` }))};
         }
 
         .surface.large ::slotted([slot="icon"]) {
             font-size: var(--_large-icon-size);
             inline-size: var(--_large-icon-size);
             block-size: var(--_large-icon-size);
-            ${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_large-icon-size)` })))}
+            ${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_large-icon-size)` }))};
         }
 
         .surface.extra-large ::slotted([slot="icon"]) {
             font-size: var(--_extra-large-icon-size);
             inline-size: var(--_extra-large-icon-size);
             block-size: var(--_extra-large-icon-size);
-            ${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_extra-large-icon-size)` })))}
+            ${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_extra-large-icon-size)` }))};
         }
 
-        :host[disabled] ::slotted([slot="icon"]) {
+        :host([disabled]) ::slotted([slot="icon"]) {
             color: var(--_disabled-icon-color);
             opacity: var(--_disabled-icon-opacity);
         }
@@ -683,9 +673,6 @@ export const outlinedButtonStyles = [
 
             @media (forced-colors: active) {
                 :host([disabled]) .background {
-                    // Only outlined buttons change their border when disabled to distinmdish
-                    // them from other buttons that add a border for increased visibility in
-                    // HCM.
                     border-color: GrayText;
                 }
 

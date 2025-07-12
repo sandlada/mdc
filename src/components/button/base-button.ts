@@ -1,5 +1,10 @@
+/**
+ * @license
+ * Copyright 2025 Kai-Orion & Sandlada
+ * SPDX-License-Identifier: MIT
+ */
 import { html, LitElement, nothing } from 'lit'
-import { property, queryAssignedElements } from 'lit/decorators.js'
+import { property, queryAssignedElements, state } from 'lit/decorators.js'
 import "../elevation/elevation"
 import "../focus-ring/focus-ring"
 import "../ripple/ripple"
@@ -8,10 +13,9 @@ import "../ripple/ripple"
  * Supports inserting icon and label buttons.
  *
  * There are two implementations:
- * - button
+ * - non-toggle button
  * - toggle button
  *
- * @example
  * ```html
  * <mdc-filled-button></mdc-filled-button>
  * <mdc-toggle-filled-button></mdc-toggle-filled-button>
@@ -24,7 +28,6 @@ import "../ripple/ripple"
  * - large
  * - extra-large
  *
- * @example
  * ```html
  * <mdc-filled-button size="medium"></mdc-filled-button>
  * <mdc-toggle-filled-button size="medium"></mdc-toggle-filled-button>
@@ -34,10 +37,18 @@ import "../ripple/ripple"
  * - round (default)
  * - square
  *
- * @example
  * ```html
  * <mdc-filled-button shape="round"></mdc-filled-button>
  * <mdc-toggle-filled-button shape="square"></mdc-toggle-filled-button>
+ * ```
+ *
+ * @see
+ * When passing in a tag, make sure your tag is an HTMLElement and not a text node:
+ *
+ * ```html
+ * <mdc-filled-tonal-button>
+ *     <span>Delete</span>
+ * </mdc-filled-tonal-button>
  * ```
  *
  * @version
@@ -49,7 +60,10 @@ import "../ripple/ripple"
 export abstract class BaseButton extends LitElement {
 
     @queryAssignedElements({ slot: 'icon', flatten: true })
-    protected readonly assignedIcons!: HTMLElement[]
+    protected readonly assignedIcons!: Array<HTMLElement>
+
+    @queryAssignedElements({ slot: '', flatten: true })
+    protected readonly assignedDefault!: Array<HTMLElement>
 
     @property({ type: Boolean, attribute: 'trailing-icon' })
     public trailingIcon = false
@@ -59,6 +73,12 @@ export abstract class BaseButton extends LitElement {
 
     @property({ type: String, reflect: true })
     public shape: 'round' | 'square' = 'round'
+
+    @state()
+    protected hasIcon: boolean = false
+
+    @state()
+    protected hasLabel: boolean = false
 
     protected renderOutline?(): unknown
     protected renderElevation?(): unknown
@@ -70,7 +90,7 @@ export abstract class BaseButton extends LitElement {
             ${this.trailingIcon ? nothing : this.renderIcon()}
 
             <span class="label">
-                <slot></slot>
+                <slot @slotchange=${this.handleDefaultSlotChange}></slot>
             </span>
 
             ${this.trailingIcon ? this.renderIcon() : nothing}
@@ -79,7 +99,16 @@ export abstract class BaseButton extends LitElement {
 
     protected renderIcon() {
         return html`
-            <slot name="icon"></slot>
+            <slot name="icon" @slotchange=${this.handleIconSlotChange}></slot>
         `
     }
+
+    protected handleIconSlotChange() {
+        this.hasIcon = this.assignedIcons.length > 0
+    }
+
+    protected handleDefaultSlotChange() {
+        this.hasLabel = this.assignedDefault.length > 0
+    }
+
 }

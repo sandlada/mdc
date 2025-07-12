@@ -29,7 +29,7 @@ import { BaseButton } from './base-button'
  * ```html
  * <a tabindex="-1" href="#a">
  *      <mdc-elevated-button shape="square">
- *          Link Button
+ *          <span>Link Button</span>
  *     </mdc-elevated-button>
  * </a>
  * ```
@@ -64,7 +64,7 @@ export abstract class Button extends mixinDelegatesAria(mixinElementInternals(Ba
     @property({ type: String })
     public type: FormSubmitterType = 'submit'
 
-    @property()
+    @property({ type: String, reflect: true})
     public value: string = ''
 
     @query('.button')
@@ -88,6 +88,8 @@ export abstract class Button extends mixinDelegatesAria(mixinElementInternals(Ba
 
     protected override render() {
         const classes = classMap({
+            'has-icon': this.hasIcon,
+            'has-label': this.hasLabel,
             'trailing-icon': this.trailingIcon,
             'disabled': this.disabled,
             [this.size]: true,
