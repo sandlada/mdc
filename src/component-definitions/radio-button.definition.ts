@@ -1,3 +1,8 @@
+/**
+ * @license
+ * Copyright 2025 Kai-Orion & Sandlada
+ * SPDX-License-Identifier: MIT
+ */
 import { Color, State } from '@sandlada/mdk'
 
 export const RadioButtonDefinition = {
