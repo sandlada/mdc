@@ -1,67 +1,43 @@
-# @sandlada/vue-mdc
+# @sandlada/mdc
 
-![Vue MDC Logo](https://raw.githubusercontent.com/sandlada/vue-mdc/refs/heads/main/docs/vue-mdc-cover.png)
+![MDC Logo](https://raw.githubusercontent.com/sandlada/mdc/refs/heads/main/docs/mdc-cover.png)
 
-![Vue MDC Project Preview Picture](https://raw.githubusercontent.com/sandlada/vue-mdc/refs/heads/main/docs/project-view.png)
+![NPM Downloads](https://img.shields.io/npm/d18m/@sandlada/mdc?label=NPM%20Downloads)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/sandlada/mdc/total?label=Github%20Downloads)
+![NPM Version](https://img.shields.io/npm/v/%40sandlada%2Fmdc?label=NPM%20Version)
+![GitHub License](https://img.shields.io/github/license/sandlada/mdc?label=License)
 
-![NPM Downloads](https://img.shields.io/npm/d18m/@sandlada/vue-mdc?label=NPM%20Downloads)
-![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/sandlada/vue-mdc/total?label=Github%20Downloads)
-![NPM Version](https://img.shields.io/npm/v/%40sandlada%2Fvue-mdc?label=NPM%20Version)
-![GitHub License](https://img.shields.io/github/license/sandlada/vue-mdc?label=License)
+_**@sandlada/vue-mdc is deprecated. We will migrate from @sandlada/vue-mdc to @sandlada/mdc.**_
 
-`@sandlada/vue-mdc` provides easy-to-use Material Design 3 style Vue components. It provides complete type support, and is based on Vue3, Sass and TypeScript.
+**Currently in development.**
 
-With the help of the third-party library [@material/material-color-utilities](https://github.com/material-foundation/material-color-utilities), you can easily create a color scheme that conforms to the rules, and each component following the design principles of [Material Design 3](https://m3.material.io/).
+`@sandlada/mdc` is an open source component library that follows the Material Design 3 design specifications.
 
-_Vue-MDC is developed for Vue and Vite. If you are using Webpack or other scaffolding, Vue-MDC cannot ensure that it will run as expected._
+Written by Lit Framework, relying on the cross-framework capabilities of Lit and Web Component, you can use this library on any framework (Vue, Angular, React, etc.).
 
 ## :zap: Highlights
 
 - Material Design 3
-- Vue 3
-- Sass & CSS
-- TypeScript
+- Written in Lit Framework
 
 ## :eyes: Installation
 
-**Necessary**: Dependencies for using Vue-MDC:
-
 ```bash
-npm i @sandlada/vue-mdc
-```
-
-### Build with SASS (Optional)
-
-**Optional**: In addition to exporting the build, Vue-MDC also exports the src folder of the project. The `src/themes` folder exports the themes of available components. These files are written in sass. If you want to use these sass files, please install the `sass` dependency:
-
-```bash
-npm i sass -D
-```
-
-### Build with Sourcecodes (Optional)
-
-**Optional**: Components are in the `src/components` folder. These files are written in sass and tsx. If you want to use these tsx files, please install `sass`, `@vitejs/plugin-vue-jsx` and `typescript` dependencies:
-
-```bash
-npm i sass typescript @vitejs/plugin-vue-jsx -D
+npm i @sandlada/mdc
 ```
 
 ## :ship: Example
 
-Don't know how to use Vue-MDC? Explore Vue-MDC with simple examples from [Github Wiki - Examples](https://github.com/sandlada/vue-mdc/wiki/Examples).
+Don't know how to use MDC? Explore MDC with simple examples from [Github Wiki - Examples](https://github.com/sandlada/mdc/wiki/Examples).
 
-_If you want to showcase something you've created with Vue-MDC, please contact me._
+_If you want to showcase something you've created with MDC, please contact me._
 
 ## :ledger: Documents
 
-Documentation is available at [Github Wiki](https://github.com/sandlada/vue-mdc/wiki). This is just temporary, the final documentation will be available at [vue-mdc.sandlada.com](https://vue-mdc.sandlada.com). We will bring the site online as soon as possible.
+For more information about MDC, please visit [mdc.sandlada.com](https://mdc.sandlada.com).
 
 _The document is being edited and the content will be presented soon._
 
 ## :world_map: Roadmap
 
-If you want to follow the latest progress of Vue-MDC, please jump to issue [Project Tracker](https://github.com/sandlada/vue-mdc/issues/6).
-
-## :floppy_disk: Bundle size
-
-The bundle size has been calculated: [bundle-size.md](https://github.com/sandlada/vue-mdc/blob/main/bundle-size.md).
+If you want to follow the latest progress of MDC, please jump to issue [Project Tracker](https://github.com/sandlada/mdc/issues/6).
