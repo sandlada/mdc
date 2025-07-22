@@ -198,7 +198,7 @@ export const NavigationBarXRTabDefinition = {
 
     'vertical-indicator-width'                : `64px`,
     'vertical-indicator-height'               : `32px`,
-    'vertical-container-width'                : `64px`,
+    'vertical-container-width'                : `112px`,
     'vertical-container-height'               : `80px`,
     'vertical-container-block-leading-space'  : `12px`,
     'vertical-container-block-trailing-space' : `16px`,

@@ -7,6 +7,12 @@ import { customElement, property } from 'lit/decorators.js'
 import { BaseNavigationTab, type TNavigationDirection } from './base-navigation-tab'
 import { navigationRailTabStyle } from './navigation-tab.style'
 
+declare global {
+    interface HTMLElementTagNameMap {
+        "mdc-navigation-rail-tab": NavigationRailTab
+    }
+}
+
 /**
  * 
  * @version
