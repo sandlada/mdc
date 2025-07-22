@@ -5,15 +5,20 @@
  */
 import { Duration, Easing } from '@sandlada/mdk'
 import { css, unsafeCSS } from 'lit'
-import { NavigationBarTabDefinition, NavigationRailTabDefinition } from '../../component-definitions/navigation-tab.definition'
+import { NavigationBarTabDefinition, NavigationBarXRTabDefinition, NavigationRailTabDefinition, NavigationRailXRTabDefinition } from '../../component-definitions/navigation-tab.definition'
 import type { IconDefinition } from '../../definitions'
 import { createWrappedTokens, overrideComponentTokens, stringTokens } from '../../utils'
 
 const barTokens = createWrappedTokens('--mdc-navigation-bar-tab', NavigationBarTabDefinition)
 const barTokenString = stringTokens(barTokens)
+const barXRTokens = createWrappedTokens('--mdc-navigation-bar-xr-tab', NavigationBarXRTabDefinition)
+const barXRTokenString = stringTokens(barXRTokens)
 
 const railTokens = createWrappedTokens('--mdc-navigation-rail-tab', NavigationRailTabDefinition)
 const railTokenString = stringTokens(railTokens)
+
+const railXRTokens = createWrappedTokens('--mdc-navigation-rail-xr-tab', NavigationRailXRTabDefinition)
+const railXRTokenString = stringTokens(railXRTokens)
 
 const indicatorMotion = {
     easing: unsafeCSS(Easing.ExpressiveFastSpatial),
@@ -248,7 +253,8 @@ export const navigationBarTabStyle = [
     indicatorShared,
     containerShared,
     css`
-        :host { ${barTokenString}; }
+        :host(:not(xr)) { ${barTokenString}; }
+        :host([xr]) { ${barXRTokenString}; }
 
     /* SPEC */
     button.vertical {
@@ -314,8 +320,8 @@ export const navigationRailTabStyle = [
     indicatorShared,
     containerShared,
     css`
-        :host { ${railTokenString}; }
-
+        :host(:not(xr)) { ${railTokenString}; }
+        :host([xr]) { ${railXRTokenString}; }
         button.round {
             height: var(--_vertical-round-container-size);
             width: var(--_vertical-round-container-size);

@@ -25,6 +25,9 @@ export class NavigationRailTab extends BaseNavigationTab {
 
     @property({ type: Boolean })
     public round: boolean = false
+
+    @property({ type: Boolean, reflect: true })
+    public xr: boolean = false
     
     protected override getRenderClasses() {
         return ({

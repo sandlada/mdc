@@ -23,6 +23,9 @@ export class NavigationBarTab extends BaseNavigationTab {
     @property({ type: String })
     public direction: TNavigationDirection = 'vertical'
     
+    @property({ type: Boolean, reflect: true })
+    public xr: boolean = false
+
     protected override getRenderClasses() {
         return ({
             'has-label': this.hasLabel,
