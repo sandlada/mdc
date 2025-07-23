@@ -1,6 +1,7 @@
 import { html, LitElement, type PropertyValues, type TemplateResult } from 'lit'
 import { customElement, property, query, queryAssignedElements } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
+import { mixinConnectedPromiseResolve } from '../../utils/behaviors/connected-promise-resolve'
 import type { DialogAnimationArgs } from '../dialog/dialog-animations'
 import type { TNavigationDirection } from '../navigation-item/base-navigation-tab'
 import { NavigationBarTab } from '../navigation-item/navigation-bar-tab'
@@ -36,7 +37,7 @@ declare global {
  * https://www.figma.com/design/4GM7ohCF2Qtjzs7Fra6jlp/Material-3-Design-Kit--Community-?node-id=58016-36958&t=gL02aeIXWQsJdOqN-0
  */
 @customElement('mdc-navigation-bar')
-export class NavigationBar extends LitElement {
+export class NavigationBar extends mixinConnectedPromiseResolve(LitElement) {
 
     static override styles = navigationBarStyle
 
@@ -84,16 +85,9 @@ export class NavigationBar extends LitElement {
     @queryAssignedElements()
     private readonly tabs!: Array<HTMLElement | NavigationBarTab>
 
+
     protected isOpen = false
     protected isOpening = false
-    protected cancelAnimations: AbortController | null = null
-    protected isConnectedPromiseResolve!: () => void
-    protected isConnectedPromise = this.getIsConnectedPromise()
-    protected getIsConnectedPromise() {
-        return new Promise<void>((resolve) => {
-            this.isConnectedPromiseResolve = resolve
-        })
-    }
 
     protected getRenderClasses() {
         return ({
@@ -115,6 +109,9 @@ export class NavigationBar extends LitElement {
             </dialog>
         `
     }
+
+    protected cancelAnimations: AbortController | null = null
+
 
     public async show() {
         this.isOpening = true
@@ -223,15 +220,7 @@ export class NavigationBar extends LitElement {
         )
     }
 
-    override connectedCallback() {
-        super.connectedCallback()
-        this.isConnectedPromiseResolve()
-    }
 
-    override disconnectedCallback() {
-        super.disconnectedCallback()
-        this.isConnectedPromise = this.getIsConnectedPromise()
-    }
 
     protected override firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated(_changedProperties)
