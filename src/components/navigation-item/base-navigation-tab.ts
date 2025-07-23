@@ -12,7 +12,7 @@ import { NavigationTabSingleSelectionController } from './navigation-tab-sigle-s
 
 const SActive = Symbol('active')
 
-export type TNavigationDirection = 'vertical' | 'horizonal'
+export type TNavigationTabDirection = 'vertical' | 'horizonal'
 
 /**
  * 

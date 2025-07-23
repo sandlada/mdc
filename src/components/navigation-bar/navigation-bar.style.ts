@@ -30,6 +30,7 @@ export const navigationBarStyle = css`
         overflow: hidden;
         padding: 0;
         width: inherit;
+        box-sizing: border-box;
     }
     dialog[open] {
         display: flex;
@@ -76,6 +77,21 @@ export const navigationBarStyle = css`
         overflow: hidden;
         position: relative;
         transform-origin: top;
+        width: 100%;
+    }
+
+    .content {
+        display: flex;
+    }
+
+    dialog.start {
+        justify-content: start
+    }
+    dialog.middle .container {
+        justify-content: center;
+    }
+    dialog.end .container {
+        justify-content: end;
     }
     
     .background {

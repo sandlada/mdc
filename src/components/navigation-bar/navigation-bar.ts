@@ -3,7 +3,7 @@ import { customElement, property, query, queryAssignedElements } from 'lit/decor
 import { classMap } from 'lit/directives/class-map.js'
 import { mixinConnectedPromiseResolve } from '../../utils/behaviors/connected-promise-resolve'
 import type { DialogAnimationArgs } from '../dialog/dialog-animations'
-import type { TNavigationDirection } from '../navigation-item/base-navigation-tab'
+import type { TNavigationTabDirection } from '../navigation-item/base-navigation-tab'
 import { NavigationBarTab } from '../navigation-item/navigation-bar-tab'
 import { NavigationBarDefaultCloseAnimation, NavigationBarDefaultOpenAnimation, type TNavigationBarAnimation } from './navigation-bar-animations'
 import { navigationBarStyle } from './navigation-bar.style'
@@ -18,6 +18,11 @@ declare global {
  * direction:
  * - direction="vertical" (default)
  * - direction="horizonal"
+ * 
+ * position:
+ * - left
+ * - middle (default)
+ * - right
  * 
  * xr:
  * - false (default)
@@ -42,7 +47,10 @@ export class NavigationBar extends mixinConnectedPromiseResolve(LitElement) {
     static override styles = navigationBarStyle
 
     @property({ type: String })
-    public direction: TNavigationDirection = 'vertical'
+    public direction: TNavigationTabDirection = 'vertical'
+
+    @property({ type: String })
+    public position: 'start' | 'middle' | 'end' = 'middle'
 
     @property({ type: Boolean })
     public xr: boolean = false
@@ -94,6 +102,9 @@ export class NavigationBar extends mixinConnectedPromiseResolve(LitElement) {
             'vertical': this.direction === 'vertical',
             'horizonal': this.direction !== 'vertical',
             'xr': this.xr,
+            'start': this.position === 'start',
+            'middle': this.position === 'middle',
+            'end': this.position === 'end',
         })
     }
 
