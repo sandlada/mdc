@@ -134,7 +134,7 @@ export const NavigationRailTabDefinition = {
 
     'vertical-indicator-width'                : `56px`,
     'vertical-indicator-height'               : `32px`,
-    'vertical-container-width'                : `104px`,
+    'vertical-container-width'                : `96px`,
     'vertical-container-height'               : `64px`,
     'vertical-container-block-leading-space'  : `6px`,
     'vertical-container-block-trailing-space' : `6px`,
