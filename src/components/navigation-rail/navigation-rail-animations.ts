@@ -26,7 +26,7 @@ export const NavigationRailDefaultOpenAnimation: TNavigationRailAnimation = {
     dialog: [
         [
             // Dialog slide right
-            [{ 'transform': 'translateX(-25px)' }, { 'transform': 'translateX(0)' }],
+            [{ 'transform': 'translateX(-100%)' }, { 'transform': 'translateX(0)' }],
             { duration: 500, easing: Easing.Emphasized },
         ],
     ],
@@ -50,7 +50,7 @@ export const NavigationRailDefaultCloseAnimation: TNavigationRailAnimation = {
     dialog: [
         [
             // Dialog slide up
-            [{ 'transform': 'translateX(0)' }, { 'transform': 'translateX(50px)' }],
+            [{ 'transform': 'translateX(0)' }, { 'transform': 'translateX(-100%)' }],
             { duration: 150, easing: Easing.EmphasizedAccelerate },
         ],
     ],

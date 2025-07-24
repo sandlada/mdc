@@ -76,7 +76,6 @@ export const navigationBarStyle = css`
         flex-grow: 1;
         overflow: hidden;
         position: relative;
-        transform-origin: top;
         width: 100%;
     }
 

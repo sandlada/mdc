@@ -26,7 +26,7 @@ export const NavigationBarDefaultOpenAnimation: TNavigationBarAnimation = {
     dialog: [
         [
             // Dialog slide up
-            [{ 'transform': 'translateY(25px)' }, { 'transform': 'translateY(0)' }],
+            [{ 'transform': 'translateY(100%)' }, { 'transform': 'translateY(0%)' }],
             { duration: 500, easing: Easing.Emphasized },
         ],
     ],
@@ -50,7 +50,7 @@ export const NavigationBarDefaultCloseAnimation: TNavigationBarAnimation = {
     dialog: [
         [
             // Dialog slide up
-            [{ 'transform': 'translateY(0)' }, { 'transform': 'translateY(-50px)' }],
+            [{ 'transform': 'translateY(0)' }, { 'transform': 'translateY(100%)' }],
             { duration: 150, easing: Easing.EmphasizedAccelerate },
         ],
     ],
