@@ -11,8 +11,8 @@ export const NavigationBarDefinition = {
     'vertical-container-color'                : Color.SurfaceContainer,
 
     'horizonal-container-height'               : `64px`,
-    'horizonal-container-inline-leading-space' : `0px`,
-    'horizonal-container-inline-trailing-space': `0px`,
+    'horizonal-container-inline-leading-space' : `20px`,
+    'horizonal-container-inline-trailing-space': `20px`,
     'horizonal-container-block-leading-space'  : `0px`,
     'horizonal-container-block-trailing-space' : `0px`,
     'horizonal-tab-between-space'              : `0px`,

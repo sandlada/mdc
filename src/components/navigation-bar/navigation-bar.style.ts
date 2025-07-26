@@ -71,25 +71,28 @@ export const navigationBarStyle = css`
     }
 
     .container {
-        border-radius: inherit;
         display: flex;
         flex-grow: 1;
         overflow: hidden;
-        position: relative;
-        width: 100%;
     }
 
     .content {
         display: flex;
+        flex-grow: 0;
+        width: 100%;
+        overflow: auto;
     }
 
-    dialog.start {
+    dialog.start .container .content {
         justify-content: start
     }
-    dialog.middle .container {
+    dialog.middle .container .content {
         justify-content: center;
     }
-    dialog.end .container {
+    dialog.between .container .content {
+        justify-content: space-evenly;
+    }
+    dialog.end .container .content {
         justify-content: end;
     }
     

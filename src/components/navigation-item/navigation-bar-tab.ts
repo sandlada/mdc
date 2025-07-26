@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 import { customElement, property } from 'lit/decorators.js'
-import { BaseNavigationTab, type TNavigationDirection } from './base-navigation-tab'
+import { BaseNavigationTab, type TNavigationTabDirection } from './base-navigation-tab'
 import { navigationBarTabStyle } from './navigation-tab.style'
 
 declare global {
@@ -27,7 +27,7 @@ export class NavigationBarTab extends BaseNavigationTab {
     static override styles = navigationBarTabStyle
 
     @property({ type: String })
-    public direction: TNavigationDirection = 'vertical'
+    public direction: TNavigationTabDirection = 'vertical'
     
     @property({ type: Boolean, reflect: true })
     public xr: boolean = false

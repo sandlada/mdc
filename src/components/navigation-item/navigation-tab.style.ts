@@ -150,8 +150,8 @@ const indicatorShared = css`
         inset: 0;
         z-index: -1;
         transition-property: transform, background;
-        transition-duration: ${indicatorMotion.duration};
-        transition-timing-function: ${indicatorMotion.easing};
+        transition-duration: ${indicatorMotion.duration}, 50ms;
+        transition-timing-function: ${indicatorMotion.easing}, linear;
     }
 
     button.vertical :is(.indicator, .indicator .background) {

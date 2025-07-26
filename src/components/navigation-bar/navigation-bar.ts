@@ -21,7 +21,8 @@ declare global {
  * 
  * position:
  * - left
- * - middle (default)
+ * - middle
+ * - between (default)
  * - right
  * 
  * xr:
@@ -50,7 +51,7 @@ export class NavigationBar extends mixinConnectedPromiseResolve(LitElement) {
     public direction: TNavigationTabDirection = 'vertical'
 
     @property({ type: String })
-    public position: 'start' | 'middle' | 'end' = 'middle'
+    public position: 'start' | 'middle' | 'between' | 'end' = 'between'
 
     @property({ type: Boolean })
     public xr: boolean = false
@@ -104,6 +105,7 @@ export class NavigationBar extends mixinConnectedPromiseResolve(LitElement) {
             'xr': this.xr,
             'start': this.position === 'start',
             'middle': this.position === 'middle',
+            'between': this.position === 'between',
             'end': this.position === 'end',
         })
     }
