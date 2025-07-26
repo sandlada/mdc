@@ -9,8 +9,7 @@
  */
 
 import { Easing } from '@sandlada/mdk'
-import { isServer, LitElement } from 'lit'
-import { property } from 'lit/decorators.js'
+import { isServer, ReactiveElement } from 'lit'
 
 const RippleState = {
     /**
@@ -54,7 +53,6 @@ const RippleConfiguration = {
     padding: 10,
     softEdgeMinimumSize: 75,
     softEdgeContainerRadio: 0.35,
-    pressPseudo: '::after',
     animationFill: 'forwards' as FillMode,
     touchDelayMs: 150,
 } as const
@@ -70,31 +68,28 @@ const Events = [
     'pointerenter',
     'pointerleave',
     'pointerup',
+    'focus',
+    'blur',
 ]
 
+export interface IRipple extends ReactiveElement {
+    hovered: boolean
+    focused: boolean
+    pressed: boolean
+    disabled: boolean
+    disableHoverStateLayer: boolean
+    disableFocusStateLayer: boolean
+    disablePressStateLayer: boolean
+    hoverStateLayerElement: HTMLElement
+    focusStateLayerElement: HTMLElement
+    pressStateLayerElement: HTMLElement
+}
+
 /**
- * Used to manage the `hovered` and `pressed` states of ripple components.
+ * Used to manage the `hovered`, `focused` and `pressed` states of ripple components.
  */
-export abstract class RippleAction extends LitElement {
-
-    protected declare readonly rippleElement: HTMLElement | null
-
-    @property({ type: Boolean, reflect: true})
-    public disabled: boolean = false
-
-    protected get hovered() {
-        return this.hasAttribute('hovered')
-    }
-    protected set hovered(hovered: boolean) {
-        this.toggleAttribute('hovered', hovered)
-    }
-    protected get pressed() {
-        return this.hasAttribute('pressed')
-    }
-    protected set pressed(pressed: boolean) {
-        this.toggleAttribute('pressed', pressed)
-    }
-
+export class RippleAction {
+    private readonly host: IRipple
     private state = RippleState.Inactive
     private startEvent: null | PointerEvent = null
     private checkBoundsAfterContextMenu = false
@@ -103,11 +98,14 @@ export abstract class RippleAction extends LitElement {
     private rippleSize = ''
     private growAnimation: null | Animation = null
 
-    protected onControlChange(prev: HTMLElement | null, next: HTMLElement | null) {
+    constructor(host: IRipple) {
+        this.host = host
+    }
+
+    public onControlChange(prev: HTMLElement | null, next: HTMLElement | null) {
         if (isServer) {
             return
         }
-
         for (const event of Events) {
             prev?.removeEventListener(event, this.handleEvent)
             next?.addEventListener(event, this.handleEvent)
@@ -121,13 +119,13 @@ export abstract class RippleAction extends LitElement {
         if (!this.shouldReactToEvent(event)) {
             return
         }
-        this.hovered = true
+        this.host.hovered = true
     }
     private handlePointerleave(event: PointerEvent) {
         if (!this.shouldReactToEvent(event)) {
             return
         }
-        this.hovered = false
+        this.host.hovered = false
         if (this.state !== RippleState.Inactive) {
             this.endPressAnimation()
         }
@@ -179,7 +177,7 @@ export abstract class RippleAction extends LitElement {
         this.endPressAnimation()
     }
     private handleClick() {
-        if (this.disabled) return
+        if (this.host.disabled) return
         if (this.state === RippleState.WaitingForClick) {
             this.endPressAnimation()
             return
@@ -191,22 +189,38 @@ export abstract class RippleAction extends LitElement {
         }
     }
     private handleContextmenu() {
-        if (this.disabled) return
+        if (this.host.disabled) return
         this.checkBoundsAfterContextMenu = true
         this.endPressAnimation()
     }
+    private handleFocus() {
+        if (this.host.disabled) {
+            return
+        }
+        this.host.focused = true
+    }
+    private handleBlur() {
+        if (this.host.disabled) {
+            return
+        }
+        this.host.focused = false
+        if (this.state !== RippleState.Inactive) {
+            this.endPressAnimation()
+        }
+    }
+
     /**
      * Animations about
      */
     private startPressAnimation(positionEvent?: Event) {
-        this.pressed = true
+        this.host.pressed = true
         this.growAnimation?.cancel()
         this.determineRippleSize()
         const { startPoint, endPoint } = this.getTranslationCoordinates(positionEvent)!
         const translateStart = `${startPoint.x}px, ${startPoint.y}px`
         const translateEnd = `${endPoint.x}px, ${endPoint.y}px`
-        if (this.rippleElement === null) return
-        this.growAnimation = this.rippleElement.animate(
+        if (this.host === null) return
+        this.growAnimation = this.host.pressStateLayerElement.animate(
             {
                 top: [0, 0],
                 left: [0, 0],
@@ -218,7 +232,6 @@ export abstract class RippleAction extends LitElement {
                 ],
             },
             {
-                pseudoElement: RippleConfiguration.pressPseudo,
                 duration: RippleConfiguration.pressGrowMs,
                 easing: Easing.Standard,
                 fill: RippleConfiguration.animationFill,
@@ -226,9 +239,9 @@ export abstract class RippleAction extends LitElement {
         )
     }
     private getTranslationCoordinates(positionEvent?: Event) {
-        if (this.rippleElement === null) return
+        if (this.host === null) return
 
-        const { height, width } = this.rippleElement.getBoundingClientRect()
+        const { height, width } = this.host.getBoundingClientRect()
         // end in the center
         const endPoint = {
             x: (width - this.initialSize) / 2,
@@ -251,9 +264,9 @@ export abstract class RippleAction extends LitElement {
         return { startPoint, endPoint }
     }
     private getNormalizedPointerEventCoords(pointerEvent: PointerEvent) {
-        if (this.rippleElement === null) return
+        if (this.host === null) return
         const { scrollX, scrollY } = window
-        const { left, top } = this.rippleElement.getBoundingClientRect()
+        const { left, top } = this.host.getBoundingClientRect()
         const documentX = scrollX + left
         const documentY = scrollY + top
         const { pageX, pageY } = pointerEvent
@@ -270,7 +283,7 @@ export abstract class RippleAction extends LitElement {
         }
 
         if (pressAnimationPlayState >= RippleConfiguration.minimumPressMs) {
-            this.pressed = false
+            this.host.pressed = false
             return
         }
 
@@ -284,11 +297,11 @@ export abstract class RippleAction extends LitElement {
             return
         }
 
-        this.pressed = false
+        this.host.pressed = false
     }
     private determineRippleSize() {
-        if (this.rippleElement === null) return
-        const { height, width } = this.rippleElement.getBoundingClientRect()
+        if (this.host === null) return
+        const { height, width } = this.host.getBoundingClientRect()
         const maxDim = Math.max(height, width)
         const softEdgeSize = Math.max(
             RippleConfiguration.softEdgeContainerRadio * maxDim,
@@ -304,15 +317,15 @@ export abstract class RippleAction extends LitElement {
         this.rippleSize = `${this.initialSize}px`
     }
     private inBounds({ x, y }: PointerEvent) {
-        if (this.rippleElement === null) return
-        const { top, left, bottom, right } = this.rippleElement.getBoundingClientRect()
+        if (this.host === null) return
+        const { top, left, bottom, right } = this.host.getBoundingClientRect()
         return x >= left && x <= right && y >= top && y <= bottom
     }
     private isTouch({ pointerType }: PointerEvent) {
         return pointerType === 'touch'
     }
     private shouldReactToEvent(event: PointerEvent) {
-        if (this.disabled || !event.isPrimary) return false
+        if (this.host.disabled || !event.isPrimary) return false
 
         if (
             this.startEvent &&
@@ -350,6 +363,12 @@ export abstract class RippleAction extends LitElement {
                 break
             case 'pointerup':
                 this.handlePointerup(e as PointerEvent)
+                break
+            case 'focus':
+                this.handleFocus()
+                break
+            case 'blur':
+                this.handleBlur()
                 break
             default:
                 break
