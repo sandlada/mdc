@@ -3,42 +3,37 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { html, isServer } from "lit"
-import { property, query } from "lit/decorators.js"
-import { classMap } from "lit/directives/class-map.js"
-import { mixinDelegatesAria } from '../../utils/aria/delegate'
+import { html, nothing, type TemplateResult } from "lit"
+import { customElement, property, query } from "lit/decorators.js"
+import { classMap } from 'lit/directives/class-map.js'
+import type { AriaMixinStrict } from '../../utils/aria/aria'
 import { createValidator, getValidityAnchor, mixinConstraintValidation } from '../../utils/behaviors/constraint-validation'
-import { mixinElementInternals } from '../../utils/behaviors/element-internals'
 import { CheckboxValidator } from '../../utils/behaviors/validators/checkbox-validator'
-import { dispatchActivationClick, isActivationClick } from '../../utils/event/form-label-activation'
 import { redispatchEvent } from '../../utils/event/redispatch-event'
 import { getFormState, getFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
 import { BaseButton } from './base-button'
+import { buttonStyles } from './button.style'
 
 /**
- *  The toggle buttons are available in 4 variations:
- * - mdc-elevated-button
- * - mdc-filled-button
- * - mdc-filled-tonal-button
- * - mdc-outlined-button
- *
- * mdc-text-button is not supported by M3 Expressive.
+ * `mdc-toggle-button variant="text"` is not supported by M3 Expressive.
  *
  * @version
  * Material Design 3 - Expressive
  *
  * @link
  * https://m3.material.io/components/buttons/overview
+ * https://www.figma.com/design/4GM7ohCF2Qtjzs7Fra6jlp/Material-3-Design-Kit--Community-?node-id=57994-2328&t=kLfic7eA8vKtkiiO-0
  */
-export class TogglableButton extends mixinDelegatesAria(mixinConstraintValidation(mixinFormAssociated(mixinElementInternals(BaseButton)))) {
+@customElement('mdc-toggle-button')
+export class TogglableButton extends mixinConstraintValidation(mixinFormAssociated(BaseButton)) {
 
-    static override shadowRootOptions: ShadowRootInit = {
-        mode: 'open',
-        delegatesFocus: true,
-    };
+    static override styles = buttonStyles
 
     declare disabled: boolean
     declare name: string
+
+    @property({ type: String, reflect: true, })
+    public override variant: 'filled' | 'filled-tonal' | 'elevated' | 'outlined' = 'filled'
 
     @property({ type: String })
     public value: string = 'on'
@@ -59,56 +54,48 @@ export class TogglableButton extends mixinDelegatesAria(mixinConstraintValidatio
      * We use the <input /> element as a replacement for the button element.
      * The state is managed by the input element.
      */
-    @query('.togglable-input')
-    protected readonly buttonElement!: HTMLInputElement | null
+    @query('#input-as-touch-target')
+    protected override readonly buttonElement!: HTMLInputElement | null
 
-    public override focus() {
-        this.buttonElement?.focus()
-    }
-
-    public override blur() {
-        this.buttonElement?.blur()
-    }
-
-    constructor() {
-        super()
-        if(isServer) {
-            return
-        }
-        this.addEventListener('click', this.handleClick.bind(this))
-    }
-
-    protected override render() {
-        const classes = classMap({
-            'has-icon': this.hasIcon,
-            'has-label': this.hasLabel,
-            'trailing-icon': this.trailingIcon,
-            'disabled': this.disabled,
-            [this.size]: true,
-            [this.shape]: true,
+    protected override getRenderClasses() {
+        return ({
+            ...super.getRenderClasses(),
             'togglable': true,
             'selected': this.selected,
             'unselected': !this.selected,
         })
+    }
+
+    protected override render(): TemplateResult {
+        const { ariaHasPopup, ariaExpanded, ariaLabel } = this as AriaMixinStrict
         return html`
-            <div class="surface ${classes}">
-                ${this.renderButton()}
-                ${this.renderOutline?.()}
-                ${this.renderElevation?.()}
-                <span class="background"></span>
-                <mdc-ripple for="button" part="ripple" ?disabled=${this.disabled}></mdc-ripple>
-                <mdc-focus-ring for="button" part="focus-ring"></mdc-focus-ring>
-            </div>
+            <button
+                class="${classMap(this.getRenderClasses())}"
+                ?disabled=${this.disabled}
+                aria-disabled=${this.disabled}
+                aria-label=${ariaLabel || nothing}
+                aria-haspopup=${ariaHasPopup || nothing}
+                aria-expanded=${ariaExpanded || nothing}
+                tabindex="-1"
+            >
+                ${this.variant === 'outlined' ? this.renderOutline() : nothing}
+                ${['elevated', 'filled', 'filled-tonal'].includes(this.variant) ? this.renderElevation() : nothing}
+                ${this.renderContent()}
+                ${this.renderTouchTarget()}
+                ${this.renderBackground()}
+                <mdc-ripple for="input-as-touch-target" part="ripple" ?disabled=${this.disabled}></mdc-ripple>
+                <mdc-focus-ring for="input-as-touch-target" part="focus-ring"></mdc-focus-ring>
+            </button>
         `
     }
 
-    protected override renderButton() {
+    protected override renderTouchTarget() {
         return html`
             <input
                 type="checkbox"
                 role="button"
-                id="button"
-                class="togglable-input"
+                id="input-as-touch-target"
+                class="toggle-input touch-target"
                 .checked=${this.selected}
                 .disabled=${this.disabled}
                 .required=${this.required}
@@ -118,24 +105,7 @@ export class TogglableButton extends mixinDelegatesAria(mixinConstraintValidatio
                 @input=${this.handleInput}
                 @change=${this.handleChange}
             />
-            <span class="button">
-                ${this.renderContent()}
-            </span>
-
         `
-    }
-
-    protected handleClick(e: MouseEvent) {
-        if (this.disabled) {
-            e.stopImmediatePropagation()
-            e.preventDefault()
-            return
-        }
-        if (!isActivationClick(e) || !this.buttonElement) {
-            return
-        }
-        this.focus()
-        dispatchActivationClick(this.buttonElement)
     }
 
     protected handleInput(_: InputEvent) {

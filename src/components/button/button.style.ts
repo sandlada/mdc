@@ -26,674 +26,520 @@ const outlinedTokenString = unsafeCSS(stringTokens(outlinedTokens))
 const textTokens = createWrappedTokens('--mdc-text-button', TextButtonDefinition)
 const textTokenString = unsafeCSS(stringTokens(textTokens))
 
-const getSharedShapes = (mode: 'container-shape-round' | 'container-shape-square' | 'container-shape-round-toggle-selected' | 'container-shape-square-toggle-selected' | 'container-shape-pressed-morph') => {
-    const size = (s: string) => css`
-        & {
-            border-start-start-radius: min(var(--_${unsafeCSS(s)}-${unsafeCSS(mode)}-start-start), calc(var(--_${unsafeCSS(s)}-container-height) / 2));
-            border-start-end-radius: min(var(--_${unsafeCSS(s)}-${unsafeCSS(mode)}-start-end), calc(var(--_${unsafeCSS(s)}-container-height) / 2));
-            border-end-start-radius: min(var(--_${unsafeCSS(s)}-${unsafeCSS(mode)}-end-start), calc(var(--_${unsafeCSS(s)}-container-height) / 2));
-            border-end-end-radius: min(var(--_${unsafeCSS(s)}-${unsafeCSS(mode)}-end-end), calc(var(--_${unsafeCSS(s)}-container-height) / 2));
-        }
-    `
+type TState = 'container-shape-round' | 'container-shape-square' | 'container-shape-round-toggle-selected' | 'container-shape-square-toggle-selected' | 'container-shape-pressed-morph'
+type TSize = 'extra-small' | 'small' | 'medium' | 'large' | 'extra-large'
 
+const getContainerShapeStyles = () => {
+    const getShape = (s: TSize, mode: TState) => unsafeCSS(`
+        border-start-start-radius: min(var(--_${s}-${mode}-start-start), calc(var(--_${s}-container-height) / 2));
+        border-start-end-radius: min(var(--_${s}-${mode}-start-end), calc(var(--_${s}-container-height) / 2));
+        border-end-start-radius: min(var(--_${s}-${mode}-end-start), calc(var(--_${s}-container-height) / 2));
+        border-end-end-radius: min(var(--_${s}-${mode}-end-end), calc(var(--_${s}-container-height) / 2));
+    `)
+    const getSizedShape = (mode: TState) => css`
+        &.extra-small { ${getShape('extra-small', mode)}; }
+        &.small { ${getShape('small', mode)}; }
+        &.medium { ${getShape('medium', mode)}; }
+        &.large { ${getShape('large', mode)}; }
+        &.extra-large { ${getShape('extra-large', mode)}; }
+    `
     return css`
-        &.extra-small { ${size('extra-small')}; }
-        &.small { ${size('small')}; }
-        &.medium { ${size('medium')}; }
-        &.large { ${size('large')}; }
-        &.extra-large { ${size('extra-large')}; }
+        .container.round  {${getSizedShape('container-shape-round')};}
+        .container.square {${getSizedShape('container-shape-square')};}
+        .container.round.togglable.selected {${getSizedShape('container-shape-round-toggle-selected')};}
+        .container.square.togglable.selected {${getSizedShape('container-shape-square-toggle-selected')};}
+        .container:not(.disable-morph, .togglable):is(.round, .square):active,
+        .container:not(.disable-morph).togglable:is(.selected, .unselected):has(.toggle-input:active) {${getSizedShape('container-shape-pressed-morph')};}
     `
 }
-
-const shared = css`
-    @layer mdc.button.shared {
-
-        :host {
-            display: inline-flex;
-            outline: none;
-            vertical-align: top;
-            cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .surface {
-            position: absolute;
-            inset: 0;
-            box-sizing: border-box;
-            cursor: pointer;
-            display: flex;
-            outline: none;
-            place-content: center;
-            place-items: center;
-            position: relative;
-            z-index: 0;
-            text-overflow: ellipsis;
-            text-wrap: nowrap;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            vertical-align: top;
-            transition-property: border-radius;
-            transition-duration: 350ms;
-            transition-timing-function: cubic-bezier(0.42, 1.67, 0.21, 0.9);
-        }
-
-        :host([disabled]) {
-            cursor: default;
-            pointer-events: none;
-        }
-
-        /* Root Shape */
-
-        .surface.round  {
-            ${getSharedShapes('container-shape-round')};
-        }
-        .surface.square {
-            ${getSharedShapes('container-shape-square')};
-        }
-
-        .surface.round.togglable.selected {
-            ${getSharedShapes('container-shape-round-toggle-selected')};
-        }
-        .surface.square.togglable.selected {
-            ${getSharedShapes('container-shape-square-toggle-selected')};
-        }
-
-        /* Pressed Shape */
-
-        .surface:is(.round, .square, .togglable.selected, .togglable.unselected):active {
-            ${getSharedShapes('container-shape-pressed-morph')};
-        }
-
-        /* Root Width & Height */
-
-        .surface {
-            &.extra-small {
-                height: var(--_extra-small-container-height);
-                min-width: calc(64px - var(--_extra-small-leading-space) - var(--_extra-small-trailing-space));
-            }
-            &.small {
-                height: var(--_small-container-height);
-                min-width: calc(64px - var(--_small-leading-space) - var(--_small-trailing-space));
-            }
-            &.medium {
-                height: var(--_medium-container-height);
-                min-width: calc(64px - var(--_medium-leading-space) - var(--_medium-trailing-space));
-            }
-            &.large {
-                height: var(--_large-container-height);
-                min-width: calc(64px - var(--_large-leading-space) - var(--_large-trailing-space));
-            }
-            &.extra-large {
-                height: var(--_extra-large-container-height);
-                min-width: calc(64px - var(--_extra-large-leading-space) - var(--_extra-large-trailing-space));
-            }
-        }
-
-        /* Button Size */
-
-        .surface.extra-small .button {
-            padding-inline-start: var(--_extra-small-leading-space);
-            padding-inline-end: var(--_extra-small-trailing-space);
-            gap: var(--_extra-small-between-icon-label-space);
-        }
-        .surface.small .button{
-            padding-inline-start: var(--_small-leading-space);
-            padding-inline-end: var(--_small-trailing-space);
-            gap: var(--_small-between-icon-label-space);
-        }
-        .surface.medium .button{
-            padding-inline-start: var(--_medium-leading-space);
-            padding-inline-end: var(--_medium-trailing-space);
-            gap: var(--_medium-between-icon-label-space);
-        }
-        .surface.large .button{
-            padding-inline-start: var(--_large-leading-space);
-            padding-inline-end: var(--_large-trailing-space);
-            gap: var(--_large-between-icon-label-space);
-        }
-        .surface.extra-large .button{
-            padding-inline-start: var(--_extra-large-leading-space);
-            padding-inline-end: var(--_extra-large-trailing-space);
-            gap: var(--_extra-large-between-icon-label-space);
-        }
-
-        .surface:not(.has-label) .label {
-            display: none;
-        }
-
-        /* Label Size */
-
-        .surface.extra-small .label {
-            font-family: var(--_extra-small-label-font);
-            font-weight: var(--_extra-small-label-weight);
-            line-height: var(--_extra-small-label-line-height);
-            letter-spacing: var(--_extra-small-label-tracking);
-            font-size: var(--_extra-small-label-size);
-        }
-        .surface.small .label {
-            font-family: var(--_small-label-font);
-            font-weight: var(--_small-label-weight);
-            line-height: var(--_small-label-line-height);
-            letter-spacing: var(--_small-label-tracking);
-            font-size: var(--_small-label-size);
-        }
-        .surface.medium .label {
-            font-family: var(--_medium-label-font);
-            font-weight: var(--_medium-label-weight);
-            line-height: var(--_medium-label-line-height);
-            letter-spacing: var(--_medium-label-tracking);
-            font-size: var(--_medium-label-size);
-        }
-        .surface.large .label {
-            font-family: var(--_large-label-font);
-            font-weight: var(--_large-label-weight);
-            line-height: var(--_large-label-line-height);
-            letter-spacing: var(--_large-label-tracking);
-            font-size: var(--_large-label-size);
-        }
-        .surface.extra-large .label {
-            font-family: var(--_extra-large-label-font);
-            font-weight: var(--_extra-large-label-weight);
-            line-height: var(--_extra-large-label-line-height);
-            letter-spacing: var(--_extra-large-label-tracking);
-            font-size: var(--_extra-large-label-size);
-        }
-
-        .button {
-            border-radius: inherit;
-            cursor: inherit;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border: none;
-            outline: none;
-            -webkit-appearance: none;
-            vertical-align: middle;
-            background: transparent;
-            text-decoration: none;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            text-transform: inherit;
-
-            &::-moz-focused-inner {
-                border: 0;
-            }
-        }
-
-        .togglable-input {
-            all: unset;
-            appearance: none;
-            position: absolute;
-            inset: 0;
-            height: 100%;
-            width: 100%;
-            margin: 0;
-            opacity: 0;
-            outline: none;
-            border: none;
-            z-index: 1;
-            cursor: inherit;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        /* Label Color */
-
-        .surface .label {
-            overflow: hidden;
-            color: var(--_label-color);
-        }
-        .surface.disabled .label,
-        .surface.disabled.togglable:is(.selected, .unselected) .label {
-            color: var(--_disabled-label-color);
-            opacity: var(--_disabled-label-opacity);
-        }
-        .surface:hover .label {
-            color: var(--_hovered-label-color);
-        }
-        .surface:focus-within .label {
-            color: var(--_focused-label-color);
-        }
-        .surface:active .label {
-            color: var(--_pressed-label-color);
-        }
-
-        .surface.togglable.selected .label {
-            color: var(--_label-color-toggle-selected);
-        }
-        .surface.togglable.selected:hover .label {
-            color: var(--_hovered-label-color-toggle-selected);
-        }
-
-        .surface.togglable.selected:focus-within .label {
-            color: var(--_focused-label-color-toggle-selected);
-        }
-
-        .surface.togglable.selected:active .label {
-            color: var(--_pressed-label-color-toggle-selected);
-        }
-
-        .surface.togglable.unselected .label {
-            color: var(--_label-color-toggle-unselected);
-        }
-        .surface.togglable.unselected:hover .label {
-            color: var(--_hovered-label-color-toggle-unselected);
-        }
-
-        .surface.togglable.unselected:focus-within .label {
-            color: var(--_focused-label-color-toggle-unselected);
-        }
-
-        .surface.togglable.unselected:active .label {
-            color: var(--_pressed-label-color-toggle-unselected);
-        }
-
-        .surface .background {
-            border-radius: inherit;
-            inset: 0;
-            position: absolute;
-            z-index: -1;
-        }
-        .surface:not(.disabled) .background {
-            background-color: var(--_container-color);
-        }
-        .surface.togglable.selected:not(.disabled) .background {
-            background-color: var(--_container-color-toggle-selected);
-        }
-        .surface.togglable.unselected:not(.disabled) .background {
-            background-color: var(--_container-color-toggle-unselected);
-        }
-        .surface.disabled .background {
-            background-color: var(--_disabled-container-color);
-            opacity: var(--_disabled-container-opacity);
-        }
-
-        :is(.button, .label, .label *) {
-            text-overflow: inherit;
-        }
-
-
-
-        @media (forced-colors: active) {
-            .background {
-                border: 1px solid CanvasText;
-            }
-
-            :host:is([disabled], .disabled) {
-                --_disabled-icon-color: GrayText;
-                --_disabled-icon-opacity: 1;
-                --_disabled-container-opacity: 1;
-                --_disabled-label-color: GrayText;
-                --_disabled-label-opacity: 1;
-            }
-        }
-
-        .touch {
-            position: absolute;
-            top: 50%;
-            height: 100%;
-            left: 0;
-            right: 0;
-            transform: translateY(-50%);
-        }
-
-        [touch-target='wrapper'] {
-            margin: max(0px, (48px - var(--_container-height)) / 2) 0;
-        }
-
-        [touch-target='none'] .touch {
-            display: none;
-        }
-
-    }
-`
-const elevation = css`
-    @layer mdc.button.composite.elevation {
-        mdc-elevation {
-            transition-duration: 0ms;
-
-            ${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { level: `var(--_container-elevation)`, 'shadow-color': `var(--_container-shadow-color)` }))};
-        }
-
-        :host(:is([disabled], [soft-disabled])) mdc-elevation {
-            transition: none;
-            ${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { level: `var(--_disabled-container-elevation)` }))};
-        }
-
-        :host(:focus-within) mdc-elevation {
-            ${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { level: `var(--_focused-container-elevation)` }))};
-        }
-
-        :host(:active) mdc-elevation {
-            ${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { level: `var(--_pressed-container-elevation)` }))};
-        }
-    }
-`
-
-const getFocusRingShapes = (mode: 'container-shape-round' | 'container-shape-square' | 'container-shape-round-toggle-selected' | 'container-shape-square-toggle-selected' | 'container-shape-pressed-morph') => {
-    const getSizeShape = (size: string) => stringTokens(overrideComponentTokens<keyof typeof FocusRingDefinition>('--mdc-focus-ring', {
+const getFocusRingStyles = () => {
+    const getShape = (
+        size: TSize,
+        mode: TState
+    ) => stringTokens(overrideComponentTokens<keyof typeof FocusRingDefinition>('--mdc-focus-ring', {
         'shape-start-start': `min(var(--_${size}-${mode}-start-start), calc(var(--_${size}-container-height) / 2))`,
         'shape-start-end': `min(var(--_${size}-${mode}-start-end), calc(var(--_${size}-container-height) / 2))`,
         'shape-end-end': `min(var(--_${size}-${mode}-end-end), calc(var(--_${size}-container-height) / 2))`,
         'shape-end-start': `min(var(--_${size}-${mode}-end-start), calc(var(--_${size}-container-height) / 2))`,
     }))
-
+    const getSizedShape = (mode: TState) => unsafeCSS(`
+        &.extra-small mdc-focus-ring {${getShape('extra-small', mode)};}
+        &.small mdc-focus-ring {${getShape('small', mode)};}
+        &.medium mdc-focus-ring {${getShape('medium', mode)};}
+        &.large mdc-focus-ring {${getShape('large', mode)};}
+        &.extra-large mdc-focus-ring {${getShape('extra-large', mode)};}
+    `)
     return css`
-        &.extra-small mdc-focus-ring {${getSizeShape('extra-small')};}
-        &.small mdc-focus-ring {${getSizeShape('small')};}
-        &.medium mdc-focus-ring {${getSizeShape('medium')};}
-        &.large mdc-focus-ring {${getSizeShape('large')};}
-        &.extra-large mdc-focus-ring {${getSizeShape('extra-small')};}
+        .container.round {${getSizedShape('container-shape-round')};}
+        .container.square {${getSizedShape('container-shape-square')};}
+        .container.togglable.selected.round {${getSizedShape('container-shape-round-toggle-selected')};}
+        .container.togglable.selected.square {${getSizedShape('container-shape-square-toggle-selected')};}
+        .container:not(.disable-morph, .togglable):is(.round, .square):active,
+        .container:not(.disable-morph).togglable:is(.selected, .unselected):has(.toggle-input:active) {${getSizedShape('container-shape-pressed-morph')};}
+    `
+}
+const getIconSizeStyle = () => {
+    return css`
+        .container.extra-small :is(::slotted([slot="icon"]), .icon) {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_extra-small-icon-size)` }))};}
+        .container.small :is(::slotted([slot="icon"]), .icon) {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_small-icon-size)` }))};}
+        .container.medium :is(::slotted([slot="icon"]), .icon) {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_medium-icon-size)` }))};}
+        .container.large :is(::slotted([slot="icon"]), .icon) {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_large-icon-size)` }))};}
+        .container.extra-large :is(::slotted([slot="icon"]), .icon) {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_extra-large-icon-size)` }))};}
     `
 }
 
-const focusRing = css`
-    @layer mdc.button.composite.focus-ring {
-
-        .surface.round {
-            ${getFocusRingShapes('container-shape-round')};
-        }
-        .surface.square {
-            ${getFocusRingShapes('container-shape-square')};
-        }
-
-        /* Toggle */
-
-        .surface.togglable.selected.round {
-            ${getFocusRingShapes('container-shape-round-toggle-selected')};
-        }
-        .surface.togglable.selected.square {
-            ${getFocusRingShapes('container-shape-square-toggle-selected')};
-        }
-
-        /* Pressed */
-
-        .surface:is(.round, .square, .togglable.selected):active {
-            ${getFocusRingShapes('container-shape-pressed-morph')};
-        }
-    }
-`
-
 const ripple = css`
-    @layer mdc.button.composite.ripple {
-        mdc-ripple {
-            ${stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', { 'hovered-color': `var(--_hovered-state-layer-color)`, 'pressed-color': `var(--_pressed-state-layer-color)`, 'hovered-opacity': `var(--_hovered-state-layer-opacity)`, 'pressed-opacity': `var(--_pressed-state-layer-opacity)`, }))};
+    .container mdc-ripple {${stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', { 'hovered-color': `var(--_hovered-state-layer-color)`, 'focused-color': `var(--_focused-state-layer-color)`,'pressed-color': `var(--_pressed-state-layer-color)`, 'hovered-opacity': `var(--_hovered-state-layer-opacity)`, 'focused-opacity': `var(--_focused-state-layer-opacity)`, 'pressed-opacity': `var(--_pressed-state-layer-opacity)`, }))};}
+    .container.togglable.selected mdc-ripple {${stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', { 'hovered-color': `var(--_hovered-state-layer-color-toggle-selected)`, 'focused-color': `var(--_focused-state-layer-color-toggle-selected)`, 'pressed-color': `var(--_pressed-state-layer-color-toggle-selected)` }))};}
+    .container.togglable.unselected mdc-ripple {${stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', { 'hovered-color': `var(--_hovered-state-layer-color-toggle-unselected)`, 'focused-color': `var(--_focused-state-layer-color-toggle-unselected)`, 'pressed-color': `var(--_pressed-state-layer-color-toggle-unselected)` }))};}
+`
+const elevation = css`
+    .container mdc-elevation {transition-duration: 0ms;${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { level: `var(--_container-elevation)`, 'shadow-color': `var(--_container-shadow-color)` }))};}
+    .container.disabled mdc-elevation {transition: none;${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { level: `var(--_disabled-container-elevation)` }))};}
+    .container:focus-within mdc-elevation {${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { level: `var(--_focused-container-elevation)` }))};}
+    .container:active mdc-elevation {${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { level: `var(--_pressed-container-elevation)` }))};}
+`
+const shared = css`
+    :host {
+        display: inline-flex;
+        outline: none;
+        vertical-align: top;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .container {
+        all: unset;
+        position: absolute;
+        inset: 0;
+        box-sizing: border-box;
+        cursor: pointer;
+        display: flex;
+        outline: none;
+        place-content: center;
+        place-items: center;
+        position: relative;
+        z-index: 0;
+        text-overflow: ellipsis;
+        text-wrap: nowrap;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+        vertical-align: top;
+        transition-property: border-radius;
+        transition-duration: 350ms;
+        transition-timing-function: cubic-bezier(0.42, 1.67, 0.21, 0.9);
+    }
+
+    :host([disabled]),
+    .container.disabled {
+        cursor: default;
+        pointer-events: none;
+    }
+
+    /* Root Width & Height */
+
+    .container {
+        &.extra-small {
+            height: var(--_extra-small-container-height);
+            min-width: calc(64px - var(--_extra-small-leading-space) - var(--_extra-small-trailing-space));
         }
-        .surface.togglable.selected mdc-ripple {
-            ${stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', { 'hovered-color': `var(--_hovered-state-layer-color-toggle-selected)`, 'pressed-color': `var(--_pressed-state-layer-color-toggle-selected)` }))};
+        &.small {
+            height: var(--_small-container-height);
+            min-width: calc(64px - var(--_small-leading-space) - var(--_small-trailing-space));
         }
-        .surface.togglable.unselected mdc-ripple {
-            ${stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', { 'hovered-color': `var(--_hovered-state-layer-color-toggle-unselected)`, 'pressed-color': `var(--_pressed-state-layer-color-toggle-unselected)` }))};
+        &.medium {
+            height: var(--_medium-container-height);
+            min-width: calc(64px - var(--_medium-leading-space) - var(--_medium-trailing-space));
+        }
+        &.large {
+            height: var(--_large-container-height);
+            min-width: calc(64px - var(--_large-leading-space) - var(--_large-trailing-space));
+        }
+        &.extra-large {
+            height: var(--_extra-large-container-height);
+            min-width: calc(64px - var(--_extra-large-leading-space) - var(--_extra-large-trailing-space));
         }
     }
-`
 
+    /* Button Size */
+
+    .container.extra-small {
+        padding-inline-start: var(--_extra-small-leading-space);
+        padding-inline-end: var(--_extra-small-trailing-space);
+        gap: var(--_extra-small-between-icon-label-space);
+    }
+    .container.small{
+        padding-inline-start: var(--_small-leading-space);
+        padding-inline-end: var(--_small-trailing-space);
+        gap: var(--_small-between-icon-label-space);
+    }
+    .container.medium{
+        padding-inline-start: var(--_medium-leading-space);
+        padding-inline-end: var(--_medium-trailing-space);
+        gap: var(--_medium-between-icon-label-space);
+    }
+    .container.large{
+        padding-inline-start: var(--_large-leading-space);
+        padding-inline-end: var(--_large-trailing-space);
+        gap: var(--_large-between-icon-label-space);
+    }
+    .container.extra-large{
+        padding-inline-start: var(--_extra-large-leading-space);
+        padding-inline-end: var(--_extra-large-trailing-space);
+        gap: var(--_extra-large-between-icon-label-space);
+    }
+
+    .container:not(.has-label) .label {
+        display: none;
+    }
+
+    /* Label Size */
+
+    .container.extra-small .label {
+        font-family: var(--_extra-small-label-font);
+        font-weight: var(--_extra-small-label-weight);
+        line-height: var(--_extra-small-label-line-height);
+        letter-spacing: var(--_extra-small-label-tracking);
+        font-size: var(--_extra-small-label-size);
+    }
+    .container.small .label {
+        font-family: var(--_small-label-font);
+        font-weight: var(--_small-label-weight);
+        line-height: var(--_small-label-line-height);
+        letter-spacing: var(--_small-label-tracking);
+        font-size: var(--_small-label-size);
+    }
+    .container.medium .label {
+        font-family: var(--_medium-label-font);
+        font-weight: var(--_medium-label-weight);
+        line-height: var(--_medium-label-line-height);
+        letter-spacing: var(--_medium-label-tracking);
+        font-size: var(--_medium-label-size);
+    }
+    .container.large .label {
+        font-family: var(--_large-label-font);
+        font-weight: var(--_large-label-weight);
+        line-height: var(--_large-label-line-height);
+        letter-spacing: var(--_large-label-tracking);
+        font-size: var(--_large-label-size);
+    }
+    .container.extra-large .label {
+        font-family: var(--_extra-large-label-font);
+        font-weight: var(--_extra-large-label-weight);
+        line-height: var(--_extra-large-label-line-height);
+        letter-spacing: var(--_extra-large-label-tracking);
+        font-size: var(--_extra-large-label-size);
+    }
+
+    .toggle-input {
+        all: unset;
+        appearance: none;
+        position: absolute;
+        inset: 0;
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        opacity: 0;
+        outline: none;
+        border: none;
+        z-index: 1;
+        cursor: inherit;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    /* Label Color */
+
+    .container .label {
+        overflow: hidden;
+        color: var(--_label-color);
+    }
+    .container.disabled .label,
+    .container.disabled.togglable:is(.selected, .unselected) .label {
+        color: var(--_disabled-label-color);
+        opacity: var(--_disabled-label-opacity);
+    }
+    .container:hover .label {
+        color: var(--_hovered-label-color);
+    }
+    .container:focus-within .label {
+        color: var(--_focused-label-color);
+    }
+    .container:active .label {
+        color: var(--_pressed-label-color);
+    }
+
+    .container.togglable.selected .label {
+        color: var(--_label-color-toggle-selected);
+    }
+    .container.togglable.selected:hover .label {
+        color: var(--_hovered-label-color-toggle-selected);
+    }
+
+    .container.togglable.selected:focus-within .label {
+        color: var(--_focused-label-color-toggle-selected);
+    }
+
+    .container.togglable.selected:active .label {
+        color: var(--_pressed-label-color-toggle-selected);
+    }
+
+    .container.togglable.unselected .label {
+        color: var(--_label-color-toggle-unselected);
+    }
+    .container.togglable.unselected:hover .label {
+        color: var(--_hovered-label-color-toggle-unselected);
+    }
+
+    .container.togglable.unselected:focus-within .label {
+        color: var(--_focused-label-color-toggle-unselected);
+    }
+
+    .container.togglable.unselected:active .label {
+        color: var(--_pressed-label-color-toggle-unselected);
+    }
+
+    .container .background {
+        border-radius: inherit;
+        inset: 0;
+        position: absolute;
+        z-index: -1;
+    }
+    .container:not(.disabled) .background {
+        background-color: var(--_container-color);
+    }
+    .container.togglable.selected:not(.disabled) .background {
+        background-color: var(--_container-color-toggle-selected);
+    }
+    .container.togglable.unselected:not(.disabled) .background {
+        background-color: var(--_container-color-toggle-unselected);
+    }
+    .container.disabled .background {
+        background-color: var(--_disabled-container-color);
+        opacity: var(--_disabled-container-opacity);
+    }
+
+    :is(.container .label, .label *) {
+        text-overflow: inherit;
+    }
+
+    @media (forced-colors: active) {
+        .background {
+            border: 1px solid CanvasText;
+        }
+
+        :host:is([disabled], .disabled) {
+            --_disabled-icon-color: GrayText;
+            --_disabled-icon-opacity: 1;
+            --_disabled-container-opacity: 1;
+            --_disabled-label-color: GrayText;
+            --_disabled-label-opacity: 1;
+        }
+    }
+
+    .touch-target {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        height: 100%;
+        transform: translate(-50%, -50%);
+        z-index: 1;
+    }
+
+    [touch-target='wrapper'] {
+        margin: max(0px, (48px - var(--_container-height)) / 2) 0;
+    }
+
+    [touch-target='none'] .touch-target {
+        display: none;
+    }
+
+`
 const icon = css`
-    @layer mdc.button.composite.icon {
+    .container :is(::slotted([slot="icon"]), .icon) {
+        display: inline-flex;
+        position: relative;
+        writing-mode: horizontal-tb;
+        fill: currentColor;
+        flex-shrink: 0;
+        color: var(--_icon-color);
+    }
 
-        ::slotted([slot="icon"]) {
-            display: inline-flex;
-            position: relative;
-            writing-mode: horizontal-tb;
-            fill: currentColor;
-            flex-shrink: 0;
-            color: var(--_icon-color);
+    .container:not(.has-icon) .icon {
+        display: none;
+    }
+
+    .container:not(.disabled):hover :is(::slotted([slot="icon"]), .icon) {
+        color: var(--_hovered-icon-color);
+    }
+    .container:not(.disabled):focus-within :is(::slotted([slot="icon"]), .icon) {
+        color: var(--_focused-icon-color);
+    }
+    .container:not(.disabled):active :is(::slotted([slot="icon"]), .icon) {
+        color: var(--_pressed-icon-color);
+    }
+    /* Selected */
+    .container:not(.disabled).togglable.selected :is(::slotted([slot="icon"]), .icon) {
+        color: var(--_icon-color-toggle-selected);
+    }
+    .container:not(.disabled).togglable.selected:hover :is(::slotted([slot="icon"]), .icon) {
+        color: var(--_hovered-icon-color-toggle-selected);
+    }
+    .container:not(.disabled).togglable.selected:focus-within :is(::slotted([slot="icon"]), .icon) {
+        color: var(--_focused-icon-color-toggle-selected);
+    }
+    .container:not(.disabled).togglable.selected:active :is(::slotted([slot="icon"]), .icon) {
+        color: var(--_pressed-icon-color-toggle-selected);
+    }
+    /* Unselected */
+    .container:not(.disabled).togglable.unselected :is(::slotted([slot="icon"]), .icon) {
+        color: var(--_icon-color-toggle-unselected);
+    }
+    .container:not(.disabled).togglable.unselected:hover :is(::slotted([slot="icon"]), .icon) {
+        color: var(--_hovered-icon-color-toggle-unselected);
+    }
+    .container:not(.disabled).togglable.unselected:focus-within :is(::slotted([slot="icon"]), .icon) {
+        color: var(--_focused-icon-color-toggle-unselected);
+    }
+    .container:not(.disabled).togglable.unselected:active :is(::slotted([slot="icon"]), .icon) {
+        color: var(--_pressed-icon-color-toggle-unselected);
+    }
+    /* Icon Size */
+    .container.extra-small :is(::slotted([slot="icon"]), .icon) {
+        font-size: var(--_extra-small-icon-size);
+        inline-size: var(--_extra-small-icon-size);
+        block-size: var(--_extra-small-icon-size);
+    }
+    .container.small :is(::slotted([slot="icon"]), .icon) {
+        font-size: var(--_small-icon-size);
+        inline-size: var(--_small-icon-size);
+        block-size: var(--_small-icon-size);
+    }
+    .container.medium :is(::slotted([slot="icon"]), .icon) {
+        font-size: var(--_medium-icon-size);
+        inline-size: var(--_medium-icon-size);
+        block-size: var(--_medium-icon-size);
+    }
+    .container.large :is(::slotted([slot="icon"]), .icon) {
+        font-size: var(--_large-icon-size);
+        inline-size: var(--_large-icon-size);
+        block-size: var(--_large-icon-size);
+    }
+    .container.extra-large :is(::slotted([slot="icon"]), .icon) {
+        font-size: var(--_extra-large-icon-size);
+        inline-size: var(--_extra-large-icon-size);
+        block-size: var(--_extra-large-icon-size);
+    }
+    /* Disabled */
+    .container.disabled :is(::slotted([slot="icon"]), .icon) {
+        color: var(--_disabled-icon-color);
+        opacity: var(--_disabled-icon-opacity);
+    }
+`
+const outline = css`
+    .container.extra-small .outline {
+        border-width: var(--_extra-small-outline-width);
+    }
+    .container.small .outline {
+        border-width: var(--_small-outline-width);
+    }
+    .container.medium .outline {
+        border-width: var(--_medium-outline-width);
+    }
+    .container.large .outline {
+        border-width: var(--_large-outline-width);
+    }
+    .container.extra-large .outline {
+        border-width: var(--_extra-large-outline-width);
+    }
+
+    .outline {
+        inset: 0;
+        border-style: solid;
+        position: absolute;
+        box-sizing: border-box;
+        border-color: var(--_outline-color);
+        border-start-start-radius: inherit;
+        border-start-end-radius: inherit;
+        border-end-start-radius: inherit;
+        border-end-end-radius: inherit;
+        z-index: -1;
+    }
+
+    .container.togglable.selected .outline {
+        border-color: var(--_outline-color-toggle-selected);
+    }
+    .container.togglable.unselected .outline {
+        border-color: var(--_outline-color-toggle-unselected);
+    }
+    .container.disabled .outline {
+        border-color: var(--_disabled-outline-color);
+        opacity: var(--_disabled-outline-opacity);
+    }
+    .container.disabled.togglable.selected .outline {
+        border-color: var(--_disabled-outline-color-toggle-selected);
+    }
+    .container.disabled.togglable.unselected .outline {
+        border-color: var(--_disabled-outline-color-toggle-unselected);
+    }
+
+    .container:hover .outline {
+        border-color: var(--_hovered-outline-color);
+    }
+    .container.togglable.selected:hover .outline {
+        border-color: var(--_hovered-outline-color-toggle-selected);
+    }
+    .container.togglable.unselected:hover .outline {
+        border-color: var(--_hovered-outline-color-toggle-unselected);
+    }
+
+    .container:focus-within .outline {
+        border-color: var(--_focused-outline-color);
+    }
+    .container.togglable.selected:focus-within .outline {
+        border-color: var(--_focused-outline-color-toggle-selected);
+    }
+    .container.togglable.unselected:focus-within .outline {
+        border-color: var(--_focused-outline-color-toggle-unselected);
+    }
+
+    .container:active .outline {
+        border-color: var(--_pressed-outline-color);
+    }
+    .container.togglable.selected:active .outline {
+        border-color: var(--_pressed-outline-color-toggle-selected);
+    }
+    .container.togglable.unselected:active .outline {
+        border-color: var(--_pressed-outline-color-toggle-unselected);
+    }
+
+    @media (forced-colors: active) {
+        .container.disabled .background {
+            border-color: GrayText;
         }
-        :host(:hover) ::slotted([slot="icon"]) {
-            color: var(--_hovered-icon-color);
-        }
-
-        :host(:focus-within) ::slotted([slot="icon"]) {
-            color: var(--_focused-icon-color);
-        }
-
-        :host(:active) ::slotted([slot="icon"]) {
-            color: var(--_pressed-icon-color);
-        }
-
-        /* Selected */
-
-        .surface.togglable.selected ::slotted([slot="icon"]) {
-            color: var(--_icon-color-toggle-selected);
-        }
-
-        .surface.togglable.selected:hover ::slotted([slot="icon"]) {
-            color: var(--_hovered-icon-color-toggle-selected);
-        }
-
-        .surface.togglable.selected:focus-within ::slotted([slot="icon"]) {
-            color: var(--_focused-icon-color-toggle-selected);
-        }
-
-        .surface.togglable.selected:active ::slotted([slot="icon"]) {
-            color: var(--_pressed-icon-color-toggle-selected);
-        }
-
-        /* Unselected */
-
-        .surface.togglable.unselected ::slotted([slot="icon"]) {
-            color: var(--_icon-color-toggle-unselected);
-        }
-
-        .surface.togglable.unselected:hover ::slotted([slot="icon"]) {
-            color: var(--_hovered-icon-color-toggle-unselected);
-        }
-
-        .surface.togglable.unselected:focus-within ::slotted([slot="icon"]) {
-            color: var(--_focused-icon-color-toggle-unselected);
-        }
-
-        .surface.togglable.unselected:active ::slotted([slot="icon"]) {
-            color: var(--_pressed-icon-color-toggle-unselected);
-        }
-
-        /* Icon Size */
-
-        .surface.extra-small ::slotted([slot="icon"]) {
-            font-size: var(--_extra-small-icon-size);
-            inline-size: var(--_extra-small-icon-size);
-            block-size: var(--_extra-small-icon-size);
-            ${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_extra-small-icon-size)` }))};
-        }
-
-        .surface.small ::slotted([slot="icon"]) {
-            font-size: var(--_small-icon-size);
-            inline-size: var(--_small-icon-size);
-            block-size: var(--_small-icon-size);
-            ${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_small-icon-size)` }))};
-        }
-
-        .surface.medium ::slotted([slot="icon"]) {
-            font-size: var(--_medium-icon-size);
-            inline-size: var(--_medium-icon-size);
-            block-size: var(--_medium-icon-size);
-            ${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_medium-icon-size)` }))};
-        }
-
-        .surface.large ::slotted([slot="icon"]) {
-            font-size: var(--_large-icon-size);
-            inline-size: var(--_large-icon-size);
-            block-size: var(--_large-icon-size);
-            ${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_large-icon-size)` }))};
-        }
-
-        .surface.extra-large ::slotted([slot="icon"]) {
-            font-size: var(--_extra-large-icon-size);
-            inline-size: var(--_extra-large-icon-size);
-            block-size: var(--_extra-large-icon-size);
-            ${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_extra-large-icon-size)` }))};
-        }
-
-        :host([disabled]) ::slotted([slot="icon"]) {
-            color: var(--_disabled-icon-color);
-            opacity: var(--_disabled-icon-opacity);
+        .container.disabled .outline {
+            opacity: 1;
         }
     }
 `
 
-export const elevatedButtonStyles = [
-    shared,
+const colorVariants = css`
+    :host([variant="elevated"]) {${elevatedTokenString};}
+    :host([variant="filled"]) {${filledTokenString};}
+    :host([variant="filled-tonal"]) {${filledTonalTokenString};}
+    :host([variant="outlined"]) {${outlinedTokenString};}
+    :host([variant="text"]) {${textTokenString};}
+`
+
+export const buttonStyles = [
+    getContainerShapeStyles(),
+    getFocusRingStyles(),
+    getIconSizeStyle(),
+    ripple,
     elevation,
-    focusRing,
-    ripple,
-    icon,
-    css`
-    @layer mdc.button.elevated {
-        @layer variable {
-            :host {
-                ${elevatedTokenString}
-            }
-        }
-    }
-`]
-export const filledButtonStyles = [
     shared,
-    elevation,
-    focusRing,
-    ripple,
     icon,
-    css`
-    @layer mdc.button.filled {
-        @layer variable {
-            :host {
-                ${filledTokenString}
-            }
-        }
-    }
-`]
-export const filledTonalButtonStyles = [
-    shared,
-    elevation,
-    focusRing,
-    ripple,
-    icon,
-    css`
-    @layer mdc.button.filled-tonal {
-        @layer variable {
-            :host {
-                ${filledTonalTokenString}
-            }
-        }
-    }
-`]
-export const outlinedButtonStyles = [
-    shared,
-    focusRing,
-    ripple,
-    icon,
-    css`
-    @layer mdc.button.outlined {
-        @layer variable {
-            :host {
-                ${outlinedTokenString}
-            }
-        }
-
-        @layer base {
-            /* Outline */
-            .surface.extra-small .outline {
-                border-width: var(--_extra-small-outline-width);
-            }
-            .surface.small .outline {
-                border-width: var(--_small-outline-width);
-            }
-            .surface.medium .outline {
-                border-width: var(--_medium-outline-width);
-            }
-            .surface.large .outline {
-                border-width: var(--_large-outline-width);
-            }
-            .surface.extra-large .outline {
-                border-width: var(--_extra-large-outline-width);
-            }
-
-            .outline {
-                inset: 0;
-                border-style: solid;
-                position: absolute;
-                box-sizing: border-box;
-                border-color: var(--_outline-color);
-                border-start-start-radius: inherit;
-                border-start-end-radius: inherit;
-                border-end-start-radius: inherit;
-                border-end-end-radius: inherit;
-                z-index: -1;
-            }
-
-            .surface.togglable.selected .outline {
-                border-color: var(--_outline-color-toggle-selected);
-            }
-            .surface.togglable.unselected .outline {
-                border-color: var(--_outline-color-toggle-unselected);
-            }
-            :host([disabled]) .outline {
-                border-color: var(--_disabled-outline-color);
-                opacity: var(--_disabled-outline-opacity);
-            }
-            .surface.disabled.togglable.selected .outline {
-                border-color: var(--_disabled-outline-color-toggle-selected);
-            }
-            .surface.disabled.togglable.unselected .outline {
-                border-color: var(--_disabled-outline-color-toggle-unselected);
-            }
-
-            :host(:hover) .outline {
-                border-color: var(--_hovered-outline-color);
-            }
-            .surface.togglable.selected:hover .outline {
-                border-color: var(--_hovered-outline-color-toggle-selected);
-            }
-            .surface.togglable.unselected:hover .outline {
-                border-color: var(--_hovered-outline-color-toggle-unselected);
-            }
-
-            :host(:focus-within) .outline {
-                border-color: var(--_focused-outline-color);
-            }
-            .surface.togglable.selected:focus-within .outline {
-                border-color: var(--_focused-outline-color-toggle-selected);
-            }
-            .surface.togglable.unselected:focus-within .outline {
-                border-color: var(--_focused-outline-color-toggle-unselected);
-            }
-
-            :host(:active) .outline {
-                border-color: var(--_pressed-outline-color);
-            }
-            .surface.togglable.selected:active .outline {
-                border-color: var(--_pressed-outline-color-toggle-selected);
-            }
-            .surface.togglable.unselected:active .outline {
-                border-color: var(--_pressed-outline-color-toggle-unselected);
-            }
-
-
-
-            @media (forced-colors: active) {
-                :host([disabled]) .background {
-                    border-color: GrayText;
-                }
-
-                :host([disabled]) .outline {
-                    opacity: 1;
-                }
-            }
-        }
-    }
-`]
-export const textButtonStyles = [
-    shared,
-    focusRing,
-    ripple,
-    icon,
-    css`
-    @layer mdc.button.text {
-        @layer variable {
-            :host {
-                ${textTokenString}
-            }
-        }
-    }
-`]
+    outline,
+    colorVariants,
+]

@@ -232,7 +232,7 @@ export function mixinFormAssociated<
         }
 
         @property({ type: Boolean, noAccessor: true })
-        get  disabled() {
+        get disabled() {
             return this.hasAttribute('disabled')
         }
         set disabled(disabled: boolean) {
