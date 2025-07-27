@@ -130,8 +130,8 @@ export abstract class BaseButton extends mixinDelegatesAria(mixinElementInternal
                 ?disabled=${this.disabled}
                 aria-disabled=${this.disabled}
                 aria-label=${ariaLabel || nothing}
-                aria-haspopup=${ariaHasPopup || nothing}
-                aria-expanded=${ariaExpanded || nothing}
+                aria-haspopup=${ariaHasPopup! || nothing}
+                aria-expanded=${ariaExpanded! || nothing}
             >
                 ${this.variant === 'outlined' ? this.renderOutline() : nothing}
                 ${['elevated', 'filled', 'filled-tonal'].includes(this.variant) ? this.renderElevation() : nothing}

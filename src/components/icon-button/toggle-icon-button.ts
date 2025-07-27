@@ -3,52 +3,51 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { html, nothing, type TemplateResult } from "lit"
-import { customElement, property, query } from "lit/decorators.js"
+import { html, nothing, type TemplateResult } from 'lit'
+import { customElement, property, query } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import type { AriaMixinStrict } from '../../utils/aria/aria'
 import { createValidator, getValidityAnchor, mixinConstraintValidation } from '../../utils/behaviors/constraint-validation'
 import { CheckboxValidator } from '../../utils/behaviors/validators/checkbox-validator'
 import { redispatchEvent } from '../../utils/event/redispatch-event'
 import { getFormState, getFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
-import { BaseButton } from './base-button'
-import { buttonStyles } from './button.style'
+import { BaseIconButton } from './base-icon-button'
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "mdc-toggle-icon-button": MDCToggleIconButton
+    }
+}
 
 /**
- * `mdc-toggle-button variant="text"` is not supported by M3 Expressive.
+ * The toggle-icon-button component is a split of the icon-button component,
+ * which can toggle whether an item is selected or not. It can be used as a form element.
  *
  * @version
  * Material Design 3 - Expressive
  *
  * @link
- * https://m3.material.io/components/buttons/overview
- * https://www.figma.com/design/4GM7ohCF2Qtjzs7Fra6jlp/Material-3-Design-Kit--Community-?node-id=57994-2328&t=kLfic7eA8vKtkiiO-0
+ * https://m3.material.io/components/icon-buttons/specs
  */
-@customElement('mdc-toggle-button')
-export class TogglableButton extends mixinConstraintValidation(mixinFormAssociated(BaseButton)) {
+@customElement('mdc-toggle-icon-button')
+export class MDCToggleIconButton extends mixinConstraintValidation(mixinFormAssociated(BaseIconButton)) {
 
-    static override styles = buttonStyles
+    static override shadowRootOptions: ShadowRootInit = {
+        mode: 'open',
+        delegatesFocus: true,
+    }
 
     declare disabled: boolean
     declare name: string
 
-    @property({ type: String, reflect: true, })
-    public override variant: 'filled' | 'filled-tonal' | 'elevated' | 'outlined' = 'filled'
+    @property({ type: Boolean })
+    public selected: boolean = false
+
+    @property({ type: Boolean })
+    public required: boolean = false
 
     @property({ type: String })
     public value: string = 'on'
-
-    @property({ type: Boolean, reflect: false })
-    public selected: boolean = false
-
-    /**
-     * When true, require the toggle-button to be selected when participating in
-     * form submission.
-     *
-     * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/checkbox#validation
-     */
-    @property({type: Boolean})
-    public required: boolean = false
 
     /**
      * We use the <input /> element as a replacement for the button element.
@@ -69,9 +68,10 @@ export class TogglableButton extends mixinConstraintValidation(mixinFormAssociat
     protected override render(): TemplateResult {
         const { ariaHasPopup, ariaExpanded, ariaLabel } = this as AriaMixinStrict
         return html`
-            <button
+            <button 
                 class="${classMap(this.getRenderClasses())}"
-                ?disabled=${this.disabled}
+                id="button" 
+                ?disabled=${this.disabled} 
                 aria-disabled=${this.disabled}
                 aria-label=${ariaLabel || nothing}
                 aria-haspopup=${ariaHasPopup! || nothing}
@@ -79,41 +79,40 @@ export class TogglableButton extends mixinConstraintValidation(mixinFormAssociat
                 tabindex="-1"
             >
                 ${this.variant === 'outlined' ? this.renderOutline() : nothing}
-                ${['elevated', 'filled', 'filled-tonal'].includes(this.variant) ? this.renderElevation() : nothing}
-                ${this.renderContent()}
-                ${this.renderTouchTarget()}
+                ${this.renderIcon()}
                 ${this.renderBackground()}
-                <mdc-ripple for="input-as-touch-target" part="ripple" ?disabled=${this.disabled}></mdc-ripple>
-                <mdc-focus-ring for="input-as-touch-target" part="focus-ring"></mdc-focus-ring>
+                ${this.renderTouchTarget()}
+                <mdc-ripple for="input-as-touch-target" part="ripple" .disabled=${this.disabled}></mdc-ripple>
+                <mdc-focus-ring for="input-as-touch-target" part="focus-ring" .disabled=${this.disabled}></mdc-focus-ring>
             </button>
         `
     }
 
     protected override renderTouchTarget() {
         return html`
-            <input
-                type="checkbox"
-                role="button"
+            <input 
                 id="input-as-touch-target"
-                class="toggle-input touch-target"
-                ?checked=${this.selected}
-                ?disabled=${this.disabled}
-                ?required=${this.required}
-                aria-disabled=${this.disabled}
-                aria-required=${this.required}
+                class="touch-target"
+                type="checkbox"
                 tabindex="0"
+                ?checked=${this.selected}
+                ?required=${this.required} 
+                ?disabled=${this.disabled} 
+                aria-checked=${this.selected}
+                aria-required=${this.required} 
+                aria-disabled=${this.disabled}
                 @input=${this.handleInput}
                 @change=${this.handleChange}
             />
         `
     }
 
-    protected handleInput(_: InputEvent) {
-        this.selected = this.buttonElement!.checked
+    private handleInput(e: Event) {
+        this.selected = (e.target as HTMLInputElement)!.checked
     }
 
-    protected handleChange(event: Event) {
-        redispatchEvent(this, event)
+    private handleChange(e: Event) {
+        redispatchEvent(this, e)
     }
 
     override[getFormValue]() {
@@ -128,6 +127,9 @@ export class TogglableButton extends mixinConstraintValidation(mixinFormAssociat
         // The selected property does not reflect, so the original attribute set by
         // the user is used to determine the default value.
         this.selected = this.hasAttribute('selected')
+        if (this.buttonElement) {
+            this.buttonElement.checked = this.selected
+        }
     }
 
     override formStateRestoreCallback(state: string) {
@@ -144,5 +146,4 @@ export class TogglableButton extends mixinConstraintValidation(mixinFormAssociat
     override[getValidityAnchor]() {
         return this.buttonElement
     }
-
 }
