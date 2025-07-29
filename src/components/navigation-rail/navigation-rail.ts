@@ -58,6 +58,9 @@ export class NavigationRail extends mixinConnectedPromiseResolve(LitElement) {
     @property({ type: Boolean })
     public xr: boolean = false
 
+    @property({ type: Boolean })
+    public quick: boolean = false
+
     @property({ type: Boolean, noAccessor: true })
     public get open(): boolean {
         return this.isOpen
@@ -252,6 +255,10 @@ export class NavigationRail extends mixinConnectedPromiseResolve(LitElement) {
         // previously opening and closing without `quick`.
         this.cancelAnimations?.abort()
         this.cancelAnimations = new AbortController()
+
+        if (this.quick) {
+            return
+        }
 
         const { dialog, container, content } = this
         if (!dialog || !container || !content) {
