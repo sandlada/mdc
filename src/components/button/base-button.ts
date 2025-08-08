@@ -10,6 +10,7 @@ import type { AriaMixinStrict } from '../../utils/aria/aria'
 import { mixinDelegatesAria } from '../../utils/aria/delegate'
 import { mixinElementInternals } from '../../utils/behaviors/element-internals'
 import { dispatchActivationClick, isActivationClick } from '../../utils/event/form-label-activation'
+import { buttonStyles } from './button.style'
 
 /**
  * Supports inserting icon and label buttons.
@@ -70,10 +71,12 @@ import { dispatchActivationClick, isActivationClick } from '../../utils/event/fo
  */
 export abstract class BaseButton extends mixinDelegatesAria(mixinElementInternals(LitElement)) {
 
-    @property({ type: String, reflect: true, })
+    static override styles = buttonStyles
+
+    @property({ type: String, reflect: false, })
     public variant: 'filled' | 'filled-tonal' | 'elevated' | 'outlined' | 'text' = 'filled'
 
-    @property({ type: String, reflect: true })
+    @property({ type: String, reflect: false })
     public size: 'extra-small' | 'small' | 'medium' | 'large' | 'extra-large' = 'small'
 
     @property({ type: Boolean, attribute: 'trailing-icon' })
@@ -113,6 +116,7 @@ export abstract class BaseButton extends mixinDelegatesAria(mixinElementInternal
     protected getRenderClasses() {
         return ({
             'container': true,
+            [this.variant]: true,
             [this.shape]: true,
             [this.size]: true,
             'has-icon': this.hasIcon,

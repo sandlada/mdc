@@ -525,11 +525,11 @@ const outline = css`
 `
 
 const colorVariants = css`
-    :host([variant="elevated"]) {${elevatedTokenString};}
-    :host([variant="filled"]) {${filledTokenString};}
-    :host([variant="filled-tonal"]) {${filledTonalTokenString};}
-    :host([variant="outlined"]) {${outlinedTokenString};}
-    :host([variant="text"]) {${textTokenString};}
+    :host:has(.container.elevated) {${elevatedTokenString};}
+    :host:has(.filled) {${filledTokenString};}
+    :host:has(.container.filled-tonal) {${filledTonalTokenString};}
+    :host:has(.container.outlined) {${outlinedTokenString};}
+    :host:has(.container.text) {${textTokenString};}
 `
 
 export const buttonStyles = [

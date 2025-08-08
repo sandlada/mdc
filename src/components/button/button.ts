@@ -7,7 +7,6 @@ import { customElement, property } from 'lit/decorators.js'
 import { internals } from '../../utils/behaviors/element-internals'
 import { setupFormSubmitter, type FormSubmitter, type FormSubmitterType } from '../../utils/controller/form-submitter'
 import { BaseButton } from './base-button'
-import { buttonStyles } from './button.style'
 
 /**
  * The normal Button class does not implement the function of the anchor element.
@@ -33,8 +32,6 @@ import { buttonStyles } from './button.style'
  */
 @customElement('mdc-button')
 export class MDCButton extends BaseButton implements FormSubmitter {
-
-    static override styles = buttonStyles
 
     static readonly formAssociated = true
     static {
