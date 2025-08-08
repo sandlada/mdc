@@ -386,44 +386,44 @@ const iconColorStyle = css`
 `
 
 const iconSizeStyle = css`
-    .button.extra-small ::slotted(*) {
+    .container.extra-small ::slotted(*) {
         font-size: var(--_extra-small-icon-size);
         height: var(--_extra-small-icon-size);
         width: var(--_extra-small-icon-size);
     }
-    .button.small ::slotted(*) {
+    .container.small ::slotted(*) {
         font-size: var(--_small-icon-size);
         height: var(--_small-icon-size);
         width: var(--_small-icon-size);
     }
-    .button.medium ::slotted(*) {
+    .container.medium ::slotted(*) {
         font-size: var(--_medium-icon-size);
         height: var(--_medium-icon-size);
         width: var(--_medium-icon-size);
     }
-    .button.large ::slotted(*) {
+    .container.large ::slotted(*) {
         font-size: var(--_large-icon-size);
         height: var(--_large-icon-size);
         width: var(--_large-icon-size);
     }
-    .button.extra-large ::slotted(*) {
+    .container.extra-large ::slotted(*) {
         font-size: var(--_extra-large-icon-size);
         height: var(--_extra-large-icon-size);
         width: var(--_extra-large-icon-size);
     }
 
-    .button.extra-small mdc-icon {${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: 'var(--_extra-small-icon-size)', })))};}
-    .button.small mdc-icon {${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: 'var(: var(--_small-icon-size)', })))};}
-    .button.medium mdc-icon {${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: 'var(: var(--_medium-icon-size)', })))};}
-    .button.large mdc-icon {${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: 'var(: var(--_large-icon-size)', })))};}
-    .button.extra-large mdc-icon {${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: 'var(--_extra-large-icon-size)', })))};}
+    .container.extra-small mdc-icon {${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: 'var(--_extra-small-icon-size)', })))};}
+    .container.small mdc-icon {${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: 'var(: var(--_small-icon-size)', })))};}
+    .container.medium mdc-icon {${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: 'var(: var(--_medium-icon-size)', })))};}
+    .container.large mdc-icon {${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: 'var(: var(--_large-icon-size)', })))};}
+    .container.extra-large mdc-icon {${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: 'var(--_extra-large-icon-size)', })))};}
 `
 
 const variant = css`
-    :host([variant="filled"]) {${filledString};}
-    :host([variant="filled-tonal"]) {${filledTonalString};}
-    :host([variant="outlined"]) {${outlinedString};}
-    :host([variant="standard"]) {${standardString};}
+    :host:has(.container.filled) {${filledString};}
+    :host:has(.container.filled-tonal) {${filledTonalString};}
+    :host:has(.container.outlined) {${outlinedString};}
+    :host:has(.container.standard) {${standardString};}
 `
 
 export const iconButtonStyles = [

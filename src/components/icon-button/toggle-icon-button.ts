@@ -3,12 +3,15 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { html, nothing, type TemplateResult } from 'lit'
+import { html, isServer, nothing, type TemplateResult } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import type { AriaMixinStrict } from '../../utils/aria/aria'
 import { createValidator, getValidityAnchor, mixinConstraintValidation } from '../../utils/behaviors/constraint-validation'
+import { internals } from '../../utils/behaviors/element-internals'
 import { CheckboxValidator } from '../../utils/behaviors/validators/checkbox-validator'
+import { RadioValidator } from '../../utils/behaviors/validators/radio-validator'
+import { SingleSelectionController } from '../../utils/controller/single-selection-controller'
 import { redispatchEvent } from '../../utils/event/redispatch-event'
 import { getFormState, getFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
 import { BaseIconButton } from './base-icon-button'
@@ -18,6 +21,8 @@ declare global {
         "mdc-toggle-icon-button": MDCToggleIconButton
     }
 }
+
+const SChecked = Symbol('checked')
 
 /**
  * The toggle-icon-button component is a split of the icon-button component,
@@ -40,14 +45,28 @@ export class MDCToggleIconButton extends mixinConstraintValidation(mixinFormAsso
     declare disabled: boolean
     declare name: string
 
-    @property({ type: Boolean })
-    public selected: boolean = false
+    @property({ type: Boolean, reflect: true, noAccessor: true })
+    public get checked() {
+        return this[SChecked]
+    }
+    public set checked(value: boolean) {
+        if(value === this[SChecked]) {
+            return
+        }
+        const oldValue = this[SChecked]
+        this[SChecked] = value
+        this.selectionController.handleCheckedChange()
+        this.requestUpdate('checked', oldValue)
+    }
 
     @property({ type: Boolean })
     public required: boolean = false
 
     @property({ type: String })
     public value: string = 'on'
+
+    @property({ type: String })
+    public type: 'checkbox' | 'radio' = 'checkbox'
 
     /**
      * We use the <input /> element as a replacement for the button element.
@@ -56,12 +75,28 @@ export class MDCToggleIconButton extends mixinConstraintValidation(mixinFormAsso
     @query('#input-as-touch-target')
     protected override readonly buttonElement!: HTMLInputElement | null
 
+    [SChecked]: boolean = false
+    private readonly selectionController = new SingleSelectionController(this)
+
+    constructor() {
+        super()
+        this.addController(this.selectionController)
+        if(isServer) {
+            return
+        }
+        this[internals].role = this.type
+    }
+
+    protected override updated() {
+        this[internals].ariaChecked = String(this.checked)
+    }
+
     protected override getRenderClasses() {
         return ({
             ...super.getRenderClasses(),
             'togglable': true,
-            'selected': this.selected,
-            'unselected': !this.selected,
+            'selected': this.checked,
+            'unselected': !this.checked,
         })
     }
 
@@ -93,22 +128,22 @@ export class MDCToggleIconButton extends mixinConstraintValidation(mixinFormAsso
             <input 
                 id="input-as-touch-target"
                 class="touch-target"
-                type="checkbox"
-                tabindex="0"
-                ?checked=${this.selected}
+                type=${this.type}
+                .checked=${this.checked}
                 ?required=${this.required} 
                 ?disabled=${this.disabled} 
-                aria-checked=${this.selected}
+                aria-checked=${this.checked}
                 aria-required=${this.required} 
                 aria-disabled=${this.disabled}
+                tabindex="0"
                 @input=${this.handleInput}
                 @change=${this.handleChange}
             />
         `
     }
 
-    private handleInput(e: Event) {
-        this.selected = (e.target as HTMLInputElement)!.checked
+    private handleInput(_: Event) {
+        this.checked = this.buttonElement!.checked
     }
 
     private handleChange(e: Event) {
@@ -116,31 +151,36 @@ export class MDCToggleIconButton extends mixinConstraintValidation(mixinFormAsso
     }
 
     override[getFormValue]() {
-        return this.selected ? this.value : null
+        return this.checked ? this.value : null
     }
 
     override[getFormState]() {
-        return String(this.selected)
+        return String(this.checked)
     }
 
     override formResetCallback() {
-        // The selected property does not reflect, so the original attribute set by
-        // the user is used to determine the default value.
-        this.selected = this.hasAttribute('selected')
-        if (this.buttonElement) {
-            this.buttonElement.checked = this.selected
-        }
+        this.checked = this.hasAttribute('default-checked')
     }
 
     override formStateRestoreCallback(state: string) {
-        this.selected = state === 'true'
+        this.checked = state === 'true'
     }
 
     override[createValidator]() {
-        return new CheckboxValidator(() => ({
-            checked: this.selected,
-            required: this.required,
-        }))
+        if(this.type === 'checkbox') {
+            return new CheckboxValidator(() => ({
+                checked: this.checked,
+                required: this.required,
+            }))
+        }
+        return new RadioValidator(() => {
+            if (!this.selectionController) {
+                // Validation runs on superclass construction, so selection controller
+                // might not actually be ready until this class constructs.
+                return [this]
+            }
+            return this.selectionController.controls as [MDCToggleIconButton, ...MDCToggleIconButton[]]
+        })
     }
 
     override[getValidityAnchor]() {

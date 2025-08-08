@@ -53,7 +53,7 @@ export abstract class BaseIconButton extends mixinDelegatesAria(mixinElementInte
 
     public abstract disabled: boolean
 
-    @property({ type: String, reflect: true })
+    @property({ type: String })
     public variant: 'filled' | 'filled-tonal' | 'outlined' | 'standard' = 'standard'
 
     @property({ type: String })
