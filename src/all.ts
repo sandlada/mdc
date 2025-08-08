@@ -1,3 +1,5 @@
+export * from './components/button-group/connected-button-group'
+// export * from './components/button-group/standard-button-group'
 export * from './components/button/button'
 export * from './components/button/toggle-button'
 export * from './components/dialog/basic-dialog'
