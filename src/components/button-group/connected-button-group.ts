@@ -25,6 +25,27 @@ const buttonSideLeftStyles = stringTokens(overrideComponentTokens<keyof typeof F
     'extra-small-container-shape-round-end-start': `calc(var(--mdc-icon-button-extra-small-container-height) / 2)`,
     'extra-small-container-shape-round-start-end': `4px`,
     'extra-small-container-shape-round-end-end': `4px`,
+
+    'extra-large-container-shape-square-start-start': `calc(var(--mdc-icon-button-extra-large-container-height) / 2)`,
+    'extra-large-container-shape-square-end-start': `calc(var(--mdc-icon-button-extra-large-container-height) / 2)`,
+    'extra-large-container-shape-square-start-end': `20px`,
+    'extra-large-container-shape-square-end-end': `20px`,
+    'large-container-shape-square-start-start': `calc(var(--mdc-icon-button-large-container-height) / 2)`,
+    'large-container-shape-square-end-start': `calc(var(--mdc-icon-button-large-container-height) / 2)`,
+    'large-container-shape-square-start-end': `16px`,
+    'large-container-shape-square-end-end': `16px`,
+    'medium-container-shape-square-start-start': `calc(var(--mdc-icon-button-medium-container-height) / 2)`,
+    'medium-container-shape-square-end-start': `calc(var(--mdc-icon-button-medium-container-height) / 2)`,
+    'medium-container-shape-square-start-end': `8px`,
+    'medium-container-shape-square-end-end': `8px`,
+    'small-container-shape-square-start-start': `calc(var(--mdc-icon-button-small-container-height) / 2)`,
+    'small-container-shape-square-end-start': `calc(var(--mdc-icon-button-small-container-height) / 2)`,
+    'small-container-shape-square-start-end': `8px`,
+    'small-container-shape-square-end-end': `8px`,
+    'extra-small-container-shape-square-start-start': `calc(var(--mdc-icon-button-extra-small-container-height) / 2)`,
+    'extra-small-container-shape-square-end-start': `calc(var(--mdc-icon-button-extra-small-container-height) / 2)`,
+    'extra-small-container-shape-square-start-end': `4px`,
+    'extra-small-container-shape-square-end-end': `4px`,
 }))
 const buttonSideRightStyles = stringTokens(overrideComponentTokens<keyof typeof FilledIconButtonDefinition>('--mdc-icon-button', {
     'extra-large-container-shape-round-start-end': `calc(var(--_extra-large-container-height) / 2)`,
@@ -103,10 +124,10 @@ export class MDCConnectedButtonGroup extends BaseButtonGroup {
         ::slotted(:not(.side)) {
             ${buttonCenterStyles};
         }
-        ::slotted(.side:first-child) {
+        ::slotted(.start-side) {
             ${buttonSideLeftStyles};
         }
-        ::slotted(.side:last-child) {
+        ::slotted(.end-side) {
             ${buttonSideRightStyles};
         }
 
