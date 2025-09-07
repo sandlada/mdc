@@ -15,6 +15,11 @@ export interface ISingleSelectionController {
     handleCheckedChange: () => void
 }
 
+/**
+ * @deprecated
+ * Because the "single selection" operation logic of SingleSelectionController
+ * has limitations, please use SelectionController instead.
+ */
 export class SingleSelectionController implements ReactiveController, ISingleSelectionController {
 
     public get controls(): [ISingleSelectionElement, ...Array<ISingleSelectionElement>] {

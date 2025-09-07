@@ -3,17 +3,17 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { html, isServer, LitElement } from 'lit'
+import { html, isServer, LitElement, type PropertyValues } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import { mixinDelegatesAria } from '../../utils/aria/delegate'
 import { createValidator, getValidityAnchor, mixinConstraintValidation } from '../../utils/behaviors/constraint-validation'
 import { internals, mixinElementInternals } from '../../utils/behaviors/element-internals'
 import { RadioValidator } from '../../utils/behaviors/validators/radio-validator'
+import { SelectionController } from '../../utils/controller/selection-controller'
 import { isActivationClick } from '../../utils/event/form-label-activation'
 import { getFormState, getFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
 import { generateUUID } from '../../utils/uuid/generate-uuid'
-import { SingleSelectionController } from './radio-button-selection-controller'
 import { radioButtonStyle } from './radio-button.style'
 
 declare global {
@@ -43,9 +43,9 @@ export class RadioButton extends mixinDelegatesAria(mixinConstraintValidation(mi
     [CHECKED]: boolean = false
 
     private readonly maskId: string = `maskid-${generateUUID()}`
-    private readonly selectionController = new SingleSelectionController(this)
+    private readonly selectionController = new SelectionController(this)
 
-    @property({ type: Boolean })
+    @property({ type: Boolean, reflect: true, noAccessor: true })
     public get checked() {
         return this[CHECKED]
     }
@@ -69,12 +69,19 @@ export class RadioButton extends mixinDelegatesAria(mixinConstraintValidation(mi
     private containerElement!: HTMLElement | null
 
     constructor() {
-        super();
-        this.addController(this.selectionController);
+        super()
+        this.addController(this.selectionController)
         if (!isServer) {
-            this[internals].role = 'radio';
-            this.addEventListener('click', this.handleClick.bind(this));
-            this.addEventListener('keydown', this.handleKeydown.bind(this));
+            this[internals].role = 'radio'
+            this.addEventListener('click', this.handleClick.bind(this))
+            // this.addEventListener('keydown', this.handleKeydown.bind(this));
+        }
+    }
+    
+    protected override willUpdate(changedProperties: PropertyValues<this>): void {
+        super.willUpdate(changedProperties)
+        if (changedProperties.has('checked')) {
+            this[internals].ariaChecked = String(this.checked)
         }
     }
 
@@ -102,10 +109,6 @@ export class RadioButton extends mixinDelegatesAria(mixinConstraintValidation(mi
         `
     }
 
-    protected override updated() {
-        this[internals].ariaChecked = String(this.checked);
-    }
-
     private async handleClick(event: Event) {
         if (this.disabled) {
             return
@@ -123,14 +126,14 @@ export class RadioButton extends mixinDelegatesAria(mixinConstraintValidation(mi
         this.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true }))
     }
 
-    private async handleKeydown(event: KeyboardEvent) {
-        // allow event to propagate to user code after a microtask.
-        await 0
-        if (event.key !== ' ' || event.defaultPrevented) {
-            return
-        }
-        this.click()
-    }
+    // private async handleKeydown(event: KeyboardEvent) {
+    //     // allow event to propagate to user code after a microtask.
+    //     await 0
+    //     if (event.key !== ' ' || event.defaultPrevented) {
+    //         return
+    //     }
+    //     this.click()
+    // }
 
     override[getFormValue]() {
         return this.checked ? this.value : null
@@ -143,7 +146,7 @@ export class RadioButton extends mixinDelegatesAria(mixinConstraintValidation(mi
     override formResetCallback() {
         // The checked property does not reflect, so the original attribute set by
         // the user is used to determine the default value.
-        this.checked = this.hasAttribute('checked')
+        this.checked = this.hasAttribute('default-checked')
     }
 
     override formStateRestoreCallback(state: string) {

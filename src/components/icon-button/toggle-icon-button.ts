@@ -3,7 +3,7 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { html, isServer, nothing, type TemplateResult } from 'lit'
+import { html, isServer, nothing, type PropertyValues, type TemplateResult } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import type { AriaMixinStrict } from '../../utils/aria/aria'
@@ -11,7 +11,7 @@ import { createValidator, getValidityAnchor, mixinConstraintValidation } from '.
 import { internals } from '../../utils/behaviors/element-internals'
 import { CheckboxValidator } from '../../utils/behaviors/validators/checkbox-validator'
 import { RadioValidator } from '../../utils/behaviors/validators/radio-validator'
-import { SingleSelectionController } from '../../utils/controller/single-selection-controller'
+import { SelectionController } from '../../utils/controller/selection-controller'
 import { redispatchEvent } from '../../utils/event/redispatch-event'
 import { getFormState, getFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
 import { BaseIconButton } from './base-icon-button'
@@ -65,7 +65,7 @@ export class MDCToggleIconButton extends mixinConstraintValidation(mixinFormAsso
     @property({ type: String })
     public value: string = 'on'
 
-    @property({ type: String })
+    @property({ type: String, reflect: true })
     public type: 'checkbox' | 'radio' = 'checkbox'
 
     /**
@@ -76,19 +76,32 @@ export class MDCToggleIconButton extends mixinConstraintValidation(mixinFormAsso
     protected override readonly buttonElement!: HTMLInputElement | null
 
     [SChecked]: boolean = false
-    private readonly selectionController = new SingleSelectionController(this)
+    private selectionController!: SelectionController
 
     constructor() {
         super()
-        this.addController(this.selectionController)
         if(isServer) {
             return
         }
-        this[internals].role = this.type
     }
 
-    protected override updated() {
-        this[internals].ariaChecked = String(this.checked)
+    override connectedCallback(): void {
+        super.connectedCallback()
+        if (!this.selectionController) {
+            this.selectionController = new SelectionController(this, { multiple: this.type === 'checkbox' })
+            this.addController(this.selectionController)
+        }
+    }
+    
+    protected override willUpdate(changedProperties: PropertyValues<this>): void {
+        super.willUpdate(changedProperties)
+        if (changedProperties.has('type')) {
+            this[internals].role = this.type
+            this.selectionController.multiple = this.type === 'checkbox'
+        }
+        if (changedProperties.has('checked')) {
+            this[internals].ariaChecked = String(this.checked)
+        }
     }
 
     protected override getRenderClasses() {
