@@ -12,7 +12,7 @@ export type TSelectionController = {
 export class SelectionController implements TSelectionController, ReactiveController {
 
     private readonly host: TSelectableElement & ReactiveControllerHost
-    private root: ParentNode | null = null
+    private root: Document | ShadowRoot | null = null
 
     public multiple: boolean = false
 
@@ -33,7 +33,7 @@ export class SelectionController implements TSelectionController, ReactiveContro
     }
 
     hostConnected(): void {
-        this.root = this.host.getRootNode() as ParentNode
+        this.root = this.host.getRootNode() as ParentNode as Document | ShadowRoot
         this.host.addEventListener('keydown', this.handleKeyDown)
         this.host.addEventListener('focus', this.handleFocus)
 
