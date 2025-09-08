@@ -15,31 +15,9 @@ import { iconButtonStyles } from './icon-button.style'
 /**
  * The icon-button component only supports inserting one icon.
  *
- * Provides 2 components:
+ * @implements
  * - mdc-icon-button
  * - mdc-toggle-icon-button
- *
- * It is available in variants:
- * - filled
- * - filled-tonal
- * - outlined
- * - standard
- * 
- * It is available in 5 sizes:
- * - extra-small
- * - small
- * - medium
- * - large
- * - extra-large
- *
- * It is available in 3 widths:
- * - narrow
- * - default (default)
- * - wide
- *
- * It is available in 2 shapes:
- * - round (default)
- * - square
  *
  * @version
  * Material Design 3 - Expressive
@@ -47,7 +25,7 @@ import { iconButtonStyles } from './icon-button.style'
  * @link
  * https://m3.material.io/components/icon-buttons/specs
  */
-export abstract class BaseIconButton extends mixinDelegatesAria(mixinElementInternals(LitElement)) {
+export abstract class BaseMDCIconButton extends mixinDelegatesAria(mixinElementInternals(LitElement)) {
 
     static override styles = iconButtonStyles
 
@@ -65,6 +43,11 @@ export abstract class BaseIconButton extends mixinDelegatesAria(mixinElementInte
     @property({ type: String })
     public shape: 'round' | 'square' = 'round'
 
+    /**
+     * When a button is clicked, 
+     * the rounded corners of the button will change in size. 
+     * Enable this flag to disable the change in rounded corners.
+     */
     @property({ type: Boolean, attribute: 'disable-morph' })
     public disableMorph: boolean = false
 
@@ -94,7 +77,7 @@ export abstract class BaseIconButton extends mixinDelegatesAria(mixinElementInte
             [this.width]: true,
             [this.shape]: true,
             'disabled': this.disabled,
-            'disable-morph': this.disableMorph
+            'disable-morph': this.disableMorph,
         })
     }
 
@@ -120,10 +103,20 @@ export abstract class BaseIconButton extends mixinDelegatesAria(mixinElementInte
         `
     }
 
-    protected renderBackground = () => html`<span class="background" aria-hidden="true" ></span>`
-    protected renderOutline = () => html`<span class="outline" aria-hidden="true"></span>`
-    protected renderIcon = () => html`<slot></slot>`
-    protected renderTouchTarget() { return html`<span class="touch-target" aria-hidden="true"></span>` }
+    protected renderBackground() {
+        return html`<span class="background" aria-hidden="true" ></span>`
+    }
+    protected renderOutline() {
+        return html`<span class="outline" aria-hidden="true"></span>`
+    }
+    protected renderIcon() {
+        return html`
+            <slot></slot>
+        `
+    }
+    protected renderTouchTarget() { 
+        return html`<span class="touch-target" aria-hidden="true"></span>` 
+    }
 
     protected async handleClick(e: MouseEvent) {
         if (this.disabled) {
@@ -138,4 +131,5 @@ export abstract class BaseIconButton extends mixinDelegatesAria(mixinElementInte
         this.focus()
         dispatchActivationClick(this.buttonElement)
     }
+    
 }

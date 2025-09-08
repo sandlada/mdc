@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 import { html, isServer, nothing, type PropertyValues, type TemplateResult } from 'lit'
-import { customElement, property, query } from 'lit/decorators.js'
+import { customElement, property, query, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import type { AriaMixinStrict } from '../../utils/aria/aria'
 import { createValidator, getValidityAnchor, mixinConstraintValidation } from '../../utils/behaviors/constraint-validation'
@@ -14,7 +14,7 @@ import { RadioValidator } from '../../utils/behaviors/validators/radio-validator
 import { SelectionController } from '../../utils/controller/selection-controller'
 import { redispatchEvent } from '../../utils/event/redispatch-event'
 import { getFormState, getFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
-import { BaseIconButton } from './base-icon-button'
+import { BaseMDCIconButton } from './base-icon-button'
 
 declare global {
     interface HTMLElementTagNameMap {
@@ -28,6 +28,11 @@ const SChecked = Symbol('checked')
  * The toggle-icon-button component is a split of the icon-button component,
  * which can toggle whether an item is selected or not. It can be used as a form element.
  *
+ * @alias
+ * mdc-toggle-icon-button
+ * 
+ * @slot default
+ * 
  * @version
  * Material Design 3 - Expressive
  *
@@ -35,7 +40,7 @@ const SChecked = Symbol('checked')
  * https://m3.material.io/components/icon-buttons/specs
  */
 @customElement('mdc-toggle-icon-button')
-export class MDCToggleIconButton extends mixinConstraintValidation(mixinFormAssociated(BaseIconButton)) {
+export class MDCToggleIconButton extends mixinConstraintValidation(mixinFormAssociated(BaseMDCIconButton)) {
 
     static override shadowRootOptions: ShadowRootInit = {
         mode: 'open',
@@ -110,6 +115,9 @@ export class MDCToggleIconButton extends mixinConstraintValidation(mixinFormAsso
             'togglable': true,
             'selected': this.checked,
             'unselected': !this.checked,
+            'has-default-icon': this.hasDefaultIcon && !this.hasActiveIcon,
+            'has-active-icon': this.hasActiveIcon,
+            'has-inactive-icon': this.hasInactiveIcon,
         })
     }
 
@@ -133,6 +141,20 @@ export class MDCToggleIconButton extends mixinConstraintValidation(mixinFormAsso
                 <mdc-ripple for="input-as-touch-target" part="ripple" .disabled=${this.disabled}></mdc-ripple>
                 <mdc-focus-ring for="input-as-touch-target" part="focus-ring" .disabled=${this.disabled}></mdc-focus-ring>
             </button>
+        `
+    }
+
+    protected override renderIcon() {
+        return html`
+            <span class="icon default-icon">
+                <slot @slotchange=${this.handleDefaultIconSlotChange}></slot>
+            </span>
+            <span class="icon active-icon">
+                <slot @slotchange=${this.handleActiveIconSlotChange} name="active-icon"></slot>
+            </span>
+            <span class="icon inactive-icon">
+                <slot @slotchange=${this.handleInactiveIconSlotChange} name="inactive-icon"></slot>
+            </span>
         `
     }
 
@@ -161,6 +183,23 @@ export class MDCToggleIconButton extends mixinConstraintValidation(mixinFormAsso
 
     private handleChange(e: Event) {
         redispatchEvent(this, e)
+    }
+
+    @state()
+    protected hasDefaultIcon: boolean = false
+    @state()
+    protected hasActiveIcon: boolean = false
+    @state()
+    protected hasInactiveIcon: boolean = false
+
+    protected handleDefaultIconSlotChange(e: Event) {
+        this.hasDefaultIcon = (e.target as HTMLSlotElement).assignedElements().length > 0
+    }
+    protected handleActiveIconSlotChange(e: Event) {
+        this.hasActiveIcon = (e.target as HTMLSlotElement).assignedElements().length > 0
+    }
+    protected handleInactiveIconSlotChange(e: Event) {
+        this.hasInactiveIcon = (e.target as HTMLSlotElement).assignedElements().length > 0
     }
 
     override[getFormValue]() {

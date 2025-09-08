@@ -6,7 +6,7 @@
 import { customElement, property } from 'lit/decorators.js'
 import { internals } from '../../utils/behaviors/element-internals'
 import { setupFormSubmitter, type FormSubmitter, type FormSubmitterType } from '../../utils/controller/form-submitter'
-import { BaseIconButton } from './base-icon-button'
+import { BaseMDCIconButton } from './base-icon-button'
 
 declare global {
     interface HTMLElementTagNameMap {
@@ -15,6 +15,11 @@ declare global {
 }
 
 /**
+ * @alias
+ * mdc-icon-button
+ * 
+ * @slot default
+ * 
  * @version
  * Material Design 3 - Expressive
  *
@@ -22,8 +27,13 @@ declare global {
  * https://m3.material.io/components/icon-buttons/specs
  */
 @customElement('mdc-icon-button')
-export class MDCIconButton extends BaseIconButton implements FormSubmitter {
+export class MDCIconButton extends BaseMDCIconButton implements FormSubmitter {
     
+    static override shadowRootOptions: ShadowRootInit = {
+        mode: 'open',
+        delegatesFocus: true,
+    }
+
     static readonly formAssociated = true
     static {
         setupFormSubmitter(MDCIconButton)
@@ -47,6 +57,6 @@ export class MDCIconButton extends BaseIconButton implements FormSubmitter {
     public value: string = ''
 
     @property({ type: Boolean, reflect: true })
-    public override disabled = false
+    public disabled = false
 
 }

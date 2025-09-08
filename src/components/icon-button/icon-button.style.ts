@@ -22,6 +22,9 @@ const standardString = stringTokens(standardIconButtonTokens)
 
 type TShapeState = 'container-shape-round' | 'container-shape-square' | 'selected-container-shape-round' | 'selected-container-shape-square' | 'shape-pressed-morph'
 type TSize = 'extra-small' | 'small' | 'medium' | 'large' | 'extra-large'
+const Sizes: Array<TSize> = ['extra-small', 'small', 'medium', 'large', 'extra-large']
+type TWidth = 'narrow' | 'default' | 'wide'
+const Widths: Array<TWidth> = ['narrow', 'default', 'wide']
 
 const getContainerShapes = () => {
     const shape = (s: TSize, ss: TShapeState) => unsafeCSS(`
@@ -89,91 +92,53 @@ const getFocusRingStyles = () => {
         .container:not(.disable-morph).togglable:has(input:active) {${getSizedShape('shape-pressed-morph')};}
     `
 }
-const containerSize = css`
-    .container {
-        &.extra-small {
-            height: var(--_extra-small-container-height);
-        }
-        &.small {
-            height: var(--_small-container-height);
-        }
-        &.medium {
-            height: var(--_medium-container-height);
-        }
-        &.large {
-            height: var(--_large-container-height);
-        }
-        &.extra-large {
-            height: var(--_extra-large-container-height);
-        }
+
+const getContainerSize = () => {
+    const getHeightStyle = () => {
+        const heightField = (size: TSize) => unsafeCSS(`height: var(--_${size}-container-height)`)
+        return css`
+            .container {
+                &.extra-small {${heightField('extra-small')};}
+                &.small {${heightField('small')};}
+                &.medium {${heightField('medium')};}
+                &.large {${heightField('large')};}
+                &.extra-large {${heightField('extra-large')};}
+            }
+        `
     }
-    .container.narrow {
-        &.extra-small {
-            padding-inline-start: var(--_extra-small-narrow-leading-space);
-            padding-inline-end: var(--_extra-small-narrow-trailing-space);
-        }
-        &.small {
-            padding-inline-start: var(--_small-narrow-leading-space);
-            padding-inline-end: var(--_small-narrow-trailing-space);
-        }
-        &.medium {
-            padding-inline-start: var(--_medium-narrow-leading-space);
-            padding-inline-end: var(--_medium-narrow-trailing-space);
-        }
-        &.large {
-            padding-inline-start: var(--_large-narrow-leading-space);
-            padding-inline-end: var(--_large-narrow-trailing-space);
-        }
-        &.extra-large {
-            padding-inline-start: var(--_extra-large-narrow-leading-space);
-            padding-inline-end: var(--_extra-large-narrow-trailing-space);
-        }
+
+    const getPaddingStyle = () => {
+        const paddingField = (size: TSize, width: TWidth) => unsafeCSS(`padding-inline-start: var(--_${size}-${width}-leading-space);padding-inline-end: var(--_${size}-${width}-trailing-space)`)
+        const sizedPadding = (width: TWidth) => unsafeCSS(`
+            .container.${width} {
+                &.extra-small {${paddingField('extra-small', width)};}
+                &.small {${paddingField('small', width)};}
+                &.medium {${paddingField('medium', width)};}
+                &.large {${paddingField('large', width)};}
+                &.extra-large {${paddingField('extra-large', width)};}
+            }
+        `)
+        return css`${sizedPadding('narrow')}${sizedPadding('default')}${sizedPadding('wide')}`
     }
-    .container.default {
-        &.extra-small {
-            padding-inline-start: var(--_extra-small-default-leading-space);
-            padding-inline-end: var(--_extra-small-default-trailing-space);
-        }
-        &.small {
-            padding-inline-start: var(--_small-default-leading-space);
-            padding-inline-end: var(--_small-default-trailing-space);
-        }
-        &.medium {
-            padding-inline-start: var(--_medium-default-leading-space);
-            padding-inline-end: var(--_medium-default-trailing-space);
-        }
-        &.large {
-            padding-inline-start: var(--_large-default-leading-space);
-            padding-inline-end: var(--_large-default-trailing-space);
-        }
-        &.extra-large {
-            padding-inline-start: var(--_extra-large-default-leading-space);
-            padding-inline-end: var(--_extra-large-default-trailing-space);
-        }
+
+    const getWidth = () => {
+        const widthField = (size: TSize, width: TWidth) => unsafeCSS(`min-width: calc(var(--_${size}-${width}-leading-space) + var(--_${size}-${width}-trailing-space) + var(--_${size}-icon-size))`)
+        const sizedWidth = (width: TWidth) => unsafeCSS(`
+            .container.${width} {
+                &.extra-small {${widthField('extra-small', width)};}
+                &.small {${widthField('small', width)};}
+                &.medium {${widthField('medium', width)};}
+                &.large {${widthField('large', width)};}
+                &.extra-large {${widthField('extra-large', width)};}
+            }    
+        `)
+
+        return css`${sizedWidth('narrow')}${sizedWidth('default')}${sizedWidth('wide')}`
     }
-    .container.wide {
-        &.extra-small {
-            padding-inline-start: var(--_extra-small-wide-leading-space);
-            padding-inline-end: var(--_extra-small-wide-trailing-space);
-        }
-        &.small {
-            padding-inline-start: var(--_small-wide-leading-space);
-            padding-inline-end: var(--_small-wide-trailing-space);
-        }
-        &.medium {
-            padding-inline-start: var(--_medium-wide-leading-space);
-            padding-inline-end: var(--_medium-wide-trailing-space);
-        }
-        &.large {
-            padding-inline-start: var(--_large-wide-leading-space);
-            padding-inline-end: var(--_large-wide-trailing-space);
-        }
-        &.extra-large {
-            padding-inline-start: var(--_extra-large-wide-leading-space);
-            padding-inline-end: var(--_extra-large-wide-trailing-space);
-        }
-    }
-`
+
+    return css`${getHeightStyle()}${getPaddingStyle()}${getWidth()}`
+}
+
 const containerColor = css`
     .container:is(.filled, .filled-tonal):not(.disabled) .background {
         background: var(--_container-color);
@@ -419,6 +384,32 @@ const iconSizeStyle = css`
     .container.extra-large mdc-icon {${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: 'var(--_extra-large-icon-size)', })))};}
 `
 
+const iconSlotStyle = css`
+
+    .icon {
+        grid-row: 1/2;
+        grid-column: 1/2;
+    }
+
+    .icon:is(.active-icon, .inactive-icon, .default-icon) {
+        display: none;
+    }
+
+    .container.togglable.selected.has-active-icon .icon.active-icon {
+        display: block;
+    }
+    .container.togglable.selected:not(.has-active-icon) .icon.default-icon {
+        display: block;
+    }
+
+    .container.togglable.unselected.has-inactive-icon .icon.inactive-icon {
+        display: block;
+    }
+    .container.togglable.unselected:not(.has-inactive-icon) .icon.default-icon {
+        display: block;
+    }
+`
+
 const variant = css`
     :host:has(.container.filled) {${filledString};}
     :host:has(.container.filled-tonal) {${filledTonalString};}
@@ -430,11 +421,12 @@ export const iconButtonStyles = [
     getContainerShapes(),
     getRippleStyle(),
     getFocusRingStyles(),
-    containerSize,
+    getContainerSize(),
     containerColor,
     outlineStyle,
     buttonSharedStyle,
     iconColorStyle,
     iconSizeStyle,
+    iconSlotStyle,
     variant,
 ]
