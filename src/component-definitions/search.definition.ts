@@ -1,3 +1,8 @@
+/**
+ * @license
+ * Copyright 2025 Kai-Orion & Sandlada
+ * SPDX-License-Identifier: MIT
+ */
 import { Color, ElevationLevel, Shape, State, Typescale } from '@sandlada/mdk'
 import { createLogicShapeTokens } from '../utils'
 
