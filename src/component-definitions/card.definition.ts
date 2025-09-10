@@ -7,9 +7,21 @@
 import { Color, ElevationLevel, Shape, State } from '@sandlada/mdk'
 import { createLogicShapeTokens } from '../utils/tokens'
 
+const shared = {
+    'container-padding-inline-start': `16px`,
+    'container-padding-inline-end': `16px`,
+    'container-padding-block-start': `16px`,
+    'container-padding-block-end': `16px`,
+    'container-margin-inline-start': `0px`,
+    'container-margin-inline-end': `8px`,
+    'container-margin-block-start': `0px`,
+    'container-margin-block-end': `8px`,
+} as const
+
 export const ElevatedCardDefinition = {
-    ...createLogicShapeTokens('--md-elevated-card', {
-        'container-shape': Shape.Medium
+    ...shared,
+    ...createLogicShapeTokens('--md-card', {
+        'container-shape': Shape.Medium,
     }, 'all', false),
     'container-color'       : Color.SurfaceContainerLow,
     'container-elevation'   : ElevationLevel.Level1,
@@ -47,8 +59,9 @@ export const ElevatedCardDefinition = {
 } as const
 
 export const FilledCardDefinition = {
-    ...createLogicShapeTokens('--md-filled-card', {
-        'container-shape': Shape.Medium
+    ...shared,
+    ...createLogicShapeTokens('--md-card', {
+        'container-shape': Shape.Medium,
     }, 'all', false),
     'container-color'       : Color.SurfaceContainerHighest,
     'container-elevation'   : ElevationLevel.Level0,
@@ -86,8 +99,9 @@ export const FilledCardDefinition = {
 } as const
 
 export const OutlinedCardDefinition = {
-    ...createLogicShapeTokens('--md-outlined-card', {
-        'container-shape': Shape.Medium
+    ...shared,
+    ...createLogicShapeTokens('--mdc-card', {
+        'container-shape': Shape.Medium,
     }, 'all', false),
     'container-color'       : Color.Surface,
     'container-elevation'   : ElevationLevel.Level0,
