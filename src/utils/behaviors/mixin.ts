@@ -2,6 +2,8 @@
  * @license
  * Copyright 2023 Google LLC
  * SPDX-License-Identifier: Apache-2.0
+ * 
+ * [Modified by Kai-Orion & Sandlada]
  */
 
 /**
@@ -53,4 +55,4 @@ export type MixinBase<ExpectedBase = object> = abstract new (...args: any[]) => 
  * }
  * ```
  */
-export type MixinReturn<MixinBase, MixinClass = object> = (abstract new (...args: any[]) => MixinClass) & MixinBase
+export type MixinReturn<Base extends MixinBase, MixinClass = object> = (abstract new (...args: ConstructorParameters<Base>) => MixinClass) & Base
