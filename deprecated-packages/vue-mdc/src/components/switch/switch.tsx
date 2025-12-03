@@ -5,11 +5,12 @@
  */
 
 import { useReflectAttribute } from '@glare-labs/vue-reflect-attribute'
-import { computed, defineComponent, onBeforeUnmount, onMounted, ref, watch, type ComponentPublicInstance, type SlotsType } from 'vue'
+import { computed, defineComponent, onBeforeUnmount, onMounted, ref, toRef, type ComponentPublicInstance, type SlotsType } from 'vue'
 import { afterDispatch, dispatchActivationClick, isActivationClick, redispatchEvent, setupDispatchHooks } from '../../internals'
 import { componentNamePrefix } from '../../internals/component-name-prefix/component-name-prefix'
 import { generateUuid } from '../../utils'
 import { isServer } from '../../utils/is-server'
+import { useObserveProps } from '../../utils/observe-props'
 import { FocusRing } from '../focus-ring'
 import { Ripple } from '../ripple/ripple'
 import css from './styles/switch.module.scss'
@@ -78,6 +79,10 @@ export const Switch = defineComponent({
             ]
         })
 
+        useObserveProps([
+            { id: 'selected', property: toRef(props, 'modelValue'), callback: (value) => { selected.value = value } }
+        ])
+
         /**
          * Methods
          */
@@ -106,6 +111,7 @@ export const Switch = defineComponent({
             selected.value = target.checked
         }
         const handleChange = (event: Event) => {
+            emit('change', event)
             redispatchEvent(root.value!, event)
         }
 
@@ -129,29 +135,23 @@ export const Switch = defineComponent({
             root.value?.removeEventListener('keydown', handleKeydown)
         })
 
-        watch(() => props.modelValue, (newValue, oldValue) => {
-            selected.value = newValue
-        }, {
-            immediate: false,
-        })
 
-
+        const RenderIcon = () => (
+            <span class={[css.handle, (_withIconSelectedOnly.value || _withIcon.value) && css['with-icon']]}>
+                {
+                    (_withIconSelectedOnly.value || _withIcon.value) &&
+                    <div class={css.icons}>
+                        {
+                            _selected.value && (slots['on-icon'] ? slots['on-icon']() : <SwitchOnIcon></SwitchOnIcon>)
+                        }
+                        {
+                            !_withIconSelectedOnly.value && !_selected.value && (slots['off-icon'] ? slots['off-icon']() : <SwitchOffIcon></SwitchOffIcon>)
+                        }
+                    </div>
+                }
+            </span>
+        )
         return () => {
-            const renderIcon = (
-                <span class={[css.handle, (_withIconSelectedOnly.value || _withIcon.value) && css['with-icon']]}>
-                    {
-                        (_withIconSelectedOnly.value || _withIcon.value) &&
-                        <div class={css.icons}>
-                            {
-                                _selected.value && (slots['on-icon'] ? slots['on-icon']() : <SwitchOnIcon></SwitchOnIcon>)
-                            }
-                            {
-                                !_withIconSelectedOnly.value && !_selected.value && (slots['off-icon'] ? slots['off-icon']() : <SwitchOffIcon></SwitchOffIcon>)
-                            }
-                        </div>
-                    }
-                </span>
-            )
 
             return (
                 <div
@@ -181,7 +181,7 @@ export const Switch = defineComponent({
                     <span class={css.track} aria-hidden="true">
                         <span class={css['handle-container']}>
                             <Ripple ref={ripple}></Ripple>
-                            {renderIcon}
+                            <RenderIcon></RenderIcon>
                         </span>
                     </span>
                 </div>

@@ -7,10 +7,10 @@
 export const MaterialDesignSystem = {
     Motion: {
         Easing: {
-            Standard: `	cubic-bezier(0.2, 0.0, 0, 1.0)`,
+            Standard: `cubic-bezier(0.2, 0.0, 0, 1.0)`,
             StandardDecelerate: `cubic-bezier(0, 0, 0, 1)`,
             StandardAccelerate: `cubic-bezier(0.3, 0, 1, 1)`,
-            Emphasized: `ease-in-out`,
+            Emphasized: `cubic-bezier(0.2, 0.0, 0, 1.0)`,
             EmphasizedDecelerate: `cubic-bezier(0.05, 0.7, 0.1, 1.0)`,
             EmphasizedAccelerate: `cubic-bezier(0.3, 0.0, 0.8, 0.15)`,
         },

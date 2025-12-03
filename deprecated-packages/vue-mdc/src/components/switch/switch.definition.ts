@@ -28,7 +28,7 @@ export const props = {
         default: false,
     },
     value: {
-        type: String as PropType<string>,
+        type: String as PropType<'on' | string>,
         default: 'on',
     },
 } as const
