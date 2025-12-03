@@ -9,6 +9,7 @@ import { classMap } from 'lit/directives/class-map.js'
 import type { AriaMixinStrict } from '../../utils/aria/aria'
 import { mixinDelegatesAria } from '../../utils/aria/delegate'
 import { mixinElementInternals } from '../../utils/behaviors/element-internals'
+import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import { dispatchActivationClick, isActivationClick } from '../../utils/event/form-label-activation'
 import { mixinRippleOptions } from '../ripple/mixin-ripple-options'
 import { buttonStyles } from './button.style'
@@ -70,7 +71,7 @@ import { buttonStyles } from './button.style'
  * https://m3.material.io/components/buttons/overview
  * https://www.figma.com/design/4GM7ohCF2Qtjzs7Fra6jlp/Material-3-Design-Kit--Community-?node-id=57994-696&t=kLfic7eA8vKtkiiO-0
  */
-export abstract class BaseButton extends mixinDelegatesAria(mixinElementInternals(mixinRippleOptions(LitElement))) {
+export abstract class BaseButton extends composeMixin(mixinDelegatesAria, mixinElementInternals, mixinRippleOptions)(LitElement) {
 
     static override styles = buttonStyles
 

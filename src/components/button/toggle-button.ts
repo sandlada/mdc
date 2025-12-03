@@ -11,6 +11,7 @@ import { createValidator, getValidityAnchor, mixinConstraintValidation } from '.
 import { internals } from '../../utils/behaviors/element-internals'
 import { CheckboxValidator } from '../../utils/behaviors/validators/checkbox-validator'
 import { RadioValidator } from '../../utils/behaviors/validators/radio-validator'
+import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import { SelectionController } from '../../utils/controller/selection-controller'
 import { redispatchEvent } from '../../utils/event/redispatch-event'
 import { getFormState, getFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
@@ -29,7 +30,7 @@ const SChecked = Symbol('checked')
  * https://www.figma.com/design/4GM7ohCF2Qtjzs7Fra6jlp/Material-3-Design-Kit--Community-?node-id=57994-2328&t=kLfic7eA8vKtkiiO-0
  */
 @customElement('mdc-toggle-button')
-export class MDCTogglableButton extends mixinConstraintValidation(mixinFormAssociated(BaseButton)) {
+export class MDCTogglableButton extends composeMixin(mixinConstraintValidation, mixinFormAssociated)(BaseButton) {
 
     declare disabled: boolean
     declare name: string
@@ -90,7 +91,7 @@ export class MDCTogglableButton extends mixinConstraintValidation(mixinFormAssoc
             this.addController(this.selectionController)
         }
     }
-    
+
     protected override willUpdate(changedProperties: PropertyValues<this>): void {
         super.willUpdate(changedProperties)
         if (changedProperties.has('type')) {
