@@ -1,24 +1,19 @@
 import { html, type LitElement, type TemplateResult } from 'lit'
-import { property, query, state } from 'lit/decorators.js'
+import { property, state } from 'lit/decorators.js'
 import type { MixinBase, MixinReturn } from '../../utils/behaviors/mixin'
-import type { MDCRipple } from './ripple'
 
-type TRippleProperties = {
+export interface IMixinRippleOptions {
     disableRipple               : boolean
     disableRippleHoverStateLayer: boolean
     disableRippleFocusStateLayer: boolean
     disableRipplePressStateLayer: boolean
     rippleHtmlFor               : string | null
     rippleControl               : HTMLElement | null
+    renderRipple()              : TemplateResult
 }
 
-type TRippleElement = {
-    renderRipple(): TemplateResult
-}
-
-export function mixinRippleOptions<T extends MixinBase<LitElement>>(base: T): MixinReturn<T, TRippleProperties & TRippleElement> {
-    abstract class WithRippleOptions extends base implements TRippleProperties, TRippleElement {
-
+export function mixinRippleOptions<T extends MixinBase<LitElement>>(base: T): MixinReturn<T, IMixinRippleOptions> {
+    abstract class WithRippleOptions extends base implements IMixinRippleOptions {
         declare disabled?: boolean
 
         @property({ type: Boolean, attribute: 'disable-ripple' })
@@ -39,12 +34,9 @@ export function mixinRippleOptions<T extends MixinBase<LitElement>>(base: T): Mi
         @state()
         public rippleControl: HTMLElement | null = null
 
-        @query(`#ripple-part`)
-        protected rippleElement!: MDCRipple | null
-
         public renderRipple(): TemplateResult {
             return html`
-                <mdc-ripple 
+                <mdc-ripple
                     part="ripple"
                     id="ripple-part"
                     ?disabled=${this.disableRipple || this.disabled}
@@ -56,5 +48,6 @@ export function mixinRippleOptions<T extends MixinBase<LitElement>>(base: T): Mi
                 ></mdc-ripple>`
         }
     }
+
     return WithRippleOptions
 }
