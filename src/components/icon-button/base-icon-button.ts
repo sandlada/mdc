@@ -9,6 +9,7 @@ import { classMap } from 'lit/directives/class-map.js'
 import type { AriaMixinStrict } from '../../utils/aria/aria'
 import { mixinDelegatesAria } from '../../utils/aria/delegate'
 import { mixinElementInternals } from '../../utils/behaviors/element-internals'
+import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import { dispatchActivationClick, isActivationClick } from '../../utils/event/form-label-activation'
 import { iconButtonStyles } from './icon-button.style'
 
@@ -25,7 +26,7 @@ import { iconButtonStyles } from './icon-button.style'
  * @link
  * https://m3.material.io/components/icon-buttons/specs
  */
-export abstract class BaseMDCIconButton extends mixinDelegatesAria(mixinElementInternals(LitElement)) {
+export abstract class BaseMDCIconButton extends composeMixin(mixinDelegatesAria, mixinElementInternals)(LitElement) {
 
     static override styles = iconButtonStyles
 
@@ -44,8 +45,8 @@ export abstract class BaseMDCIconButton extends mixinDelegatesAria(mixinElementI
     public shape: 'round' | 'square' = 'round'
 
     /**
-     * When a button is clicked, 
-     * the rounded corners of the button will change in size. 
+     * When a button is clicked,
+     * the rounded corners of the button will change in size.
      * Enable this flag to disable the change in rounded corners.
      */
     @property({ type: Boolean, attribute: 'disable-morph' })
@@ -84,10 +85,10 @@ export abstract class BaseMDCIconButton extends mixinDelegatesAria(mixinElementI
     protected override render(): TemplateResult {
         const { ariaHasPopup, ariaExpanded, ariaLabel } = this as AriaMixinStrict
         return html`
-            <button 
+            <button
                 class="${classMap(this.getRenderClasses())}"
-                id="button" 
-                ?disabled=${this.disabled} 
+                id="button"
+                ?disabled=${this.disabled}
                 aria-disabled=${this.disabled}
                 aria-label=${ariaLabel || nothing}
                 aria-haspopup=${ariaHasPopup! || nothing}
@@ -114,8 +115,8 @@ export abstract class BaseMDCIconButton extends mixinDelegatesAria(mixinElementI
             <slot></slot>
         `
     }
-    protected renderTouchTarget() { 
-        return html`<span class="touch-target" aria-hidden="true"></span>` 
+    protected renderTouchTarget() {
+        return html`<span class="touch-target" aria-hidden="true"></span>`
     }
 
     protected async handleClick(e: MouseEvent) {
@@ -131,5 +132,5 @@ export abstract class BaseMDCIconButton extends mixinDelegatesAria(mixinElementI
         this.focus()
         dispatchActivationClick(this.buttonElement)
     }
-    
+
 }

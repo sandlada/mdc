@@ -11,6 +11,7 @@ import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import { mixinElementInternals } from '../../../utils/behaviors/element-internals'
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
 import { dispatchActivationClick, isActivationClick } from '../../../utils/event/form-label-activation'
+import { mixinElevationOptions } from '../../elevation/mixin-elevation-options'
 import { mixinRippleOptions } from '../../ripple/mixin-ripple-options'
 
 /**
@@ -38,7 +39,12 @@ import { mixinRippleOptions } from '../../ripple/mixin-ripple-options'
  * @link
  * https://m3.material.io/components/floating-action-button/overview
  */
-export abstract class BaseFab extends composeMixin(mixinDelegatesAria, mixinElementInternals, mixinRippleOptions)(LitElement) {
+export abstract class BaseFab extends composeMixin(
+    mixinDelegatesAria,
+    mixinElementInternals,
+    mixinRippleOptions,
+    mixinElevationOptions
+)(LitElement) {
 
     @query('button')
     protected buttonElement!: HTMLElement | null
@@ -94,9 +100,8 @@ export abstract class BaseFab extends composeMixin(mixinDelegatesAria, mixinElem
         return html`
             <button class="${classMap(this.getRenderClasses())}">
                 ${this.renderRipple()}
-                <mdc-ripple part="ripple"></mdc-ripple>
                 <mdc-focus-ring part="focus-ring"></mdc-focus-ring>
-                <mdc-elevation part="elevation"></mdc-elevation>
+                ${this.renderElevation()}
 
                 ${this.renderIcon()}
             </button>
