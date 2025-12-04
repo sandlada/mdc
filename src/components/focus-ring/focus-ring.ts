@@ -16,6 +16,18 @@ declare global {
     }
 }
 
+export interface IFocusRingParameters {
+    inward: boolean
+    shapeInherit: boolean
+    htmlFor: string | null
+    control: HTMLElement | null
+}
+
+export interface IFocusRing extends LitElement, IFocusRingParameters, IAttachable {
+    attach(control: HTMLElement): void
+    detach(): void
+}
+
 /**
  * The parent element of the focus ring used to provide perspective focus
  * must be set to relative and the tabindex must not be -1.
@@ -41,7 +53,7 @@ declare global {
  * Material Design 3
  */
 @customElement('mdc-focus-ring')
-export class FocusRing extends LitElement implements IAttachable {
+export class FocusRing extends LitElement implements IFocusRing {
 
     static override styles = styles
 
