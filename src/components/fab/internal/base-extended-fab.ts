@@ -10,7 +10,7 @@ import { BaseFab } from './base-fab'
 
 /**
  * Extended Fab components provide an icon and an label (optional).
- * 
+ *
  * @version
  * Material Design 3 - Expressive
  *
@@ -28,7 +28,7 @@ export abstract class BaseExtendedFab extends BaseFab {
     protected override render(): unknown {
         return html`
             <button class="${classMap(this.getRenderClasses())}">
-                <mdc-ripple part="ripple"></mdc-ripple>
+                ${this.renderRipple()}
                 <mdc-focus-ring part="focus-ring"></mdc-focus-ring>
                 <mdc-elevation part="elevation"></mdc-elevation>
 

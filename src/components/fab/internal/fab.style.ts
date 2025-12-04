@@ -4,12 +4,12 @@
  * SPDX-License-Identifier: MIT
  */
 import { css, unsafeCSS } from 'lit'
-import type { ElevationDefinition } from '../../component-definitions/elevation.definition'
-import { PrimaryExtendedFabDefinition, SecondaryExtendedFabDefinition, TertiaryExtendedFabDefinition, TonalPrimaryExtendedFabDefinition, TonalSecondaryExtendedFabDefinition, TonalTertiaryExtendedFabDefinition } from '../../component-definitions/fab.definition'
-import type { FocusRingDefinition } from '../../component-definitions/focus-ring.definition'
-import type { IconDefinition } from '../../component-definitions/icon.definition'
-import type { RippleDefinition } from '../../component-definitions/ripple.definition'
-import { createWrappedTokens, overrideComponentTokens, stringTokens } from '../../utils/tokens'
+import type { ElevationDefinition } from '../../../component-definitions/elevation.definition'
+import { PrimaryExtendedFabDefinition, SecondaryExtendedFabDefinition, TertiaryExtendedFabDefinition, TonalPrimaryExtendedFabDefinition, TonalSecondaryExtendedFabDefinition, TonalTertiaryExtendedFabDefinition } from '../../../component-definitions/fab.definition'
+import type { FocusRingDefinition } from '../../../component-definitions/focus-ring.definition'
+import type { IconDefinition } from '../../../component-definitions/icon.definition'
+import type { RippleDefinition } from '../../../component-definitions/ripple.definition'
+import { createWrappedTokens, overrideComponentTokens, stringTokens } from '../../../utils/tokens'
 
 const t = {
     tpe: createWrappedTokens('--mdc-fab', TonalPrimaryExtendedFabDefinition),
@@ -183,7 +183,6 @@ const containerStyles = css`
         all: unset;
         cursor: pointer;
         position: relative;
-        display: flex;
         align-items: center;
         background: var(--_container-color);
         transition-property: width, background, padding;
@@ -228,6 +227,13 @@ const containerStyles = css`
     button.extended.large {
         padding-inline-start: var(--_large-leading-space);
         padding-inline-end: var(--_large-trailing-space);
+    }
+
+    :host([show]) button {
+        display: flex;
+    }
+    :host(:not([show])) button {
+        display: none;
     }
 `
 

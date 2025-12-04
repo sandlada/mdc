@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: MIT
  */
 import { customElement } from 'lit/decorators.js'
-import { BaseExtendedFab } from './base-extended-fab'
-import { fabStyles } from './fab.style'
+import { BaseExtendedFab } from './internal/base-extended-fab'
+import { fabStyles } from './internal/fab.style'
 
 declare global {
     interface HTMLElementTagNameMap {
@@ -15,17 +15,17 @@ declare global {
 
 /**
  * Fab provides a label and an icon.
- * 
+ *
  * Note that the tag must be wrapped with a span or div tag.
  * The label is not displayed by default, and the label is displayed through the extended attribute:
- * 
+ *
  * @example
  * ```html
  * <mdc-fab variant="primary" extended>
  *     <span>FAB</span>
  * </mdc-fab>
  * ```
- * 
+ *
  * @version
  * Material Design 3 - Expressive
  *
