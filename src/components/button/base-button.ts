@@ -11,6 +11,8 @@ import { mixinDelegatesAria } from '../../utils/aria/delegate'
 import { mixinElementInternals } from '../../utils/behaviors/element-internals'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import { dispatchActivationClick, isActivationClick } from '../../utils/event/form-label-activation'
+import { mixinElevationOptions } from '../elevation/mixin-elevation-options'
+import { mixinFocusRingOptions } from '../focus-ring/mixin-focus-ring-options'
 import { mixinRippleOptions } from '../ripple/mixin-ripple-options'
 import { buttonStyles } from './button.style'
 
@@ -20,7 +22,7 @@ import { buttonStyles } from './button.style'
  * There are two implementations:
  * - mdc-button
  * - mdc-toggle-button
- * 
+ *
  * Available in 5 variants:
  * - filled (default)
  * - filled-tonal
@@ -39,7 +41,7 @@ import { buttonStyles } from './button.style'
  * - medium
  * - large
  * - extra-large
- * 
+ *
  * ```html
  * <mdc-button size="medium"></mdc-button>
  * <mdc-toggle-button size="medium"></mdc-toggle-button>
@@ -71,7 +73,13 @@ import { buttonStyles } from './button.style'
  * https://m3.material.io/components/buttons/overview
  * https://www.figma.com/design/4GM7ohCF2Qtjzs7Fra6jlp/Material-3-Design-Kit--Community-?node-id=57994-696&t=kLfic7eA8vKtkiiO-0
  */
-export abstract class BaseButton extends composeMixin(mixinDelegatesAria, mixinElementInternals, mixinRippleOptions)(LitElement) {
+export abstract class BaseButton extends composeMixin(
+    mixinDelegatesAria,
+    mixinElementInternals,
+    mixinRippleOptions,
+    mixinElevationOptions,
+    mixinFocusRingOptions
+)(LitElement) {
 
     static override styles = buttonStyles
 
@@ -91,7 +99,7 @@ export abstract class BaseButton extends composeMixin(mixinDelegatesAria, mixinE
 
     @property({ type: Boolean, attribute: 'disable-morph' })
     public disableMorph: boolean = false
-    
+
     @state()
     protected hasIcon: boolean = false
     @state()
@@ -131,7 +139,7 @@ export abstract class BaseButton extends composeMixin(mixinDelegatesAria, mixinE
     protected override render(): TemplateResult {
         const { ariaHasPopup, ariaExpanded, ariaLabel } = this as AriaMixinStrict
         return html`
-            <button 
+            <button
                 class="${classMap(this.getRenderClasses())}"
                 ?disabled=${this.disabled}
                 aria-disabled=${this.disabled}
@@ -145,7 +153,7 @@ export abstract class BaseButton extends composeMixin(mixinDelegatesAria, mixinE
                 ${this.renderTouchTarget()}
                 ${this.renderBackground()}
                 ${this.renderRipple()}
-                <mdc-focus-ring part="focus-ring"></mdc-focus-ring>
+                ${this.renderFocusRing()}
             </button>
         `
     }
@@ -153,12 +161,6 @@ export abstract class BaseButton extends composeMixin(mixinDelegatesAria, mixinE
     protected renderBackground() {
         return html`
             <span class="background" aria-hidden="true"></span>
-        `
-    }
-
-    protected renderElevation(): unknown {
-        return html`
-            <mdc-elevation></mdc-elevation>
         `
     }
 
@@ -194,7 +196,7 @@ export abstract class BaseButton extends composeMixin(mixinDelegatesAria, mixinE
 
     protected renderTouchTarget() {
         return html`
-            <span class="touch-target" aria-hidden="true"></span>        
+            <span class="touch-target" aria-hidden="true"></span>
         `
     }
 
