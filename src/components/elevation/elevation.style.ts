@@ -37,8 +37,8 @@ export const styles = css`
                 transition-timing-function: inherit;
             }
 
-            .elevation::before,
-            .elevation::after {
+            :host(:not(.hidden)) .elevation::before,
+            :host(:not(.hidden)) .elevation::after {
                 content: '';
                 transition-property: box-shadow, opacity;
             }
