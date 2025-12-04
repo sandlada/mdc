@@ -33,6 +33,9 @@ const container = css`
     .container {
         position: relative;
         display: flex;
+        outline: none;
+        border: none;
+        z-index: 0;
         border-start-start-radius: var(--_container-shape-start-start);
         border-start-end-radius: var(--_container-shape-start-end);
         border-end-start-radius: var(--_container-shape-end-start);
@@ -106,5 +109,3 @@ export const cardStyles = [
     outline,
     elevation,
 ]
-
-console.log(fts.cssText)

@@ -4,13 +4,20 @@
  * SPDX-License-Identifier: MIT
  */
 import { html, LitElement, nothing, type TemplateResult } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property, query } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
+import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
+import { mixinElevationOptions } from '../elevation/mixin-elevation-options'
+import { mixinFocusRingOptions } from '../focus-ring/mixin-focus-ring-options'
 import { mixinRippleOptions } from '../ripple/mixin-ripple-options'
 import { cardStyles } from './card.style'
 
 @customElement('mdc-card')
-export class MDCCard extends mixinRippleOptions(LitElement) {
+export class MDCCard extends composeMixin(
+    mixinRippleOptions,
+    mixinElevationOptions,
+    mixinFocusRingOptions
+)(LitElement) {
 
     static override styles = cardStyles
 
@@ -29,6 +36,16 @@ export class MDCCard extends mixinRippleOptions(LitElement) {
         super()
     }
 
+    @query('.container')
+    private readonly rootElement!: HTMLElement | null
+
+    public override focus() {
+        this.rootElement?.focus()
+    }
+    public override blur() {
+        this.rootElement?.blur()
+    }
+
     protected getRenderClasses() {
         return ({
             'container': true,
@@ -40,8 +57,6 @@ export class MDCCard extends mixinRippleOptions(LitElement) {
 
     protected renderBackground() { return html`<span class="background" aria-hidden="true"></span>` }
     protected renderOutline()    { return html`<span class="outline" aria-hidden="true"></span>` }
-    protected renderElevation()  { return html`<mdc-elevation></mdc-elevation>` }
-    protected renderFocusRing()  { return html`<mdc-focus-ring></mdc-focus-ring>` }
     protected renderContent()    {
         return html`
             <div class="content">
@@ -52,14 +67,14 @@ export class MDCCard extends mixinRippleOptions(LitElement) {
 
     protected override render(): TemplateResult {
         return html`
-            <div class="${classMap(this.getRenderClasses())}">
+            <button class="${classMap(this.getRenderClasses())}">
                 ${this.renderBackground()}
                 ${this.renderFocusRing()}
                 ${this.renderRipple()}
                 ${this.variant === 'outlined' ? this.renderOutline() : nothing}
                 ${this.variant === 'elevated' ? this.renderElevation() : nothing}
                 ${this.renderContent()}
-            </div>
+            </button>
         `
     }
 }
