@@ -49,11 +49,36 @@ export const styles = css`
                 -moz-osx-font-smoothing: grayscale;
             }
 
+            .icon-container {
+                font-family: var(--_font);
+                font-weight: normal;
+                font-style: normal;
+                line-height: 1;
+                letter-spacing: normal;
+                text-transform: none;
+                display: inline-block;
+                white-space: nowrap;
+                word-wrap: normal;
+                direction: ltr;
+                -webkit-font-feature-settings: 'liga';
+                -webkit-font-smoothing: antialiased;
+
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
+
+                font-variation-settings: inherit;
+            }
+
             ::slotted(svg) {
                 fill: currentColor;
             }
 
             ::slotted(*) {
+                display: block;
                 height: 100%;
                 width: 100%;
             }

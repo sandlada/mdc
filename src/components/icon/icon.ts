@@ -3,16 +3,25 @@
  * Copyright 2025 Sandlada & Kai Orion
  * SPDX-License-Identifier: MIT
  */
-import { html, LitElement } from 'lit'
-import { customElement } from 'lit/decorators.js'
-import type { AriaMixinStrict } from '../../utils/aria/aria'
+import { html, LitElement, type PropertyValues } from 'lit'
+import { customElement, property } from 'lit/decorators.js'
+import { styleMap } from 'lit/directives/style-map.js'
 import { mixinDelegatesAria } from '../../utils/aria/delegate'
+import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import { styles } from './icon.style'
 
 declare global {
     interface HTMLElementTagNameMap {
-        "mdc-icon": Icon
+        "mdc-icon": MDCIcon
     }
+}
+
+export interface IMDCIconAttributes {
+    name       ?: string
+    filled      : boolean
+    weight      : number
+    grade       : number
+    opticalSize : number
 }
 
 /**
@@ -25,46 +34,109 @@ declare global {
  * you need to manually cancel the font size of the external style
  * to make the font style of mdc-icon take effect.
  *
- * The following code example shows an icon delete
- * modified by the external class style `.material-symbols-outlined`.
- * You must set `style="font-size: unset;"` to make the mdc-icon icon size display normally.
+ * The following code example shows an icon send
+ * modified.
+ * You must set `style="font-size: 18px"` to change the mdc-icon icon size.
  *
  * @example
  * ```html
- * <mdc-filled-tonal-button size="extra-large">
- *     Filled Button with Icon
- *     <mdc-icon slot="icon">
- *         <span class="material-symbols-outlined" style="font-size: unset;">
- *             delete
- *         </span>
- *     </mdc-icon>
- *  </mdc-filled-tonal-button>
+ * <mdc-button>
+ *     <span>Filled Button with Icon</span>
+ *     <mdc-icon slot="icon" name="send" style="font-size: 14px;"></mdc-icon>
+ * </mdc-button>
  * ```
  * @version
- * Material Design
+ * Material Design 3 - MaterialSymbols Supported
  *
  * @link
  * https://m3.material.io/styles/icons/overview
  */
 @customElement('mdc-icon')
-export class Icon extends mixinDelegatesAria(LitElement) {
+export class MDCIcon extends composeMixin(mixinDelegatesAria)(LitElement) implements IMDCIconAttributes {
 
     static override styles = styles
 
+    /**
+     * The name of the icon (ligature text).
+     * Recommended over slot content for dynamic icons.
+     */
+    @property({ type: String })
+    public name?: string
+
+    /**
+     * Material Symbols: Fill axis (0 or 1).
+     */
+    @property({ type: Boolean, reflect: true })
+    public filled: boolean = false
+
+    /**
+     * Material Symbols: Weight axis (100-700).
+     * Default is 400.
+     */
+    @property({ type: Number, reflect: true })
+    public weight: number = 400
+
+    /**
+     * Material Symbols: Grade axis (-25, 0, 200).
+     * Granular weight adjustments.
+     */
+    @property({ type: Number, reflect: true })
+    public grade: number = 0
+
+    /**
+     * Material Symbols: Optical Size axis (20-48).
+     * Adjusts stroke thickness based on icon size.
+     */
+    @property({ type: Number, attribute: 'optical-size', reflect: true })
+    public opticalSize: number = 24
+
     protected override render() {
+        const fontSettings = `'FILL' ${this.filled ? 1 : 0}, 'wght' ${this.weight}, 'GRAD' ${this.grade}, 'opsz' ${this.opticalSize}`;
+
+        const style = {
+            'font-variation-settings': fontSettings
+        }
+
         return html`
-            <slot></slot>
+            <span class="icon-container" style="${styleMap(style)}">
+                ${this.name ? this.name : html`<slot></slot>`}
+            </span>
         `
     }
 
     override connectedCallback() {
         super.connectedCallback()
-        const { ariaHidden } = this as AriaMixinStrict
-        if (ariaHidden === 'false') {
-            this.removeAttribute('aria-hidden')
+        this.updateAriaState()
+    }
+
+    protected override updated(changedProperties: PropertyValues): void {
+        super.updated(changedProperties)
+        // If aria attributes change dynamically (e.g. user sets label later), re-evaluate
+        if (changedProperties.has('ariaLabel') || changedProperties.has('ariaLabelledBy')) {
+            this.updateAriaState()
+        }
+    }
+
+    /**
+     * Intelligently manages aria-hidden.
+     * Default to hidden (decorative), but reveal if labeled (semantic).
+     */
+    private updateAriaState() {
+        const hasLabel = this.hasAttribute('aria-label') || this.hasAttribute('aria-labelledby')
+        const explicitHidden = this.getAttribute('aria-hidden')
+
+        // If user explicitly set aria-hidden="false", respect it
+        if (explicitHidden === 'false') {
             return
         }
-        this.setAttribute('aria-hidden', 'true')
+
+        if (hasLabel) {
+            // It has semantic meaning, ensure it is NOT hidden
+            this.removeAttribute('aria-hidden')
+        } else {
+            // It is decorative, ensure it IS hidden
+            this.setAttribute('aria-hidden', 'true')
+        }
     }
 
 }
