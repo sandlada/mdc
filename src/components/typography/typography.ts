@@ -3,7 +3,7 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { html, LitElement } from 'lit'
+import { html, LitElement, type PropertyValues } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { typographyStyles } from './typography.styles'
 
@@ -30,6 +30,11 @@ type TypographyVariant =
     'label-medium' |
     'label-small'
 
+export interface ITypographyAttributes {
+    emphasized: boolean
+    variant: TypographyVariant
+}
+
 /**
  * Used to display text.
  *
@@ -55,7 +60,7 @@ type TypographyVariant =
  * https://m3.material.io/styles/typography/overview
  */
 @customElement('mdc-typography')
-export class Typography extends LitElement {
+export class Typography extends LitElement implements ITypographyAttributes {
 
     static override styles = typographyStyles
 
@@ -69,5 +74,32 @@ export class Typography extends LitElement {
         return html`
             <slot></slot>
         `
+    }
+
+    protected override updated(changedProperties: PropertyValues) {
+        super.updated(changedProperties);
+
+        if (changedProperties.has('variant')) {
+            this.updateSemantics();
+        }
+    }
+
+    private updateSemantics() {
+        this.removeAttribute('role')
+        this.removeAttribute('aria-level')
+
+        if (this.variant.startsWith('display') || this.variant.startsWith('headline')) {
+            this.setAttribute('role', 'heading')
+
+            let level = '2'
+            if (this.variant === 'display-large') level = '1'
+            else if (this.variant === 'display-medium') level = '1'
+            else if (this.variant === 'display-small') level = '2'
+            else if (this.variant === 'headline-large') level = '2'
+            else if (this.variant === 'headline-medium') level = '3'
+            else if (this.variant === 'headline-small') level = '4'
+
+            this.setAttribute('aria-level', level)
+        }
     }
 }
