@@ -10,10 +10,12 @@ import { mixinDelegatesAria } from '../../utils/aria/delegate'
 import { createValidator, getValidityAnchor, mixinConstraintValidation } from '../../utils/behaviors/constraint-validation'
 import { internals, mixinElementInternals } from '../../utils/behaviors/element-internals'
 import { RadioValidator } from '../../utils/behaviors/validators/radio-validator'
+import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import { SelectionController } from '../../utils/controller/selection-controller'
 import { isActivationClick } from '../../utils/event/form-label-activation'
 import { getFormState, getFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
-import { generateUUID } from '../../utils/uuid/generate-uuid'
+import { mixinFocusRingOptions } from '../focus-ring/mixin-focus-ring-options'
+import { mixinRippleOptions } from '../ripple/mixin-ripple-options'
 import { radioButtonStyle } from './radio-button.style'
 
 declare global {
@@ -26,14 +28,27 @@ const CHECKED = Symbol('checked')
 
 /**
  *
+ * @form
+ * - default-checked
+ * - checked
+ * - disabled
+ *
  * @version
  * Material Design 3 - Expressive
  *
  * @link
  * https://m3.material.io/components/radio-button/specs
+ *
  */
 @customElement('mdc-radio-button')
-export class RadioButton extends mixinDelegatesAria(mixinConstraintValidation(mixinFormAssociated(mixinElementInternals(LitElement)))) {
+export class RadioButton extends composeMixin(
+    mixinDelegatesAria,
+    mixinConstraintValidation,
+    mixinFormAssociated,
+    mixinElementInternals,
+    mixinFocusRingOptions,
+    mixinRippleOptions
+)(LitElement) {
 
     static override styles = radioButtonStyle
 
@@ -42,7 +57,6 @@ export class RadioButton extends mixinDelegatesAria(mixinConstraintValidation(mi
 
     [CHECKED]: boolean = false
 
-    private readonly maskId: string = `maskid-${generateUUID()}`
     private readonly selectionController = new SelectionController(this)
 
     @property({ type: Boolean, reflect: true, noAccessor: true })
@@ -53,9 +67,9 @@ export class RadioButton extends mixinDelegatesAria(mixinConstraintValidation(mi
         if(value === this[CHECKED]) {
             return
         }
-        const oldValue = this[CHECKED]
+        const wasChecked = this.checked
         this[CHECKED] = value
-        this.requestUpdate('checked', oldValue)
+        this.requestUpdate('checked', wasChecked)
         this.selectionController.handleCheckedChange()
     }
 
@@ -68,16 +82,19 @@ export class RadioButton extends mixinDelegatesAria(mixinConstraintValidation(mi
     @query('.container')
     private containerElement!: HTMLElement | null
 
+    public override focusRingControl: HTMLElement | null = this
+    public override rippleControl: HTMLElement | null = this
+
     constructor() {
         super()
         this.addController(this.selectionController)
         if (!isServer) {
             this[internals].role = 'radio'
             this.addEventListener('click', this.handleClick.bind(this))
-            // this.addEventListener('keydown', this.handleKeydown.bind(this));
+            this.addEventListener('keydown', this.handleKeydown.bind(this));
         }
     }
-    
+
     protected override willUpdate(changedProperties: PropertyValues<this>): void {
         super.willUpdate(changedProperties)
         if (changedProperties.has('checked')) {
@@ -85,23 +102,27 @@ export class RadioButton extends mixinDelegatesAria(mixinConstraintValidation(mi
         }
     }
 
-    protected override render(): unknown {
-        const classes = classMap({
+    protected override updated() {
+        this[internals].ariaChecked = String(this.checked);
+    }
+
+    protected getRenderClasses() {
+        return ({
+            'container': true,
             'selected': this.checked,
             'unselected': !this.checked,
         })
+    }
+
+    protected override render(): unknown {
         return html`
-            <div class="container ${classes}" aria-hidden="true">
-                <mdc-ripple .control=${this} .disabled=${this.disabled} part="ripple"></mdc-ripple>
-                <mdc-focus-ring .control=${this} part="focus-ring"></mdc-focus-ring>
+            <div class="${classMap(this.getRenderClasses())}" aria-hidden="true">
+                ${this.renderRipple()}
+                ${this.renderFocusRing()}
 
                 <svg class="icon" viewBox="0 0 20 20">
-                    <mask id="${this.maskId}">
-                        <rect width="100%" height="100%" fill="white" />
-                        <circle cx="10" cy="10" r="8" fill="black" />
-                    </mask>
-                    <circle class="outer circle" cx="10" cy="10" r="10" mask="url(#${this.maskId})" />
-                    <circle class="inner circle" cx="10" cy="10" r="5" />
+                    <circle class="outer" cx="10" cy="10" r="9" />
+                    <circle class="inner" cx="10" cy="10" r="9" />
                 </svg>
 
                 <div class="touch-target"></div>
@@ -126,14 +147,14 @@ export class RadioButton extends mixinDelegatesAria(mixinConstraintValidation(mi
         this.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true }))
     }
 
-    // private async handleKeydown(event: KeyboardEvent) {
-    //     // allow event to propagate to user code after a microtask.
-    //     await 0
-    //     if (event.key !== ' ' || event.defaultPrevented) {
-    //         return
-    //     }
-    //     this.click()
-    // }
+    private handleKeydown(event: KeyboardEvent) {
+        if (event.key !== ' ' || event.defaultPrevented) {
+            return
+        }
+        event.preventDefault()
+        event.stopImmediatePropagation()
+        this.click()
+    }
 
     override[getFormValue]() {
         return this.checked ? this.value : null

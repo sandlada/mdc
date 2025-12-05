@@ -12,8 +12,6 @@ import { createWrappedTokens, overrideComponentTokens, stringTokens } from '../.
 const tokens = createWrappedTokens('--mdc-radio-button', RadioButtonDefinition)
 const tokenString = stringTokens(tokens)
 
-const easing = unsafeCSS(Easing.ExpressiveFastSpatial)
-
 export const radioButtonStyle = css`
     @layer mdc.radio-button {
         @layer variable {
@@ -57,61 +55,80 @@ export const radioButtonStyle = css`
             }
 
             .icon {
-                fill: var(--_unselected-icon-color);
-                inset: 0;
                 position: absolute;
-            }
-            .selected .icon {
-                fill: var(--_selected-icon-color);
+                inset: 0;
+                transform: rotate(-90deg);
             }
 
-            .outer.circle {
+            .icon {
+                fill: none;
+                stroke-width: 2px;
+                transform-origin: center;
+            }
+
+            .outer {
                 transition: fill 50ms linear;
             }
-            .inner.circle {
-                scale: 0;
-                opacity: 0;
-                transform-origin: center;
-                transition: scale 350ms ${easing}, opacity 350ms ${easing};
+            .unselected .outer {
+                stroke: var(--_unselected-icon-color);
             }
-            .selected .inner.circle {
-                scale: 1;
-                opacity: 1;
+            .selected .outer {
+                stroke: var(--_selected-icon-color);
             }
 
-            :host([disabled]) .circle {
+            .inner {
+                transition-property: stroke, stroke-width, r, opacity;
+            }
+            .unselected .inner {
+                r: 9px;
+                stroke-width: 0px;
+                stroke: var(--_unselected-icon-color);
+                opacity: 0;
+                transition-timing-function: ${unsafeCSS(Easing.EmphasizedAccelerate)};
+                transition-duration: 150ms;
+            }
+            .selected .inner {
+                r: 2.5px;
+                stroke-width: 5px;
+                stroke: var(--_selected-icon-color);
+                opacity: 1;
+                transition-timing-function: ${unsafeCSS(Easing.EmphasizedDecelerate)};
+                transition-duration: 500ms;
+            }
+
+            :host([disabled])  {
                 animation-duration: 0s;
                 transition-duration: 0s;
             }
 
-            :host(:hover) .icon {
-                fill: var(--_hovered-unselected-icon-color);
+            :host(:hover) .unselected .icon {
+                stroke: var(--_hovered-unselected-icon-color);
             }
-            :host(:focus-within) .icon {
-                fill: var(--_focused-unselected-icon-color);
+            :host(:focus-within) .unselected .icon {
+                stroke: var(--_focused-unselected-icon-color);
             }
-            :host(:active) .icon {
-                fill: var(--_pressed-unselected-icon-color);
+            :host(:active) .unselected .icon {
+                stroke: var(--_pressed-unselected-icon-color);
             }
-
-            :host([disabled]) .icon {
-                fill: var(--_disabled-unselected-icon-color);
+            :host([disabled]) .unselected .icon :is(.outer, .inner) {
+                stroke: var(--_disabled-unselected-icon-color);
                 opacity: var(--_disabled-unselected-icon-opacity);
             }
 
             :host(:hover) .selected .icon {
-                fill: var(--_hovered-selected-hover-icon-color);
+                stroke: var(--_hovered-selected-hover-icon-color);
             }
             :host(:focus-within) .selected .icon {
-                fill: var(--_focused-selected-focus-icon-color);
+                stroke: var(--_focused-selected-focus-icon-color);
             }
             :host(:active) .selected .icon {
-                fill: var(--_pressed-selected-pressed-icon-color);
+                stroke: var(--_pressed-selected-pressed-icon-color);
             }
-            :host([disabled]) .selected .icon {
-                fill: var(--_disabled-selected-icon-color);
+            :host([disabled]) .selected .icon :is(.outer, .inner) {
+                stroke: var(--_disabled-selected-icon-color);
                 opacity: var(--_disabled-selected-icon-opacity);
             }
+
         }
 
         @layer hcm {
