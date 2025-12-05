@@ -12,6 +12,7 @@ import { mixinElementInternals } from '../../../utils/behaviors/element-internal
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
 import { dispatchActivationClick, isActivationClick } from '../../../utils/event/form-label-activation'
 import { mixinElevationOptions } from '../../elevation/mixin-elevation-options'
+import { mixinFocusRingOptions } from '../../focus-ring/mixin-focus-ring-options'
 import { mixinRippleOptions } from '../../ripple/mixin-ripple-options'
 
 /**
@@ -43,7 +44,8 @@ export abstract class BaseFab extends composeMixin(
     mixinDelegatesAria,
     mixinElementInternals,
     mixinRippleOptions,
-    mixinElevationOptions
+    mixinElevationOptions,
+    mixinFocusRingOptions
 )(LitElement) {
 
     @query('button')
@@ -100,7 +102,7 @@ export abstract class BaseFab extends composeMixin(
         return html`
             <button class="${classMap(this.getRenderClasses())}">
                 ${this.renderRipple()}
-                <mdc-focus-ring part="focus-ring"></mdc-focus-ring>
+                ${this.renderFocusRing()}
                 ${this.renderElevation()}
 
                 ${this.renderIcon()}

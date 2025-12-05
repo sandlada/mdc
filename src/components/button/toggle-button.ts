@@ -129,8 +129,8 @@ export class MDCTogglableButton extends composeMixin(mixinConstraintValidation, 
                 ${this.renderContent()}
                 ${this.renderTouchTarget()}
                 ${this.renderBackground()}
-                <mdc-ripple for="input-as-touch-target" part="ripple" ?disabled=${this.disabled}></mdc-ripple>
-                <mdc-focus-ring for="input-as-touch-target" part="focus-ring"></mdc-focus-ring>
+                ${this.renderRipple()}
+                ${this.renderFocusRing()}
             </button>
         `
     }

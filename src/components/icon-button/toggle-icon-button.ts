@@ -11,6 +11,7 @@ import { createValidator, getValidityAnchor, mixinConstraintValidation } from '.
 import { internals } from '../../utils/behaviors/element-internals'
 import { CheckboxValidator } from '../../utils/behaviors/validators/checkbox-validator'
 import { RadioValidator } from '../../utils/behaviors/validators/radio-validator'
+import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import { SelectionController } from '../../utils/controller/selection-controller'
 import { redispatchEvent } from '../../utils/event/redispatch-event'
 import { getFormState, getFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
@@ -30,9 +31,9 @@ const SChecked = Symbol('checked')
  *
  * @alias
  * mdc-toggle-icon-button
- * 
+ *
  * @slot default
- * 
+ *
  * @version
  * Material Design 3 - Expressive
  *
@@ -40,7 +41,10 @@ const SChecked = Symbol('checked')
  * https://m3.material.io/components/icon-buttons/specs
  */
 @customElement('mdc-toggle-icon-button')
-export class MDCToggleIconButton extends mixinConstraintValidation(mixinFormAssociated(BaseMDCIconButton)) {
+export class MDCToggleIconButton extends composeMixin(
+    mixinConstraintValidation,
+    mixinFormAssociated
+)(BaseMDCIconButton) {
 
     static override shadowRootOptions: ShadowRootInit = {
         mode: 'open',
@@ -97,7 +101,7 @@ export class MDCToggleIconButton extends mixinConstraintValidation(mixinFormAsso
             this.addController(this.selectionController)
         }
     }
-    
+
     protected override willUpdate(changedProperties: PropertyValues<this>): void {
         super.willUpdate(changedProperties)
         if (changedProperties.has('type')) {
@@ -121,13 +125,16 @@ export class MDCToggleIconButton extends mixinConstraintValidation(mixinFormAsso
         })
     }
 
+    public override focusRingHtmlFor: string | null = 'input-as-touch-target'
+    public override rippleHtmlFor: string | null = 'input-as-touch-target'
+
     protected override render(): TemplateResult {
         const { ariaHasPopup, ariaExpanded, ariaLabel } = this as AriaMixinStrict
         return html`
-            <button 
+            <button
                 class="${classMap(this.getRenderClasses())}"
-                id="button" 
-                ?disabled=${this.disabled} 
+                id="button"
+                ?disabled=${this.disabled}
                 aria-disabled=${this.disabled}
                 aria-label=${ariaLabel || nothing}
                 aria-haspopup=${ariaHasPopup! || nothing}
@@ -138,8 +145,8 @@ export class MDCToggleIconButton extends mixinConstraintValidation(mixinFormAsso
                 ${this.renderIcon()}
                 ${this.renderBackground()}
                 ${this.renderTouchTarget()}
-                <mdc-ripple for="input-as-touch-target" part="ripple" .disabled=${this.disabled}></mdc-ripple>
-                <mdc-focus-ring for="input-as-touch-target" part="focus-ring" .disabled=${this.disabled}></mdc-focus-ring>
+                ${this.renderRipple()}
+                ${this.renderFocusRing()}
             </button>
         `
     }
@@ -160,15 +167,15 @@ export class MDCToggleIconButton extends mixinConstraintValidation(mixinFormAsso
 
     protected override renderTouchTarget() {
         return html`
-            <input 
+            <input
                 id="input-as-touch-target"
                 class="touch-target"
                 type=${this.type}
                 .checked=${this.checked}
-                ?required=${this.required} 
-                ?disabled=${this.disabled} 
+                ?required=${this.required}
+                ?disabled=${this.disabled}
                 aria-checked=${this.checked}
-                aria-required=${this.required} 
+                aria-required=${this.required}
                 aria-disabled=${this.disabled}
                 tabindex="0"
                 @input=${this.handleInput}

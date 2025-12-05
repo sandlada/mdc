@@ -29,8 +29,8 @@ export abstract class BaseExtendedFab extends BaseFab {
         return html`
             <button class="${classMap(this.getRenderClasses())}">
                 ${this.renderRipple()}
-                <mdc-focus-ring part="focus-ring"></mdc-focus-ring>
-                <mdc-elevation part="elevation"></mdc-elevation>
+                ${this.renderFocusRing()}
+                ${this.renderElevation()}
 
                 ${this.renderIcon()}
                 ${this.renderLabel()}

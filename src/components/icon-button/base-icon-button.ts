@@ -11,6 +11,8 @@ import { mixinDelegatesAria } from '../../utils/aria/delegate'
 import { mixinElementInternals } from '../../utils/behaviors/element-internals'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import { dispatchActivationClick, isActivationClick } from '../../utils/event/form-label-activation'
+import { mixinFocusRingOptions } from '../focus-ring/mixin-focus-ring-options'
+import { mixinRippleOptions } from '../ripple/mixin-ripple-options'
 import { iconButtonStyles } from './icon-button.style'
 
 /**
@@ -26,7 +28,12 @@ import { iconButtonStyles } from './icon-button.style'
  * @link
  * https://m3.material.io/components/icon-buttons/specs
  */
-export abstract class BaseMDCIconButton extends composeMixin(mixinDelegatesAria, mixinElementInternals)(LitElement) {
+export abstract class BaseMDCIconButton extends composeMixin(
+    mixinDelegatesAria,
+    mixinElementInternals,
+    mixinRippleOptions,
+    mixinFocusRingOptions
+)(LitElement) {
 
     static override styles = iconButtonStyles
 
@@ -82,6 +89,9 @@ export abstract class BaseMDCIconButton extends composeMixin(mixinDelegatesAria,
         })
     }
 
+    public override focusRingHtmlFor: string | null = 'button'
+    public override rippleHtmlFor: string | null = 'button'
+
     protected override render(): TemplateResult {
         const { ariaHasPopup, ariaExpanded, ariaLabel } = this as AriaMixinStrict
         return html`
@@ -98,8 +108,8 @@ export abstract class BaseMDCIconButton extends composeMixin(mixinDelegatesAria,
                 ${this.renderIcon()}
                 ${this.renderBackground()}
                 ${this.renderTouchTarget()}
-                <mdc-ripple for="button" part="ripple" .disabled=${this.disabled}></mdc-ripple>
-                <mdc-focus-ring for="button" part="focus-ring" .disabled=${this.disabled}></mdc-focus-ring>
+                ${this.renderRipple()}
+                ${this.renderFocusRing()}
             </button>
         `
     }
