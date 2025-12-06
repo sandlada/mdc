@@ -4,8 +4,9 @@
  * SPDX-License-Identifier: MIT
  */
 import { html } from 'lit'
-import { property, state } from 'lit/decorators.js'
+import { property, query, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
+import { WidthTransitionController } from '../../../utils/controller/width-transition-controller'
 import { BaseFab } from './base-fab'
 
 /**
@@ -19,11 +20,21 @@ import { BaseFab } from './base-fab'
  */
 export abstract class BaseExtendedFab extends BaseFab {
 
+    @query('.label')
+    private readonly labelElement!: HTMLElement | null
+
     @property({ type: Boolean })
     public extended: boolean = false
 
     @state()
     private hasLabel: boolean = false
+
+    private readonly widthTransitionController = new WidthTransitionController(this, () => this.labelElement)
+
+    public constructor() {
+        super()
+        this.addController(this.widthTransitionController)
+    }
 
     protected override render(): unknown {
         return html`

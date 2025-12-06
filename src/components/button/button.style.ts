@@ -105,6 +105,7 @@ const shared = css`
         outline: none;
         vertical-align: top;
         cursor: pointer;
+        contain: layout;
         -webkit-tap-highlight-color: transparent;
     }
 
@@ -191,6 +192,13 @@ const shared = css`
 
     .container:not(.has-label) .label {
         display: none;
+    }
+
+    .label {
+        width: auto;
+        display: inline-flex;
+        box-sizing: border-box;
+        will-change: width, opacity;
     }
 
     /* Label Size */

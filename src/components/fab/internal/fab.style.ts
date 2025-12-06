@@ -164,7 +164,15 @@ const labelStyles = css`
     }
 
     button .label {
+        width: auto;
+        display: inline-flex;
+        overflow: hidden;
+        box-sizing: border-box;
+        will-change: width, opacity;
+        text-overflow: inherit;
+        text-wrap: nowrap;
     }
+
     button:not(.extended.has-label) .label {
         display: none;
         opacity: 0;
@@ -254,6 +262,8 @@ export const fabStyles = [
                 user-select: none;
                 display: inline-flex;
                 vertical-align: top;
+                contain: layout;
+                -webkit-tap-highlight-color: transparent;
             }
         }
     `
