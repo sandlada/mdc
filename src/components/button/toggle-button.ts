@@ -3,10 +3,8 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { html, isServer, nothing, type PropertyValues, type TemplateResult } from "lit"
+import { html, isServer, type PropertyValues } from "lit"
 import { customElement, property, query } from "lit/decorators.js"
-import { classMap } from 'lit/directives/class-map.js'
-import type { AriaMixinStrict } from '../../utils/aria/aria'
 import { createValidator, getValidityAnchor, mixinConstraintValidation } from '../../utils/behaviors/constraint-validation'
 import { internals } from '../../utils/behaviors/element-internals'
 import { CheckboxValidator } from '../../utils/behaviors/validators/checkbox-validator'
@@ -30,7 +28,15 @@ const SChecked = Symbol('checked')
  * https://www.figma.com/design/4GM7ohCF2Qtjzs7Fra6jlp/Material-3-Design-Kit--Community-?node-id=57994-2328&t=kLfic7eA8vKtkiiO-0
  */
 @customElement('mdc-toggle-button')
-export class MDCTogglableButton extends composeMixin(mixinConstraintValidation, mixinFormAssociated)(BaseButton) {
+export class MDCTogglableButton extends composeMixin(
+    mixinConstraintValidation,
+    mixinFormAssociated
+)(BaseButton) {
+
+    static override shadowRootOptions: ShadowRootInit = {
+        mode: 'open',
+        delegatesFocus: true,
+    }
 
     declare disabled: boolean
     declare name: string
@@ -112,34 +118,12 @@ export class MDCTogglableButton extends composeMixin(mixinConstraintValidation, 
         })
     }
 
-    protected override render(): TemplateResult {
-        const { ariaHasPopup, ariaExpanded, ariaLabel } = this as AriaMixinStrict
-        return html`
-            <button
-                class="${classMap(this.getRenderClasses())}"
-                ?disabled=${this.disabled}
-                aria-disabled=${this.disabled}
-                aria-label=${ariaLabel || nothing}
-                aria-haspopup=${ariaHasPopup! || nothing}
-                aria-expanded=${ariaExpanded! || nothing}
-                tabindex="-1"
-            >
-                ${this.variant === 'outlined' ? this.renderOutline() : nothing}
-                ${['elevated', 'filled', 'filled-tonal'].includes(this.variant) ? this.renderElevation() : nothing}
-                ${this.renderContent()}
-                ${this.renderTouchTarget()}
-                ${this.renderBackground()}
-                ${this.renderRipple()}
-                ${this.renderFocusRing()}
-            </button>
-        `
-    }
-
     protected override renderTouchTarget() {
         return html`
             <input
                 type=${this.type}
                 role="button"
+                tabindex="-1"
                 id="input-as-touch-target"
                 class="toggle-input touch-target"
                 .checked=${this.checked}
@@ -148,7 +132,6 @@ export class MDCTogglableButton extends composeMixin(mixinConstraintValidation, 
                 aria-checked=${this.checked}
                 aria-disabled=${this.disabled}
                 aria-required=${this.required}
-                tabindex="0"
                 @input=${this.handleInput}
                 @change=${this.handleChange}
             />
