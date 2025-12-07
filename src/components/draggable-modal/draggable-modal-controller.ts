@@ -31,8 +31,12 @@ export class DraggableModalController implements ReactiveController {
     private offsetX: number = 0
     private offsetY: number = 0
 
-    private hostWidth: number = 0
-    private hostHeight: number = 0
+    private dragBounds = {
+        minX: -Infinity,
+        maxX: Infinity,
+        minY: -Infinity,
+        maxY: Infinity,
+    }
 
     private boundDrag: (event: MouseEvent | TouchEvent) => void
     private boundEndDrag: () => void
@@ -63,8 +67,14 @@ export class DraggableModalController implements ReactiveController {
         this.offsetY = this.position.y
 
         if (this.boundaryProtection && this.host instanceof HTMLElement) {
-            this.hostWidth = this.host.offsetWidth
-            this.hostHeight = this.host.offsetHeight
+            this.calculateBounds()
+        } else {
+            this.dragBounds = {
+                minX: -Infinity,
+                maxX: Infinity,
+                minY: -Infinity,
+                maxY: Infinity,
+            }
         }
 
         window.addEventListener('mousemove', this.boundDrag, { passive: false })
@@ -73,6 +83,31 @@ export class DraggableModalController implements ReactiveController {
         window.addEventListener('touchend', this.boundEndDrag)
 
         this.host.requestUpdate()
+    }
+
+    private calculateBounds(): void {
+        const hostWidth = this.host.offsetWidth
+        const hostHeight = this.host.offsetHeight
+
+        // 默认为视口尺寸
+        let containerWidth = window.innerWidth
+        let containerHeight = window.innerHeight
+
+        // 如果是 absolute 定位，且存在定位父级 (relative/absolute/fixed 的祖先)
+        // offsetParent 在 position: fixed 时通常为 null，但在 absolute 时为最近的定位祖先
+        if (this.positioningMode === 'absolute' && this.host.offsetParent) {
+            const parent = this.host.offsetParent as HTMLElement
+            // 使用 clientWidth/Height 以排除边框，确保在内部拖拽
+            containerWidth = parent.clientWidth
+            containerHeight = parent.clientHeight
+        }
+
+        this.dragBounds = {
+            minX: 0,
+            maxX: Math.max(0, containerWidth - hostWidth), // 防止容器比组件还小导致负数
+            minY: 0,
+            maxY: Math.max(0, containerHeight - hostHeight)
+        }
     }
 
     private drag(event: MouseEvent | TouchEvent): void {
@@ -87,15 +122,13 @@ export class DraggableModalController implements ReactiveController {
         let newY = this.offsetY + dy
 
         if (this.boundaryProtection) {
-            const maxX = window.innerWidth - this.hostWidth
-            const maxY = window.innerHeight - this.hostHeight
-            newX = Math.max(0, Math.min(newX, maxX))
-            newY = Math.max(0, Math.min(newY, maxY))
+            newX = Math.max(this.dragBounds.minX, Math.min(newX, this.dragBounds.maxX))
+            newY = Math.max(this.dragBounds.minY, Math.min(newY, this.dragBounds.maxY))
         }
 
         this.position.x = newX
         this.position.y = newY
-        
+
         this.host.requestUpdate()
     }
 
@@ -114,9 +147,10 @@ export class DraggableModalController implements ReactiveController {
 
     private getCoordinates(event: MouseEvent | TouchEvent): { clientX: number, clientY: number } {
         if (event instanceof TouchEvent) {
+            const touch = event.touches[0] || event.changedTouches[0]
             return {
-                clientX: event.touches[0].clientX,
-                clientY: event.touches[0].clientY,
+                clientX: touch.clientX,
+                clientY: touch.clientY,
             }
         }
         return {
