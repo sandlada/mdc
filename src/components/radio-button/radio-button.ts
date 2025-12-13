@@ -3,16 +3,15 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { html, isServer, LitElement, type PropertyValues } from 'lit'
-import { customElement, property, query } from 'lit/decorators.js'
+import { html, isServer, LitElement } from 'lit'
+import { customElement } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import { mixinDelegatesAria } from '../../utils/aria/delegate'
+import { mixinCheckable } from '../../utils/behaviors/checkables/mixin-checkable'
 import { createValidator, getValidityAnchor, mixinConstraintValidation } from '../../utils/behaviors/constraint-validation'
 import { internals, mixinElementInternals } from '../../utils/behaviors/element-internals'
 import { RadioValidator } from '../../utils/behaviors/validators/radio-validator'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
-import { SelectionController } from '../../utils/controller/selection-controller'
-import { isActivationClick } from '../../utils/event/form-label-activation'
 import { getFormState, getFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
 import { mixinFocusRingOptions } from '../focus-ring/mixin-focus-ring-options'
 import { mixinRippleOptions } from '../ripple/mixin-ripple-options'
@@ -47,40 +46,19 @@ export class RadioButton extends composeMixin(
     mixinFormAssociated,
     mixinElementInternals,
     mixinFocusRingOptions,
-    mixinRippleOptions
+    mixinRippleOptions,
+    mixinCheckable
 )(LitElement) {
-
+    static override shadowRootOptions = {
+        ...LitElement.shadowRootOptions,
+        delegatesFocus: false
+    }
     static override styles = radioButtonStyle
+
+    public override type: 'checkbox' | 'radio' = 'radio'
 
     declare disabled: boolean
     declare name: string
-
-    [CHECKED]: boolean = false
-
-    private readonly selectionController = new SelectionController(this)
-
-    @property({ type: Boolean, reflect: true, noAccessor: true })
-    public get checked() {
-        return this[CHECKED]
-    }
-    public set checked(value: boolean) {
-        if(value === this[CHECKED]) {
-            return
-        }
-        const wasChecked = this.checked
-        this[CHECKED] = value
-        this.requestUpdate('checked', wasChecked)
-        this.selectionController.handleCheckedChange()
-    }
-
-    @property({ type: Boolean })
-    public required: boolean = false
-
-    @property({ type: String })
-    public value: string = 'on'
-
-    @query('.container')
-    private containerElement!: HTMLElement | null
 
     public override focusRingControl: HTMLElement | null = this
     public override rippleControl: HTMLElement | null = this
@@ -90,15 +68,7 @@ export class RadioButton extends composeMixin(
         this.addController(this.selectionController)
         if (!isServer) {
             this[internals].role = 'radio'
-            this.addEventListener('click', this.handleClick.bind(this))
-            this.addEventListener('keydown', this.handleKeydown.bind(this));
-        }
-    }
-
-    protected override willUpdate(changedProperties: PropertyValues<this>): void {
-        super.willUpdate(changedProperties)
-        if (changedProperties.has('checked')) {
-            this[internals].ariaChecked = String(this.checked)
+            this.tabIndex = -1
         }
     }
 
@@ -130,63 +100,34 @@ export class RadioButton extends composeMixin(
         `
     }
 
-    private async handleClick(event: Event) {
-        if (this.disabled) {
-            return
-        }
-        await 0
-        if (event.defaultPrevented) {
-            return
-        }
-        if (isActivationClick(event)) {
-            this.focus()
-        }
-        // Per spec, clicking on a radio input always selects it.
-        this.checked = true
-        this.dispatchEvent(new Event('change', { bubbles: true }))
-        this.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true }))
-    }
-
-    private handleKeydown(event: KeyboardEvent) {
-        if (event.key !== ' ' || event.defaultPrevented) {
-            return
-        }
-        event.preventDefault()
-        event.stopImmediatePropagation()
-        this.click()
-    }
-
-    override[getFormValue]() {
-        return this.checked ? this.value : null
-    }
-
-    override[getFormState]() {
-        return String(this.checked)
-    }
-
-    override formResetCallback() {
-        // The checked property does not reflect, so the original attribute set by
-        // the user is used to determine the default value.
-        this.checked = this.hasAttribute('default-checked')
-    }
-
-    override formStateRestoreCallback(state: string) {
-        this.checked = state === 'true'
-    }
-
-    override[createValidator]() {
+    public override [createValidator]() {
         return new RadioValidator(() => {
             if (!this.selectionController) {
-                // Validation runs on superclass construction, so selection controller
-                // might not actually be ready until this class constructs.
-                return [this]
+                return [this] as [RadioButton]
             }
-
             return this.selectionController.controls as [RadioButton, ...RadioButton[]]
         })
     }
 
-    override[getValidityAnchor]() {
-        return this.containerElement
+    public override [getValidityAnchor]() {
+        return this
     }
+
+    public override [getFormValue]() {
+        return this.checked ? this.value : null
+    }
+
+    public override [getFormState]() {
+        return String(this.checked)
+    }
+
+    public override formResetCallback() {
+        this.checked = this.hasAttribute('default-checked')
+    }
+
+    public override formStateRestoreCallback(state: string) {
+        this.checked = state === 'true'
+    }
+
+
 }
