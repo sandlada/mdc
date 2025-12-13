@@ -67,13 +67,19 @@ export const radioButtonStyle = css`
             }
 
             .outer {
-                transition: fill 50ms linear;
+                transition-property: stroke, r, opacity;
             }
             .unselected .outer {
+                r: 9px;
                 stroke: var(--_unselected-icon-color);
+                transition-timing-function: ${unsafeCSS(Easing.Emphasized)};
+                transition-duration: 250ms;
             }
             .selected .outer {
+                r: 8px;
                 stroke: var(--_selected-icon-color);
+                transition-timing-function: ${unsafeCSS(Easing.EmphasizedDecelerate)};
+                transition-duration: 500ms;
             }
 
             .inner {
@@ -84,8 +90,8 @@ export const radioButtonStyle = css`
                 stroke-width: 0px;
                 stroke: var(--_unselected-icon-color);
                 opacity: 0;
-                transition-timing-function: ${unsafeCSS(Easing.EmphasizedAccelerate)};
-                transition-duration: 150ms;
+                transition-timing-function: ${unsafeCSS(Easing.Emphasized)};
+                transition-duration: 250ms;
             }
             .selected .inner {
                 r: 2.5px;
