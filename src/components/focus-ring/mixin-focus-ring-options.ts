@@ -1,6 +1,7 @@
-import { html, nothing, type LitElement, type TemplateResult } from 'lit'
-import { property, state } from 'lit/decorators.js'
+import { html, nothing, type LitElement, type PropertyValues, type TemplateResult } from 'lit'
+import { property, query } from 'lit/decorators.js'
 import type { MixinBase, MixinReturn } from '../../utils/behaviors/mixin'
+import type { MDCFocusRing } from './focus-ring'
 
 export interface IMixinFocusRingOptions {
     focusRingControl : HTMLElement | null
@@ -25,21 +26,42 @@ export function mixinFocusRingOptions<T extends MixinBase<LitElement>>(base: T):
         @property({ attribute: 'disable-focus-ring', reflect: true, type: Boolean })
         public disableFocusRing: boolean = false
 
-        @state()
-        public focusRingControl: HTMLElement | null = null
+        @query('#focus-ring-part')
+        public focusRingElement!: MDCFocusRing | null
 
-        @state()
-        public focusRingHtmlFor: string | null = null
+        public get focusRingHtmlFor(): string | null {
+            return null
+        }
+        public get focusRingControl(): HTMLElement | null {
+            return null
+        }
+
+        private _currentFocusRingHtmlFor: string | null = null
+        private _currentFocusRingControl: HTMLElement | null = null
+
+        protected override updated(_changedProperties: PropertyValues): void {
+            super.updated(_changedProperties)
+
+            if(this.focusRingElement) {
+               if(this._currentFocusRingControl !== this.focusRingControl) {
+                    this.focusRingElement.control = this.focusRingControl
+                    this._currentFocusRingControl = this.focusRingControl
+                }
+                if(this._currentFocusRingHtmlFor !== this.focusRingControl) {
+                    this.focusRingElement.htmlFor = this.focusRingHtmlFor
+                    this._currentFocusRingHtmlFor = this.focusRingHtmlFor
+                }
+            }
+        }
 
         public renderFocusRing(): TemplateResult {
             return html`
                 ${this.disableFocusRing || this.disabled ? nothing : html`
                     <mdc-focus-ring
                         part="focus-ring"
+                        id="focus-ring-part"
                         ?inward=${this.focusRingInward}
                         ?shape-inherit=${this.focusRingShapeInherit}
-                        .control=${this.focusRingControl}
-                        .htmlFor=${this.focusRingHtmlFor}
                     ></mdc-focus-ring>
                 `}
             `

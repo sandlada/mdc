@@ -12,7 +12,7 @@ import { styles } from './focus-ring.style'
 
 declare global {
     interface HTMLElementTagNameMap {
-        "mdc-focus-ring": FocusRing
+        "mdc-focus-ring": MDCFocusRing
     }
 }
 
@@ -53,7 +53,7 @@ export interface IFocusRing extends LitElement, IFocusRingParameters, IAttachabl
  * Material Design 3
  */
 @customElement('mdc-focus-ring')
-export class FocusRing extends LitElement implements IFocusRing {
+export class MDCFocusRing extends LitElement implements IFocusRing {
 
     static override styles = styles
 
