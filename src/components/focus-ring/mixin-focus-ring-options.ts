@@ -3,17 +3,21 @@ import { property, query } from 'lit/decorators.js'
 import type { MixinBase, MixinReturn } from '../../utils/behaviors/mixin'
 import type { MDCFocusRing } from './focus-ring'
 
-export interface IMixinFocusRingOptions {
-    focusRingControl : HTMLElement | null
-    focusRingHtmlFor : string | null
+export interface IMixinFocusRingAttributes {
     focusRingInward: boolean
     focusRingShapeInherit: boolean
     disableFocusRing : boolean
+}
+
+export interface IMixinFocusRing extends IMixinFocusRingAttributes {
+    focusRingControl : HTMLElement | null
+    focusRingHtmlFor : string | null
+    focusRingElement: MDCFocusRing | null
     renderFocusRing(): TemplateResult
 }
 
-export function mixinFocusRingOptions<T extends MixinBase<LitElement>>(base: T): MixinReturn<T, IMixinFocusRingOptions> {
-    abstract class WithFocusRing extends base implements IMixinFocusRingOptions {
+export function mixinFocusRingOptions<T extends MixinBase<LitElement>>(base: T): MixinReturn<T, IMixinFocusRing> {
+    abstract class WithFocusRing extends base implements IMixinFocusRing {
 
         declare disabled?: boolean
 
@@ -34,6 +38,9 @@ export function mixinFocusRingOptions<T extends MixinBase<LitElement>>(base: T):
         }
         public get focusRingControl(): HTMLElement | null {
             return null
+        }
+        public set focusRingControl(value: HTMLElement | null) {
+            this._currentFocusRingControl = value
         }
 
         private _currentFocusRingHtmlFor: string | null = null
