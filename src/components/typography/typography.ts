@@ -5,34 +5,34 @@
  */
 import { html, LitElement, type PropertyValues } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { typographyStyles } from './typography.styles'
+import { typographyStyles } from './internal/typography.styles'
 
 declare global {
     interface HTMLElementTagNameMap {
-        "mdc-typography": Typography
+        "mdc-typography": MDCTypography
     }
 }
 
 type TypographyVariant =
-    'display-large' |
-    'display-medium' |
-    'display-small' |
-    'headline-large' |
-    'headline-medium' |
-    'headline-small' |
-    'title-large' |
-    'title-medium' |
-    'title-small' |
-    'body-large' |
-    'body-medium' |
-    'body-small' |
-    'label-large' |
-    'label-medium' |
+    'display-large'    |
+    'display-medium'   |
+    'display-small'    |
+    'headline-large'   |
+    'headline-medium'  |
+    'headline-small'   |
+    'title-large'      |
+    'title-medium'     |
+    'title-small'      |
+    'body-large'       |
+    'body-medium'      |
+    'body-small'       |
+    'label-large'      |
+    'label-medium'     |
     'label-small'
 
-export interface ITypographyAttributes {
+export interface IMDCTypographyAttributes {
     emphasized: boolean
-    variant: TypographyVariant
+    variant   : TypographyVariant
 }
 
 /**
@@ -60,7 +60,7 @@ export interface ITypographyAttributes {
  * https://m3.material.io/styles/typography/overview
  */
 @customElement('mdc-typography')
-export class Typography extends LitElement implements ITypographyAttributes {
+export class MDCTypography extends LitElement implements IMDCTypographyAttributes {
 
     static override styles = typographyStyles
 
