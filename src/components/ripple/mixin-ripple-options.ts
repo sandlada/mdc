@@ -1,15 +1,20 @@
-import { html, type LitElement, type TemplateResult } from 'lit'
-import { property, state } from 'lit/decorators.js'
+import { html, type LitElement, type PropertyValues, type TemplateResult } from 'lit'
+import { property, query } from 'lit/decorators.js'
 import type { MixinBase, MixinReturn } from '../../utils/behaviors/mixin'
+import type { MDCRipple } from './ripple'
 
-export interface IMixinRippleOptions {
+export interface IMixinRippleAttributes {
     disableRipple               : boolean
     disableRippleHoverStateLayer: boolean
     disableRippleFocusStateLayer: boolean
     disableRipplePressStateLayer: boolean
-    rippleHtmlFor               : string | null
-    rippleControl               : HTMLElement | null
-    renderRipple()              : TemplateResult
+}
+
+export interface IMixinRippleOptions {
+    rippleElement : MDCRipple | null
+    rippleHtmlFor : string | null
+    rippleControl : HTMLElement | null
+    renderRipple(): TemplateResult
 }
 
 export function mixinRippleOptions<T extends MixinBase<LitElement>>(base: T): MixinReturn<T, IMixinRippleOptions> {
@@ -28,11 +33,33 @@ export function mixinRippleOptions<T extends MixinBase<LitElement>>(base: T): Mi
         @property({ type: Boolean, attribute: 'disable-ripple-press-state-layer' })
         public disableRipplePressStateLayer: boolean = false
 
-        @state()
-        public rippleHtmlFor: string | null = null
+        @query('#ripple-part')
+        public rippleElement!: MDCRipple | null
 
-        @state()
-        public rippleControl: HTMLElement | null = null
+        public get rippleHtmlFor(): string | null {
+            return null
+        }
+        public get rippleControl(): HTMLElement | null {
+            return null
+        }
+
+        private _currentRippleHtmlFor: string | null = null
+        private _currentRippleControl: HTMLElement | null = null
+
+        protected override updated(_changedProperties: PropertyValues): void {
+            super.updated(_changedProperties)
+
+            if(this.rippleElement) {
+                if(this._currentRippleControl !== this.rippleControl) {
+                    this.rippleElement.control = this.rippleControl
+                    this._currentRippleControl = this.rippleControl
+                }
+                if(this._currentRippleHtmlFor !== this.rippleControl) {
+                    this.rippleElement.htmlFor = this.rippleHtmlFor
+                    this._currentRippleHtmlFor = this.rippleHtmlFor
+                }
+            }
+        }
 
         public renderRipple(): TemplateResult {
             return html`
@@ -43,8 +70,6 @@ export function mixinRippleOptions<T extends MixinBase<LitElement>>(base: T): Mi
                     ?disable-hover-state-layer=${this.disableRippleHoverStateLayer}
                     ?disable-focus-state-layer=${this.disableRippleFocusStateLayer}
                     ?disable-press-state-layer=${this.disableRipplePressStateLayer}
-                    .control=${(this.rippleControl)}
-                    .htmlFor=${(this.rippleHtmlFor)}
                 ></mdc-ripple>`
         }
     }
