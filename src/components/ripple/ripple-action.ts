@@ -115,13 +115,13 @@ export class RippleAction {
     /**
      * Event handles
      */
-    private handlePointerenter(event: PointerEvent) {
+    public handlePointerenter(event: PointerEvent) {
         if (!this.shouldReactToEvent(event)) {
             return
         }
         this.host.hovered = true
     }
-    private handlePointerleave(event: PointerEvent) {
+    public handlePointerleave(event: PointerEvent) {
         if (!this.shouldReactToEvent(event)) {
             return
         }
@@ -130,7 +130,7 @@ export class RippleAction {
             this.endPressAnimation()
         }
     }
-    private handlePointerup(event: PointerEvent) {
+    public handlePointerup(event: PointerEvent) {
         if (!this.shouldReactToEvent(event)) {
             return
         }
@@ -144,7 +144,7 @@ export class RippleAction {
             return
         }
     }
-    private async handlePointerdown(event: PointerEvent) {
+    public async handlePointerdown(event: PointerEvent) {
         if (!this.shouldReactToEvent(event)) {
             return
         }
@@ -172,11 +172,11 @@ export class RippleAction {
         this.state = RippleState.Holding
         this.startPressAnimation(event)
     }
-    private handlePointercancel(event: PointerEvent) {
+    public handlePointercancel(event: PointerEvent) {
         if (!this.shouldReactToEvent(event)) return
         this.endPressAnimation()
     }
-    private handleClick() {
+    public handleClick() {
         if (this.host.disabled) return
         if (this.state === RippleState.WaitingForClick) {
             this.endPressAnimation()
@@ -188,18 +188,18 @@ export class RippleAction {
             this.endPressAnimation()
         }
     }
-    private handleContextmenu() {
+    public handleContextmenu() {
         if (this.host.disabled) return
         this.checkBoundsAfterContextMenu = true
         this.endPressAnimation()
     }
-    private handleFocus() {
+    public handleFocus() {
         if (this.host.disabled) {
             return
         }
         this.host.focused = true
     }
-    private handleBlur() {
+    public handleBlur() {
         if (this.host.disabled) {
             return
         }

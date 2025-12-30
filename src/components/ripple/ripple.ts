@@ -53,7 +53,7 @@ export class MDCRipple extends LitElement implements IAttachable, IRipple {
     @property({ type: Boolean, reflect: true})
     public disabled: boolean = false
 
-    private readonly action = new RippleAction(this)
+    public readonly action = new RippleAction(this)
     private readonly attachableController = new AttachableController(this, this.action.onControlChange.bind(this.action))
 
     protected override render() {
