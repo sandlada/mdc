@@ -7,25 +7,14 @@
  */
 import { isServer, LitElement } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { type IAttachable, AttachableController } from '../../utils/controller/attachable-controller'
-import { styles } from './focus-ring.style'
+import { AttachableController } from '../../utils/controller/attachable-controller'
+import type { IFocusRing } from './focus-ring.interface'
+import { FocusRingStyle } from './focus-ring.style'
 
 declare global {
     interface HTMLElementTagNameMap {
         "mdc-focus-ring": MDCFocusRing
     }
-}
-
-export interface IFocusRingParameters {
-    inward: boolean
-    shapeInherit: boolean
-    htmlFor: string | null
-    control: HTMLElement | null
-}
-
-export interface IFocusRing extends LitElement, IFocusRingParameters, IAttachable {
-    attach(control: HTMLElement): void
-    detach(): void
 }
 
 /**
@@ -55,58 +44,35 @@ export interface IFocusRing extends LitElement, IFocusRingParameters, IAttachabl
 @customElement('mdc-focus-ring')
 export class MDCFocusRing extends LitElement implements IFocusRing {
 
-    static override styles = styles
+    static override styles = FocusRingStyle
 
-    @property({ type: Boolean })
+    @property({ type: Boolean, reflect: true })
+    public visible = false
+
+    @property({ type: Boolean, reflect: true })
     public inward = false
 
     @property({ type: Boolean, reflect: true, attribute: 'shape-inherit' })
     public shapeInherit = true
 
-    private attachableController = new AttachableController(this, this.onControlChange.bind(this))
+    private readonly attachableController = new AttachableController(this, this.onControlChange.bind(this))
 
-    get htmlFor() {
-        return this.attachableController.htmlFor
-    }
-    set htmlFor(htmlFor: string | null) {
-        this.attachableController.htmlFor = htmlFor
-    }
-
-    get control() {
-        return this.attachableController.control
-    }
-    set control(control: HTMLElement | null) {
-        this.attachableController.control = control
-    }
-
-    public attach(control: HTMLElement) {
-        this.attachableController.attach(control)
-    }
-    public detach() {
-        this.attachableController.detach()
-    }
-
-    public get visible() {
-        return this.hasAttribute('visible')
-    }
-    public set visible(value: boolean) {
-        this.toggleAttribute('visible', value)
-    }
-
-    private focusRingEvents = [
+    private static readonly FocusRingEvents = [
         'focusin',
         'focusout',
         'pointerdown'
-    ]
+    ] as const
+
+    private readonly boundHandleEvent = (e: Event) => this.handleEvent(e)
+
     private onControlChange(prev: HTMLElement | null, next: HTMLElement | null) {
-        if (isServer) {
-            return
-        }
-        for (const event of this.focusRingEvents) {
-            prev?.removeEventListener(event, this.handleEvent.bind(this))
-            next?.addEventListener(event, this.handleEvent.bind(this))
+        if (isServer) return
+        for (const event of MDCFocusRing.FocusRingEvents) {
+            prev?.removeEventListener(event, this.boundHandleEvent)
+            next?.addEventListener(event, this.boundHandleEvent)
         }
     }
+
     private handleEvent(e: Event) {
         switch (e.type) {
             case 'focusin':
@@ -122,4 +88,26 @@ export class MDCFocusRing extends LitElement implements IFocusRing {
                 break
         }
     }
+
+    public get htmlFor() {
+        return this.attachableController.htmlFor
+    }
+    public set htmlFor(htmlFor: string | null) {
+        this.attachableController.htmlFor = htmlFor
+    }
+
+    public get control() {
+        return this.attachableController.control
+    }
+    public set control(control: HTMLElement | null) {
+        this.attachableController.control = control
+    }
+
+    public attach(control: HTMLElement) {
+        this.attachableController.attach(control)
+    }
+    public detach() {
+        this.attachableController.detach()
+    }
+
 }

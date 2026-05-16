@@ -4,15 +4,15 @@ import type { MixinBase, MixinReturn } from '../../utils/behaviors/mixin'
 import type { MDCFocusRing } from './focus-ring'
 
 export interface IMixinFocusRingAttributes {
-    focusRingInward: boolean
+    focusRingInward      : boolean
     focusRingShapeInherit: boolean
-    disableFocusRing : boolean
+    disableFocusRing     : boolean
 }
 
 export interface IMixinFocusRing extends IMixinFocusRingAttributes {
     focusRingControl : HTMLElement | null
     focusRingHtmlFor : string | null
-    focusRingElement: MDCFocusRing | null
+    focusRingElement : MDCFocusRing | null
     renderFocusRing(): TemplateResult
 }
 
@@ -34,13 +34,10 @@ export function mixinFocusRingOptions<T extends MixinBase<LitElement>>(base: T):
         public focusRingElement!: MDCFocusRing | null
 
         public get focusRingHtmlFor(): string | null {
-            return null
+            return this._currentFocusRingHtmlFor
         }
         public get focusRingControl(): HTMLElement | null {
-            return null
-        }
-        public set focusRingControl(value: HTMLElement | null) {
-            this._currentFocusRingControl = value
+            return this._currentFocusRingControl
         }
 
         private _currentFocusRingHtmlFor: string | null = null
@@ -54,7 +51,7 @@ export function mixinFocusRingOptions<T extends MixinBase<LitElement>>(base: T):
                     this.focusRingElement.control = this.focusRingControl
                     this._currentFocusRingControl = this.focusRingControl
                 }
-                if(this._currentFocusRingHtmlFor !== this.focusRingControl) {
+                if(this._currentFocusRingHtmlFor !== this.focusRingHtmlFor) {
                     this.focusRingElement.htmlFor = this.focusRingHtmlFor
                     this._currentFocusRingHtmlFor = this.focusRingHtmlFor
                 }
