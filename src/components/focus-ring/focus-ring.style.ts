@@ -11,20 +11,24 @@ import { createWrappedTokens, stringTokens } from '../../utils/tokens'
 const tokens = createWrappedTokens('--mdc-focus-ring', FocusRingDefinition)
 const tokenString = stringTokens(tokens)
 
-export const styles = css`
+export const FocusRingStyle = css`
 
-    @layer mdc.focus-ring.variable {
+    @layer mdc {
         :host {
             ${tokenString}
         }
     }
 
-    @layer mdc.focus-ring.base {
+    @layer mdc {
 
         :host {
+            margin: initial;
+            padding: initial;
+            border: initial;
+            outline: initial;
             animation-delay: 0s, calc(var(--_duration) * 0.25);
             animation-duration: calc(var(--_duration) * 0.25), calc(var(--_duration) * 0.75);
-            animation-timing-function: ${unsafeCSS(Easing.Emphasized)};
+            animation-timing-function: ${unsafeCSS(Easing.Emphasized.toCSSValue())};
             box-sizing: border-box;
             color: var(--_color);
             display: none;
@@ -110,6 +114,24 @@ export const styles = css`
         @media (prefers-reduced-motion) {
             :host {
                 animation: none;
+            }
+        }
+
+        @media (forced-colors: active) {
+            :host {
+                color: CanvasText;
+            }
+        }
+
+        @media (prefers-contrast: more) {
+            :host {
+                color: CanvasText;
+            }
+        }
+
+        @media (prefers-contrast: less) {
+            :host {
+                color: var(--_color-reduced-contrast);
             }
         }
     }
