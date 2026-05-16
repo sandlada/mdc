@@ -40,6 +40,8 @@ declare global {
  *
  * @version
  * Material Design 3
+ * @version
+ * Material Design 3 - Non-Standardized
  */
 @customElement('mdc-focus-ring')
 export class MDCFocusRing extends LitElement implements IFocusRing {
@@ -47,24 +49,49 @@ export class MDCFocusRing extends LitElement implements IFocusRing {
     static override styles = FocusRingStyle
 
     @property({ type: Boolean, reflect: true })
-    public visible = false
-
-    @property({ type: Boolean, reflect: true })
     public inward = false
 
     @property({ type: Boolean, reflect: true, attribute: 'shape-inherit' })
     public shapeInherit = true
+
+    @property({ type: Boolean, reflect: true, attribute: 'disable-animation' })
+    public disableAnimation = false
+
+    @property({ type: Boolean, reflect: true })
+    public disabled = false
+
+    @property({ type: Boolean, reflect: true, attribute: 'focus-on-hover' })
+    public focusOnHover = false
+
+    @property({ type: Boolean, reflect: true, noAccessor: true })
+    public get focused() {
+        return this.hasAttribute('focused')
+    }
+    public set focused(value: boolean) {
+        if (value) {
+            this.setAttribute('focused', '')
+            return
+        }
+
+        this.removeAttribute('focused')
+        this.removeAttribute('closing')
+        this.clearTimer()
+    }
+
+    public constructor() {
+        super()
+        if(isServer) return
+    }
 
     private readonly attachableController = new AttachableController(this, this.onControlChange.bind(this))
 
     private static readonly FocusRingEvents = [
         'focusin',
         'focusout',
-        'pointerdown'
+        'pointerdown',
     ] as const
 
     private readonly boundHandleEvent = (e: Event) => this.handleEvent(e)
-
     private onControlChange(prev: HTMLElement | null, next: HTMLElement | null) {
         if (isServer) return
         for (const event of MDCFocusRing.FocusRingEvents) {
@@ -73,16 +100,38 @@ export class MDCFocusRing extends LitElement implements IFocusRing {
         }
     }
 
+    private timer: null | ReturnType<typeof setTimeout> = null
+    private clearTimer() {
+        if (!this.timer) return
+        clearTimeout(this.timer)
+        this.timer = null
+    }
+
+    private hide() {
+        this.focused = false
+    }
+
     private handleEvent(e: Event) {
+        if(this.disabled) return
+        const duration = parseFloat(getComputedStyle(this).getPropertyValue('--_duration')) || 0
+
+        this.clearTimer()
+
         switch (e.type) {
-            case 'focusin':
-                this.visible = this.control?.matches(':focus-visible') ?? false
+            case 'focusin': {
+                const isVisible = this.control?.matches(':focus-visible') ?? false
+                if (isVisible) {
+                    this.removeAttribute('closing')
+                    this.focused = true
+                }
                 break
+            }
             case 'focusout':
-                this.visible = false
-                break
             case 'pointerdown':
-                this.visible = false
+                this.setAttribute('closing', '')
+                this.timer = setTimeout(() => {
+                    this.hide()
+                }, duration * 0.5)
                 break
             default:
                 break

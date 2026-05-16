@@ -34,26 +34,21 @@ export function mixinFocusRingOptions<T extends MixinBase<LitElement>>(base: T):
         public focusRingElement!: MDCFocusRing | null
 
         public get focusRingHtmlFor(): string | null {
-            return this._currentFocusRingHtmlFor
+            return this.focusRingElement?.htmlFor ?? null
         }
         public get focusRingControl(): HTMLElement | null {
-            return this._currentFocusRingControl
+            return this.focusRingElement?.control ?? null
         }
-
-        private _currentFocusRingHtmlFor: string | null = null
-        private _currentFocusRingControl: HTMLElement | null = null
 
         protected override updated(_changedProperties: PropertyValues): void {
             super.updated(_changedProperties)
 
             if(this.focusRingElement) {
-               if(this._currentFocusRingControl !== this.focusRingControl) {
+               if(this.focusRingElement.control !== this.focusRingControl) {
                     this.focusRingElement.control = this.focusRingControl
-                    this._currentFocusRingControl = this.focusRingControl
                 }
-                if(this._currentFocusRingHtmlFor !== this.focusRingHtmlFor) {
+                if(this.focusRingElement.htmlFor !== this.focusRingHtmlFor) {
                     this.focusRingElement.htmlFor = this.focusRingHtmlFor
-                    this._currentFocusRingHtmlFor = this.focusRingHtmlFor
                 }
             }
         }

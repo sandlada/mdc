@@ -22,38 +22,48 @@ export const FocusRingStyle = css`
     @layer mdc {
 
         :host {
-            margin: initial;
-            padding: initial;
-            border: initial;
-            outline: initial;
+            border-style: solid;
+            border-width: 0px;
+            border-color: currentColor;
+            outline-style: solid;
+            outline-width: 0px;
+            outline-color: currentColor;
             animation-delay: 0s, calc(var(--_duration) * 0.25);
             animation-duration: calc(var(--_duration) * 0.25), calc(var(--_duration) * 0.75);
             animation-timing-function: ${unsafeCSS(Easing.Emphasized.toCSSValue())};
+            transition-property: border-width, outline-width, border-color, outline-color, color, opacity;
+            transition-timing-function: ${unsafeCSS(Easing.Emphasized.toCSSValue())};
+            transition-duration: calc(var(--_duration) * 0.5);
             box-sizing: border-box;
             color: var(--_color);
             display: none;
-            pointer-events: none;
             position: absolute;
         }
-
-        :host([disabled]) {
-            display: none;
+        :host([focused]) {
+            display: flex;
         }
 
-        :host([visible]) {
-            display: flex;
+        :host([disable-animation]) {
+            animation: none;
+            transition: none;
         }
 
         :host(:not([inward])) {
             animation-name: outward-grow, outward-shrink;
             inset: calc(-1 * var(--_outward-offset));
-            outline: var(--_width) solid currentColor;
+            outline-width: var(--_width);
+        }
+        :host(:not([inward])[closing]) {
+            opacity: 0;
         }
 
         :host([inward]) {
             animation-name: inward-grow, inward-shrink;
-            border: var(--_width) solid currentColor;
+            border-width: var(--_width);
             inset: var(--_inward-offset);
+        }
+        :host([inward][closing]) {
+            opacity: 0;
         }
 
         :host([shape-inherit]) {
