@@ -58,6 +58,18 @@ export interface ISelectionControllerOptions {
     preventSelectionDuringSwitching: boolean
 
     /**
+     * When `true`, a synthetic `click` is dispatched on the newly focused
+     * control after each arrow-key navigation. This fires ripple press
+     * animations and other click-based visual effects without re-triggering
+     * `toggleSelection()` (the click is internally suppressed for that purpose).
+     *
+     * Enable for radio-button groups; leave `false` for focus-only groups such
+     * as checkbox lists where arrow keys move focus without selecting.
+     * @default false
+     */
+    dispatchNavigationClick: boolean
+
+    /**
      * Returns the focusable DOM element for a given host.
      * Defaults to returning the host itself.
      */
@@ -74,6 +86,19 @@ export interface ISelectionControllerOptions {
 
     /** Called immediately after `host.checked` is mutated by `toggleSelection()`. */
     onAfterSelected: (host: ISelectionControllerHost) => void
+
+    /**
+     * Called after `moveFocus()` completes on the **newly focused** host.
+     * Fires after `.focus()`, state mutation, `input`/`change` events, and the
+     * optional navigation click have all been dispatched.
+     *
+     * Use this to perform visual effects that depend on `:focus-visible` not
+     * being reliable (e.g. force-opening a focus ring for a custom element that
+     * browsers may not grant `:focus-visible` to on programmatic focus).
+     *
+     * @param next - the host that just received focus via keyboard navigation.
+     */
+    onAfterNavigate: (next: ISelectionControllerHost) => void
 }
 
 /**
@@ -114,6 +139,8 @@ export class SelectionController implements ReactiveController {
     public preventSelectionDuringInitialFocus: boolean                                          = false
     /** @see ISelectionControllerOptions.preventSelectionDuringSwitching */
     public preventSelectionDuringSwitching   : boolean                                          = false
+    /** @see ISelectionControllerOptions.dispatchNavigationClick */
+    public dispatchNavigationClick           : boolean                                          = false
     /** @see ISelectionControllerOptions.getFocusableElement */
     public getFocusableElement               : (host: ISelectionControllerHost) => HTMLElement  = (host) => host
     /** @see ISelectionControllerOptions.onConnected */
@@ -124,6 +151,8 @@ export class SelectionController implements ReactiveController {
     public onBeforeSelect                    : (host: ISelectionControllerHost) => void         = () => {}
     /** @see ISelectionControllerOptions.onAfterSelected */
     public onAfterSelected                   : (host: ISelectionControllerHost) => void         = () => {}
+    /** @see ISelectionControllerOptions.onAfterNavigate */
+    public onAfterNavigate                   : (next: ISelectionControllerHost) => void         = () => {}
 
     constructor(
         host: ISelectionControllerHost & ReactiveControllerHost,
@@ -156,11 +185,13 @@ export class SelectionController implements ReactiveController {
         if (options.canCancel                          !== undefined) this.canCancel                          = options.canCancel
         if (options.preventSelectionDuringInitialFocus !== undefined) this.preventSelectionDuringInitialFocus = options.preventSelectionDuringInitialFocus
         if (options.preventSelectionDuringSwitching    !== undefined) this.preventSelectionDuringSwitching    = options.preventSelectionDuringSwitching
+        if (options.dispatchNavigationClick            !== undefined) this.dispatchNavigationClick            = options.dispatchNavigationClick
         if (options.getFocusableElement                !== undefined) this.getFocusableElement                = options.getFocusableElement
         if (options.onConnected                        !== undefined) this.onConnected                        = options.onConnected
         if (options.onDisconnected                     !== undefined) this.onDisconnected                     = options.onDisconnected
         if (options.onBeforeSelect                     !== undefined) this.onBeforeSelect                     = options.onBeforeSelect
         if (options.onAfterSelected                    !== undefined) this.onAfterSelected                    = options.onAfterSelected
+        if (options.onAfterNavigate                    !== undefined) this.onAfterNavigate                    = options.onAfterNavigate
     }
 
     // ── group discovery ───────────────────────────────────────────────────────
@@ -194,6 +225,8 @@ export class SelectionController implements ReactiveController {
 
         this.onBeforeSelect(this.host)
 
+        const prevChecked = this.host.checked
+
         if (this.canCancel) {
             this.host.checked = !this.host.checked
         } else {
@@ -206,6 +239,13 @@ export class SelectionController implements ReactiveController {
 
         this.onAfterSelected(this.host)
         this.updateRovingTabindex()
+
+        // Dispatch input/change when the checked state actually changed,
+        // mirroring native <input type="radio"> / <input type="checkbox"> behaviour.
+        if (this.host.checked !== prevChecked) {
+            this.host.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true }))
+            this.host.dispatchEvent(new Event('change', { bubbles: true }))
+        }
     }
 
     /**
@@ -310,8 +350,18 @@ export class SelectionController implements ReactiveController {
         const nextHost = controls[nextIndex!]
         if (!nextHost || nextHost === this.host || nextHost.disabled) return
 
+        const wasChecked = nextHost.checked
         const focusableEl = this.getFocusableElement(nextHost)
-        ;(focusableEl ?? nextHost).focus()
+        const el = focusableEl ?? nextHost
+
+        // Ensure the element has a non-negative tabIndex before calling .focus() so
+        // browsers reliably apply :focus-visible during keyboard navigation.
+        // (Roving-tabindex management sets inactive controls to tabIndex = -1;
+        // some browsers do not grant :focus-visible to elements focused while
+        // their tabIndex is negative, even when called from a keyboard handler.)
+        if (el.tabIndex < 0) el.tabIndex = 0
+
+        el.focus()
 
         if (!this.preventSelectionDuringSwitching && !nextHost.checked) {
             nextHost.checked = true
@@ -324,6 +374,28 @@ export class SelectionController implements ReactiveController {
                 }
             }
         }
+
+        // Dispatch input/change events when navigation caused a selection change,
+        // mirroring native <input type="radio"> arrow-key behaviour.
+        if (!wasChecked && nextHost.checked) {
+            nextHost.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true }))
+            nextHost.dispatchEvent(new Event('change', { bubbles: true }))
+        }
+
+        // Dispatch a synthetic click on the newly focused/selected control so that
+        // ripple press animations and other click-based visual effects play, exactly
+        // as they do for Space / Enter activation on the current control.
+        // handleClick will skip toggleSelection() for this synthetic click via
+        // _pendingNavigationClick, preventing a redundant state mutation.
+        if (this.dispatchNavigationClick) {
+            SelectionController._pendingNavigationClick.add(nextHost)
+            nextHost.dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true }))
+        }
+
+        // Notify the host that navigation has completed so it can apply visual
+        // effects (e.g. force-opening the focus ring) that cannot be driven by
+        // :focus-visible alone on non-native interactive elements.
+        this.onAfterNavigate(nextHost)
     }
 
     // ── event handlers ────────────────────────────────────────────────────────
@@ -338,9 +410,33 @@ export class SelectionController implements ReactiveController {
      */
     private _suppressNextClick = false
 
+    /**
+     * Hosts registered here are expecting a navigation click dispatched by
+     * `moveFocus()`. `handleClick` on that host will skip `toggleSelection()`
+     * so only visual effects (ripple press animation) are triggered.
+     */
+    private static readonly _pendingNavigationClick = new WeakSet<ISelectionControllerHost>()
+
+    /**
+     * `true` while a pointer (mouse / touch) is physically held down on the host.
+     *
+     * Used by `handleFocus` to suppress auto-selection when a mouse click
+     * causes focus before the `click` event fires: without this guard,
+     * `handleFocus` would set `checked = true` for radio controls, making
+     * `toggleSelection()` see no state change and therefore not dispatch
+     * `input` / `change` events.
+     */
+    private _pointerIsDown = false
+
+    private readonly handlePointerDown = (): void => { this._pointerIsDown = true }
+    private readonly handlePointerUp   = (): void => { this._pointerIsDown = false }
+
     private readonly handleFocus = (): void => {
         this.updateRovingTabindex()
-        if (!this.preventSelectionDuringInitialFocus && !this.host.checked) {
+        // Suppress auto-selection while a pointer is held down: the upcoming
+        // `click` event will call `toggleSelection()`, which sets `checked` and
+        // dispatches `input` / `change` with the correct before/after comparison.
+        if (!this.preventSelectionDuringInitialFocus && !this.host.checked && !this._pointerIsDown) {
             this.host.checked = true
             this.enforceMutexConsistency()
         }
@@ -353,6 +449,12 @@ export class SelectionController implements ReactiveController {
         }
         if (this._suppressNextClick) {
             this._suppressNextClick = false
+            return
+        }
+        // A navigation click dispatched by moveFocus() should trigger visual
+        // effects (ripple) but must not re-run toggleSelection().
+        if (SelectionController._pendingNavigationClick.has(this.host)) {
+            SelectionController._pendingNavigationClick.delete(this.host)
             return
         }
         this.toggleSelection()
@@ -395,9 +497,12 @@ export class SelectionController implements ReactiveController {
 
     public hostConnected(): void {
         this.root = this.host.getRootNode() as Document | ShadowRoot
-        this.host.addEventListener('keydown', this.handleKeyDown)
-        this.host.addEventListener('focus',   this.handleFocus)
-        this.host.addEventListener('click',   this.handleClick)
+        this.host.addEventListener('keydown',      this.handleKeyDown)
+        this.host.addEventListener('focus',        this.handleFocus)
+        this.host.addEventListener('click',        this.handleClick)
+        this.host.addEventListener('pointerdown',  this.handlePointerDown)
+        this.host.addEventListener('pointerup',    this.handlePointerUp)
+        this.host.addEventListener('pointercancel',this.handlePointerUp)
 
         if (this.host.checked) {
             this.enforceMutexConsistency()
@@ -407,9 +512,12 @@ export class SelectionController implements ReactiveController {
     }
 
     public hostDisconnected(): void {
-        this.host.removeEventListener('keydown', this.handleKeyDown)
-        this.host.removeEventListener('focus',   this.handleFocus)
-        this.host.removeEventListener('click',   this.handleClick)
+        this.host.removeEventListener('keydown',       this.handleKeyDown)
+        this.host.removeEventListener('focus',         this.handleFocus)
+        this.host.removeEventListener('click',         this.handleClick)
+        this.host.removeEventListener('pointerdown',   this.handlePointerDown)
+        this.host.removeEventListener('pointerup',     this.handlePointerUp)
+        this.host.removeEventListener('pointercancel', this.handlePointerUp)
         this.root = null
         this.onDisconnected(this.host)
     }
