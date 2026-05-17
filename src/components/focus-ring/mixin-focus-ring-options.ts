@@ -146,8 +146,13 @@ export function mixinFocusRingOptions<T extends MixinBase<LitElement>>(base: T):
                 if(this.focusRingElement.animationDisabled !== this.focusRingAnimationDisabled) {
                     this.focusRingElement.animationDisabled = this.focusRingAnimationDisabled
                 }
-                if(this.focusRingElement.focused !== this.focusRingFocused) {
-                    this.focusRingElement.focused = this.focusRingFocused
+                // Only force-show when the host explicitly requests it.
+                // Never force-hide: the ring manages its own closed state via
+                // focusout / pointerdown events. Overriding to false here would
+                // reset a ring that was legitimately opened by focusin (e.g.
+                // after arrow-key navigation triggers a checked → Lit update).
+                if (this.focusRingFocused && !this.focusRingElement.focused) {
+                    this.focusRingElement.focused = true
                 }
             }
         }
