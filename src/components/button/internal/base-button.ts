@@ -6,15 +6,15 @@
 import { html, isServer, LitElement, nothing, type TemplateResult } from 'lit'
 import { property, query, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
-import type { AriaMixinStrict } from '../../utils/aria/aria'
-import { mixinDelegatesAria } from '../../utils/aria/delegate'
-import { mixinElementInternals } from '../../utils/behaviors/element-internals'
-import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
-import { WidthTransitionController } from '../../utils/controller/width-transition-controller'
-import { dispatchActivationClick, isActivationClick } from '../../utils/event/form-label-activation'
-import { mixinElevationOptions } from '../elevation/mixin-elevation-options'
-import { mixinFocusRingOptions } from '../focus-ring/mixin-focus-ring-options'
-import { mixinRippleOptions } from '../ripple/mixin-ripple-options'
+import type { AriaMixinStrict } from '../../../utils/aria/aria'
+import { mixinDelegatesAria } from '../../../utils/aria/delegate'
+import { mixinElementInternals } from '../../../utils/behaviors/element-internals'
+import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
+import { MeasuredContentWidthController } from '../../../utils/controller/measured-content-width-controller'
+import { dispatchActivationClick, isActivationClick } from '../../../utils/event/form-label-activation'
+import { mixinElevationOptions } from '../../elevation/mixin-elevation-options'
+import { mixinFocusRingOptions } from '../../focus-ring/mixin-focus-ring-options'
+import { mixinRippleOptions } from '../../ripple/mixin-ripple-options'
 import { buttonStyles } from './button.style'
 
 /**
@@ -84,8 +84,11 @@ export abstract class BaseButton extends composeMixin(
 
     static override styles = buttonStyles
 
-    @property({ type: String, reflect: false, })
-    public variant: 'filled' | 'filled-tonal' | 'elevated' | 'outlined' | 'text' = 'filled'
+    /**
+     * 'filled' | 'filled-tonal' | 'elevated' | 'outlined' | 'text'
+     */
+    public abstract variant: string
+    public abstract disabled: boolean
 
     @property({ type: String, reflect: false })
     public size: 'extra-small' | 'small' | 'medium' | 'large' | 'extra-large' = 'small'
@@ -95,8 +98,6 @@ export abstract class BaseButton extends composeMixin(
 
     @property({ type: String })
     public shape: 'round' | 'square' = 'round'
-
-    public abstract disabled: boolean
 
     @property({ type: Boolean, attribute: 'disable-morph' })
     public disableMorph: boolean = false
@@ -108,18 +109,13 @@ export abstract class BaseButton extends composeMixin(
 
     @query('.container')
     protected readonly buttonElement!: HTMLElement | null
-
     @query('.label')
     protected readonly labelElement!: HTMLElement | null
 
-    protected readonly widthController = new WidthTransitionController(this, () => this.labelElement);
+    protected readonly widthController = new MeasuredContentWidthController(this, { target: () => this.labelElement });
 
-    public override focus() {
-        this.buttonElement?.focus()
-    }
-    public override blur() {
-        this.buttonElement?.blur()
-    }
+    public override get focusRingControl(): HTMLElement | null {return this.buttonElement }
+    public override get rippleControl(): HTMLElement | null { return this.buttonElement }
 
     constructor() {
         super()
@@ -207,6 +203,13 @@ export abstract class BaseButton extends composeMixin(
         `
     }
 
+    public override focus() {
+        this.buttonElement?.focus()
+    }
+    public override blur() {
+        this.buttonElement?.blur()
+    }
+
     protected handleClick(e: MouseEvent) {
         if (this.disabled) {
             e.stopImmediatePropagation()
@@ -227,6 +230,5 @@ export abstract class BaseButton extends composeMixin(
     private handleLabelSlotChange(e: Event) {
         this.hasLabel = (e.target as HTMLSlotElement).assignedElements().length > 0
     }
-
 
 }

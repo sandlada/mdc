@@ -4,26 +4,26 @@
  * SPDX-License-Identifier: MIT
  */
 import { css, unsafeCSS } from 'lit'
-import { ElevatedButtonDefinition, FilledButtonDefinition, FilledTonalButtonDefinition, OutlinedButtonDefinition, TextButtonDefinition } from '../../component-definitions/button.definition'
-import type { ElevationDefinition } from '../../component-definitions/elevation.definition'
-import type { FocusRingDefinition } from '../../component-definitions/focus-ring.definition'
-import type { IconDefinition } from '../../component-definitions/icon.definition'
-import type { RippleDefinition } from '../../component-definitions/ripple.definition'
-import { createWrappedTokens, overrideComponentTokens, stringTokens } from '../../utils/tokens'
+import { ElevatedButtonDefinition, FilledButtonDefinition, FilledTonalButtonDefinition, OutlinedButtonDefinition, TextButtonDefinition } from '../../../component-definitions/button.definition'
+import type { ElevationDefinition } from '../../../component-definitions/elevation.definition'
+import type { FocusRingDefinition } from '../../../component-definitions/focus-ring.definition'
+import type { IconDefinition } from '../../../component-definitions/icon.definition'
+import type { RippleDefinition } from '../../../component-definitions/ripple.definition'
+import { createWrappedTokens, overrideComponentTokens, stringTokens } from '../../../utils/tokens'
 
-const elevatedTokens = createWrappedTokens('--mdc-elevated-button', ElevatedButtonDefinition)
+const elevatedTokens = createWrappedTokens('--mdc-button', ElevatedButtonDefinition)
 const elevatedTokenString = unsafeCSS(stringTokens(elevatedTokens))
 
-const filledTokens = createWrappedTokens('--mdc-filled-button', FilledButtonDefinition)
+const filledTokens = createWrappedTokens('--mdc-button', FilledButtonDefinition)
 const filledTokenString = unsafeCSS(stringTokens(filledTokens))
 
-const filledTonalTokens = createWrappedTokens('--mdc-filled-tonal-button', FilledTonalButtonDefinition)
+const filledTonalTokens = createWrappedTokens('--mdc-button', FilledTonalButtonDefinition)
 const filledTonalTokenString = unsafeCSS(stringTokens(filledTonalTokens))
 
-const outlinedTokens = createWrappedTokens('--mdc-outlined-button', OutlinedButtonDefinition)
+const outlinedTokens = createWrappedTokens('--mdc-button', OutlinedButtonDefinition)
 const outlinedTokenString = unsafeCSS(stringTokens(outlinedTokens))
 
-const textTokens = createWrappedTokens('--mdc-text-button', TextButtonDefinition)
+const textTokens = createWrappedTokens('--mdc-button', TextButtonDefinition)
 const textTokenString = unsafeCSS(stringTokens(textTokens))
 
 type TState = 'container-shape-round' | 'container-shape-square' | 'container-shape-round-toggle-selected' | 'container-shape-square-toggle-selected' | 'container-shape-pressed-morph'
@@ -95,9 +95,10 @@ const ripple = css`
 `
 const elevation = css`
     .container mdc-elevation {transition-duration: 0ms;${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { level: `var(--_container-elevation)`, 'shadow-color': `var(--_container-shadow-color)` }))};}
-    .container.disabled mdc-elevation {transition: none;${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { level: `var(--_disabled-container-elevation)` }))};}
+    .container:hover mdc-elevation {${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { level: `var(--_hovered-container-elevation)` }))};}
     .container:focus-within mdc-elevation {${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { level: `var(--_focused-container-elevation)` }))};}
     .container:active mdc-elevation {${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { level: `var(--_pressed-container-elevation)` }))};}
+    .container.disabled mdc-elevation {transition: none;${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { level: `var(--_disabled-container-elevation)` }))};}
 `
 const shared = css`
     :host {
@@ -263,50 +264,55 @@ const shared = css`
         overflow: hidden;
         color: var(--_label-color);
     }
-    .container.disabled .label,
-    .container.disabled.togglable:is(.selected, .unselected) .label {
-        color: var(--_disabled-label-color);
-        opacity: var(--_disabled-label-opacity);
-    }
-    .container:hover .label {
-        color: var(--_hovered-label-color);
-    }
-    .container:focus-within .label {
-        color: var(--_focused-label-color);
-    }
-    .container:active .label {
-        color: var(--_pressed-label-color);
-    }
-
     .container.togglable.selected .label {
         color: var(--_label-color-toggle-selected);
     }
-    .container.togglable.selected:hover .label {
-        color: var(--_hovered-label-color-toggle-selected);
-    }
-
-    .container.togglable.selected:focus-within .label {
-        color: var(--_focused-label-color-toggle-selected);
-    }
-
-    .container.togglable.selected:active .label {
-        color: var(--_pressed-label-color-toggle-selected);
-    }
-
     .container.togglable.unselected .label {
         color: var(--_label-color-toggle-unselected);
+    }
+
+    .container:hover .label {
+        color: var(--_hovered-label-color);
+    }
+    .container.togglable.selected:hover .label {
+        color: var(--_hovered-label-color-toggle-selected);
     }
     .container.togglable.unselected:hover .label {
         color: var(--_hovered-label-color-toggle-unselected);
     }
 
+    .container:focus-within .label {
+        color: var(--_focused-label-color);
+    }
+    .container.togglable.selected:focus-within .label {
+        color: var(--_focused-label-color-toggle-selected);
+    }
     .container.togglable.unselected:focus-within .label {
         color: var(--_focused-label-color-toggle-unselected);
     }
 
+    .container:active .label {
+        color: var(--_pressed-label-color);
+    }
+    .container.togglable.selected:active .label {
+        color: var(--_pressed-label-color-toggle-selected);
+    }
     .container.togglable.unselected:active .label {
         color: var(--_pressed-label-color-toggle-unselected);
     }
+
+    .container.disabled .label {
+        color: var(--_disabled-label-color);
+        opacity: var(--_disabled-label-opacity);
+    }
+    .container.disabled.togglable.selected .label {
+        color: var(--_disabled-label-color-toggle-selected);
+    }
+    .container.disabled.togglable.unselected .label {
+        color: var(--_disabled-label-color-toggle-unselected);
+    }
+
+    /* Background Color */
 
     .container .background {
         border-radius: inherit;
@@ -323,9 +329,46 @@ const shared = css`
     .container.togglable.unselected:not(.disabled) .background {
         background-color: var(--_container-color-toggle-unselected);
     }
+
+    .container:not(.disabled):hover .background {
+        background-color: var(--_hovered-container-color);
+    }
+    .container.togglable.selected:not(.disabled):hover .background {
+        background-color: var(--_hovered-container-color-toggle-selected);
+    }
+    .container.togglable.unselected:not(.disabled):hover .background {
+        background-color: var(--_hovered-container-color-toggle-unselected);
+    }
+
+    .container:not(.disabled):focus-within .background {
+        background-color: var(--_focused-container-color);
+    }
+    .container.togglable.selected:not(.disabled):focus-within .background {
+        background-color: var(--_focused-container-color-toggle-selected);
+    }
+    .container.togglable.unselected:not(.disabled):focus-within .background {
+        background-color: var(--_focused-container-color-toggle-unselected);
+    }
+
+    .container:not(.disabled):active .background {
+        background-color: var(--_pressed-container-color);
+    }
+    .container.togglable.selected:not(.disabled):active .background {
+        background-color: var(--_pressed-container-color-toggle-selected);
+    }
+    .container.togglable.unselected:not(.disabled):active .background {
+        background-color: var(--_pressed-container-color-toggle-unselected);
+    }
+
     .container.disabled .background {
         background-color: var(--_disabled-container-color);
         opacity: var(--_disabled-container-opacity);
+    }
+    .container.togglable.selected.disabled .background {
+        background-color: var(--_disabled-container-color-toggle-selected);
+    }
+    .container.togglable.unselected.disabled .background {
+        background-color: var(--_disabled-container-color-toggle-unselected);
     }
 
     :is(.container .label, .label *) {
@@ -371,48 +414,63 @@ const icon = css`
         writing-mode: horizontal-tb;
         fill: currentColor;
         flex-shrink: 0;
-        color: var(--_icon-color);
     }
 
     .container:not(.has-icon) .icon {
         display: none;
     }
 
-    .container:not(.disabled):hover :is(::slotted([slot="icon"]), .icon) {
-        color: var(--_hovered-icon-color);
+    .container:not(.disabled) :is(::slotted([slot="icon"]), .icon) {
+        color: var(--_icon-color);
     }
-    .container:not(.disabled):focus-within :is(::slotted([slot="icon"]), .icon) {
-        color: var(--_focused-icon-color);
-    }
-    .container:not(.disabled):active :is(::slotted([slot="icon"]), .icon) {
-        color: var(--_pressed-icon-color);
-    }
-    /* Selected */
     .container:not(.disabled).togglable.selected :is(::slotted([slot="icon"]), .icon) {
         color: var(--_icon-color-toggle-selected);
+    }
+    .container:not(.disabled).togglable.unselected :is(::slotted([slot="icon"]), .icon) {
+        color: var(--_icon-color-toggle-unselected);
+    }
+
+    .container:not(.disabled):hover :is(::slotted([slot="icon"]), .icon) {
+        color: var(--_hovered-icon-color);
     }
     .container:not(.disabled).togglable.selected:hover :is(::slotted([slot="icon"]), .icon) {
         color: var(--_hovered-icon-color-toggle-selected);
     }
-    .container:not(.disabled).togglable.selected:focus-within :is(::slotted([slot="icon"]), .icon) {
-        color: var(--_focused-icon-color-toggle-selected);
-    }
-    .container:not(.disabled).togglable.selected:active :is(::slotted([slot="icon"]), .icon) {
-        color: var(--_pressed-icon-color-toggle-selected);
-    }
-    /* Unselected */
-    .container:not(.disabled).togglable.unselected :is(::slotted([slot="icon"]), .icon) {
-        color: var(--_icon-color-toggle-unselected);
-    }
     .container:not(.disabled).togglable.unselected:hover :is(::slotted([slot="icon"]), .icon) {
         color: var(--_hovered-icon-color-toggle-unselected);
+    }
+
+    .container:not(.disabled):focus-within :is(::slotted([slot="icon"]), .icon) {
+        color: var(--_focused-icon-color);
+    }
+    .container:not(.disabled).togglable.selected:focus-within :is(::slotted([slot="icon"]), .icon) {
+        color: var(--_focused-icon-color-toggle-selected);
     }
     .container:not(.disabled).togglable.unselected:focus-within :is(::slotted([slot="icon"]), .icon) {
         color: var(--_focused-icon-color-toggle-unselected);
     }
+
+    .container:not(.disabled):active :is(::slotted([slot="icon"]), .icon) {
+        color: var(--_pressed-icon-color);
+    }
+    .container:not(.disabled).togglable.selected:active :is(::slotted([slot="icon"]), .icon) {
+        color: var(--_pressed-icon-color-toggle-selected);
+    }
     .container:not(.disabled).togglable.unselected:active :is(::slotted([slot="icon"]), .icon) {
         color: var(--_pressed-icon-color-toggle-unselected);
     }
+
+    .container.disabled :is(::slotted([slot="icon"]), .icon) {
+        color: var(--_disabled-icon-color);
+        opacity: var(--_disabled-icon-opacity);
+    }
+    .container.disabled.togglable.selected :is(::slotted([slot="icon"]), .icon) {
+        color: var(--_disabled-icon-color-toggle-selected);
+    }
+    .container.disabled.togglable.unselected :is(::slotted([slot="icon"]), .icon) {
+        color: var(--_disabled-icon-color-toggle-unselected);
+    }
+
     /* Icon Size */
     .container.extra-small :is(::slotted([slot="icon"]), .icon) {
         font-size: var(--_extra-small-icon-size);
@@ -439,11 +497,7 @@ const icon = css`
         inline-size: var(--_extra-large-icon-size);
         block-size: var(--_extra-large-icon-size);
     }
-    /* Disabled */
-    .container.disabled :is(::slotted([slot="icon"]), .icon) {
-        color: var(--_disabled-icon-color);
-        opacity: var(--_disabled-icon-opacity);
-    }
+
 `
 const outline = css`
     .container.extra-small .outline {

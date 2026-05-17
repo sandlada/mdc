@@ -6,7 +6,7 @@
 import { customElement, property } from 'lit/decorators.js'
 import { internals } from '../../utils/behaviors/element-internals'
 import { setupFormSubmitter, type FormSubmitter, type FormSubmitterType } from '../../utils/controller/form-submitter'
-import { BaseButton } from './base-button'
+import { BaseButton } from './internal/base-button'
 
 /**
  * The normal Button class does not implement the function of the anchor element.
@@ -37,6 +37,9 @@ export class MDCButton extends BaseButton implements FormSubmitter {
     static {
         setupFormSubmitter(MDCButton)
     }
+
+    @property({ type: String, reflect: false, })
+    public variant: 'filled' | 'filled-tonal' | 'elevated' | 'outlined' | 'text' = 'filled'
 
     public get name() {
         return this.getAttribute('name') ?? '';

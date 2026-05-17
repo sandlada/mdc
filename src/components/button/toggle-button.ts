@@ -3,19 +3,16 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { html, isServer, type PropertyValues } from "lit"
-import { customElement, property, query } from "lit/decorators.js"
+import { isServer, type PropertyValues } from "lit"
+import { customElement, property } from "lit/decorators.js"
 import { createValidator, getValidityAnchor, mixinConstraintValidation } from '../../utils/behaviors/constraint-validation'
 import { internals } from '../../utils/behaviors/element-internals'
 import { CheckboxValidator } from '../../utils/behaviors/validators/checkbox-validator'
 import { RadioValidator } from '../../utils/behaviors/validators/radio-validator'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import { SelectionController } from '../../utils/controller/selection-controller'
-import { redispatchEvent } from '../../utils/event/redispatch-event'
 import { getFormState, getFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
-import { BaseButton } from './base-button'
-
-const SChecked = Symbol('checked')
+import { BaseButton } from './internal/base-button'
 
 /**
  * `mdc-toggle-button variant="text"` is not supported by M3 Expressive.
@@ -30,7 +27,7 @@ const SChecked = Symbol('checked')
 @customElement('mdc-toggle-button')
 export class MDCTogglableButton extends composeMixin(
     mixinConstraintValidation,
-    mixinFormAssociated
+    mixinFormAssociated,
 )(BaseButton) {
 
     static override shadowRootOptions: ShadowRootInit = {
@@ -41,71 +38,58 @@ export class MDCTogglableButton extends composeMixin(
     declare disabled: boolean
     declare name: string
 
-    // @property({ type: String, reflect: true, })
-    public override variant: 'filled' | 'filled-tonal' | 'elevated' | 'outlined' = 'filled'
-
     @property({ type: String, reflect: true })
-    public value: string = 'on'
+    public type: 'radio' | 'checkbox' = 'checkbox'
 
-    @property({ type: Boolean, reflect: true, noAccessor: true })
-    public get checked() {
-        return this[SChecked]
-    }
-    public set checked(value: boolean) {
-        if(value === this[SChecked]) {
-            return
-        }
-        const oldValue = this[SChecked]
-        this[SChecked] = value
-        this.selectionController.handleCheckedChange()
-        this.requestUpdate('checked', oldValue)
-    }
+    @property({ type: String })
+    public value: 'on' | (string & {}) = 'on'
 
-    /**
-     * When true, require the toggle-button to be selected when participating in
-     * form submission.
-     *
-     * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/checkbox#validation
-     */
-    @property({type: Boolean })
+    @property({ type: Boolean, reflect: true })
     public required: boolean = false
 
-    @property({type: String, reflect: true })
-    public type: 'checkbox' | 'radio' = 'checkbox'
+    @property({ type: String, reflect: false })
+    public variant: 'filled' | 'filled-tonal' | 'elevated' | 'outlined' = 'filled'
 
-    /**
-     * We use the <input /> element as a replacement for the button element.
-     * The state is managed by the input element.
-     */
-    @query('#input-as-touch-target')
-    protected override readonly buttonElement!: HTMLInputElement | null
+    @property({ type: Boolean, reflect: true })
+    public checked = false
 
-    [SChecked]: boolean = false
-    private selectionController!: SelectionController
+    protected readonly selectionController: SelectionController
 
     constructor() {
         super()
-        if(isServer) {
+        // SelectionController calls host.addController() internally.
+        this.selectionController = new SelectionController(this, {
+            multiple: this.type === 'checkbox',
+            canCancel: this.type === 'checkbox',
+            preventSelectionDuringInitialFocus: this.type === 'checkbox',
+            preventSelectionDuringSwitching: this.type === 'checkbox',
+            getFocusableElement: (host) => host as HTMLElement,
+        })
+        if (isServer) {
             return
         }
-    }
-
-    override connectedCallback(): void {
-        super.connectedCallback()
-        if (!this.selectionController) {
-            this.selectionController = new SelectionController(this, { multiple: this.type === 'checkbox' })
-            this.addController(this.selectionController)
-        }
+        this.tabIndex = 0
+        this[internals].role = this.type
     }
 
     protected override willUpdate(changedProperties: PropertyValues<this>): void {
         super.willUpdate(changedProperties)
+
         if (changedProperties.has('type')) {
+            const isCheckbox = this.type === 'checkbox'
+            this.selectionController.configure({
+                multiple: isCheckbox,
+                canCancel: isCheckbox,
+                preventSelectionDuringInitialFocus: isCheckbox,
+                preventSelectionDuringSwitching: isCheckbox,
+            })
             this[internals].role = this.type
-            this.selectionController.multiple = this.type === 'checkbox'
         }
         if (changedProperties.has('checked')) {
             this[internals].ariaChecked = String(this.checked)
+        }
+        if (changedProperties.has('required')) {
+            this[internals].ariaRequired = String(this.required)
         }
     }
 
@@ -118,33 +102,9 @@ export class MDCTogglableButton extends composeMixin(
         })
     }
 
-    protected override renderTouchTarget() {
-        return html`
-            <input
-                type=${this.type}
-                role="button"
-                tabindex="-1"
-                id="input-as-touch-target"
-                class="toggle-input touch-target"
-                .checked=${this.checked}
-                ?disabled=${this.disabled}
-                ?required=${this.required}
-                aria-checked=${this.checked}
-                aria-disabled=${this.disabled}
-                aria-required=${this.required}
-                @input=${this.handleInput}
-                @change=${this.handleChange}
-            />
-        `
-    }
-
-    protected handleInput(_: InputEvent) {
-        this.checked = this.buttonElement!.checked
-    }
-
-    protected handleChange(e: Event) {
-        redispatchEvent(this, e)
-    }
+    // renderTouchTarget() uses base-button's default <span aria-hidden="true">
+    // implementation. An <input> inside a <button> is invalid HTML and is not
+    // needed because ElementInternals handles form association.
 
     override[getFormValue]() {
         return this.checked ? this.value : null
@@ -163,19 +123,20 @@ export class MDCTogglableButton extends composeMixin(
     }
 
     override[createValidator]() {
-        if(this.type === 'checkbox') {
+        // Guard: during the super-class constructor chain, `this.type` is
+        // undefined (class fields have not yet initialised). Using `!== 'radio'`
+        // ensures undefined falls through to CheckboxValidator, which matches
+        // the declared default type of 'checkbox'.
+        if (this.type !== 'radio') {
             return new CheckboxValidator(() => ({
-                checked: this.checked,
-                required: this.required,
+                checked: this.checked ?? false,
+                required: this.required ?? false,
             }))
         }
         return new RadioValidator(() => {
-            if (!this.selectionController) {
-                // Validation runs on superclass construction, so selection controller
-                // might not actually be ready until this class constructs.
-                return [this]
-            }
-            return this.selectionController.controls as [MDCTogglableButton, ...MDCTogglableButton[]]
+            // `selectionController` may also be undefined during early init
+            // if the validator is re-evaluated before the constructor completes.
+            return (this.selectionController?.controls ?? [this]) as [MDCTogglableButton, ...MDCTogglableButton[]]
         })
     }
 
