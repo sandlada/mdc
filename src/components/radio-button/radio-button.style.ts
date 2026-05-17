@@ -46,12 +46,16 @@ export const radioButtonStyle = css`
                 place-content: center;
                 place-items: center;
                 width: 100%;
+                position: relative;
+                z-index: 0;
             }
 
             .touch-target {
+                all: unset;
                 height: 48px;
                 position: absolute;
                 width: 48px;
+                z-index: 1;
             }
 
             .icon {
