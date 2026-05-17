@@ -10,6 +10,7 @@
 
 import { Easing } from '@sandlada/mdk'
 import { isServer, ReactiveElement } from 'lit'
+import type { IRipple } from './ripple.interface'
 
 const RippleState = {
     /**
@@ -71,19 +72,6 @@ const Events = [
     'focus',
     'blur',
 ]
-
-export interface IRipple extends ReactiveElement {
-    hovered: boolean
-    focused: boolean
-    pressed: boolean
-    disabled: boolean
-    disableHoverStateLayer: boolean
-    disableFocusStateLayer: boolean
-    disablePressStateLayer: boolean
-    hoverStateLayerElement: HTMLElement
-    focusStateLayerElement: HTMLElement
-    pressStateLayerElement: HTMLElement
-}
 
 /**
  * Used to manage the `hovered`, `focused` and `pressed` states of ripple components.
@@ -233,7 +221,7 @@ export class RippleAction {
             },
             {
                 duration: RippleConfiguration.pressGrowMs,
-                easing: Easing.Standard,
+                easing: Easing.Standard.toCSSValue(),
                 fill: RippleConfiguration.animationFill,
             },
         )

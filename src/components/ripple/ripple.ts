@@ -3,11 +3,14 @@
  * Copyright 2025 Sandlada & Kai Orion
  * SPDX-License-Identifier: MIT
  */
-import { html, LitElement } from 'lit'
+import { html, LitElement, type PropertyValues } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
-import { AttachableController, type IAttachable } from '../../utils/controller/attachable-controller'
-import { RippleAction, type IRipple } from './ripple-action'
+import { ContextConsumer } from '@lit/context'
+import { GlobalMDCContext, type GlobalMDCContextRippleConfig } from '../../context-provider'
+import { AttachableController } from '../../utils/controller/attachable-controller'
+import { RippleAction } from './ripple-action'
 import { styles } from './ripple.style'
+import type { IRipple } from './ripple.interface'
 
 declare global {
     interface HTMLElementTagNameMap {
@@ -28,9 +31,23 @@ declare global {
  * Material Design 3
  */
 @customElement('mdc-ripple')
-export class MDCRipple extends LitElement implements IAttachable, IRipple {
+export class MDCRipple extends LitElement implements IRipple {
 
     static override styles = styles
+
+    private _ignoreGlobalConfig: boolean = false
+    private _hasLocalConfig: boolean = false
+    private _disabled: boolean = false
+    private _disableHoverStateLayer: boolean = false
+    private _disableFocusStateLayer: boolean = false
+    private _disablePressStateLayer: boolean = false
+    private _configAttributeSyncSource: 'property' | 'effective' | null = null
+    private _lastEffectiveDisabled: boolean = false
+
+    private readonly globalMDCContextConsumer = new ContextConsumer(this, {
+        context: GlobalMDCContext,
+        subscribe: true,
+    })
 
     @query('.ripple')
     protected readonly rippleElement!: HTMLElement | null
@@ -41,20 +58,157 @@ export class MDCRipple extends LitElement implements IAttachable, IRipple {
     @query('.press-state-layer')
     protected readonly _pressStateLayerElement!: HTMLElement
 
-    @property({ type: Boolean, attribute: 'disable-hover-state-layer', reflect: true, })
-    public disableHoverStateLayer: boolean = false
+    @property({ type: Boolean, attribute: 'ignore-global-config', reflect: true, noAccessor: true })
+    public get ignoreGlobalConfig() {
+        return this._ignoreGlobalConfig
+    }
+    public set ignoreGlobalConfig(value: boolean) {
+        const oldValue = this._ignoreGlobalConfig
 
-    @property({ type: Boolean, attribute: 'disable-focus-state-layer', reflect: true, })
-    public disableFocusStateLayer: boolean = false
+        if (oldValue === value) return
 
-    @property({ type: Boolean, attribute: 'disable-press-state-layer', reflect: true, })
-    public disablePressStateLayer: boolean = false
+        this._ignoreGlobalConfig = value
 
-    @property({ type: Boolean, reflect: true})
-    public disabled: boolean = false
+        this._configAttributeSyncSource = 'property'
+        this.toggleAttribute('ignore-global-config', value)
+        this._configAttributeSyncSource = null
+
+        this.requestUpdate('ignoreGlobalConfig', oldValue)
+    }
+
+    @property({ type: Boolean, attribute: 'disable-hover-state-layer', reflect: true, noAccessor: true })
+    public get disableHoverStateLayer() {
+        return this.effectiveDisableHoverStateLayer
+    }
+    public set disableHoverStateLayer(value: boolean) {
+        if (this._configAttributeSyncSource) {
+            return
+        }
+
+        const oldValue = this._disableHoverStateLayer
+
+        this._disableHoverStateLayer = value
+        this._hasLocalConfig = true
+
+        this._configAttributeSyncSource = 'property'
+        this.toggleAttribute('disable-hover-state-layer', value)
+        this._configAttributeSyncSource = null
+
+        this.requestUpdate('disableHoverStateLayer', oldValue)
+    }
+
+    @property({ type: Boolean, attribute: 'disable-focus-state-layer', reflect: true, noAccessor: true })
+    public get disableFocusStateLayer() {
+        return this.effectiveDisableFocusStateLayer
+    }
+    public set disableFocusStateLayer(value: boolean) {
+        if (this._configAttributeSyncSource) {
+            return
+        }
+
+        const oldValue = this._disableFocusStateLayer
+
+        this._disableFocusStateLayer = value
+        this._hasLocalConfig = true
+
+        this._configAttributeSyncSource = 'property'
+        this.toggleAttribute('disable-focus-state-layer', value)
+        this._configAttributeSyncSource = null
+
+        this.requestUpdate('disableFocusStateLayer', oldValue)
+    }
+
+    @property({ type: Boolean, attribute: 'disable-press-state-layer', reflect: true, noAccessor: true })
+    public get disablePressStateLayer() {
+        return this.effectiveDisablePressStateLayer
+    }
+    public set disablePressStateLayer(value: boolean) {
+        if (this._configAttributeSyncSource) {
+            return
+        }
+
+        const oldValue = this._disablePressStateLayer
+
+        this._disablePressStateLayer = value
+        this._hasLocalConfig = true
+
+        this._configAttributeSyncSource = 'property'
+        this.toggleAttribute('disable-press-state-layer', value)
+        this._configAttributeSyncSource = null
+
+        this.requestUpdate('disablePressStateLayer', oldValue)
+    }
+
+    @property({ type: Boolean, attribute: 'disabled', reflect: true, noAccessor: true })
+    public get disabled() {
+        return this.effectiveDisabled
+    }
+    public set disabled(value: boolean) {
+        const oldValue = this._disabled
+
+        if (this._configAttributeSyncSource) {
+            return
+        }
+
+        this._disabled = value
+        this._hasLocalConfig = true
+
+        this._configAttributeSyncSource = 'property'
+        this.toggleAttribute('disabled', value)
+        this._configAttributeSyncSource = null
+
+        this.requestUpdate('disabled', oldValue)
+    }
 
     public readonly action = new RippleAction(this)
     private readonly attachableController = new AttachableController(this, this.action.onControlChange.bind(this.action))
+
+    private get useLocalConfig(): boolean {
+        return this._ignoreGlobalConfig || this._hasLocalConfig
+    }
+
+    private get globalRippleConfig(): GlobalMDCContextRippleConfig {
+        const context = this.globalMDCContextConsumer.value
+        const ripple = context?.ripple
+
+        return {
+            disabled: ripple?.disabled ?? !(context?.enableRipple ?? true),
+            disableHoverStateLayer: ripple?.disableHoverStateLayer ?? false,
+            disableFocusStateLayer: ripple?.disableFocusStateLayer ?? false,
+            disablePressStateLayer: ripple?.disablePressStateLayer ?? false,
+        }
+    }
+
+    private get effectiveDisabled(): boolean {
+        return this.useLocalConfig ? this._disabled : this.globalRippleConfig.disabled
+    }
+
+    private get effectiveDisableHoverStateLayer(): boolean {
+        return this.useLocalConfig ? this._disableHoverStateLayer : this.globalRippleConfig.disableHoverStateLayer
+    }
+
+    private get effectiveDisableFocusStateLayer(): boolean {
+        return this.useLocalConfig ? this._disableFocusStateLayer : this.globalRippleConfig.disableFocusStateLayer
+    }
+
+    private get effectiveDisablePressStateLayer(): boolean {
+        return this.useLocalConfig ? this._disablePressStateLayer : this.globalRippleConfig.disablePressStateLayer
+    }
+
+    private syncConfigAttributes() {
+        const syncBooleanAttribute = (attributeName: string, value: boolean) => {
+            if (this.hasAttribute(attributeName) === value) return
+
+            this._configAttributeSyncSource = 'effective'
+            this.toggleAttribute(attributeName, value)
+            this._configAttributeSyncSource = null
+        }
+
+        syncBooleanAttribute('disabled', this.effectiveDisabled)
+        syncBooleanAttribute('disable-hover-state-layer', this.effectiveDisableHoverStateLayer)
+        syncBooleanAttribute('disable-focus-state-layer', this.effectiveDisableFocusStateLayer)
+        syncBooleanAttribute('disable-press-state-layer', this.effectiveDisablePressStateLayer)
+    }
 
     protected override render() {
         return html`
@@ -114,5 +268,21 @@ export class MDCRipple extends LitElement implements IAttachable, IRipple {
     }
     public detach() {
         this.attachableController.detach()
+    }
+
+    protected override updated(_changedProperties: PropertyValues<this>): void {
+        super.updated(_changedProperties)
+        this.syncConfigAttributes()
+
+        const effectiveDisabled = this.effectiveDisabled
+        if (effectiveDisabled !== this._lastEffectiveDisabled) {
+            if (effectiveDisabled) {
+                this.hovered = false
+                this.focused = false
+                this.pressed = false
+            }
+
+            this._lastEffectiveDisabled = effectiveDisabled
+        }
     }
 }

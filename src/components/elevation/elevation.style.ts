@@ -26,6 +26,11 @@ export const styles = css`
                 pointer-events: none;
             }
 
+            :host([disabled]),
+            :host(.hidden) {
+                display: none;
+            }
+
             :host,
             .elevation,
             .elevation::before,
@@ -37,8 +42,8 @@ export const styles = css`
                 transition-timing-function: inherit;
             }
 
-            :host(:not(.hidden)) .elevation::before,
-            :host(:not(.hidden)) .elevation::after {
+            :host(:not(.hidden):not([disabled])) .elevation::before,
+            :host(:not(.hidden):not([disabled])) .elevation::after {
                 content: '';
                 transition-property: box-shadow, opacity;
             }

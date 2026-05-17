@@ -37,13 +37,18 @@ export const FocusRingStyle = css`
             box-sizing: border-box;
             color: var(--_color);
             display: none;
+            pointer-events: none;
             position: absolute;
         }
         :host([focused]) {
             display: flex;
         }
 
-        :host([disable-animation]) {
+        :host([disabled]) {
+            display: none;
+        }
+
+        :host([animation-disabled]) {
             animation: none;
             transition: none;
         }
@@ -121,9 +126,10 @@ export const FocusRingStyle = css`
             }
         }
 
-        @media (prefers-reduced-motion) {
+        @media (prefers-reduced-motion: reduce) {
             :host {
                 animation: none;
+                transition: none;
             }
         }
 
