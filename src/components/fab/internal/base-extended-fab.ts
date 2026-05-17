@@ -3,11 +3,13 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { html } from 'lit'
+import { html, isServer, nothing } from 'lit'
 import { property, query, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
-import { WidthTransitionController } from '../../../utils/controller/width-transition-controller'
+import '../../icon/icon'
+import { MeasuredContentWidthController } from '../../../utils/controller/measured-content-width-controller'
 import { BaseFab } from './base-fab'
+import type { AriaMixinStrict } from '../../../utils/aria/aria'
 
 /**
  * Extended Fab components provide an icon and an label (optional).
@@ -23,16 +25,20 @@ export abstract class BaseExtendedFab extends BaseFab {
     @query('.label')
     private readonly labelElement!: HTMLElement | null
 
-    @property({ type: Boolean })
+    @property({ type: Boolean, reflect:true })
     public extended: boolean = false
+
+    @property({ type: Boolean, reflect:true, attribute: 'trailing-icon' })
+    public trailingIcon: boolean = false
 
     @state()
     private hasLabel: boolean = false
 
-    private readonly widthTransitionController = new WidthTransitionController(this, () => this.labelElement)
+    private readonly widthTransitionController = new MeasuredContentWidthController(this, { target: () => this.labelElement })
 
     public constructor() {
         super()
+        if(isServer) return
         this.addController(this.widthTransitionController)
     }
 
@@ -43,8 +49,9 @@ export abstract class BaseExtendedFab extends BaseFab {
                 ${this.renderFocusRing()}
                 ${this.renderElevation()}
 
-                ${this.renderIcon()}
+                ${!this.trailingIcon ? this.renderIcon() : nothing}
                 ${this.renderLabel()}
+                ${this.trailingIcon ? this.renderIcon() : nothing}
             </button>
         `
     }

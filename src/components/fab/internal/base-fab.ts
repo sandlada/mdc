@@ -7,6 +7,7 @@ import { Duration, Easing } from '@sandlada/mdk'
 import { html, isServer, LitElement } from 'lit'
 import { property, query, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
+import type { AriaMixinStrict } from '../../../utils/aria/aria'
 import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import { mixinElementInternals } from '../../../utils/behaviors/element-internals'
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
@@ -51,11 +52,12 @@ export abstract class BaseFab extends composeMixin(
     @query('button')
     protected buttonElement!: HTMLElement | null
 
-    protected isOpen = false
-    protected isOpening = false
-    protected currentAnimationPromise: Promise<void> | null = null
+    public override get focusRingControl() { return this.buttonElement }
 
-    @property({ type: Boolean, noAccessor: true })
+    protected isOpen = false
+    private generation = 0
+
+    @property({ type: Boolean, noAccessor: true, attribute: 'open' })
     public get open(): boolean {
         return this.isOpen
     }
@@ -111,9 +113,10 @@ export abstract class BaseFab extends composeMixin(
     }
 
     protected renderIcon() {
+        const { ariaLabel } = this as AriaMixinStrict
         return html`
-            <span class="icon">
-                <slot name="icon" .aria-hidden=${this.ariaLabel} @slotchange=${this.handleIconSlotChange}></slot>
+            <span class="icon" aria-hidden=${ariaLabel ? 'false' : 'true'}>
+                <slot name="icon" @slotchange=${this.handleIconSlotChange}></slot>
             </span>
         `
     }
@@ -137,82 +140,90 @@ export abstract class BaseFab extends composeMixin(
 
         const animation = this.buttonElement.animate(keyframes, options)
         this.animationAbort.signal.addEventListener('abort', () => {
-            animation.finish()
+            if (animation.playState !== 'finished') {
+                animation.finish()
+            }
         })
         await animation.finished.catch(() => { })
     }
 
     public async show() {
-        this.isOpening = true
+        const gen = ++this.generation
         await this.isConnectedPromise
         await this.updateComplete
 
-        if (!this.buttonElement || !this.isOpening) {
-            this.isOpening = false
-            return
-        }
+        if (gen !== this.generation) return
 
-        const preventOpen = !this.dispatchEvent(
-            new Event('open', { cancelable: true }),
-        )
+        const preventOpen = !this.dispatchEvent(new Event('open', { cancelable: true }))
         if (preventOpen) {
-            this.open = false
-            this.isOpening = false
+            this.isOpen = false
             return
         }
 
+        // Pre-initialize button state to prevent first-load background flash
+        if (this.buttonElement) {
+            this.buttonElement.style.setProperty('scale', '0')
+            this.buttonElement.style.setProperty('opacity', '0')
+        }
         this.setAttribute('show', '')
-        this.open = true
+
         await this.animateButton(
-            [
-                { 'scale': '0', 'opacity': '0' },
-                { 'scale': '1', 'opacity': '1' },
-            ],
+            [{ scale: '0', opacity: '0' }, { scale: '1', opacity: '1' }],
             {
-                duration: Duration.Number.ExpressiveFastSpatial,
-                easing: Easing.ExpressiveFastSpatial
+                duration: Duration.ExpressiveFastSpatial.value,
+                easing: Easing.ExpressiveFastSpatial.toCSSValue(),
             },
         )
+
+        if (gen !== this.generation) return
+
+        // Remove pre-initialization inline styles
+        if (this.buttonElement) {
+            this.buttonElement.style.removeProperty('scale')
+            this.buttonElement.style.removeProperty('opacity')
+        }
+        this.isOpen = true
         this.dispatchEvent(new Event('opened'))
-        this.isOpening = false
     }
 
     public async close() {
-        this.isOpening = false
+        const gen = ++this.generation
+
         if (!this.isConnected) {
-            this.open = false
+            this.isOpen = false
             return
         }
 
         await this.updateComplete
-        if (!this.buttonElement || this.isOpening) {
-            this.open = false
+
+        if (gen !== this.generation) return
+
+        const preventClose = !this.dispatchEvent(new Event('close', { cancelable: true }))
+        if (preventClose) {
+            this.isOpen = true
             return
         }
 
-        const preventClose = !this.dispatchEvent(
-            new Event('close', { cancelable: true }),
-        )
-        if (preventClose) {
-            return
+        // Clear any pre-initialization inline styles left by show()
+        if (this.buttonElement) {
+            this.buttonElement.style.removeProperty('scale')
+            this.buttonElement.style.removeProperty('opacity')
         }
 
         await this.animateButton(
-            [
-                { 'scale': '1', 'opacity': '1' },
-                { 'scale': '0', 'opacity': '0' },
-            ],
+            [{ scale: '1', opacity: '1' }, { scale: '0', opacity: '0' }],
             {
-                duration: Duration.Number.ExpressiveFastEffects,
-                easing: Easing.ExpressiveFastEffects
-            }
+                duration: Duration.ExpressiveFastEffects.value,
+                easing: Easing.ExpressiveFastEffects.toCSSValue(),
+            },
         )
 
-        this.open = false
-        this.dispatchEvent(new Event('closed'))
+        if (gen !== this.generation) return
+
+        this.isOpen = false
         this.removeAttribute('show')
         await this.updateComplete
-
+        this.dispatchEvent(new Event('closed'))
     }
 
     private isConnectedPromiseResolve!: () => void
@@ -230,6 +241,7 @@ export abstract class BaseFab extends composeMixin(
 
     public override disconnectedCallback() {
         super.disconnectedCallback()
+        ++this.generation  // Invalidate any in-flight show/close operations
         this.isConnectedPromise = this.getIsConnectedPromise()
     }
 
