@@ -21,9 +21,6 @@ export interface GlobalMDCContextElevationConfig {
 }
 
 export interface GlobalMDCContextConfig {
-    enableRipple    : boolean
-    enableFocusRing : boolean
-    enableElevation : boolean
     ripple          : Partial<GlobalMDCContextRippleConfig>
     focusRing       : Partial<GlobalMDCContextFocusRingConfig>
     elevation       : Partial<GlobalMDCContextElevationConfig>
@@ -44,9 +41,6 @@ class _GlobalMDCContextProvider {
 
     private provider: ContextProvider<typeof GlobalMDCContext> | null = null
     private currentConfig: GlobalMDCContextConfig = {
-        enableRipple: true,
-        enableFocusRing: true,
-        enableElevation: true,
         ripple: {},
         focusRing: {},
         elevation: {},
