@@ -3,7 +3,7 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { LitElement } from 'lit'
+import { isServer, LitElement } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { DividerStyles } from './divider.style'
 
@@ -26,5 +26,12 @@ export class Divider extends LitElement {
 
     @property({ type: Boolean, reflect: true, attribute: 'inset-end' })
     public insetEnd = false
+
+    public constructor() {
+        super()
+        if(isServer) return
+        this.role = 'separator'
+        this.ariaHidden = 'true'
+    }
 
 }
