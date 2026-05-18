@@ -3,7 +3,7 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { html, LitElement, type PropertyValues } from 'lit'
+import { html, LitElement } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { typographyStyles } from './internal/typography.styles'
 
@@ -53,8 +53,8 @@ export interface IMDCTypographyAttributes {
  * In the M3 Expressive update, a new emphasized option was added.
  * Enabling emphasized will make the font bold.
  *
- * @version
- * Material Design 3 - Expressive
+ * @version "Material Design 3"
+ * @version "Material Design 3 - Expressive"
  *
  * @link
  * https://m3.material.io/styles/typography/overview
@@ -76,30 +76,4 @@ export class MDCTypography extends LitElement implements IMDCTypographyAttribute
         `
     }
 
-    protected override updated(changedProperties: PropertyValues) {
-        super.updated(changedProperties);
-
-        if (changedProperties.has('variant')) {
-            this.updateSemantics();
-        }
-    }
-
-    private updateSemantics() {
-        this.removeAttribute('role')
-        this.removeAttribute('aria-level')
-
-        if (this.variant.startsWith('display') || this.variant.startsWith('headline')) {
-            this.setAttribute('role', 'heading')
-
-            let level = '2'
-            if (this.variant === 'display-large') level = '1'
-            else if (this.variant === 'display-medium') level = '1'
-            else if (this.variant === 'display-small') level = '2'
-            else if (this.variant === 'headline-large') level = '2'
-            else if (this.variant === 'headline-medium') level = '3'
-            else if (this.variant === 'headline-small') level = '4'
-
-            this.setAttribute('aria-level', level)
-        }
-    }
 }
