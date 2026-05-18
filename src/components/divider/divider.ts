@@ -16,6 +16,8 @@ declare global {
 @customElement('mdc-divider')
 export class Divider extends LitElement {
 
+    static override shadowRootOptions: ShadowRootInit = { mode: 'open', delegatesFocus: false }
+
     static override styles = DividerStyles
 
     @property({ type: Boolean, reflect: true })
@@ -30,8 +32,10 @@ export class Divider extends LitElement {
     public constructor() {
         super()
         if(isServer) return
-        this.role = 'separator'
-        this.ariaHidden = 'true'
+        if (!this.getAttribute('role')) this.setAttribute('role', 'separator')
+        if (!this.getAttribute('aria-orientation')) this.setAttribute('aria-orientation', 'horizontal')
+        if (!this.getAttribute('aria-hidden')) this.setAttribute('aria-hidden', 'true')
+        if (!this.getAttribute('aria-label')) this.setAttribute('aria-label', 'Divider')
     }
 
 }
