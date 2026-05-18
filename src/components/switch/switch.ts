@@ -116,10 +116,6 @@ export class MDCSwitch extends composeMixin(
         this.addEventListener('keydown', this.handleVisualKeyDown.bind(this))
         this.addEventListener('pointerenter', this.handlePointerEnter.bind(this))
         this.addEventListener('pointerleave', this.handlePointerLeave.bind(this))
-        // Use local config so the switch's ripple and focus-ring are never
-        // silently disabled by a global context that disables state layers.
-        this.focusRingDisabled = false
-        this.disableRippleHoverStateLayer = false
     }
 
     protected override render(): unknown {
@@ -259,9 +255,15 @@ export class MDCSwitch extends composeMixin(
         this.setAttribute('aria-checked', String(this.selected))
         this.setAttribute('aria-disabled', String(this.disabled))
         this.setAttribute('aria-required', String(this.required))
-        // Keep the ripple's disabled state in sync with the switch's disabled state.
-        if (this.rippleElement) {
-            this.rippleElement.disabled = this.disabled
+
+        if (this.disabled) {
+            this.clearKeyboardVisuals()
+
+            if (this.rippleElement) {
+                this.rippleElement.hovered = false
+                this.rippleElement.focused = false
+                this.rippleElement.pressed = false
+            }
         }
     }
 
