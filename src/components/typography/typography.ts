@@ -5,7 +5,8 @@
  */
 import { html, LitElement } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { typographyStyles } from './internal/typography.styles'
+import { typographyStyles } from './typography.styles'
+import type { ITypography, TypographyVariant } from './typography.interface'
 
 declare global {
     interface HTMLElementTagNameMap {
@@ -13,27 +14,7 @@ declare global {
     }
 }
 
-type TypographyVariant =
-    'display-large'    |
-    'display-medium'   |
-    'display-small'    |
-    'headline-large'   |
-    'headline-medium'  |
-    'headline-small'   |
-    'title-large'      |
-    'title-medium'     |
-    'title-small'      |
-    'body-large'       |
-    'body-medium'      |
-    'body-small'       |
-    'label-large'      |
-    'label-medium'     |
-    'label-small'
 
-export interface IMDCTypographyAttributes {
-    emphasized: boolean
-    variant   : TypographyVariant
-}
 
 /**
  * Used to display text.
@@ -60,7 +41,7 @@ export interface IMDCTypographyAttributes {
  * https://m3.material.io/styles/typography/overview
  */
 @customElement('mdc-typography')
-export class MDCTypography extends LitElement implements IMDCTypographyAttributes {
+export class MDCTypography extends LitElement implements ITypography {
 
     static override styles = typographyStyles
 

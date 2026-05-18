@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: MIT
  */
 import { css } from 'lit'
-import { TypographyDefinition } from '../../../component-definitions/typography.definition'
-import { createWrappedTokens } from '../../../utils/tokens'
+import { TypographyDefinition } from '../../component-definitions/typography.definition'
+import { createWrappedTokens } from '../../utils/tokens'
 
 const tokens = createWrappedTokens('--mdc-typegraphy', TypographyDefinition)
 
