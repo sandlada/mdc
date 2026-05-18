@@ -45,10 +45,14 @@ export const searchBarStyle = css`
     .icon {
         fill: currentColor;
     }
-    .leading-icon {
+    .leading-icon,
+    ::slotted([slot='leading-icon']) {
+        fill: currentColor;
         color: var(--_leading-icon-color);
     }
-    .trailing-icon {
+    .trailing-icon,
+    ::slotted([slot='trailing-icon']) {
+        fill: currentColor;
         color: var(--_trailing-icon-color);
     }
     .search:not(.has-avatar) .avatar {
@@ -68,6 +72,9 @@ export const searchBarStyle = css`
         display: none;
     }
     .search.hide-avatar .avatar {
+        display: none;
+    }
+    .search.hide-avatar slot[name='avatar']::slotted(*) {
         display: none;
     }
     .search:not(.hide-avatar) .trailing-icon {
