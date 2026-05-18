@@ -17,15 +17,15 @@ export interface IMixinFocusRingAttributes {
     focusRingFocused          : boolean
 }
 
-export interface IMixinFocusRing extends IMixinFocusRingAttributes {
+export interface IMixinFocusRingOption extends IMixinFocusRingAttributes {
     focusRingControl : HTMLElement | null
     focusRingHtmlFor : string | null
     focusRingElement : MDCFocusRing | null
     renderFocusRing(): TemplateResult
 }
 
-export function mixinFocusRingOptions<T extends MixinBase<LitElement>>(base: T): MixinReturn<T, IMixinFocusRing> {
-    abstract class WithFocusRing extends base implements IMixinFocusRing {
+export function mixinFocusRingOptions<T extends MixinBase<LitElement>>(base: T): MixinReturn<T, IMixinFocusRingOption> {
+    abstract class WithFocusRing extends base implements IMixinFocusRingOption {
 
         declare disabled?: boolean
 

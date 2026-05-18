@@ -3,26 +3,65 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { html, isServer, LitElement, nothing } from 'lit'
+import { html, isServer, LitElement, nothing, type PropertyValues } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
-import { mixinDelegatesAria } from '../../utils/aria/delegate'
 import { createValidator, getValidityAnchor, mixinConstraintValidation } from '../../utils/behaviors/constraint-validation'
 import { mixinElementInternals } from '../../utils/behaviors/element-internals'
 import { CheckboxValidator } from '../../utils/behaviors/validators/checkbox-validator'
+import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import { dispatchActivationClick, isActivationClick } from '../../utils/event/form-label-activation'
 import { redispatchEvent } from '../../utils/event/redispatch-event'
 import { getFormState, getFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
 import { SwitchStyles } from './switch.style'
+import { mixinRippleOptions } from '../ripple/mixin-ripple-options'
+import { mixinFocusRingOptions } from '../focus-ring/mixin-focus-ring-options'
+import type { ISwitch } from './switch.interface'
 
 declare global {
     interface HTMLElementTagNameMap {
-        "mdc-switch": Switch
+        "mdc-switch": MDCSwitch
     }
 }
 
+const KEYBOARD_VISUAL_KEYS = new Set(['Tab', ' ', 'Enter'])
+const KEYBOARD_PRESS_KEYS = new Set([' ', 'Enter'])
+const POINTER_MODALITY_EVENTS = ['pointerdown', 'mousedown', 'touchstart'] as const
+
+let keyboardInteractionMode = false
+let keyboardModalityTrackingInstalled = false
+
+function installKeyboardModalityTracking() {
+    if (isServer || keyboardModalityTrackingInstalled) return
+    keyboardModalityTrackingInstalled = true
+    document.addEventListener('keydown', (e) => {
+        if (e.altKey || e.ctrlKey || e.metaKey) return
+        keyboardInteractionMode = true
+    }, true)
+    for (const eventName of POINTER_MODALITY_EVENTS) {
+        document.addEventListener(eventName, () => {
+            keyboardInteractionMode = false
+        }, true)
+    }
+}
+
+/**
+ *
+ *
+ *
+ * @version "Material Design 3"
+ *
+ * @link
+ * https://m3.material.io/components/switch/overview
+ */
 @customElement('mdc-switch')
-export class Switch extends mixinDelegatesAria(mixinConstraintValidation(mixinFormAssociated(mixinElementInternals(LitElement)))) {
+export class MDCSwitch extends composeMixin(
+    mixinConstraintValidation,
+    mixinFormAssociated,
+    mixinElementInternals,
+    mixinRippleOptions,
+    mixinFocusRingOptions
+)(LitElement) implements ISwitch {
 
     static override styles = SwitchStyles
 
@@ -34,10 +73,10 @@ export class Switch extends mixinDelegatesAria(mixinConstraintValidation(mixinFo
     declare disabled: boolean
     declare name: string
 
-    @property({ type: Boolean })
+    @property({ type: Boolean, reflect: true })
     public selected: boolean = false
 
-    @property({ type: Boolean })
+    @property({ type: Boolean, reflect: true })
     public required: boolean = false
 
     @property({ type: String })
@@ -52,6 +91,10 @@ export class Switch extends mixinDelegatesAria(mixinConstraintValidation(mixinFo
     @query('#input')
     private readonly inputElement!: HTMLInputElement
 
+    public override get focusRingControl(): HTMLElement | null {
+        return this.inputElement ?? null
+    }
+
     override focus() {
         this.inputElement?.focus()
     }
@@ -64,7 +107,19 @@ export class Switch extends mixinDelegatesAria(mixinConstraintValidation(mixinFo
         if (isServer) {
             return
         }
+        this.setAttribute('role', 'switch')
+
         this.addEventListener('click', this.handleClick.bind(this))
+        installKeyboardModalityTracking()
+        this.addEventListener('focusin', this.handleFocusIn.bind(this))
+        this.addEventListener('focusout', this.handleFocusOut.bind(this))
+        this.addEventListener('keydown', this.handleVisualKeyDown.bind(this))
+        this.addEventListener('pointerenter', this.handlePointerEnter.bind(this))
+        this.addEventListener('pointerleave', this.handlePointerLeave.bind(this))
+        // Use local config so the switch's ripple and focus-ring are never
+        // silently disabled by a global context that disables state layers.
+        this.focusRingDisabled = false
+        this.disableRippleHoverStateLayer = false
     }
 
     protected override render(): unknown {
@@ -82,7 +137,7 @@ export class Switch extends mixinDelegatesAria(mixinConstraintValidation(mixinFo
                 <span class="outline" aria-hidden="true"></span>
 
                 <span class="handle-container">
-                    <mdc-ripple for="input" ?disabled="${this.disabled}"></mdc-ripple>
+                    ${this.renderRipple()}
                     <span class="handle">
                         ${this.hideSelectedIcon ? nothing : this.renderSelectedIcon()}
                         ${this.showUnselectedIcon ? this.renderUnselectedIcon() : nothing}
@@ -91,7 +146,7 @@ export class Switch extends mixinDelegatesAria(mixinConstraintValidation(mixinFo
 
                 <span class="track" aria-hidden="true"></span>
 
-                <mdc-focus-ring for="input" part="focus-ring"></mdc-focus-ring>
+                ${this.renderFocusRing()}
             </div>
         `
     }
@@ -103,12 +158,10 @@ export class Switch extends mixinDelegatesAria(mixinConstraintValidation(mixinFo
                 class="touch input"
                 .checked=${this.selected}
                 type="checkbox"
-                role="switch"
                 .disabled=${this.disabled}
-                aria-disabled=${this.disabled}
                 .required=${this.required}
-                aria-required=${this.required}
                 tabindex="0"
+                aria-hidden="true"
                 @input=${this.handleInput}
                 @change=${this.handleChange}
             />
@@ -133,6 +186,83 @@ export class Switch extends mixinDelegatesAria(mixinConstraintValidation(mixinFo
                 </svg>
             </slot>
         `
+    }
+
+    private handlePointerEnter() {
+        if (this.disabled) return
+        const ripple = this.rippleElement
+        if (ripple) ripple.hovered = true
+    }
+
+    private handlePointerLeave() {
+        const ripple = this.rippleElement
+        if (ripple) ripple.hovered = false
+    }
+
+    private handleFocusIn() {
+        if (!this.shouldShowKeyboardVisuals()) return
+        this.queueKeyboardVisualSync(false)
+    }
+
+    private handleFocusOut() {
+        queueMicrotask(() => {
+            if (this.matches(':focus')) return
+            this.clearKeyboardVisuals()
+        })
+    }
+
+    private handleVisualKeyDown(event: KeyboardEvent) {
+        if (this.disabled || !KEYBOARD_VISUAL_KEYS.has(event.key)) return
+        keyboardInteractionMode = true
+        this.queueKeyboardVisualSync(KEYBOARD_PRESS_KEYS.has(event.key))
+    }
+
+    private shouldShowKeyboardVisuals() {
+        return keyboardInteractionMode || (this.inputElement?.matches(':focus-visible') ?? false)
+    }
+
+    private queueKeyboardVisualSync(pressRipple: boolean) {
+        queueMicrotask(() => {
+            if (!this.isConnected || this.disabled) return
+            if (!this.shouldShowKeyboardVisuals()) return
+
+            const ring = this.focusRingElement
+            if (ring && !ring.focused) {
+                ring.focused = true
+            }
+
+            const ripple = this.rippleElement
+            if (ripple && !ripple.focused) {
+                ripple.focused = true
+            }
+
+            if (pressRipple && ripple && !ripple.pressed) {
+                ripple.action.handleClick()
+            }
+        })
+    }
+
+    private clearKeyboardVisuals() {
+        const ring = this.focusRingElement
+        if (ring?.focused) {
+            ring.focused = false
+        }
+
+        const ripple = this.rippleElement
+        if (ripple?.focused) {
+            ripple.focused = false
+        }
+    }
+
+    protected override updated(changedProperties: PropertyValues): void {
+        super.updated(changedProperties)
+        this.setAttribute('aria-checked', String(this.selected))
+        this.setAttribute('aria-disabled', String(this.disabled))
+        this.setAttribute('aria-required', String(this.required))
+        // Keep the ripple's disabled state in sync with the switch's disabled state.
+        if (this.rippleElement) {
+            this.rippleElement.disabled = this.disabled
+        }
     }
 
     private handleInput(e: InputEvent) {
@@ -161,7 +291,7 @@ export class Switch extends mixinDelegatesAria(mixinConstraintValidation(mixinFo
     }
 
     override formResetCallback() {
-        this.selected = this.hasAttribute('selected')
+        this.selected = this.hasAttribute('default-selected')
     }
 
     override formStateRestoreCallback(state: string) {

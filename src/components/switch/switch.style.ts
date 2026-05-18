@@ -43,6 +43,10 @@ export const SwitchStyles = css`
     @layer mdc.switch.composite.ripple {
         mdc-ripple {
             inset: unset;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            margin: 0;
             height: var(--_state-layer-size);
             width: var(--_state-layer-size);
             border-end-end-radius: var(--_state-layer-shape-end-end);
@@ -150,12 +154,12 @@ export const SwitchStyles = css`
         }
 
         .disabled .icon.icon-selected {
-            color: var(--_icon-color-selected);
-            opacity: var(--_icon-opacity-selected);
+            color: var(--_disabled-icon-color-selected);
+            opacity: var(--_disabled-icon-opacity-selected);
         }
         .disabled .icon.icon-unselected {
-            color: var(--_icon-color-unselected);
-            opacity: var(--_icon-opacity-unselected);
+            color: var(--_disabled-icon-color-unselected);
+            opacity: var(--_disabled-icon-opacity-unselected);
         }
 
         .switch:not(.disabled) .icon.icon-selected {
