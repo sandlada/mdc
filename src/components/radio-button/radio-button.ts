@@ -81,7 +81,7 @@ export class RadioButton extends composeMixin(
     declare disabled: boolean
     declare name: string
 
-    public type: 'checkbox' | 'radio' = 'radio'
+    public readonly type: 'checkbox' | 'radio' = 'radio'
 
     @property({ type: String })
     public value: 'on' | (string & {}) = 'on'
