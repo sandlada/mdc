@@ -9,19 +9,12 @@ import { styleMap } from 'lit/directives/style-map.js'
 import { mixinDelegatesAria } from '../../utils/aria/delegate'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import { styles } from './icon.style'
+import type { IIcon } from './icon.interface'
 
 declare global {
     interface HTMLElementTagNameMap {
         "mdc-icon": MDCIcon
     }
-}
-
-export interface IMDCIconAttributes {
-    name       ?: string
-    filled      : boolean
-    weight      : number
-    grade       : number
-    opticalSize : number
 }
 
 /**
@@ -52,7 +45,9 @@ export interface IMDCIconAttributes {
  * https://m3.material.io/styles/icons/overview
  */
 @customElement('mdc-icon')
-export class MDCIcon extends composeMixin(mixinDelegatesAria)(LitElement) implements IMDCIconAttributes {
+export class MDCIcon extends composeMixin(
+    mixinDelegatesAria
+)(LitElement) implements IIcon {
 
     static override styles = styles
 
@@ -61,7 +56,7 @@ export class MDCIcon extends composeMixin(mixinDelegatesAria)(LitElement) implem
      * Recommended over slot content for dynamic icons.
      */
     @property({ type: String })
-    public name?: string
+    public name: string | undefined = void 0
 
     /**
      * Material Symbols: Fill axis (0 or 1).
