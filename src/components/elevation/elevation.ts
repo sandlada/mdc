@@ -115,7 +115,7 @@ export class Elevation extends LitElement {
         const elevation = context?.elevation
 
         return {
-            disabled: elevation?.disabled ?? !(context?.enableElevation ?? true),
+            disabled: elevation?.disabled ?? false,
         }
     }
 

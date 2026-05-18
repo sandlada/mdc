@@ -172,7 +172,7 @@ export class MDCRipple extends LitElement implements IRipple {
         const ripple = context?.ripple
 
         return {
-            disabled: ripple?.disabled ?? !(context?.enableRipple ?? true),
+            disabled: ripple?.disabled ?? false,
             disableHoverStateLayer: ripple?.disableHoverStateLayer ?? false,
             disableFocusStateLayer: ripple?.disableFocusStateLayer ?? false,
             disablePressStateLayer: ripple?.disablePressStateLayer ?? false,

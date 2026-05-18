@@ -159,7 +159,7 @@ export class MDCFocusRing extends LitElement implements IFocusRing {
         const focusRing = context?.focusRing
 
         return {
-            disabled: focusRing?.disabled ?? !(context?.enableFocusRing ?? true),
+            disabled: focusRing?.disabled ?? false,
         }
     }
 
