@@ -15,6 +15,30 @@ import { mixinFocusRingOptions } from '../focus-ring/mixin-focus-ring-options'
 import { mixinRippleOptions } from '../ripple/mixin-ripple-options'
 import { iconButtonStyles } from './icon-button.style'
 
+const KEYBOARD_VISUAL_KEYS = new Set(['Tab', ' ', 'Enter', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End'])
+const KEYBOARD_PRESS_KEYS = new Set([' ', 'Enter'])
+const POINTER_MODALITY_EVENTS = ['pointerdown', 'mousedown', 'touchstart'] as const
+
+let keyboardInteractionMode = false
+let keyboardModalityTrackingInstalled = false
+
+function installKeyboardModalityTracking() {
+    if (isServer || keyboardModalityTrackingInstalled) return
+
+    keyboardModalityTrackingInstalled = true
+
+    document.addEventListener('keydown', (event) => {
+        if (event.altKey || event.ctrlKey || event.metaKey) return
+        keyboardInteractionMode = true
+    }, true)
+
+    for (const eventName of POINTER_MODALITY_EVENTS) {
+        document.addEventListener(eventName, () => {
+            keyboardInteractionMode = false
+        }, true)
+    }
+}
+
 /**
  * The icon-button component only supports inserting one icon.
  *
@@ -69,12 +93,22 @@ export abstract class BaseMDCIconButton extends composeMixin(
         this.buttonElement?.blur()
     }
 
+    // Focus ring must listen on the host itself, not on the inner <button>.
+    // With delegatesFocus:true the browser treats delegation as programmatic
+    // focus, so the inner <button> does not reliably receive :focus-visible.
+    // The host element DOES get :focus-visible for keyboard navigation, and
+    // focusin from the inner element bubbles through the shadow boundary to
+    // the host, so the ring's auto-detection works correctly here.
+    public override get focusRingControl(): HTMLElement | null { return this }
+    public override get rippleControl(): HTMLElement | null { return this.buttonElement }
+
     constructor() {
         super()
         if(isServer) {
             return
         }
         this.addEventListener('click', this.handleClick.bind(this))
+        installKeyboardModalityTracking()
     }
 
     protected getRenderClasses() {
@@ -89,8 +123,12 @@ export abstract class BaseMDCIconButton extends composeMixin(
         })
     }
 
-    public override focusRingHtmlFor: string | null = 'button'
-    public override rippleHtmlFor: string | null = 'button'
+    public override get focusRingHtmlFor(): string | null {
+        return null
+    }
+    public override get rippleHtmlFor(): string | null {
+        return 'button'
+    }
 
     protected override render(): TemplateResult {
         const { ariaHasPopup, ariaExpanded, ariaLabel } = this as AriaMixinStrict
@@ -103,6 +141,9 @@ export abstract class BaseMDCIconButton extends composeMixin(
                 aria-label=${ariaLabel || nothing}
                 aria-haspopup=${ariaHasPopup! || nothing}
                 aria-expanded=${ariaExpanded! || nothing}
+                @focusin=${this.handleVisualFocusIn}
+                @focusout=${this.handleVisualFocusOut}
+                @keydown=${this.handleVisualKeyDown}
             >
                 ${this.variant === 'outlined' ? this.renderOutline() : nothing}
                 ${this.renderIcon()}
@@ -141,6 +182,60 @@ export abstract class BaseMDCIconButton extends composeMixin(
         await 0
         this.focus()
         dispatchActivationClick(this.buttonElement)
+    }
+
+    protected readonly handleVisualFocusIn = () => {
+        if (!this.shouldShowKeyboardVisuals()) return
+
+        this.queueKeyboardVisualSync(false)
+    }
+
+    protected readonly handleVisualFocusOut = () => {
+        queueMicrotask(() => {
+            if (this.matches(':focus-within')) return
+
+            this.clearKeyboardVisuals()
+        })
+    }
+
+    protected readonly handleVisualKeyDown = (event: KeyboardEvent) => {
+        if (this.disabled || !KEYBOARD_VISUAL_KEYS.has(event.key)) return
+
+        keyboardInteractionMode = true
+        this.queueKeyboardVisualSync(KEYBOARD_PRESS_KEYS.has(event.key))
+    }
+
+    private shouldShowKeyboardVisuals() {
+        return keyboardInteractionMode || this.matches(':focus-visible') || (this.buttonElement?.matches(':focus-visible') ?? false)
+    }
+
+    private queueKeyboardVisualSync(pressRipple: boolean) {
+        queueMicrotask(() => {
+            if (!this.isConnected || this.disabled || !this.matches(':focus-within')) return
+            if (!this.shouldShowKeyboardVisuals()) return
+
+            if (this.focusRingElement && !this.focusRingElement.focused) {
+                this.focusRingElement.focused = true
+            }
+
+            if (this.rippleElement && !this.rippleElement.focused) {
+                this.rippleElement.focused = true
+            }
+
+            if (pressRipple && this.rippleElement && !this.rippleElement.pressed) {
+                this.rippleElement.action.handleClick()
+            }
+        })
+    }
+
+    private clearKeyboardVisuals() {
+        if (this.focusRingElement?.focused) {
+            this.focusRingElement.focused = false
+        }
+
+        if (this.rippleElement?.focused) {
+            this.rippleElement.focused = false
+        }
     }
 
 }

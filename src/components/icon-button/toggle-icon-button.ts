@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 import { html, isServer, nothing, type PropertyValues, type TemplateResult } from 'lit'
-import { customElement, property, query, state } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import type { AriaMixinStrict } from '../../utils/aria/aria'
 import { createValidator, getValidityAnchor, mixinConstraintValidation } from '../../utils/behaviors/constraint-validation'
@@ -13,7 +13,6 @@ import { CheckboxValidator } from '../../utils/behaviors/validators/checkbox-val
 import { RadioValidator } from '../../utils/behaviors/validators/radio-validator'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import { SelectionController } from '../../utils/controller/selection-controller'
-import { redispatchEvent } from '../../utils/event/redispatch-event'
 import { getFormState, getFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
 import { BaseMDCIconButton } from './base-icon-button'
 
@@ -22,8 +21,6 @@ declare global {
         "mdc-toggle-icon-button": MDCToggleIconButton
     }
 }
-
-const SChecked = Symbol('checked')
 
 /**
  * The toggle-icon-button component is a split of the icon-button component,
@@ -43,7 +40,7 @@ const SChecked = Symbol('checked')
 @customElement('mdc-toggle-icon-button')
 export class MDCToggleIconButton extends composeMixin(
     mixinConstraintValidation,
-    mixinFormAssociated
+    mixinFormAssociated,
 )(BaseMDCIconButton) {
 
     static override shadowRootOptions: ShadowRootInit = {
@@ -51,67 +48,67 @@ export class MDCToggleIconButton extends composeMixin(
         delegatesFocus: true,
     }
 
+    @property({ type: String, reflect: true, })
+    public type: 'radio' | 'checkbox' = 'checkbox'
+
+    @property({ type: Boolean, reflect: true })
+    public checked = false
+
+    @property({ type: String })
+    public value: 'on' | (string & {}) = 'on'
+
+    @property({ type: Boolean, reflect: true })
+    public required: boolean = false
+
+    // public override get focusRingControl() { return this.buttonElement }
+    // public override get rippleControl() { return this.buttonElement }
+
     declare disabled: boolean
     declare name: string
 
-    @property({ type: Boolean, reflect: true, noAccessor: true })
-    public get checked() {
-        return this[SChecked]
-    }
-    public set checked(value: boolean) {
-        if(value === this[SChecked]) {
-            return
-        }
-        const oldValue = this[SChecked]
-        this[SChecked] = value
-        this.selectionController.handleCheckedChange()
-        this.requestUpdate('checked', oldValue)
-    }
-
-    @property({ type: Boolean })
-    public required: boolean = false
-
-    @property({ type: String })
-    public value: string = 'on'
-
-    @property({ type: String, reflect: true })
-    public type: 'checkbox' | 'radio' = 'checkbox'
-
-    /**
-     * We use the <input /> element as a replacement for the button element.
-     * The state is managed by the input element.
-     */
-    @query('#input-as-touch-target')
-    protected override readonly buttonElement!: HTMLInputElement | null
-
-    [SChecked]: boolean = false
-    private selectionController!: SelectionController
+    protected readonly selectionController: SelectionController
 
     constructor() {
         super()
+        this.selectionController = new SelectionController(this, {
+            multiple: this.type === 'checkbox',
+            canCancel: this.type === 'checkbox',
+            preventSelectionDuringInitialFocus: this.type === 'checkbox',
+            preventSelectionDuringSwitching: this.type === 'checkbox',
+            dispatchNavigationClick: this.type === 'radio',
+            getFocusableElement: (host) => {
+                return host
+            }
+        })
         if(isServer) {
             return
         }
-    }
-
-    override connectedCallback(): void {
-        super.connectedCallback()
-        if (!this.selectionController) {
-            this.selectionController = new SelectionController(this, { multiple: this.type === 'checkbox' })
-            this.addController(this.selectionController)
-        }
+        this.tabIndex = 0
+        this[internals].role = this.type
     }
 
     protected override willUpdate(changedProperties: PropertyValues<this>): void {
-        super.willUpdate(changedProperties)
+        super.willUpdate(changedProperties);
+
         if (changedProperties.has('type')) {
+            const isCheckbox = this.type === 'checkbox'
+            this.selectionController.configure({
+                multiple: isCheckbox,
+                canCancel: isCheckbox,
+                preventSelectionDuringInitialFocus: isCheckbox,
+                preventSelectionDuringSwitching: isCheckbox,
+                dispatchNavigationClick: !isCheckbox,
+            })
             this[internals].role = this.type
-            this.selectionController.multiple = this.type === 'checkbox'
         }
         if (changedProperties.has('checked')) {
             this[internals].ariaChecked = String(this.checked)
         }
     }
+
+    // protected override updated() {
+    //     this[internals].ariaChecked = String(this.checked);
+    // }
 
     protected override getRenderClasses() {
         return ({
@@ -125,9 +122,6 @@ export class MDCToggleIconButton extends composeMixin(
         })
     }
 
-    public override focusRingHtmlFor: string | null = 'input-as-touch-target'
-    public override rippleHtmlFor: string | null = 'input-as-touch-target'
-
     protected override render(): TemplateResult {
         const { ariaHasPopup, ariaExpanded, ariaLabel } = this as AriaMixinStrict
         return html`
@@ -139,7 +133,9 @@ export class MDCToggleIconButton extends composeMixin(
                 aria-label=${ariaLabel || nothing}
                 aria-haspopup=${ariaHasPopup! || nothing}
                 aria-expanded=${ariaExpanded! || nothing}
-                tabindex="-1"
+                @focusin=${this.handleVisualFocusIn}
+                @focusout=${this.handleVisualFocusOut}
+                @keydown=${this.handleVisualKeyDown}
             >
                 ${this.variant === 'outlined' ? this.renderOutline() : nothing}
                 ${this.renderIcon()}
@@ -170,26 +166,16 @@ export class MDCToggleIconButton extends composeMixin(
             <input
                 id="input-as-touch-target"
                 class="touch-target"
-                type=${this.type}
+                role="button"
                 .checked=${this.checked}
                 ?required=${this.required}
                 ?disabled=${this.disabled}
                 aria-checked=${this.checked}
                 aria-required=${this.required}
                 aria-disabled=${this.disabled}
-                tabindex="0"
-                @input=${this.handleInput}
-                @change=${this.handleChange}
+                tabindex="-1"
             />
         `
-    }
-
-    private handleInput(_: Event) {
-        this.checked = this.buttonElement!.checked
-    }
-
-    private handleChange(e: Event) {
-        redispatchEvent(this, e)
     }
 
     @state()

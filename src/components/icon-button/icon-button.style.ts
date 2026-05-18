@@ -130,7 +130,7 @@ const getContainerSize = () => {
                 &.medium {${widthField('medium', width)};}
                 &.large {${widthField('large', width)};}
                 &.extra-large {${widthField('extra-large', width)};}
-            }    
+            }
         `)
 
         return css`${sizedWidth('narrow')}${sizedWidth('default')}${sizedWidth('wide')}`
@@ -153,7 +153,7 @@ const containerColor = css`
         background: var(--_disabled-container-color);
         opacity: var(--_disabled-container-opacity);
     }
- 
+
     .container.outlined:not(.disabled) .background {
         background: var(--_container-color);
     }
@@ -257,14 +257,20 @@ const buttonSharedStyle = css`
 
     input {
         all: unset;
+        appearance: none;
         position: absolute;
-        inset: 0px;
-        border: none;
-        outline: none;
-        padding: 0;
+        inset: 0;
+        height: 100%;
+        width: 100%;
         margin: 0;
+        opacity: 0;
+        outline: none;
+        border: none;
         z-index: 1;
-        user-select: none;
+        cursor: inherit;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
     }
 
     .container {
@@ -283,6 +289,7 @@ const buttonSharedStyle = css`
         appearance: none;
         background: transparent;
         user-select: none;
+        z-index: 0;
     }
 
     .background {

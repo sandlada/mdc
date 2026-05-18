@@ -17,9 +17,9 @@ declare global {
 /**
  * @alias
  * mdc-icon-button
- * 
+ *
  * @slot default
- * 
+ *
  * @version
  * Material Design 3 - Expressive
  *
@@ -28,7 +28,7 @@ declare global {
  */
 @customElement('mdc-icon-button')
 export class MDCIconButton extends BaseMDCIconButton implements FormSubmitter {
-    
+
     static override shadowRootOptions: ShadowRootInit = {
         mode: 'open',
         delegatesFocus: true,
