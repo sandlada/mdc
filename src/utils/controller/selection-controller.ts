@@ -70,6 +70,16 @@ export interface ISelectionControllerOptions {
     dispatchNavigationClick: boolean
 
     /**
+     * Controls whether `SelectionController` dispatches native `input` and
+     * `change` events when selection changes.
+     *
+     * Set to `false` when the host component needs to dispatch custom events
+     * with richer payloads or custom timing.
+     * @default true
+     */
+    dispatchInputChangeEvents: boolean
+
+    /**
      * Returns the focusable DOM element for a given host.
      * Defaults to returning the host itself.
      */
@@ -141,6 +151,8 @@ export class SelectionController implements ReactiveController {
     public preventSelectionDuringSwitching   : boolean                                          = false
     /** @see ISelectionControllerOptions.dispatchNavigationClick */
     public dispatchNavigationClick           : boolean                                          = false
+    /** @see ISelectionControllerOptions.dispatchInputChangeEvents */
+    public dispatchInputChangeEvents         : boolean                                          = true
     /** @see ISelectionControllerOptions.getFocusableElement */
     public getFocusableElement               : (host: ISelectionControllerHost) => HTMLElement  = (host) => host
     /** @see ISelectionControllerOptions.onConnected */
@@ -186,6 +198,7 @@ export class SelectionController implements ReactiveController {
         if (options.preventSelectionDuringInitialFocus !== undefined) this.preventSelectionDuringInitialFocus = options.preventSelectionDuringInitialFocus
         if (options.preventSelectionDuringSwitching    !== undefined) this.preventSelectionDuringSwitching    = options.preventSelectionDuringSwitching
         if (options.dispatchNavigationClick            !== undefined) this.dispatchNavigationClick            = options.dispatchNavigationClick
+        if (options.dispatchInputChangeEvents          !== undefined) this.dispatchInputChangeEvents          = options.dispatchInputChangeEvents
         if (options.getFocusableElement                !== undefined) this.getFocusableElement                = options.getFocusableElement
         if (options.onConnected                        !== undefined) this.onConnected                        = options.onConnected
         if (options.onDisconnected                     !== undefined) this.onDisconnected                     = options.onDisconnected
@@ -242,7 +255,7 @@ export class SelectionController implements ReactiveController {
 
         // Dispatch input/change when the checked state actually changed,
         // mirroring native <input type="radio"> / <input type="checkbox"> behaviour.
-        if (this.host.checked !== prevChecked) {
+        if (this.dispatchInputChangeEvents && this.host.checked !== prevChecked) {
             this.host.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true }))
             this.host.dispatchEvent(new Event('change', { bubbles: true }))
         }
@@ -377,7 +390,7 @@ export class SelectionController implements ReactiveController {
 
         // Dispatch input/change events when navigation caused a selection change,
         // mirroring native <input type="radio"> arrow-key behaviour.
-        if (!wasChecked && nextHost.checked) {
+        if (this.dispatchInputChangeEvents && !wasChecked && nextHost.checked) {
             nextHost.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true }))
             nextHost.dispatchEvent(new Event('change', { bubbles: true }))
         }
