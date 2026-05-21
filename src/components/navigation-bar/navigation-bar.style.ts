@@ -1,118 +1,78 @@
-import { css } from 'lit'
-import { NavigationBarDefinition } from '../../component-definitions/navigation-bar.definition'
+import { css, unsafeCSS } from 'lit'
 import { createWrappedTokens, stringTokens } from '../../utils'
+import { NavigationBarDefinition } from '../../definitions'
 
-const t = createWrappedTokens('--mdc-navigation-bar', NavigationBarDefinition)
-const s = stringTokens(t)
+const tokens = createWrappedTokens('--mdc-navigation-bar', NavigationBarDefinition)
+const tS = unsafeCSS(stringTokens(tokens))
 
-export const navigationBarStyle = css`
-    :host { ${s}; }
+type Direction = 'vertical' | 'horizonal' | 'vertical-xr'
+const Directions = {
+    Vertical: 'vertical',
+    Horizonal: 'horizonal',
+    VerticalXR: 'vertical-xr'
+} as const satisfies Record<string, Direction>
+
+const createContainerStyle = (d: Direction) => {
+    return unsafeCSS(`
+        height: var(--_${d}-container-height);
+        padding-inline-start: var(--_${d}-container-block-leading-space);
+        padding-inline-end: var(--_${d}-container-block-trailing-space);
+        padding-block-start: var(--_${d}-container-inline-leading-space);
+        padding-block-end: var(--_${d}-container-inline-trailing-space);
+        gap: var(--_${d}-tab-between-space);
+        border-top-left-radius: var(--_${d}-container-shape-radius-start-start);
+        border-top-right-radius: var(--_${d}-container-shape-radius-start-end);
+        border-bottom-right-radius: var(--_${d}-container-shape-radius-end-end);
+        border-bottom-left-radius: var(--_${d}-container-shape-radius-end-start);
+    `)
+}
+const createBackgroundStyle = (d: Direction) => {
+    return unsafeCSS(`
+        background-color: var(--_${d}-container-color);
+    `)
+}
+
+
+export const NavigationBarStyles = css`
+    :host {
+        ${tS};
+    }
 
     :host {
-        display: contents;
-        cursor: default;
-        -webkit-tap-highlight-color: transparent;
-        width: fit-content;
         position: relative;
-    }
-
-    dialog {
-        position: relative;
-        background: transparent;
-        border: none;
-        flex-direction: column;
-        margin: inherit;
-        max-height: inherit;
-        max-width: inherit;
-        min-height: inherit;
-        min-width: inherit;
-        outline: none;
-        overflow: hidden;
-        padding: 0;
-        width: inherit;
+        vertical-align: top;
+        display: inline-flex;
         box-sizing: border-box;
-    }
-    dialog[open] {
-        display: flex;
-    }
-
-    dialog.vertical {
-        height: var(--_vertical-container-height);
-        border-start-start-radius: min(var(--_vertical-container-shape-start-start), calc(var(--_vertical-container-height) / 2));
-        border-start-end-radius: min(var(--_vertical-container-shape-start-end), calc(var(--_vertical-container-height) / 2));
-        border-end-start-radius: min(var(--_vertical-container-shape-end-start), calc(var(--_vertical-container-height) / 2));
-        border-end-end-radius: min(var(--_vertical-container-shape-end-end), calc(var(--_vertical-container-height) / 2));
-        padding-inline-start: var(--_vertical-container-inline-leading-space);
-        padding-inline-end: var(--_vertical-container-inline-trailing-space);
-        padding-block-start: var(--_vertical-container-block-leading-space);
-        padding-block-end: var(--_vertical-container-block-trailing-space);
-    }
-    dialog.xr {
-        height: var(--_vertical-xr-container-height);
-        border-start-start-radius: min(var(--_vertical-xr-container-shape-start-start), calc(var(--_vertical-xr-container-height) / 2));
-        border-start-end-radius: min(var(--_vertical-xr-container-shape-start-end), calc(var(--_vertical-xr-container-height) / 2));
-        border-end-start-radius: min(var(--_vertical-xr-container-shape-end-start), calc(var(--_vertical-xr-container-height) / 2));
-        border-end-end-radius: min(var(--_vertical-xr-container-shape-end-end), calc(var(--_vertical-xr-container-height) / 2));
-        padding-inline-start: var(--_vertical-xr-container-inline-leading-space);
-        padding-inline-end: var(--_vertical-xr-container-inline-trailing-space);
-        padding-block-start: var(--_vertical-xr-container-block-leading-space);
-        padding-block-end: var(--_vertical-xr-container-block-trailing-space);
-    }
-    dialog.horizonal {
-        height: var(--_horizonal-container-height);
-        border-start-start-radius: min(var(--_horizonal-container-shape-start-start), calc(var(--_horizonal-container-height) / 2));
-        border-start-end-radius: min(var(--_horizonal-container-shape-start-end), calc(var(--_horizonal-container-height) / 2));
-        border-end-start-radius: min(var(--_horizonal-container-shape-end-start), calc(var(--_horizonal-container-height) / 2));
-        border-end-end-radius: min(var(--_horizonal-container-shape-end-end), calc(var(--_horizonal-container-height) / 2));
-        padding-inline-start: var(--_horizonal-container-inline-leading-space);
-        padding-inline-end: var(--_horizonal-container-inline-trailing-space);
-        padding-block-start: var(--_horizonal-container-block-leading-space);
-        padding-block-end: var(--_horizonal-container-block-trailing-space);
     }
 
     .container {
+        position: relative;
         display: flex;
-        flex-grow: 1;
-        overflow: hidden;
+        align-items: center;
+    }
+    .vertical.container {
+        ${createContainerStyle(Directions.Vertical)};
+    }
+    .horizonal.container {
+        ${createContainerStyle(Directions.Horizonal)};
+    }
+    .vertical-xr.container {
+        ${createContainerStyle(Directions.VerticalXR)};
     }
 
-    .content {
-        display: flex;
-        flex-grow: 0;
-        width: 100%;
-        overflow: auto;
-    }
-
-    dialog.start .container .content {
-        justify-content: start
-    }
-    dialog.middle .container .content {
-        justify-content: center;
-    }
-    dialog.between .container .content {
-        justify-content: space-evenly;
-    }
-    dialog.end .container .content {
-        justify-content: end;
-    }
-    
     .background {
         position: absolute;
         inset: 0;
         z-index: -1;
+        pointer-events: none;
     }
-    dialog.vertical .background {
-        background: var(--_vertical-container-color);
+    .vertical .background {
+        ${createBackgroundStyle(Directions.Vertical)};
     }
-    dialog.xr .background {
-        background: var(--_vertical-xr-container-color);
+    .horizonal .background {
+        ${createBackgroundStyle(Directions.Horizonal)};
     }
-    dialog.horizonal .background {
-        background: var(--_horizonal-container-color);
+    .vertical-xr .background {
+        ${createBackgroundStyle(Directions.VerticalXR)};
     }
-
-    ::backdrop {
-        background: none;
-    }
-
 `

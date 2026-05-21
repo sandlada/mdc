@@ -206,6 +206,7 @@ const containerShared = css`
         width: fit-content;
         height: fit-content;
         background: transparent;
+        overflow: hidden;
     }
 
     button {
@@ -261,7 +262,7 @@ export const navigationBarTabStyle = [
         display: grid;
         grid-template-columns: 1fr;
         grid-template-rows: var(--_vertical-indicator-height) 1fr;
-        
+
         .indicator {
             grid-column: 1/3;
             grid-row: 1/2;
@@ -290,7 +291,7 @@ export const navigationBarTabStyle = [
         justify-content: center;
 
         box-sizing: border-box;
-        
+
         .indicator {
             grid-column: 1/-1;
             grid-row: 1/2;
@@ -336,7 +337,7 @@ export const navigationRailTabStyle = [
             display: grid;
             grid-template-columns: 1fr;
             grid-template-rows: var(--_vertical-indicator-height) 1fr;
-            
+
             .indicator {
                 grid-column: 1/3;
                 grid-row: 1/2;
@@ -365,7 +366,7 @@ export const navigationRailTabStyle = [
             justify-content: center;
 
             box-sizing: border-box;
-            
+
             .indicator {
                 grid-column: 1/-1;
                 grid-row: 1/2;

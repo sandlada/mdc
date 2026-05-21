@@ -7,27 +7,30 @@ import { html, isServer, LitElement, type TemplateResult } from 'lit'
 import { property, query, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import { internals, mixinElementInternals } from '../../utils/behaviors/element-internals'
+import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
+import { SelectionController } from '../../utils/controller/selection-controller'
 import { isActivationClick } from '../../utils/event/form-label-activation'
-import { NavigationTabSingleSelectionController } from './navigation-tab-sigle-selection-controller'
 
-const SActive = Symbol('active')
+const SChecked = Symbol('active')
 
 export type TNavigationTabDirection = 'vertical' | 'horizonal'
 
 /**
- * 
+ *
  * Our design wish is: through this navigation-tab component, it can be used in bar, rail, and xr style bar and rail.
- * 
+ *
  * @version
  * Material Design 3 - Expressive
- * 
+ *
  * @link
  * https://www.figma.com/design/4GM7ohCF2Qtjzs7Fra6jlp/Material-3-Design-Kit--Community-?node-id=55141-14251&p=f&t=Lo93bap9LHFqZ0Q1-0
- * 
+ *
  * @todo
  * XR
  */
-export abstract class BaseNavigationTab extends mixinElementInternals(LitElement) {
+export abstract class BaseNavigationTab extends composeMixin(
+    mixinElementInternals
+)(LitElement) {
 
     static override shadowRootOptions: ShadowRootInit = {
         mode: 'open',
@@ -57,16 +60,16 @@ export abstract class BaseNavigationTab extends mixinElementInternals(LitElement
         this.setAttribute('name', name)
     }
 
-    @property({ type: Boolean, attribute: 'active', noAccessor: true })
-    public get active() {
-        return this[SActive]
+    @property({ type: Boolean, attribute: 'checked', noAccessor: true })
+    public get checked() {
+        return this[SChecked]
     }
-    public set active(value: boolean) {
-        if(value === this[SActive]) {
+    public set checked(value: boolean) {
+        if(value === this[SChecked]) {
             return
         }
-        const oldValue = this[SActive]
-        this[SActive] = value
+        const oldValue = this[SChecked]
+        this[SChecked] = value
         this.requestUpdate('checked', oldValue)
         this.selectionController.handleCheckedChange()
     }
@@ -83,8 +86,8 @@ export abstract class BaseNavigationTab extends mixinElementInternals(LitElement
     @query('button')
     private buttonElement!: HTMLButtonElement | null
 
-    private [SActive]: boolean = false
-    private readonly selectionController = new NavigationTabSingleSelectionController(this)
+    private [SChecked]: boolean = false
+    private readonly selectionController = new SelectionController(this)
 
     constructor() {
         super()
@@ -151,8 +154,8 @@ export abstract class BaseNavigationTab extends mixinElementInternals(LitElement
             'has-active-icon': this.hasActiveIcon,
             'has-inactive-icon': this.hasInactiveIcon,
             'has-badge': this.hasBadge,
-            'active': this.active,
-            'inactive': !this.active,
+            'active': this.checked,
+            'inactive': !this.checked,
         })
     }
 
@@ -168,7 +171,7 @@ export abstract class BaseNavigationTab extends mixinElementInternals(LitElement
             this.focus()
             // return
         }
-        this.active = true
+        this.checked = true
         this.dispatchEvent(new Event('change', { bubbles: true }))
         this.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true }))
 
