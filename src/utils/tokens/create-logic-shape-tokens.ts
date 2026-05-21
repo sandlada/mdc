@@ -9,6 +9,8 @@ type TransformedRadius<T> = {
 }
 type Prettify<T> = { [K in keyof T]: T[K] } & {}
 
+export type LogicBorderRadius<T extends Record<string, any>> = Prettify<TransformedRadius<T>>
+
 /**
  * @example
  * ```typescript
@@ -27,7 +29,7 @@ type Prettify<T> = { [K in keyof T]: T[K] } & {}
  * }
  * ```
  */
-export function transformRadiusToLogicRadius<const T extends Record<string, any>>(record: T): Prettify<TransformedRadius<T>> {
+export function transformRadiusToLogicRadius<const T extends Record<string, any>>(record: T): LogicBorderRadius<T> {
     const result = { } as any
 
     for(const [k, v] of Object.entries(record)) {
