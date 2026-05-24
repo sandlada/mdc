@@ -31,7 +31,7 @@ import {
     type NavigationEventTrigger,
     type NavigationScopeMutation,
 } from '../../utils/navigation/navigation-state-store'
-import type { INavigationTab } from './navigation-tab.interface'
+import type { INavigationTab, NavigationTabVariant } from './navigation-tab.interface'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import { mixinRippleOptions } from '../ripple/mixin-ripple-options'
 import { mixinFocusRingOptions } from '../focus-ring/mixin-focus-ring-options'
@@ -111,14 +111,11 @@ export class MDCNavigationTab extends composeMixin(
     @property({ type: Boolean, reflect: true })
     public disabled: boolean = false
 
-    @property({ type: String, reflect: true })
-    public type: 'bar' | 'rail' | 'bar-xr' | 'rail-xr' = 'bar'
-
     /**
      * horizonal is not available for bar-xr and rail-xr types.
      */
     @property({ type: String, reflect: true })
-    public variant: 'vertical' | 'horizontal' | 'round' = 'vertical'
+    public variant: NavigationTabVariant = 'bar-vertical'
 
     @query('#touch-target')
     private inputElement!: HTMLInputElement
@@ -215,7 +212,6 @@ export class MDCNavigationTab extends composeMixin(
     protected getRenderClasses() {
         return ({
             'container': true,
-            [this.type]: true,
             [this.variant]: true,
         })
     }

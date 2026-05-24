@@ -1,14 +1,26 @@
 import { css, unsafeCSS } from 'lit'
 import { createWrappedTokens, overrideComponentTokens, stringTokens } from '../../utils'
-import { IconDefinition, NavigationBarHorizontalTabDefinition, NavigationBarTabDefinition, NavigationRailRoundTabDefinition, RippleDefinition } from '../../definitions'
+import { IconDefinition, NavigationBarHorizontalTabDefinition, NavigationBarVerticalTabDefinition, NavigationBarXRVerticalTabDefinition, NavigationRailHorizontalTabDefinition, NavigationRailRoundTabDefinition, NavigationRailVerticalTabDefinition, NavigationRailXRRoundTabDefinition, NavigationRailXRVerticalTabDefinition, RippleDefinition } from '../../definitions'
 import { Easing } from '@sandlada/mdk'
 
-const barT = createWrappedTokens('--mdc-navigation-tab', NavigationBarTabDefinition)
+const barV = createWrappedTokens('--mdc-navigation-tab', NavigationBarVerticalTabDefinition)
 const barH = createWrappedTokens('--mdc-navigation-tab', NavigationBarHorizontalTabDefinition)
+const barXRV = createWrappedTokens('--mdc-navigation-tab', NavigationBarXRVerticalTabDefinition)
+const railV = createWrappedTokens('--mdc-navigation-tab', NavigationRailVerticalTabDefinition)
+const railH = createWrappedTokens('--mdc-navigation-tab', NavigationRailHorizontalTabDefinition)
 const railR = createWrappedTokens('--mdc-navigation-tab', NavigationRailRoundTabDefinition)
-const barS = stringTokens(barT)
-const barSH = stringTokens(barH)
+const railXRV = createWrappedTokens('--mdc-navigation-tab', NavigationRailXRVerticalTabDefinition)
+const railXRR = createWrappedTokens('--mdc-navigation-tab', NavigationRailXRRoundTabDefinition)
+
+const barVS = stringTokens(barV)
+const barHS = stringTokens(barH)
+const barXRVS = stringTokens(barXRV)
+const railVS = stringTokens(railV)
+const railHS = stringTokens(railH)
 const railRS = stringTokens(railR)
+const railXRRS = stringTokens(railXRR)
+
+const railXRVS = stringTokens(railXRV)
 
 const tabIndicatorGrowEasing = Easing.ExpressiveDefaultSpatial.toCSSValue()
 
@@ -43,14 +55,29 @@ const overrideIcon = stringTokens(overrideComponentTokens<keyof typeof IconDefin
 
 export const NavigationTabStyles = [
     css`
-    :host([type="bar"][variant="vertical"]) {
-        ${barS};
+    :host([variant="bar-vertical"]) {
+        ${barVS};
     }
-    :host([type="bar"][variant="horizontal"]) {
-        ${barSH};
+    :host([variant="bar-horizontal"]) {
+        ${barHS};
     }
-    :host([type="rail"][variant="round"]) {
+    :host([variant="bar-xr-vertical"]) {
+        ${barXRVS};
+    }
+    :host([variant="rail-vertical"]) {
+        ${railVS};
+    }
+    :host([variant="rail-horizontal"]) {
+        ${railHS};
+    }
+    :host([variant="rail-round"]) {
         ${railRS};
+    }
+    :host([variant="rail-xr-vertical"]) {
+        ${railXRVS};
+    }
+    :host([variant="rail-xr-round"]) {
+        ${railXRRS};
     }
     `,
     // Shared Layout
@@ -125,9 +152,12 @@ export const NavigationTabStyles = [
         opacity: 1;
     }
     `,
-    // For Vertical Layout (Both rail-vertical and bar-vertical are compatible.)
+    // For Vertical Layout (RailVertical, RailXRVertical, BarVertical, BarXRVertical are compatible.)
     css`
-    :host([variant="vertical"]) .container {
+    :host([variant="rail-vertical"]) .container,
+    :host([variant="rail-xr-vertical"]) .container,
+    :host([variant="bar-vertical"]) .container,
+    :host([variant="bar-xr-vertical"]) .container {
         position: relative;
         display: grid;
         grid-template-columns: 1fr;
@@ -136,14 +166,20 @@ export const NavigationTabStyles = [
         place-self: center;
         place-content: center;
     }
-    :host([variant="vertical"]) .container .indicator {
+    :host([variant="rail-vertical"]) .indicator,
+    :host([variant="rail-xr-vertical"]) .indicator,
+    :host([variant="bar-vertical"]) .indicator,
+    :host([variant="bar-xr-vertical"]) .indicator {
         position: relative;
         place-self: center;
         grid-column: 1/2;
         grid-row: 1/2;
         width: var(--_indicator-width);
     }
-    :host([variant="vertical"]) .container .icon-container {
+    :host([variant="rail-vertical"]) .container .icon-container,
+    :host([variant="rail-xr-vertical"]) .container .icon-container,
+    :host([variant="bar-vertical"]) .container .icon-container,
+    :host([variant="bar-xr-vertical"]) .container .icon-container {
         position: relative;
         grid-column: 1/2;
         grid-row: 1/2;
@@ -153,23 +189,36 @@ export const NavigationTabStyles = [
         place-content: center;
         place-self: center;
     }
-    :host([variant="vertical"]) .container .icon-container .icon {
+
+    :host([variant="rail-vertical"]) .container .icon-container .icon,
+    :host([variant="rail-xr-vertical"]) .container .icon-container .icon,
+    :host([variant="bar-vertical"]) .container .icon-container .icon,
+    :host([variant="bar-xr-vertical"]) .container .icon-container .icon {
         align-self: center;
         justify-self: center;
         grid-column: 1/2;
         grid-row: 1/2;
     }
-    :host([variant="vertical"]) .container .label.out-icon-container {
+
+    :host([variant="rail-vertical"]) .container .label.out-icon-container,
+    :host([variant="rail-xr-vertical"]) .container .label.out-icon-container,
+    :host([variant="bar-vertical"]) .container .label.out-icon-container,
+    :host([variant="bar-xr-vertical"]) .container .label.out-icon-container {
         grid-column: 1/2;
         grid-row: 2/3;
     }
-    :host([variant="vertical"]) .container .label.in-icon-container {
+
+    :host([variant="rail-vertical"]) .container .label.in-icon-container,
+    :host([variant="rail-xr-vertical"]) .container .label.in-icon-container,
+    :host([variant="bar-vertical"]) .container .label.in-icon-container,
+    :host([variant="bar-xr-vertical"]) .container .label.in-icon-container {
         display: none;
     }
     `,
     // For Horizontal
     css`
-    :host([variant="horizontal"]) .container {
+    :host([variant="rail-horizontal"]) .container,
+    :host([variant="bar-horizontal"]) .container {
         display: grid;
         grid-template-columns: 1fr;
         grid-template-rows: 1fr;
@@ -178,7 +227,8 @@ export const NavigationTabStyles = [
         justify-content: center;
         position: relative;
     }
-    :host([variant="horizontal"]) .container .icon-container {
+    :host([variant="rail-horizontal"]) .container .icon-container,
+    :host([variant="bar-horizontal"]) .container .icon-container {
         grid-column: 1/2;
         grid-row: 1/2;
         display: grid;
@@ -190,7 +240,8 @@ export const NavigationTabStyles = [
         box-sizing: border-box;
         position: relative;
     }
-    :host([variant="horizontal"]) .indicator {
+    :host([variant="rail-horizontal"]) .indicator,
+    :host([variant="bar-horizontal"]) .indicator {
         grid-column: 1/2;
         grid-row: 1/2;
         position: absolute;
@@ -201,16 +252,18 @@ export const NavigationTabStyles = [
         min-width: var(--_indicator-width);
         z-index: -1;
     }
-    :host([variant="horizontal"]) .label.in-icon-container {
+    :host([variant="rail-horizontal"]) .label.in-icon-container,
+    :host([variant="bar-horizontal"]) .label.in-icon-container {
         grid-column: 2/3;
         grid-row: 1/-1;
-        display: inline-flex;
         box-sizing: border-box;
     }
-    :host([variant="horizontal"]) .label.out-icon-container {
+    :host([variant="rail-horizontal"]) .label.out-icon-container,
+    :host([variant="bar-horizontal"]) .label.out-icon-container {
         display: none;
     }
-    :host([variant="horizontal"]) .icon {
+    :host([variant="rail-horizontal"]) .icon,
+    :host([variant="bar-horizontal"]) .icon {
         place-content: center;
         grid-column: 1/2;
         grid-row: 1/-1;
@@ -218,7 +271,8 @@ export const NavigationTabStyles = [
     `,
     // For Round
     css`
-    :host([variant="round"]) .container {
+    :host([variant="rail-xr-round"]) .container,
+    :host([variant="rail-round"]) .container {
         display: grid;
         grid-template-columns: 1fr;
         grid-template-rows: 1fr;
@@ -226,7 +280,8 @@ export const NavigationTabStyles = [
         position: relative;
         box-sizing: border-box;
     }
-    :host([variant="round"]) .container .icon-container {
+    :host([variant="rail-xr-round"]) .container .icon-container,
+    :host([variant="rail-round"]) .container .icon-container {
         gap: var(--_spacing-between-icon-and-label);
         display: grid;
         grid-template-columns: 1fr;
@@ -239,18 +294,22 @@ export const NavigationTabStyles = [
         grid-column: 1/2;
         grid-row: 1/2;
     }
-    :host([variant="round"]) .icon {
+    :host([variant="rail-xr-round"]) .icon,
+    :host([variant="rail-round"]) .icon {
         place-content: center;
         grid-column: 1/2;
         grid-row: 1/-1;
     }
-    :host([variant="round"]) .indicator {
+    :host([variant="rail-xr-round"]) .indicator,
+    :host([variant="rail-round"]) .indicator {
         grid-column: 1/2;
         grid-row: 1/2;
         place-self: center;
         width: var(--_indicator-width);
     }
-    :host([variant="round"]) .label {
+
+    :host([variant="rail-xr-round"]) .label,
+    :host([variant="rail-round"]) .label {
         display: none;
     }
     `,
@@ -343,6 +402,10 @@ export const NavigationTabStyles = [
         font-weight: var(--_label-weight);
         line-height: var(--_label-line-height);
         letter-spacing: var(--_label-letter-spacing);
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 1;
     }
     :host(:not([checked])) .label {
         color: var(--_unselected-label-color);
