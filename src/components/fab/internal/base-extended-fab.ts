@@ -7,10 +7,9 @@ import { html, isServer, nothing } from 'lit'
 import { property, query, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import '../../icon/icon'
-import { MeasuredContentWidthController } from '../../../utils/controller/measured-content-width-controller'
+import { MeasuredDimensionController } from '../../../utils/controller/measured-dimension-controller'
+import { OpacityTransitionController } from '../../../utils/controller/opacity-transition-controller'
 import { BaseFab } from './base-fab'
-import type { AriaMixinStrict } from '../../../utils/aria/aria'
-
 /**
  * Extended Fab components provide an icon and an label (optional).
  *
@@ -34,12 +33,11 @@ export abstract class BaseExtendedFab extends BaseFab {
     @state()
     private hasLabel: boolean = false
 
-    private readonly widthTransitionController = new MeasuredContentWidthController(this, { target: () => this.labelElement })
-
     public constructor() {
         super()
         if(isServer) return
-        this.addController(this.widthTransitionController)
+        new MeasuredDimensionController(this, { target: () => this.labelElement })
+        new OpacityTransitionController(this, { target: () => this.labelElement })
     }
 
     protected override render(): unknown {

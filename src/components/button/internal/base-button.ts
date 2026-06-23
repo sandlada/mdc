@@ -10,7 +10,8 @@ import type { AriaMixinStrict } from '../../../utils/aria/aria'
 import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import { mixinElementInternals } from '../../../utils/behaviors/element-internals'
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
-import { MeasuredContentWidthController } from '../../../utils/controller/measured-content-width-controller'
+import { MeasuredDimensionController } from '../../../utils/controller/measured-dimension-controller'
+import { OpacityTransitionController } from '../../../utils/controller/opacity-transition-controller'
 import { dispatchActivationClick, isActivationClick } from '../../../utils/event/form-label-activation'
 import { mixinElevationOptions } from '../../elevation/mixin-elevation-options'
 import { mixinFocusRingOptions } from '../../focus-ring/mixin-focus-ring-options'
@@ -112,7 +113,8 @@ export abstract class BaseButton extends composeMixin(
     @query('.label')
     protected readonly labelElement!: HTMLElement | null
 
-    protected readonly widthController = new MeasuredContentWidthController(this, { target: () => this.labelElement });
+    protected readonly sizeController = new MeasuredDimensionController(this, { target: () => this.labelElement })
+    protected readonly opacityController = new OpacityTransitionController(this, { target: () => this.labelElement })
 
     public override get focusRingControl(): HTMLElement | null {return this.buttonElement }
     public override get rippleControl(): HTMLElement | null { return this.buttonElement }
@@ -123,7 +125,6 @@ export abstract class BaseButton extends composeMixin(
             return
         }
         this.addEventListener('click', this.handleClick.bind(this))
-        this.addController(this.widthController)
     }
 
     protected getRenderClasses() {
