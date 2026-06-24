@@ -3,12 +3,16 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { css } from 'lit'
+import { css, unsafeCSS } from 'lit'
 import { DividerDefinition } from '../../component-definitions/divider.definition'
-import { createWrappedTokens, stringTokens } from '../../utils/tokens'
+import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
 
-const tokens = createWrappedTokens('--mdc-divider', DividerDefinition)
-const tokenString = stringTokens(tokens)
+const tokenRecord = defineTokenRefsRecord(DividerDefinition, {
+    expandShapes: true,
+    useBaseFallback: true,
+    prefix: '--mdc-divider'
+})
+const tokenString = unsafeCSS(defineVars(tokenRecord, true).join(''))
 
 export const DividerStyles = css`
     @layer mdc.divider.variant {

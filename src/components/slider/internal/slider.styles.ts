@@ -1,14 +1,18 @@
 import { Duration, Easing, Shape } from '@sandlada/mdk'
 import { css, unsafeCSS } from 'lit'
 import { SliderDefinitionVersion2 } from '../../../component-definitions/slider.definition'
-import { createWrappedTokens, stringTokens } from '../../../utils'
+import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
 
-const tokens = createWrappedTokens('--mdc-slider', SliderDefinitionVersion2)
-const tokensStringified = stringTokens(tokens)
+const tokenRecord = defineTokenRefsRecord(SliderDefinitionVersion2, {
+    expandShapes: false,
+    useBaseFallback: true,
+    prefix: '--mdc-slider'
+})
+const tokensStringified = unsafeCSS(defineVars(tokenRecord, true).join(''))
 
-const medium1Duration = unsafeCSS(Duration.Medium1.toCSSValue())
-const short2Duration = unsafeCSS(Duration.Short2.toCSSValue())
-const emphasizedEasing = unsafeCSS(Easing.Emphasized.toCSSValue())
+const medium1Duration = unsafeCSS(Duration.Medium1.ToCSSVariable())
+const short2Duration = unsafeCSS(Duration.Short2.ToCSSVariable())
+const emphasizedEasing = unsafeCSS(Easing.Emphasized.ToCSSVariable())
 
 export const sliderStyles = [
     css`
@@ -257,7 +261,7 @@ export const sliderStyles = [
             padding: 4px;
             place-content: center;
             place-items: center;
-            border-radius: ${unsafeCSS(Shape.Full.toCSSValue())};
+            border-radius: ${unsafeCSS(Shape.Full.ToCSSVariable())};
 
             color: var(--_label-text-color);
             font-family: var(--_label-text-font);

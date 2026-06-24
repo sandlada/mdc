@@ -3,12 +3,16 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { css } from 'lit'
+import { css, unsafeCSS } from 'lit'
 import { RippleDefinition } from '../../component-definitions/ripple.definition'
-import { createWrappedTokens, stringTokens } from '../../utils/tokens'
+import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
 
-const tokens = createWrappedTokens('--mdc-ripple', RippleDefinition)
-const tokenString = stringTokens(tokens)
+const tokenRecord = defineTokenRefsRecord(RippleDefinition, {
+    expandShapes: true,
+    useBaseFallback: true,
+    prefix: '--mdc-ripple'
+})
+const tokenString = unsafeCSS(defineVars(tokenRecord, true).join(''))
 
 export const styles = css`
     :host {${tokenString};}
@@ -62,35 +66,35 @@ export const styles = css`
 
     .hover-state-layer {
         inset: 0;
-        background-color: ${tokens['--_hovered-color']};
+        background-color: var(--_hovered-color);
         transition: opacity 15ms linear, background-color 15ms linear;
     }
 
     .focus-state-layer {
         inset: 0;
-        background-color: ${tokens['--_focused-color']};
+        background-color: var(--_focused-color);
         transition: opacity 50ms linear, background-color 15ms linear;
     }
 
     .press-state-layer {
         inset: 0;
-        background: radial-gradient(closest-side, ${tokens['--_pressed-color']} max(calc(100% - 70px), 65%), transparent 100%);
+        background: radial-gradient(closest-side, var(--_pressed-color) max(calc(100% - 70px), 65%), transparent 100%);
         transform-origin: center center;
         transition: opacity 375ms linear;
     }
 
     :host([hovered]:not([disable-hover-state-layer])) .hover-state-layer {
-        background-color: ${tokens['--_hovered-color']};
-        opacity: ${tokens['--_hovered-opacity']};
+        background-color: var(--_hovered-color);
+        opacity: var(--_hovered-opacity);
     }
 
     :host([focused]:not([disable-focus-state-layer])) .focus-state-layer {
-        background-color: ${tokens['--_focused-color']};
-        opacity: ${tokens['--_focused-opacity']};
+        background-color: var(--_focused-color);
+        opacity: var(--_focused-opacity);
     }
 
     :host([pressed]:not([disable-press-state-layer])) .press-state-layer {
-        opacity: ${tokens['--_pressed-opacity']};
+        opacity: var(--_pressed-opacity);
         transition-duration: 105ms;
     }
 `

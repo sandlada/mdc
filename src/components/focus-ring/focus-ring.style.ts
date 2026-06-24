@@ -6,10 +6,14 @@
 import { Easing } from '@sandlada/mdk'
 import { css, unsafeCSS } from 'lit'
 import { FocusRingDefinition } from '../../component-definitions/focus-ring.definition'
-import { createWrappedTokens, stringTokens } from '../../utils/tokens'
+import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
 
-const tokens = createWrappedTokens('--mdc-focus-ring', FocusRingDefinition)
-const tokenString = stringTokens(tokens)
+const tokenRecord = defineTokenRefsRecord(FocusRingDefinition, {
+    expandShapes: false,
+    useBaseFallback: true,
+    prefix: '--mdc-focus-ring'
+})
+const tokenString = unsafeCSS(defineVars(tokenRecord, true).join(''))
 
 export const FocusRingStyle = css`
 
@@ -30,9 +34,9 @@ export const FocusRingStyle = css`
             outline-color: currentColor;
             animation-delay: 0s, calc(var(--_duration) * 0.25);
             animation-duration: calc(var(--_duration) * 0.25), calc(var(--_duration) * 0.75);
-            animation-timing-function: ${unsafeCSS(Easing.Emphasized.toCSSValue())};
+            animation-timing-function: ${unsafeCSS(Easing.Emphasized.ToCSSVariable())};
             transition-property: border-width, outline-width, border-color, outline-color, color, opacity;
-            transition-timing-function: ${unsafeCSS(Easing.Emphasized.toCSSValue())};
+            transition-timing-function: ${unsafeCSS(Easing.Emphasized.ToCSSVariable())};
             transition-duration: calc(var(--_duration) * 0.5);
             box-sizing: border-box;
             color: var(--_color);

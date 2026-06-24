@@ -7,10 +7,15 @@ import { Easing } from '@sandlada/mdk'
 import { css, unsafeCSS } from 'lit'
 import { RadioButtonDefinition } from '../../component-definitions/radio-button.definition'
 import type { RippleDefinition } from '../../component-definitions/ripple.definition'
-import { createWrappedTokens, overrideComponentTokens, stringTokens } from '../../utils/tokens'
+import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+import { overrideComponentTokens, stringTokens } from '../../utils/tokens'
 
-const tokens = createWrappedTokens('--mdc-radio-button', RadioButtonDefinition)
-const tokenString = stringTokens(tokens)
+const tokenRecord = defineTokenRefsRecord(RadioButtonDefinition, {
+    expandShapes: true,
+    useBaseFallback: true,
+    prefix: '--mdc-radio-button'
+})
+const tokenString = unsafeCSS(defineVars(tokenRecord, true).join(''))
 
 export const radioButtonStyle = css`
     @layer mdc.radio-button {

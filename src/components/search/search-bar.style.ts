@@ -1,9 +1,13 @@
-import { css } from 'lit'
+import { css, unsafeCSS } from 'lit'
 import { SearchBarDefinition } from '../../component-definitions/search.definition'
-import { createWrappedTokens, stringTokens } from '../../utils'
+import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
 
-const t = createWrappedTokens('--mdc-search-bar', SearchBarDefinition)
-const s = stringTokens(t)
+const tokenRecord = defineTokenRefsRecord(SearchBarDefinition, {
+    expandShapes: true,
+    useBaseFallback: true,
+    prefix: '--mdc-search-bar'
+})
+const s = unsafeCSS(defineVars(tokenRecord, true).join(''))
 
 export const searchBarStyle = css`
     :host { ${s}; }

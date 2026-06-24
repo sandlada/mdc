@@ -3,12 +3,16 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { css } from 'lit'
+import { css, unsafeCSS } from 'lit'
 import { ElevationDefinition } from '../../component-definitions/elevation.definition'
-import { createWrappedTokens, stringTokens } from '../../utils/tokens'
+import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
 
-const tokens = createWrappedTokens('--mdc-elevation', ElevationDefinition)
-const tokenString = stringTokens(tokens)
+const tokenRecord = defineTokenRefsRecord(ElevationDefinition, {
+    expandShapes: true,
+    useBaseFallback: true,
+    prefix: '--mdc-elevation'
+})
+const tokenString = unsafeCSS(defineVars(tokenRecord, true).join(''))
 
 export const styles = css`
     @layer mdc.elevation {

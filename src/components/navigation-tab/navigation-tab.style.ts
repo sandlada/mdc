@@ -1,28 +1,59 @@
 import { css, unsafeCSS } from 'lit'
-import { createWrappedTokens, overrideComponentTokens, stringTokens } from '../../utils'
 import { IconDefinition, NavigationBarHorizontalTabDefinition, NavigationBarVerticalTabDefinition, NavigationBarXRVerticalTabDefinition, NavigationRailHorizontalTabDefinition, NavigationRailRoundTabDefinition, NavigationRailVerticalTabDefinition, NavigationRailXRRoundTabDefinition, NavigationRailXRVerticalTabDefinition, RippleDefinition } from '../../definitions'
 import { Easing } from '@sandlada/mdk'
+import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+import { overrideComponentTokens, stringTokens } from '../../utils'
 
-const barV = createWrappedTokens('--mdc-navigation-tab', NavigationBarVerticalTabDefinition)
-const barH = createWrappedTokens('--mdc-navigation-tab', NavigationBarHorizontalTabDefinition)
-const barXRV = createWrappedTokens('--mdc-navigation-tab', NavigationBarXRVerticalTabDefinition)
-const railV = createWrappedTokens('--mdc-navigation-tab', NavigationRailVerticalTabDefinition)
-const railH = createWrappedTokens('--mdc-navigation-tab', NavigationRailHorizontalTabDefinition)
-const railR = createWrappedTokens('--mdc-navigation-tab', NavigationRailRoundTabDefinition)
-const railXRV = createWrappedTokens('--mdc-navigation-tab', NavigationRailXRVerticalTabDefinition)
-const railXRR = createWrappedTokens('--mdc-navigation-tab', NavigationRailXRRoundTabDefinition)
+const barVRecord = defineTokenRefsRecord(NavigationBarVerticalTabDefinition, {
+    expandShapes: true,
+    useBaseFallback: true,
+    prefix: '--mdc-navigation-tab'
+})
+const barVS = unsafeCSS(defineVars(barVRecord, true).join(''))
+const barHRecord = defineTokenRefsRecord(NavigationBarHorizontalTabDefinition, {
+    expandShapes: true,
+    useBaseFallback: true,
+    prefix: '--mdc-navigation-tab'
+})
+const barHS = unsafeCSS(defineVars(barHRecord, true).join(''))
+const barXRVRecord = defineTokenRefsRecord(NavigationBarXRVerticalTabDefinition, {
+    expandShapes: true,
+    useBaseFallback: true,
+    prefix: '--mdc-navigation-tab'
+})
+const barXRVS = unsafeCSS(defineVars(barXRVRecord, true).join(''))
+const railVRecord = defineTokenRefsRecord(NavigationRailVerticalTabDefinition, {
+    expandShapes: true,
+    useBaseFallback: true,
+    prefix: '--mdc-navigation-tab'
+})
+const railVS = unsafeCSS(defineVars(railVRecord, true).join(''))
+const railHRecord = defineTokenRefsRecord(NavigationRailHorizontalTabDefinition, {
+    expandShapes: true,
+    useBaseFallback: true,
+    prefix: '--mdc-navigation-tab'
+})
+const railHS = unsafeCSS(defineVars(railHRecord, true).join(''))
+const railRRecord = defineTokenRefsRecord(NavigationRailRoundTabDefinition, {
+    expandShapes: true,
+    useBaseFallback: true,
+    prefix: '--mdc-navigation-tab'
+})
+const railRS = unsafeCSS(defineVars(railRRecord, true).join(''))
+const railXRVRecord = defineTokenRefsRecord(NavigationRailXRVerticalTabDefinition, {
+    expandShapes: true,
+    useBaseFallback: true,
+    prefix: '--mdc-navigation-tab'
+})
+const railXRVS = unsafeCSS(defineVars(railXRVRecord, true).join(''))
+const railXRRRecord = defineTokenRefsRecord(NavigationRailXRRoundTabDefinition, {
+    expandShapes: true,
+    useBaseFallback: true,
+    prefix: '--mdc-navigation-tab'
+})
+const railXRRS = unsafeCSS(defineVars(railXRRRecord, true).join(''))
 
-const barVS = stringTokens(barV)
-const barHS = stringTokens(barH)
-const barXRVS = stringTokens(barXRV)
-const railVS = stringTokens(railV)
-const railHS = stringTokens(railH)
-const railRS = stringTokens(railR)
-const railXRRS = stringTokens(railXRR)
-
-const railXRVS = stringTokens(railXRV)
-
-const tabIndicatorGrowEasing = Easing.ExpressiveDefaultSpatial.toCSSValue()
+const tabIndicatorGrowEasing = Easing.ExpressiveDefaultSpatial.ToCSSVariable()
 
 const overrideRipple = {
     unselected: stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>(

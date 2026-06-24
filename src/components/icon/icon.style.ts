@@ -3,12 +3,16 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { css } from 'lit'
+import { css, unsafeCSS } from 'lit'
 import { IconDefinition } from '../../component-definitions/icon.definition'
-import { createWrappedTokens, stringTokens } from '../../utils/tokens'
+import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
 
-const tokens = createWrappedTokens('--mdc-icon', IconDefinition)
-const tokenString = stringTokens(tokens)
+const tokenRecord = defineTokenRefsRecord(IconDefinition, {
+    expandShapes: true,
+    useBaseFallback: true,
+    prefix: '--mdc-icon'
+})
+const tokenString = unsafeCSS(defineVars(tokenRecord, true).join(''))
 
 export const styles = css`
     @layer mdc.icon {

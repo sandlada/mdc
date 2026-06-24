@@ -8,17 +8,33 @@ import { FilledIconButtonDefinition, FilledTonalIconButtonDefinition, OutlinedIc
 import type { IconDefinition } from '../../component-definitions/icon.definition'
 import type { RippleDefinition } from '../../component-definitions/ripple.definition'
 import type { FocusRingDefinition } from '../../definitions'
-import { createWrappedTokens, overrideComponentTokens, stringTokens } from '../../utils/tokens'
+import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+import { overrideComponentTokens, stringTokens } from '../../utils/tokens'
 
-const filledIconButtonTokens = createWrappedTokens('--mdc-icon-button', FilledIconButtonDefinition)
-const filledTonalIconButtonTokens = createWrappedTokens('--mdc-icon-button', FilledTonalIconButtonDefinition)
-const outlinedIconButtonTokens = createWrappedTokens('--mdc-icon-button', OutlinedIconButtonDefinition)
-const standardIconButtonTokens = createWrappedTokens('--mdc-icon-button', StandardIconButtonDefinition)
-
-const filledString = stringTokens(filledIconButtonTokens)
-const filledTonalString = stringTokens(filledTonalIconButtonTokens)
-const outlinedString = stringTokens(outlinedIconButtonTokens)
-const standardString = stringTokens(standardIconButtonTokens)
+const filledIconButtonRecord = defineTokenRefsRecord(FilledIconButtonDefinition, {
+    expandShapes: false,
+    useBaseFallback: true,
+    prefix: '--mdc-icon-button'
+})
+const filledString = unsafeCSS(defineVars(filledIconButtonRecord, true).join(''))
+const filledTonalIconButtonRecord = defineTokenRefsRecord(FilledTonalIconButtonDefinition, {
+    expandShapes: false,
+    useBaseFallback: true,
+    prefix: '--mdc-icon-button'
+})
+const filledTonalString = unsafeCSS(defineVars(filledTonalIconButtonRecord, true).join(''))
+const outlinedIconButtonRecord = defineTokenRefsRecord(OutlinedIconButtonDefinition, {
+    expandShapes: false,
+    useBaseFallback: true,
+    prefix: '--mdc-icon-button'
+})
+const outlinedString = unsafeCSS(defineVars(outlinedIconButtonRecord, true).join(''))
+const standardIconButtonRecord = defineTokenRefsRecord(StandardIconButtonDefinition, {
+    expandShapes: false,
+    useBaseFallback: true,
+    prefix: '--mdc-icon-button'
+})
+const standardString = unsafeCSS(defineVars(standardIconButtonRecord, true).join(''))
 
 type TShapeState = 'container-shape-round' | 'container-shape-square' | 'selected-container-shape-round' | 'selected-container-shape-square' | 'shape-pressed-morph'
 type TSize = 'extra-small' | 'small' | 'medium' | 'large' | 'extra-large'

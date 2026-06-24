@@ -3,19 +3,32 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { css } from 'lit'
+import { css, unsafeCSS } from 'lit'
 import { ElevatedCardDefinition, FilledCardDefinition, OutlinedCardDefinition } from '../../component-definitions/card.definition'
 import type { ElevationDefinition } from '../../definitions'
-import { createWrappedTokens, overrideComponentTokens, stringTokens } from '../../utils'
+import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+import { overrideComponentTokens, stringTokens } from '../../utils'
 
 type TVariant = 'filled' | 'outlined' | 'elevated'
 
-const ft = createWrappedTokens('--mdc-f-card', FilledCardDefinition)
-const fts = stringTokens(ft)
-const ot = createWrappedTokens('--mdc-card', OutlinedCardDefinition)
-const ots = stringTokens(ot)
-const et = createWrappedTokens('--mdc-e-card', ElevatedCardDefinition)
-const ets = stringTokens(et)
+const ftRecord = defineTokenRefsRecord(FilledCardDefinition, {
+    expandShapes: false,
+    useBaseFallback: true,
+    prefix: '--mdc-f-card'
+})
+const fts = unsafeCSS(defineVars(ftRecord, true).join(''))
+const otRecord = defineTokenRefsRecord(OutlinedCardDefinition, {
+    expandShapes: false,
+    useBaseFallback: true,
+    prefix: '--mdc-card'
+})
+const ots = unsafeCSS(defineVars(otRecord, true).join(''))
+const etRecord = defineTokenRefsRecord(ElevatedCardDefinition, {
+    expandShapes: false,
+    useBaseFallback: true,
+    prefix: '--mdc-e-card'
+})
+const ets = unsafeCSS(defineVars(etRecord, true).join(''))
 
 const host = css`
     :host {

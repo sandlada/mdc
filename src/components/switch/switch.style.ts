@@ -9,10 +9,15 @@ import type { FocusRingDefinition } from '../../component-definitions/focus-ring
 import type { IconDefinition } from '../../component-definitions/icon.definition'
 import type { RippleDefinition } from '../../component-definitions/ripple.definition'
 import { SwitchDefinition } from '../../component-definitions/switch.definition'
-import { createWrappedTokens, overrideComponentTokens, stringTokens } from '../../utils/tokens'
+import { overrideComponentTokens, stringTokens } from '../../utils/tokens'
+import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
 
-const switchTokens = createWrappedTokens('--mdc-switch', SwitchDefinition)
-const switchTokenString = stringTokens(switchTokens)
+const switchTokens = defineTokenRefsRecord(SwitchDefinition, {
+    expandShapes: true,
+    useBaseFallback: true,
+    prefix: '--mdc-switch'
+})
+const switchTokenString = defineVars(switchTokens, true).join('')
 
 const focusRingShape = stringTokens(overrideComponentTokens<keyof typeof FocusRingDefinition>('--mdc-focus-ring', {
     "shape-end-end": `var(--_track-shape-end-end)`,
@@ -27,13 +32,13 @@ const rippleStyles = (state: 'selected' | 'unselected') => stringTokens(override
     "pressed-opacity": `var(--_pressed-state-layer-opacity-${state})`,
 }))
 
-const handleContainerEasing = unsafeCSS(Easing.ExpressiveFastSpatial)
-const handleEasing = unsafeCSS(Easing.Standard)
+const handleContainerEasing = unsafeCSS(Easing.ExpressiveFastSpatial.ToCSSValue())
+const handleEasing = unsafeCSS(Easing.Standard.ToCSSValue())
 
 
 export const SwitchStyles = css`
     @layer mdc.switch.variable {
-        :host { ${switchTokenString}; }
+        :host { ${unsafeCSS(switchTokenString)}; }
     }
 
     @layer mdc.switch.composite.focus-ring {

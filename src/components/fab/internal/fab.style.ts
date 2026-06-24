@@ -9,22 +9,45 @@ import { PrimaryExtendedFabDefinition, SecondaryExtendedFabDefinition, TertiaryE
 import type { FocusRingDefinition } from '../../../component-definitions/focus-ring.definition'
 import type { IconDefinition } from '../../../component-definitions/icon.definition'
 import type { RippleDefinition } from '../../../component-definitions/ripple.definition'
-import { createWrappedTokens, overrideComponentTokens, stringTokens } from '../../../utils/tokens'
+import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+import { overrideComponentTokens, stringTokens } from '../../../utils/tokens'
 
-const t = {
-    tpe: createWrappedTokens('--mdc-fab', TonalPrimaryExtendedFabDefinition),
-    tse: createWrappedTokens('--mdc-fab', TonalSecondaryExtendedFabDefinition),
-    tte: createWrappedTokens('--mdc-fab', TonalTertiaryExtendedFabDefinition),
-    pe: createWrappedTokens('--mdc-fab', PrimaryExtendedFabDefinition),
-    se: createWrappedTokens('--mdc-fab', SecondaryExtendedFabDefinition),
-    te: createWrappedTokens('--mdc-fab', TertiaryExtendedFabDefinition),
-} as const
-const tpes = stringTokens(t.tpe)
-const tses = stringTokens(t.tse)
-const ttes = stringTokens(t.tte)
-const pes = stringTokens(t.pe)
-const ses = stringTokens(t.se)
-const tes = stringTokens(t.te)
+const tpeRecord = defineTokenRefsRecord(TonalPrimaryExtendedFabDefinition, {
+    expandShapes: false,
+    useBaseFallback: true,
+    prefix: '--mdc-fab'
+})
+const tpes = unsafeCSS(defineVars(tpeRecord, true).join(''))
+const tseRecord = defineTokenRefsRecord(TonalSecondaryExtendedFabDefinition, {
+    expandShapes: false,
+    useBaseFallback: true,
+    prefix: '--mdc-fab'
+})
+const tses = unsafeCSS(defineVars(tseRecord, true).join(''))
+const tteRecord = defineTokenRefsRecord(TonalTertiaryExtendedFabDefinition, {
+    expandShapes: false,
+    useBaseFallback: true,
+    prefix: '--mdc-fab'
+})
+const ttes = unsafeCSS(defineVars(tteRecord, true).join(''))
+const peRecord = defineTokenRefsRecord(PrimaryExtendedFabDefinition, {
+    expandShapes: false,
+    useBaseFallback: true,
+    prefix: '--mdc-fab'
+})
+const pes = unsafeCSS(defineVars(peRecord, true).join(''))
+const seRecord = defineTokenRefsRecord(SecondaryExtendedFabDefinition, {
+    expandShapes: false,
+    useBaseFallback: true,
+    prefix: '--mdc-fab'
+})
+const ses = unsafeCSS(defineVars(seRecord, true).join(''))
+const teRecord = defineTokenRefsRecord(TertiaryExtendedFabDefinition, {
+    expandShapes: false,
+    useBaseFallback: true,
+    prefix: '--mdc-fab'
+})
+const tes = unsafeCSS(defineVars(teRecord, true).join(''))
 
 const getElevationStyles = () => {
     const getSingleStateLevelStyles = (state: '' | 'hovered-' | 'pressed-' | 'focused-') => stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {

@@ -221,7 +221,7 @@ export class RippleAction {
             },
             {
                 duration: RippleConfiguration.pressGrowMs,
-                easing: Easing.Standard.toCSSValue(),
+                easing: Easing.Standard.ToCSSValue(),
                 fill: RippleConfiguration.animationFill,
             },
         )

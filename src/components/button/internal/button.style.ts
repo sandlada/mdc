@@ -9,22 +9,43 @@ import type { ElevationDefinition } from '../../../component-definitions/elevati
 import type { FocusRingDefinition } from '../../../component-definitions/focus-ring.definition'
 import type { IconDefinition } from '../../../component-definitions/icon.definition'
 import type { RippleDefinition } from '../../../component-definitions/ripple.definition'
-import { createWrappedTokens, overrideComponentTokens, stringTokens } from '../../../utils/tokens'
+import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+import { overrideComponentTokens, stringTokens } from '../../../utils/tokens'
 
-const elevatedTokens = createWrappedTokens('--mdc-button', ElevatedButtonDefinition)
-const elevatedTokenString = unsafeCSS(stringTokens(elevatedTokens))
+const elevatedTokenRecord = defineTokenRefsRecord(ElevatedButtonDefinition, {
+    expandShapes: false,
+    useBaseFallback: true,
+    prefix: '--mdc-button'
+})
+const elevatedTokenString = unsafeCSS(defineVars(elevatedTokenRecord, true).join(''))
 
-const filledTokens = createWrappedTokens('--mdc-button', FilledButtonDefinition)
-const filledTokenString = unsafeCSS(stringTokens(filledTokens))
+const filledTokenRecord = defineTokenRefsRecord(FilledButtonDefinition, {
+    expandShapes: false,
+    useBaseFallback: true,
+    prefix: '--mdc-button'
+})
+const filledTokenString = unsafeCSS(defineVars(filledTokenRecord, true).join(''))
 
-const filledTonalTokens = createWrappedTokens('--mdc-button', FilledTonalButtonDefinition)
-const filledTonalTokenString = unsafeCSS(stringTokens(filledTonalTokens))
+const filledTonalTokenRecord = defineTokenRefsRecord(FilledTonalButtonDefinition, {
+    expandShapes: false,
+    useBaseFallback: true,
+    prefix: '--mdc-button'
+})
+const filledTonalTokenString = unsafeCSS(defineVars(filledTonalTokenRecord, true).join(''))
 
-const outlinedTokens = createWrappedTokens('--mdc-button', OutlinedButtonDefinition)
-const outlinedTokenString = unsafeCSS(stringTokens(outlinedTokens))
+const outlinedTokenRecord = defineTokenRefsRecord(OutlinedButtonDefinition, {
+    expandShapes: false,
+    useBaseFallback: true,
+    prefix: '--mdc-button'
+})
+const outlinedTokenString = unsafeCSS(defineVars(outlinedTokenRecord, true).join(''))
 
-const textTokens = createWrappedTokens('--mdc-button', TextButtonDefinition)
-const textTokenString = unsafeCSS(stringTokens(textTokens))
+const textTokenRecord = defineTokenRefsRecord(TextButtonDefinition, {
+    expandShapes: false,
+    useBaseFallback: true,
+    prefix: '--mdc-button'
+})
+const textTokenString = unsafeCSS(defineVars(textTokenRecord, true).join(''))
 
 type TState = 'container-shape-round' | 'container-shape-square' | 'container-shape-round-toggle-selected' | 'container-shape-square-toggle-selected' | 'container-shape-pressed-morph'
 type TSize = 'extra-small' | 'small' | 'medium' | 'large' | 'extra-large'

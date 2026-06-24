@@ -170,8 +170,8 @@ export abstract class BaseFab extends composeMixin(
         await this.animateButton(
             [{ scale: '0', opacity: '0' }, { scale: '1', opacity: '1' }],
             {
-                duration: Duration.ExpressiveFastSpatial.value,
-                easing: Easing.ExpressiveFastSpatial.toCSSValue(),
+                duration: Duration.ExpressiveFastSpatial.Value,
+                easing: Easing.ExpressiveFastSpatial.ToCSSValue(),
             },
         )
 
@@ -213,8 +213,8 @@ export abstract class BaseFab extends composeMixin(
         await this.animateButton(
             [{ scale: '1', opacity: '1' }, { scale: '0', opacity: '0' }],
             {
-                duration: Duration.ExpressiveFastEffects.value,
-                easing: Easing.ExpressiveFastEffects.toCSSValue(),
+                duration: Duration.ExpressiveFastEffects.Value,
+                easing: Easing.ExpressiveFastSpatial.ToCSSValue(),
             },
         )
 

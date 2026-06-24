@@ -5,10 +5,14 @@
  */
 import { css, unsafeCSS } from 'lit'
 import { LinearProgressIndicatorDefinition } from '../../component-definitions/progress-indicator.definition'
-import { createWrappedTokens, stringTokens } from '../../utils/tokens'
+import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
 
-const linearProgressTokens = createWrappedTokens('--mdc-linear-progress-indicator', LinearProgressIndicatorDefinition)
-const linearString = stringTokens(linearProgressTokens)
+const tokenRecord = defineTokenRefsRecord(LinearProgressIndicatorDefinition, {
+    expandShapes: false,
+    useBaseFallback: true,
+    prefix: '--mdc-linear-progress-indicator'
+})
+const linearString = unsafeCSS(defineVars(tokenRecord, true).join(''))
 
 // see https://github.com/material-components/material-components-web/blob/main/packages/mdc-linear-progress/_linear-progress.scss#L79
 const determinateDuration = unsafeCSS(`250ms`)
@@ -38,6 +42,10 @@ export const linearProgressIndicatorStyle = css`
             margin-inline-start: 4px;
             margin-inline-end: 4px;
             height: var(--_height);
+
+        }
+        :host([wavy]) {
+            height: 20px;
         }
 
         .progress {
@@ -48,9 +56,26 @@ export const linearProgressIndicatorStyle = css`
             overflow: hidden;
             display: flex;
             align-items: center;
-        }
 
-        .stop-indicators {
+            --_inset-ltr: inset(
+                0
+                calc(var(--_inactive-fraction) * 100% + (var(--_stop-indicator-size) / 2))
+                0
+                0
+                round var(--_active-indicator-shape-start-start)
+            );
+            --_inset-rtl: inset(
+                0
+                0
+                0
+                calc(var(--_active-fraction) * 100% + (var(--_stop-indicator-size) / 2))
+                round var(--_active-indicator-shape-start-start)
+            );
+        }
+        .indeterminate .stop {
+            display: none;
+        }
+        .stop-indicators:not(.indeterminate) {
             position: absolute;
             inset: 0px;
             z-index: 0;
@@ -77,30 +102,16 @@ export const linearProgressIndicatorStyle = css`
         }
 
         .tracks {
-            --_inset-ltr: inset(
-                0
-                calc(var(--_inactive-fraction) * 100% + (var(--_stop-indicator-size) / 2))
-                0
-                0
-                round var(--_active-indicator-shape-start-start)
-            );
-            --_inset-rtl: inset(
-                0
-                0
-                0
-                calc(var(--_active-fraction) * 100% + (var(--_stop-indicator-size) / 2))
-                round var(--_active-indicator-shape-start-start)
-            );
-
             .active-track,
             .inactive-track {
                 position: absolute;
                 inset: 0px;
                 z-index: -1;
+                transition: none;
             }
 
             .active-track {
-                background: var(--_active-indicator-color);
+                /* background: var(--_active-indicator-color); */
             }
             .inactive-track {
                 background: var(--_track-color);
@@ -108,177 +119,53 @@ export const linearProgressIndicatorStyle = css`
 
 
             .active-track {
-                clip-path: var(--_inset-ltr);
+                /* clip-path: var(--_inset-ltr); */
             }
             .inactive-track {
-                clip-path: var(--_inset-rtl);
+                /* clip-path: var(--_inset-rtl); */
             }
         }
 
-        :not(.indeterminate) .indeteminate-bar {
-            visibility: hidden;
-        }
-        .indeterminate .indeteminate-bar {
-            visibility: visible;
-        }
-
-        .indeteminate-bar {
+        .indeterminate .tracks {
             position: absolute;
             inset: 0px;
-            .bar {
+
+            &>.track {
                 position: absolute;
-                animation: none;
-                width: 100%;
-                height: var(--_height);
-                transform-origin: left center;
-                transition: transform ${determinateDuration} ${determinateEasing};
-
-                .bar-inner {
-                    position: absolute;
-                    inset: 0;
-                    animation: none;
-                    background: var(--_active-indicator-color);
-                }
+                inset: 0px;
+                clip-path: inset(0 calc(var(--_wave-length-start-fraction) * 100%) 0 var(--_wave-length-end-fraction));
+                /* animation: wave-animation 3s infinite linear; */
             }
-            .primary-bar {
-                inset-inline-start: -145.167%;
+            &>.inactive-track {
+                background: var(--_track-color);
+                position: absolute;
+                inset: 0px;
+                z-index: -1;
             }
-
-            .secondary-bar {
-                inset-inline-start: -54.8889%;
-                display: block;
+            &>.inactive-track.left {
+                /* animation: wave-inactive-right-animation 10s infinite linear; */
             }
-
-            .primary-bar {
-                animation: linear infinite ${indeterminateDuration};
-                animation-name: primary-indeterminate-translate;
+            &>.inactive-track.right {
+                /* display: none; */
+                /* animation: wave-inactive-right-animation 10s infinite linear; */
             }
-
-            .primary-bar > .bar-inner {
-                animation: linear infinite ${indeterminateDuration} primary-indeterminate-scale;
-            }
-
-            .secondary-bar {
-                animation: linear infinite ${indeterminateDuration};
-                animation-name: secondary-indeterminate-translate;
-            }
-
-            .secondary-bar > .bar-inner {
-                animation: linear infinite ${indeterminateDuration} secondary-indeterminate-scale;
-            }
-
-        }
-        :host(:dir(rtl)) {
-            transform: scale(-1);
         }
 
+        .wave {
 
-                @keyframes primary-indeterminate-scale {
+            fill: none;
+            stroke: var(--_active-indicator-color);
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        @keyframes wave-animation {
             0% {
-                transform: scaleX(0.08);
             }
-
-            36.65% {
-                animation-timing-function: cubic-bezier(0.334731, 0.12482, 0.785844, 1);
-                transform: scaleX(0.08);
-            }
-
-            69.15% {
-                animation-timing-function: cubic-bezier(0.06, 0.11, 0.6, 1);
-                transform: scaleX(0.661479);
-            }
-
-            100% {
-                transform: scaleX(0.08);
+            10% {
             }
         }
 
-        @keyframes secondary-indeterminate-scale {
-            0% {
-                animation-timing-function: cubic-bezier(
-                0.205028,
-                0.057051,
-                0.57661,
-                0.453971
-                );
-                transform: scaleX(0.08);
-            }
 
-            19.15% {
-                animation-timing-function: cubic-bezier(
-                0.152313,
-                0.196432,
-                0.648374,
-                1.00432
-                );
-                transform: scaleX(0.457104);
-            }
-
-            44.15% {
-                animation-timing-function: cubic-bezier(
-                0.257759,
-                -0.003163,
-                0.211762,
-                1.38179
-                );
-                transform: scaleX(0.72796);
-            }
-
-            100% {
-                transform: scaleX(0.08);
-            }
-        }
-
-        @keyframes buffering {
-            0% {
-                transform: translateX(calc(var(--_stop-indicator-size) * 5));
-            }
-        }
-
-        @keyframes primary-indeterminate-translate {
-            0% {
-                transform: translateX(0px);
-            }
-
-            20% {
-                animation-timing-function: cubic-bezier(0.5, 0, 0.701732, 0.495819);
-                transform: translateX(0px);
-            }
-
-            59.15% {
-                animation-timing-function: cubic-bezier(
-                0.302435,
-                0.381352,
-                0.55,
-                0.956352
-                );
-                transform: translateX(83.6714%);
-            }
-
-            100% {
-                transform: translateX(200.611%);
-            }
-        }
-
-        @keyframes secondary-indeterminate-translate {
-            0% {
-                animation-timing-function: cubic-bezier(0.15, 0, 0.515058, 0.409685);
-                transform: translateX(0px);
-            }
-
-            25% {
-                animation-timing-function: cubic-bezier(0.31033, 0.284058, 0.8, 0.733712);
-                transform: translateX(37.6519%);
-            }
-
-            48.35% {
-                animation-timing-function: cubic-bezier(0.4, 0.627035, 0.6, 0.902026);
-                transform: translateX(84.3862%);
-            }
-
-            100% {
-                transform: translateX(160.278%);
-            }
-        }
     }
 `
