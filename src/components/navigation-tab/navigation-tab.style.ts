@@ -9,6 +9,7 @@ const barVRecord = defineTokenRefsRecord(NavigationBarVerticalTabDefinition, {
     useBaseFallback: true,
     prefix: '--mdc-navigation-tab'
 })
+
 const barVS = unsafeCSS(defineVars(barVRecord, true).join(''))
 const barHRecord = defineTokenRefsRecord(NavigationBarHorizontalTabDefinition, {
     expandShapes: true,

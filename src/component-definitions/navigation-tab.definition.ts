@@ -39,13 +39,11 @@
 
 import { Shape, State, Typescale } from '@sandlada/mdk'
 import { Color } from '../utils/tokens/theme'
-import { type LogicBorderRadius } from '../utils'
 import { createStyleDefinition } from '../utils/tokens/create-style-definition'
 
-interface IScheme extends LogicBorderRadius<{
-    'icon-container-shape': string
-    'indicator-shape'     : string
-}> {
+interface IScheme {
+    'icon-container-shape'                  : string
+    'indicator-shape'                       : string
     'icon-size'                             : string
     'unselected-icon-color'                 : string
     'selected-icon-color'                   : string
