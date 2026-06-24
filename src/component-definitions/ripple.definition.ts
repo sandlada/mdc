@@ -3,9 +3,11 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { Color, State } from '@sandlada/mdk'
+import { State } from '@sandlada/mdk'
+import { Color } from '../utils/tokens/theme'
+import { createStyleDefinition } from '../utils/tokens/create-style-definition'
 
-export const RippleDefinition = {
+export const RippleDefinition = createStyleDefinition({
     'hovered-color'  : Color.OnSurface,
     'hovered-opacity': State.HoveredStateLayerOpacity,
     'focused-color'  : Color.OnSurface,
@@ -18,4 +20,4 @@ export const RippleDefinition = {
      */
     // 'dragged-color'  : Color.OnSurface,
     // 'dragged-opacity': State.DraggedStateLayerOpacity,
-} as const
+})

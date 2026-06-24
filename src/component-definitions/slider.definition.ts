@@ -3,13 +3,15 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { Color, ElevationLevel, Shape, State, Typescale } from '@sandlada/mdk'
+import { ElevationLevel, Shape, State, Typescale } from '@sandlada/mdk'
+import { Color } from '../utils/tokens/theme'
+import { createStyleDefinition } from '../utils/tokens/create-style-definition'
 
 /**
  * @version
  * Material Design 3 - Expressive
  */
-export const SliderDefinition = {
+export const SliderDefinition = createStyleDefinition({
     'extra-small-active-track-height'          : `16px`,
     'extra-small-active-track-leading-shape'   : `8px`,
     'extra-small-inactive-track-height'        : `16px`,
@@ -43,7 +45,7 @@ export const SliderDefinition = {
     'extra-large-icon-size'                    : `32px`,
     // Enabled
     'stop-indicator-size'                      : `4px`,
-    'stop-indicator-shape'                     : Shape.Full.toCSSValue(),
+    'stop-indicator-shape'                     : Shape.Full,
     'stop-indicator-trailing-space'            : `4px`,
     'active-stop-indicator-color'              : Color.OnSecondaryContainer,
     'inactive-stop-indicator-color'            : Color.OnPrimary,
@@ -56,8 +58,8 @@ export const SliderDefinition = {
     'inactive-track-color'                     : Color.SecondaryContainer,
     'handle-width'                             : `4px`,
     'active-handle-width'                      : `4px`,
-    'handle-shape'                             : Shape.Full.toCSSValue(),
-    'active-handle-shape'                      : Shape.Full.toCSSValue(),
+    'handle-shape'                             : Shape.Full,
+    'active-handle-shape'                      : Shape.Full,
     'handle-color'                             : Color.Primary,
     'active-handle-color'                      : Color.Primary,
     'active-handle-leading-space'              : `6px`,
@@ -86,66 +88,66 @@ export const SliderDefinition = {
     'pressed-inactive-track-color'               : Color.SecondaryContainer,
     'pressed-inactive-container-color'           : Color.InverseSurface,
     'pressed-value-indicator-label-color'        : Color.InverseOnSurface,
-    'pressed-value-indicator-label-font'         : Typescale.LabelLarge.Font.toCSSValue(),
-    'pressed-value-indicator-label-line-height'  : Typescale.LabelLarge.LineHeight.toCSSValue(),
-    'pressed-value-indicator-label-size'         : Typescale.LabelLarge.FontSize.toCSSValue(),
-    'pressed-value-indicator-label-tracking'     : Typescale.LabelLarge.Tracking.toCSSValue(),
-    'pressed-value-indicator-label-weight'       : Typescale.LabelLarge.FontWeight.toCSSValue(),
+    'pressed-value-indicator-label-font'         : Typescale.LabelLarge.Font,
+    'pressed-value-indicator-label-line-height'  : Typescale.LabelLarge.LineHeight,
+    'pressed-value-indicator-label-size'         : Typescale.LabelLarge.FontSize,
+    'pressed-value-indicator-label-tracking'     : Typescale.LabelLarge.Tracking,
+    'pressed-value-indicator-label-weight'       : Typescale.LabelLarge.FontWeight,
     'pressed-value-indicator-active-bottom-space': `12px`,
-} as const
+})
 
 /**
  * @version
  * Material Design 2
  */
-export const SliderDefinitionVersion2 = {
-    'active-track-color': Color.Primary,
-    'active-track-height': `4px`,
-    'active-track-shape': Shape.Full.toCSSValue(),
-    'disabled-active-track-color': Color.OnSurface,
-    'disabled-active-track-opacity': 0.38,
-    'disabled-handle-color': Color.OnSurface,
-    'disabled-handle-elevation': ElevationLevel.Level0,
-    'disabled-handle-opacity': 0.38,
-    'disabled-inactive-track-color': Color.OnSurface,
-    'disabled-inactive-track-opacity': 0.12,
-    'focus-handle-color': Color.Primary,
-    'focus-state-layer-color': Color.Primary,
-    'focus-state-layer-opacity': State.FocusedStateLayerOpacity.toCSSValue(),
-    'handle-color': Color.Primary,
-    'handle-elevation': ElevationLevel.Level1,
-    'handle-height': `20px`,
-    'handle-shadow-color': Color.Shadow,
-    'handle-shape': Shape.Full.toCSSValue(),
-    'handle-width': `20px`,
-    'hover-handle-color': Color.Primary,
-    'hover-state-layer-color': Color.Primary,
-    'hover-state-layer-opacity': State.HoveredStateLayerOpacity.toCSSValue(),
-    'inactive-track-color': Color.SurfaceContainerHighest,
-    'inactive-track-height': `4px`,
-    'inactive-track-shape': Shape.Full.toCSSValue(),
-    'label-container-color': Color.Primary,
-    'label-container-elevation': ElevationLevel.Level0,
-    'label-container-height': `28px`,
-    'label-text-color': Color.OnPrimary,
-    'label-text-font': Typescale.LabelMedium.Font.toCSSValue(),
-    'label-text-line-height': Typescale.LabelMedium.LineHeight.toCSSValue(),
-    'label-text-size': Typescale.LabelMedium.FontSize.toCSSValue(),
-    'label-text-tracking': Typescale.LabelMedium.Tracking.toCSSValue(),
-    'label-text-weight': Typescale.LabelMedium.FontWeight.toCSSValue(),
-    'pressed-handle-color': Color.Primary,
-    'pressed-state-layer-color': Color.Primary,
-    'pressed-state-layer-opacity': State.PressedStateLayerOpacity.toCSSValue(),
-    'state-layer-size': `40px`,
-    'track-elevation': ElevationLevel.Level0,
-    'with-overlap-handle-outline-color': Color.OnPrimary,
-    'with-overlap-handle-outline-width': `1px`,
-    'with-tick-marks-active-container-color': Color.OnPrimary,
-    'with-tick-marks-active-container-opacity': 0.38,
-    'with-tick-marks-container-shape': Shape.Full.toCSSValue(),
-    'with-tick-marks-container-size': `2px`,
-    'with-tick-marks-disabled-container-color': Color.OnSurface,
-    'with-tick-marks-disabled-container-opacity': 0.38,
-    'with-tick-marks-inactive-container-color': Color.OnSurfaceVariant,
-    'with-tick-marks-inactive-container-opacity': 0.38
-} as const
+export const SliderDefinitionVersion2 = createStyleDefinition({
+    'active-track-color'                        : Color.Primary,
+    'active-track-height'                       : `4px`,
+    'active-track-shape'                        : Shape.Full,
+    'disabled-active-track-color'               : Color.OnSurface,
+    'disabled-active-track-opacity'             : `0.38`,
+    'disabled-handle-color'                     : Color.OnSurface,
+    'disabled-handle-elevation'                 : ElevationLevel.Level0,
+    'disabled-handle-opacity'                   : `0.38`,
+    'disabled-inactive-track-color'             : Color.OnSurface,
+    'disabled-inactive-track-opacity'           : `0.12`,
+    'focus-handle-color'                        : Color.Primary,
+    'focus-state-layer-color'                   : Color.Primary,
+    'focus-state-layer-opacity'                 : State.FocusedStateLayerOpacity,
+    'handle-color'                              : Color.Primary,
+    'handle-elevation'                          : ElevationLevel.Level1,
+    'handle-height'                             : `20px`,
+    'handle-shadow-color'                       : Color.Shadow,
+    'handle-shape'                              : Shape.Full,
+    'handle-width'                              : `20px`,
+    'hover-handle-color'                        : Color.Primary,
+    'hover-state-layer-color'                   : Color.Primary,
+    'hover-state-layer-opacity'                 : State.HoveredStateLayerOpacity,
+    'inactive-track-color'                      : Color.SurfaceContainerHighest,
+    'inactive-track-height'                     : `4px`,
+    'inactive-track-shape'                      : Shape.Full,
+    'label-container-color'                     : Color.Primary,
+    'label-container-elevation'                 : ElevationLevel.Level0,
+    'label-container-height'                    : `28px`,
+    'label-text-color'                          : Color.OnPrimary,
+    'label-text-font'                           : Typescale.LabelMedium.Font,
+    'label-text-line-height'                    : Typescale.LabelMedium.LineHeight,
+    'label-text-size'                           : Typescale.LabelMedium.FontSize,
+    'label-text-tracking'                       : Typescale.LabelMedium.Tracking,
+    'label-text-weight'                         : Typescale.LabelMedium.FontWeight,
+    'pressed-handle-color'                      : Color.Primary,
+    'pressed-state-layer-color'                 : Color.Primary,
+    'pressed-state-layer-opacity'               : State.PressedStateLayerOpacity,
+    'state-layer-size'                          : `40px`,
+    'track-elevation'                           : ElevationLevel.Level0,
+    'with-overlap-handle-outline-color'         : Color.OnPrimary,
+    'with-overlap-handle-outline-width'         : `1px`,
+    'with-tick-marks-active-container-color'    : Color.OnPrimary,
+    'with-tick-marks-active-container-opacity'  : `0.38`,
+    'with-tick-marks-container-shape'           : Shape.Full,
+    'with-tick-marks-container-size'            : `2px`,
+    'with-tick-marks-disabled-container-color'  : Color.OnSurface,
+    'with-tick-marks-disabled-container-opacity': `0.38`,
+    'with-tick-marks-inactive-container-color'  : Color.OnSurfaceVariant,
+    'with-tick-marks-inactive-container-opacity': `0.38`
+})

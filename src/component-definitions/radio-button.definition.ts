@@ -3,9 +3,11 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { Color, State } from '@sandlada/mdk'
+import { State } from '@sandlada/mdk'
+import { Color } from '../utils/tokens/theme'
+import { createStyleDefinition } from '../utils/tokens/create-style-definition'
 
-export const RadioButtonDefinition = {
+export const RadioButtonDefinition = createStyleDefinition({
     'selected-icon-color'  : Color.Primary,
     'unselected-icon-color': Color.OnSurfaceVariant,
     'icon-size'            : `20px`,
@@ -36,4 +38,4 @@ export const RadioButtonDefinition = {
     'pressed-selected-state-layer-opacity'  : State.PressedStateLayerOpacity,
     'pressed-unselected-state-layer-color'  : Color.Primary,
     'pressed-unselected-state-layer-opacity': State.PressedStateLayerOpacity,
-} as const
+})

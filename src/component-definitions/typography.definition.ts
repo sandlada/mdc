@@ -1,6 +1,7 @@
 import { Typescale } from '@sandlada/mdk'
+import { createStyleDefinition } from '../utils/tokens/create-style-definition'
 
-export const TypographyDefinition = {
+export const TypographyDefinition = createStyleDefinition({
     'display-large-font'                    : Typescale.DisplayLarge.Font,
     'display-large-size'                    : Typescale.DisplayLarge.FontSize,
     'display-large-weight'                  : Typescale.DisplayLarge.FontWeight,
@@ -151,4 +152,4 @@ export const TypographyDefinition = {
     'emphasized-body-small-weight'          : Typescale.EmphasizedBodySmall.FontWeight,
     'emphasized-body-small-line-height'     : Typescale.EmphasizedBodySmall.LineHeight,
     'emphasized-body-small-tracking'        : Typescale.EmphasizedBodySmall.Tracking,
-} as const
+})

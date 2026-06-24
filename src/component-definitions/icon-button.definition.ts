@@ -3,40 +3,116 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { Color, Shape, State } from '@sandlada/mdk'
-import { createLogicShapeTokens } from '../utils/tokens'
+import { Shape, State } from '@sandlada/mdk'
+import { Color } from '../utils/tokens/theme'
+import { createStyleDefinition } from '../utils/tokens/create-style-definition'
 
-const sharedShapes = (prefix: string) => createLogicShapeTokens(prefix, {
-    'extra-small-container-shape-round'         : Shape.Full,
-    'extra-small-container-shape-square'        : Shape.Medium,
-    'extra-small-shape-pressed-morph'           : Shape.Small,
-    'extra-small-selected-container-shape-round' : Shape.Medium,
-    'extra-small-selected-container-shape-square': Shape.Full,
+const sharedShapes = {
+    'extra-small-container-shape-round-start-start': Shape.Full,
+    'extra-small-container-shape-round-start-end': Shape.Full,
+    'extra-small-container-shape-round-end-start': Shape.Full,
+    'extra-small-container-shape-round-end-end': Shape.Full,
+    'extra-small-container-shape-square-start-start': Shape.Medium,
+    'extra-small-container-shape-square-start-end': Shape.Medium,
+    'extra-small-container-shape-square-end-start': Shape.Medium,
+    'extra-small-container-shape-square-end-end': Shape.Medium,
+    'extra-small-shape-pressed-morph-start-start': Shape.Small,
+    'extra-small-shape-pressed-morph-start-end': Shape.Small,
+    'extra-small-shape-pressed-morph-end-start': Shape.Small,
+    'extra-small-shape-pressed-morph-end-end': Shape.Small,
+    'extra-small-selected-container-shape-round-start-start': Shape.Medium,
+    'extra-small-selected-container-shape-round-start-end': Shape.Medium,
+    'extra-small-selected-container-shape-round-end-start': Shape.Medium,
+    'extra-small-selected-container-shape-round-end-end': Shape.Medium,
+    'extra-small-selected-container-shape-square-start-start': Shape.Full,
+    'extra-small-selected-container-shape-square-start-end': Shape.Full,
+    'extra-small-selected-container-shape-square-end-start': Shape.Full,
+    'extra-small-selected-container-shape-square-end-end': Shape.Full,
 
-    'small-container-shape-round'         : Shape.Full,
-    'small-container-shape-square'        : Shape.Medium,
-    'small-shape-pressed-morph'           : Shape.Small,
-    'small-selected-container-shape-round' : Shape.Medium,
-    'small-selected-container-shape-square': Shape.Full,
+    'small-container-shape-round-start-start': Shape.Full,
+    'small-container-shape-round-start-end': Shape.Full,
+    'small-container-shape-round-end-start': Shape.Full,
+    'small-container-shape-round-end-end': Shape.Full,
+    'small-container-shape-square-start-start': Shape.Medium,
+    'small-container-shape-square-start-end': Shape.Medium,
+    'small-container-shape-square-end-start': Shape.Medium,
+    'small-container-shape-square-end-end': Shape.Medium,
+    'small-shape-pressed-morph-start-start': Shape.Small,
+    'small-shape-pressed-morph-start-end': Shape.Small,
+    'small-shape-pressed-morph-end-start': Shape.Small,
+    'small-shape-pressed-morph-end-end': Shape.Small,
+    'small-selected-container-shape-round-start-start': Shape.Medium,
+    'small-selected-container-shape-round-start-end': Shape.Medium,
+    'small-selected-container-shape-round-end-start': Shape.Medium,
+    'small-selected-container-shape-round-end-end': Shape.Medium,
+    'small-selected-container-shape-square-start-start': Shape.Full,
+    'small-selected-container-shape-square-start-end': Shape.Full,
+    'small-selected-container-shape-square-end-start': Shape.Full,
+    'small-selected-container-shape-square-end-end': Shape.Full,
 
-    'medium-container-shape-round'         : Shape.Full,
-    'medium-container-shape-square'        : Shape.Large,
-    'medium-shape-pressed-morph'           : Shape.Medium,
-    'medium-selected-container-shape-round' : Shape.Large,
-    'medium-selected-container-shape-square': Shape.Full,
+    'medium-container-shape-round-start-start': Shape.Full,
+    'medium-container-shape-round-start-end': Shape.Full,
+    'medium-container-shape-round-end-start': Shape.Full,
+    'medium-container-shape-round-end-end': Shape.Full,
+    'medium-container-shape-square-start-start': Shape.Large,
+    'medium-container-shape-square-start-end': Shape.Large,
+    'medium-container-shape-square-end-start': Shape.Large,
+    'medium-container-shape-square-end-end': Shape.Large,
+    'medium-shape-pressed-morph-start-start': Shape.Medium,
+    'medium-shape-pressed-morph-start-end': Shape.Medium,
+    'medium-shape-pressed-morph-end-start': Shape.Medium,
+    'medium-shape-pressed-morph-end-end': Shape.Medium,
+    'medium-selected-container-shape-round-start-start': Shape.Large,
+    'medium-selected-container-shape-round-start-end': Shape.Large,
+    'medium-selected-container-shape-round-end-start': Shape.Large,
+    'medium-selected-container-shape-round-end-end': Shape.Large,
+    'medium-selected-container-shape-square-start-start': Shape.Full,
+    'medium-selected-container-shape-square-start-end': Shape.Full,
+    'medium-selected-container-shape-square-end-start': Shape.Full,
+    'medium-selected-container-shape-square-end-end': Shape.Full,
 
-    'large-container-shape-round'         : Shape.Full,
-    'large-container-shape-square'        : Shape.ExtraLarge,
-    'large-shape-pressed-morph'           : Shape.Large,
-    'large-selected-container-shape-round' : Shape.ExtraLarge,
-    'large-selected-container-shape-square': Shape.Full,
+    'large-container-shape-round-start-start': Shape.Full,
+    'large-container-shape-round-start-end': Shape.Full,
+    'large-container-shape-round-end-start': Shape.Full,
+    'large-container-shape-round-end-end': Shape.Full,
+    'large-container-shape-square-start-start': Shape.ExtraLarge,
+    'large-container-shape-square-start-end': Shape.ExtraLarge,
+    'large-container-shape-square-end-start': Shape.ExtraLarge,
+    'large-container-shape-square-end-end': Shape.ExtraLarge,
+    'large-shape-pressed-morph-start-start': Shape.Large,
+    'large-shape-pressed-morph-start-end': Shape.Large,
+    'large-shape-pressed-morph-end-start': Shape.Large,
+    'large-shape-pressed-morph-end-end': Shape.Large,
+    'large-selected-container-shape-round-start-start': Shape.ExtraLarge,
+    'large-selected-container-shape-round-start-end': Shape.ExtraLarge,
+    'large-selected-container-shape-round-end-start': Shape.ExtraLarge,
+    'large-selected-container-shape-round-end-end': Shape.ExtraLarge,
+    'large-selected-container-shape-square-start-start': Shape.Full,
+    'large-selected-container-shape-square-start-end': Shape.Full,
+    'large-selected-container-shape-square-end-start': Shape.Full,
+    'large-selected-container-shape-square-end-end': Shape.Full,
 
-    'extra-large-container-shape-round'         : Shape.Full,
-    'extra-large-container-shape-square'        : Shape.ExtraLarge,
-    'extra-large-shape-pressed-morph'           : Shape.Large,
-    'extra-large-selected-container-shape-round' : Shape.ExtraLarge,
-    'extra-large-selected-container-shape-square': Shape.Full,
-}, 'all', false)
+    'extra-large-container-shape-round-start-start': Shape.Full,
+    'extra-large-container-shape-round-start-end': Shape.Full,
+    'extra-large-container-shape-round-end-start': Shape.Full,
+    'extra-large-container-shape-round-end-end': Shape.Full,
+    'extra-large-container-shape-square-start-start': Shape.ExtraLarge,
+    'extra-large-container-shape-square-start-end': Shape.ExtraLarge,
+    'extra-large-container-shape-square-end-start': Shape.ExtraLarge,
+    'extra-large-container-shape-square-end-end': Shape.ExtraLarge,
+    'extra-large-shape-pressed-morph-start-start': Shape.Large,
+    'extra-large-shape-pressed-morph-start-end': Shape.Large,
+    'extra-large-shape-pressed-morph-end-start': Shape.Large,
+    'extra-large-shape-pressed-morph-end-end': Shape.Large,
+    'extra-large-selected-container-shape-round-start-start': Shape.ExtraLarge,
+    'extra-large-selected-container-shape-round-start-end': Shape.ExtraLarge,
+    'extra-large-selected-container-shape-round-end-start': Shape.ExtraLarge,
+    'extra-large-selected-container-shape-round-end-end': Shape.ExtraLarge,
+    'extra-large-selected-container-shape-square-start-start': Shape.Full,
+    'extra-large-selected-container-shape-square-start-end': Shape.Full,
+    'extra-large-selected-container-shape-square-end-start': Shape.Full,
+    'extra-large-selected-container-shape-square-end-end': Shape.Full,
+} as const
 
 const shared = {
     'extra-small-container-height'      : `32px`,
@@ -90,9 +166,10 @@ const shared = {
     'extra-large-outline-width'         : `3px`,
 } as const
 
-export const OutlinedIconButtonDefinition = {
+export const OutlinedIconButtonDefinition = createStyleDefinition({
     ...shared,
-    ...sharedShapes('--mdc-outlined-icon-button'),
+    ...sharedShapes,
+
     // Enabled
     'outline-color'                    : Color.OutlineVariant,
     'outline-color-toggle-unselected'  : Color.OutlineVariant,
@@ -139,11 +216,12 @@ export const OutlinedIconButtonDefinition = {
     'pressed-icon-color'                         : Color.OnSurfaceVariant,
     'pressed-icon-color-toggle-unselected'       : Color.OnSurfaceVariant,
     'pressed-icon-color-toggle-selected'         : Color.InverseOnSurface,
-} as const
+})
 
-export const StandardIconButtonDefinition = {
+export const StandardIconButtonDefinition = createStyleDefinition({
     ...shared,
-    ...sharedShapes('--mdc-standard-icon-button'),
+    ...sharedShapes,
+
     // Enabled
     'icon-color'                  : Color.OnSurfaceVariant,
     'icon-color-toggle-unselected': Color.OnSurfaceVariant,
@@ -175,11 +253,12 @@ export const StandardIconButtonDefinition = {
     'pressed-icon-color'                         : Color.OnSurfaceVariant,
     'pressed-icon-color-toggle-unselected'       : Color.OnSurfaceVariant,
     'pressed-icon-color-toggle-selected'         : Color.Primary,
-} as const
+})
 
-export const FilledIconButtonDefinition = {
+export const FilledIconButtonDefinition = createStyleDefinition({
     ...shared,
-    ...sharedShapes('--mdc-filled-icon-button'),
+    ...sharedShapes,
+
     // Enabled
     'container-color'                  : Color.Primary,
     'container-color-toggle-unselected': Color.SurfaceContainer,
@@ -216,11 +295,12 @@ export const FilledIconButtonDefinition = {
     'pressed-icon-color'                         : Color.OnPrimary,
     'pressed-icon-color-toggle-unselected'       : Color.OnSurfaceVariant,
     'pressed-icon-color-toggle-selected'         : Color.OnPrimary,
-} as const
+})
 
-export const FilledTonalIconButtonDefinition = {
+export const FilledTonalIconButtonDefinition = createStyleDefinition({
     ...shared,
-    ...sharedShapes('--mdc-filled-tonal-icon-button'),
+    ...sharedShapes,
+
     // Enabled
     'container-color'                  : Color.SecondaryContainer,
     'container-color-toggle-unselected': Color.SecondaryContainer,
@@ -257,4 +337,4 @@ export const FilledTonalIconButtonDefinition = {
     'pressed-icon-color'                         : Color.OnSecondaryContainer,
     'pressed-icon-color-toggle-unselected'       : Color.OnSecondaryContainer,
     'pressed-icon-color-toggle-selected'         : Color.OnSecondary,
-} as const
+})

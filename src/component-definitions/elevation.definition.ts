@@ -3,9 +3,11 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { Color, ElevationLevel } from '@sandlada/mdk'
+import { ElevationLevel } from '@sandlada/mdk'
+import { Color } from '../utils/tokens/theme'
+import { createStyleDefinition } from '../utils/tokens/create-style-definition'
 
-export const ElevationDefinition = {
+export const ElevationDefinition = createStyleDefinition({
     'level'       : ElevationLevel.Level0,
     'shadow-color': Color.Shadow,
-} as const
+})

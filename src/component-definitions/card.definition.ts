@@ -4,8 +4,9 @@
 * SPDX-License-Identifier: MIT
 */
 
-import { Color, ElevationLevel, Shape, State } from '@sandlada/mdk'
-import { createLogicShapeTokens } from '../utils/tokens'
+import { ElevationLevel, Shape, State } from '@sandlada/mdk'
+import { Color } from '../utils/tokens/theme'
+import { createStyleDefinition } from '../utils/tokens/create-style-definition'
 
 const shared = {
     'container-padding-inline-start': `16px`,
@@ -18,11 +19,10 @@ const shared = {
     'container-margin-block-end': `8px`,
 } as const
 
-export const ElevatedCardDefinition = {
+export const ElevatedCardDefinition = createStyleDefinition({
     ...shared,
-    ...createLogicShapeTokens('--md-card', {
-        'container-shape': Shape.Medium,
-    }, 'all', false),
+    'container-shape': Shape.Medium,
+
     'container-color'       : Color.SurfaceContainerLow,
     'container-elevation'   : ElevationLevel.Level1,
     'container-shadow-color': Color.Shadow,
@@ -56,13 +56,14 @@ export const ElevatedCardDefinition = {
     'dragged-container-elevation': ElevationLevel.Level4,
     'dragged-state-layer-color'  : Color.OnSurface,
     'dragged-state-layer-opacity': State.DraggedStateLayerOpacity,
-} as const
+})
 
-export const FilledCardDefinition = {
+export const FilledCardDefinition = createStyleDefinition({
     ...shared,
-    ...createLogicShapeTokens('--md-card', {
-        'container-shape': Shape.Medium,
-    }, 'all', false),
+    'container-shape-start-start': Shape.Medium,
+    'container-shape-start-end': Shape.Medium,
+    'container-shape-end-start': Shape.Medium,
+    'container-shape-end-end': Shape.Medium,
     'container-color'       : Color.SurfaceContainerHighest,
     'container-elevation'   : ElevationLevel.Level0,
     'container-shadow-color': Color.Shadow,
@@ -96,13 +97,14 @@ export const FilledCardDefinition = {
     'dragged-container-elevation': ElevationLevel.Level3,
     'dragged-state-layer-color'  : Color.OnSurface,
     'dragged-state-layer-opacity': State.DraggedStateLayerOpacity,
-} as const
+})
 
-export const OutlinedCardDefinition = {
+export const OutlinedCardDefinition = createStyleDefinition({
     ...shared,
-    ...createLogicShapeTokens('--mdc-card', {
-        'container-shape': Shape.Medium,
-    }, 'all', false),
+    'container-shape-start-start': Shape.Medium,
+    'container-shape-start-end': Shape.Medium,
+    'container-shape-end-start': Shape.Medium,
+    'container-shape-end-end': Shape.Medium,
     'container-color'       : Color.Surface,
     'container-elevation'   : ElevationLevel.Level0,
     'container-shadow-color': Color.Shadow,
@@ -142,4 +144,4 @@ export const OutlinedCardDefinition = {
     'dragged-state-layer-color'  : Color.OnSurface,
     'dragged-state-layer-opacity': State.DraggedStateLayerOpacity,
     'dragged-outline-color'      : Color.OutlineVariant,
-} as const
+})

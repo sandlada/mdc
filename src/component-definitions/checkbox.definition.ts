@@ -3,14 +3,19 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { Color, Shape, State } from '@sandlada/mdk';
-import { createLogicShapeTokens } from '../utils/tokens';
+import { Shape, State } from '@sandlada/mdk'
+import { Color } from '../utils/tokens/theme'
+import { createStyleDefinition } from '../utils/tokens/create-style-definition'
 
-export const CheckboxDefinition = {
-    ...createLogicShapeTokens('--md-checkbox', {
-        'container-shape'  : `2px`,
-        'state-layer-shape': Shape.Full,
-    }, 'all', false),
+export const CheckboxDefinition = createStyleDefinition({
+    'container-shape-start-start': `2px`,
+    'container-shape-start-end': `2px`,
+    'container-shape-end-start': `2px`,
+    'container-shape-end-end': `2px`,
+    'state-layer-shape-start-start': Shape.Full,
+    'state-layer-shape-start-end': Shape.Full,
+    'state-layer-shape-end-start': Shape.Full,
+    'state-layer-shape-end-end': Shape.Full,
 
     // Enabled
     'container-size'                : '18px',
@@ -84,4 +89,4 @@ export const CheckboxDefinition = {
     'pressed-error-state-layer-opacity'       : State.PressedStateLayerOpacity,
     'pressed-selected-icon-color'             : Color.OnPrimary,
     'pressed-selected-error-icon-color'       : Color.OnError,
-} as const;
+})

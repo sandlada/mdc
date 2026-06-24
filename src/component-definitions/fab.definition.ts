@@ -3,15 +3,23 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { Color, ElevationLevel, Shape, State, Typescale } from '@sandlada/mdk'
-import { createLogicShapeTokens } from '../utils/tokens'
+import { ElevationLevel, Shape, State, Typescale } from '@sandlada/mdk'
+import { Color } from '../utils/tokens/theme'
+import { createStyleDefinition } from '../utils/tokens/create-style-definition'
 
-const shared = (prefix: string) => ({
-    ...createLogicShapeTokens(prefix, {
-        'small-container-shape' : Shape.Large,
-        'medium-container-shape': Shape.LargeIncreased,
-        'large-container-shape' : Shape.ExtraLarge,
-    }, 'all', false),
+const shared = {
+    'small-container-shape-start-start': Shape.Large,
+    'small-container-shape-start-end': Shape.Large,
+    'small-container-shape-end-start': Shape.Large,
+    'small-container-shape-end-end': Shape.Large,
+    'medium-container-shape-start-start': Shape.LargeIncreased,
+    'medium-container-shape-start-end': Shape.LargeIncreased,
+    'medium-container-shape-end-start': Shape.LargeIncreased,
+    'medium-container-shape-end-end': Shape.LargeIncreased,
+    'large-container-shape-start-start': Shape.ExtraLarge,
+    'large-container-shape-start-end': Shape.ExtraLarge,
+    'large-container-shape-end-start': Shape.ExtraLarge,
+    'large-container-shape-end-end': Shape.ExtraLarge,
 
     'small-container-height': '56px',
     'small-container-width' : '56px',
@@ -24,10 +32,11 @@ const shared = (prefix: string) => ({
     'large-container-height': '96px',
     'large-container-width' : '96px',
     'large-icon-size'       : '36px',
-}) as const
+} as const
 
-export const TonalPrimaryFabDefinition = {
-    ...shared('--mdc-tonal-primary-fab'),
+export const TonalPrimaryFabDefinition = createStyleDefinition({
+    ...shared,
+
     // Enabled
     'container-color'       : Color.PrimaryContainer,
     'container-shadow-color': Color.Shadow,
@@ -51,10 +60,11 @@ export const TonalPrimaryFabDefinition = {
     'pressed-state-layer-color'  : Color.OnPrimaryContainer,
     'pressed-state-layer-opacity': State.PressedStateLayerOpacity,
     'pressed-icon-color'         : Color.OnPrimaryContainer,
-} as const
+})
 
-export const TonalSecondaryFabDefinition = {
-    ...shared('--mdc-tonal-secondary-fab'),
+export const TonalSecondaryFabDefinition = createStyleDefinition({
+    ...shared,
+
     // Enabled
     'container-color'       : Color.SecondaryContainer,
     'container-shadow-color': Color.Shadow,
@@ -78,10 +88,11 @@ export const TonalSecondaryFabDefinition = {
     'pressed-state-layer-color'  : Color.OnSecondaryContainer,
     'pressed-state-layer-opacity': State.PressedStateLayerOpacity,
     'pressed-icon-color'         : Color.OnSecondaryContainer,
-} as const
+})
 
-export const TonalTertiaryFabDefinition = {
-    ...shared('--mdc-tonal-tertiary-fab'),
+export const TonalTertiaryFabDefinition = createStyleDefinition({
+    ...shared,
+
     // Enabled
     'container-color'       : Color.TertiaryContainer,
     'container-shadow-color': Color.Shadow,
@@ -105,10 +116,11 @@ export const TonalTertiaryFabDefinition = {
     'pressed-state-layer-color'  : Color.OnTertiaryContainer,
     'pressed-state-layer-opacity': State.PressedStateLayerOpacity,
     'pressed-icon-color'         : Color.OnTertiaryContainer,
-} as const
+})
 
-export const PrimaryFabDefinition = {
-    ...shared('--mdc-primary-fab'),
+export const PrimaryFabDefinition = createStyleDefinition({
+    ...shared,
+
     // Enabled
     'container-color'       : Color.Primary,
     'container-shadow-color': Color.Shadow,
@@ -132,10 +144,11 @@ export const PrimaryFabDefinition = {
     'pressed-state-layer-color'  : Color.OnPrimary,
     'pressed-state-layer-opacity': State.PressedStateLayerOpacity,
     'pressed-icon-color'         : Color.OnPrimary,
-} as const
+})
 
-export const SecondaryFabDefinition = {
-    ...shared('--mdc-secondary-fab'),
+export const SecondaryFabDefinition = createStyleDefinition({
+    ...shared,
+
     // Enabled
     'container-color'       : Color.Secondary,
     'container-shadow-color': Color.Shadow,
@@ -159,10 +172,11 @@ export const SecondaryFabDefinition = {
     'pressed-state-layer-color'  : Color.OnSecondary,
     'pressed-state-layer-opacity': State.PressedStateLayerOpacity,
     'pressed-icon-color'         : Color.OnSecondary,
-} as const
+})
 
-export const TertiaryFabDefinition = {
-    ...shared('--mdc-tertiary-fab'),
+export const TertiaryFabDefinition = createStyleDefinition({
+    ...shared,
+
     // Enabled
     'container-color'       : Color.Tertiary,
     'container-shadow-color': Color.Shadow,
@@ -186,70 +200,70 @@ export const TertiaryFabDefinition = {
     'pressed-state-layer-color'  : Color.OnTertiary,
     'pressed-state-layer-opacity': State.PressedStateLayerOpacity,
     'pressed-icon-color'         : Color.OnTertiary,
-} as const
+})
 
-const extendedShared = {
-    'small-label-font'       : Typescale.TitleMediumFont,
-    'small-label-line-height': Typescale.TitleMediumLineHeight,
-    'small-label-size'       : Typescale.TitleMediumSize,
-    'small-label-tracking'   : Typescale.TitleMediumTracking,
-    'small-label-weight'     : Typescale.TitleMediumWeight,
+const extendedShared = createStyleDefinition({
+    'small-label-font'       : Typescale.TitleMedium.Font,
+    'small-label-line-height': Typescale.TitleMedium.LineHeight,
+    'small-label-size'       : Typescale.TitleMedium.FontSize,
+    'small-label-tracking'   : Typescale.TitleMedium.Tracking,
+    'small-label-weight'     : Typescale.TitleMedium.FontWeight,
     'small-leading-space'    : `16px`,
     'small-icon-label-space' : `8px`,
     'small-trailing-space'   : `16px`,
 
-    'medium-label-font'       : Typescale.TitleLargeFont,
-    'medium-label-line-height': Typescale.TitleLargeLineHeight,
-    'medium-label-size'       : Typescale.TitleLargeSize,
-    'medium-label-tracking'   : Typescale.TitleLargeTracking,
-    'medium-label-weight'     : Typescale.TitleLargeWeight,
+    'medium-label-font'       : Typescale.TitleLarge.Font,
+    'medium-label-line-height': Typescale.TitleLarge.LineHeight,
+    'medium-label-size'       : Typescale.TitleLarge.FontSize,
+    'medium-label-tracking'   : Typescale.TitleLarge.Tracking,
+    'medium-label-weight'     : Typescale.TitleLarge.FontWeight,
     'medium-leading-space'    : `26px`,
     'medium-icon-label-space' : `12px`,
     'medium-trailing-space'   : `26px`,
 
-    'large-label-font'       : Typescale.HeadlineSmallFont,
-    'large-label-line-height': Typescale.HeadlineSmallLineHeight,
-    'large-label-size'       : Typescale.HeadlineSmallSize,
-    'large-label-tracking'   : Typescale.HeadlineSmallTracking,
-    'large-label-weight'     : Typescale.HeadlineSmallWeight,
+    'large-label-font'       : Typescale.HeadlineSmall.Font,
+    'large-label-line-height': Typescale.HeadlineSmall.LineHeight,
+    'large-label-size'       : Typescale.HeadlineSmall.FontSize,
+    'large-label-tracking'   : Typescale.HeadlineSmall.Tracking,
+    'large-label-weight'     : Typescale.HeadlineSmall.FontWeight,
     'large-leading-space'    : `28px`,
     'large-icon-label-space' : `16px`,
     'large-trailing-space'   : `28px`,
-} as const
+})
 
-export const TonalPrimaryExtendedFabDefinition = Object.assign({
+export const TonalPrimaryExtendedFabDefinition = Object.assign(createStyleDefinition({
     'label-color'        : Color.OnPrimaryContainer,
     'hovered-label-color': Color.OnPrimaryContainer,
     'focused-label-color': Color.OnPrimaryContainer,
     'pressed-label-color': Color.OnPrimaryContainer,
-}, { ...TonalPrimaryFabDefinition, ...extendedShared })
-export const TonalSecondaryExtendedFabDefinition = Object.assign({
+}), { ...TonalPrimaryFabDefinition, ...extendedShared })
+export const TonalSecondaryExtendedFabDefinition = Object.assign(createStyleDefinition({
     'label-color'        : Color.OnSecondaryContainer,
     'hovered-label-color': Color.OnSecondaryContainer,
     'focused-label-color': Color.OnSecondaryContainer,
     'pressed-label-color': Color.OnSecondaryContainer,
-}, { ...TonalSecondaryFabDefinition, ...extendedShared })
-export const TonalTertiaryExtendedFabDefinition = Object.assign({
+}), { ...TonalSecondaryFabDefinition, ...extendedShared })
+export const TonalTertiaryExtendedFabDefinition = Object.assign(createStyleDefinition({
     'label-color'        : Color.OnTertiaryContainer,
     'hovered-label-color': Color.OnTertiaryContainer,
     'focused-label-color': Color.OnTertiaryContainer,
     'pressed-label-color': Color.OnTertiaryContainer,
-}, { ...TonalTertiaryFabDefinition, ...extendedShared })
-export const PrimaryExtendedFabDefinition = Object.assign({
+}), { ...TonalTertiaryFabDefinition, ...extendedShared })
+export const PrimaryExtendedFabDefinition = Object.assign(createStyleDefinition({
     'label-color'        : Color.OnPrimary,
     'hovered-label-color': Color.OnPrimary,
     'focused-label-color': Color.OnPrimary,
     'pressed-label-color': Color.OnPrimary,
-}, { ...PrimaryFabDefinition, ...extendedShared })
-export const SecondaryExtendedFabDefinition = Object.assign({
+}), { ...PrimaryFabDefinition, ...extendedShared })
+export const SecondaryExtendedFabDefinition = Object.assign(createStyleDefinition({
     'label-color'        : Color.OnSecondary,
     'hovered-label-color': Color.OnSecondary,
     'focused-label-color': Color.OnSecondary,
     'pressed-label-color': Color.OnSecondary,
-}, { ...SecondaryFabDefinition, ...extendedShared })
-export const TertiaryExtendedFabDefinition = Object.assign({
+}), { ...SecondaryFabDefinition, ...extendedShared })
+export const TertiaryExtendedFabDefinition = Object.assign(createStyleDefinition({
     'label-color'        : Color.OnTertiary,
     'hovered-label-color': Color.OnTertiary,
     'focused-label-color': Color.OnTertiary,
     'pressed-label-color': Color.OnTertiary,
-}, { ...TertiaryFabDefinition, ...extendedShared })
+}), { ...TertiaryFabDefinition, ...extendedShared })

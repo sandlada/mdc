@@ -37,8 +37,9 @@
  * https://www.figma.com/design/4GM7ohCF2Qtjzs7Fra6jlp/Material-3-Design-Kit--Community-?node-id=55141-14251&p=f&t=Lo93bap9LHFqZ0Q1-0
  */
 
-import { Color, Shape, State, Typescale } from '@sandlada/mdk'
-import { transformRadiusToLogicRadius, type LogicBorderRadius, type PrefixKeys } from '../utils'
+import { Shape, State, Typescale } from '@sandlada/mdk'
+import { Color } from '../utils/tokens/theme'
+import { type LogicBorderRadius } from '../utils'
 import { createStyleDefinition } from '../utils/tokens/create-style-definition'
 
 interface IScheme extends LogicBorderRadius<{
@@ -58,22 +59,22 @@ interface IScheme extends LogicBorderRadius<{
     'selected-indicator-color'              : string
     'indicator-height'                      : string
     'indicator-width'                       : string
-    'unselected-label-color'                : string
-    'selected-label-color'                  : string
-    'label-size'                            : string
-    'label-line-height'                     : string
-    'label-font'                            : string
-    'label-tracking'                        : string
-    'label-font-weight'                     : string
+    'unselected-label-color'                : any
+    'selected-label-color'                  : any
+    'label-size'                            : any
+    'label-line-height'                     : any
+    'label-font'                            : any
+    'label-tracking'                        : any
+    'label-font-weight'                     : any
     'badge-color'                           : string
     'badge-height'                          : string
     'badge-width'                           : string
-    'badge-label-color'                     : string
-    'badge-label-size'                      : string
-    'badge-label-line-height'               : string
-    'badge-label-font'                      : string
-    'badge-label-tracking'                  : string
-    'badge-label-font-weight'               : string
+    'badge-label-color'                     : any
+    'badge-label-size'                      : any
+    'badge-label-line-height'               : any
+    'badge-label-font'                      : any
+    'badge-label-tracking'                  : any
+    'badge-label-font-weight'               : any
     'unselected-enabled-state-layer-color'  : string
     'unselected-hovered-state-layer-color'  : string
     'unselected-focused-state-layer-color'  : string
@@ -96,13 +97,13 @@ interface IScheme extends LogicBorderRadius<{
     'container-block-trailing-space'        : string
     'container-inline-leading-space'        : string
     'container-inline-trailing-space'       : string
-    'spacing-between-icon-and-label'        : string
+    'spacing-between-icon-and-label'        : any
 }
 
-const DefaultScheme = {
+const DefaultScheme = createStyleDefinition({
     'icon-size': `24px`,
-    'unselected-icon-color': Color.OnSecondaryContainer.toCSSValue(),
-    'selected-icon-color': Color.OnSecondaryContainer.toCSSValue(),
+    'unselected-icon-color': Color.OnSecondaryContainer,
+    'selected-icon-color': Color.OnSecondaryContainer,
 
     'icon-container-height': `32px`,
     'icon-container-width': `56px`,
@@ -112,17 +113,17 @@ const DefaultScheme = {
     'icon-container-inline-trailing-space': `0px`,
 
     'unselected-indicator-color': `transparent`,
-    'selected-indicator-color': Color.SecondaryContainer.toCSSValue(),
+    'selected-indicator-color': Color.SecondaryContainer,
     'indicator-height': `32px`,
     'indicator-width': `56px`,
 
-    'unselected-label-color': Color.OnSurfaceVariant.toCSSValue(),
-    'selected-label-color': Color.Secondary.toCSSValue(),
-    'label-size': Typescale.LabelMedium.FontSize.toCSSValue(),
-    'label-line-height': Typescale.LabelMedium.LineHeight.toCSSValue(),
-    'label-font': Typescale.LabelMedium.Font.toCSSValue(),
-    'label-tracking': Typescale.LabelMedium.Tracking.toCSSValue(),
-    'label-font-weight': Typescale.LabelMedium.FontWeight.toCSSValue(),
+    'unselected-label-color': Color.OnSurfaceVariant,
+    'selected-label-color': Color.Secondary,
+    'label-size': Typescale.LabelMedium.FontSize,
+    'label-line-height': Typescale.LabelMedium.LineHeight,
+    'label-font': Typescale.LabelMedium.Font,
+    'label-tracking': Typescale.LabelMedium.Tracking,
+    'label-font-weight': Typescale.LabelMedium.FontWeight,
 
     'badge-color': `unset`,
     'badge-height': `unset`,
@@ -134,23 +135,23 @@ const DefaultScheme = {
     'badge-label-tracking': `unset`,
     'badge-label-font-weight': `unset`,
 
-    'unselected-enabled-state-layer-color': Color.OnSurface.toCSSValue(),
-    'unselected-hovered-state-layer-color': Color.OnSurface.toCSSValue(),
-    'unselected-focused-state-layer-color': Color.OnSurface.toCSSValue(),
-    'unselected-pressed-state-layer-color': Color.OnSurface.toCSSValue(),
-    'selected-enabled-state-layer-color': Color.OnSecondaryContainer.toCSSValue(),
-    'selected-hovered-state-layer-color': Color.OnSecondaryContainer.toCSSValue(),
-    'selected-focused-state-layer-color': Color.OnSecondaryContainer.toCSSValue(),
-    'selected-pressed-state-layer-color': Color.OnSecondaryContainer.toCSSValue(),
+    'unselected-enabled-state-layer-color': Color.OnSurface,
+    'unselected-hovered-state-layer-color': Color.OnSurface,
+    'unselected-focused-state-layer-color': Color.OnSurface,
+    'unselected-pressed-state-layer-color': Color.OnSurface,
+    'selected-enabled-state-layer-color': Color.OnSecondaryContainer,
+    'selected-hovered-state-layer-color': Color.OnSecondaryContainer,
+    'selected-focused-state-layer-color': Color.OnSecondaryContainer,
+    'selected-pressed-state-layer-color': Color.OnSecondaryContainer,
 
     'unselected-enabled-state-layer-opacity': `0`,
-    'unselected-hovered-state-layer-opacity': State.HoveredStateLayerOpacity.toCSSValue(),
-    'unselected-focused-state-layer-opacity': State.FocusedStateLayerOpacity.toCSSValue(),
-    'unselected-pressed-state-layer-opacity': State.PressedStateLayerOpacity.toCSSValue(),
+    'unselected-hovered-state-layer-opacity': State.HoveredStateLayerOpacity,
+    'unselected-focused-state-layer-opacity': State.FocusedStateLayerOpacity,
+    'unselected-pressed-state-layer-opacity': State.PressedStateLayerOpacity,
     'selected-enabled-state-layer-opacity': `0`,
-    'selected-hovered-state-layer-opacity': State.HoveredStateLayerOpacity.toCSSValue(),
-    'selected-focused-state-layer-opacity': State.FocusedStateLayerOpacity.toCSSValue(),
-    'selected-pressed-state-layer-opacity': State.PressedStateLayerOpacity.toCSSValue(),
+    'selected-hovered-state-layer-opacity': State.HoveredStateLayerOpacity,
+    'selected-focused-state-layer-opacity': State.FocusedStateLayerOpacity,
+    'selected-pressed-state-layer-opacity': State.PressedStateLayerOpacity,
 
     'container-height': `64px`,
     'container-width': `104px`,
@@ -160,11 +161,9 @@ const DefaultScheme = {
     'container-inline-trailing-space': `0px`,
     'spacing-between-icon-and-label': `4px`,
 
-    ...transformRadiusToLogicRadius({
-        'icon-container-shape': Shape.Full.toCSSValue(),
-        'indicator-shape': Shape.Full.toCSSValue(),
-    }),
-} as const satisfies IScheme
+    'icon-container-shape': Shape.Full,
+    'indicator-shape': Shape.Full,
+})
 
 export const NavigationBarVerticalTabDefinition = createStyleDefinition<Partial<IScheme>>(DefaultScheme)
 export const NavigationBarHorizontalTabDefinition = createStyleDefinition<Partial<IScheme>>({
@@ -243,11 +242,11 @@ export const NavigationRailHorizontalTabDefinition = createStyleDefinition<Parti
     'indicator-width': `99px`,
     'spacing-between-icon-and-label': `8px`,
 
-    "label-font": Typescale.LabelLarge.Font.toCSSValue(),
-    "label-size": Typescale.LabelLarge.FontSize.toCSSValue(),
-    "label-line-height": Typescale.LabelLarge.LineHeight.toCSSValue(),
-    "label-tracking": Typescale.LabelLarge.Tracking.toCSSValue(),
-    "label-font-weight": Typescale.LabelLarge.FontWeight.toCSSValue(),
+    "label-font": Typescale.LabelLarge.Font,
+    "label-size": Typescale.LabelLarge.FontSize,
+    "label-line-height": Typescale.LabelLarge.LineHeight,
+    "label-tracking": Typescale.LabelLarge.Tracking,
+    "label-font-weight": Typescale.LabelLarge.FontWeight,
 })
 export const NavigationRailRoundTabDefinition = createStyleDefinition<Partial<IScheme>>({
     ...DefaultScheme,

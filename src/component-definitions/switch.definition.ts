@@ -3,15 +3,14 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { Color, Shape, State } from '@sandlada/mdk'
-import { createLogicShapeTokens } from '../utils/tokens'
+import { Shape, State } from '@sandlada/mdk'
+import { Color } from '../utils/tokens/theme'
+import { createStyleDefinition } from '../utils/tokens/create-style-definition'
 
-export const SwitchDefinition = {
-    ...createLogicShapeTokens('--mdc-switch', {
-        'track-shape'      : Shape.Full,
-        'handle-shape'     : Shape.Full,
-        'state-layer-shape': Shape.Full
-    }, 'all', false),
+export const SwitchDefinition = createStyleDefinition({
+    'track-shape'      : Shape.Full,
+    'handle-shape'     : Shape.Full,
+    'state-layer-shape': Shape.Full,
     'icon-color-selected'     : Color.OnPrimaryContainer,
     'icon-size-selected'      : `16px`,
     'icon-color-unselected'   : Color.SurfaceContainerHighest,
@@ -89,4 +88,4 @@ export const SwitchDefinition = {
     'pressed-handle-color-unselected'       : Color.OnSurfaceVariant,
     'pressed-handle-height'                 : `28px`,
     'pressed-handle-width'                  : `28px`,
-} as const
+})

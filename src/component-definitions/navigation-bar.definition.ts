@@ -3,10 +3,15 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { Color, Shape } from '@sandlada/mdk'
-import { createLogicShapeTokens } from '../utils'
+import { Shape } from '@sandlada/mdk'
+import { Color } from '../utils/tokens/theme'
+import { createStyleDefinition } from '../utils/tokens/create-style-definition'
 
-export const NavigationBarDefinition = {
+export const NavigationBarDefinition = createStyleDefinition({
+    // Peek mode: visible sliver size when the bar is mostly docked outside the
+    // viewport. Overridable via the `peek-size` attribute (px) on the host.
+    'peek-size': `24px`,
+
     'vertical-container-height'               : `64px`,
     'vertical-container-inline-leading-space' : `0px`,
     'vertical-container-inline-trailing-space': `0px`,
@@ -31,9 +36,16 @@ export const NavigationBarDefinition = {
     'vertical-xr-tab-between-space'              : `0px`,
     'vertical-xr-container-color'                : Color.SurfaceContainer,
 
-    ...createLogicShapeTokens('--mdc-navigation-bar', {
-        'vertical-container-shape'   : Shape.None,
-        'vertical-xr-container-shape': Shape.Full,
-        'horizonal-container-shape'  : Shape.None,
-    }, 'all', false)
-} as const
+    'vertical-container-shape-start-start': Shape.None,
+    'vertical-container-shape-start-end': Shape.None,
+    'vertical-container-shape-end-start': Shape.None,
+    'vertical-container-shape-end-end': Shape.None,
+    'vertical-xr-container-shape-start-start': Shape.Full,
+    'vertical-xr-container-shape-start-end': Shape.Full,
+    'vertical-xr-container-shape-end-start': Shape.Full,
+    'vertical-xr-container-shape-end-end': Shape.Full,
+    'horizonal-container-shape-start-start': Shape.None,
+    'horizonal-container-shape-start-end': Shape.None,
+    'horizonal-container-shape-end-start': Shape.None,
+    'horizonal-container-shape-end-end': Shape.None,
+})
