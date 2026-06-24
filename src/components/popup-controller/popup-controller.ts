@@ -232,7 +232,6 @@ export class MDCPopupController extends LitElement {
 
     protected override firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated(_changedProperties)
-        console.log(this.surfaceElements);
         if (!this.surfaceElement) return
         // 初始隐藏浮层
         this.surfaceElement.style.display = 'none'
