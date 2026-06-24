@@ -38,7 +38,7 @@
         "@rollup/plugin-terser": "^0.4.4",
         "@rollup/plugin-typescript": "^12.1.4",
         "@sandlada/jss": "^0.0.1-20260624.b",
-        "@sandlada/mdk": "^3.0.0-20260624.b",
+        "@sandlada/mdk": "^3.0.0-20260624.c",
         "autoprefixer": "^10.4.21",
         "rollup": "^4.44.2",
         "rollup-plugin-html-literals": "^2.0.0",
