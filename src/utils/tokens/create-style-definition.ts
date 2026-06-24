@@ -1,9 +1,9 @@
-interface HasToCSSValue {
-    toCSSValue: () => any
+interface HasToCSSVariable {
+    ToCSSVariable: () => any
 }
 type ResolvedStyle<T> = {
-    [K in keyof T]: T[K] extends HasToCSSValue
-        ? ReturnType<T[K]['toCSSValue']>
+    [K in keyof T]: T[K] extends HasToCSSVariable
+        ? ReturnType<T[K]['ToCSSVariable']>
         : T[K]
 }
 type Prettify<T> = {
@@ -14,8 +14,8 @@ export function createStyleDefinition<const T extends Record<string, any>>(recor
     const result = { ...record } as any
 
     for(const [k, v] of Object.entries(record)) {
-        if(typeof v?.toCSSValue === 'function') {
-            result[k] = v.toCSSValue()
+        if(typeof v?.ToCSSVariable === 'function') {
+            result[k] = v.ToCSSVariable()
         }
     }
 

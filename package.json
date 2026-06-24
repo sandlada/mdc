@@ -1,20 +1,80 @@
 {
-    "name": "@sandlada/vue-mdc",
-    "version": "0.0.0",
-    "private": "true",
-    "type": "module",
+    "name": "@sandlada/mdc",
+    "version": "0.1.0-20250909.b",
+    "author": "Kai-Orion & Sandlada",
+    "description": "@sandlada/mdc is an open source component library that follows the Material Design 3 design specifications.",
     "license": "MIT",
-    "author": "bre97-web",
-    "workspaces": [
-        "packages/vue-mdc",
-        "packages/dev-app"
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/sandlada/mdc.git"
+    },
+    "bugs": {
+        "url": "https://github.com/sandlada/mdc/issues"
+    },
+    "homepage": "https://mdc.sandlada.com",
+    "keywords": [
+        "cross-framework",
+        "web-components",
+        "material",
+        "material-web",
+        "material-web-components",
+        "material-design",
+        "material-expressive",
+        "material-you",
+        "component-library",
+        "ui"
     ],
-    "scripts": {
-        "dev": "npm run dev -w packages/dev-app",
-        "bundle-size": "node ./scripts/bundle-size.js",
-        "copy-root-files": "node ./scripts/copy-root-files-to-vue-mdc.js",
-        "compile": "npm run copy-root-files && npm run build -w packages/vue-mdc && npm run bundle-size",
-        "list:modules": "ls packages/ui/src/* -d | grep -vE 'md|tokens'",
-        "list:entries": "echo '// componens' && ls packages/ui/src/components/*/index.ts | grep -vE 'labs' && echo '// colors' && ls packages/ui/src/colors/index.ts && echo '// component-register' && ls packages/ui/src/component-register/index.ts && echo 'internals' && ls packages/ui/src/internals/index.ts && echo 'utils' && ls packages/ui/src/utils/index.ts"
+    "publishConfig": {
+        "access": "public"
+    },
+    "type": "module",
+    "dependencies": {
+        "@lit/context": "^1.1.6",
+        "lit": "^3.3.3"
+    },
+    "devDependencies": {
+        "@floating-ui/dom": "^1.7.4",
+        "@rollup/plugin-node-resolve": "^16.0.1",
+        "@rollup/plugin-terser": "^0.4.4",
+        "@rollup/plugin-typescript": "^12.1.4",
+        "@sandlada/jss": "^0.0.1-20260624.b",
+        "@sandlada/mdk": "^3.0.0-20260624.b",
+        "autoprefixer": "^10.4.21",
+        "rollup": "^4.44.2",
+        "rollup-plugin-html-literals": "^2.0.0",
+        "rollup-plugin-minify-template-literals": "^1.1.7",
+        "terser": "^5.43.1",
+        "tslib": "^2.8.1",
+        "type-fest": "^5.6.0",
+        "typescript": "~5.8.3",
+        "vite": "^7.0.3",
+        "vitest": "^4.1.7"
+    },
+    "files": [
+        "build/**/*",
+        "LICENSES/**/*",
+        "LICENSE",
+        "README.md"
+    ],
+    "exports": {
+        "./*": {
+            "import": "./*",
+            "default": "./*"
+        },
+        "./definitions": {
+            "import": "./build/definitions.js",
+            "types": "./build/definitions.d.ts",
+            "default": "./build/definitions.js"
+        },
+        "./utils": {
+            "import": "./build/utils.js",
+            "types": "./build/utils.d.ts",
+            "default": "./build/utils.js"
+        },
+        "./all": {
+            "import": "./build/all.js",
+            "types": "./build/all.d.ts",
+            "default": "./build/all.js"
+        }
     }
 }
