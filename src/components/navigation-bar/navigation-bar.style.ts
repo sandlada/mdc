@@ -9,10 +9,10 @@ const tokenRecord = defineTokenRefsRecord(NavigationBarDefinition, {
 })
 const tS = unsafeCSS(defineVars(tokenRecord, true).join(''))
 
-type Direction = 'vertical' | 'horizonal' | 'vertical-xr'
+type Direction = 'vertical' | 'horizontal' | 'vertical-xr'
 const Directions = {
     Vertical: 'vertical',
-    Horizonal: 'horizonal',
+    Horizontal: 'horizontal',
     VerticalXR: 'vertical-xr'
 } as const satisfies Record<string, Direction>
 
@@ -66,8 +66,8 @@ export const NavigationBarStyles = css`
     .vertical.container {
         ${createContainerStyle(Directions.Vertical)};
     }
-    .horizonal.container {
-        ${createContainerStyle(Directions.Horizonal)};
+    .horizontal.container {
+        ${createContainerStyle(Directions.Horizontal)};
     }
     .vertical-xr.container {
         ${createContainerStyle(Directions.VerticalXR)};
@@ -82,8 +82,8 @@ export const NavigationBarStyles = css`
     .vertical .background {
         ${createBackgroundStyle(Directions.Vertical)};
     }
-    .horizonal .background {
-        ${createBackgroundStyle(Directions.Horizonal)};
+    .horizontal .background {
+        ${createBackgroundStyle(Directions.Horizontal)};
     }
     .vertical-xr .background {
         ${createBackgroundStyle(Directions.VerticalXR)};

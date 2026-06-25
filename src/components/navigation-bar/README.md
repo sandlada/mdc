@@ -21,5 +21,5 @@ Variant對象取值：
 | Variant            |       Value |
 | :----------------- | ----------: |
 | Variant.Vertical   |    vertical |
-| Variant.Horizonal  |   horizonal |
+| Variant.Horizontal |  horizontal |
 | Variant.VerticalXR | vertical-xr |
