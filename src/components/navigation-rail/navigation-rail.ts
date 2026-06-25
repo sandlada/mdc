@@ -52,7 +52,7 @@ import { BaseNavigationContainer } from '../navigation/internal/base-navigation-
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import { mixinConnectedPromiseResolve, type IConnectedPromiseResolve } from '../../utils/behaviors/connected-promise-resolve'
 import { mixinXROptions } from '../../utils/xr/mixin-xr-options'
-import type { INavigationRail } from './navigation-rail.interface'
+import { NavigationRailCollapsedVariant, type INavigationRail } from './navigation-rail.interface'
 import type { NavigationTabVariant } from '../navigation-tab/navigation-tab.interface'
 import { html, type PropertyValues, type TemplateResult } from 'lit'
 import { classMap } from 'lit/directives/class-map.js'
@@ -143,7 +143,7 @@ export class NavigationRail extends composeMixin(
      * When expanded, tabs always use `rail-horizontal` regardless of this value.
      */
     @property({ type: String, reflect: true, attribute: 'collapsed-variant' })
-    public collapsedVariant: 'vertical' | 'round' = 'vertical'
+    public collapsedVariant: NavigationRailCollapsedVariant = NavigationRailCollapsedVariant.Vertical
 
     @state()
     protected isAtScrollTop = false
