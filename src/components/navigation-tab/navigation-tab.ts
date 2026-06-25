@@ -112,7 +112,7 @@ export class MDCNavigationTab extends composeMixin(
     public disabled: boolean = false
 
     /**
-     * horizonal is not available for bar-xr and rail-xr types.
+     * horizontal is not available for bar-xr and rail-xr types.
      */
     @property({ type: String, reflect: true })
     public variant: NavigationTabVariant = 'bar-vertical'

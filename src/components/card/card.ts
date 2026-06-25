@@ -27,7 +27,7 @@ export class MDCCard extends composeMixin(
     }
 
     @property({ type: Boolean })
-    public horizonal: boolean = false
+    public horizontal: boolean = false
 
     @property({ type: String })
     public variant: 'filled' | 'outlined' | 'elevated' = 'filled'
@@ -50,8 +50,8 @@ export class MDCCard extends composeMixin(
         return ({
             'container': true,
             [this.variant]: true,
-            'stacked': !this.horizonal,
-            'horizonal': this.horizonal,
+            'stacked': !this.horizontal,
+            'horizontal': this.horizontal,
         })
     }
 

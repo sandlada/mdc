@@ -13,7 +13,7 @@ export abstract class BaseMDCToolbar extends LitElement {
     public color: 'standard' | 'vibrant' = 'standard'
 
     @property({ type: String })
-    public direction: 'vertical' | 'horizonal' = 'horizonal'
+    public direction: 'vertical' | 'horizontal' = 'horizontal'
 
     @state()
     protected hasFab: boolean = false
