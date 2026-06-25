@@ -9,7 +9,6 @@ const barVRecord = defineTokenRefsRecord(NavigationBarVerticalTabDefinition, {
     useBaseFallback: true,
     prefix: '--mdc-navigation-tab'
 })
-
 const barVS = unsafeCSS(defineVars(barVRecord, true).join(''))
 const barHRecord = defineTokenRefsRecord(NavigationBarHorizontalTabDefinition, {
     expandShapes: true,
@@ -53,6 +52,7 @@ const railXRRRecord = defineTokenRefsRecord(NavigationRailXRRoundTabDefinition, 
     prefix: '--mdc-navigation-tab'
 })
 const railXRRS = unsafeCSS(defineVars(railXRRRecord, true).join(''))
+console.log(railVS.cssText)
 
 const tabIndicatorGrowEasing = Easing.ExpressiveDefaultSpatial.ToCSSVariable()
 
@@ -115,6 +115,8 @@ export const NavigationTabStyles = [
     // Shared Layout
     css`
     :host {
+        flex-grow: 0;
+        flex-shrink: 0;
         vertical-align: top;
         position: relative;
         box-sizing: border-box;
@@ -193,7 +195,7 @@ export const NavigationTabStyles = [
         position: relative;
         display: grid;
         grid-template-columns: 1fr;
-        grid-template-rows: 1fr auto;
+        grid-template-rows: 1fr min(var(--_label-line-height), var(--_label-size));
         gap: var(--_spacing-between-icon-and-label);
         place-self: center;
         place-content: center;
@@ -431,9 +433,9 @@ export const NavigationTabStyles = [
     .label {
         font-family: var(--_label-font);
         font-size: var(--_label-size);
-        font-weight: var(--_label-weight);
+        font-weight: var(--_label-font-weight);
         line-height: var(--_label-line-height);
-        letter-spacing: var(--_label-letter-spacing);
+        letter-spacing: var(--_label-tracking);
         overflow: hidden;
         display: -webkit-box;
         -webkit-box-orient: vertical;
