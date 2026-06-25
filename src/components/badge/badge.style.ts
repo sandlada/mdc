@@ -9,9 +9,6 @@ const tokenRecord = defineTokenRefsRecord(BadgeDefinition, {
 })
 const tokens = defineVars(tokenRecord, true).join('')
 
-console.log(defineVars(tokenRecord, true));
-
-
 export const BadgeStyles = [
     css`:host {${unsafeCSS(tokens)};}`,
     css`
