@@ -1,0 +1,42 @@
+<!--
+    Navigation Rail — Disabled Tab
+
+    Demonstrates a disabled navigation tab among enabled ones. Disabled tabs
+    cannot be clicked, focused, or selected via keyboard.
+
+    Key attribute:
+      - `disabled` (on `mdc-navigation-tab`): Prevents interaction and dims the tab.
+      - `aria-disabled` is set automatically.
+
+    Behavior:
+      - The disabled tab cannot receive focus via keyboard navigation.
+      - Clicking the disabled tab does not trigger selection events.
+      - A disabled tab can still be checked programmatically (but not by user interaction).
+-->
+<mdc-navigation-rail navigation-scope="disabled-nav">
+    <mdc-navigation-tab name="disabled-tabs" value="/active-1" checked label="Active 1">
+        <mdc-icon slot="inactive-icon">check_circle</mdc-icon>
+        <mdc-icon slot="active-icon" filled>check_circle</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="disabled-tabs" value="/disabled" disabled label="Disabled">
+        <mdc-icon slot="inactive-icon">block</mdc-icon>
+        <mdc-icon slot="active-icon" filled>block</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="disabled-tabs" value="/active-2" label="Active 2">
+        <mdc-icon slot="inactive-icon">radio_button_checked</mdc-icon>
+        <mdc-icon slot="active-icon" filled>radio_button_checked</mdc-icon>
+    </mdc-navigation-tab>
+</mdc-navigation-rail>
+
+<script>
+    // Log tab interactions
+    const tabs = document.querySelectorAll('mdc-navigation-tab')
+    tabs.forEach(tab => {
+        tab.addEventListener('change', (e) => {
+            console.log(`Tab change — value: ${e.detail.value}, source: ${e.detail.source}, trigger: ${e.detail.trigger}`)
+        })
+        tab.addEventListener('input', (e) => {
+            console.log(`Tab input — value: ${e.detail.value}, source: ${e.detail.source}`)
+        })
+    })
+</script>

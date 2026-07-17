@@ -1,0 +1,78 @@
+<!--
+    Navigation Rail — External JavaScript Control
+
+    Demonstrates imperative control of the navigation rail and its tabs
+    via JavaScript. Also logs all events for debugging.
+
+    API Reference:
+      - `rail.expanded` (get/set) — Toggle collapsed/expanded.
+      - `rail.expand()` — Animate to expanded state.
+      - `rail.collapse()` — Animate to collapsed state.
+      - `rail.setActive(value, trigger)` — Activate a tab by value in this scope.
+      - `rail.modal` — Whether the rail is a modal overlay.
+      - `rail.quick` — Whether animations are skipped.
+      - `rail.collapsedVariant` — 'vertical' | 'round'
+      - `tab.checked` (get/set) — Current selection state.
+      - `tab.value` — The business key for this tab.
+      - `tab.name` — Radio-group name for mutual exclusion.
+      - `tab.disabled` — Whether the tab is interactive.
+
+    Tab Events:
+      - `input` — Fires on every selection attempt (bubbles, composed).
+        detail: { value, source: 'user'|'external', trigger: 'pointer'|'keyboard'|'programmatic' }
+      - `change` — Fires only when the selection actually changes.
+        detail: { value, source, trigger }
+-->
+<mdc-navigation-rail navigation-scope="js-nav" id="js-rail">
+    <mdc-navigation-tab name="js-tabs" value="/home" checked label="Home">
+        <mdc-icon slot="inactive-icon">home</mdc-icon>
+        <mdc-icon slot="active-icon" filled>home</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="js-tabs" value="/favorites" label="Favorites">
+        <mdc-icon slot="inactive-icon">favorite</mdc-icon>
+        <mdc-icon slot="active-icon" filled>favorite</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="js-tabs" value="/settings" label="Settings">
+        <mdc-icon slot="inactive-icon">settings</mdc-icon>
+        <mdc-icon slot="active-icon" filled>settings</mdc-icon>
+    </mdc-navigation-tab>
+</mdc-navigation-rail>
+
+<!-- Control buttons -->
+<div style="display: flex; flex-direction: column; gap: 8px; margin-top: 16px;">
+    <button id="btn-expand">expand()</button>
+    <button id="btn-collapse">collapse()</button>
+    <button id="btn-set-favorites">setActive('/favorites')</button>
+    <button id="btn-log-state">Log current state</button>
+</div>
+
+<script>
+    const rail = document.getElementById('js-rail')
+
+    document.getElementById('btn-expand').addEventListener('click', () => rail.expand())
+    document.getElementById('btn-collapse').addEventListener('click', () => rail.collapse())
+    document.getElementById('btn-set-favorites').addEventListener('click', () => rail.setActive('/favorites'))
+    document.getElementById('btn-log-state').addEventListener('click', () => {
+        console.log('=== Rail State ===')
+        console.log('expanded:', rail.expanded)
+        console.log('modal:', rail.modal)
+        console.log('quick:', rail.quick)
+        console.log('collapsedVariant:', rail.collapsedVariant)
+        console.log('activeValue:', rail.activeValue)
+        const tabs = rail.querySelectorAll('mdc-navigation-tab')
+        tabs.forEach(t => console.log(`  tab value="${t.value}" checked=${t.checked} disabled=${t.disabled}`))
+    })
+
+    // Event logging
+    rail.addEventListener('expand', () => console.log('[rail] expand (cancelable)'))
+    rail.addEventListener('expanded', () => console.log('[rail] expanded'))
+    rail.addEventListener('collapse', () => console.log('[rail] collapse (cancelable)'))
+    rail.addEventListener('collapsed', () => console.log('[rail] collapsed'))
+    rail.addEventListener('cancel', () => console.log('[rail] cancel (backdrop click)'))
+
+    const tabs = rail.querySelectorAll('mdc-navigation-tab')
+    tabs.forEach(tab => {
+        tab.addEventListener('input', (e) => console.log(`[tab] input — value: ${e.detail.value}, source: ${e.detail.source}, trigger: ${e.detail.trigger}`))
+        tab.addEventListener('change', (e) => console.log(`[tab] CHANGE — value: ${e.detail.value}, source: ${e.detail.source}, trigger: ${e.detail.trigger}`))
+    })
+</script>

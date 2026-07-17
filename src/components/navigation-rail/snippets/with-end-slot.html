@@ -1,0 +1,35 @@
+<!--
+    Navigation Rail — With End Slot
+
+    Demonstrates the `slot="end"` area at the bottom of the rail. This slot is
+    rendered after the tab segments, useful for secondary actions like
+    account switchers, help buttons, or collapse toggles.
+
+    Layout structure:
+      1. Menu slot (top)
+      2. FAB slot
+      3. Tab segments (main navigation)
+      4. End slot (bottom) — secondary content
+-->
+<mdc-navigation-rail expanded navigation-scope="end-slot-nav">
+    <mdc-icon-button slot="menu">
+        <mdc-icon>menu</mdc-icon>
+    </mdc-icon-button>
+
+    <mdc-navigation-tab name="end-tabs" value="/home" checked label="Home">
+        <mdc-icon slot="inactive-icon">home</mdc-icon>
+        <mdc-icon slot="active-icon" filled>home</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="end-tabs" value="/explore" label="Explore">
+        <mdc-icon slot="inactive-icon">explore</mdc-icon>
+        <mdc-icon slot="active-icon" filled>explore</mdc-icon>
+    </mdc-navigation-tab>
+
+    <!-- End slot: secondary controls at the bottom -->
+    <mdc-icon-button slot="end">
+        <mdc-icon>help</mdc-icon>
+    </mdc-icon-button>
+    <mdc-icon-button slot="end">
+        <mdc-icon>account_circle</mdc-icon>
+    </mdc-icon-button>
+</mdc-navigation-rail>

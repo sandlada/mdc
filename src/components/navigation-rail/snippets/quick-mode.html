@@ -1,0 +1,37 @@
+<!--
+    Navigation Rail — Quick Mode (No Animations)
+
+    The `quick` attribute suppresses ALL animations:
+      - Standard mode: CSS `transition` on width is disabled.
+      - Modal mode: WAAPI entry/exit animations are skipped.
+
+    Use case: When the rail needs to snap between states without any transition delay.
+
+    Key attribute:
+      - `quick` (boolean): Skip all animations.
+
+    Compare with `basic-standard-expanded.html` and `modal-rail.html`
+    to see the difference with animations enabled.
+-->
+<mdc-navigation-rail quick navigation-scope="quick-nav">
+    <mdc-navigation-tab name="quick-tabs" value="/home" checked label="Home">
+        <mdc-icon slot="inactive-icon">home</mdc-icon>
+        <mdc-icon slot="active-icon" filled>home</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="quick-tabs" value="/search" label="Search">
+        <mdc-icon slot="inactive-icon">search</mdc-icon>
+        <mdc-icon slot="active-icon" filled>search</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="quick-tabs" value="/settings" label="Settings">
+        <mdc-icon slot="inactive-icon">settings</mdc-icon>
+        <mdc-icon slot="active-icon" filled>settings</mdc-icon>
+    </mdc-navigation-tab>
+</mdc-navigation-rail>
+
+<button id="quick-toggle">Toggle expanded (instant — no transition)</button>
+<script>
+    const quickRail = document.querySelector('mdc-navigation-rail[quick]')
+    document.getElementById('quick-toggle').addEventListener('click', () => {
+        quickRail.expanded = !quickRail.expanded
+    })
+</script>

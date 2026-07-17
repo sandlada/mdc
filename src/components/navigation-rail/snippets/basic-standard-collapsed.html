@@ -1,0 +1,20 @@
+<!--
+    Navigation Rail — Basic Standard Collapsed
+
+    The simplest form of the navigation rail: in-flow (non-modal) layout with
+    default collapsed state and `rail-vertical` tab variant.
+
+    Key attributes:
+      - `navigation-scope`: Groups tabs for synchronized selection across containers.
+      - `name` (on tab): Radio-group name for mutual exclusion within a scope.
+      - `value` (on tab): Business key — used for cross-container sync.
+      - `checked` (on tab): Sets the initially active tab.
+
+    Tab variants in this state (auto-assigned by rail):
+      - `rail-vertical` (collapsed, default `collapsed-variant`).
+-->
+<mdc-navigation-rail navigation-scope="basic-nav">
+    <mdc-navigation-tab name="basic-tabs" value="/home" checked label="Home"></mdc-navigation-tab>
+    <mdc-navigation-tab name="basic-tabs" value="/explore" label="Explore"></mdc-navigation-tab>
+    <mdc-navigation-tab name="basic-tabs" value="/notifications" label="Notifications"></mdc-navigation-tab>
+</mdc-navigation-rail>

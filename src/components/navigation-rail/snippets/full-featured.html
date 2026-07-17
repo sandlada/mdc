@@ -1,0 +1,312 @@
+<!--
+    Navigation Rail — Full Featured
+
+    Reference example combining ALL features and variants in one file.
+    Intended as a comprehensive playground for testing and visual inspection.
+
+    Features demonstrated:
+      - Standard rail (collapsed + expanded)
+      - Modal rail
+      - Both collapsed variants (vertical, round)
+      - All slots (menu, fab, end, inactive-icon, active-icon)
+      - Multi-scope synchronization
+      - Disabled tab
+      - Quick mode
+      - Event logging
+      - External JS control buttons
+-->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigation Rail — Full Featured Demo</title>
+    <link rel="stylesheet" href="https://esm.sh/material-symbols@latest">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: system-ui, sans-serif;
+            background: var(--md-sys-color-surface, #f9f9f9);
+            color: var(--md-sys-color-on-surface, #1b1b1b);
+        }
+        .app-layout {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            grid-template-rows: 56px 1fr;
+            height: 100vh;
+            overflow: hidden;
+        }
+        header {
+            height: 56px;
+            grid-column: 2/3;
+            grid-row: 1/2;
+            display: flex;
+            align-items: center;
+            padding-inline: 16px;
+            gap: 16px;
+            border-bottom: 1px solid var(--md-sys-color-outline-variant, #c6c6c6);
+        }
+        .rail-area {
+            grid-column: 1/2;
+            grid-row: 1/-1;
+        }
+        main {
+            grid-column: 2/3;
+            grid-row: 2/3;
+            padding: 24px;
+            overflow: auto;
+        }
+        .demo-section {
+            margin-bottom: 48px;
+        }
+        .demo-section h2 {
+            font-size: 18px;
+            margin: 0 0 16px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--md-sys-color-outline-variant, #ddd);
+        }
+        .rail-row {
+            display: flex;
+            gap: 32px;
+            align-items: flex-start;
+        }
+        .rail-row > mdc-navigation-rail {
+            height: 400px;
+            border: 1px solid var(--md-sys-color-outline-variant, #ddd);
+            border-radius: 8px;
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 12px 0;
+        }
+        button {
+            padding: 6px 14px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        button:hover { background: #f5f5f5; }
+        #event-log {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Header -->
+        <header>
+            <span style="font-weight: 600;">MDC Navigation Rail — Full Demo</span>
+            <label style="margin-left: auto; font-size: 13px; display: flex; align-items: center; gap: 6px;">
+                <input type="checkbox" id="theme-switch"> Dark mode
+            </label>
+        </header>
+
+        <!-- Main Rail (scope: main) with menu + fab -->
+        <div class="rail-area">
+            <mdc-navigation-rail id="main-rail" navigation-scope="main" collapsed-variant="round"
+                style="height: 100%; --mdc-navigation-rail-standard-container-color: var(--md-sys-color-surface-container, #eee);">
+                <mdc-icon-button slot="menu" id="main-menu-btn">
+                    <mdc-icon>menu</mdc-icon>
+                </mdc-icon-button>
+                <mdc-fab slot="fab">
+                    <mdc-icon slot="icon">add</mdc-icon>
+                </mdc-fab>
+                <mdc-navigation-tab name="main-tabs" value="/home" checked label="Home">
+                    <mdc-icon slot="inactive-icon">home</mdc-icon>
+                    <mdc-icon slot="active-icon" filled>home</mdc-icon>
+                </mdc-navigation-tab>
+                <mdc-navigation-tab name="main-tabs" value="/explore" label="Explore">
+                    <mdc-icon slot="inactive-icon">explore</mdc-icon>
+                    <mdc-icon slot="active-icon" filled>explore</mdc-icon>
+                </mdc-navigation-tab>
+                <mdc-navigation-tab name="main-tabs" value="/notifications" label="Notifications" id="notif-tab">
+                    <mdc-icon slot="inactive-icon">notifications</mdc-icon>
+                    <mdc-icon slot="active-icon" filled>notifications</mdc-icon>
+                </mdc-navigation-tab>
+                <mdc-navigation-tab name="main-tabs" value="/settings" label="Settings" disabled>
+                    <mdc-icon slot="inactive-icon">settings</mdc-icon>
+                    <mdc-icon slot="active-icon" filled>settings</mdc-icon>
+                </mdc-navigation-tab>
+                <mdc-icon-button slot="end">
+                    <mdc-icon>account_circle</mdc-icon>
+                </mdc-icon-button>
+            </mdc-navigation-rail>
+        </div>
+
+        <!-- Main content -->
+        <main>
+            <!-- Section 1: Controls for main rail -->
+            <div class="demo-section">
+                <h2>Main Rail Controls</h2>
+                <div class="controls">
+                    <button id="toggle-expand">Toggle expand</button>
+                    <button id="activate-home">Activate /home</button>
+                    <button id="activate-explore">Activate /explore</button>
+                    <button id="enable-settings">Enable "Settings" tab</button>
+                    <button id="toggle-quick">Toggle quick mode</button>
+                    <button id="toggle-modal">Toggle modal mode</button>
+                    <button id="toggle-collapsed-variant">Switch collapsed variant</button>
+                </div>
+            </div>
+
+            <!-- Section 2: Side-by-side scope demo -->
+            <div class="demo-section">
+                <h2>Multiple Scopes (isolated selection)</h2>
+                <div class="rail-row">
+                    <mdc-navigation-rail navigation-scope="scope-a">
+                        <mdc-navigation-tab name="a-tabs" value="/a1" checked label="A - Section 1">
+                            <mdc-icon slot="inactive-icon">looks_one</mdc-icon>
+                            <mdc-icon slot="active-icon" filled>looks_one</mdc-icon>
+                        </mdc-navigation-tab>
+                        <mdc-navigation-tab name="a-tabs" value="/a2" label="A - Section 2">
+                            <mdc-icon slot="inactive-icon">looks_two</mdc-icon>
+                            <mdc-icon slot="active-icon" filled>looks_two</mdc-icon>
+                        </mdc-navigation-tab>
+                    </mdc-navigation-rail>
+                    <mdc-navigation-rail navigation-scope="scope-b">
+                        <mdc-navigation-tab name="b-tabs" value="/b1" checked label="B - Tab 1">
+                            <mdc-icon slot="inactive-icon">exposure</mdc-icon>
+                            <mdc-icon slot="active-icon" filled>exposure</mdc-icon>
+                        </mdc-navigation-tab>
+                        <mdc-navigation-tab name="b-tabs" value="/b2" label="B - Tab 2">
+                            <mdc-icon slot="inactive-icon">exposure_plus_1</mdc-icon>
+                            <mdc-icon slot="active-icon" filled>exposure_plus_1</mdc-icon>
+                        </mdc-navigation-tab>
+                    </mdc-navigation-rail>
+                </div>
+            </div>
+
+            <!-- Section 3: Modal rail demo -->
+            <div class="demo-section">
+                <h2>Modal Rail</h2>
+                <button id="open-modal">Open modal rail</button>
+                <mdc-navigation-rail id="modal-demo" modal navigation-scope="modal-demo" collapsed-variant="round" quick>
+                    <mdc-icon-button slot="menu" id="modal-close">
+                        <mdc-icon>close</mdc-icon>
+                    </mdc-icon-button>
+                    <mdc-navigation-tab name="modal-demo-tabs" value="/modal-1" checked label="Option 1">
+                        <mdc-icon slot="inactive-icon">filter_1</mdc-icon>
+                        <mdc-icon slot="active-icon" filled>filter_1</mdc-icon>
+                    </mdc-navigation-tab>
+                    <mdc-navigation-tab name="modal-demo-tabs" value="/modal-2" label="Option 2">
+                        <mdc-icon slot="inactive-icon">filter_2</mdc-icon>
+                        <mdc-icon slot="active-icon" filled>filter_2</mdc-icon>
+                    </mdc-navigation-tab>
+                    <mdc-navigation-tab name="modal-demo-tabs" value="/modal-3" label="Option 3">
+                        <mdc-icon slot="inactive-icon">filter_3</mdc-icon>
+                        <mdc-icon slot="active-icon" filled>filter_3</mdc-icon>
+                    </mdc-navigation-tab>
+                </mdc-navigation-rail>
+            </div>
+
+            <!-- Section 4: Event log -->
+            <div class="demo-section">
+                <h2>Event Log</h2>
+                <div class="controls">
+                    <button id="clear-log">Clear</button>
+                </div>
+                <div id="event-log">Waiting for interactions...</div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        // ── Theme toggle ───────────────────────────────────────────
+        document.getElementById('theme-switch').addEventListener('change', (e) => {
+            document.documentElement.style.colorScheme = e.target.checked ? 'dark' : 'light'
+        })
+
+        const rail = document.getElementById('main-rail')
+        const eventLog = document.getElementById('event-log')
+
+        // ── Event logging helper ──────────────────────────────────
+        function log(msg) {
+            const text = eventLog.textContent
+            const lines = text === 'Waiting for interactions...' ? [] : text.split('\n')
+            lines.push(`[${new Date().toLocaleTimeString()}] ${msg}`)
+            if (lines.length > 50) lines.splice(0, lines.length - 50)
+            eventLog.textContent = lines.join('\n')
+            eventLog.scrollTop = eventLog.scrollHeight
+        }
+
+        // ── Log all rail events ───────────────────────────────────
+        ;['expand', 'expanded', 'collapse', 'collapsed', 'cancel'].forEach(name => {
+            rail.addEventListener(name, () => log(`rail: ${name}`))
+        })
+
+        // ── Log all tab events ────────────────────────────────────
+        document.querySelectorAll('mdc-navigation-tab').forEach(tab => {
+            tab.addEventListener('change', (e) => {
+                log(`tab change: value="${e.detail.value}", source=${e.detail.source}, trigger=${e.detail.trigger}`)
+            })
+            tab.addEventListener('input', (e) => {
+                log(`tab input: value="${e.detail.value}", source=${e.detail.source}`)
+            })
+        })
+        // Observe dynamically added modal tabs too
+        const modalRail = document.getElementById('modal-demo')
+        modalRail.querySelectorAll('mdc-navigation-tab').forEach(tab => {
+            tab.addEventListener('change', (e) => log(`[modal] tab change: "${e.detail.value}"`))
+        })
+
+        // ── Control buttons ───────────────────────────────────────
+        document.getElementById('toggle-expand').addEventListener('click', () => {
+            if (rail.expanded) rail.collapse()
+            else rail.expand()
+        })
+        document.getElementById('activate-home').addEventListener('click', () => rail.setActive('/home'))
+        document.getElementById('activate-explore').addEventListener('click', () => rail.setActive('/explore'))
+        document.getElementById('enable-settings').addEventListener('click', () => {
+            const settingsTab = rail.querySelector('mdc-navigation-tab[value="/settings"]')
+            settingsTab.disabled = !settingsTab.disabled
+            log(`settings tab disabled = ${settingsTab.disabled}`)
+        })
+        document.getElementById('toggle-quick').addEventListener('click', () => {
+            rail.quick = !rail.quick
+            log(`quick mode = ${rail.quick}`)
+        })
+        document.getElementById('toggle-modal').addEventListener('click', () => {
+            rail.modal = !rail.modal
+            log(`modal mode = ${rail.modal} (requires page reload to reset)`)
+        })
+        document.getElementById('toggle-collapsed-variant').addEventListener('click', () => {
+            rail.collapsedVariant = rail.collapsedVariant === 'vertical' ? 'round' : 'vertical'
+            log(`collapsedVariant = ${rail.collapsedVariant}`)
+        })
+        document.getElementById('clear-log').addEventListener('click', () => {
+            eventLog.textContent = 'Waiting for interactions...'
+        })
+
+        // Main menu button toggles expand/collapse
+        document.getElementById('main-menu-btn').addEventListener('click', () => {
+            if (rail.expanded) rail.collapse()
+            else rail.expand()
+        })
+
+        // ── Modal rail controls ───────────────────────────────────
+        document.getElementById('open-modal').addEventListener('click', () => {
+            modalRail.expanded = true
+            modalRail.expand()
+        })
+        document.getElementById('modal-close').addEventListener('click', () => {
+            modalRail.collapse()
+        })
+        modalRail.addEventListener('expanded', () => log('modal rail: expanded'))
+        modalRail.addEventListener('collapsed', () => log('modal rail: collapsed'))
+        modalRail.addEventListener('cancel', () => log('modal rail: cancel (backdrop/escape)'))
+    </script>
+</body>
+</html>

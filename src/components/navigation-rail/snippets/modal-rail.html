@@ -1,0 +1,54 @@
+<!--
+    Navigation Rail — Modal (Floating Overlay)
+
+    A floating modal navigation rail that overlays the page content. The modal
+    rail uses WAAPI for entry/exit animations (slide + fade).
+
+    Key attributes:
+      - `modal`: Renders as a floating dialog overlay.
+      - `expanded`: Shows the modal; collapsed hides it.
+      - `scrim` automatically covers the backdrop.
+
+    Events:
+      - `expand` / `collapse` — Cancelable, fire before animation starts.
+      - `expanded` / `collapsed` — Fire after animation completes.
+      - `cancel` — Fires on backdrop click or Escape key.
+
+    Note: The menu icon-button is placed in `slot="menu"`.
+-->
+<mdc-navigation-rail modal expanded navigation-scope="modal-nav" collapsed-variant="round">
+    <mdc-icon-button slot="menu" id="modal-close-btn">
+        <mdc-icon>close</mdc-icon>
+    </mdc-icon-button>
+    <mdc-navigation-tab name="modal-tabs" value="/home" checked label="Home">
+        <mdc-icon slot="inactive-icon">home</mdc-icon>
+        <mdc-icon slot="active-icon" filled>home</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="modal-tabs" value="/search" label="Search">
+        <mdc-icon slot="inactive-icon">search</mdc-icon>
+        <mdc-icon slot="active-icon" filled>search</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="modal-tabs" value="/profile" label="Profile">
+        <mdc-icon slot="inactive-icon">person</mdc-icon>
+        <mdc-icon slot="active-icon" filled>person</mdc-icon>
+    </mdc-navigation-tab>
+</mdc-navigation-rail>
+
+<button id="modal-toggle">Toggle modal rail</button>
+<script>
+    const modalRail = document.querySelector('mdc-navigation-rail[modal]')
+    document.getElementById('modal-toggle').addEventListener('click', () => {
+        if (modalRail.expanded) {
+            modalRail.collapse()
+        } else {
+            modalRail.expand()
+        }
+    })
+    document.getElementById('modal-close-btn').addEventListener('click', () => {
+        modalRail.collapse()
+    })
+    // Log modal events
+    ;['expand', 'expanded', 'collapse', 'collapsed', 'cancel'].forEach(name => {
+        modalRail.addEventListener(name, () => console.log(`[modal] ${name}`))
+    })
+</script>

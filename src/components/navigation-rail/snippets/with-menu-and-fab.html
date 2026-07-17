@@ -1,0 +1,43 @@
+<!--
+    Navigation Rail — With Menu and FAB Slots
+
+    Demonstrates the `slot="menu"` and `slot="fab"` custom slots.
+
+    Layout structure (top to bottom):
+      1. Menu slot — typically an mdc-icon-button (hamburger menu, etc.)
+      2. FAB slot — a floating action button
+      3. Tab segments (default slot) — the navigation tabs
+-->
+<mdc-navigation-rail expanded navigation-scope="menu-fab-nav">
+    <!-- Menu slot: Always visible at the top of the rail -->
+    <mdc-icon-button slot="menu" id="hamburger-btn">
+        <mdc-icon>menu</mdc-icon>
+    </mdc-icon-button>
+
+    <!-- FAB slot: Below menu, above tabs -->
+    <mdc-fab slot="fab">
+        <mdc-icon slot="icon">add</mdc-icon>
+    </mdc-fab>
+
+    <!-- Tab segments -->
+    <mdc-navigation-tab name="menu-fab-tabs" value="/dashboard" checked label="Dashboard">
+        <mdc-icon slot="inactive-icon">dashboard</mdc-icon>
+        <mdc-icon slot="active-icon" filled>dashboard</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="menu-fab-tabs" value="/analytics" label="Analytics">
+        <mdc-icon slot="inactive-icon">analytics</mdc-icon>
+        <mdc-icon slot="active-icon" filled>analytics</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="menu-fab-tabs" value="/reports" label="Reports">
+        <mdc-icon slot="inactive-icon">description</mdc-icon>
+        <mdc-icon slot="active-icon" filled>description</mdc-icon>
+    </mdc-navigation-tab>
+</mdc-navigation-rail>
+
+<script>
+    document.getElementById('hamburger-btn').addEventListener('click', () => {
+        const rail = document.querySelector('mdc-navigation-rail')
+        rail.expanded = !rail.expanded
+        console.log('Menu clicked — rail expanded:', rail.expanded)
+    })
+</script>

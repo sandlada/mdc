@@ -1,0 +1,40 @@
+<!--
+    Navigation Rail — Tabs with Icons
+
+    Demonstrates tabs with `inactive-icon` and `active-icon` slots using
+    Material Symbols. Each tab can have different icons for active vs inactive states.
+
+    Slots:
+      - `inactive-icon`: Shown when the tab is NOT selected.
+      - `active-icon`: Shown when the tab IS selected (use `filled` attribute for filled style).
+
+    Note: Tabs without explicit `variant` get it auto-assigned by the rail:
+      - collapsed → `rail-vertical` (or `rail-round` with `collapsed-variant="round"`)
+      - expanded → `rail-horizontal`
+-->
+<mdc-navigation-rail expanded navigation-scope="icons-nav">
+    <mdc-navigation-tab name="icons-tabs" value="/mail" checked label="Mail">
+        <mdc-icon slot="inactive-icon">mail_outline</mdc-icon>
+        <mdc-icon slot="active-icon" filled>mail</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="icons-tabs" value="/calendar" label="Calendar">
+        <mdc-icon slot="inactive-icon">calendar_month</mdc-icon>
+        <mdc-icon slot="active-icon" filled>calendar_month</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="icons-tabs" value="/cloud" label="Cloud">
+        <mdc-icon slot="inactive-icon">cloud</mdc-icon>
+        <mdc-icon slot="active-icon" filled>cloud</mdc-icon>
+    </mdc-navigation-tab>
+</mdc-navigation-rail>
+
+<!-- Also demonstrate collapsed with icons -->
+<mdc-navigation-rail navigation-scope="icons-nav-2" collapsed-variant="round">
+    <mdc-navigation-tab name="icons-tabs-2" value="/photos" checked label="Photos">
+        <mdc-icon slot="inactive-icon">photo</mdc-icon>
+        <mdc-icon slot="active-icon" filled>photo</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="icons-tabs-2" value="/videos" label="Videos">
+        <mdc-icon slot="inactive-icon">videocam</mdc-icon>
+        <mdc-icon slot="active-icon" filled>videocam</mdc-icon>
+    </mdc-navigation-tab>
+</mdc-navigation-rail>

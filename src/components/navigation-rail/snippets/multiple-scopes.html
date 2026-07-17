@@ -1,0 +1,72 @@
+<!--
+    Navigation Rail — Multiple Scopes
+
+    Two rails with different `navigation-scope` values. Tabs sharing the same
+    `navigation-scope` synchronize selection. Different scopes are fully isolated.
+
+    Rule:
+      - Tabs with same `navigation-scope` AND same `value` activate/deactivate together.
+      - Different scopes do NOT affect each other.
+
+    Layout: side-by-side rails (flex container).
+-->
+<style>
+    .multi-scope-demo {
+        display: flex;
+        gap: 32px;
+        height: 400px;
+    }
+    .multi-scope-demo > mdc-navigation-rail {
+        height: 100%;
+    }
+    .scope-label {
+        font-family: system-ui, sans-serif;
+        font-size: 12px;
+        color: #666;
+        text-align: center;
+    }
+</style>
+
+<div class="multi-scope-demo">
+    <!-- Scope A: App Navigation -->
+    <div>
+        <div class="scope-label">Scope: "app"</div>
+        <mdc-navigation-rail navigation-scope="app">
+            <mdc-navigation-tab name="app-tabs" value="/home" checked label="Home">
+                <mdc-icon slot="inactive-icon">home</mdc-icon>
+                <mdc-icon slot="active-icon" filled>home</mdc-icon>
+            </mdc-navigation-tab>
+            <mdc-navigation-tab name="app-tabs" value="/files" label="Files">
+                <mdc-icon slot="inactive-icon">folder</mdc-icon>
+                <mdc-icon slot="active-icon" filled>folder</mdc-icon>
+            </mdc-navigation-tab>
+            <mdc-navigation-tab name="app-tabs" value="/settings" label="Settings">
+                <mdc-icon slot="inactive-icon">settings</mdc-icon>
+                <mdc-icon slot="active-icon" filled>settings</mdc-icon>
+            </mdc-navigation-tab>
+        </mdc-navigation-rail>
+    </div>
+
+    <!-- Scope B: Project Navigation (isolated from "app") -->
+    <div>
+        <div class="scope-label">Scope: "project"</div>
+        <mdc-navigation-rail navigation-scope="project">
+            <mdc-navigation-tab name="project-tabs" value="/overview" checked label="Overview">
+                <mdc-icon slot="inactive-icon">visibility</mdc-icon>
+                <mdc-icon slot="active-icon" filled>visibility</mdc-icon>
+            </mdc-navigation-tab>
+            <mdc-navigation-tab name="project-tabs" value="/tasks" label="Tasks">
+                <mdc-icon slot="inactive-icon">task</mdc-icon>
+                <mdc-icon slot="active-icon" filled>task</mdc-icon>
+            </mdc-navigation-tab>
+            <mdc-navigation-tab name="project-tabs" value="/team" label="Team">
+                <mdc-icon slot="inactive-icon">group</mdc-icon>
+                <mdc-icon slot="active-icon" filled>group</mdc-icon>
+            </mdc-navigation-tab>
+        </mdc-navigation-rail>
+    </div>
+</div>
+
+<script>
+    console.log('Two isolated scopes: "app" and "project" — selection in one does NOT affect the other.')
+</script>

@@ -1,0 +1,34 @@
+<!--
+    Navigation Rail — Collapsed Round Variant
+
+    Demonstrates `collapsed-variant="round"` for the collapsed state. When
+    collapsed, tabs use `rail-round` styling (circular icon containers).
+    When expanded, tabs revert to `rail-horizontal`.
+
+    Key attribute:
+      - `collapsed-variant="round"`: Changes collapsed tab shape to circular.
+      - Default value is `"vertical"`.
+-->
+<mdc-navigation-rail navigation-scope="round-nav" collapsed-variant="round">
+    <mdc-navigation-tab name="round-tabs" value="/inbox" checked label="Inbox">
+        <mdc-icon slot="inactive-icon">inbox</mdc-icon>
+        <mdc-icon slot="active-icon" filled>inbox</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="round-tabs" value="/starred" label="Starred">
+        <mdc-icon slot="inactive-icon">star</mdc-icon>
+        <mdc-icon slot="active-icon" filled>star</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="round-tabs" value="/archive" label="Archive">
+        <mdc-icon slot="inactive-icon">archive</mdc-icon>
+        <mdc-icon slot="active-icon" filled>archive</mdc-icon>
+    </mdc-navigation-tab>
+</mdc-navigation-rail>
+
+<!-- Toggle expansion to see the round→horizontal transition -->
+<button id="toggle-round">Toggle expansion</button>
+<script>
+    document.getElementById('toggle-round').addEventListener('click', () => {
+        const rail = document.querySelector('mdc-navigation-rail')
+        rail.expanded = !rail.expanded
+    })
+</script>

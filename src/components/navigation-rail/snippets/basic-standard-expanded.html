@@ -1,0 +1,25 @@
+<!--
+    Navigation Rail — Basic Standard Expanded
+
+    In-flow rail with `expanded` attribute. When expanded, the rail switches tabs
+    to `rail-horizontal` variant, revealing labels alongside icons.
+
+    Key points:
+      - `expanded` toggles between narrow (80px) and wide (220px) widths via CSS transition.
+      - Tab variant auto-switches to `rail-horizontal` when expanded.
+      - In standard (non-modal) mode, no WAAPI animation is used — only CSS transition.
+-->
+<mdc-navigation-rail expanded navigation-scope="expanded-nav">
+    <mdc-navigation-tab name="expanded-tabs" value="/home" checked label="Home">
+        <mdc-icon slot="inactive-icon">home</mdc-icon>
+        <mdc-icon slot="active-icon" filled>home</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="expanded-tabs" value="/favorites" label="Favorites">
+        <mdc-icon slot="inactive-icon">favorite</mdc-icon>
+        <mdc-icon slot="active-icon" filled>favorite</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="expanded-tabs" value="/settings" label="Settings">
+        <mdc-icon slot="inactive-icon">settings</mdc-icon>
+        <mdc-icon slot="active-icon" filled>settings</mdc-icon>
+    </mdc-navigation-tab>
+</mdc-navigation-rail>
