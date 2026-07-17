@@ -39,6 +39,8 @@ import { mixinElementInternals } from '../../utils/behaviors/element-internals'
 import { mixinDelegatesAria } from '../../utils/aria/delegate'
 import { NavigationTabStyles } from './navigation-tab.style'
 import { classMap } from 'lit/directives/class-map.js'
+import { OpacityTransitionController } from '../../utils/controller/opacity-transition-controller'
+import { MeasuredDimensionController } from '../../utils/controller/measured-dimension-controller'
 
 const KEYBOARD_SELECTION_KEYS = new Set([' ', 'Enter', 'Spacebar'])
 
@@ -123,6 +125,9 @@ export class MDCNavigationTab extends composeMixin(
     @query('.indicator')
     private indicatorElement!: HTMLElement | null
 
+    @query('.label')
+    private labelElement!: HTMLLabelElement
+
     public override get rippleControl(): HTMLElement | null {
         // Use the host as control so pointer clicks and synthetic keyboard clicks
         // both trigger ripple, while the ripple visual remains clipped by indicator.
@@ -154,6 +159,14 @@ export class MDCNavigationTab extends composeMixin(
             const changed = this.checkedBeforeControllerSelection !== this.checked
             this.handleControllerSelection(changed)
         },
+    })
+
+    private readonly opacityController = new OpacityTransitionController(this, {
+        target:  () => this.labelElement
+    })
+
+    private readonly widthController = new MeasuredDimensionController(this, {
+        target: () => this.labelElement
     })
 
     constructor() {
