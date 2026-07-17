@@ -39,11 +39,11 @@ const overrideTab = {
 
 /**
  * State-based style layers:
- *   .container                → Base layout (always applied)
- *   .container.expanded       → Expanded token set on host
- *   .container.collapsed      → Collapsed token set on host
- *   .container.standard       → Standard-mode styles
- *   .container.modal          → Modal-mode styles
+ *   .container                   → Base layout (always applied)
+ *   .container.expanded          → Expanded token set on host
+ *   .container.collapsed         → Collapsed token set on host
+ *   .container.standard          → Standard-mode styles
+ *   .container.modal             → Modal-mode styles
  *   .container.expanded.standard → Expanded standard overrides
  *   .container.expanded.modal    → Expanded modal overrides
  *   .container.collapsed         → Collapsed layout overrides
@@ -192,7 +192,7 @@ export const NavigationRailStyles = [
     `,
     // Expanded - Standard
     css`
-        :host {${overrideTab.expandedModal};}
+        :host(:has(dialog.expanded.standard)) {${overrideTab.expandedStandard};}
         dialog.expanded.standard .container {
             gap: var(--_standard-container-item-gap);
             width: var(--_standard-container-width);
@@ -228,7 +228,7 @@ export const NavigationRailStyles = [
     `,
     // Expanded - Modal
     css`
-        :host {${overrideTab.expandedStandard};}
+        :host(:has(dialog.expanded.modal)) {${overrideTab.expandedModal};}
         dialog.expanded.modal .container {
             gap: var(--_modal-container-item-gap);
             width: var(--_modal-container-width);
@@ -264,7 +264,7 @@ export const NavigationRailStyles = [
     `,
     // Collapsed
     css`
-        :host {${overrideTab.collapsed};}
+        :host(:has(dialog.collapsed)) {${overrideTab.collapsed};}
         dialog.collapsed .container {
             gap: var(--_standard-container-item-gap);
             width: var(--_standard-container-width);
@@ -298,7 +298,7 @@ export const NavigationRailStyles = [
     `,
     // CollapsedXR
     css`
-        :host {${overrideTab.collapsedXR};}
+        :host(:has(dialog.collapsed-xr)) {${overrideTab.collapsedXR};}
         dialog.expanded-xr .container {
             gap: var(--_standard-container-item-gap);
             width: var(--_standard-container-width);
