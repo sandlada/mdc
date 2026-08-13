@@ -320,7 +320,9 @@ const buttonSharedStyle = css`
 
     .container,
     mdc-focus-ring {
-        transition-property: border-radius;
+        /* Add border-radius so the focus ring morphs alongside the
+           container; preserve opacity so the closing transition still runs. */
+        transition-property: border-radius, opacity;
         transition-duration: 350ms;
         transition-timing-function: cubic-bezier(0.42, 1.67, 0.21, 0.9);
     }

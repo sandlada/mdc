@@ -252,7 +252,7 @@ export class MDCSwitch extends composeMixin(
     private clearKeyboardVisuals() {
         const ring = this.focusRingElement
         if (ring?.focused) {
-            ring.focused = false
+            ring.close()
         }
 
         const ripple = this.rippleElement

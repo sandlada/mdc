@@ -219,7 +219,7 @@ export class RadioButton extends composeMixin(
 
     private clearKeyboardVisuals() {
         if (this.focusRingElement?.focused) {
-            this.focusRingElement.focused = false
+            this.focusRingElement.close()
         }
 
         if (this.rippleElement?.focused) {

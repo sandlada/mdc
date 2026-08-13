@@ -235,15 +235,43 @@ export class MDCFocusRing extends LitElement implements IFocusRing {
             }
             case 'focusout':
             case 'pointerdown':
-                if(!this.hasAttribute('focused')) return
-                this.setAttribute('closing', '')
-                this.timer = setTimeout(() => {
-                    this.focused = false
-                }, duration * 0.5)
+                this.closeWithDuration(duration)
                 break
             default:
                 break
         }
+    }
+
+    /**
+     * Initiates a closing transition for the focus ring, mirroring the
+     * behaviour triggered by native focusout/pointerdown events.
+     *
+     * If the ring is currently focused, this adds the `closing` attribute
+     * and schedules `focused = false` after half the configured duration
+     * (so the CSS opacity transition can complete). If the ring is
+     * already closed, this is a no-op. If the ring is disabled, it is
+     * closed immediately without a transition.
+     *
+     * Use this method from host components (e.g. switch, radio-button,
+     * icon-button) that need to programmatically reset focus visuals
+     * without bypassing the focus-ring's own transition lifecycle.
+     */
+    public close(): void {
+        if (this.disabled) {
+            this.focused = false
+            return
+        }
+        const duration = parseFloat(getComputedStyle(this).getPropertyValue('--_duration')) || 0
+        this.closeWithDuration(duration)
+    }
+
+    private closeWithDuration(duration: number): void {
+        if (!this.hasAttribute('focused')) return
+        this.setAttribute('closing', '')
+        this.clearTimer()
+        this.timer = setTimeout(() => {
+            this.focused = false
+        }, duration * 0.5)
     }
 
     protected override updated(_changedProperties: PropertyValues<this>): void {
