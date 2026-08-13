@@ -128,10 +128,10 @@ export interface EdgeSlideOptions {
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 /** Open transition: spatial slide-in. */
-const OPEN_DURATION = Duration.ExpressiveFastSpatial.value
+const OPEN_DURATION = Duration.ExpressiveFastSpatial.Value
 const OPEN_EASING = Easing.Emphasized.ToCSSVariable()
 /** Close transition: fast effects slide-out. */
-const CLOSE_DURATION = Duration.ExpressiveFastEffects.value
+const CLOSE_DURATION = Duration.ExpressiveFastEffects.Value
 const CLOSE_EASING = Easing.EmphasizedAccelerate.ToCSSVariable()
 
 /** Minimum scroll |delta| (px) before a direction change is recognized. */
