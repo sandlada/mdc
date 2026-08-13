@@ -400,36 +400,36 @@ const iconSizeStyle = css`
         width: var(--_extra-large-icon-size);
     }
 
-    .container.extra-small mdc-icon {${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: 'var(--_extra-small-icon-size)', })))};}
-    .container.small mdc-icon {${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: 'var(: var(--_small-icon-size)', })))};}
-    .container.medium mdc-icon {${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: 'var(: var(--_medium-icon-size)', })))};}
-    .container.large mdc-icon {${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: 'var(: var(--_large-icon-size)', })))};}
-    .container.extra-large mdc-icon {${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: 'var(--_extra-large-icon-size)', })))};}
+    .container.extra-small .icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: 'var(--_extra-small-icon-size)', }))};}
+    .container.small .icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: 'var(: var(--_small-icon-size)', }))};}
+    .container.medium .icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: 'var(: var(--_medium-icon-size)', }))};}
+    .container.large .icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: 'var(: var(--_large-icon-size)', }))};}
+    .container.extra-large .icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: 'var(--_extra-large-icon-size)', }))};}
 `
 
 const iconSlotStyle = css`
-
     .icon {
         grid-row: 1/2;
         grid-column: 1/2;
     }
 
+    /* For Checkable IconButton */
     .icon:is(.active-icon, .inactive-icon, .default-icon) {
         display: none;
     }
 
     .container.togglable.selected.has-active-icon .icon.active-icon {
-        display: block;
+        display: flex;
     }
     .container.togglable.selected:not(.has-active-icon) .icon.default-icon {
-        display: block;
+        display: flex;
     }
 
     .container.togglable.unselected.has-inactive-icon .icon.inactive-icon {
-        display: block;
+        display: flex;
     }
     .container.togglable.unselected:not(.has-inactive-icon) .icon.default-icon {
-        display: block;
+        display: flex;
     }
 `
 
