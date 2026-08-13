@@ -1,0 +1,44 @@
+{
+    "compilerOptions": {
+        "alwaysStrict": true,
+        "declaration": true,
+        "declarationDir": "build",
+        "declarationMap": true,
+        "erasableSyntaxOnly": true,
+        "experimentalDecorators": true,
+        "forceConsistentCasingInFileNames": true,
+        "importHelpers": true,
+        "lib": [
+            "ESNext",
+            "DOM",
+            "DOM.Iterable"
+        ],
+        "module": "ESNext",
+        /* Bundler mode */
+        "moduleResolution": "bundler",
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitOverride": true,
+        "noPropertyAccessFromIndexSignature": true,
+        "noUncheckedSideEffectImports": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "outDir": "build",
+        "rootDir": "./",
+        "skipLibCheck": true,
+        /* Linting */
+        "strict": true,
+        "strictNullChecks": true,
+        "strictFunctionTypes": true,
+        "strictBindCallApply": true,
+        "strictPropertyInitialization": true,
+        "noImplicitAny": true,
+        "noImplicitThis": true,
+        "target": "ESNext",
+        "useDefineForClassFields": false,
+        "verbatimModuleSyntax": true
+    },
+    "include": [
+        "./components/**/*",
+        "./shared/**/*"
+    ],
+}

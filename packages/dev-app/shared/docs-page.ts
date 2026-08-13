@@ -7,6 +7,7 @@
 import { LitElement, html, css } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { getDemo } from './demo-loader.js'
+import './docs-shell.js'
 
 /**
  * `<mdc-docs-page component="button">` wraps a component showcase page.

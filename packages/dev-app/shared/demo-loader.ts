@@ -4,13 +4,18 @@
  * SPDX-License-Identifier: MIT
  */
 
-// Vite's import.meta.glob collects all *.demo.html files at build/dev time
-// as raw strings. Keys are paths relative to this file (so we resolve them
-// back from the consumer's perspective).
-const rawDemos = import.meta.glob('../../mdc/src/components/*/demo/*.demo.html', {
+// Vite's import.meta.glob with `?raw` produces namespace imports where each
+// value is `{ default: '<raw text>' }`. Normalize to plain strings so consumers
+// can pass them straight to `unsafeHTML()` / `<template>.innerHTML`.
+const rawModules = import.meta.glob('../../mdc/src/components/*/demo/*.demo.html', {
     query: '?raw',
     eager: true,
-}) as Record<string, string>
+}) as Record<string, string | { default: string }>
+
+const rawDemos: Record<string, string> = {}
+for (const [key, value] of Object.entries(rawModules)) {
+    rawDemos[key] = typeof value === 'string' ? value : value.default
+}
 
 /**
  * Get the raw HTML content of a per-component demo snippet.

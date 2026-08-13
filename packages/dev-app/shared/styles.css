@@ -74,66 +74,6 @@ html, body {
     font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 
-body {
-    display: grid;
-    grid-template-columns: 240px 1fr;
-    grid-template-rows: 56px 1fr;
-    height: 100dvh;
-    overflow: hidden;
-}
-
-.docs-header {
-    grid-column: 2 / 3;
-    grid-row: 1 / 2;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding: 0 16px;
-    border-bottom: 1px solid var(--md-sys-color-outline-variant);
-    background: var(--md-sys-color-surface-container-low);
-}
-
-.docs-sidebar {
-    grid-column: 1 / 2;
-    grid-row: 1 / -1;
-    border-right: 1px solid var(--md-sys-color-outline-variant);
-    background: var(--md-sys-color-surface-container);
-    overflow-y: auto;
-}
-
-.docs-main {
-    grid-column: 2 / 3;
-    grid-row: 2 / 3;
-    overflow: auto;
-    padding: 24px 32px;
-}
-
-.docs-sidebar nav {
-    display: flex;
-    flex-direction: column;
-    padding: 8px 0;
-}
-
-.docs-sidebar a {
-    display: block;
-    padding: 8px 16px;
-    color: var(--md-sys-color-on-surface);
-    text-decoration: none;
-    border-radius: 0 16px 16px 0;
-    margin-right: 8px;
-    transition: background-color 0.15s ease;
-}
-
-.docs-sidebar a:hover {
-    background: var(--md-sys-color-surface-container-high);
-}
-
-.docs-sidebar a.active {
-    background: var(--md-sys-color-primary-container);
-    color: var(--md-sys-color-on-primary-container);
-    font-weight: 500;
-}
-
 .docs-section {
     margin-bottom: 32px;
 }
@@ -170,4 +110,21 @@ body {
 
 .docs-landing-grid a:hover {
     background: var(--md-sys-color-surface-container-high);
+}
+
+.docs-page-body {
+    padding: 24px 32px;
+    max-width: 1200px;
+}
+
+.docs-page-body h1 {
+    margin: 0 0 8px;
+    color: var(--md-sys-color-on-surface);
+    font-size: 28px;
+    font-weight: 400;
+}
+
+.docs-page-body .subtitle {
+    color: var(--md-sys-color-on-surface-variant);
+    margin: 0 0 24px;
 }

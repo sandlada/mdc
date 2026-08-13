@@ -5,7 +5,8 @@
  */
 
 import { LitElement, html, css } from 'lit'
-import { customElement, property, query } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators.js'
+import './base-imports.js'
 import './docs-sidebar.js'
 
 /**
@@ -53,21 +54,6 @@ export class DocsShell extends LitElement {
 
     @property({ type: String, reflect: true })
     public active: string = ''
-
-    @query('mdc-docs-sidebar')
-    private sidebarEl?: HTMLElement
-
-    public override firstUpdated() {
-        if (this.sidebarEl) {
-            ;(this.sidebarEl as unknown as { active: string }).active = this.active
-        }
-    }
-
-    public override updated(changed: Map<string, unknown>) {
-        if (changed.has('active') && this.sidebarEl) {
-            ;(this.sidebarEl as unknown as { active: string }).active = this.active
-        }
-    }
 
     public override render() {
         return html`
