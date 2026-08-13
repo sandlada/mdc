@@ -8,6 +8,7 @@ import { LitElement, html, css } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 const COMPONENTS: ReadonlyArray<{ name: string; label: string }> = [
+    { name: 'badge',            label: 'Badge' },
     { name: 'button',           label: 'Button' },
     { name: 'divider',          label: 'Divider' },
     { name: 'elevation',        label: 'Elevation' },

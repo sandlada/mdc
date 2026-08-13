@@ -11,38 +11,13 @@
     </script>
     <link rel="stylesheet" href="https://esm.sh/material-symbols@latest" />
     <link rel="stylesheet" href="/shared/styles.css" />
-    <style>
-        .fr-button {
-            box-sizing: border-box;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 40px;
-            padding-inline: 12px;
-            padding-block: 4px;
-            position: relative;
-            background: lightblue;
-            color: darkblue;
-            outline: none;
-            border: none;
-            vertical-align: top;
-            margin-inline-end: 2px;
-            margin-block-end: 2px;
-        }
-        .fr-rounded { border-radius: 16px; }
-    </style>
 </head>
 <body>
-    <mdc-docs-page component="focus-ring" title="Focus Ring" subtitle="Keyboard-focus indicator that overlays any focusable element.">
-        <section>
-            <h2>Basic</h2>
-            <div class="demo-frame">
-                <button class="fr-button"><span>Button</span><mdc-focus-ring></mdc-focus-ring></button>
-                <button class="fr-button fr-rounded"><span>Button Rounded</span><mdc-focus-ring></mdc-focus-ring></button>
-                <button class="fr-button fr-rounded"><span>Inward</span><mdc-focus-ring inward></mdc-focus-ring></button>
-                <button class="fr-button fr-rounded"><span>Disabled</span><mdc-focus-ring inward disabled></mdc-focus-ring></button>
-            </div>
-        </section>
-    </mdc-docs-page>
+    <mdc-docs-page
+        component="focus-ring"
+        title="Focus Ring"
+        subtitle="Keyboard-focus indicator that overlays any focusable element."
+        demo-files="focus-ring.inward.demo.html,focus-ring.shape-inherit.demo.html,focus-ring.animation-disabled.demo.html,focus-ring.ignore-global-config.demo.html,focus-ring.disabled.demo.html,focus-ring.focused.demo.html"
+    ></mdc-docs-page>
 </body>
 </html>

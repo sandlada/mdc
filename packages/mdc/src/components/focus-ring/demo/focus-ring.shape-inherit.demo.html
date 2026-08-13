@@ -1,0 +1,10 @@
+<style>
+    .fr-shape { box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding-inline: 12px; padding-block: 4px; position: relative; background: lightblue; color: darkblue; outline: none; border: none; vertical-align: top; margin-inline-end: 2px; margin-block-end: 2px; border-radius: 16px; }
+    .fr-square { border-radius: 4px; }
+</style>
+
+<button class="fr-shape"><span>Inherits rounded</span><mdc-focus-ring></mdc-focus-ring></button>
+
+<button class="fr-shape fr-square"><span>Inherits square</span><mdc-focus-ring></mdc-focus-ring></button>
+
+<button class="fr-shape"><span>Forced rounded</span><mdc-focus-ring shape-inherit="false"></mdc-focus-ring></button>

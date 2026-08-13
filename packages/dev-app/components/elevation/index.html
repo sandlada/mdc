@@ -11,38 +11,13 @@
     </script>
     <link rel="stylesheet" href="https://esm.sh/material-symbols@latest" />
     <link rel="stylesheet" href="/shared/styles.css" />
-    <style>
-        .elevation-cell {
-            position: relative;
-            height: 48px;
-            width: 56px;
-            box-sizing: border-box;
-            border: 1px solid black;
-            vertical-align: top;
-            margin: 4px;
-            --mdc-elevation-level: 3;
-        }
-        .elevation-cell:hover {
-            --mdc-elevation-level: 5;
-        }
-    </style>
 </head>
 <body>
-    <mdc-docs-page component="elevation" title="Elevation" subtitle="Material elevation overlay. Set --mdc-elevation-level (0-5) on the parent.">
-        <section>
-            <h2>Levels</h2>
-            <div class="demo-frame">
-                <div class="elevation-cell" tabindex="0">
-                    <mdc-elevation></mdc-elevation>
-                </div>
-                <div class="elevation-cell" tabindex="0">
-                    <mdc-elevation></mdc-elevation>
-                </div>
-                <div class="elevation-cell" tabindex="0">
-                    <mdc-elevation></mdc-elevation>
-                </div>
-            </div>
-        </section>
-    </mdc-docs-page>
+    <mdc-docs-page
+        component="elevation"
+        title="Elevation"
+        subtitle="Material elevation overlay. Set --mdc-elevation-level (0-5) on the parent."
+        demo-files="elevation.ignore-global-config.demo.html,elevation.disabled.demo.html"
+    ></mdc-docs-page>
 </body>
 </html>

@@ -16,40 +16,11 @@
     <link rel="stylesheet" href="/shared/styles.css" />
 </head>
 <body>
-    <mdc-docs-page component="navigation-rail" title="Navigation Rail" subtitle="Side rail container. Holds navigation-tab children; supports modal & expanded modes.">
-        <section>
-            <h2>Standard</h2>
-            <div class="demo-frame" style="height: 320px;">
-                <mdc-navigation-rail>
-                    <mdc-navigation-tab name="nr1" value="/" checked label="Home" variant="rail-vertical">
-                        <mdc-icon slot="inactive-icon">send</mdc-icon>
-                        <mdc-icon slot="active-icon" filled>send</mdc-icon>
-                    </mdc-navigation-tab>
-                    <mdc-navigation-tab name="nr1" value="/page2" label="Other" variant="rail-vertical">
-                        <mdc-icon slot="inactive-icon">send</mdc-icon>
-                        <mdc-icon slot="active-icon" filled>send</mdc-icon>
-                    </mdc-navigation-tab>
-                </mdc-navigation-rail>
-            </div>
-        </section>
-        <section>
-            <h2>Modal</h2>
-            <div class="demo-frame" style="height: 320px;">
-                <mdc-navigation-rail modal>
-                    <mdc-icon-button slot="menu">
-                        <mdc-icon>menu</mdc-icon>
-                    </mdc-icon-button>
-                    <mdc-navigation-tab name="nr2" value="/" checked label="Home" variant="rail-horizontal">
-                        <mdc-icon slot="inactive-icon">send</mdc-icon>
-                        <mdc-icon slot="active-icon" filled>send</mdc-icon>
-                    </mdc-navigation-tab>
-                    <mdc-navigation-tab name="nr2" value="/page2" label="Other" variant="rail-horizontal">
-                        <mdc-icon slot="inactive-icon">send</mdc-icon>
-                        <mdc-icon slot="active-icon" filled>send</mdc-icon>
-                    </mdc-navigation-tab>
-                </mdc-navigation-rail>
-            </div>
-        </section>
-    </mdc-docs-page>
+    <mdc-docs-page
+        component="navigation-rail"
+        title="Navigation Rail"
+        subtitle="Side rail container. Holds navigation-tab children; supports modal & expanded modes."
+        demo-files="navigation-rail.quick.demo.html,navigation-rail.expanded.demo.html,navigation-rail.modal.demo.html,navigation-rail.collapsed-variant.demo.html,navigation-rail.xr.demo.html,navigation-rail.navigation-scope.demo.html"
+    ></mdc-docs-page>
 </body>
 </html>

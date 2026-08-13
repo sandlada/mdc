@@ -351,10 +351,12 @@ public shape: 'round' | 'square' = 'round'
 
 ## Demo 慣例
 
-- **位置**：`src/components/{name}/demo/*.demo.html`
+- **位置**：`src/components/{name}/demo/*.demo.html`（toggle 變體沿用 `button/demo/` 與 `icon-button/demo/`）
 - **無 demo runner script** — demo HTML 由 docs 站靜態託管
-- 目前僅 3 個元件具備 demo：`button` / `typography` / `slider`
-- **新規範**：新增啟用元件時須同步新增至少一個 demo
+- **命名規則**：`{comp-name}.{prop}.demo.html`（prop 採 kebab-case HTML attribute 名；slot / feature 名稱亦可作為 feature 軸，例如 `button.icon.demo.html`）。每個檔案展示**同一個 prop / feature 軸**的多個取值
+- **格式**：純 HTML 片段（無 `<!doctype>` / `<html>` / `<script>`），垂直堆疊 `<mdc-{component}>` 實例，標籤透過元件文字內容
+- **目前所有啟用元件（17 個 class，含 toggle-button / toggle-icon-button）均具備 per-prop demo**
+- **新規範**：新增啟用元件（含 toggle 變體）時須為每個 `@property` 反射的 prop 建立對應 demo 檔案
 
 範例（參考 `src/components/button/demo/button.variant.demo.html`）：
 

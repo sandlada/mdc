@@ -88,7 +88,7 @@ export const radioButtonStyle = css`
                 r: 8px;
                 stroke: var(--_selected-icon-color);
                 transition-timing-function: ${unsafeCSS(Easing.EmphasizedDecelerate)};
-                transition-duration: 500ms;
+                transition-duration: 300ms;
             }
 
             .inner {
@@ -108,7 +108,7 @@ export const radioButtonStyle = css`
                 stroke: var(--_selected-icon-color);
                 opacity: 1;
                 transition-timing-function: ${unsafeCSS(Easing.EmphasizedDecelerate)};
-                transition-duration: 500ms;
+                transition-duration: 300ms;
             }
 
             :host([disabled])  {
