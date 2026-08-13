@@ -1,39 +1,59 @@
 {
-    "editor.formatOnSave": true,
-    "editor.codeActionsOnSave": {
-        "source.addMissingImports.ts": "always",
-        "source.organizeImports": "always",
-        "source.organizeLinkDefinitions": "always",
-        "source.sortImports": "always",
-        "source.removeUnusedImports": "never",
-        "source.fixAll.ts": "always",
-        "source.fixAll.markdownlint": "always"
+    "[**/package.json]": {
+        "editor.formatOnSave": false
     },
-    "editor.indentSize": 4,
-    "editor.tabSize": 4,
-    "editor.smoothScrolling": true,
+    "[**/src/**]": {
+        "editor.codeActionsOnSave": {
+            "source.addMissingImports.ts": "always",
+            "source.fixAll.markdownlint": "always",
+            "source.fixAll.ts": "always",
+            "source.organizeImports": "always",
+            "source.organizeLinkDefinitions": "always",
+            "source.removeUnusedImports": "never",
+            "source.sortImports": "always"
+        },
+        "editor.formatOnSave": true
+    },
+    "explorer.fileNesting.expand": true,
+    "explorer.fileNesting.patterns": {
+        "*.ts": "$(capture).interface.ts, $(capture).style.ts, $(capture).base.ts, $(capture).mixin.ts, $(capture)-options.mixin.ts, $(capture).js, $(capture).d.ts, $(capture).js.map, $(capture).spec.ts, $(capture).test.ts",
+        "*.d.ts": "$(capture).d.ts.map, $(capture).js.map",
+        "*.js": "$(capture).js.map, $(capture).d.ts",
+        "tsconfig.json": "tsconfig.*.json",
+        "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, bun.lockb, bun.lock",
+    },
+    "betterAlign.surroundSpace": {
+        "arrow": [
+            1,
+            1
+        ],
+        "assignment": [
+            1,
+            1
+        ],
+        "colon": [
+            0,
+            1
+        ],
+        "comment": -1
+    },
+    "editor.codeActionsOnSave": {},
     "editor.cursorSmoothCaretAnimation": "on",
-    "workbench.list.smoothScrolling": true,
-    "terminal.integrated.smoothScrolling": true,
-    "javascript.format.semicolons": "remove",
-    "typescript.format.semicolons": "remove",
-    "typescript.format.indentSwitchCase": true,
-    "typescript.preferences.quoteStyle": "single",
-    "html.format.preserveNewLines": true,
-    "html.format.wrapAttributes": "force-expand-multiline",
+    "editor.formatOnSave": false,
+    "editor.indentSize": 4,
+    "editor.smoothScrolling": true,
+    "editor.tabSize": 4,
+    "files.autoSaveDelay": 2000,
     "files.encoding": "utf8",
     "files.eol": "\n",
     "files.insertFinalNewline": true,
     "files.trimFinalNewlines": true,
-    "files.autoSaveDelay": 2000,
-    "[scss]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
-    },
-    "[typescript]": {
-        "editor.defaultFormatter": "vscode.typescript-language-features",
-    },
-    "[markdown]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
-    },
-    "prettier.printWidth": 240,
+    "html.format.preserveNewLines": true,
+    "html.format.wrapAttributes": "force-expand-multiline",
+    "js/ts.format.semicolons": "remove",
+    "js/ts.preferences.importModuleSpecifier": "non-relative",
+    "js/ts.preferences.quoteStyle": "single",
+    "js/ts.experimental.useTsgo": false,
+    "terminal.integrated.smoothScrolling": true,
+    "workbench.list.smoothScrolling": true
 }

@@ -27,6 +27,7 @@ test-report
 src/READMD.md
 src/bundle-size.md
 src/LICENSE
+src/LICENSES/*
 
 # Editor directories and files
 !.vscode/extensions.json
