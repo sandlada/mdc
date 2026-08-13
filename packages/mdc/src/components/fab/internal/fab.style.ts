@@ -99,7 +99,8 @@ const getIconStyles = () => {
     return css`
         .icon,
         ::slotted([name="icon"]) {
-            display: inline-flex;
+            display: grid;
+            place-content: center;
             position: relative;
             writing-mode: horizontal-tb;
             fill: currentColor;
@@ -108,9 +109,9 @@ const getIconStyles = () => {
         button.small :is(.icon, ::slotted([name="icon"])) {${getSize('small')};}
         button.medium :is(.icon, ::slotted([name="icon"])) {${getSize('medium')};}
         button.large :is(.icon, ::slotted([name="icon"])) {${getSize('large')};}
-        button.small .icon mdc-icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_small-icon-size)` }))};}
-        button.medium .icon mdc-icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_medium-icon-size)` }))};}
-        button.large .icon mdc-icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_large-icon-size)` }))};}
+        button.small .icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_small-icon-size)` }))};}
+        button.medium .icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_medium-icon-size)` }))};}
+        button.large .icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_large-icon-size)` }))};}
 
         button :is(.icon, ::slotted([name="icon"])) {
             color: var(--_icon-color);
