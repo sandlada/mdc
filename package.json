@@ -28,27 +28,32 @@
         "access": "public"
     },
     "type": "module",
+    "scripts": {
+        "build:rolldown": "rolldown -c rolldown.config.js",
+        "build:rolldown:dts": "tsc --project tsconfig.json --emitDeclarationOnly --outDir build --skipLibCheck"
+    },
     "dependencies": {
         "@lit/context": "^1.1.6",
         "lit": "^3.3.3"
     },
     "devDependencies": {
-        "@floating-ui/dom": "^1.7.4",
-        "@rollup/plugin-node-resolve": "^16.0.1",
-        "@rollup/plugin-terser": "^0.4.4",
-        "@rollup/plugin-typescript": "^12.1.4",
-        "@sandlada/jss": "^0.0.1-20260624.b",
+        "@floating-ui/dom": "^1.8.0",
+        "@rollup/plugin-node-resolve": "^16.0.3",
+        "@rollup/plugin-terser": "^1.0.0",
+        "@rollup/plugin-typescript": "^12.3.0",
+        "@sandlada/jss": "^0.0.1-20260626.a",
         "@sandlada/mdk": "^3.0.0-20260624.c",
-        "autoprefixer": "^10.4.21",
-        "rollup": "^4.44.2",
-        "rollup-plugin-html-literals": "^2.0.0",
-        "rollup-plugin-minify-template-literals": "^1.1.7",
-        "terser": "^5.43.1",
+        "autoprefixer": "^10.5.4",
+        "rolldown": "^1.2.4",
+        "rollup": "^4.62.4",
+        "rollup-plugin-html-literals": "^2.0.1",
+        "rollup-plugin-minify-template-literals": "^2.1.0",
+        "terser": "^5.50.0",
         "tslib": "^2.8.1",
-        "type-fest": "^5.6.0",
-        "typescript": "~5.8.3",
-        "vite": "^7.0.3",
-        "vitest": "^4.1.7"
+        "type-fest": "^5.8.0",
+        "typescript": "~7.0.2",
+        "vite": "^8.2.1",
+        "vitest": "^4.1.10"
     },
     "files": [
         "build/**/*",
