@@ -118,6 +118,17 @@ export class MDCSwitch extends composeMixin(
         this.addEventListener('pointerleave', this.handlePointerLeave.bind(this))
     }
 
+    public override connectedCallback(): void {
+        super.connectedCallback()
+        // Apply the `default-selected` attribute as the initial `selected`
+        // state, mirroring native HTML `defaultSelected` semantics. Runs
+        // before `formStateRestoreCallback` so a restored form value can
+        // still override the default.
+        if (this.hasAttribute('default-selected')) {
+            this.selected = true
+        }
+    }
+
     protected override render(): unknown {
         const classes = classMap({
             'selected': this.selected,

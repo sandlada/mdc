@@ -121,6 +121,17 @@ export class RadioButton extends composeMixin(
         }
     }
 
+    public override connectedCallback(): void {
+        super.connectedCallback()
+        // Apply the `default-checked` attribute as the initial `checked`
+        // state, mirroring native HTML `defaultChecked` semantics. Runs
+        // before `formStateRestoreCallback` so a restored form value can
+        // still override the default.
+        if (this.hasAttribute('default-checked')) {
+            this.checked = true
+        }
+    }
+
     protected override updated(_changedProperties: PropertyValues): void {
         super.updated(_changedProperties)
         this[internals].ariaChecked = String(this.checked)
