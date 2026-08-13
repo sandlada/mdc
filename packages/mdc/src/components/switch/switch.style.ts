@@ -90,6 +90,7 @@ export const SwitchStyles = css`
             flex-shrink: 0;
             flex-grow: 0;
             position: relative;
+            z-index: 0;
             height: var(--_track-height);
             width: var(--_track-width);
             border-end-end-radius: var(--_track-shape-end-end);
