@@ -14,8 +14,8 @@ import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import { SelectionController } from '../../utils/controller/selection-controller'
 import { isActivationClick } from '../../utils/event/form-label-activation'
 import { getFormState, getFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
-import { mixinFocusRingOptions } from '../focus-ring/mixin-focus-ring-options'
-import { mixinRippleOptions } from '../ripple/mixin-ripple-options'
+import { mixinFocusRingOptions } from '../focus-ring/focus-ring-options.mixin'
+import { mixinRippleOptions } from '../ripple/ripple-options.mixin'
 import { radioButtonStyle } from './radio-button.style'
 
 declare global {

@@ -7,11 +7,12 @@
  */
 import { isServer, LitElement } from 'lit'
 import { property, state } from 'lit/decorators.js'
-import { mixinDelegatesAria } from '../../utils/aria/delegate'
-import { redispatchEvent } from '../../utils/event/redispatch-event'
+import { mixinDelegatesAria } from '../../../utils/aria/delegate'
+import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
+import { redispatchEvent } from '../../../utils/event/redispatch-event'
 import { DialogDefaultCloseAnimation, DialogDefaultOpenAnimation, type DialogAnimation, type DialogAnimationArgs } from './dialog-animations'
 
-export abstract class DialogAction extends mixinDelegatesAria(LitElement) {
+export abstract class DialogAction extends composeMixin(mixinDelegatesAria)(LitElement) {
 
     declare returnValue: string
     declare quick: boolean

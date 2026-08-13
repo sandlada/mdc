@@ -13,9 +13,9 @@ import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
 import { MeasuredDimensionController } from '../../../utils/controller/measured-dimension-controller'
 import { OpacityTransitionController } from '../../../utils/controller/opacity-transition-controller'
 import { dispatchActivationClick, isActivationClick } from '../../../utils/event/form-label-activation'
-import { mixinElevationOptions } from '../../elevation/mixin-elevation-options'
-import { mixinFocusRingOptions } from '../../focus-ring/mixin-focus-ring-options'
-import { mixinRippleOptions } from '../../ripple/mixin-ripple-options'
+import { mixinElevationOptions } from '../../elevation/elevation-options.mixin'
+import { mixinFocusRingOptions } from '../../focus-ring/focus-ring-options.mixin'
+import { mixinRippleOptions } from '../../ripple/ripple-options.mixin'
 import { buttonStyles } from './button.style'
 
 /**

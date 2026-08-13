@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: MIT
  */
 import { customElement } from 'lit/decorators.js'
-import { BaseDialog } from './base-dialog'
-import { basicDialogStyle } from './dialog.style'
+import { BaseDialog } from './internal/base-dialog'
+import { basicDialogStyle } from './internal/dialog.style'
 
 declare global {
     interface HTMLElementTagNameMap {

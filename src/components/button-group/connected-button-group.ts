@@ -6,7 +6,7 @@
 import { css } from 'lit'
 import { customElement } from 'lit/decorators.js'
 import { FilledIconButtonDefinition } from '../../definitions'
-import { createLogicShapeTokens, overrideComponentTokens, stringTokens } from '../../utils'
+import { overrideComponentTokens, stringTokens, transformRadiusToLogicRadius } from '../../utils'
 import { BaseButtonGroup } from './base-button-group'
 
 const buttonSideLeftStyles = stringTokens(overrideComponentTokens<keyof typeof FilledIconButtonDefinition>('--mdc-icon-button', {
@@ -76,7 +76,7 @@ const buttonSideRightStyles = stringTokens(overrideComponentTokens<keyof typeof 
 }))
 
 const buttonCenterStyles = stringTokens(overrideComponentTokens<keyof typeof FilledIconButtonDefinition>('--mdc-icon-button', {
-    ...createLogicShapeTokens('--mdc-icon-button', {
+    ...transformRadiusToLogicRadius({
         'extra-large-container-shape-round': `20px`,
         'large-container-shape-round': `16px`,
         'medium-container-shape-round': `8px`,
@@ -88,11 +88,11 @@ const buttonCenterStyles = stringTokens(overrideComponentTokens<keyof typeof Fil
         'medium-container-shape-square': `8px`,
         'small-container-shape-square': `8px`,
         'extra-small-container-shape-square': `4px`,
-    }, 'all', false),
+    }),
 }))
 
 const buttonCheckedStyles = stringTokens(overrideComponentTokens<keyof typeof FilledIconButtonDefinition>('--mdc-icon-button', {
-    ...createLogicShapeTokens('--_', {
+    ...transformRadiusToLogicRadius({
         'extra-large-selected-container-shape-round': `calc(var(--_extra-large-container-height) / 2)`,
         'large-selected-container-shape-round': `calc(var(--_large-container-height) / 2)`,
         'medium-selected-container-shape-round': `calc(var(--_medium-container-height) / 2)`,
@@ -103,7 +103,7 @@ const buttonCheckedStyles = stringTokens(overrideComponentTokens<keyof typeof Fi
         'medium-selected-container-shape-square': `calc(var(--_medium-container-height) / 2)`,
         'small-selected-container-shape-square': `calc(var(--_small-container-height) / 2)`,
         'extra-small-selected-container-shape-square': `calc(var(--_extra-small-container-height) / 2)`,
-    }, 'all', false),
+    }),
 }))
 
 /**
@@ -116,7 +116,7 @@ export class MDCConnectedButtonGroup extends BaseButtonGroup {
         :host {
             vertical-align: top;
         }
-        
+
         .container {
             display: inline-flex;
             gap: 2px;

@@ -14,8 +14,8 @@ import { dispatchActivationClick, isActivationClick } from '../../utils/event/fo
 import { redispatchEvent } from '../../utils/event/redispatch-event'
 import { getFormState, getFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
 import { SwitchStyles } from './switch.style'
-import { mixinRippleOptions } from '../ripple/mixin-ripple-options'
-import { mixinFocusRingOptions } from '../focus-ring/mixin-focus-ring-options'
+import { mixinRippleOptions } from '../ripple/ripple-options.mixin'
+import { mixinFocusRingOptions } from '../focus-ring/focus-ring-options.mixin'
 import type { ISwitch } from './switch.interface'
 
 declare global {

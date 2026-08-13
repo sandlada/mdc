@@ -12,9 +12,9 @@ import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import { mixinElementInternals } from '../../../utils/behaviors/element-internals'
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
 import { dispatchActivationClick, isActivationClick } from '../../../utils/event/form-label-activation'
-import { mixinElevationOptions } from '../../elevation/mixin-elevation-options'
-import { mixinFocusRingOptions } from '../../focus-ring/mixin-focus-ring-options'
-import { mixinRippleOptions } from '../../ripple/mixin-ripple-options'
+import { mixinElevationOptions } from '../../elevation/elevation-options.mixin'
+import { mixinFocusRingOptions } from '../../focus-ring/focus-ring-options.mixin'
+import { mixinRippleOptions } from '../../ripple/ripple-options.mixin'
 
 /**
  * Fab components provide an icon.

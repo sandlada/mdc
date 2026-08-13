@@ -5,7 +5,7 @@ import { live } from 'lit/directives/live.js'
 import { redispatchEvent } from '../../utils/event/redispatch-event'
 import { searchBarStyle } from './search-bar.style'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
-import { mixinFocusRingOptions } from '../focus-ring/mixin-focus-ring-options'
+import { mixinFocusRingOptions } from '../focus-ring/focus-ring-options.mixin'
 
 @customElement('mdc-search-bar')
 export class MDCSearchBar extends composeMixin(

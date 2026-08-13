@@ -9,7 +9,7 @@
  */
 
 import { Easing } from '@sandlada/mdk'
-import { isServer, ReactiveElement } from 'lit'
+import { isServer } from 'lit'
 import type { IRipple } from './ripple.interface'
 
 const RippleState = {

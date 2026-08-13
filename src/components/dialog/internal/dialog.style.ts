@@ -5,11 +5,15 @@
  */
 import { Color } from '@sandlada/mdk'
 import { css, unsafeCSS } from 'lit'
-import { BasicDialogDefinition } from '../../component-definitions/dialog.definition'
-import { createWrappedTokens, stringTokens } from '../../utils/tokens'
+import { BasicDialogDefinition } from '../../../component-definitions/dialog.definition'
+import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
 
-const basicDialogTokens = createWrappedTokens('--mdc-basic-dialog', BasicDialogDefinition)
-const basicDialogTokenString = stringTokens(basicDialogTokens)
+const tokenRecord = defineTokenRefsRecord(BasicDialogDefinition, {
+    expandShapes: false,
+    useBaseFallback: true,
+    prefix: '--mdc-basic-dialog'
+})
+const basicDialogTokenString = unsafeCSS(defineVars(tokenRecord, true).join(''))
 
 const scrimColor = unsafeCSS(Color.Scrim)
 

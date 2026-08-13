@@ -11,8 +11,8 @@ import { mixinDelegatesAria } from '../../utils/aria/delegate'
 import { mixinElementInternals } from '../../utils/behaviors/element-internals'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import { dispatchActivationClick, isActivationClick } from '../../utils/event/form-label-activation'
-import { mixinFocusRingOptions } from '../focus-ring/mixin-focus-ring-options'
-import { mixinRippleOptions } from '../ripple/mixin-ripple-options'
+import { mixinFocusRingOptions } from '../focus-ring/focus-ring-options.mixin'
+import { mixinRippleOptions } from '../ripple/ripple-options.mixin'
 import { iconButtonStyles } from './icon-button.style'
 
 const KEYBOARD_VISUAL_KEYS = new Set(['Tab', ' ', 'Enter', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End'])

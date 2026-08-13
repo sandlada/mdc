@@ -7,9 +7,9 @@ import { html, LitElement, nothing, type TemplateResult } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
-import { mixinElevationOptions } from '../elevation/mixin-elevation-options'
-import { mixinFocusRingOptions } from '../focus-ring/mixin-focus-ring-options'
-import { mixinRippleOptions } from '../ripple/mixin-ripple-options'
+import { mixinElevationOptions } from '../elevation/elevation-options.mixin'
+import { mixinFocusRingOptions } from '../focus-ring/focus-ring-options.mixin'
+import { mixinRippleOptions } from '../ripple/ripple-options.mixin'
 import { cardStyles } from './card.style'
 
 @customElement('mdc-card')
