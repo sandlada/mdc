@@ -1,0 +1,17 @@
+{
+    "name": "@sandlada/mdc-dev",
+    "version": "0.1.0-20250909.b",
+    "private": true,
+    "type": "module",
+    "description": "Developer showcase for @sandlada/mdc components.",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview"
+    },
+    "devDependencies": {
+        "@lit/context": "^1.1.6",
+        "lit": "^3.3.3",
+        "vite": "^8.2.1"
+    }
+}

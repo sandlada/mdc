@@ -23,12 +23,6 @@ build
 test-report
 .tgz
 
-# chore
-src/READMD.md
-src/bundle-size.md
-src/LICENSE
-src/LICENSES/*
-
 # Editor directories and files
 !.vscode/extensions.json
 .idea
@@ -41,7 +35,8 @@ src/LICENSES/*
 .fleet
 .idea
 
-# Nuxt dev/build outputs
+# dev/build outputs
+.vite
 .output
 .data
 .nuxt
@@ -53,3 +48,14 @@ dist
 .env
 .env.*
 !.env.example
+
+# AI
+.claude
+.copilot
+.gemini
+.jules
+.superpower
+docs/superpower
+docs/.superpower
+docs/superpowers
+docs/.superpowers

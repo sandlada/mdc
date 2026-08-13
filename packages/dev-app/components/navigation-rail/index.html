@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Navigation Rail — MDC Docs</title>
+    <script type="module" src="/shared/theme.ts"></script>
+    <script type="module" src="/shared/docs-page.ts"></script>
+    <script type="module">
+        import '@sandlada/mdc/components/navigation-rail/navigation-rail'
+        import '@sandlada/mdc/components/navigation-tab/navigation-tab'
+        import '@sandlada/mdc/components/icon/icon'
+        import '@sandlada/mdc/components/icon-button/icon-button'
+    </script>
+    <link rel="stylesheet" href="https://esm.sh/material-symbols@latest" />
+    <link rel="stylesheet" href="/shared/styles.css" />
+</head>
+<body>
+    <mdc-docs-page component="navigation-rail" title="Navigation Rail" subtitle="Side rail container. Holds navigation-tab children; supports modal & expanded modes.">
+        <section>
+            <h2>Standard</h2>
+            <div class="demo-frame" style="height: 320px;">
+                <mdc-navigation-rail>
+                    <mdc-navigation-tab name="nr1" value="/" checked label="Home" variant="rail-vertical">
+                        <mdc-icon slot="inactive-icon">send</mdc-icon>
+                        <mdc-icon slot="active-icon" filled>send</mdc-icon>
+                    </mdc-navigation-tab>
+                    <mdc-navigation-tab name="nr1" value="/page2" label="Other" variant="rail-vertical">
+                        <mdc-icon slot="inactive-icon">send</mdc-icon>
+                        <mdc-icon slot="active-icon" filled>send</mdc-icon>
+                    </mdc-navigation-tab>
+                </mdc-navigation-rail>
+            </div>
+        </section>
+        <section>
+            <h2>Modal</h2>
+            <div class="demo-frame" style="height: 320px;">
+                <mdc-navigation-rail modal>
+                    <mdc-icon-button slot="menu">
+                        <mdc-icon>menu</mdc-icon>
+                    </mdc-icon-button>
+                    <mdc-navigation-tab name="nr2" value="/" checked label="Home" variant="rail-horizontal">
+                        <mdc-icon slot="inactive-icon">send</mdc-icon>
+                        <mdc-icon slot="active-icon" filled>send</mdc-icon>
+                    </mdc-navigation-tab>
+                    <mdc-navigation-tab name="nr2" value="/page2" label="Other" variant="rail-horizontal">
+                        <mdc-icon slot="inactive-icon">send</mdc-icon>
+                        <mdc-icon slot="active-icon" filled>send</mdc-icon>
+                    </mdc-navigation-tab>
+                </mdc-navigation-rail>
+            </div>
+        </section>
+    </mdc-docs-page>
+</body>
+</html>

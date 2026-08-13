@@ -1,0 +1,75 @@
+{
+    "name": "@sandlada/mdc",
+    "version": "0.1.0-20250909.b",
+    "author": "Kai-Orion & Sandlada",
+    "description": "@sandlada/mdc is an open source component library that follows the Material Design 3 design specifications.",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/sandlada/mdc.git"
+    },
+    "bugs": {
+        "url": "https://github.com/sandlada/mdc/issues"
+    },
+    "homepage": "https://mdc.sandlada.com",
+    "keywords": [
+        "cross-framework",
+        "web-components",
+        "material",
+        "material-web",
+        "material-web-components",
+        "material-design",
+        "material-expressive",
+        "material-you",
+        "component-library",
+        "ui"
+    ],
+    "publishConfig": {
+        "access": "public"
+    },
+    "type": "module",
+    "scripts": {
+        "build": "rolldown -c rolldown.config.js",
+        "build:dts": "tsc --project tsconfig.json --emitDeclarationOnly --outDir build --skipLibCheck"
+    },
+    "dependencies": {
+        "@lit/context": "^1.1.6",
+        "@sandlada/jss": "^0.0.1-20260626.a",
+        "@sandlada/mdk": "^3.0.0-20260624.c",
+        "lit": "^3.3.3"
+    },
+    "devDependencies": {
+        "rolldown": "^1.2.4",
+        "rollup-plugin-html-literals": "^2.0.1",
+        "tslib": "^2.8.1",
+        "type-fest": "^5.8.0",
+        "typescript": "~7.0.2"
+    },
+    "files": [
+        "build/**/*",
+        "LICENSES/**/*",
+        "LICENSE",
+        "README.md"
+    ],
+    "exports": {
+        "./*": {
+            "import": "./*",
+            "default": "./*"
+        },
+        "./definitions": {
+            "import": "./build/definitions.js",
+            "types": "./build/definitions.d.ts",
+            "default": "./build/definitions.js"
+        },
+        "./utils": {
+            "import": "./build/utils.js",
+            "types": "./build/utils.d.ts",
+            "default": "./build/utils.js"
+        },
+        "./all": {
+            "import": "./build/all.js",
+            "types": "./build/all.d.ts",
+            "default": "./build/all.js"
+        }
+    }
+}

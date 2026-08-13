@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Radio Button — MDC Docs</title>
+    <script type="module" src="/shared/theme.ts"></script>
+    <script type="module" src="/shared/docs-page.ts"></script>
+    <script type="module">
+        import '@sandlada/mdc/components/radio-button/radio-button'
+    </script>
+    <link rel="stylesheet" href="https://esm.sh/material-symbols@latest" />
+    <link rel="stylesheet" href="/shared/styles.css" />
+</head>
+<body>
+    <mdc-docs-page component="radio-button" title="Radio Button" subtitle="Form-associated radio. Supports `type=radio|checkbox` for radio-group or checkbox-group semantics.">
+        <section>
+            <h2>Radio group</h2>
+            <div class="demo-frame">
+                <form>
+                    <mdc-radio-button name="g1" value="1"></mdc-radio-button>
+                    <mdc-radio-button name="g1" value="2" default-checked></mdc-radio-button>
+                    <mdc-radio-button name="g1" value="3"></mdc-radio-button>
+                </form>
+            </div>
+        </section>
+        <section>
+            <h2>Checkbox group (type=checkbox)</h2>
+            <div class="demo-frame">
+                <form>
+                    <mdc-radio-button name="g2" type="checkbox" value="1"></mdc-radio-button>
+                    <mdc-radio-button name="g2" type="checkbox" value="2" default-checked></mdc-radio-button>
+                    <mdc-radio-button name="g2" type="checkbox" value="3"></mdc-radio-button>
+                </form>
+            </div>
+        </section>
+    </mdc-docs-page>
+</body>
+</html>

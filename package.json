@@ -1,85 +1,16 @@
 {
-    "name": "@sandlada/mdc",
+    "name": "sandlada-mdc-workspace",
     "version": "0.1.0-20250909.b",
-    "author": "Kai-Orion & Sandlada",
-    "description": "@sandlada/mdc is an open source component library that follows the Material Design 3 design specifications.",
-    "license": "MIT",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/sandlada/mdc.git"
-    },
-    "bugs": {
-        "url": "https://github.com/sandlada/mdc/issues"
-    },
-    "homepage": "https://mdc.sandlada.com",
-    "keywords": [
-        "cross-framework",
-        "web-components",
-        "material",
-        "material-web",
-        "material-web-components",
-        "material-design",
-        "material-expressive",
-        "material-you",
-        "component-library",
-        "ui"
-    ],
-    "publishConfig": {
-        "access": "public"
-    },
+    "private": true,
     "type": "module",
-    "scripts": {
-        "build:rolldown": "rolldown -c rolldown.config.js",
-        "build:rolldown:dts": "tsc --project tsconfig.json --emitDeclarationOnly --outDir build --skipLibCheck"
-    },
-    "dependencies": {
-        "@lit/context": "^1.1.6",
-        "lit": "^3.3.3"
-    },
-    "devDependencies": {
-        "@floating-ui/dom": "^1.8.0",
-        "@rollup/plugin-node-resolve": "^16.0.3",
-        "@rollup/plugin-terser": "^1.0.0",
-        "@rollup/plugin-typescript": "^12.3.0",
-        "@sandlada/jss": "^0.0.1-20260626.a",
-        "@sandlada/mdk": "^3.0.0-20260624.c",
-        "autoprefixer": "^10.5.4",
-        "rolldown": "^1.2.4",
-        "rollup": "^4.62.4",
-        "rollup-plugin-html-literals": "^2.0.1",
-        "rollup-plugin-minify-template-literals": "^2.1.0",
-        "terser": "^5.50.0",
-        "tslib": "^2.8.1",
-        "type-fest": "^5.8.0",
-        "typescript": "~7.0.2",
-        "vite": "^8.2.1",
-        "vitest": "^4.1.10"
-    },
-    "files": [
-        "build/**/*",
-        "LICENSES/**/*",
-        "LICENSE",
-        "README.md"
+    "workspaces": [
+        "packages/*"
     ],
-    "exports": {
-        "./*": {
-            "import": "./*",
-            "default": "./*"
-        },
-        "./definitions": {
-            "import": "./build/definitions.js",
-            "types": "./build/definitions.d.ts",
-            "default": "./build/definitions.js"
-        },
-        "./utils": {
-            "import": "./build/utils.js",
-            "types": "./build/utils.d.ts",
-            "default": "./build/utils.js"
-        },
-        "./all": {
-            "import": "./build/all.js",
-            "types": "./build/all.d.ts",
-            "default": "./build/all.js"
-        }
+    "scripts": {
+        "build": "npm run build -w @sandlada/mdc",
+        "build:dts": "npm run build:dts -w @sandlada/mdc",
+        "dev": "npm run dev -w @sandlada/mdc-dev",
+        "build:dev": "npm run build -w @sandlada/mdc-dev",
+        "preview:dev": "npm run preview -w @sandlada/mdc-dev"
     }
 }

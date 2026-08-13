@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Switch — MDC Docs</title>
+    <script type="module" src="/shared/theme.ts"></script>
+    <script type="module" src="/shared/docs-page.ts"></script>
+    <script type="module">
+        import '@sandlada/mdc/components/switch/switch'
+    </script>
+    <link rel="stylesheet" href="https://esm.sh/material-symbols@latest" />
+    <link rel="stylesheet" href="/shared/styles.css" />
+</head>
+<body>
+    <mdc-docs-page component="switch" title="Switch" subtitle="Toggle switch with form-association and configurable icons.">
+        <section>
+            <h2>States</h2>
+            <div class="demo-frame">
+                <mdc-switch></mdc-switch>
+                <mdc-switch selected></mdc-switch>
+                <mdc-switch selected default-selected hide-selected-icon></mdc-switch>
+                <mdc-switch show-unselected-icon></mdc-switch>
+                <mdc-switch disabled></mdc-switch>
+                <mdc-switch selected disabled></mdc-switch>
+            </div>
+        </section>
+    </mdc-docs-page>
+</body>
+</html>

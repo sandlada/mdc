@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FAB — MDC Docs</title>
+    <script type="module" src="/shared/theme.ts"></script>
+    <script type="module" src="/shared/docs-page.ts"></script>
+    <script type="module">
+        import '@sandlada/mdc/components/fab/fab'
+        import '@sandlada/mdc/components/icon/icon'
+    </script>
+    <link rel="stylesheet" href="https://esm.sh/material-symbols@latest" />
+    <link rel="stylesheet" href="/shared/styles.css" />
+    <style>
+        mdc-fab { display: block; margin: 8px; }
+    </style>
+</head>
+<body>
+    <mdc-docs-page component="fab" title="FAB" subtitle="Floating Action Button with optional extended label and trailing icon.">
+        <section>
+            <h2>Basic</h2>
+            <div class="demo-frame">
+                <mdc-fab open>
+                    <mdc-icon slot="icon">add</mdc-icon>
+                </mdc-fab>
+            </div>
+        </section>
+        <section>
+            <h2>Extended</h2>
+            <div class="demo-frame">
+                <mdc-fab extended open>
+                    <mdc-icon slot="icon">add</mdc-icon>
+                    <span>Label</span>
+                </mdc-fab>
+                <mdc-fab extended trailing-icon open>
+                    <mdc-icon slot="icon">add</mdc-icon>
+                    <span>Label</span>
+                </mdc-fab>
+            </div>
+        </section>
+    </mdc-docs-page>
+</body>
+</html>

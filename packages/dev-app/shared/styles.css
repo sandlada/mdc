@@ -1,0 +1,173 @@
+/**
+ * @license
+ * Copyright 2026 Kai-Orion & Sandlada
+ * SPDX-License-Identifier: MIT
+ */
+
+:root {
+    --md-sys-color-primary-palette-key-color: light-dark(#388647, #388647);
+    --md-sys-color-secondary-palette-key-color: light-dark(#697c68, #697c68);
+    --md-sys-color-tertiary-palette-key-color: light-dark(#527e86, #527e86);
+    --md-sys-color-neutral-palette-key-color: light-dark(#777777, #777777);
+    --md-sys-color-neutral-variant-palette-key-color: light-dark(#777777, #777777);
+    --md-sys-color-background: light-dark(#f9f9f9, #131313);
+    --md-sys-color-on-background: light-dark(#1b1b1b, #e2e2e2);
+    --md-sys-color-surface: light-dark(#f9f9f9, #131313);
+    --md-sys-color-surface-dim: light-dark(#dadada, #131313);
+    --md-sys-color-surface-bright: light-dark(#f9f9f9, #393939);
+    --md-sys-color-surface-container-lowest: light-dark(#ffffff, #0e0e0e);
+    --md-sys-color-surface-container-low: light-dark(#f3f3f3, #1b1b1b);
+    --md-sys-color-surface-container: light-dark(#eeeeee, #1f1f1f);
+    --md-sys-color-surface-container-high: light-dark(#e8e8e8, #2a2a2a);
+    --md-sys-color-surface-container-highest: light-dark(#e2e2e2, #353535);
+    --md-sys-color-on-surface: light-dark(#1b1b1b, #e2e2e2);
+    --md-sys-color-surface-variant: light-dark(#e2e2e2, #474747);
+    --md-sys-color-on-surface-variant: light-dark(#474747, #c6c6c6);
+    --md-sys-color-inverse-surface: light-dark(#303030, #e2e2e2);
+    --md-sys-color-inverse-on-surface: light-dark(#f1f1f1, #303030);
+    --md-sys-color-outline: light-dark(#777777, #919191);
+    --md-sys-color-outline-variant: light-dark(#c6c6c6, #474747);
+    --md-sys-color-shadow: light-dark(#000000, #000000);
+    --md-sys-color-scrim: light-dark(#000000, #000000);
+    --md-sys-color-surface-tint: light-dark(#1a6c31, #88d990);
+    --md-sys-color-primary: light-dark(#1a6c31, #88d990);
+    --md-sys-color-on-primary: light-dark(#ffffff, #003913);
+    --md-sys-color-primary-container: light-dark(#a3f5aa, #00531f);
+    --md-sys-color-on-primary-container: light-dark(#00531f, #a3f5aa);
+    --md-sys-color-inverse-primary: light-dark(#88d990, #1a6c31);
+    --md-sys-color-secondary: light-dark(#516351, #b8ccb5);
+    --md-sys-color-on-secondary: light-dark(#ffffff, #243425);
+    --md-sys-color-secondary-container: light-dark(#d4e8d1, #3a4b3a);
+    --md-sys-color-on-secondary-container: light-dark(#3a4b3a, #d4e8d1);
+    --md-sys-color-tertiary: light-dark(#39656c, #a1ced6);
+    --md-sys-color-on-tertiary: light-dark(#ffffff, #00363d);
+    --md-sys-color-tertiary-container: light-dark(#bdeaf3, #1f4d54);
+    --md-sys-color-on-tertiary-container: light-dark(#1f4d54, #bdeaf3);
+    --md-sys-color-error: light-dark(#ba1a1a, #ffb4ab);
+    --md-sys-color-on-error: light-dark(#ffffff, #690005);
+    --md-sys-color-error-container: light-dark(#ffdad6, #93000a);
+    --md-sys-color-on-error-container: light-dark(#93000a, #ffdad6);
+    --md-sys-color-primary-fixed: light-dark(#a3f5aa, #a3f5aa);
+    --md-sys-color-primary-fixed-dim: light-dark(#88d990, #88d990);
+    --md-sys-color-on-primary-fixed: light-dark(#002108, #002108);
+    --md-sys-color-on-primary-fixed-variant: light-dark(#00531f, #00531f);
+    --md-sys-color-secondary-fixed: light-dark(#d4e8d1, #d4e8d1);
+    --md-sys-color-secondary-fixed-dim: light-dark(#b8ccb5, #b8ccb5);
+    --md-sys-color-on-secondary-fixed: light-dark(#0f1f11, #0f1f11);
+    --md-sys-color-on-secondary-fixed-variant: light-dark(#3a4b3a, #3a4b3a);
+    --md-sys-color-tertiary-fixed: light-dark(#bdeaf3, #bdeaf3);
+    --md-sys-color-tertiary-fixed-dim: light-dark(#a1ced6, #a1ced6);
+    --md-sys-color-on-tertiary-fixed: light-dark(#001f24, #001f24);
+    --md-sys-color-on-tertiary-fixed-variant: light-dark(#1f4d54, #1f4d54);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: var(--md-sys-color-background);
+    color: var(--md-sys-color-on-background);
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    grid-template-rows: 56px 1fr;
+    height: 100dvh;
+    overflow: hidden;
+}
+
+.docs-header {
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--md-sys-color-outline-variant);
+    background: var(--md-sys-color-surface-container-low);
+}
+
+.docs-sidebar {
+    grid-column: 1 / 2;
+    grid-row: 1 / -1;
+    border-right: 1px solid var(--md-sys-color-outline-variant);
+    background: var(--md-sys-color-surface-container);
+    overflow-y: auto;
+}
+
+.docs-main {
+    grid-column: 2 / 3;
+    grid-row: 2 / 3;
+    overflow: auto;
+    padding: 24px 32px;
+}
+
+.docs-sidebar nav {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 0;
+}
+
+.docs-sidebar a {
+    display: block;
+    padding: 8px 16px;
+    color: var(--md-sys-color-on-surface);
+    text-decoration: none;
+    border-radius: 0 16px 16px 0;
+    margin-right: 8px;
+    transition: background-color 0.15s ease;
+}
+
+.docs-sidebar a:hover {
+    background: var(--md-sys-color-surface-container-high);
+}
+
+.docs-sidebar a.active {
+    background: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
+    font-weight: 500;
+}
+
+.docs-section {
+    margin-bottom: 32px;
+}
+
+.docs-section h2 {
+    margin: 0 0 12px;
+    color: var(--md-sys-color-on-surface);
+}
+
+.docs-section .demo-frame {
+    padding: 24px;
+    border-radius: 12px;
+    background: var(--md-sys-color-surface-container-low);
+    border: 1px solid var(--md-sys-color-outline-variant);
+    overflow-x: auto;
+}
+
+.docs-landing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+    padding: 24px 0;
+}
+
+.docs-landing-grid a {
+    padding: 16px;
+    border-radius: 12px;
+    background: var(--md-sys-color-surface-container-low);
+    color: var(--md-sys-color-on-surface);
+    text-decoration: none;
+    border: 1px solid var(--md-sys-color-outline-variant);
+    transition: background-color 0.15s ease;
+}
+
+.docs-landing-grid a:hover {
+    background: var(--md-sys-color-surface-container-high);
+}

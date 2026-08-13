@@ -23,6 +23,7 @@
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "outDir": "build",
+        "rootDir": "./src",
         "skipLibCheck": true,
         /* Linting */
         "strict": true,
