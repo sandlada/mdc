@@ -6,7 +6,7 @@
 
 import { LitElement, html, css } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { getDemo } from './demo-loader.js'
+import { getDemo, listDemos } from './demo-loader.js'
 import './docs-shell.js'
 
 /**
@@ -64,20 +64,25 @@ export class DocsPage extends LitElement {
     @property({ type: String })
     public subtitle: string = ''
 
-    /** Comma-separated demo basenames, e.g. "button.variant.demo.html,button.icon.demo.html". */
+    /**
+     * Comma-separated demo basenames, e.g. "button.variant.demo.html,button.icon.demo.html".
+     * Controls ordering; demo files not listed here are appended automatically.
+     */
     @property({ type: String, attribute: 'demo-files' })
     public demoFiles: string = ''
 
     public override render() {
-        const demos = this.demoFiles
-            .split(',')
-            .map((s) => s.trim())
-            .filter((s) => s.length > 0)
-            .map((file) => ({
-                file,
-                label: file.replace(/\.demo\.html$/, '').replace(/^[^.]+\./, ''),
-                content: getDemo(this.component, file),
-            }))
+        // Explicitly-ordered demos first (curated via `demo-files`), then any
+        // `*.demo.html` files in the component's demo folder that aren't listed —
+        // so newly-added demo files show up without editing the page's HTML.
+        const explicit = this.demoFiles.split(',').map((s) => s.trim()).filter((s) => s.length > 0)
+        const seen = new Set(explicit)
+        const files = [...explicit, ...listDemos(this.component).filter((f) => !seen.has(f))]
+        const demos = files.map((file) => ({
+            file,
+            label: file.replace(/\.demo\.html$/, '').replace(/^[^.]+\./, ''),
+            content: getDemo(this.component, file),
+        }))
 
         return html`
             <mdc-docs-shell active=${this.component}>

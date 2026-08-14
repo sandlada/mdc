@@ -6,29 +6,7 @@
 
 import { LitElement, html, css } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-
-const COMPONENTS: ReadonlyArray<{ name: string; label: string }> = [
-    { name: 'badge',            label: 'Badge' },
-    { name: 'button',           label: 'Button' },
-    { name: 'divider',          label: 'Divider' },
-    { name: 'elevation',        label: 'Elevation' },
-    { name: 'fab',              label: 'FAB' },
-    { name: 'focus-ring',       label: 'Focus Ring' },
-    { name: 'icon',             label: 'Icon' },
-    { name: 'icon-button',      label: 'Icon Button' },
-    { name: 'navigation-bar',   label: 'Navigation Bar' },
-    { name: 'navigation-drawer', label: 'Navigation Drawer' },
-    { name: 'navigation-rail',  label: 'Navigation Rail' },
-    { name: 'navigation-tab',   label: 'Navigation Tab' },
-    { name: 'radio-button',     label: 'Radio Button' },
-    { name: 'ripple',           label: 'Ripple' },
-    { name: 'search',           label: 'Search' },
-    { name: 'segmented-button', label: 'Segmented Button' },
-    { name: 'slider',           label: 'Slider' },
-    { name: 'switch',           label: 'Switch' },
-    { name: 'tabs',             label: 'Tabs' },
-    { name: 'typography',       label: 'Typography' },
-]
+import { components } from './docs-manifest.js'
 
 @customElement('mdc-docs-sidebar')
 export class DocsSidebar extends LitElement {
@@ -68,7 +46,7 @@ export class DocsSidebar extends LitElement {
     public override render() {
         return html`
             <nav>
-                ${COMPONENTS.map((c) => html`
+                ${components.map((c) => html`
                     <a
                         href="/components/${c.name}/"
                         class=${c.name === this.active ? 'active' : ''}

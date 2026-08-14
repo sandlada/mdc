@@ -24,6 +24,8 @@ packages/dev-app/
 ├── shared/
 │   ├── docs-shell.ts             # <mdc-docs-shell> page chrome (Lit)
 │   ├── docs-sidebar.ts           # <mdc-docs-sidebar> nav (Lit)
+│   ├── docs-landing.ts           # <mdc-docs-landing> landing grid (Lit)
+│   ├── docs-manifest.ts          # live component list from import.meta.glob
 │   ├── docs-page.ts              # <mdc-docs-page> per-page wrapper (Lit)
 │   ├── demo-loader.ts            # import.meta.glob('?raw') for *.demo.html
 │   ├── theme.ts                  # MD3 token palette + GlobalMDCContextProvider
@@ -39,3 +41,20 @@ packages/dev-app/
 4. Add `packages/dev-app/components/{component-name}/index.html`.
 
 Demo snippets live next to the component in `packages/mdc/src/components/{name}/demo/*.demo.html`.
+
+## Dynamic detection (no server restart needed)
+
+The sidebar, landing grid, and per-page demo sections are all derived from
+`import.meta.glob` (via `shared/docs-manifest.ts` / `shared/demo-loader.ts`).
+Vite re-transforms those glob modules when a matching file is added or removed,
+so while the dev server is running:
+
+- **New component page** — drop a folder under `components/{name}/index.html`;
+  the sidebar and landing grid pick it up (page auto-reloads). No edits to
+  `docs-sidebar.ts` or the landing `index.html`.
+- **New demo file** — add `{name}.{prop}.demo.html` under the component's
+  `demo/` folder; it appears on the component page automatically, appended
+  after the curated `demo-files` list.
+
+The `<mdc-docs-page component="..." title="...">` tag in each page declares the
+component name and its sidebar label — keep both in sync with the folder name.
