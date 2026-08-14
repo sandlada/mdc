@@ -1,4 +1,5 @@
 {
+    "terminal.integrated.sendKeybindingsToShell": true,
     "[**/package.json]": {
         "editor.formatOnSave": false
     },
