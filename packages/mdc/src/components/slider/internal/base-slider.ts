@@ -5,7 +5,7 @@
  *
  * [Modified By Kai-Orion & Sandlada]
  *
- * Copyright 2025 Kai-Orion & Sandlada
+ * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  *
  * @link
@@ -483,9 +483,9 @@ export class BaseSlider extends composeMixin(
         }
         return html`
             <div class="handle ${classMap(classes)}">
-                <mdc-focus-ring part="focus-ring" .control=${start ? this.inputStart : this.inputEnd}></mdc-focus-ring>
+                <mdc-focus-ring part="focus-ring" for=${name}></mdc-focus-ring>
                 <mdc-ripple
-                    .control=${start ? this.inputStart : this.inputEnd}
+                    for=${name}
                     class=${name}
                     ?disabled=${this.disabled}
                 ></mdc-ripple>

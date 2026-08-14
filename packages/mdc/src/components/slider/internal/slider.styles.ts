@@ -1,7 +1,9 @@
 import { Duration, Easing, Shape } from '@sandlada/mdk'
 import { css, unsafeCSS } from 'lit'
+import { ElevationDefinition } from '../../../component-definitions/elevation.definition'
 import { SliderDefinitionVersion2 } from '../../../component-definitions/slider.definition'
 import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+import { overrideComponentTokens, stringTokens } from '../../../utils/tokens'
 
 const tokenRecord = defineTokenRefsRecord(SliderDefinitionVersion2, {
     expandShapes: false,
@@ -19,11 +21,31 @@ export const sliderStyles = [
         :host {
             ${tokensStringified};
 
-
+            /* Set these to avoid token test failures */
+            --_start-fraction: 0;
+            --_end-fraction: 0;
+            --_tick-count: 0;
 
             display: inline-flex;
-            vertical-align: top;
+            vertical-align: middle;
             min-inline-size: 200px;
+
+            /* Elevation for the handle nub (see _slider.scss elevation.theme). */
+            ${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
+                level: `var(--_handle-elevation)`,
+                'shadow-color': `var(--_handle-shadow-color)`,
+            }))};
+        }
+
+        /* Note, opacity for active track and handle is controlled via host.
+           This avoids bleed through from the handle to the track since they overlap.
+           It also means the inactive track opacity is calc'd to compensate. */
+        :host([disabled]) {
+            opacity: var(--_disabled-active-track-opacity);
+
+            ${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
+                level: `var(--_disabled-handle-elevation)`,
+            }))};
         }
         mdc-focus-ring {
             inset: unset;

@@ -16,24 +16,24 @@
 - **目標**：MD3 / MD3E 規範下的 Web Components 元件庫，無框架鎖定
 - **核心技術**：Lit 3 + `@lit/context` + Web Animations API + Web Components
 - **建構系統**：`rolldown`（當前主動）+ `rollup`（過渡期殘留），詳見「構建說明」
-- **當前活躍元件**：`src/all.ts` 中未註解的 17 個項目（其餘為 WIP）
+- **當前活躍元件**：`src/all.ts` 中未註解的 21 個項目（其餘為 WIP）
 - **當前正式打包元件**：`ripple`、`focus-ring` 兩者（`rolldown.config.js` 唯一 entry 集合）
 
 ---
 
 ## 快速參考
 
-| 資源                              | 用途                                                                |
-| --------------------------------- | ------------------------------------------------------------------- |
-| `package.json`                    | 套件元資料、依賴、`exports` 對外入口                                |
-| `tsconfig.json`                   | TypeScript 設定（含 9 個 WIP 排除目錄，詳見「構建說明」）           |
-| `rolldown.config.js`              | **當前主動建構器**（目前僅打包 `ripple` / `focus-ring`）            |
-| `rollup.config.js`                | 前一代建構設定，未來將被 `rolldown` 取代；代理不應擴充               |
-| `get-build-input-option.js`       | 動態枚舉 `src/**/*.ts` 入口給 `rollup`（過渡期殘留）                |
-| `src/all.ts`                      | 元件 barrel：列示哪些已啟用、哪些 WIP（以註解標示）                  |
-| `src/utils.ts`                    | 工具 barrel：`attachable-controller` / `navigation` / `tokens`      |
-| `src/definitions.ts`              | 元件註冊 barrel：re-export `src/component-definitions/*.definition`  |
-| `src/context-provider.ts`         | 全域 ripple / focusRing / elevation 設定（單例 + Lit context）      |
+| 資源                        | 用途                                                                |
+| --------------------------- | ------------------------------------------------------------------- |
+| `package.json`              | 套件元資料、依賴、`exports` 對外入口                                |
+| `tsconfig.json`             | TypeScript 設定（含 9 個 WIP 排除目錄，詳見「構建說明」）           |
+| `rolldown.config.js`        | **當前主動建構器**（目前僅打包 `ripple` / `focus-ring`）            |
+| `rollup.config.js`          | 前一代建構設定，未來將被 `rolldown` 取代；代理不應擴充              |
+| `get-build-input-option.js` | 動態枚舉 `src/**/*.ts` 入口給 `rollup`（過渡期殘留）                |
+| `src/all.ts`                | 元件 barrel：列示哪些已啟用、哪些 WIP（以註解標示）                 |
+| `src/utils.ts`              | 工具 barrel：`attachable-controller` / `navigation` / `tokens`      |
+| `src/definitions.ts`        | 元件註冊 barrel：re-export `src/component-definitions/*.definition` |
+| `src/context-provider.ts`   | 全域 ripple / focusRing / elevation 設定（單例 + Lit context）      |
 
 本檔案聚焦 AI 代理的工作流程與開發約定。
 
@@ -81,11 +81,11 @@
 
 當前啟用：button（含 toggle）/ divider / elevation / fab / focus-ring /
 icon / icon-button（含 toggle）/ navigation-bar / navigation-drawer /
-navigation-rail / navigation-tab / radio-button / ripple / search / switch /
-typography
+navigation-rail / navigation-tab / radio-button / ripple / search / slider /
+switch / tabs / typography
 
 當前 WIP（被 `all.ts` 註解）：button-group / card / dialog /
-draggable-modal / popup-controller / progress-indicator / slider / toolbar
+draggable-modal / popup-controller / progress-indicator / toolbar
 / wave
 
 ### 無框架鎖定的黃金法則
@@ -108,7 +108,7 @@ draggable-modal / popup-controller / progress-indicator / slider / toolbar
 3. **實作公開元件類別** —
    `src/components/{name}/{name}.ts`，以 `@customElement('mdc-{name}')` 註冊
 4. **新增註冊定義** — `src/component-definitions/{name}.definition.ts`
-   （22 個檔案，目前 17 個已從 `src/definitions.ts` 導出；其餘 WIP）
+   （24 個檔案，目前 20 個已從 `src/definitions.ts` 導出；其餘 WIP）
 5. **掛入 barrel** — 在 `src/all.ts` 中**取消註解**對應的 `export *` 行
 6. **擴充建構 entry**（僅在從 WIP 晉升到正式時）— 更新 `rolldown.config.js`
 
@@ -337,24 +337,26 @@ public shape: 'round' | 'square' = 'round'
 
 **何時新增**：
 - 為每個**已啟用**的元件（`all.ts` 未註解）都應有對應的 `.definition.ts`
-- 22 個定義檔案中，目前 17 個已從 `src/definitions.ts` 導出；其餘為尚未完成
+- 24 個定義檔案中，目前 20 個已從 `src/definitions.ts` 導出；其餘為尚未完成
 
-**已啟用定義（17 個）**：
-`badge` / `button` / `divider` / `elevation` / `fab` / `focus-ring` /
-`icon` / `icon-button` / `navigation-bar` / `navigation-rail` /
-`navigation-tab` / `radio-button` / `ripple` / `switch` /
-（額外：buttondraggable-modal 等尚待從 `definitions.ts` 補齊）
+**已啟用定義（20 個）**：
+`badge` / `button` / `checkbox` / `dialog` / `divider` / `elevation` /
+`fab` / `focus-ring` / `icon` / `icon-button` / `navigation-bar` /
+`navigation-rail` / `navigation-tab` / `progress-indicator` /
+`radio-button` / `ripple` / `slider` / `switch` / `tab` / `tabs`
 
-**WIP 定義（5 個）**：`card` / `dialog` / `progress-indicator` / `slider` / `toolbar`
+**尚未導出定義（4 個）**：`card` / `search` / `toolbar` / `typography`
 
 ---
 
 ## Demo 慣例
 
-- **位置**：`src/components/{name}/demo/*.demo.html`
+- **位置**：`src/components/{name}/demo/*.demo.html`（toggle 變體沿用 `button/demo/` 與 `icon-button/demo/`）
 - **無 demo runner script** — demo HTML 由 docs 站靜態託管
-- 目前僅 3 個元件具備 demo：`button` / `typography` / `slider`
-- **新規範**：新增啟用元件時須同步新增至少一個 demo
+- **命名規則**：`{comp-name}.{prop}.demo.html`（prop 採 kebab-case HTML attribute 名；slot / feature 名稱亦可作為 feature 軸，例如 `button.icon.demo.html`）。每個檔案展示**同一個 prop / feature 軸**的多個取值
+- **格式**：純 HTML 片段（無 `<!doctype>` / `<html>` / `<script>`），垂直堆疊 `<mdc-{component}>` 實例，標籤透過元件文字內容
+- **目前所有啟用元件（21 個 class，含 toggle-button / toggle-icon-button）均具備 per-prop demo**
+- **新規範**：新增啟用元件（含 toggle 變體）時須為每個 `@property` 反射的 prop 建立對應 demo 檔案
 
 範例（參考 `src/components/button/demo/button.variant.demo.html`）：
 
@@ -372,10 +374,10 @@ public shape: 'round' | 'square' = 'round'
 
 ### 構建腳本
 
-| 指令                          | 用途                                                                       |
-| ----------------------------- | -------------------------------------------------------------------------- |
-| `npm run build:rolldown`      | 透過 `rolldown.config.js` 打包。**目前僅產出 `ripple` / `focus-ring`（4 個 entry）** |
-| `npm run build:rolldown:dts`  | 產出 `.d.ts` 型別宣告至 `build/`                                           |
+| 指令                         | 用途                                                                                 |
+| ---------------------------- | ------------------------------------------------------------------------------------ |
+| `npm run build:rolldown`     | 透過 `rolldown.config.js` 打包。**目前僅產出 `ripple` / `focus-ring`（4 個 entry）** |
+| `npm run build:rolldown:dts` | 產出 `.d.ts` 型別宣告至 `build/`                                                     |
 
 **目前** `package.json` 只有上述兩個 script；`dev` / `test` / `lint` 皆**未設定**。
 
@@ -421,12 +423,12 @@ public shape: 'round' | 'square' = 'round'
 
 消費者透過 `package.json` 的 `exports` 從以下三個入口匯入：
 
-| 入口                            | 用途                                                           |
-| ------------------------------- | -------------------------------------------------------------- |
-| `@sandlada/mdc/all`             | **Eager 載入**所有已啟用元件（透過 `import` 觸發 `@customElement`） |
-| `@sandlada/mdc/definitions`     | **Selective 載入** — 從 `src/definitions.ts` 取得註冊函式     |
-| `@sandlada/mdc/utils`           | 工具集合：`attachable-controller` / `navigation` / `tokens`   |
-| `@sandlada/mdc/*`（萬用）       | 直接子路徑載入，例如 `@sandlada/mdc/components/button/button`  |
+| 入口                        | 用途                                                                |
+| --------------------------- | ------------------------------------------------------------------- |
+| `@sandlada/mdc/all`         | **Eager 載入**所有已啟用元件（透過 `import` 觸發 `@customElement`） |
+| `@sandlada/mdc/definitions` | **Selective 載入** — 從 `src/definitions.ts` 取得註冊函式           |
+| `@sandlada/mdc/utils`       | 工具集合：`attachable-controller` / `navigation` / `tokens`         |
+| `@sandlada/mdc/*`（萬用）   | 直接子路徑載入，例如 `@sandlada/mdc/components/button/button`       |
 
 ---
 
@@ -464,23 +466,23 @@ GlobalMDCContextProvider.setConfig({ ripple: { disabled: true } })
 
 ## 關鍵檔案速查
 
-| 檔案路徑                                                  | 用途                                                |
-| --------------------------------------------------------- | --------------------------------------------------- |
-| `src/utils/compose-mixin/compose-mixin.ts`                | `composeMixin()` 實作                              |
-| `src/utils/controller/selection-controller.ts`            | radio/checkbox 選取控制器                          |
-| `src/utils/controller/measured-dimension-controller.ts`   | 尺寸測量控制器                                      |
-| `src/utils/controller/edge-slide-controller.ts`           | 邊緣滑動控制器（用於 navigation-drawer / toolbar）  |
-| `src/utils/controller/opacity-transition-controller.ts`   | 透明度過渡控制器（badge / button 等使用）          |
-| `src/utils/navigation/navigation-state-store.ts`          | 導覽狀態儲存                                        |
-| `src/context-provider.ts`                                 | 全域 ripple / focusRing / elevation 設定單例        |
-| `src/utils/aria/delegate.ts`                              | `mixinDelegatesAria`                                |
-| `src/utils/behaviors/element-internals.ts`                | `mixinElementInternals`                             |
-| `src/utils/form/form-associated.ts`                       | `mixinFormAssociated` + `setupFormSubmitter`        |
-| `src/components/button/internal/base-button.ts`           | getRenderClasses + composeMixin 範例               |
-| `src/components/button/toggle-button.ts`                  | override getRenderClasses + form-associated 範例    |
-| `src/components/navigation-tab/navigation-tab.ts`         | interface + component 範例                         |
-| `src/components/divider/divider.ts`                       | 無 mixin 的簡單元件範例                            |
-| `src/components/badge/badge.ts`                           | badge 簡單元件代表（MD3E 規範）                    |
-| `src/components/toolbar/internal/base-docked-toolbar.ts`  | toolbar 複雜元件代表（具 `internal/`）             |
-| `src/components/wave/base-wave.ts`                        | wave 中等複雜元件代表（具頂層 `base-*.ts`）        |
-| `src/components/progress-indicator/linear-progress-indicator.ts` | 進度指示器代表（含動畫）                       |
+| 檔案路徑                                                         | 用途                                               |
+| ---------------------------------------------------------------- | -------------------------------------------------- |
+| `src/utils/compose-mixin/compose-mixin.ts`                       | `composeMixin()` 實作                              |
+| `src/utils/controller/selection-controller.ts`                   | radio/checkbox 選取控制器                          |
+| `src/utils/controller/measured-dimension-controller.ts`          | 尺寸測量控制器                                     |
+| `src/utils/controller/edge-slide-controller.ts`                  | 邊緣滑動控制器（用於 navigation-drawer / toolbar） |
+| `src/utils/controller/opacity-transition-controller.ts`          | 透明度過渡控制器（badge / button 等使用）          |
+| `src/utils/navigation/navigation-state-store.ts`                 | 導覽狀態儲存                                       |
+| `src/context-provider.ts`                                        | 全域 ripple / focusRing / elevation 設定單例       |
+| `src/utils/aria/delegate.ts`                                     | `mixinDelegatesAria`                               |
+| `src/utils/behaviors/element-internals.ts`                       | `mixinElementInternals`                            |
+| `src/utils/form/form-associated.ts`                              | `mixinFormAssociated` + `setupFormSubmitter`       |
+| `src/components/button/internal/base-button.ts`                  | getRenderClasses + composeMixin 範例               |
+| `src/components/button/toggle-button.ts`                         | override getRenderClasses + form-associated 範例   |
+| `src/components/navigation-tab/navigation-tab.ts`                | interface + component 範例                         |
+| `src/components/divider/divider.ts`                              | 無 mixin 的簡單元件範例                            |
+| `src/components/badge/badge.ts`                                  | badge 簡單元件代表（MD3E 規範）                    |
+| `src/components/toolbar/internal/base-docked-toolbar.ts`         | toolbar 複雜元件代表（具 `internal/`）             |
+| `src/components/wave/base-wave.ts`                               | wave 中等複雜元件代表（具頂層 `base-*.ts`）        |
+| `src/components/progress-indicator/linear-progress-indicator.ts` | 進度指示器代表（含動畫）                           |
