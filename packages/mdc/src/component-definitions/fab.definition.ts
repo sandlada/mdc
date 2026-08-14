@@ -3,7 +3,7 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { ElevationLevel, Shape, State, Typescale } from '@sandlada/mdk'
+import { Shape, State, Typescale } from '@sandlada/mdk'
 import { Color } from '../utils/tokens/theme'
 import { createStyleDefinition } from '../utils/tokens/create-style-definition'
 
@@ -40,23 +40,23 @@ export const TonalPrimaryFabDefinition = createStyleDefinition({
     // Enabled
     'container-color'       : Color.PrimaryContainer,
     'container-shadow-color': Color.Shadow,
-    'container-elevation'   : ElevationLevel.Level3,
+    'container-elevation'   : '3',
     'icon-color'            : Color.OnPrimaryContainer,
 
     // Hovered
-    'hovered-container-elevation': ElevationLevel.Level4,
+    'hovered-container-elevation': '4',
     'hovered-state-layer-color'  : Color.OnPrimaryContainer,
     'hovered-state-layer-opacity': State.HoveredStateLayerOpacity,
     'hovered-icon-color'         : Color.OnPrimaryContainer,
 
     // Focused
-    'focused-container-elevation': ElevationLevel.Level3,
+    'focused-container-elevation': '3',
     'focused-state-layer-color'  : Color.OnPrimaryContainer,
     'focused-state-layer-opacity': State.FocusedStateLayerOpacity,
     'focused-icon-color'         : Color.OnPrimaryContainer,
 
     // Pressed
-    'pressed-container-elevation': ElevationLevel.Level3,
+    'pressed-container-elevation': '3',
     'pressed-state-layer-color'  : Color.OnPrimaryContainer,
     'pressed-state-layer-opacity': State.PressedStateLayerOpacity,
     'pressed-icon-color'         : Color.OnPrimaryContainer,
@@ -68,23 +68,23 @@ export const TonalSecondaryFabDefinition = createStyleDefinition({
     // Enabled
     'container-color'       : Color.SecondaryContainer,
     'container-shadow-color': Color.Shadow,
-    'container-elevation'   : ElevationLevel.Level3,
+    'container-elevation'   : '3',
     'icon-color'            : Color.OnSecondaryContainer,
 
     // Hovered
-    'hovered-container-elevation': ElevationLevel.Level4,
+    'hovered-container-elevation': '4',
     'hovered-state-layer-color'  : Color.OnSecondaryContainer,
     'hovered-state-layer-opacity': State.HoveredStateLayerOpacity,
     'hovered-icon-color'         : Color.OnSecondaryContainer,
 
     // Focused
-    'focused-container-elevation': ElevationLevel.Level3,
+    'focused-container-elevation': '3',
     'focused-state-layer-color'  : Color.OnSecondaryContainer,
     'focused-state-layer-opacity': State.FocusedStateLayerOpacity,
     'focused-icon-color'         : Color.OnSecondaryContainer,
 
     // Pressed
-    'pressed-container-elevation': ElevationLevel.Level3,
+    'pressed-container-elevation': '3',
     'pressed-state-layer-color'  : Color.OnSecondaryContainer,
     'pressed-state-layer-opacity': State.PressedStateLayerOpacity,
     'pressed-icon-color'         : Color.OnSecondaryContainer,
@@ -96,23 +96,23 @@ export const TonalTertiaryFabDefinition = createStyleDefinition({
     // Enabled
     'container-color'       : Color.TertiaryContainer,
     'container-shadow-color': Color.Shadow,
-    'container-elevation'   : ElevationLevel.Level3,
+    'container-elevation'   : '3',
     'icon-color'            : Color.OnTertiaryContainer,
 
     // Hovered
-    'hovered-container-elevation': ElevationLevel.Level4,
+    'hovered-container-elevation': '4',
     'hovered-state-layer-color'  : Color.OnTertiaryContainer,
     'hovered-state-layer-opacity': State.HoveredStateLayerOpacity,
     'hovered-icon-color'         : Color.OnTertiaryContainer,
 
     // Focused
-    'focused-container-elevation': ElevationLevel.Level3,
+    'focused-container-elevation': '3',
     'focused-state-layer-color'  : Color.OnTertiaryContainer,
     'focused-state-layer-opacity': State.FocusedStateLayerOpacity,
     'focused-icon-color'         : Color.OnTertiaryContainer,
 
     // Pressed
-    'pressed-container-elevation': ElevationLevel.Level3,
+    'pressed-container-elevation': '3',
     'pressed-state-layer-color'  : Color.OnTertiaryContainer,
     'pressed-state-layer-opacity': State.PressedStateLayerOpacity,
     'pressed-icon-color'         : Color.OnTertiaryContainer,
@@ -124,23 +124,23 @@ export const PrimaryFabDefinition = createStyleDefinition({
     // Enabled
     'container-color'       : Color.Primary,
     'container-shadow-color': Color.Shadow,
-    'container-elevation'   : ElevationLevel.Level3,
+    'container-elevation'   : '3',
     'icon-color'            : Color.OnPrimary,
 
     // Hovered
-    'hovered-container-elevation': ElevationLevel.Level4,
+    'hovered-container-elevation': '4',
     'hovered-state-layer-color'  : Color.OnPrimary,
     'hovered-state-layer-opacity': State.HoveredStateLayerOpacity,
     'hovered-icon-color'         : Color.OnPrimary,
 
     // Focused
-    'focused-container-elevation': ElevationLevel.Level3,
+    'focused-container-elevation': '3',
     'focused-state-layer-color'  : Color.OnPrimary,
     'focused-state-layer-opacity': State.FocusedStateLayerOpacity,
     'focused-icon-color'         : Color.OnPrimary,
 
     // Pressed
-    'pressed-container-elevation': ElevationLevel.Level3,
+    'pressed-container-elevation': '3',
     'pressed-state-layer-color'  : Color.OnPrimary,
     'pressed-state-layer-opacity': State.PressedStateLayerOpacity,
     'pressed-icon-color'         : Color.OnPrimary,
@@ -152,23 +152,23 @@ export const SecondaryFabDefinition = createStyleDefinition({
     // Enabled
     'container-color'       : Color.Secondary,
     'container-shadow-color': Color.Shadow,
-    'container-elevation'   : ElevationLevel.Level3,
+    'container-elevation'   : '3',
     'icon-color'            : Color.OnSecondary,
 
     // Hovered
-    'hovered-container-elevation': ElevationLevel.Level4,
+    'hovered-container-elevation': '4',
     'hovered-state-layer-color'  : Color.OnSecondary,
     'hovered-state-layer-opacity': State.HoveredStateLayerOpacity,
     'hovered-icon-color'         : Color.OnSecondary,
 
     // Focused
-    'focused-container-elevation': ElevationLevel.Level3,
+    'focused-container-elevation': '3',
     'focused-state-layer-color'  : Color.OnSecondary,
     'focused-state-layer-opacity': State.FocusedStateLayerOpacity,
     'focused-icon-color'         : Color.OnSecondary,
 
     // Pressed
-    'pressed-container-elevation': ElevationLevel.Level3,
+    'pressed-container-elevation': '3',
     'pressed-state-layer-color'  : Color.OnSecondary,
     'pressed-state-layer-opacity': State.PressedStateLayerOpacity,
     'pressed-icon-color'         : Color.OnSecondary,
@@ -180,23 +180,23 @@ export const TertiaryFabDefinition = createStyleDefinition({
     // Enabled
     'container-color'       : Color.Tertiary,
     'container-shadow-color': Color.Shadow,
-    'container-elevation'   : ElevationLevel.Level3,
+    'container-elevation'   : '3',
     'icon-color'            : Color.OnTertiary,
 
     // Hovered
-    'hovered-container-elevation': ElevationLevel.Level4,
+    'hovered-container-elevation': '4',
     'hovered-state-layer-color'  : Color.OnTertiary,
     'hovered-state-layer-opacity': State.HoveredStateLayerOpacity,
     'hovered-icon-color'         : Color.OnTertiary,
 
     // Focused
-    'focused-container-elevation': ElevationLevel.Level3,
+    'focused-container-elevation': '3',
     'focused-state-layer-color'  : Color.OnTertiary,
     'focused-state-layer-opacity': State.FocusedStateLayerOpacity,
     'focused-icon-color'         : Color.OnTertiary,
 
     // Pressed
-    'pressed-container-elevation': ElevationLevel.Level3,
+    'pressed-container-elevation': '3',
     'pressed-state-layer-color'  : Color.OnTertiary,
     'pressed-state-layer-opacity': State.PressedStateLayerOpacity,
     'pressed-icon-color'         : Color.OnTertiary,

@@ -16,7 +16,7 @@
 - **目標**：MD3 / MD3E 規範下的 Web Components 元件庫，無框架鎖定
 - **核心技術**：Lit 3 + `@lit/context` + Web Animations API + Web Components
 - **建構系統**：`rolldown`（當前主動）+ `rollup`（過渡期殘留），詳見「構建說明」
-- **當前活躍元件**：`src/all.ts` 中未註解的 21 個項目（其餘為 WIP）
+- **當前活躍元件**：`src/all.ts` 中未註解的 22 個項目（其餘為 WIP）
 - **當前正式打包元件**：`ripple`、`focus-ring` 兩者（`rolldown.config.js` 唯一 entry 集合）
 
 ---
@@ -59,8 +59,9 @@
 
 依原始碼結構分為三級（取代舊版二級制「有 / 無 internal/」）：
 
-- **有 `internal/` 資料夾（7 個，複雜元件）**
-  `button` / `dialog` / `fab` / `navigation` / `navigation-bar` / `slider` / `toolbar`
+- **有 `internal/` 資料夾（9 個，複雜元件）**
+  `button` / `dialog` / `fab` / `navigation` / `navigation-bar` /
+  `segmented-button` / `slider` / `split-button` / `toolbar`
 
 - **有頂層 `base-*.ts`（2 個，中等複雜）**
   `icon-button`（`base-icon-button.ts`） / `wave`（`base-wave.ts`）
@@ -72,7 +73,7 @@
   `progress-indicator` / `radio-button` / `ripple` / `search` / `switch` /
   `typography`
 
-總計 27 個元件資料夾。
+總計 29 個元件資料夾。
 
 ### 啟用 vs WIP 狀態速查
 
@@ -81,8 +82,8 @@
 
 當前啟用：button（含 toggle）/ divider / elevation / fab / focus-ring /
 icon / icon-button（含 toggle）/ navigation-bar / navigation-drawer /
-navigation-rail / navigation-tab / radio-button / ripple / search / slider /
-switch / tabs / typography
+navigation-rail / navigation-tab / radio-button / ripple / search /
+segmented-button / slider / split-button / switch / tabs / typography
 
 當前 WIP（被 `all.ts` 註解）：button-group / card / dialog /
 draggable-modal / popup-controller / progress-indicator / toolbar

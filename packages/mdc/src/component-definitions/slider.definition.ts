@@ -3,7 +3,7 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { ElevationLevel, Shape, State, Typescale } from '@sandlada/mdk'
+import { Shape, State, Typescale } from '@sandlada/mdk'
 import { Color } from '../utils/tokens/theme'
 import { createStyleDefinition } from '../utils/tokens/create-style-definition'
 
@@ -107,7 +107,7 @@ export const SliderDefinitionVersion2 = createStyleDefinition({
     'disabled-active-track-color'               : Color.OnSurface,
     'disabled-active-track-opacity'             : `0.38`,
     'disabled-handle-color'                     : Color.OnSurface,
-    'disabled-handle-elevation'                 : ElevationLevel.Level0,
+    'disabled-handle-elevation'                 : '0',
     'disabled-handle-opacity'                   : `0.38`,
     'disabled-inactive-track-color'             : Color.OnSurface,
     'disabled-inactive-track-opacity'           : `0.12`,
@@ -115,7 +115,7 @@ export const SliderDefinitionVersion2 = createStyleDefinition({
     'focus-state-layer-color'                   : Color.Primary,
     'focus-state-layer-opacity'                 : State.FocusedStateLayerOpacity,
     'handle-color'                              : Color.Primary,
-    'handle-elevation'                          : ElevationLevel.Level1,
+    'handle-elevation'                          : '1',
     'handle-height'                             : `20px`,
     'handle-shadow-color'                       : Color.Shadow,
     'handle-shape'                              : Shape.Full,
@@ -127,7 +127,7 @@ export const SliderDefinitionVersion2 = createStyleDefinition({
     'inactive-track-height'                     : `4px`,
     'inactive-track-shape'                      : Shape.Full,
     'label-container-color'                     : Color.Primary,
-    'label-container-elevation'                 : ElevationLevel.Level0,
+    'label-container-elevation'                 : '0',
     'label-container-height'                    : `28px`,
     'label-text-color'                          : Color.OnPrimary,
     'label-text-font'                           : Typescale.LabelMedium.Font,
@@ -139,7 +139,7 @@ export const SliderDefinitionVersion2 = createStyleDefinition({
     'pressed-state-layer-color'                 : Color.Primary,
     'pressed-state-layer-opacity'               : State.PressedStateLayerOpacity,
     'state-layer-size'                          : `40px`,
-    'track-elevation'                           : ElevationLevel.Level0,
+    'track-elevation'                           : '0',
     'with-overlap-handle-outline-color'         : Color.OnPrimary,
     'with-overlap-handle-outline-width'         : `1px`,
     'with-tick-marks-active-container-color'    : Color.OnPrimary,

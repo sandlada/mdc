@@ -4,7 +4,7 @@
 * SPDX-License-Identifier: MIT
 */
 
-import { ElevationLevel, Shape, State } from '@sandlada/mdk'
+import { Shape, State } from '@sandlada/mdk'
 import { Color } from '../utils/tokens/theme'
 import { createStyleDefinition } from '../utils/tokens/create-style-definition'
 
@@ -24,23 +24,23 @@ export const ElevatedCardDefinition = createStyleDefinition({
     'container-shape': Shape.Medium,
 
     'container-color'       : Color.SurfaceContainerLow,
-    'container-elevation'   : ElevationLevel.Level1,
+    'container-elevation'   : '1',
     'container-shadow-color': Color.Shadow,
     'icon-color'            : Color.Primary,
     'icon-size'             : `24px`,
 
     // Disabled
     'disabled-container-color'    : Color.Surface,
-    'disabled-container-elevation': ElevationLevel.Level1,
+    'disabled-container-elevation': '1',
     'disabled-container-opacity'  : `0.38`,
 
     // Hovered
-    'hovered-container-elevation': ElevationLevel.Level2,
+    'hovered-container-elevation': '2',
     'hovered-state-layer-color'  : Color.OnSurface,
     'hovered-state-layer-opacity': State.HoveredStateLayerOpacity,
 
     // Focused
-    'focused-container-elevation': ElevationLevel.Level1,
+    'focused-container-elevation': '1',
     'focused-state-layer-color'  : Color.OnSurface,
     'focused-state-layer-opacity': State.FocusedStateLayerOpacity,
     'focused-indicator-color'    : Color.Secondary,
@@ -48,12 +48,12 @@ export const ElevatedCardDefinition = createStyleDefinition({
     'focused-indicator-thickness': State.FocusIndicator.Thickness,
 
     // Pressed
-    'pressed-container-elevation': ElevationLevel.Level1,
+    'pressed-container-elevation': '1',
     'pressed-state-layer-color'  : Color.OnSurface,
     'pressed-state-layer-opacity': State.PressedStateLayerOpacity,
 
     // Dragged
-    'dragged-container-elevation': ElevationLevel.Level4,
+    'dragged-container-elevation': '4',
     'dragged-state-layer-color'  : Color.OnSurface,
     'dragged-state-layer-opacity': State.DraggedStateLayerOpacity,
 })
@@ -65,23 +65,23 @@ export const FilledCardDefinition = createStyleDefinition({
     'container-shape-end-start': Shape.Medium,
     'container-shape-end-end': Shape.Medium,
     'container-color'       : Color.SurfaceContainerHighest,
-    'container-elevation'   : ElevationLevel.Level0,
+    'container-elevation'   : '0',
     'container-shadow-color': Color.Shadow,
     'icon-color'            : Color.Primary,
     'icon-size'             : `24px`,
 
     // Disabled
     'disabled-container-color'    : Color.SurfaceVariant,
-    'disabled-container-elevation': ElevationLevel.Level0,
+    'disabled-container-elevation': '0',
     'disabled-container-opacity'  : `0.38`,
 
     // Hovered
-    'hovered-container-elevation': ElevationLevel.Level1,
+    'hovered-container-elevation': '1',
     'hovered-state-layer-color'  : Color.OnSurface,
     'hovered-state-layer-opacity': State.HoveredStateLayerOpacity,
 
     // Focused
-    'focused-container-elevation': ElevationLevel.Level0,
+    'focused-container-elevation': '0',
     'focused-state-layer-color'  : Color.OnSurface,
     'focused-state-layer-opacity': State.FocusedStateLayerOpacity,
     'focused-indicator-color'    : Color.Secondary,
@@ -89,12 +89,12 @@ export const FilledCardDefinition = createStyleDefinition({
     'focused-indicator-thickness': State.FocusIndicator.Thickness,
 
     // Pressed
-    'pressed-container-elevation': ElevationLevel.Level0,
+    'pressed-container-elevation': '0',
     'pressed-state-layer-color'  : Color.OnSurface,
     'pressed-state-layer-opacity': State.PressedStateLayerOpacity,
 
     // Dragged
-    'dragged-container-elevation': ElevationLevel.Level3,
+    'dragged-container-elevation': '3',
     'dragged-state-layer-color'  : Color.OnSurface,
     'dragged-state-layer-opacity': State.DraggedStateLayerOpacity,
 })
@@ -106,7 +106,7 @@ export const OutlinedCardDefinition = createStyleDefinition({
     'container-shape-end-start': Shape.Medium,
     'container-shape-end-end': Shape.Medium,
     'container-color'       : Color.Surface,
-    'container-elevation'   : ElevationLevel.Level0,
+    'container-elevation'   : '0',
     'container-shadow-color': Color.Shadow,
     'outline-color'         : Color.OutlineVariant,
     'outline-width'         : `1px`,
@@ -114,18 +114,18 @@ export const OutlinedCardDefinition = createStyleDefinition({
     'icon-size'             : `24px`,
 
     // Disabled
-    'disabled-container-elevation': ElevationLevel.Level0,
+    'disabled-container-elevation': '0',
     'disabled-outline-color'      : Color.Outline,
     'disabled-outline-opacity'    : `0.12`,
 
     // Hovered
-    'hovered-container-elevation': ElevationLevel.Level1,
+    'hovered-container-elevation': '1',
     'hovered-state-layer-color'  : Color.OnSurface,
     'hovered-state-layer-opacity': State.HoveredStateLayerOpacity,
     'hovered-outline-color'      : Color.OutlineVariant,
 
     // Focused
-    'focused-container-elevation': ElevationLevel.Level0,
+    'focused-container-elevation': '0',
     'focused-state-layer-color'  : Color.OnSurface,
     'focused-state-layer-opacity': State.FocusedStateLayerOpacity,
     'focused-outline-color'      : Color.OnSurface,
@@ -134,13 +134,13 @@ export const OutlinedCardDefinition = createStyleDefinition({
     'focused-indicator-thickness': State.FocusIndicator.Thickness,
 
     // Pressed
-    'pressed-container-elevation': ElevationLevel.Level0,
+    'pressed-container-elevation': '0',
     'pressed-state-layer-color'  : Color.OnSurface,
     'pressed-state-layer-opacity': State.PressedStateLayerOpacity,
     'pressed-outline-color'      : Color.OutlineVariant,
 
     // Dragged
-    'dragged-container-elevation': ElevationLevel.Level3,
+    'dragged-container-elevation': '3',
     'dragged-state-layer-color'  : Color.OnSurface,
     'dragged-state-layer-opacity': State.DraggedStateLayerOpacity,
     'dragged-outline-color'      : Color.OutlineVariant,
