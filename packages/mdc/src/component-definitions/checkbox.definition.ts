@@ -8,14 +8,18 @@ import { Color } from '../utils/tokens/theme'
 import { createStyleDefinition } from '../utils/tokens/create-style-definition'
 
 export const CheckboxDefinition = createStyleDefinition({
-    'container-shape-start-start': `2px`,
-    'container-shape-start-end': `2px`,
-    'container-shape-end-start': `2px`,
-    'container-shape-end-end': `2px`,
+    'container-shape-start-start'  : `2px`,
+    'container-shape-start-end'    : `2px`,
+    'container-shape-end-start'    : `2px`,
+    'container-shape-end-end'      : `2px`,
     'state-layer-shape-start-start': Shape.Full,
-    'state-layer-shape-start-end': Shape.Full,
-    'state-layer-shape-end-start': Shape.Full,
-    'state-layer-shape-end-end': Shape.Full,
+    'state-layer-shape-start-end'  : Shape.Full,
+    'state-layer-shape-end-start'  : Shape.Full,
+    'state-layer-shape-end-end'    : Shape.Full,
+    'focus-ring-shape-start-start' : Shape.Full,
+    'focus-ring-shape-start-end'   : Shape.Full,
+    'focus-ring-shape-end-start'   : Shape.Full,
+    'focus-ring-shape-end-end'     : Shape.Full,
 
     // Enabled
     'container-size'                : '18px',
