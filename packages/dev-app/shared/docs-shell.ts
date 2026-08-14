@@ -63,9 +63,12 @@ export class DocsShell extends LitElement {
             <header>
                 <mdc-switch
                     id="docs-theme-switch"
-                    hide-selected-icon
+                    show-unselected-icon
                     @change=${this.onThemeChange}
-                ></mdc-switch>
+                >
+                    <mdc-icon filled slot="icon-selected">dark_mode</mdc-icon>
+                    <mdc-icon slot="icon-unselected">dark_mode</mdc-icon>
+                </mdc-switch>
             </header>
             <main>
                 <slot></slot>
