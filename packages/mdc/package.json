@@ -30,7 +30,8 @@
     "type": "module",
     "scripts": {
         "build": "rolldown -c rolldown.config.js",
-        "build:dts": "tsc --project tsconfig.json --emitDeclarationOnly --outDir build --skipLibCheck"
+        "build:dts": "tsc --project tsconfig.json --emitDeclarationOnly --outDir build --skipLibCheck",
+        "smoke": "node .smoke/run.mjs"
     },
     "dependencies": {
         "@lit/context": "^1.1.6",
