@@ -8,6 +8,12 @@ import { customElement } from 'lit/decorators.js'
 import { BaseSlider } from './internal/base-slider'
 import { sliderStyles } from './internal/slider.styles'
 
+declare global {
+    interface HTMLElementTagNameMap {
+        'mdc-slider': MDCSlider
+    }
+}
+
 /**
  * @version
  * Material Design 3

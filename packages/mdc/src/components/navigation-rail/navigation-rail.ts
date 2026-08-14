@@ -59,6 +59,12 @@ import { classMap } from 'lit/directives/class-map.js'
 import { redispatchEvent } from '../../utils/event/redispatch-event'
 import { NavigationRailStyles } from './navigation-rail.style'
 
+declare global {
+    interface HTMLElementTagNameMap {
+        'mdc-navigation-rail': NavigationRail
+    }
+}
+
 type AnimationArgs = Parameters<Element['animate']>
 interface NavigationRailAnimation {
     dialog: AnimationArgs[]

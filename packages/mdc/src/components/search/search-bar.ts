@@ -7,6 +7,12 @@ import { searchBarStyle } from './search-bar.style'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import { mixinFocusRingOptions } from '../focus-ring/focus-ring-options.mixin'
 
+declare global {
+    interface HTMLElementTagNameMap {
+        'mdc-search-bar': MDCSearchBar
+    }
+}
+
 @customElement('mdc-search-bar')
 export class MDCSearchBar extends composeMixin(
     mixinFocusRingOptions

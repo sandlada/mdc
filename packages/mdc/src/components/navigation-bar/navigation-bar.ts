@@ -28,6 +28,12 @@ import { NavigationBarStyles } from './navigation-bar.style'
 import { classMap } from 'lit/directives/class-map.js'
 import type { NavigationTabVariant } from '../navigation-tab/navigation-tab.interface'
 
+declare global {
+    interface HTMLElementTagNameMap {
+        'mdc-navigation-bar': MDCNavigationBar
+    }
+}
+
 /**
  * @version "Material Design 3"
  *

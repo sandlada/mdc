@@ -8,6 +8,12 @@ import { internals } from '../../utils/behaviors/element-internals'
 import { setupFormSubmitter, type FormSubmitter, type FormSubmitterType } from '../../utils/controller/form-submitter'
 import { BaseButton } from './internal/base-button'
 
+declare global {
+    interface HTMLElementTagNameMap {
+        'mdc-button': MDCButton
+    }
+}
+
 /**
  * The normal Button class does not implement the function of the anchor element.
  * Because you only need to wrap the Button component with <a></a>.

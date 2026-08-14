@@ -14,6 +14,12 @@ import { SelectionController } from '../../utils/controller/selection-controller
 import { getFormState, getFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
 import { BaseButton } from './internal/base-button'
 
+declare global {
+    interface HTMLElementTagNameMap {
+        'mdc-toggle-button': MDCTogglableButton
+    }
+}
+
 /**
  * `mdc-toggle-button variant="text"` is not supported by M3 Expressive.
  *

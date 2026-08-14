@@ -10,6 +10,12 @@ import { customElement } from 'lit/decorators.js'
 import { BaseTabs } from './internal/base-tabs'
 import { TabsStyles } from './tabs.style'
 
+declare global {
+    interface HTMLElementTagNameMap {
+        'mdc-tabs': Tabs
+    }
+}
+
 /**
  * @element mdc-tabs
  *
