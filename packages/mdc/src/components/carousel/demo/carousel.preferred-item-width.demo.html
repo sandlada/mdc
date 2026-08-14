@@ -1,0 +1,45 @@
+<style>
+    .cdp-card {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        height: 180px;
+        padding: 8px;
+        font: 500 14px/20px Roboto, system-ui, sans-serif;
+        color: var(--md-sys-color-on-surface, #1d1b20);
+    }
+    .cdp-a { background: var(--md-sys-color-surface-container-high, #e6e0e9); }
+    .cdp-b { background: var(--md-sys-color-secondary-container, #e8def8); }
+    .cdp-c { background: var(--md-sys-color-tertiary-container, #ffd8e4); }
+</style>
+
+<!-- preferred-item-width tunes the large item; small ≈ ⅓ of large (40–56px), medium the average -->
+<mdc-carousel preferred-item-width="120" aria-label="120px preferred width">
+    <mdc-carousel-item size="large"><div class="cdp-card cdp-a">Large</div></mdc-carousel-item>
+    <mdc-carousel-item size="medium"><div class="cdp-card cdp-b">Medium</div></mdc-carousel-item>
+    <mdc-carousel-item size="small"><div class="cdp-card cdp-c">Small</div></mdc-carousel-item>
+    <mdc-carousel-item size="large"><div class="cdp-card cdp-c">Large</div></mdc-carousel-item>
+    <mdc-carousel-item size="medium"><div class="cdp-card cdp-a">Medium</div></mdc-carousel-item>
+    <mdc-carousel-item size="small"><div class="cdp-card cdp-b">Small</div></mdc-carousel-item>
+</mdc-carousel>
+
+<!-- default preferred-item-width (186) -->
+<mdc-carousel aria-label="Default 186px preferred width">
+    <mdc-carousel-item size="large"><div class="cdp-card cdp-a">Large</div></mdc-carousel-item>
+    <mdc-carousel-item size="medium"><div class="cdp-card cdp-b">Medium</div></mdc-carousel-item>
+    <mdc-carousel-item size="small"><div class="cdp-card cdp-c">Small</div></mdc-carousel-item>
+    <mdc-carousel-item size="large"><div class="cdp-card cdp-c">Large</div></mdc-carousel-item>
+    <mdc-carousel-item size="medium"><div class="cdp-card cdp-a">Medium</div></mdc-carousel-item>
+    <mdc-carousel-item size="small"><div class="cdp-card cdp-b">Small</div></mdc-carousel-item>
+</mdc-carousel>
+
+<!-- larger preferred width → bigger large item, wider small/medium -->
+<mdc-carousel preferred-item-width="260" aria-label="260px preferred width">
+    <mdc-carousel-item size="large"><div class="cdp-card cdp-a">Large</div></mdc-carousel-item>
+    <mdc-carousel-item size="medium"><div class="cdp-card cdp-b">Medium</div></mdc-carousel-item>
+    <mdc-carousel-item size="small"><div class="cdp-card cdp-c">Small</div></mdc-carousel-item>
+    <mdc-carousel-item size="large"><div class="cdp-card cdp-c">Large</div></mdc-carousel-item>
+    <mdc-carousel-item size="medium"><div class="cdp-card cdp-a">Medium</div></mdc-carousel-item>
+    <mdc-carousel-item size="small"><div class="cdp-card cdp-b">Small</div></mdc-carousel-item>
+</mdc-carousel>

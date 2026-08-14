@@ -1,0 +1,37 @@
+<style>
+    .cd-card {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        height: 180px;
+        padding: 8px;
+        font: 500 14px/20px Roboto, system-ui, sans-serif;
+        color: var(--md-sys-color-on-surface, #1d1b20);
+    }
+    .cd-a { background: var(--md-sys-color-surface-container-high, #e6e0e9); }
+    .cd-b { background: var(--md-sys-color-secondary-container, #e8def8); }
+    .cd-c { background: var(--md-sys-color-tertiary-container, #ffd8e4); }
+</style>
+
+<!-- multi-browse (default): mixes large / medium / small items that snap to the leading keyline -->
+<mdc-carousel aria-label="Multi-browse carousel">
+    <mdc-carousel-item size="large"><div class="cd-card cd-a">Large</div></mdc-carousel-item>
+    <mdc-carousel-item size="medium"><div class="cd-card cd-b">Medium</div></mdc-carousel-item>
+    <mdc-carousel-item size="small"><div class="cd-card cd-c">Small</div></mdc-carousel-item>
+    <mdc-carousel-item size="large"><div class="cd-card cd-c">Large</div></mdc-carousel-item>
+    <mdc-carousel-item size="medium"><div class="cd-card cd-a">Medium</div></mdc-carousel-item>
+    <mdc-carousel-item size="small"><div class="cd-card cd-b">Small</div></mdc-carousel-item>
+    <mdc-carousel-item size="large"><div class="cd-card cd-b">Large</div></mdc-carousel-item>
+    <mdc-carousel-item size="medium"><div class="cd-card cd-c">Medium</div></mdc-carousel-item>
+</mdc-carousel>
+
+<!-- uncontained: uniform width, scrolls freely (no snap), trailing item peeks at the edge -->
+<mdc-carousel variant="uncontained" aria-label="Uncontained carousel">
+    <mdc-carousel-item size="large"><div class="cd-card cd-a">One</div></mdc-carousel-item>
+    <mdc-carousel-item size="large"><div class="cd-card cd-b">Two</div></mdc-carousel-item>
+    <mdc-carousel-item size="large"><div class="cd-card cd-c">Three</div></mdc-carousel-item>
+    <mdc-carousel-item size="large"><div class="cd-card cd-a">Four</div></mdc-carousel-item>
+    <mdc-carousel-item size="large"><div class="cd-card cd-b">Five</div></mdc-carousel-item>
+    <mdc-carousel-item size="large"><div class="cd-card cd-c">Six</div></mdc-carousel-item>
+</mdc-carousel>

@@ -1,5 +1,6 @@
 export * from './component-definitions/badge.definition'
 export * from './component-definitions/button.definition'
+export * from './component-definitions/carousel.definition'
 export * from './component-definitions/checkbox.definition'
 export * from './component-definitions/dialog.definition'
 export * from './component-definitions/divider.definition'

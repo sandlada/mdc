@@ -3,6 +3,8 @@
 export * from './components/button/button'
 export * from './components/button/toggle-button'
 // export * from './components/card/card'
+export * from './components/carousel/carousel'
+export * from './components/carousel/carousel-item'
 // export * from './components/dialog/basic-dialog'
 export * from './components/divider/divider'
 // export * from './components/draggable-modal/draggable-modal'

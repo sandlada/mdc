@@ -1,0 +1,27 @@
+<style>
+    .cds-card {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        height: 180px;
+        padding: 8px;
+        font: 500 14px/20px Roboto, system-ui, sans-serif;
+        color: var(--md-sys-color-on-surface, #1d1b20);
+    }
+    .cds-a { background: var(--md-sys-color-surface-container-high, #e6e0e9); }
+    .cds-b { background: var(--md-sys-color-secondary-container, #e8def8); }
+    .cds-c { background: var(--md-sys-color-tertiary-container, #ffd8e4); }
+</style>
+
+<!-- The three sizes differ only in width and corner roundness; height is shared -->
+<mdc-carousel aria-label="Carousel item sizes">
+    <mdc-carousel-item size="large"><div class="cds-card cds-a">Large</div></mdc-carousel-item>
+    <mdc-carousel-item size="medium"><div class="cds-card cds-b">Medium</div></mdc-carousel-item>
+    <mdc-carousel-item size="small"><div class="cds-card cds-c">Small</div></mdc-carousel-item>
+    <mdc-carousel-item size="medium"><div class="cds-card cds-c">Medium</div></mdc-carousel-item>
+    <mdc-carousel-item size="small"><div class="cds-card cds-a">Small</div></mdc-carousel-item>
+    <mdc-carousel-item size="large"><div class="cds-card cds-b">Large</div></mdc-carousel-item>
+    <mdc-carousel-item size="medium"><div class="cds-card cds-a">Medium</div></mdc-carousel-item>
+    <mdc-carousel-item size="small"><div class="cds-card cds-b">Small</div></mdc-carousel-item>
+</mdc-carousel>
