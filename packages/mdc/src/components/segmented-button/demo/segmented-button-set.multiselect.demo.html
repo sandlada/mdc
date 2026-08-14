@@ -1,0 +1,28 @@
+<!-- Single-select (default): clicking a segment selects it and deselects the rest. -->
+<mdc-segmented-button-set>
+    <mdc-segmented-button>Day</mdc-segmented-button>
+    <mdc-segmented-button selected>Week</mdc-segmented-button>
+    <mdc-segmented-button>Month</mdc-segmented-button>
+</mdc-segmented-button-set>
+
+<!-- Multiselect: any number of segments may be selected at once. -->
+<mdc-segmented-button-set multiselect>
+    <mdc-segmented-button selected>Bold</mdc-segmented-button>
+    <mdc-segmented-button>Italic</mdc-segmented-button>
+    <mdc-segmented-button selected>Underline</mdc-segmented-button>
+</mdc-segmented-button-set>
+
+<mdc-segmented-button-set multiselect>
+    <mdc-segmented-button selected>
+        <mdc-icon slot="icon" name="format_bold"></mdc-icon>
+        Bold
+    </mdc-segmented-button>
+    <mdc-segmented-button selected>
+        <mdc-icon slot="icon" name="format_italic"></mdc-icon>
+        Italic
+    </mdc-segmented-button>
+    <mdc-segmented-button selected>
+        <mdc-icon slot="icon" name="format_underlined"></mdc-icon>
+        Underline
+    </mdc-segmented-button>
+</mdc-segmented-button-set>

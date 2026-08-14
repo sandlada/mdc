@@ -23,6 +23,7 @@ const COMPONENTS: ReadonlyArray<{ name: string; label: string }> = [
     { name: 'radio-button',     label: 'Radio Button' },
     { name: 'ripple',           label: 'Ripple' },
     { name: 'search',           label: 'Search' },
+    { name: 'segmented-button', label: 'Segmented Button' },
     { name: 'slider',           label: 'Slider' },
     { name: 'switch',           label: 'Switch' },
     { name: 'tabs',             label: 'Tabs' },
