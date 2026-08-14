@@ -83,6 +83,10 @@ export class MDCCheckbox extends composeMixin(
     public override get rippleControl(): HTMLElement | null {
         return this.inputElement ?? null
     }
+    // The focus indicator is a 44px circle around the 18px box, driven by the
+    // `focus-ring-shape-*` tokens (Shape.Full). Disable shape-inherit so the
+    // ring uses those tokens instead of inheriting the 2px container corners.
+    public override focusRingShapeInherit: boolean = false
 
     override focus() {
         this.inputElement?.focus()

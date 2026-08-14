@@ -82,20 +82,21 @@ export const FocusRingStyle = css`
             border-start-start-radius: inherit;
         }
 
-        :host(:not([shape-inherit])) {
-            &:not([inward]) {
-                border-end-end-radius: calc(var(--_shape-end-end) + var(--_outward-offset));
-                border-end-start-radius: calc(var(--_shape-end-start) + var(--_outward-offset));
-                border-start-end-radius: calc(var(--_shape-start-end) + var(--_outward-offset));
-                border-start-start-radius: calc(var(--_shape-start-start) + var(--_outward-offset));
-            }
-
-            &[inward] {
-                border-end-end-radius: calc(var(--_shape-end-end) - var(--_inward-offset));
-                border-end-start-radius: calc(var(--_shape-end-start) - var(--_inward-offset));
-                border-start-end-radius: calc(var(--_shape-start-end) - var(--_inward-offset));
-                border-start-start-radius: calc(var(--_shape-start-start) - var(--_inward-offset));
-            }
+        /* NOTE: these two branches are written as flat selectors on purpose.
+           Chrome does not resolve '&' nesting inside a ':host()' parent, so an
+           '&:not([inward])' child rule never matches and the ring would end up
+           with NO border-radius when 'shape-inherit' is off. */
+        :host(:not([shape-inherit]):not([inward])) {
+            border-end-end-radius: calc(var(--_shape-end-end) + var(--_outward-offset));
+            border-end-start-radius: calc(var(--_shape-end-start) + var(--_outward-offset));
+            border-start-end-radius: calc(var(--_shape-start-end) + var(--_outward-offset));
+            border-start-start-radius: calc(var(--_shape-start-start) + var(--_outward-offset));
+        }
+        :host(:not([shape-inherit])[inward]) {
+            border-end-end-radius: calc(var(--_shape-end-end) - var(--_inward-offset));
+            border-end-start-radius: calc(var(--_shape-end-start) - var(--_inward-offset));
+            border-start-end-radius: calc(var(--_shape-start-end) - var(--_inward-offset));
+            border-start-start-radius: calc(var(--_shape-start-start) - var(--_inward-offset));
         }
 
         @keyframes outward-grow {

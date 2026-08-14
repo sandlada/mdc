@@ -39,7 +39,7 @@ const errorRippleStyles = () => stringTokens(overrideComponentTokens<keyof typeo
     'pressed-opacity': `var(--_pressed-error-state-layer-opacity)`,
 }))
 
-// The focus indicator is a 44px rounded square around the 18px box. The ring
+// The focus indicator is a 44px circle around the 18px box. The ring
 // sizes itself through its own `outward-offset` mechanism, so it stays correct
 // even when `container-size` is overridden.
 const focusRingTokens = stringTokens(overrideComponentTokens<keyof typeof FocusRingDefinition>('--mdc-focus-ring', {
@@ -351,7 +351,7 @@ export const CheckboxStyles = css`
         }
 
         @layer composite.focus-ring {
-            .container mdc-focus-ring {
+            .container {
                 ${focusRingTokens};
             }
         }

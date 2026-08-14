@@ -164,7 +164,7 @@ export function mixinFocusRingOptions<T extends MixinBase<LitElement>>(base: T):
                         part="focus-ring"
                         id="focus-ring-part"
                         ?inward=${this.focusRingInward}
-                        ?shape-inherit=${this.focusRingShapeInherit}
+                        .shapeInherit=${this.focusRingShapeInherit}
                     ></mdc-focus-ring>
                 `
             }
@@ -176,7 +176,7 @@ export function mixinFocusRingOptions<T extends MixinBase<LitElement>>(base: T):
                     ignore-global-config
                     .disabled=${this.focusRingDisabled}
                     ?inward=${this.focusRingInward}
-                    ?shape-inherit=${this.focusRingShapeInherit}
+                    .shapeInherit=${this.focusRingShapeInherit}
                 ></mdc-focus-ring>
             `
         }
