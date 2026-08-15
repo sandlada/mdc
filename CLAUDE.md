@@ -459,6 +459,58 @@ label 等文字元素必須包含全部 6 項字體 token：
 
 ---
 
+## 偵錯與驗證教訓
+
+> 源於 progress-indicator / expressive-progress-indicator 重構期間的真實事故，
+> 記錄成本極高的偵錯陷阱與對應的驗證紀律。
+
+### 1. Headless `--virtual-time-budget` 會凍結動畫（虛假診斷）
+
+Headless Chrome 搭配 `--virtual-time-budget`（常見於 `--dump-dom` 快照）會
+**凍結**符合以下條件的陰影樹元素動畫：
+
+- keyframes 位在 `@layer` 內
+- 樣式透過 constructable stylesheets（`adoptedStyleSheets`，即 Lit 的注入機制）
+- custom element 在 parse **之後**才透過 async module import upgrade
+
+症狀：WAAPI 顯示 `currentTime=0, startTime=0, playState=running`，動畫永不
+tick；而 light-DOM 控制項、`<style>` 注入的 shadow 樣式、頂層 keyframes 都
+正常。這會把診斷導向錯誤的嫌疑人（`@layer` / `adoptedStyleSheets` /
+`content-visibility` / shadow DOM 全是紅鯡魚）。
+
+**這是 headless-only 的假象**：即時瀏覽器（以 CDP + 真實計時驗證）同一設定
+動畫完全正常，即使元素位於 fold 之外。
+
+**規則**：驗證 CSS 動畫（尤其 Lit Web Components）時，一律使用**即時 CDP
+driver**（Chrome `--remote-debugging-port` + Node 原生 `WebSocket`，
+`Runtime.evaluate` 搭配真實 `setTimeout` 等待），**不要**用
+`--virtual-time-budget --dump-dom`。動畫行為的最終判定必須以即時驗證為準。
+
+### 2. 共享 class 的動畫規則必須按 variant 限縮
+
+`getRenderClasses()` 會把狀態 class（如 `indeterminate`）套用到**所有 variant**
+共同的容器上。若旋轉類動畫規則未 gate（例如 `.progress.indeterminate { animation:
+linear-rotate }`），linear 容器會被整支旋轉成極端 AABB（576×4 旋轉約 90° 變成
+4×576 的細條）——本次 bug 的真實根因。
+
+**規則**：以 host attribute 將動畫規則限縮到特定 variant：
+
+```css
+:host([variant='circular']) .progress.indeterminate {
+    animation: linear infinite linear-rotate ${linearRotateDuration};
+}
+```
+
+### 3. Lit `css` 模板字串內註解禁用反引號
+
+`css` 模板字串的**註解內**若出現反引號，會提前終止模板字串，Vite 回報
+`[PARSE_ERROR] Expected a semicolon or an implicit semicolon after a statement`
+（本 session 已踩過兩次）。反引號只能用於 `css` / `unsafeCSS` 的插值。
+
+**規則**：Lit `css` 模板的註解內禁用反引號，改用單引號或改寫措辭。
+
+---
+
 ## 套件入口
 
 消費者透過 `package.json` 的 `exports` 從以下三個入口匯入：

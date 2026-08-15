@@ -1,6 +1,6 @@
 {
     "name": "sandlada-mdc-workspace",
-    "version": "0.1.0-20250909.b",
+    "version": "0.0.1",
     "private": true,
     "type": "module",
     "workspaces": [
