@@ -1,51 +1,52 @@
 /**
  * @license
- * Copyright 2025 Kai-Orion & Sandlada
+ * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
 import { Shape } from '@sandlada/mdk'
 import { Color } from '../utils/tokens/theme'
 import { createStyleDefinition } from '../utils/tokens/create-style-definition'
 
-const shared = {
-    'active-indicator-shape-start-start': Shape.Full,
-    'active-indicator-shape-start-end': Shape.Full,
-    'active-indicator-shape-end-start': Shape.Full,
-    'active-indicator-shape-end-end': Shape.Full,
-    'track-shape-start-start': Shape.Full,
-    'track-shape-start-end': Shape.Full,
-    'track-shape-end-start': Shape.Full,
-    'track-shape-end-end': Shape.Full,
-    'stop-indicator-shape-start-start': Shape.Full,
-    'stop-indicator-shape-start-end': Shape.Full,
-    'stop-indicator-shape-end-start': Shape.Full,
-    'stop-indicator-shape-end-end': Shape.Full,
-    'enabled-active-indicator-color': Color.Primary,
-    'enabled-track-color'           : Color.SecondaryContainer,
-    'enabled-stop-indicator-color'  : Color.Primary,
-} as const
+/**
+ * MD3 Progress Indicator style tokens.
+ *
+ * Covers both linear and circular variants via a single definition.
+ * The `variant` attribute selects `linear` (default) or `circular`.
+ *
+ * Linear anatomy: track, active indicator (determinate) / two animated bars
+ * (indeterminate). Circular anatomy: SVG circle (determinate) / div-spinner
+ * (indeterminate), four sizes: extra-small (32dp), small (48dp),
+ * medium (64dp), large (88dp).
+ *
+ * The active indicator is clipped by the host's `track-shape` radius rather
+ * than carrying its own shape tokens — matching @material/web, which scales
+ * the active bar with `transform: scaleX()` and lets the host's
+ * `border-radius` round the ends.
+ *
+ * @link https://m3.material.io/components/progress-indicator/specs
+ */
+export const ProgressIndicatorDefinition = createStyleDefinition({
+    // ── Shared ────────────────────────────────────────────────────────────────
+    'enabled-active-indicator-color'  : Color.Primary,
+    'enabled-track-color'             : Color.SurfaceContainerHighest,
 
-export const LinearProgressIndicatorDefinition = createStyleDefinition({
-    ...shared,
-    'height'                       : `4px`,
-    'with-wave-height'             : `10px`,
-    'active-indicator-thickness'   : `4px`,
-    'track-thickness'              : `4px`,
-    'stop-indicator-size'          : `4px`,
-    'track-active-indicator-space' : `4px`,
-    'stop-indicator-trailing-space': `0px`,
-    'wave-amplitude'               : `3px`,
-    'wave-wavelength'              : `16px`,
-    'indeterminate-wave-wavelength': `20px`,
-})
+    // ── Shape ─────────────────────────────────────────────────────────────────
+    'track-shape-start-start'         : Shape.Full,
+    'track-shape-start-end'           : Shape.Full,
+    'track-shape-end-start'           : Shape.Full,
+    'track-shape-end-end'             : Shape.Full,
 
-export const CircularProgressIndicatorDefinition = createStyleDefinition({
-    ...shared,
-    'height'                          : `40px`,
-    'size-with-wave'                  : `48px`,
-    'active-indicator-thickness'      : `4px`,
-    'track-thickness'                 : `4px`,
-    'stop-indicator-size'             : `4px`,
-    'track-active-indicator-amplitude': `1.6px`,
-    'active-indicator-wave-wavelength': `20px`,
+    // ── Linear ────────────────────────────────────────────────────────────────
+    'linear-track-thickness'              : '4px',
+    'linear-active-indicator-thickness'   : '4px',
+
+    // ── Circular sizes ────────────────────────────────────────────────────────
+    'circular-extra-small-size'        : '32px',
+    'circular-extra-small-stroke-width': '4px',
+    'circular-small-size'              : '48px',
+    'circular-small-stroke-width'      : '4px',
+    'circular-medium-size'             : '64px',
+    'circular-medium-stroke-width'     : '4px',
+    'circular-large-size'              : '88px',
+    'circular-large-stroke-width'      : '6px',
 })
