@@ -34,6 +34,7 @@
         "smoke": "node .smoke/run.mjs"
     },
     "dependencies": {
+        "@floating-ui/dom": "^1.8.0",
         "@lit/context": "^1.1.6",
         "@sandlada/jss": "^0.0.1-20260626.a",
         "@sandlada/mdk": "^3.0.0-20260624.c",
