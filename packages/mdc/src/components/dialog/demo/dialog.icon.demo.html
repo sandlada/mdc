@@ -1,0 +1,15 @@
+<mdc-basic-dialog id="icon-dialog">
+    <mdc-icon slot="icon">info</mdc-icon>
+    <span slot="headline">With Icon</span>
+    <p slot="content">This dialog has an icon in the headline area.</p>
+    <mdc-button slot="actions" variant="text" onclick="this.closest('mdc-basic-dialog').close('ok')"><span>OK</span></mdc-button>
+</mdc-basic-dialog>
+
+<mdc-basic-dialog id="no-icon-dialog">
+    <span slot="headline">Without Icon</span>
+    <p slot="content">This dialog has no icon.</p>
+    <mdc-button slot="actions" variant="text" onclick="this.closest('mdc-basic-dialog').close('ok')"><span>OK</span></mdc-button>
+</mdc-basic-dialog>
+
+<mdc-button onclick="this.getRootNode().querySelector('#icon-dialog').show()"><span>With Icon</span></mdc-button>
+<mdc-button onclick="this.getRootNode().querySelector('#no-icon-dialog').show()"><span>Without Icon</span></mdc-button>

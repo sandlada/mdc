@@ -1,0 +1,14 @@
+<mdc-basic-dialog id="basic-dialog" type="">
+    <span slot="headline">Basic Dialog</span>
+    <p slot="content">This is a basic dialog with no special type.</p>
+    <mdc-button slot="actions" variant="text" onclick="this.closest('mdc-basic-dialog').close('ok')"><span>OK</span></mdc-button>
+</mdc-basic-dialog>
+
+<mdc-basic-dialog id="alert-dialog" type="alert">
+    <span slot="headline">Alert Dialog</span>
+    <p slot="content">This is an alert dialog with role="alertdialog".</p>
+    <mdc-button slot="actions" variant="text" onclick="this.closest('mdc-basic-dialog').close('ok')"><span>OK</span></mdc-button>
+</mdc-basic-dialog>
+
+<mdc-button onclick="this.getRootNode().querySelector('#basic-dialog').show()"><span>Basic Dialog</span></mdc-button>
+<mdc-button onclick="this.getRootNode().querySelector('#alert-dialog').show()"><span>Alert Dialog</span></mdc-button>

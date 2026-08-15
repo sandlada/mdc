@@ -1,0 +1,8 @@
+<mdc-basic-dialog id="submit-dialog">
+    <span slot="headline">Confirm Action</span>
+    <p slot="content">Are you sure you want to proceed? This action cannot be undone.</p>
+    <mdc-button slot="actions" variant="text" onclick="this.closest('mdc-basic-dialog').close('cancel')"><span>Cancel</span></mdc-button>
+    <mdc-button slot="actions" variant="filled" onclick="this.closest('mdc-basic-dialog').close('confirm')"><span>Confirm</span></mdc-button>
+</mdc-basic-dialog>
+
+<mdc-button onclick="this.getRootNode().querySelector('#submit-dialog').show()"><span>Confirm Dialog</span></mdc-button>

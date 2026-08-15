@@ -1,0 +1,14 @@
+<mdc-basic-dialog id="animated-dialog">
+    <span slot="headline">Animated</span>
+    <p slot="content">This dialog plays open/close animations.</p>
+    <mdc-button slot="actions" variant="text" onclick="this.closest('mdc-basic-dialog').close('ok')"><span>OK</span></mdc-button>
+</mdc-basic-dialog>
+
+<mdc-basic-dialog id="quick-dialog" quick>
+    <span slot="headline">Quick (No Animation)</span>
+    <p slot="content">This dialog skips animations.</p>
+    <mdc-button slot="actions" variant="text" onclick="this.closest('mdc-basic-dialog').close('ok')"><span>OK</span></mdc-button>
+</mdc-basic-dialog>
+
+<mdc-button onclick="this.getRootNode().querySelector('#animated-dialog').show()"><span>Animated</span></mdc-button>
+<mdc-button onclick="this.getRootNode().querySelector('#quick-dialog').show()"><span>Quick</span></mdc-button>

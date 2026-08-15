@@ -54,7 +54,7 @@ export const DialogDefaultOpenAnimation: DialogAnimation = {
         [
             // Dialog slide down
             [{ 'transform': 'translateY(-50px)' }, { 'transform': 'translateY(0)' }],
-            { duration: 500, easing: Easing.Emphasized },
+            { duration: 500, easing: Easing.Emphasized.ToCSSValue() },
         ],
     ],
     scrim: [
@@ -77,7 +77,7 @@ export const DialogDefaultOpenAnimation: DialogAnimation = {
             // is supposed to clip content as it grows. From 0dp it's possible to see
             // text/actions appear before the container has fully grown.
             [{ 'height': '35%' }, { 'height': '100%' }],
-            { duration: 500, easing: Easing.Emphasized, pseudoElement: '::before' },
+            { duration: 500, easing: Easing.Emphasized.ToCSSValue(), pseudoElement: '::before' },
         ],
     ],
     headline: [
@@ -111,7 +111,7 @@ export const DialogDefaultCloseAnimation: DialogAnimation = {
         [
             // Dialog slide up
             [{ 'transform': 'translateY(0)' }, { 'transform': 'translateY(-50px)' }],
-            { duration: 150, easing: Easing.EmphasizedAccelerate },
+            { duration: 150, easing: Easing.EmphasizedAccelerate.ToCSSValue() },
         ],
     ],
     scrim: [
@@ -127,7 +127,7 @@ export const DialogDefaultCloseAnimation: DialogAnimation = {
             [{ 'height': '100%' }, { 'height': '35%' }],
             {
                 duration: 150,
-                easing: Easing.EmphasizedAccelerate,
+                easing: Easing.EmphasizedAccelerate.ToCSSValue(),
                 pseudoElement: '::before',
             },
         ],

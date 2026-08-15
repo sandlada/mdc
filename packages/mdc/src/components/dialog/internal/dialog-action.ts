@@ -18,11 +18,11 @@ export abstract class DialogAction extends composeMixin(mixinDelegatesAria)(LitE
     declare quick: boolean
 
     protected declare readonly dialog: HTMLDialogElement | null
-    protected declare readonly scrim: HTMLDialogElement | null
-    protected declare readonly container: HTMLDialogElement | null
-    protected declare readonly headline: HTMLDialogElement | null
-    protected declare readonly content: HTMLDialogElement | null
-    protected declare readonly actions: HTMLDialogElement | null
+    protected declare readonly scrim: HTMLElement | null
+    protected declare readonly container: HTMLElement | null
+    protected declare readonly headline: HTMLElement | null
+    protected declare readonly content: HTMLElement | null
+    protected declare readonly actions: HTMLElement | null
     protected declare readonly scroller: HTMLElement | null
     protected declare readonly topAnchor: HTMLElement | null
     protected declare readonly bottomAnchor: HTMLElement | null

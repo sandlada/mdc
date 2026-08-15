@@ -3,7 +3,7 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { html, isServer, nothing } from 'lit'
+import { html, nothing } from 'lit'
 import { property, query, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import type { AriaMixinStrict } from '../../../utils/aria/aria'
@@ -22,51 +22,44 @@ export abstract class BaseDialog extends DialogAction {
     @property({ type: Boolean })
     public override quick: boolean = false
 
-    @property({ type: String, attribute: false })
+    @property({ type: String, attribute: 'return-value' })
     public override returnValue: string = ''
 
-    @property({ type: String, attribute: false })
+    @property({ type: String })
     public type: 'alert' | '' = ''
 
-    private readonly treewalker
+    @property({ type: Boolean, attribute: 'no-focus-trap', reflect: true })
+    public noFocusTrap: boolean = false
 
     @query('dialog')
-    protected override readonly dialog!: HTMLDialogElement | null
+    protected declare readonly dialog: HTMLDialogElement | null
     @query('.scrim')
-    protected override readonly scrim!: HTMLDialogElement | null
+    protected declare readonly scrim: HTMLElement | null
     @query('.container')
-    protected override readonly container!: HTMLDialogElement | null
+    protected declare readonly container: HTMLElement | null
     @query('.headline')
-    protected override readonly headline!: HTMLDialogElement | null
+    protected declare readonly headline: HTMLElement | null
     @query('.content')
-    protected override readonly content!: HTMLDialogElement | null
+    protected declare readonly content: HTMLElement | null
     @query('.actions')
-    protected override readonly actions!: HTMLDialogElement | null
+    protected declare readonly actions: HTMLElement | null
     @query('.scroller')
-    protected override readonly scroller!: HTMLElement | null
+    protected declare readonly scroller: HTMLElement | null
     @query('.top.anchor')
-    protected override readonly topAnchor!: HTMLElement | null
+    protected declare readonly topAnchor: HTMLElement | null
     @query('.bottom.anchor')
-    protected override readonly bottomAnchor!: HTMLElement | null
-    @query('.focus-trap')
-    protected override readonly firstFocusTrap!: HTMLElement | null
+    protected declare readonly bottomAnchor: HTMLElement | null
+    @query('.first-focus-trap')
+    protected declare readonly firstFocusTrap: HTMLElement | null
+    @query('.last-focus-trap')
+    private declare readonly lastFocusTrap: HTMLElement | null
 
-    // Dialogs should not be SSR'd while open, so we can just use runtime checks.
     @state()
     private hasHeadline = false;
     @state()
     private hasActions = false;
     @state()
     private hasIcon = false;
-
-    constructor() {
-        super()
-        if (isServer) {
-            this.treewalker = null
-            return
-        }
-        this.treewalker = document.createTreeWalker(this, NodeFilter.SHOW_ELEMENT)
-    }
 
     protected override render(): unknown {
         return html`
@@ -81,20 +74,23 @@ export abstract class BaseDialog extends DialogAction {
         `
     }
 
-    protected renderDialog() {
-        const { ariaLabel } = this as AriaMixinStrict
-        const scrollable = this.open && !(this.isAtScrollTop && this.isAtScrollBottom);
-        const classes = classMap({
+    protected getDialogClasses() {
+        const scrollable = this.open && !(this.isAtScrollTop && this.isAtScrollBottom)
+        return {
             'has-headline': this.hasHeadline,
             'has-actions': this.hasActions,
             'has-icon': this.hasIcon,
             'scrollable': scrollable,
             'show-top-divider': scrollable && !this.isAtScrollTop,
             'show-bottom-divider': scrollable && !this.isAtScrollBottom,
-        })
+        }
+    }
+
+    protected renderDialog() {
+        const { ariaLabel } = this as AriaMixinStrict
         return html`
             <dialog
-                class="${classes}"
+                class="${classMap(this.getDialogClasses())}"
                 aria-label=${ariaLabel || nothing}
                 role=${this.type === 'alert' ? 'alertdialog' : nothing}
                 .returnValue=${this.returnValue}
@@ -103,6 +99,8 @@ export abstract class BaseDialog extends DialogAction {
                 @close=${this.handleClose}
                 @keydown=${this.handleKeydown}
             >
+                ${!this.noFocusTrap ? html`<div class="first-focus-trap" tabindex="0"
+                    @focus=${this.handleFirstFocusTrapFocus}></div>` : nothing}
                 <div class="container" @click=${this.handleContentClick}>
                     <div class="headline">
                         ${this.renderHeadlineIcon()}
@@ -112,6 +110,8 @@ export abstract class BaseDialog extends DialogAction {
                     ${this.renderContent()}
                     ${this.renderActions()}
                 </div>
+                ${!this.noFocusTrap ? html`<div class="last-focus-trap" tabindex="0"
+                    @focus=${this.handleLastFocusTrapFocus}></div>` : nothing}
             </dialog>
         `
     }
@@ -179,5 +179,34 @@ export abstract class BaseDialog extends DialogAction {
         this.hasIcon = slot.assignedElements().length > 0
     }
 
+    private handleFirstFocusTrapFocus() {
+        // Focus trapped at the start — move focus to the last focusable element.
+        const focusable = this.getFocusableElements()
+        if (focusable.length > 0) {
+            focusable[focusable.length - 1].focus()
+        }
+    }
 
+    private handleLastFocusTrapFocus() {
+        // Focus trapped at the end — move focus to the first focusable element.
+        const focusable = this.getFocusableElements()
+        if (focusable.length > 0) {
+            focusable[0].focus()
+        }
+    }
+
+    private getFocusableElements(): HTMLElement[] {
+        if (!this.dialog) {
+            return []
+        }
+        const candidates = this.dialog.querySelectorAll<HTMLElement>(
+            'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])',
+        )
+        return Array.from(candidates).filter(
+            (el) => !el.hasAttribute('disabled')
+                && !el.getAttribute('aria-hidden')
+                && !el.classList.contains('first-focus-trap')
+                && !el.classList.contains('last-focus-trap'),
+        )
+    }
 }

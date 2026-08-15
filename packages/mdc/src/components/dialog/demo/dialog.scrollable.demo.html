@@ -1,0 +1,9 @@
+<mdc-basic-dialog id="scrollable-dialog">
+    <span slot="headline">Scrollable Content</span>
+    <div slot="content" style="height: 5000px; background: linear-gradient(to bottom, var(--md-sys-color-surface-container), var(--md-sys-color-primary-container));">
+        <p>This content is 5000px tall. Scroll dividers appear at the top and bottom edges when scrolled.</p>
+    </div>
+    <mdc-button slot="actions" variant="text" onclick="this.closest('mdc-basic-dialog').close('ok')"><span>OK</span></mdc-button>
+</mdc-basic-dialog>
+
+<mdc-button onclick="this.getRootNode().querySelector('#scrollable-dialog').show()"><span>Scrollable</span></mdc-button>

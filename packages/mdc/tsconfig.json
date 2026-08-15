@@ -41,7 +41,6 @@
         "./src/**/*"
     ],
     "exclude": [
-        "./src/**/dialog/*",
         "./src/**/button-group/*",
         "./src/**/card/*",
         "./src/**/*-old/*",

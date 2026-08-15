@@ -1,0 +1,18 @@
+<mdc-basic-dialog id="form-dialog">
+    <span slot="headline">Edit Profile</span>
+    <form slot="content" id="profile-form" method="dialog" style="display: flex; flex-direction: column; gap: 16px;">
+        <label>
+            <span>Name</span>
+            <input type="text" name="name" value="Kai" style="width: 100%; box-sizing: border-box;" />
+        </label>
+        <label>
+            <span>Email</span>
+            <input type="email" name="email" value="kai@example.com" style="width: 100%; box-sizing: border-box;" />
+        </label>
+    </form>
+    <mdc-button slot="actions" variant="text" onclick="document.getElementById('profile-form').reset()"><span>Reset</span></mdc-button>
+    <mdc-button slot="actions" variant="text" onclick="this.closest('mdc-basic-dialog').close('cancel')"><span>Cancel</span></mdc-button>
+    <mdc-button slot="actions" variant="filled" form="profile-form" value="submit"><span>Submit</span></mdc-button>
+</mdc-basic-dialog>
+
+<mdc-button onclick="this.getRootNode().querySelector('#form-dialog').show()"><span>Form Dialog</span></mdc-button>

@@ -3,7 +3,7 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { Color } from '@sandlada/mdk'
+import { Color } from '../../../utils/tokens/theme'
 import { css, unsafeCSS } from 'lit'
 import { BasicDialogDefinition } from '../../../component-definitions/dialog.definition'
 import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
@@ -23,36 +23,27 @@ export const basicDialogStyle = css`
 
     }
     :host {
-        border-start-start-radius: var(--_container-shape-start-start);
-        border-start-end-radius: var(--_container-shape-start-end);
-        border-end-end-radius: var(--_container-shape-end-end);
-        border-end-start-radius: var(--_container-shape-end-start);
         display: contents;
-        margin: auto;
-        max-height: min(560px, calc(100% - 48px));
-        max-width: min(560px, calc(100% - 48px));
-        min-height: 140px;
-        min-width: 280px;
-        position: fixed;
-        height: fit-content;
-        width: fit-content;
     }
 
     dialog {
         background: transparent;
         border: none;
-        border-radius: inherit;
+        border-start-start-radius: var(--_container-shape-start-start);
+        border-start-end-radius: var(--_container-shape-start-end);
+        border-end-end-radius: var(--_container-shape-end-end);
+        border-end-start-radius: var(--_container-shape-end-start);
         flex-direction: column;
-        height: inherit;
-        margin: inherit;
-        max-height: inherit;
-        max-width: inherit;
-        min-height: inherit;
-        min-width: inherit;
+        height: fit-content;
+        margin: auto;
+        max-height: min(560px, calc(100% - 48px));
+        max-width: min(560px, calc(100% - 48px));
+        min-height: 140px;
+        min-width: 280px;
         outline: none;
         overflow: visible;
         padding: 0;
-        width: inherit;
+        width: fit-content;
     }
     dialog[open] {
         display: flex;
@@ -219,6 +210,14 @@ export const basicDialogStyle = css`
 
     .actions mdc-divider {
         top: 0;
+    }
+
+    .first-focus-trap,
+    .last-focus-trap {
+        position: absolute;
+        width: 0;
+        height: 0;
+        overflow: hidden;
     }
 
     @media (forced-colors: active) {
