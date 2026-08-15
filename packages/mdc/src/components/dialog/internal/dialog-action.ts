@@ -81,18 +81,9 @@ export abstract class DialogAction extends composeMixin(mixinDelegatesAria)(LitE
         this.addEventListener('submit', this.handleSubmit.bind(this))
     }
 
-    protected override firstUpdated() {
-        this.intersectionObserver = new IntersectionObserver(
-        (entries) => {
-            for (const entry of entries) {
-            this.handleAnchorIntersection(entry);
-            }
-        },
-        {root: this.scroller!},
-        );
-
-        this.intersectionObserver.observe(this.topAnchor!);
-        this.intersectionObserver.observe(this.bottomAnchor!);
+    public override disconnectedCallback() {
+        super.disconnectedCallback()
+        this.disconnectIntersectionObserver()
     }
 
     public async show() {
@@ -124,6 +115,12 @@ export abstract class DialogAction extends composeMixin(mixinDelegatesAria)(LitE
         if (this.scroller) {
             this.scroller.scrollTop = 0
         }
+        // After resetting scroll, the top anchor is visible and bottom depends
+        // on content height. Set initial state before observing.
+        this.isAtScrollTop = true
+        this.isAtScrollBottom = !this.scroller ||
+            this.scroller.scrollHeight <= this.scroller.clientHeight
+        this.connectIntersectionObserver()
         // Native modal dialogs ignore autofocus and instead force focus to the
         // first focusable child. Override this behavior if there is a child with
         // an autofocus attribute.
@@ -172,6 +169,7 @@ export abstract class DialogAction extends composeMixin(mixinDelegatesAria)(LitE
 
         await this.animateDialog(this.getCloseAnimation)
         dialog.close(returnValue)
+        this.disconnectIntersectionObserver()
         this.open = false
         this.dispatchEvent(new Event('closed'))
     }
@@ -306,6 +304,28 @@ export abstract class DialogAction extends composeMixin(mixinDelegatesAria)(LitE
         })
     }
 
+
+    private connectIntersectionObserver() {
+        this.disconnectIntersectionObserver()
+        if (!this.scroller || !this.topAnchor || !this.bottomAnchor) {
+            return
+        }
+        this.intersectionObserver = new IntersectionObserver(
+            (entries) => {
+                for (const entry of entries) {
+                    this.handleAnchorIntersection(entry)
+                }
+            },
+            { root: this.scroller },
+        )
+        this.intersectionObserver.observe(this.topAnchor)
+        this.intersectionObserver.observe(this.bottomAnchor)
+    }
+
+    private disconnectIntersectionObserver() {
+        this.intersectionObserver?.disconnect()
+        this.intersectionObserver = undefined
+    }
 
     private handleAnchorIntersection(entry: IntersectionObserverEntry) {
         const { target, isIntersecting } = entry

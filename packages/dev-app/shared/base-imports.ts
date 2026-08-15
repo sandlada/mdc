@@ -8,6 +8,7 @@
 // components are always available, regardless of which components the page demos.
 import '@sandlada/mdc/components/switch/switch'
 import '@sandlada/mdc/components/icon/icon'
+import '@sandlada/mdc/components/divider/divider'
 import '@sandlada/mdc/components/ripple/ripple'
 import '@sandlada/mdc/components/focus-ring/focus-ring'
 import '@sandlada/mdc/components/elevation/elevation'
