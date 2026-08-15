@@ -37,15 +37,6 @@ export const ExpressiveProgressIndicatorStyles = css`
     }
 
     @layer mdc.expressive-progress-indicator.base {
-        /*
-         * Host: deliberately no content-visibility / contain. When the
-         * indicator starts off-screen (e.g. below the fold on a long docs
-         * page), content-visibility: auto skips rendering and freezes the
-         * indeterminate animation at its first frame — the bars never resume
-         * after scrolling into view, leaving an empty track. These tiny
-         * indicators get no measurable perf benefit, so we avoid the skip.
-         */
-
         /* ── Host ──────────────────────────────────────────────────────────── */
         :host([variant='linear']) {
             border-start-start-radius: var(--_track-shape-start-start);
@@ -56,6 +47,11 @@ export const ExpressiveProgressIndicatorStyles = css`
             position: relative;
             min-width: 80px;
             height: var(--_linear-track-thickness);
+            /* Skip off-screen rendering. content-visibility pauses animations
+               only while the element is skipped and resumes them on scroll,
+               which is fine for these tiny indicators. */
+            content-visibility: auto;
+            contain: strict;
         }
 
         :host([variant='circular']) {

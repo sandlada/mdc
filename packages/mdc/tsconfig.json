@@ -46,7 +46,6 @@
         "./src/**/*-old/*",
         "./src/**/draggable-modal/*",
         "./src/**/popup-controller/*",
-        "./src/**/progress-indicator/*",
         "./src/**/wave/*",
         "./src/**/toolbar/*",
     ]
