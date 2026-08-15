@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>List — MDC Docs</title>
+    <script type="module" src="/shared/base-imports.ts"></script>
+    <script type="module" src="/shared/theme.ts"></script>
+    <script type="module" src="/shared/docs-page.ts"></script>
+    <script type="module">
+        import '@sandlada/mdc/components/list/list'
+        import '@sandlada/mdc/components/list/list-item'
+        import '@sandlada/mdc/components/checkbox/checkbox'
+        import '@sandlada/mdc/components/icon/icon'
+        import '@sandlada/mdc/components/ripple/ripple'
+        import '@sandlada/mdc/components/focus-ring/focus-ring'
+    </script>
+    <link rel="stylesheet" href="https://esm.sh/material-symbols@latest" />
+    <link rel="stylesheet" href="/shared/styles.css" />
+</head>
+<body>
+    <mdc-docs-page
+        component="list"
+        title="List"
+        subtitle="Lists are continuous vertical indexes of text or images, with items of type text, button or link (one / two / three-line)."
+        demo-files="list.type.demo.html,list.selected.demo.html,list.disabled.demo.html,list.href.demo.html,list.features.demo.html"
+    ></mdc-docs-page>
+</body>
+</html>

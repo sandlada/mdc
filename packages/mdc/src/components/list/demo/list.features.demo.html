@@ -1,0 +1,78 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">One-line (56dp) — icon in the `start` slot, trailing `end` slot:</span>
+    <mdc-list aria-label="One-line with slots">
+        <mdc-list-item type="button">
+            <mdc-icon slot="start">folder</mdc-icon>
+            <span>One-line with leading icon</span>
+            <mdc-icon slot="end">more_vert</mdc-icon>
+        </mdc-list-item>
+        <mdc-list-item type="button">
+            <span>Plain one-line row</span>
+        </mdc-list-item>
+    </mdc-list>
+</div>
+
+<div class="demo-column">
+    <span class="demo-caption">Two-line (72dp) — `supporting-text` slot:</span>
+    <mdc-list aria-label="Two-line">
+        <mdc-list-item type="button">
+            <mdc-icon slot="start">mail</mdc-icon>
+            <span>Brunch this weekend?</span>
+            <span slot="supporting-text">Ali Connors · I'll be in your neighborhood doing errands this weekend</span>
+        </mdc-list-item>
+        <mdc-list-item type="button">
+            <span>Summer BBQ</span>
+            <span slot="supporting-text">to Alex, Scott, Jennifer · Wish I could come, but I'm out of town this weekend</span>
+        </mdc-list-item>
+    </mdc-list>
+</div>
+
+<div class="demo-column">
+    <span class="demo-caption">Three-line (88dp) — `overline` + `supporting-text` slots:</span>
+    <mdc-list aria-label="Three-line">
+        <mdc-list-item type="button">
+            <span slot="overline">RECOMMENDED</span>
+            <span>Flutter — ListTile</span>
+            <span slot="supporting-text">A single fixed-height row that typically contains some text as well as a leading or trailing icon.</span>
+        </mdc-list-item>
+        <mdc-list-item type="button">
+            <span slot="overline">JETPACK COMPOSE</span>
+            <span>ListItem</span>
+            <span slot="supporting-text">A composable that follows the Material 3 list-item specification.</span>
+        </mdc-list-item>
+    </mdc-list>
+</div>
+
+<div class="demo-column">
+    <span class="demo-caption">Control slot — checkbox hosted by non-interactive `text` rows:</span>
+    <mdc-list aria-label="Checkbox list">
+        <mdc-list-item type="text">
+            <mdc-checkbox slot="control"></mdc-checkbox>
+            <span>Daily digest</span>
+        </mdc-list-item>
+        <mdc-list-item type="text">
+            <mdc-checkbox slot="control" checked></mdc-checkbox>
+            <span>Ads</span>
+            <span slot="supporting-text">Show me personalized ads</span>
+        </mdc-list-item>
+        <mdc-list-item type="text">
+            <mdc-checkbox slot="control"></mdc-checkbox>
+            <span>Security alerts</span>
+        </mdc-list-item>
+    </mdc-list>
+</div>

@@ -1,0 +1,39 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">disabled — skipped by roving navigation, dimmed, no interaction:</span>
+    <mdc-list aria-label="Disabled items">
+        <mdc-list-item type="button">Enabled row</mdc-list-item>
+        <mdc-list-item type="button" disabled>Disabled row</mdc-list-item>
+        <mdc-list-item type="button">Another enabled row</mdc-list-item>
+    </mdc-list>
+</div>
+
+<div class="demo-column">
+    <span class="demo-caption">Disabled two-line + selected rows:</span>
+    <mdc-list aria-label="Disabled mixed">
+        <mdc-list-item type="button" selected>
+            <mdc-icon slot="start">cloud</mdc-icon>
+            <span>Cloud sync</span>
+            <span slot="supporting-text">Active</span>
+        </mdc-list-item>
+        <mdc-list-item type="button" disabled>
+            <mdc-icon slot="start">wifi_off</mdc-icon>
+            <span>Offline</span>
+            <span slot="supporting-text">Unavailable</span>
+        </mdc-list-item>
+    </mdc-list>
+</div>

@@ -1,0 +1,32 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">Setting `href` forces `type="link"` — renders a native anchor that navigates:</span>
+    <mdc-list aria-label="Link items">
+        <mdc-list-item href="https://m3.material.io/components/lists/overview" target="_blank">
+            <mdc-icon slot="start">link</mdc-icon>
+            <span>Material 3 — Lists</span>
+            <mdc-icon slot="end">open_in_new</mdc-icon>
+        </mdc-list-item>
+        <mdc-list-item href="#list-href-demo">
+            <mdc-icon slot="start">anchor</mdc-icon>
+            <span>Same-page anchor</span>
+        </mdc-list-item>
+        <mdc-list-item>
+            <span>No href — stays a button</span>
+        </mdc-list-item>
+    </mdc-list>
+</div>

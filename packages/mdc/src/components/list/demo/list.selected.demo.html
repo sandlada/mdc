@@ -1,0 +1,49 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">Selected item uses the secondary-container surface (set the `selected` attribute):</span>
+    <mdc-list aria-label="Selected item">
+        <mdc-list-item type="button">
+            <mdc-icon slot="start">inbox</mdc-icon>
+            <span>Inbox</span>
+        </mdc-list-item>
+        <mdc-list-item type="button" selected>
+            <mdc-icon slot="start">outbox</mdc-icon>
+            <span>Outbox</span>
+        </mdc-list-item>
+        <mdc-list-item type="button">
+            <mdc-icon slot="start">star</mdc-icon>
+            <span>Starred</span>
+        </mdc-list-item>
+    </mdc-list>
+</div>
+
+<div class="demo-column">
+    <span class="demo-caption">Selected two-line item:</span>
+    <mdc-list aria-label="Selected two-line">
+        <mdc-list-item type="button" selected>
+            <mdc-icon slot="start">folder</mdc-icon>
+            <span>Documents</span>
+            <span slot="supporting-text">12 files</span>
+            <mdc-icon slot="end">more_vert</mdc-icon>
+        </mdc-list-item>
+        <mdc-list-item type="button">
+            <mdc-icon slot="start">photo</mdc-icon>
+            <span>Images</span>
+            <span slot="supporting-text">8 files</span>
+        </mdc-list-item>
+    </mdc-list>
+</div>

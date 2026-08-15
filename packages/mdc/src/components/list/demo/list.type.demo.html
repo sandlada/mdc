@@ -1,0 +1,41 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">text — non-interactive rows, skipped by roving navigation:</span>
+    <mdc-list aria-label="Text items">
+        <mdc-list-item type="text">Text row one</mdc-list-item>
+        <mdc-list-item type="text">Text row two</mdc-list-item>
+    </mdc-list>
+</div>
+
+<div class="demo-column">
+    <span class="demo-caption">button — native button root, ripple + focus-ring, activates on Enter / Space:</span>
+    <mdc-list aria-label="Button items">
+        <mdc-list-item type="button">Button row one</mdc-list-item>
+        <mdc-list-item type="button">Button row two</mdc-list-item>
+        <mdc-list-item type="button">Button row three</mdc-list-item>
+    </mdc-list>
+</div>
+
+<div class="demo-column">
+    <span class="demo-caption">Mixed types in one list — text rows are skipped by arrow navigation:</span>
+    <mdc-list aria-label="Mixed types">
+        <mdc-list-item type="text">Label only</mdc-list-item>
+        <mdc-list-item type="button">Action button</mdc-list-item>
+        <mdc-list-item href="#list-type-demo">Link item</mdc-list-item>
+        <mdc-list-item type="text">Trailing label</mdc-list-item>
+    </mdc-list>
+</div>
