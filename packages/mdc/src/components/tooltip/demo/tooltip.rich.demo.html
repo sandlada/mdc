@@ -1,0 +1,43 @@
+<style>
+    .demo-anchor {
+        position: relative;
+        display: inline-block;
+    }
+    .demo-row {
+        display: flex;
+        gap: 32px;
+        align-items: flex-start;
+        padding: 80px 32px;
+    }
+</style>
+
+<div class="demo-row">
+    <div class="demo-anchor">
+        <button>Rich Tooltip</button>
+        <mdc-tooltip open rich position="top">
+            <span slot="headline">Rich Tooltip</span>
+            <span>Rich tooltips support multiple lines of informational text. They can include a title and action buttons.</span>
+            <div slot="actions">
+                <button>Learn More</button>
+            </div>
+        </mdc-tooltip>
+    </div>
+
+    <div class="demo-anchor">
+        <button>No Title</button>
+        <mdc-tooltip open rich position="bottom">
+            <span>Rich tooltips without a title can still provide detailed information about elements.</span>
+            <div slot="actions">
+                <button>OK</button>
+            </div>
+        </mdc-tooltip>
+    </div>
+
+    <div class="demo-anchor">
+        <button>No Actions</button>
+        <mdc-tooltip open rich position="top">
+            <span slot="headline">No Actions</span>
+            <span>Rich tooltips can also appear without action buttons.</span>
+        </mdc-tooltip>
+    </div>
+</div>

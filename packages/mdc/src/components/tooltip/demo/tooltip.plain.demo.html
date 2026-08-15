@@ -1,0 +1,42 @@
+<style>
+    .demo-anchor {
+        position: relative;
+        display: inline-block;
+    }
+    .demo-row {
+        display: flex;
+        gap: 32px;
+        align-items: center;
+        padding: 80px 32px;
+    }
+</style>
+
+<div class="demo-row">
+    <div class="demo-anchor">
+        <button>Top</button>
+        <mdc-tooltip open position="top">
+            <span>Tooltip on top</span>
+        </mdc-tooltip>
+    </div>
+
+    <div class="demo-anchor">
+        <button>Bottom</button>
+        <mdc-tooltip open position="bottom">
+            <span>Tooltip on bottom</span>
+        </mdc-tooltip>
+    </div>
+
+    <div class="demo-anchor">
+        <button>Left</button>
+        <mdc-tooltip open position="left">
+            <span>Tooltip on left</span>
+        </mdc-tooltip>
+    </div>
+
+    <div class="demo-anchor">
+        <button>Right</button>
+        <mdc-tooltip open position="right">
+            <span>Tooltip on right</span>
+        </mdc-tooltip>
+    </div>
+</div>
