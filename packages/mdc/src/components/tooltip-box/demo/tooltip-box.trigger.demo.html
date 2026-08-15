@@ -1,0 +1,26 @@
+<mdc-tooltip-box trigger="hover">
+    <mdc-button variant="filled">Hover trigger (default)</mdc-button>
+    <mdc-tooltip slot="tooltip">Shows on pointer enter, hides on pointer leave</mdc-tooltip>
+</mdc-tooltip-box>
+
+<mdc-tooltip-box trigger="focus">
+    <mdc-button variant="outlined">Focus trigger</mdc-button>
+    <mdc-tooltip slot="tooltip">Shows on focus in, hides on focus out. Tab to this button.</mdc-tooltip>
+</mdc-tooltip-box>
+
+<mdc-tooltip-box trigger="manual" id="manual-tooltip-box">
+    <mdc-button variant="filled" id="manual-btn">Manual trigger</mdc-button>
+    <mdc-tooltip slot="tooltip">Controlled via JavaScript</mdc-tooltip>
+</mdc-tooltip-box>
+
+<script>
+    const tb = document.getElementById('manual-tooltip-box')
+    const btn = document.getElementById('manual-btn')
+    btn.addEventListener('click', () => {
+        if (tb.open) {
+            tb.hide()
+        } else {
+            tb.show()
+        }
+    })
+</script>

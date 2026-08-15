@@ -1,0 +1,24 @@
+<mdc-tooltip-box placement="bottom">
+    <mdc-button variant="filled">Rich with headline</mdc-button>
+    <mdc-tooltip slot="tooltip" rich>
+        <span slot="headline">Sync complete</span>
+        <span>All 24 files have been uploaded to the cloud.</span>
+        <mdc-button slot="actions">Undo</mdc-button>
+    </mdc-tooltip>
+</mdc-tooltip-box>
+
+<mdc-tooltip-box placement="bottom">
+    <mdc-button variant="outlined">Rich no headline</mdc-button>
+    <mdc-tooltip slot="tooltip" rich>
+        <span>This tooltip has no headline, only content and actions.</span>
+        <mdc-button slot="actions">OK</mdc-button>
+    </mdc-tooltip>
+</mdc-tooltip-box>
+
+<mdc-tooltip-box placement="bottom">
+    <mdc-icon-button icon="info"></mdc-icon-button>
+    <mdc-tooltip slot="tooltip" rich>
+        <span slot="headline">About this feature</span>
+        <span>This feature enables automatic syncing across all your devices.</span>
+    </mdc-tooltip>
+</mdc-tooltip-box>
