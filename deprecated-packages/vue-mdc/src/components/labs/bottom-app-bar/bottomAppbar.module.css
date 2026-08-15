@@ -1,6 +1,0 @@
-.default-impl {
-    --_access-shared-bottom-app-bar-container-color-enabled: var(--glare-ui-bottom-app-bar-container-color-enabled);
-    --_access-shared-bottom-app-bar-elevation-level-enabled: var(--glare-ui-bottom-app-bar-elevation-level-enabled);
-    --_access-shared-bottom-app-bar-elevation-level-disabled: var(--glare-ui-bottom-app-bar-elevation-level-disabled);
-    --_access-shared-bottom-app-bar-height: var(--glare-ui-bottom-app-bar-height);
-}
