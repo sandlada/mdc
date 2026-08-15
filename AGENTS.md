@@ -16,7 +16,7 @@
 - **目標**：MD3 / MD3E 規範下的 Web Components 元件庫，無框架鎖定
 - **核心技術**：Lit 3 + `@lit/context` + Web Animations API + Web Components
 - **建構系統**：`rolldown`（當前主動）+ `rollup`（過渡期殘留），詳見「構建說明」
-- **當前活躍元件**：`src/all.ts` 中未註解的 21 個項目（其餘為 WIP）
+- **當前活躍元件**：`src/all.ts` 中未註解的 22 個項目（其餘為 WIP）
 - **當前正式打包元件**：`ripple`、`focus-ring` 兩者（`rolldown.config.js` 唯一 entry 集合）
 
 ---
@@ -59,8 +59,9 @@
 
 依原始碼結構分為三級（取代舊版二級制「有 / 無 internal/」）：
 
-- **有 `internal/` 資料夾（7 個，複雜元件）**
-  `button` / `dialog` / `fab` / `navigation` / `navigation-bar` / `slider` / `toolbar`
+- **有 `internal/` 資料夾（9 個，複雜元件）**
+  `button` / `dialog` / `fab` / `navigation` / `navigation-bar` /
+  `segmented-button` / `slider` / `split-button` / `toolbar`
 
 - **有頂層 `base-*.ts`（2 個，中等複雜）**
   `icon-button`（`base-icon-button.ts`） / `wave`（`base-wave.ts`）
@@ -72,7 +73,7 @@
   `progress-indicator` / `radio-button` / `ripple` / `search` / `switch` /
   `typography`
 
-總計 27 個元件資料夾。
+總計 29 個元件資料夾。
 
 ### 啟用 vs WIP 狀態速查
 
@@ -81,8 +82,8 @@
 
 當前啟用：button（含 toggle）/ divider / elevation / fab / focus-ring /
 icon / icon-button（含 toggle）/ navigation-bar / navigation-drawer /
-navigation-rail / navigation-tab / radio-button / ripple / search / slider /
-switch / tabs / typography
+navigation-rail / navigation-tab / radio-button / ripple / search /
+segmented-button / slider / split-button / switch / tabs / typography
 
 當前 WIP（被 `all.ts` 註解）：button-group / card / dialog /
 draggable-modal / popup-controller / progress-indicator / toolbar
@@ -346,6 +347,45 @@ public shape: 'round' | 'square' = 'round'
 `radio-button` / `ripple` / `slider` / `switch` / `tab` / `tabs`
 
 **尚未導出定義（4 個）**：`card` / `search` / `toolbar` / `typography`
+
+### 樣式定義欄位命名規範
+
+`createStyleDefinition()` 的欄位名稱遵循**狀態 × 尺寸 × 元素 × 屬性**的組合規則，
+以確保 token 名稱具備可預測性與可搜尋性。規則以 `_template.ts` 為權威來源。
+
+**規則 1 — 狀態前綴（5 種）**：
+所有欄位必須以狀態前綴開頭，預設（未互動、未禁用）狀態使用 `enabled-*`：
+`enabled-*` / `hovered-*` / `pressed-*` / `focused-*` / `disabled-*`
+
+**規則 2 — 尺寸乘積**：
+當元件存在多種尺寸（如 `medium` / `large`），狀態與尺寸相乘產生欄位：
+`enabled-medium-container-height` / `enabled-large-container-height` /
+`hovered-medium-container-height` / ...（5 狀態 × 2 尺寸 = 10 欄位）
+
+**規則 3 — container 元素指定**：
+render 內部最外層非 host 元素（通常作為 container 角色），其屬性必須帶
+`container-*` 前綴。不可裸寫 `enabled-height`，必須寫 `enabled-container-height`。
+其它子元素同理：`label-*`、`icon-*`、`avatar-*`、`trailing-icon-*` 等。
+
+**規則 4 — shape 展開為四角**：
+圓角不可單用 `*-shape`，必須展開為四個欄位：
+`*-shape-start-start` / `*-shape-start-end` /
+`*-shape-end-start` / `*-shape-end-end`
+
+**規則 5 — padding / margin 格式**：
+必須使用 `{inline|block}-{leading|trailing}-{padding|margin}-space`：
+`enabled-container-inline-leading-padding-space`（= `padding-inline-start`）
+`enabled-container-block-trailing-margin-space`（= `margin-block-end`）
+
+**規則 6 — 字體完整性**：
+label 等文字元素必須包含全部 6 項字體 token：
+`font`（font-family）/ `size` / `line-height` / `weight` / `tracking`（letter-spacing）/ `opacity`
+其中 `opacity` 用於 disabled 狀態下的文字半透明效果。
+
+**規則 7 — selected / checked 後綴**：
+`selected`、`checked` 等二態放置在欄位名稱**最末尾**，而非狀態前綴之後：
+`enabled-container-height-selected`（✓）/ `selected-enabled-container-height`（✗）
+組合狀態同理：`enabled-container-color-selected-hovered`（✓）
 
 ---
 
