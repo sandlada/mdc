@@ -455,8 +455,8 @@ export const OutlinedButtonDefinition = createStyleDefinition({
     'disabled-label-color-toggle-selected'      : Color.OnSurface,
     'disabled-label-opacity'                    : `0.38`,
     'disabled-icon-color'                       : Color.OnSurface,
-    'disabledicon-color-toggle-unselected'      : Color.OnSurface,
-    'disabledicon-color-toggle-selected'        : Color.OnSurface,
+    'disabled-icon-color-toggle-unselected'      : Color.OnSurface,
+    'disabled-icon-color-toggle-selected'        : Color.OnSurface,
     'disabled-icon-opacity'                     : `0.38`,
 
     // Hovered
