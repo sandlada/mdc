@@ -96,14 +96,14 @@ const getButtonSpacingStyles = () => {
         .container.${s} .leading-button {
             gap: var(--_${s}-between-icon-label-space);
             min-inline-size: var(--_${s}-leading-button-min-width);
-            padding-inline-end: var(--_${s}-leading-button-trailing-space);
-            padding-inline-start: var(--_${s}-leading-button-leading-space);
+            padding-inline-end: var(--_${s}-leading-button-inline-trailing-padding-space);
+            padding-inline-start: var(--_${s}-leading-button-inline-leading-padding-space);
         }
         .container.${s} .trailing-button {
             gap: var(--_${s}-between-icon-label-space);
             min-inline-size: var(--_${s}-trailing-button-min-width);
-            padding-inline-end: var(--_${s}-trailing-button-trailing-space);
-            padding-inline-start: var(--_${s}-trailing-button-leading-space);
+            padding-inline-end: var(--_${s}-trailing-button-inline-trailing-padding-space);
+            padding-inline-start: var(--_${s}-trailing-button-inline-leading-padding-space);
         }
     `)
     return css`
@@ -141,7 +141,7 @@ const getLeadingIconSizeStyles = () => {
             block-size: var(--_${s}-leading-icon-size);
             font-size: var(--_${s}-leading-icon-size);
             inline-size: var(--_${s}-leading-icon-size);
-            ${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_${s}-leading-icon-size)` }))}
+            ${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': `var(--_${s}-leading-icon-size)` }))}
         }
     `)
     return css`
@@ -164,7 +164,7 @@ const getTrailingIconSizeStyles = () => {
             block-size: var(--_${s}-trailing-icon-size);
             font-size: var(--_${s}-trailing-icon-size);
             inline-size: var(--_${s}-trailing-icon-size);
-            ${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_${s}-trailing-icon-size)` }))}
+            ${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': `var(--_${s}-trailing-icon-size)` }))}
         }
         .container.${s} .trailing-button:not(.has-label):not(.expanded) .icon {
             translate: var(--_${s}-trailing-icon-optical-offset) 0;
@@ -240,12 +240,12 @@ const ripple = css`
         border-radius: inherit;
         z-index: 0;
         ${stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', {
-            'hovered-color': `var(--_hovered-state-layer-color)`,
-            'focused-color': `var(--_focused-state-layer-color)`,
-            'pressed-color': `var(--_pressed-state-layer-color)`,
-            'hovered-opacity': `var(--_hovered-state-layer-opacity)`,
-            'focused-opacity': `var(--_focused-state-layer-opacity)`,
-            'pressed-opacity': `var(--_pressed-state-layer-opacity)`,
+            'enabled-hovered-color': `var(--_hovered-state-layer-color)`,
+            'enabled-focused-color': `var(--_focused-state-layer-color)`,
+            'enabled-pressed-color': `var(--_pressed-state-layer-color)`,
+            'enabled-hovered-opacity': `var(--_hovered-state-layer-opacity)`,
+            'enabled-focused-opacity': `var(--_focused-state-layer-opacity)`,
+            'enabled-pressed-opacity': `var(--_pressed-state-layer-opacity)`,
         }))};
     }
 `
@@ -255,15 +255,15 @@ const elevation = css`
     .trailing-button mdc-elevation {
         transition-duration: 0ms;
         ${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
-            level: `var(--_container-elevation)`,
-            'shadow-color': `var(--_container-shadow-color)`,
+            'enabled-level': `var(--_enabled-container-elevation)`,
+            'enabled-shadow-color': `var(--_enabled-container-shadow-color)`,
         }))};
     }
     .leading-button.disabled mdc-elevation,
     .trailing-button.disabled mdc-elevation {
         ${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
-            level: `var(--_disabled-container-elevation)`,
-            'shadow-color': `var(--_disabled-container-shadow-color)`,
+            'enabled-level': `var(--_disabled-container-elevation)`,
+            'enabled-shadow-color': `var(--_disabled-container-shadow-color)`,
         }))};
     }
 `
@@ -327,7 +327,7 @@ const shared = css`
 
     /* Background — the shared container color of the two buttons. */
     .background {
-        background-color: var(--_container-color);
+        background-color: var(--_enabled-container-color);
         border-radius: inherit;
         inset: 0;
         position: absolute;
@@ -340,7 +340,7 @@ const shared = css`
 
     /* Outline — painted by the outlined variant only. */
     .outline {
-        border-color: var(--_outline-color);
+        border-color: var(--_enabled-outline-color);
         border-radius: inherit;
         border-style: solid;
         box-sizing: border-box;
@@ -356,7 +356,7 @@ const shared = css`
 
     /* Label */
     .label {
-        color: var(--_label-color);
+        color: var(--_enabled-label-color);
         overflow: hidden;
         text-overflow: ellipsis;
     }
@@ -382,7 +382,7 @@ const shared = css`
         display: none;
     }
     .icon {
-        color: var(--_icon-color);
+        color: var(--_enabled-icon-color);
     }
     .disabled .icon {
         color: var(--_disabled-icon-color);

@@ -26,8 +26,8 @@ import { createStyleDefinition } from '../utils/tokens/create-style-definition'
 
 interface ITabScheme {
     // Container
-    'container-color': string
-    'container-elevation': string
+    'enabled-container-color': string
+    'enabled-container-elevation': string
     'container-height': string
     'container-shape-start-start': string
     'container-shape-start-end': string
@@ -40,7 +40,7 @@ interface ITabScheme {
     'with-icon-and-label-text-container-height': string
 
     // Active indicator
-    'active-indicator-color': string
+    'enabled-active-indicator-color': string
     'active-indicator-height': string
     'active-indicator-shape-start-start': string
     'active-indicator-shape-start-end': string
@@ -52,44 +52,44 @@ interface ITabScheme {
     'active-indicator-block-trailing-space': string
 
     // Label
-    'label-text-font': string
-    'label-text-size': string
-    'label-text-line-height': string
-    'label-text-weight': string
-    'label-text-tracking': string
-    'unselected-label-color': string
-    'selected-label-color': string
+    'label-font': string
+    'label-size': string
+    'label-line-height': string
+    'label-weight': string
+    'label-tracking': string
+    'enabled-label-color-unselected': string
+    'enabled-label-color-selected': string
     'hovered-label-color': string
     'focused-label-color': string
     'pressed-label-color': string
 
     // Icon
     'icon-size': string
-    'unselected-icon-color': string
-    'selected-icon-color': string
+    'enabled-icon-color-unselected': string
+    'enabled-icon-color-selected': string
     'hovered-icon-color': string
     'focused-icon-color': string
     'pressed-icon-color': string
 
     // State layers — unselected
-    'unselected-enabled-state-layer-color': string
-    'unselected-hovered-state-layer-color': string
-    'unselected-focused-state-layer-color': string
-    'unselected-pressed-state-layer-color': string
-    'unselected-enabled-state-layer-opacity': string
-    'unselected-hovered-state-layer-opacity': string
-    'unselected-focused-state-layer-opacity': string
-    'unselected-pressed-state-layer-opacity': string
+    'enabled-state-layer-color-unselected': string
+    'hovered-state-layer-color-unselected': string
+    'focused-state-layer-color-unselected': string
+    'pressed-state-layer-color-unselected': string
+    'enabled-state-layer-opacity-unselected': string
+    'hovered-state-layer-opacity-unselected': string
+    'focused-state-layer-opacity-unselected': string
+    'pressed-state-layer-opacity-unselected': string
 
     // State layers — selected
-    'selected-enabled-state-layer-color': string
-    'selected-hovered-state-layer-color': string
-    'selected-focused-state-layer-color': string
-    'selected-pressed-state-layer-color': string
-    'selected-enabled-state-layer-opacity': string
-    'selected-hovered-state-layer-opacity': string
-    'selected-focused-state-layer-opacity': string
-    'selected-pressed-state-layer-opacity': string
+    'enabled-state-layer-color-selected': string
+    'hovered-state-layer-color-selected': string
+    'focused-state-layer-color-selected': string
+    'pressed-state-layer-color-selected': string
+    'enabled-state-layer-opacity-selected': string
+    'hovered-state-layer-opacity-selected': string
+    'focused-state-layer-opacity-selected': string
+    'pressed-state-layer-opacity-selected': string
 
     'spacing-between-icon-and-label': string
 }
@@ -98,8 +98,8 @@ interface ITabScheme {
 // `ElevationLevel`) are resolved to CSS values before the typed wrappers below
 // re-check the scheme shape.
 const SharedScheme = createStyleDefinition({
-    'container-color': `transparent`,
-    'container-elevation': ElevationLevel.Level0,
+    'enabled-container-color': `transparent`,
+    'enabled-container-elevation': ElevationLevel.Level0,
     'container-block-leading-space': `0px`,
     'container-block-trailing-space': `0px`,
     'container-inline-leading-space': `16px`,
@@ -110,41 +110,41 @@ const SharedScheme = createStyleDefinition({
     'active-indicator-block-leading-space': `0px`,
     'active-indicator-block-trailing-space': `0px`,
 
-    'label-text-font': Typescale.TitleSmall.Font,
-    'label-text-size': Typescale.TitleSmall.FontSize,
-    'label-text-line-height': Typescale.TitleSmall.LineHeight,
-    'label-text-weight': Typescale.TitleSmall.FontWeight,
-    'label-text-tracking': Typescale.TitleSmall.Tracking,
-    'unselected-label-color': Color.OnSurfaceVariant,
-    'selected-label-color': Color.Primary,
+    'label-font': Typescale.TitleSmall.Font,
+    'label-size': Typescale.TitleSmall.FontSize,
+    'label-line-height': Typescale.TitleSmall.LineHeight,
+    'label-weight': Typescale.TitleSmall.FontWeight,
+    'label-tracking': Typescale.TitleSmall.Tracking,
+    'enabled-label-color-unselected': Color.OnSurfaceVariant,
+    'enabled-label-color-selected': Color.Primary,
     'hovered-label-color': Color.OnSurfaceVariant,
     'focused-label-color': Color.OnSurfaceVariant,
     'pressed-label-color': Color.OnSurfaceVariant,
 
     'icon-size': `24px`,
-    'unselected-icon-color': Color.OnSurfaceVariant,
-    'selected-icon-color': Color.Primary,
+    'enabled-icon-color-unselected': Color.OnSurfaceVariant,
+    'enabled-icon-color-selected': Color.Primary,
     'hovered-icon-color': Color.OnSurfaceVariant,
     'focused-icon-color': Color.OnSurfaceVariant,
     'pressed-icon-color': Color.OnSurfaceVariant,
 
-    'unselected-enabled-state-layer-color': Color.OnSurface,
-    'unselected-hovered-state-layer-color': Color.OnSurface,
-    'unselected-focused-state-layer-color': Color.OnSurface,
-    'unselected-pressed-state-layer-color': Color.OnSurface,
-    'unselected-enabled-state-layer-opacity': `0`,
-    'unselected-hovered-state-layer-opacity': State.HoveredStateLayerOpacity,
-    'unselected-focused-state-layer-opacity': State.FocusedStateLayerOpacity,
-    'unselected-pressed-state-layer-opacity': State.PressedStateLayerOpacity,
+    'enabled-state-layer-color-unselected': Color.OnSurface,
+    'hovered-state-layer-color-unselected': Color.OnSurface,
+    'focused-state-layer-color-unselected': Color.OnSurface,
+    'pressed-state-layer-color-unselected': Color.OnSurface,
+    'enabled-state-layer-opacity-unselected': `0`,
+    'hovered-state-layer-opacity-unselected': State.HoveredStateLayerOpacity,
+    'focused-state-layer-opacity-unselected': State.FocusedStateLayerOpacity,
+    'pressed-state-layer-opacity-unselected': State.PressedStateLayerOpacity,
 
-    'selected-enabled-state-layer-color': Color.OnSurface,
-    'selected-hovered-state-layer-color': Color.OnSurface,
-    'selected-focused-state-layer-color': Color.OnSurface,
-    'selected-pressed-state-layer-color': Color.OnSurface,
-    'selected-enabled-state-layer-opacity': `0`,
-    'selected-hovered-state-layer-opacity': State.HoveredStateLayerOpacity,
-    'selected-focused-state-layer-opacity': State.FocusedStateLayerOpacity,
-    'selected-pressed-state-layer-opacity': State.PressedStateLayerOpacity,
+    'enabled-state-layer-color-selected': Color.OnSurface,
+    'hovered-state-layer-color-selected': Color.OnSurface,
+    'focused-state-layer-color-selected': Color.OnSurface,
+    'pressed-state-layer-color-selected': Color.OnSurface,
+    'enabled-state-layer-opacity-selected': `0`,
+    'hovered-state-layer-opacity-selected': State.HoveredStateLayerOpacity,
+    'focused-state-layer-opacity-selected': State.FocusedStateLayerOpacity,
+    'pressed-state-layer-opacity-selected': State.PressedStateLayerOpacity,
 
     'spacing-between-icon-and-label': `8px`,
 })
@@ -159,7 +159,7 @@ const PrimaryTabValues = createStyleDefinition({
     'container-shape-end-start': Shape.None,
     'container-shape-end-end': Shape.None,
 
-    'active-indicator-color': Color.Primary,
+    'enabled-active-indicator-color': Color.Primary,
     'active-indicator-height': `3px`,
     'active-indicator-shape-start-start': Shape.None,
     'active-indicator-shape-start-end': Shape.None,
@@ -180,7 +180,7 @@ const SecondaryTabValues = createStyleDefinition({
     'container-shape-end-start': Shape.None,
     'container-shape-end-end': Shape.None,
 
-    'active-indicator-color': Color.Primary,
+    'enabled-active-indicator-color': Color.Primary,
     'active-indicator-height': `2px`,
     'active-indicator-shape-start-start': Shape.None,
     'active-indicator-shape-start-end': Shape.None,
@@ -201,22 +201,22 @@ const FloatingTabValues = createStyleDefinition({
     'container-inline-leading-space': `8px`,
     'container-inline-trailing-space': `8px`,
 
-    'active-indicator-color': Color.SecondaryContainer,
+    'enabled-active-indicator-color': Color.SecondaryContainer,
     'active-indicator-height': `56px`,
     'active-indicator-shape-start-start': Shape.Full,
     'active-indicator-shape-start-end': Shape.Full,
     'active-indicator-shape-end-start': Shape.Full,
     'active-indicator-shape-end-end': Shape.Full,
 
-    'unselected-label-color': Color.OnSurfaceVariant,
-    'selected-label-color': Color.OnSecondaryContainer,
-    'unselected-icon-color': Color.OnSurfaceVariant,
-    'selected-icon-color': Color.OnSecondaryContainer,
+    'enabled-label-color-unselected': Color.OnSurfaceVariant,
+    'enabled-label-color-selected': Color.OnSecondaryContainer,
+    'enabled-icon-color-unselected': Color.OnSurfaceVariant,
+    'enabled-icon-color-selected': Color.OnSecondaryContainer,
 
-    'selected-enabled-state-layer-color': Color.OnSecondaryContainer,
-    'selected-hovered-state-layer-color': Color.OnSecondaryContainer,
-    'selected-focused-state-layer-color': Color.OnSecondaryContainer,
-    'selected-pressed-state-layer-color': Color.OnSecondaryContainer,
+    'enabled-state-layer-color-selected': Color.OnSecondaryContainer,
+    'hovered-state-layer-color-selected': Color.OnSecondaryContainer,
+    'focused-state-layer-color-selected': Color.OnSecondaryContainer,
+    'pressed-state-layer-color-selected': Color.OnSecondaryContainer,
 })
 
 export const FloatingTabDefinition = createStyleDefinition<Partial<ITabScheme>>(FloatingTabValues)

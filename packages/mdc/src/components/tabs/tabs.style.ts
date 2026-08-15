@@ -47,6 +47,6 @@ export const TabsStyles = css`
         flex: 0 0 var(--_divider-height);
         width: 100%;
         height: var(--_divider-height);
-        background-color: var(--_divider-color);
+        background-color: var(--_enabled-divider-color);
     }
 `

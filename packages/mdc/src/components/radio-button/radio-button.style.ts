@@ -11,7 +11,7 @@ import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
 import { overrideComponentTokens, stringTokens } from '../../utils/tokens'
 
 const tokenRecord = defineTokenRefsRecord(RadioButtonDefinition, {
-    expandShapes: true,
+    expandShapes: false,
     useBaseFallback: true,
     prefix: '--mdc-radio-button'
 })
@@ -80,13 +80,13 @@ export const radioButtonStyle = css`
             }
             .unselected .outer {
                 r: 9px;
-                stroke: var(--_unselected-icon-color);
+                stroke: var(--_enabled-icon-color-unselected);
                 transition-timing-function: ${unsafeCSS(Easing.Emphasized)};
                 transition-duration: 250ms;
             }
             .selected .outer {
                 r: 8px;
-                stroke: var(--_selected-icon-color);
+                stroke: var(--_enabled-icon-color-selected);
                 transition-timing-function: ${unsafeCSS(Easing.EmphasizedDecelerate)};
                 transition-duration: 300ms;
             }
@@ -97,7 +97,7 @@ export const radioButtonStyle = css`
             .unselected .inner {
                 r: 9px;
                 stroke-width: 0px;
-                stroke: var(--_unselected-icon-color);
+                stroke: var(--_enabled-icon-color-unselected);
                 opacity: 0;
                 transition-timing-function: ${unsafeCSS(Easing.Emphasized)};
                 transition-duration: 250ms;
@@ -105,7 +105,7 @@ export const radioButtonStyle = css`
             .selected .inner {
                 r: 2.5px;
                 stroke-width: 5px;
-                stroke: var(--_selected-icon-color);
+                stroke: var(--_enabled-icon-color-selected);
                 opacity: 1;
                 transition-timing-function: ${unsafeCSS(Easing.EmphasizedDecelerate)};
                 transition-duration: 300ms;
@@ -117,31 +117,31 @@ export const radioButtonStyle = css`
             }
 
             :host(:hover) .unselected .icon {
-                stroke: var(--_hovered-unselected-icon-color);
+                stroke: var(--_hovered-icon-color-unselected);
             }
             :host(:focus-within) .unselected .icon {
-                stroke: var(--_focused-unselected-icon-color);
+                stroke: var(--_focused-icon-color-unselected);
             }
             :host(:active) .unselected .icon {
-                stroke: var(--_pressed-unselected-icon-color);
+                stroke: var(--_pressed-icon-color-unselected);
             }
             :host([disabled]) .unselected .icon :is(.outer, .inner) {
-                stroke: var(--_disabled-unselected-icon-color);
-                opacity: var(--_disabled-unselected-icon-opacity);
+                stroke: var(--_disabled-icon-color-unselected);
+                opacity: var(--_disabled-icon-opacity-unselected);
             }
 
             :host(:hover) .selected .icon {
-                stroke: var(--_hovered-selected-hover-icon-color);
+                stroke: var(--_hovered-icon-color-selected);
             }
             :host(:focus-within) .selected .icon {
-                stroke: var(--_focused-selected-focus-icon-color);
+                stroke: var(--_focused-icon-color-selected);
             }
             :host(:active) .selected .icon {
-                stroke: var(--_pressed-selected-pressed-icon-color);
+                stroke: var(--_pressed-icon-color-selected);
             }
             :host([disabled]) .selected .icon :is(.outer, .inner) {
-                stroke: var(--_disabled-selected-icon-color);
-                opacity: var(--_disabled-selected-icon-opacity);
+                stroke: var(--_disabled-icon-color-selected);
+                opacity: var(--_disabled-icon-opacity-selected);
             }
 
         }
@@ -168,18 +168,18 @@ export const radioButtonStyle = css`
             }
             .container.selected mdc-ripple {
                 ${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', {
-                    'hovered-color': `var(--_hovered-selected-state-layer-color)`,
-                    'hovered-opacity': `var(--_hovered-selected-state-layer-opacity)`,
-                    'pressed-color': `var(--_pressed-selected-state-layer-color)`,
-                    'pressed-opacity': `var(--_pressed-selected-state-layer-opacity)`,
+                    'enabled-hovered-color': `var(--_hovered-state-layer-color-selected)`,
+                    'enabled-hovered-opacity': `var(--_hovered-state-layer-opacity-selected)`,
+                    'enabled-pressed-color': `var(--_pressed-state-layer-color-selected)`,
+                    'enabled-pressed-opacity': `var(--_pressed-state-layer-opacity-selected)`,
                 })))}
             }
             .container:not(.selected) mdc-ripple {
                 ${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', {
-                    'hovered-color': `var(--_hovered-unselected-state-layer-color)`,
-                    'hovered-opacity': `var(--_hovered-unselected-state-layer-opacity)`,
-                    'pressed-color': `var(--_pressed-unselected-state-layer-color)`,
-                    'pressed-opacity': `var(--_pressed-unselected-state-layer-opacity)`,
+                    'enabled-hovered-color': `var(--_hovered-state-layer-color-unselected)`,
+                    'enabled-hovered-opacity': `var(--_hovered-state-layer-opacity-unselected)`,
+                    'enabled-pressed-color': `var(--_pressed-state-layer-color-unselected)`,
+                    'enabled-pressed-opacity': `var(--_pressed-state-layer-opacity-unselected)`,
                 })))}
             }
         }

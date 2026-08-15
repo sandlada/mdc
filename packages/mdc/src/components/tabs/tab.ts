@@ -26,7 +26,7 @@ declare global {
  * @slot — The tab label text.
  *
  * @cssproperty --mdc-tab-container-height
- * @cssproperty --mdc-tab-active-indicator-color
+ * @cssproperty --mdc-tab-enabled-active-indicator-color
  * ...
  */
 @customElement('mdc-tab')

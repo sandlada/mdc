@@ -38,16 +38,16 @@ const emphasizedEasing = unsafeCSS(Easing.Emphasized.ToCSSValue())
 const CHECKMARK_LENGTH = 29.7833385
 
 const rippleStyles = stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', {
-    'hovered-color': `var(--_hover-state-layer-color)`,
-    'focused-color': `var(--_focus-state-layer-color)`,
-    'pressed-color': `var(--_pressed-state-layer-color)`,
-    'hovered-opacity': `var(--_hover-state-layer-opacity)`,
-    'focused-opacity': `var(--_focus-state-layer-opacity)`,
-    'pressed-opacity': `var(--_pressed-state-layer-opacity)`,
+    'enabled-hovered-color': `var(--_hovered-state-layer-color)`,
+    'enabled-focused-color': `var(--_focused-state-layer-color)`,
+    'enabled-pressed-color': `var(--_pressed-state-layer-color)`,
+    'enabled-hovered-opacity': `var(--_hovered-state-layer-opacity)`,
+    'enabled-focused-opacity': `var(--_focused-state-layer-opacity)`,
+    'enabled-pressed-opacity': `var(--_pressed-state-layer-opacity)`,
 }))
 
 const iconStyles = stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', {
-    size: `var(--_icon-size)`,
+    'enabled-size': `var(--_icon-size)`,
 }))
 
 export const ChipStyles = css`
@@ -93,9 +93,9 @@ export const ChipStyles = css`
             border-start-end-radius: var(--_container-shape-start-end);
             border-end-start-radius: var(--_container-shape-end-start);
             border-end-end-radius: var(--_container-shape-end-end);
-            background-color: var(--_container-color);
-            border: var(--_outline-width) solid var(--_outline-color);
-            color: var(--_label-text-color);
+            background-color: var(--_enabled-container-color);
+            border: var(--_outline-width) solid var(--_enabled-outline-color);
+            color: var(--_enabled-label-color);
             gap: 8px;
             outline: none;
             -webkit-tap-highlight-color: transparent;
@@ -107,19 +107,19 @@ export const ChipStyles = css`
         .container:hover {
             background-color: var(--_hovered-container-color);
             border-color: var(--_hovered-outline-color);
-            color: var(--_hovered-label-text-color);
+            color: var(--_hovered-label-color);
         }
 
         .container:focus-visible {
             background-color: var(--_focused-container-color);
             border-color: var(--_focused-outline-color);
-            color: var(--_focused-label-text-color);
+            color: var(--_focused-label-color);
         }
 
         .container:active {
             background-color: var(--_pressed-container-color);
             border-color: var(--_pressed-outline-color);
-            color: var(--_pressed-label-text-color);
+            color: var(--_pressed-label-color);
         }
 
         .container.disabled {
@@ -136,11 +136,11 @@ export const ChipStyles = css`
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            font-family: var(--_label-text-font);
-            font-size: var(--_label-text-size);
-            font-weight: var(--_label-text-weight);
-            letter-spacing: var(--_label-text-tracking);
-            line-height: var(--_label-text-line-height);
+            font-family: var(--_enabled-label-font);
+            font-size: var(--_enabled-label-size);
+            font-weight: var(--_enabled-label-weight);
+            letter-spacing: var(--_enabled-label-tracking);
+            line-height: var(--_enabled-label-line-height);
             padding-inline-start: var(--_text-padding-start);
             padding-inline-end: var(--_text-padding-end);
         }
@@ -150,7 +150,7 @@ export const ChipStyles = css`
         }
 
         .container.disabled .label {
-            opacity: var(--_disabled-label-text-opacity);
+            opacity: var(--_disabled-label-opacity);
         }
     }
 
@@ -160,7 +160,7 @@ export const ChipStyles = css`
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            color: var(--_icon-color);
+            color: var(--_enabled-icon-color);
             ${unsafeCSS(iconStyles)};
         }
 
@@ -218,7 +218,7 @@ export const ChipStyles = css`
             box-sizing: border-box;
             border: none;
             background: transparent;
-            color: var(--_trailing-icon-color);
+            color: var(--_enabled-trailing-icon-color);
             cursor: pointer;
             border-radius: 50%;
             outline: none;
@@ -250,7 +250,7 @@ export const ChipStyles = css`
         }
 
         .checkmark-path {
-            stroke: var(--_checkmark-color);
+            stroke: var(--_enabled-checkmark-color);
             stroke-dasharray: ${CHECKMARK_LENGTH};
             stroke-width: 2px;
             fill: none;
@@ -278,37 +278,37 @@ export const ChipStyles = css`
 
     @layer mdc.chip.composite.selected {
         .container.selected {
-            background-color: var(--_selected-container-color);
-            border-color: var(--_selected-outline-color);
-            color: var(--_selected-label-text-color);
+            background-color: var(--_enabled-container-color-selected);
+            border-color: var(--_enabled-outline-color-selected);
+            color: var(--_enabled-label-color-selected);
         }
 
         .container.selected:hover {
-            background-color: var(--_selected-hovered-container-color);
-            border-color: var(--_selected-hovered-outline-color);
-            color: var(--_selected-hovered-label-text-color);
+            background-color: var(--_hovered-container-color-selected);
+            border-color: var(--_hovered-outline-color-selected);
+            color: var(--_hovered-label-color-selected);
         }
 
         .container.selected:focus-visible {
-            background-color: var(--_selected-focused-container-color);
-            border-color: var(--_selected-focused-outline-color);
-            color: var(--_selected-focused-label-text-color);
+            background-color: var(--_focused-container-color-selected);
+            border-color: var(--_focused-outline-color-selected);
+            color: var(--_focused-label-color-selected);
         }
 
         .container.selected:active {
-            background-color: var(--_selected-pressed-container-color);
-            border-color: var(--_selected-pressed-outline-color);
-            color: var(--_selected-pressed-label-text-color);
+            background-color: var(--_pressed-container-color-selected);
+            border-color: var(--_pressed-outline-color-selected);
+            color: var(--_pressed-label-color-selected);
         }
 
         .container.selected:not(.disabled) .icon {
-            color: var(--_selected-icon-color);
+            color: var(--_enabled-icon-color-selected);
         }
 
         .container.disabled.selected {
-            background-color: var(--_disabled-selected-container-color);
-            border-color: var(--_disabled-selected-outline-color);
-            color: var(--_disabled-selected-label-text-color);
+            background-color: var(--_disabled-container-color-selected);
+            border-color: var(--_disabled-outline-color-selected);
+            color: var(--_disabled-label-color-selected);
         }
     }
 

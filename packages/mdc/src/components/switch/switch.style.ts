@@ -13,7 +13,7 @@ import { overrideComponentTokens, stringTokens } from '../../utils/tokens'
 import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
 
 const switchTokens = defineTokenRefsRecord(SwitchDefinition, {
-    expandShapes: true,
+    expandShapes: false,
     useBaseFallback: true,
     prefix: '--mdc-switch'
 })
@@ -26,10 +26,10 @@ const focusRingShape = stringTokens(overrideComponentTokens<keyof typeof FocusRi
     "shape-start-start": `var(--_track-shape-start-start)`,
 }))
 const rippleStyles = (state: 'selected' | 'unselected') => stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', {
-    "hovered-color": `var(--_hovered-state-layer-color-${state})`,
-    "hovered-opacity": `var(--_hovered-state-layer-opacity-${state})`,
-    "pressed-color": `var(--_pressed-state-layer-color-${state})`,
-    "pressed-opacity": `var(--_pressed-state-layer-opacity-${state})`,
+    "enabled-hovered-color": `var(--_hovered-state-layer-color-${state})`,
+    "enabled-hovered-opacity": `var(--_hovered-state-layer-opacity-${state})`,
+    "enabled-pressed-color": `var(--_pressed-state-layer-color-${state})`,
+    "enabled-pressed-opacity": `var(--_pressed-state-layer-opacity-${state})`,
 }))
 
 const handleContainerEasing = unsafeCSS(Easing.ExpressiveFastSpatial.ToCSSValue())
@@ -147,7 +147,7 @@ export const SwitchStyles = css`
             font-size: var(--_icon-size-selected);
             inline-size: var(--_icon-size-selected);
             block-size: var(--_icon-size-selected);
-            ${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_icon-size-selected)` })))}
+            ${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': `var(--_icon-size-selected)` })))}
         }
         .icon.icon-unselected {
             display: flex;
@@ -156,7 +156,7 @@ export const SwitchStyles = css`
             font-size: var(--_icon-size-unselected);
             inline-size: var(--_icon-size-unselected);
             block-size: var(--_icon-size-unselected);
-            ${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_icon-size-unselected)` })))}
+            ${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': `var(--_icon-size-unselected)` })))}
         }
 
         .disabled .icon.icon-selected {
@@ -169,7 +169,7 @@ export const SwitchStyles = css`
         }
 
         .switch:not(.disabled) .icon.icon-selected {
-            color: var(--_icon-color-selected);
+            color: var(--_enabled-icon-color-selected);
         }
         .switch:not(.disabled):hover .icon.icon-selected {
             color: var(--_hovered-icon-color-selected);
@@ -181,7 +181,7 @@ export const SwitchStyles = css`
             color: var(--_pressed-icon-color-selected);
         }
         .switch:not(.disabled) .icon.icon-unselected {
-            color: var(--_icon-color-unselected);
+            color: var(--_enabled-icon-color-unselected);
         }
         .switch:not(.disabled):hover .icon.icon-unselected {
             color: var(--_hovered-icon-color-unselected);
@@ -213,7 +213,7 @@ export const SwitchStyles = css`
         }
 
         .selected:not(.disabled) .track {
-            background: var(--_track-color-selected);
+            background: var(--_enabled-track-color-selected);
         }
         .selected.disabled .track {
             background: var(--_disabled-track-color-selected);
@@ -228,7 +228,7 @@ export const SwitchStyles = css`
             background: var(--_pressed-track-color-selected);
         }
         .unselected:not(.disabled) .track {
-            background: var(--_track-color-unselected);
+            background: var(--_enabled-track-color-unselected);
         }
         .unselected.disabled .track {
             background: var(--_disabled-track-color-unselected);
@@ -267,7 +267,7 @@ export const SwitchStyles = css`
             border-color: transparent;
         }
         .unselected:not(.disabled) .outline {
-            border-color: var(--_track-outline-color);
+            border-color: var(--_enabled-track-outline-color);
         }
         .unselected:not(.disabled):hover .outline {
             border-color: var(--_hovered-track-outline-color-unselected);
@@ -330,7 +330,7 @@ export const SwitchStyles = css`
         }
 
         .selected:not(.disabled) .handle {
-            background: var(--_handle-color-selected)
+            background: var(--_enabled-handle-color-selected)
         }
         .selected.disabled .handle {
             background: var(--_disabled-handle-color-selected);
@@ -346,7 +346,7 @@ export const SwitchStyles = css`
             background: var(--_pressed-handle-color-selected);
         }
         .unselected:not(.disabled) .handle {
-            background: var(--_handle-color-unselected);
+            background: var(--_enabled-handle-color-unselected);
         }
         .unselected.disabled .handle {
             background: var(--_disabled-handle-color-unselected);

@@ -49,30 +49,30 @@ const overrideRipple = {
     unselected: stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>(
         '--mdc-ripple',
         {
-            'hovered-color'  : 'var(--_unselected-hovered-state-layer-color)',
-            'hovered-opacity': 'var(--_unselected-hovered-state-layer-opacity)',
-            'focused-color'  : 'var(--_unselected-focused-state-layer-color)',
-            'focused-opacity': 'var(--_unselected-focused-state-layer-opacity)',
-            'pressed-color'  : 'var(--_unselected-pressed-state-layer-color)',
-            'pressed-opacity': 'var(--_unselected-pressed-state-layer-opacity)',
+            'enabled-hovered-color'  : 'var(--_hovered-state-layer-color-unselected)',
+            'enabled-hovered-opacity': 'var(--_hovered-state-layer-opacity-unselected)',
+            'enabled-focused-color'  : 'var(--_focused-state-layer-color-unselected)',
+            'enabled-focused-opacity': 'var(--_focused-state-layer-opacity-unselected)',
+            'enabled-pressed-color'  : 'var(--_pressed-state-layer-color-unselected)',
+            'enabled-pressed-opacity': 'var(--_pressed-state-layer-opacity-unselected)',
         }
     )),
     selected: stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>(
         '--mdc-ripple',
         {
-            'hovered-color'  : 'var(--_selected-hovered-state-layer-color)',
-            'hovered-opacity': 'var(--_selected-hovered-state-layer-opacity)',
-            'focused-color'  : 'var(--_selected-focused-state-layer-color)',
-            'focused-opacity': 'var(--_selected-focused-state-layer-opacity)',
-            'pressed-color'  : 'var(--_selected-pressed-state-layer-color)',
-            'pressed-opacity': 'var(--_selected-pressed-state-layer-opacity)',
+            'enabled-hovered-color'  : 'var(--_hovered-state-layer-color-selected)',
+            'enabled-hovered-opacity': 'var(--_hovered-state-layer-opacity-selected)',
+            'enabled-focused-color'  : 'var(--_focused-state-layer-color-selected)',
+            'enabled-focused-opacity': 'var(--_focused-state-layer-opacity-selected)',
+            'enabled-pressed-color'  : 'var(--_pressed-state-layer-color-selected)',
+            'enabled-pressed-opacity': 'var(--_pressed-state-layer-opacity-selected)',
         }
     )),
 }
 
 // Sized icons (e.g. `mdc-icon`) fill the tab's icon slot.
 const overrideIcon = stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', {
-    'size': 'var(--_icon-size)',
+    'enabled-size': 'var(--_icon-size)',
 }))
 
 export const TabStyles = [
@@ -119,8 +119,8 @@ export const TabStyles = [
         border-start-end-radius: var(--_container-shape-start-end);
         border-end-start-radius: var(--_container-shape-end-start);
         border-end-end-radius: var(--_container-shape-end-end);
-        background-color: var(--_container-color);
-        box-shadow: var(--_container-elevation);
+        background-color: var(--_enabled-container-color);
+        box-shadow: var(--_enabled-container-elevation);
     }
 
     :host([variant="primary"]) {
@@ -172,7 +172,7 @@ export const TabStyles = [
         flex: none;
         width: var(--_icon-size);
         height: var(--_icon-size);
-        color: var(--_unselected-icon-color);
+        color: var(--_enabled-icon-color-unselected);
         ${unsafeCSS(overrideIcon)};
         pointer-events: none;
     }
@@ -186,7 +186,7 @@ export const TabStyles = [
         color: var(--_pressed-icon-color);
     }
     :host([active]) .icon {
-        color: var(--_selected-icon-color);
+        color: var(--_enabled-icon-color-selected);
     }
     `,
     // ── Label ───────────────────────────────────────────────────────────────
@@ -196,12 +196,12 @@ export const TabStyles = [
         box-sizing: border-box;
         min-width: 0;
         max-width: 100%;
-        font-family: var(--_label-text-font);
-        font-size: var(--_label-text-size);
-        line-height: var(--_label-text-line-height);
-        font-weight: var(--_label-text-weight);
-        letter-spacing: var(--_label-text-tracking);
-        color: var(--_unselected-label-color);
+        font-family: var(--_label-font);
+        font-size: var(--_label-size);
+        line-height: var(--_label-line-height);
+        font-weight: var(--_label-weight);
+        letter-spacing: var(--_label-tracking);
+        color: var(--_enabled-label-color-unselected);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -217,7 +217,7 @@ export const TabStyles = [
         color: var(--_pressed-label-color);
     }
     :host([active]) .label {
-        color: var(--_selected-label-color);
+        color: var(--_enabled-label-color-selected);
     }
     `,
     // ── Active indicator ────────────────────────────────────────────────────
@@ -225,7 +225,7 @@ export const TabStyles = [
     .indicator {
         position: absolute;
         box-sizing: border-box;
-        background-color: var(--_active-indicator-color);
+        background-color: var(--_enabled-active-indicator-color);
         border-start-start-radius: var(--_active-indicator-shape-start-start);
         border-start-end-radius: var(--_active-indicator-shape-start-end);
         border-end-start-radius: var(--_active-indicator-shape-end-start);

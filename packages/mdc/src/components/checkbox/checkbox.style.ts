@@ -12,7 +12,7 @@ import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
 import { overrideComponentTokens, stringTokens } from '../../utils/tokens'
 
 const tokenRecord = defineTokenRefsRecord(CheckboxDefinition, {
-    expandShapes: true,
+    expandShapes: false,
     useBaseFallback: true,
     prefix: '--mdc-checkbox',
 })
@@ -23,28 +23,28 @@ const emphasizedAccelerate = unsafeCSS(Easing.EmphasizedAccelerate.ToCSSValue())
 const emphasizedDecelerate = unsafeCSS(Easing.EmphasizedDecelerate.ToCSSValue())
 
 const rippleStyles = (state: 'selected' | 'unselected') => stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', {
-    'hovered-color': `var(--_hovered-${state}-state-layer-color)`,
-    'hovered-opacity': `var(--_hovered-${state}-state-layer-opacity)`,
-    'focused-color': `var(--_focused-${state}-state-layer-color)`,
-    'focused-opacity': `var(--_focused-${state}-state-layer-opacity)`,
-    'pressed-color': `var(--_pressed-${state}-state-layer-color)`,
-    'pressed-opacity': `var(--_pressed-${state}-state-layer-opacity)`,
+    'enabled-hovered-color': `var(--_hovered-state-layer-color-${state})`,
+    'enabled-hovered-opacity': `var(--_hovered-state-layer-opacity-${state})`,
+    'enabled-focused-color': `var(--_focused-state-layer-color-${state})`,
+    'enabled-focused-opacity': `var(--_focused-state-layer-opacity-${state})`,
+    'enabled-pressed-color': `var(--_pressed-state-layer-color-${state})`,
+    'enabled-pressed-opacity': `var(--_pressed-state-layer-opacity-${state})`,
 }))
 const errorRippleStyles = () => stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', {
-    'hovered-color': `var(--_hovered-error-state-layer-color)`,
-    'hovered-opacity': `var(--_hovered-error-state-layer-opacity)`,
-    'focused-color': `var(--_focused-error-state-layer-color)`,
-    'focused-opacity': `var(--_focused-error-state-layer-opacity)`,
-    'pressed-color': `var(--_pressed-error-state-layer-color)`,
-    'pressed-opacity': `var(--_pressed-error-state-layer-opacity)`,
+    'enabled-hovered-color': `var(--_hovered-error-state-layer-color)`,
+    'enabled-hovered-opacity': `var(--_hovered-error-state-layer-opacity)`,
+    'enabled-focused-color': `var(--_focused-error-state-layer-color)`,
+    'enabled-focused-opacity': `var(--_focused-error-state-layer-opacity)`,
+    'enabled-pressed-color': `var(--_pressed-error-state-layer-color)`,
+    'enabled-pressed-opacity': `var(--_pressed-error-state-layer-opacity)`,
 }))
 
 // The focus indicator is a 44px circle around the 18px box. The ring
 // sizes itself through its own `outward-offset` mechanism, so it stays correct
-// even when `container-size` is overridden.
+// even when `enabled-container-size` is overridden.
 const focusRingTokens = stringTokens(overrideComponentTokens<keyof typeof FocusRingDefinition>('--mdc-focus-ring', {
-    'color': `var(--_focused-indicator-color)`,
-    'outward-offset': `calc((44px - var(--_container-size)) / 2)`,
+    'enabled-color': `var(--_focused-indicator-color)`,
+    'outward-offset': `calc((44px - var(--_enabled-container-size)) / 2)`,
     "shape-end-end": 'var(--_focus-ring-shape-end-end)',
     "shape-end-start": 'var(--_focus-ring-shape-end-start)',
     "shape-start-end": 'var(--_focus-ring-shape-start-end)',
@@ -68,14 +68,14 @@ export const CheckboxStyles = css`
                 -webkit-tap-highlight-color: transparent;
                 outline: none;
                 position: relative;
-                height: var(--_container-size);
-                width: var(--_container-size);
+                height: var(--_enabled-container-size);
+                width: var(--_enabled-container-size);
                 border-start-start-radius: var(--_container-shape-start-start);
                 border-start-end-radius: var(--_container-shape-start-end);
                 border-end-end-radius: var(--_container-shape-end-end);
                 border-end-start-radius: var(--_container-shape-end-start);
                 /* Reserve space for the 48px touch target around the 18px box. */
-                margin: max(0px, ((48px - var(--_container-size)) / 2));
+                margin: max(0px, ((48px - var(--_enabled-container-size)) / 2));
             }
             :host([disabled]) {
                 cursor: default;
@@ -111,18 +111,18 @@ export const CheckboxStyles = css`
             }
 
             .outline {
-                border-color: var(--_unselected-outline-color);
+                border-color: var(--_enabled-outline-color-unselected);
                 border-style: solid;
-                border-width: var(--_unselected-outline-width);
+                border-width: var(--_enabled-outline-width-unselected);
                 box-sizing: border-box;
             }
             .selected .outline {
                 border-color: transparent;
-                border-width: var(--_selected-outline-width);
+                border-width: var(--_enabled-outline-width-selected);
             }
 
             .background {
-                background-color: var(--_selected-container-color);
+                background-color: var(--_enabled-container-color-selected);
             }
 
             /* 48px touch target. Covers the box plus its margin so hover,
@@ -164,9 +164,9 @@ export const CheckboxStyles = css`
             }
 
             .icon {
-                fill: var(--_selected-icon-color);
-                height: var(--_icon-size);
-                width: var(--_icon-size);
+                fill: var(--_enabled-icon-color-selected);
+                height: var(--_enabled-icon-size);
+                width: var(--_enabled-icon-size);
             }
 
             /* The checkmark is two <rect> marks: a short 2×2 leading segment
@@ -235,73 +235,73 @@ export const CheckboxStyles = css`
 
             /* Unselected outline colors across interaction states. */
             :host(:hover) .unselected .outline {
-                border-color: var(--_hovered-unselected-outline-color);
-                border-width: var(--_hovered-unselected-outline-width);
+                border-color: var(--_hovered-outline-color-unselected);
+                border-width: var(--_hovered-outline-width-unselected);
             }
             :host(:focus-within) .unselected .outline {
-                border-color: var(--_focused-unselected-outline-color);
-                border-width: var(--_focused-unselected-outline-width);
+                border-color: var(--_focused-outline-color-unselected);
+                border-width: var(--_focused-outline-width-unselected);
             }
             :host(:active) .unselected .outline {
-                border-color: var(--_pressed-unselected-outline-color);
-                border-width: var(--_pressed-unselected-outline-width);
+                border-color: var(--_pressed-outline-color-unselected);
+                border-width: var(--_pressed-outline-width-unselected);
             }
 
             /* Container and icon colors across interaction states. */
             :host(:hover) .background {
-                background: var(--_hovered-selected-container-color);
+                background: var(--_hovered-container-color-selected);
             }
             :host(:focus-within) .background {
-                background: var(--_focused-selected-container-color);
+                background: var(--_focused-container-color-selected);
             }
             :host(:active) .background {
-                background: var(--_pressed-selected-container-color);
+                background: var(--_pressed-container-color-selected);
             }
             :host(:hover) .icon {
-                fill: var(--_hovered-selected-icon-color);
+                fill: var(--_hovered-icon-color-selected);
             }
             :host(:focus-within) .icon {
-                fill: var(--_focused-selected-icon-color);
+                fill: var(--_focused-icon-color-selected);
             }
             :host(:active) .icon {
-                fill: var(--_pressed-selected-icon-color);
+                fill: var(--_pressed-icon-color-selected);
             }
 
             /* Error states — mixinDelegatesAria shifts the host's
                aria-invalid to data-aria-invalid, which is what these
                selectors match. */
             :host([data-aria-invalid='true']) .outline {
-                border-color: var(--_unselected-error-outline-color);
+                border-color: var(--_enabled-error-outline-color-unselected);
             }
             :host([data-aria-invalid='true']:hover) .outline {
-                border-color: var(--_hovered-unselected-error-outline-color);
+                border-color: var(--_hovered-error-outline-color-unselected);
             }
             :host([data-aria-invalid='true']:focus-within) .outline {
-                border-color: var(--_focused-unselected-error-outline-color);
+                border-color: var(--_focused-error-outline-color-unselected);
             }
             :host([data-aria-invalid='true']:active) .outline {
-                border-color: var(--_pressed-unselected-error-outline-color);
+                border-color: var(--_pressed-error-outline-color-unselected);
             }
             :host([data-aria-invalid='true']) .background {
-                background: var(--_selected-error-container-color);
+                background: var(--_enabled-error-container-color-selected);
             }
             :host([data-aria-invalid='true']:hover) .background {
-                background: var(--_hovered-selected-error-container-color);
+                background: var(--_hovered-error-container-color-selected);
             }
             :host([data-aria-invalid='true']:active) .background {
-                background: var(--_pressed-unselected-error-container-color);
+                background: var(--_pressed-error-container-color-unselected);
             }
             :host([data-aria-invalid='true']) .icon {
-                fill: var(--_selected-error-icon-color);
+                fill: var(--_enabled-error-icon-color-selected);
             }
             :host([data-aria-invalid='true']:hover) .icon {
-                fill: var(--_hovered-selected-error-icon-color);
+                fill: var(--_hovered-error-icon-color-selected);
             }
             :host([data-aria-invalid='true']:focus-within) .icon {
-                fill: var(--_focused-selected-error-icon-color);
+                fill: var(--_focused-error-icon-color-selected);
             }
             :host([data-aria-invalid='true']:active) .icon {
-                fill: var(--_pressed-selected-error-icon-color);
+                fill: var(--_pressed-error-icon-color-selected);
             }
 
             /* Disabled: don't animate to/from disabled states because the
@@ -313,19 +313,19 @@ export const CheckboxStyles = css`
                 transition-duration: 0s;
             }
             .disabled .outline {
-                border-color: var(--_disabled-unselected-outline-color);
-                border-width: var(--_disabled-unselected-outline-width);
-                opacity: var(--_disabled-unselected-container-opacity);
+                border-color: var(--_disabled-outline-color-unselected);
+                border-width: var(--_disabled-outline-width-unselected);
+                opacity: var(--_disabled-container-opacity-unselected);
             }
             .selected.disabled .outline {
                 border-color: transparent;
             }
             .selected.disabled .background {
-                background: var(--_disabled-selected-container-color);
-                opacity: var(--_disabled-selected-container-opacity);
+                background: var(--_disabled-container-color-selected);
+                opacity: var(--_disabled-container-opacity-selected);
             }
             .disabled .icon {
-                fill: var(--_disabled-selected-icon-color);
+                fill: var(--_disabled-icon-color-selected);
             }
         }
 

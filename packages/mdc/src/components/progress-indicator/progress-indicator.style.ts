@@ -91,7 +91,7 @@ export const linearProgressIndicatorStyle = css`
                 border-end-end-radius: var(--_stop-indicator-shape-end-end);
                 height: var(--_stop-indicator-size);
                 width: var(--_stop-indicator-size);
-                background: var(--_stop-indicator-color);
+                background: var(--_enabled-stop-indicator-color);
             }
             &::before {
                 inset: 0px;
@@ -111,10 +111,10 @@ export const linearProgressIndicatorStyle = css`
             }
 
             .active-track {
-                /* background: var(--_active-indicator-color); */
+                /* background: var(--_enabled-active-indicator-color); */
             }
             .inactive-track {
-                background: var(--_track-color);
+                background: var(--_enabled-track-color);
             }
 
 
@@ -137,7 +137,7 @@ export const linearProgressIndicatorStyle = css`
                 /* animation: wave-animation 3s infinite linear; */
             }
             &>.inactive-track {
-                background: var(--_track-color);
+                background: var(--_enabled-track-color);
                 position: absolute;
                 inset: 0px;
                 z-index: -1;
@@ -154,7 +154,7 @@ export const linearProgressIndicatorStyle = css`
         .wave {
 
             fill: none;
-            stroke: var(--_active-indicator-color);
+            stroke: var(--_enabled-active-indicator-color);
             stroke-linecap: round;
             stroke-linejoin: round;
         }

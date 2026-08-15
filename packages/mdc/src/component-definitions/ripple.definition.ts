@@ -8,16 +8,16 @@ import { Color } from '../utils/tokens/theme'
 import { createStyleDefinition } from '../utils/tokens/create-style-definition'
 
 export const RippleDefinition = createStyleDefinition({
-    'hovered-color'  : Color.OnSurface,
-    'hovered-opacity': State.HoveredStateLayerOpacity,
-    'focused-color'  : Color.OnSurface,
-    'focused-opacity': State.FocusedStateLayerOpacity,
-    'pressed-color'  : Color.OnSurface,
-    'pressed-opacity': State.PressedStateLayerOpacity,
+    'enabled-hovered-color'  : Color.OnSurface,
+    'enabled-hovered-opacity': State.HoveredStateLayerOpacity,
+    'enabled-focused-color'  : Color.OnSurface,
+    'enabled-focused-opacity': State.FocusedStateLayerOpacity,
+    'enabled-pressed-color'  : Color.OnSurface,
+    'enabled-pressed-opacity': State.PressedStateLayerOpacity,
 
     /**
      * @todo
      */
-    // 'dragged-color'  : Color.OnSurface,
-    // 'dragged-opacity': State.DraggedStateLayerOpacity,
+    // 'enabled-dragged-color'  : Color.OnSurface,
+    // 'enabled-dragged-opacity': State.DraggedStateLayerOpacity,
 })

@@ -60,28 +60,28 @@ const overrideRipple = {
     unselected: stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>(
         '--mdc-ripple',
         {
-            "hovered-color": "var(--_unselected-hovered-ripple-color)",
-            "hovered-opacity": "var(--_unselected-hovered-ripple-opacity)",
-            "focused-color": "var(--_unselected-focused-ripple-color)",
-            "focused-opacity": "var(--_unselected-focused-ripple-opacity)",
-            "pressed-color": "var(--_unselected-pressed-ripple-color)",
-            "pressed-opacity": "var(--_unselected-pressed-ripple-opacity)",
+            "enabled-hovered-color": "var(--_unselected-hovered-ripple-color)",
+            "enabled-hovered-opacity": "var(--_unselected-hovered-ripple-opacity)",
+            "enabled-focused-color": "var(--_unselected-focused-ripple-color)",
+            "enabled-focused-opacity": "var(--_unselected-focused-ripple-opacity)",
+            "enabled-pressed-color": "var(--_unselected-pressed-ripple-color)",
+            "enabled-pressed-opacity": "var(--_unselected-pressed-ripple-opacity)",
         }
     )),
     selected: stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>(
         '--mdc-ripple',
         {
-            "hovered-color": "var(--_selected-hovered-ripple-color)",
-            "hovered-opacity": "var(--_selected-hovered-ripple-opacity)",
-            "focused-color": "var(--_selected-focused-ripple-color)",
-            "focused-opacity": "var(--_selected-focused-ripple-opacity)",
-            "pressed-color": "var(--_selected-pressed-ripple-color)",
-            "pressed-opacity": "var(--_selected-pressed-ripple-opacity)",
+            "enabled-hovered-color": "var(--_selected-hovered-ripple-color)",
+            "enabled-hovered-opacity": "var(--_selected-hovered-ripple-opacity)",
+            "enabled-focused-color": "var(--_selected-focused-ripple-color)",
+            "enabled-focused-opacity": "var(--_selected-focused-ripple-opacity)",
+            "enabled-pressed-color": "var(--_selected-pressed-ripple-color)",
+            "enabled-pressed-opacity": "var(--_selected-pressed-ripple-opacity)",
         }
     )),
 }
 const overrideIcon = stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', {
-    "size": "var(--_icon-size)",
+    "enabled-size": "var(--_icon-size)",
 }))
 
 

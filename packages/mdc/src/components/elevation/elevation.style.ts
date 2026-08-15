@@ -8,7 +8,7 @@ import { ElevationDefinition } from '../../component-definitions/elevation.defin
 import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
 
 const tokenRecord = defineTokenRefsRecord(ElevationDefinition, {
-    expandShapes: true,
+    expandShapes: false,
     useBaseFallback: true,
     prefix: '--mdc-elevation'
 })
@@ -55,36 +55,36 @@ export const styles = css`
             .elevation::before {
                 opacity: 0.3;
 
-                --l1-y: clamp(0, var(--_level), 1);
-                --l4-y: clamp(0, var(--_level) - 3, 1);
-                --l5-y: calc(2 * clamp(0, var(--_level) - 4, 1));
+                --l1-y: clamp(0, var(--_enabled-level), 1);
+                --l4-y: clamp(0, var(--_enabled-level) - 3, 1);
+                --l5-y: calc(2 * clamp(0, var(--_enabled-level) - 4, 1));
                 --y: calc(1px * (var(--l1-y) + var(--l4-y) + var(--l5-y)));
 
-                --l1-blur: calc(2 * clamp(0, var(--_level), 1));
-                --l3-blur: clamp(0, var(--_level) - 2, 1);
-                --l5-blur: clamp(0, var(--_level) - 4, 1);
+                --l1-blur: calc(2 * clamp(0, var(--_enabled-level), 1));
+                --l3-blur: clamp(0, var(--_enabled-level) - 2, 1);
+                --l5-blur: clamp(0, var(--_enabled-level) - 4, 1);
                 --blur: calc(1px * (var(--l1-blur) + var(--l3-blur) + var(--l5-blur)));
 
-                box-shadow: 0px var(--y) var(--blur) 0px var(--_shadow-color);
+                box-shadow: 0px var(--y) var(--blur) 0px var(--_enabled-shadow-color);
             }
 
             .elevation::after {
                 opacity: 0.15;
 
-                --l1-y: clamp(0, var(--_level), 1);
-                --l2-y: clamp(0, var(--_level) - 1, 1);
-                --l3to5-y: calc(2 * clamp(0, var(--_level) - 2, 3));
+                --l1-y: clamp(0, var(--_enabled-level), 1);
+                --l2-y: clamp(0, var(--_enabled-level) - 1, 1);
+                --l3to5-y: calc(2 * clamp(0, var(--_enabled-level) - 2, 3));
                 --y: calc(1px * (var(--l1-y) + var(--l2-y) + var(--l3to5-y)));
 
-                --l1to2-blur: calc(3 * clamp(0, var(--_level), 2));
-                --l3to5-blur: calc(2 * clamp(0, var(--_level) - 2, 3));
+                --l1to2-blur: calc(3 * clamp(0, var(--_enabled-level), 2));
+                --l3to5-blur: calc(2 * clamp(0, var(--_enabled-level) - 2, 3));
                 --blur: calc(1px * (var(--l1to2-blur) + var(--l3to5-blur)));
 
-                --l1to4-spread: clamp(0, var(--_level), 4);
-                --l5-spread: calc(2 * clamp(0, var(--_level) - 4, 1));
+                --l1to4-spread: clamp(0, var(--_enabled-level), 4);
+                --l5-spread: calc(2 * clamp(0, var(--_enabled-level) - 4, 1));
                 --spread: calc(1px * (var(--l1to4-spread) + var(--l5-spread)));
 
-                box-shadow: 0px var(--y) var(--blur) var(--spread) var(--_shadow-color);
+                box-shadow: 0px var(--y) var(--blur) var(--spread) var(--_enabled-shadow-color);
             }
 
         }

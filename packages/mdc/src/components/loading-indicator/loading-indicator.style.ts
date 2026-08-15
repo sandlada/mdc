@@ -26,24 +26,24 @@ export const LoadingIndicatorStyles = css`
                variant re-keys the three color tokens through its own
                -{variant} fallback (defaults = primary, defined on :host). */
             .container.variant-secondary {
-                --_uncontained-indicator-color: var(--_uncontained-indicator-color-secondary);
-                --_contained-container-color: var(--_contained-container-color-secondary);
-                --_contained-indicator-color: var(--_contained-indicator-color-secondary);
+                --_enabled-uncontained-indicator-color: var(--_enabled-uncontained-indicator-color-secondary);
+                --_enabled-contained-container-color: var(--_enabled-contained-container-color-secondary);
+                --_enabled-contained-indicator-color: var(--_enabled-contained-indicator-color-secondary);
             }
             .container.variant-tertiary {
-                --_uncontained-indicator-color: var(--_uncontained-indicator-color-tertiary);
-                --_contained-container-color: var(--_contained-container-color-tertiary);
-                --_contained-indicator-color: var(--_contained-indicator-color-tertiary);
+                --_enabled-uncontained-indicator-color: var(--_enabled-uncontained-indicator-color-tertiary);
+                --_enabled-contained-container-color: var(--_enabled-contained-container-color-tertiary);
+                --_enabled-contained-indicator-color: var(--_enabled-contained-indicator-color-tertiary);
             }
             .container.variant-error {
-                --_uncontained-indicator-color: var(--_uncontained-indicator-color-error);
-                --_contained-container-color: var(--_contained-container-color-error);
-                --_contained-indicator-color: var(--_contained-indicator-color-error);
+                --_enabled-uncontained-indicator-color: var(--_enabled-uncontained-indicator-color-error);
+                --_enabled-contained-container-color: var(--_enabled-contained-container-color-error);
+                --_enabled-contained-indicator-color: var(--_enabled-contained-indicator-color-error);
             }
             .container.variant-surface {
-                --_uncontained-indicator-color: var(--_uncontained-indicator-color-surface);
-                --_contained-container-color: var(--_contained-container-color-surface);
-                --_contained-indicator-color: var(--_contained-indicator-color-surface);
+                --_enabled-uncontained-indicator-color: var(--_enabled-uncontained-indicator-color-surface);
+                --_enabled-contained-container-color: var(--_enabled-contained-container-color-surface);
+                --_enabled-contained-indicator-color: var(--_enabled-contained-indicator-color-surface);
             }
         }
 
@@ -82,11 +82,11 @@ export const LoadingIndicatorStyles = css`
                 border-start-end-radius: var(--_container-shape-start-end);
                 border-end-start-radius: var(--_container-shape-end-start);
                 border-end-end-radius: var(--_container-shape-end-end);
-                background: var(--_uncontained-container-color);
+                background: var(--_enabled-uncontained-container-color);
                 z-index: -1;
             }
             .container.contained .background {
-                background: var(--_contained-container-color);
+                background: var(--_enabled-contained-container-color);
             }
 
             .indicator {
@@ -100,10 +100,10 @@ export const LoadingIndicatorStyles = css`
             /* The fill comes purely from the color tokens — the path carries
                no per-instance fill attribute. */
             .indicator path {
-                fill: var(--_uncontained-indicator-color);
+                fill: var(--_enabled-uncontained-indicator-color);
             }
             .container.contained .indicator path {
-                fill: var(--_contained-indicator-color);
+                fill: var(--_enabled-contained-indicator-color);
             }
         }
 

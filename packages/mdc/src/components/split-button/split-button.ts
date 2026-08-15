@@ -57,13 +57,13 @@ declare global {
  * @fires trailing-button-interaction — Dispatched when the trailing button is
  *     activated.
  *
- * @cssproperty --mdc-split-button-container-color
- * @cssproperty --mdc-split-button-label-color
- * @cssproperty --mdc-split-button-icon-color
- * @cssproperty --mdc-split-button-container-elevation
+ * @cssproperty --mdc-split-button-enabled-container-color
+ * @cssproperty --mdc-split-button-enabled-label-color
+ * @cssproperty --mdc-split-button-enabled-icon-color
+ * @cssproperty --mdc-split-button-enabled-container-elevation
  * @cssproperty --mdc-split-button-{size}-container-height
- * @cssproperty --mdc-split-button-{size}-leading-button-leading-space
- * @cssproperty --mdc-split-button-{size}-trailing-button-trailing-space
+ * @cssproperty --mdc-split-button-{size}-leading-button-inline-leading-padding-space
+ * @cssproperty --mdc-split-button-{size}-trailing-button-inline-trailing-padding-space
  * @cssproperty --mdc-split-button-{size}-trailing-icon-size
  * ...
  *

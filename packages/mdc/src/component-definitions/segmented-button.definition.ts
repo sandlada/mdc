@@ -20,68 +20,68 @@ import { createStyleDefinition } from '../utils/tokens/create-style-definition'
  */
 export const OutlinedSegmentedButtonDefinition = createStyleDefinition({
     // Label — `label-large`
-    'label-text-font'       : Typescale.LabelLarge.Font,
-    'label-text-line-height': Typescale.LabelLarge.LineHeight,
-    'label-text-size'       : Typescale.LabelLarge.FontSize,
-    'label-text-tracking'   : Typescale.LabelLarge.Tracking,
-    'label-text-weight'     : Typescale.LabelLarge.FontWeight,
+    'label-font'              : Typescale.LabelLarge.Font,
+    'label-line-height'       : Typescale.LabelLarge.LineHeight,
+    'label-size'              : Typescale.LabelLarge.FontSize,
+    'label-tracking'          : Typescale.LabelLarge.Tracking,
+    'label-weight'            : Typescale.LabelLarge.FontWeight,
 
     // Spacing & icon
-    'icon-size'       : `18px`,
-    'spacing-leading' : `12px`,
-    'spacing-trailing': `12px`,
+    'icon-size'               : `18px`,
+    'spacing-leading'         : `12px`,
+    'spacing-trailing'        : `12px`,
 
     // Outline — each segment draws its own 1px border; adjacent segments'
     // borders overlap to form a single divider (see the style file).
-    'outline-color': Color.Outline,
-    'outline-width': `1px`,
+    'enabled-outline-color'   : Color.Outline,
+    'outline-width'           : `1px`,
 
     // Selected
-    'selected-container-color'           : Color.SecondaryContainer,
-    'selected-label-text-color'          : Color.OnSecondaryContainer,
-    'selected-icon-color'                : Color.OnSecondaryContainer,
+    'enabled-container-color-selected'              : Color.SecondaryContainer,
+    'enabled-label-color-selected'                  : Color.OnSecondaryContainer,
+    'enabled-icon-color-selected'                   : Color.OnSecondaryContainer,
     /**
      * Icon color of an icon-only segment that shows a checkmark next to its
-     * icon (selected, `without-label`). Distinct from `selected-icon-color`
+     * icon (selected, `without-label`). Distinct from `enabled-icon-color-selected`
      * for the same reason as the `selected-with-icon-icon-color` spec token.
      */
-    'selected-with-icon-icon-color'      : Color.OnSecondaryContainer,
-    'selected-hover-state-layer-color'   : Color.OnSecondaryContainer,
-    'selected-focus-state-layer-color'   : Color.OnSecondaryContainer,
-    'selected-pressed-state-layer-color' : Color.OnSecondaryContainer,
-    'selected-hover-label-text-color'    : Color.OnSecondaryContainer,
-    'selected-focus-label-text-color'    : Color.OnSecondaryContainer,
-    'selected-pressed-label-text-color'  : Color.OnSecondaryContainer,
-    'selected-hover-icon-color'          : Color.OnSecondaryContainer,
-    'selected-focus-icon-color'          : Color.OnSecondaryContainer,
-    'selected-pressed-icon-color'        : Color.OnSecondaryContainer,
+    'enabled-with-icon-icon-color-selected'         : Color.OnSecondaryContainer,
+    'hovered-state-layer-color-selected'            : Color.OnSecondaryContainer,
+    'focused-state-layer-color-selected'            : Color.OnSecondaryContainer,
+    'pressed-state-layer-color-selected'            : Color.OnSecondaryContainer,
+    'hovered-label-color-selected'                  : Color.OnSecondaryContainer,
+    'focused-label-color-selected'                  : Color.OnSecondaryContainer,
+    'pressed-label-color-selected'                  : Color.OnSecondaryContainer,
+    'hovered-icon-color-selected'                   : Color.OnSecondaryContainer,
+    'focused-icon-color-selected'                   : Color.OnSecondaryContainer,
+    'pressed-icon-color-selected'                   : Color.OnSecondaryContainer,
 
     // Unselected
-    'unselected-container-color'           : `transparent`,
-    'unselected-label-text-color'          : Color.OnSurface,
-    'unselected-icon-color'                : Color.OnSurface,
-    'unselected-hover-state-layer-color'   : Color.OnSurface,
-    'unselected-focus-state-layer-color'   : Color.OnSurface,
-    'unselected-pressed-state-layer-color' : Color.OnSurface,
-    'unselected-hover-label-text-color'    : Color.OnSurface,
-    'unselected-focus-label-text-color'    : Color.OnSurface,
-    'unselected-pressed-label-text-color'  : Color.OnSurface,
-    'unselected-hover-icon-color'          : Color.OnSurface,
-    'unselected-focus-icon-color'          : Color.OnSurface,
-    'unselected-pressed-icon-color'        : Color.OnSurface,
+    'enabled-container-color-unselected'            : `transparent`,
+    'enabled-label-color-unselected'                : Color.OnSurface,
+    'enabled-icon-color-unselected'                 : Color.OnSurface,
+    'hovered-state-layer-color-unselected'          : Color.OnSurface,
+    'focused-state-layer-color-unselected'          : Color.OnSurface,
+    'pressed-state-layer-color-unselected'          : Color.OnSurface,
+    'hovered-label-color-unselected'                : Color.OnSurface,
+    'focused-label-color-unselected'                : Color.OnSurface,
+    'pressed-label-color-unselected'                : Color.OnSurface,
+    'hovered-icon-color-unselected'                 : Color.OnSurface,
+    'focused-icon-color-unselected'                 : Color.OnSurface,
+    'pressed-icon-color-unselected'                 : Color.OnSurface,
 
     // State layers
-    'hover-state-layer-opacity'  : State.HoveredStateLayerOpacity,
-    'focus-state-layer-opacity'  : State.FocusedStateLayerOpacity,
-    'pressed-state-layer-opacity': State.PressedStateLayerOpacity,
+    'hovered-state-layer-opacity'                   : State.HoveredStateLayerOpacity,
+    'focused-state-layer-opacity'                   : State.FocusedStateLayerOpacity,
+    'pressed-state-layer-opacity'                   : State.PressedStateLayerOpacity,
 
     // Disabled
-    'disabled-label-text-color'  : Color.OnSurface,
-    'disabled-label-text-opacity': `0.38`,
-    'disabled-icon-color'        : Color.OnSurface,
-    'disabled-icon-opacity'      : `0.38`,
-    'disabled-outline-color'     : Color.OnSurface,
-    'disabled-outline-opacity'   : `0.12`,
+    'disabled-label-color'                          : Color.OnSurface,
+    'disabled-label-opacity'                        : `0.38`,
+    'disabled-icon-color'                           : Color.OnSurface,
+    'disabled-icon-opacity'                         : `0.38`,
+    'disabled-outline-color'                        : Color.OnSurface,
+    'disabled-outline-opacity'                      : `0.12`,
 })
 
 /**

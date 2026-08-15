@@ -45,14 +45,14 @@ declare global {
  * @fires snackbar-closed - Dispatched when the snackbar is fully closed.
  * @fires snackbar-action - Dispatched when the action button is clicked.
  *
- * @cssproperty --mdc-snackbar-container-color
+ * @cssproperty --mdc-snackbar-enabled-container-color
  * @cssproperty --mdc-snackbar-container-shape-start-start
  * @cssproperty --mdc-snackbar-container-shape-start-end
  * @cssproperty --mdc-snackbar-container-shape-end-start
  * @cssproperty --mdc-snackbar-container-shape-end-end
- * @cssproperty --mdc-snackbar-label-text-color
- * @cssproperty --mdc-snackbar-action-text-color
- * @cssproperty --mdc-snackbar-close-icon-color
+ * @cssproperty --mdc-snackbar-enabled-label-color
+ * @cssproperty --mdc-snackbar-enabled-action-text-color
+ * @cssproperty --mdc-snackbar-enabled-close-icon-color
  *
  * @version
  * Material Design 3

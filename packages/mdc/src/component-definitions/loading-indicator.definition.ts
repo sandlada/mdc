@@ -18,14 +18,14 @@ import { createStyleDefinition } from '../utils/tokens/create-style-definition'
  * | ---------------- | ------------------------------------ | ------- |
  * | `container-size` | `ContainerWidth` / `ContainerHeight` | `48px`  |
  * | `indicator-size` | `ActiveSize`                         | `38px`  |
- * | `container-shape`| `ContainerShape`                     | `CornerFull` |
+ * | `container-shape-*`| `ContainerShape`                  | `CornerFull` |
  *
  * Appearance mode (selected via the `contained` attribute):
  *
- * | mode          | container background          | indicator color          |
- * | ------------- | ----------------------------- | ------------------------ |
- * | uncontained   | `uncontained-container-color` | `uncontained-indicator-color` |
- * | contained     | `contained-container-color`   | `contained-indicator-color`   |
+ * | mode          | container background                    | indicator color                    |
+ * | ------------- | --------------------------------------- | ---------------------------------- |
+ * | uncontained   | `enabled-uncontained-container-color`   | `enabled-uncontained-indicator-color` |
+ * | contained     | `enabled-contained-container-color`     | `enabled-contained-indicator-color`   |
  *
  * Color variant (selected via the `variant` attribute): each variant re-keys
  * the three color tokens through a `-{variant}` suffix, in CSS through
@@ -42,26 +42,29 @@ import { createStyleDefinition } from '../utils/tokens/create-style-definition'
 export const LoadingIndicatorDefinition = createStyleDefinition({
     'container-size' : '48px',
     'indicator-size' : '38px',
-    'container-shape': Shape.Full,
+    'container-shape-start-start': Shape.Full,
+    'container-shape-start-end'  : Shape.Full,
+    'container-shape-end-start'  : Shape.Full,
+    'container-shape-end-end'    : Shape.Full,
 
-    'uncontained-container-color': 'transparent',
-    'uncontained-indicator-color': Color.Primary,
-    'contained-container-color'  : Color.PrimaryContainer,
-    'contained-indicator-color'  : Color.OnPrimaryContainer,
+    'enabled-uncontained-container-color': 'transparent',
+    'enabled-uncontained-indicator-color': Color.Primary,
+    'enabled-contained-container-color'  : Color.PrimaryContainer,
+    'enabled-contained-indicator-color'  : Color.OnPrimaryContainer,
 
-    'uncontained-indicator-color-secondary': Color.Secondary,
-    'contained-container-color-secondary'  : Color.SecondaryContainer,
-    'contained-indicator-color-secondary'  : Color.OnSecondaryContainer,
+    'enabled-uncontained-indicator-color-secondary': Color.Secondary,
+    'enabled-contained-container-color-secondary'  : Color.SecondaryContainer,
+    'enabled-contained-indicator-color-secondary'  : Color.OnSecondaryContainer,
 
-    'uncontained-indicator-color-tertiary': Color.Tertiary,
-    'contained-container-color-tertiary'  : Color.TertiaryContainer,
-    'contained-indicator-color-tertiary'  : Color.OnTertiaryContainer,
+    'enabled-uncontained-indicator-color-tertiary': Color.Tertiary,
+    'enabled-contained-container-color-tertiary'  : Color.TertiaryContainer,
+    'enabled-contained-indicator-color-tertiary'  : Color.OnTertiaryContainer,
 
-    'uncontained-indicator-color-error': Color.Error,
-    'contained-container-color-error'  : Color.ErrorContainer,
-    'contained-indicator-color-error'  : Color.OnErrorContainer,
+    'enabled-uncontained-indicator-color-error': Color.Error,
+    'enabled-contained-container-color-error'  : Color.ErrorContainer,
+    'enabled-contained-indicator-color-error'  : Color.OnErrorContainer,
 
-    'uncontained-indicator-color-surface': Color.OnSurface,
-    'contained-container-color-surface'  : Color.SurfaceContainer,
-    'contained-indicator-color-surface'  : Color.OnSurface,
+    'enabled-uncontained-indicator-color-surface': Color.OnSurface,
+    'enabled-contained-container-color-surface'  : Color.SurfaceContainer,
+    'enabled-contained-indicator-color-surface'  : Color.OnSurface,
 })

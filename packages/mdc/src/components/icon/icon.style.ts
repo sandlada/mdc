@@ -8,7 +8,7 @@ import { IconDefinition } from '../../component-definitions/icon.definition'
 import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
 
 const tokenRecord = defineTokenRefsRecord(IconDefinition, {
-    expandShapes: true,
+    expandShapes: false,
     useBaseFallback: true,
     prefix: '--mdc-icon'
 })
@@ -25,13 +25,13 @@ export const styles = css`
 
         @layer base {
             :host {
-                font-size: var(--_size);
-                width: var(--_size);
-                height: var(--_size);
+                font-size: var(--_enabled-size);
+                width: var(--_enabled-size);
+                height: var(--_enabled-size);
                 color: inherit;
                 font-variation-settings: inherit;
                 font-weight: 400;
-                font-family: var(--_font);
+                font-family: var(--_enabled-font);
                 display: inline-flex;
                 font-style: normal;
                 place-items: center;
@@ -54,7 +54,7 @@ export const styles = css`
             }
 
             .icon-container {
-                font-family: var(--_font);
+                font-family: var(--_enabled-font);
                 font-weight: normal;
                 font-style: normal;
                 line-height: 1;

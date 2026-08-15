@@ -110,7 +110,7 @@ const emphasizedAccelerateEasing = unsafeCSS(Easing.EmphasizedAccelerate.ToCSSVa
 // ─── Icon override styles ───────────────────────────────────────────────────
 
 const iconStyles = stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', {
-    size: `var(--_icon-size)`,
+    'enabled-size': `var(--_icon-size)`,
 }))
 
 // ─── Base styles ────────────────────────────────────────────────────────────
@@ -140,7 +140,7 @@ const base = css`
             border-start-end-radius: var(--_container-shape-start-end);
             border-end-start-radius: var(--_container-shape-end-start);
             border-end-end-radius: var(--_container-shape-end-end);
-            color: var(--_label-text-color);
+            color: var(--_enabled-label-color);
             box-shadow: 0 3px 5px -1px rgba(0,0,0,0.2), 0 6px 10px 0 rgba(0,0,0,0.14), 0 1px 18px 0 rgba(0,0,0,0.12);
             gap: var(--_container-gap);
             pointer-events: auto;
@@ -154,19 +154,19 @@ const base = css`
             inset: 0;
             position: absolute;
             z-index: -1;
-            background-color: var(--_container-color);
+            background-color: var(--_enabled-container-color);
         }
     }
 
     @layer mdc.snackbar.base.label {
         .label {
             flex: 1;
-            font-family: var(--_label-text-font);
-            font-size: var(--_label-text-size);
-            font-weight: var(--_label-text-weight);
-            letter-spacing: var(--_label-text-tracking);
-            line-height: var(--_label-text-line-height);
-            color: var(--_label-text-color);
+            font-family: var(--_label-font);
+            font-size: var(--_label-size);
+            font-weight: var(--_label-weight);
+            letter-spacing: var(--_label-tracking);
+            line-height: var(--_label-line-height);
+            color: var(--_enabled-label-color);
             padding-inline: var(--_label-padding-inline);
             overflow: hidden;
             text-overflow: ellipsis;
@@ -184,7 +184,7 @@ const base = css`
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            color: var(--_icon-color);
+            color: var(--_enabled-icon-color);
             ${unsafeCSS(iconStyles)};
         }
 
@@ -202,12 +202,12 @@ const base = css`
             padding: var(--_action-padding-block) var(--_action-padding-inline);
             border: none;
             background: transparent;
-            color: var(--_action-text-color);
+            color: var(--_enabled-action-text-color);
             font-family: var(--_action-font);
-            font-size: var(--_action-text-size);
-            font-weight: var(--_action-text-weight);
-            letter-spacing: var(--_action-text-tracking);
-            line-height: var(--_action-text-line-height);
+            font-size: var(--_action-size);
+            font-weight: var(--_action-weight);
+            letter-spacing: var(--_action-tracking);
+            line-height: var(--_action-line-height);
             cursor: pointer;
             border-start-start-radius: var(--_action-container-shape-start-start);
             border-start-end-radius: var(--_action-container-shape-start-end);
@@ -228,21 +228,21 @@ const base = css`
             position: absolute;
             inset: 0;
             border-radius: inherit;
-            background-color: var(--_action-hover-state-layer-color);
+            background-color: var(--_hovered-action-state-layer-color);
             opacity: 0;
             transition: opacity 200ms;
         }
 
         .action:hover::before {
-            opacity: var(--_action-hover-state-layer-opacity);
+            opacity: var(--_hovered-action-state-layer-opacity);
         }
 
         .action:focus-visible::before {
-            opacity: var(--_action-focus-state-layer-opacity);
+            opacity: var(--_focused-action-state-layer-opacity);
         }
 
         .action:active::before {
-            opacity: var(--_action-pressed-state-layer-opacity);
+            opacity: var(--_pressed-action-state-layer-opacity);
         }
     }
 
@@ -258,7 +258,7 @@ const base = css`
             box-sizing: border-box;
             border: none;
             background: transparent;
-            color: var(--_close-icon-color);
+            color: var(--_enabled-close-icon-color);
             cursor: pointer;
             border-start-start-radius: var(--_close-icon-shape-start-start);
             border-start-end-radius: var(--_close-icon-shape-start-end);

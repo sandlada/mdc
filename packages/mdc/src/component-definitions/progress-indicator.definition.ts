@@ -20,9 +20,9 @@ const shared = {
     'stop-indicator-shape-start-end': Shape.Full,
     'stop-indicator-shape-end-start': Shape.Full,
     'stop-indicator-shape-end-end': Shape.Full,
-    'active-indicator-color': Color.Primary,
-    'track-color'           : Color.SecondaryContainer,
-    'stop-indicator-color'  : Color.Primary,
+    'enabled-active-indicator-color': Color.Primary,
+    'enabled-track-color'           : Color.SecondaryContainer,
+    'enabled-stop-indicator-color'  : Color.Primary,
 } as const
 
 export const LinearProgressIndicatorDefinition = createStyleDefinition({

@@ -72,10 +72,10 @@ function sized(
     return {
         [`${s}-container-height`]         : p.height,
         [`${s}-between-space`]            : `2px`,
-        [`${s}-leading-button-leading-space`]  : p.leadingLeading,
-        [`${s}-leading-button-trailing-space`] : p.leadingTrailing,
-        [`${s}-trailing-button-leading-space`] : p.trailingLeading,
-        [`${s}-trailing-button-trailing-space`]: p.trailingTrailing,
+        [`${s}-leading-button-inline-leading-padding-space`]  : p.leadingLeading,
+        [`${s}-leading-button-inline-trailing-padding-space`] : p.leadingTrailing,
+        [`${s}-trailing-button-inline-leading-padding-space`] : p.trailingLeading,
+        [`${s}-trailing-button-inline-trailing-padding-space`]: p.trailingTrailing,
         [`${s}-leading-icon-size`]        : p.leadingIcon,
         [`${s}-trailing-icon-size`]       : p.trailingIcon,
         [`${s}-trailing-icon-optical-offset`]: p.opticalOffset,
@@ -183,11 +183,11 @@ export const FilledSplitButtonDefinition = createStyleDefinition({
     ...shared,
 
     // Enabled
-    'container-color'         : Color.Primary,
-    'label-color'             : Color.OnPrimary,
-    'icon-color'              : Color.OnPrimary,
-    'container-shadow-color'  : Color.Shadow,
-    'container-elevation'     : '0',
+    'enabled-container-color'         : Color.Primary,
+    'enabled-label-color'             : Color.OnPrimary,
+    'enabled-icon-color'              : Color.OnPrimary,
+    'enabled-container-shadow-color'  : Color.Shadow,
+    'enabled-container-elevation'     : '0',
 
     // State layers
     'hovered-state-layer-color'  : Color.OnPrimary,
@@ -218,11 +218,11 @@ export const FilledTonalSplitButtonDefinition = createStyleDefinition({
     ...shared,
 
     // Enabled
-    'container-color'         : Color.SecondaryContainer,
-    'label-color'             : Color.OnSecondaryContainer,
-    'icon-color'              : Color.OnSecondaryContainer,
-    'container-shadow-color'  : Color.Shadow,
-    'container-elevation'     : '0',
+    'enabled-container-color'         : Color.SecondaryContainer,
+    'enabled-label-color'             : Color.OnSecondaryContainer,
+    'enabled-icon-color'              : Color.OnSecondaryContainer,
+    'enabled-container-shadow-color'  : Color.Shadow,
+    'enabled-container-elevation'     : '0',
 
     // State layers
     'hovered-state-layer-color'  : Color.OnSecondaryContainer,
@@ -253,11 +253,11 @@ export const ElevatedSplitButtonDefinition = createStyleDefinition({
     ...shared,
 
     // Enabled
-    'container-color'         : Color.SurfaceContainerLow,
-    'label-color'             : Color.Primary,
-    'icon-color'              : Color.Primary,
-    'container-shadow-color'  : Color.Shadow,
-    'container-elevation'     : '1',
+    'enabled-container-color'         : Color.SurfaceContainerLow,
+    'enabled-label-color'             : Color.Primary,
+    'enabled-icon-color'              : Color.Primary,
+    'enabled-container-shadow-color'  : Color.Shadow,
+    'enabled-container-elevation'     : '1',
 
     // State layers
     'hovered-state-layer-color'  : Color.Primary,
@@ -288,12 +288,12 @@ export const OutlinedSplitButtonDefinition = createStyleDefinition({
     ...shared,
 
     // Enabled
-    'outline-color'          : Color.OutlineVariant,
-    'container-color'        : `transparent`,
-    'label-color'            : Color.OnSurfaceVariant,
-    'icon-color'             : Color.OnSurfaceVariant,
-    'container-shadow-color' : Color.Shadow,
-    'container-elevation'    : '0',
+    'enabled-outline-color'          : Color.OutlineVariant,
+    'enabled-container-color'        : `transparent`,
+    'enabled-label-color'            : Color.OnSurfaceVariant,
+    'enabled-icon-color'             : Color.OnSurfaceVariant,
+    'enabled-container-shadow-color' : Color.Shadow,
+    'enabled-container-elevation'    : '0',
 
     // State layers
     'hovered-state-layer-color'  : Color.OnSurfaceVariant,

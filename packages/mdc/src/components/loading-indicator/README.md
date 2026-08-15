@@ -26,7 +26,7 @@
 
 The variant colors are applied through CSS classes on the render root (no
 inline style). To customize the contained background, override the
-`--mdc-loading-indicator-contained-container-color` token from your own CSS.
+`--mdc-loading-indicator-enabled-contained-container-color` token from your own CSS.
 
 `speed` (default `1`) scales the indeterminate animation rate — `2` runs twice
 as fast, `0.5` half speed, `0` pauses the loop. Determinate tracking is not

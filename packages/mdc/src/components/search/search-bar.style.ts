@@ -3,7 +3,7 @@ import { SearchBarDefinition } from '../../component-definitions/search.definiti
 import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
 
 const tokenRecord = defineTokenRefsRecord(SearchBarDefinition, {
-    expandShapes: true,
+    expandShapes: false,
     useBaseFallback: true,
     prefix: '--mdc-search-bar'
 })
@@ -43,7 +43,7 @@ export const searchBarStyle = css`
         border-radius: inherit;
         inset: 0;
         z-index: -1;
-        background: var(--_container-color);
+        background: var(--_enabled-container-color);
     }
 
     .icon {
@@ -52,15 +52,15 @@ export const searchBarStyle = css`
     .leading-icon,
     ::slotted([slot='leading-icon']) {
         fill: currentColor;
-        color: var(--_leading-icon-color);
+        color: var(--_enabled-leading-icon-color);
     }
     .trailing-icon,
     ::slotted([slot='trailing-icon']) {
         fill: currentColor;
-        color: var(--_trailing-icon-color);
+        color: var(--_enabled-trailing-icon-color);
     }
     .search:not(.has-avatar) .avatar {
-        color: var(--_trailing-icon-color);
+        color: var(--_enabled-trailing-icon-color);
     }
 
     .search.has-leading-icon .input {
@@ -95,7 +95,7 @@ export const searchBarStyle = css`
         all: unset;
         height: 100%;
         width: 100%;
-        color: var(--_input-text-color);
+        color: var(--_enabled-input-text-color);
         font-family: var(--_input-text-font);
         line-height: var(--_input-text-line-height);
         font-size: var(--_input-text-size);
@@ -103,7 +103,7 @@ export const searchBarStyle = css`
         letter-spacing: var(--_input-text-tracking);
     }
     .input:placeholder-shown {
-        color: var(--_supporting-text-color);
+        color: var(--_enabled-supporting-text-color);
         font-family: var(--_supporting-text-font);
         line-height: var(--_supporting-text-line-height);
         font-size: var(--_supporting-text-size);
@@ -116,8 +116,8 @@ export const searchBarStyle = css`
         background: transparent;
     }
     .input:-webkit-autofill {
-        -webkit-box-shadow: 0 0 0px var(--_container-height) var(--_container-color) inset !important;
-        -webkit-text-fill-color: var(--_input-text-color);
+        -webkit-box-shadow: 0 0 0px var(--_container-height) var(--_enabled-container-color) inset !important;
+        -webkit-text-fill-color: var(--_enabled-input-text-color);
     }
     .touch-target {
         position: absolute;

@@ -57,7 +57,7 @@ export const MDCStandardDockedToolbarStyleDefinition = createStyleDefinition({
     'focused-standard-icon-color'                : Color.OnSurfaceVariant,
     'focused-standard-selected-icon-color'       : Color.OnSecondaryContainer,
     'focused-standard-label-color'               : Color.OnSurfaceVariant,
-    'focused-standard-selected-label color'      : Color.OnSecondaryContainer,
+    'focused-standard-selected-label-color'      : Color.OnSecondaryContainer,
     // Pressed
     'pressed-standard-state-layer-color'         : Color.OnSurfaceVariant,
     'pressed-standard-selected-state-layer-color': Color.OnSecondaryContainer,
@@ -99,7 +99,7 @@ export const MDCVibrantDockedToolbarStyleDefinition = createStyleDefinition({
     'focused-vibrant-icon-color'                : Color.OnPrimaryContainer,
     'focused-vibrant-selected-icon-color'       : Color.OnSurface,
     'focused-vibrant-label-color'               : Color.OnPrimaryContainer,
-    'focused-vibrant-selected-label color'      : Color.OnSurface,
+    'focused-vibrant-selected-label-color'      : Color.OnSurface,
     // Pressed
     'pressed-vibrant-state-layer-color'         : Color.OnPrimaryContainer,
     'pressed-vibrant-selected-state-layer-color': Color.OnSurface,

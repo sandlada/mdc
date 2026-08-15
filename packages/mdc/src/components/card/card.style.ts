@@ -71,7 +71,7 @@ const background = css`
         inset: 0;
         z-index: -1;
     }
-    .container>.background { background: var(--_container-color); }
+    .container>.background { background: var(--_enabled-container-color); }
 `
 
 const outline = css`
@@ -81,7 +81,7 @@ const outline = css`
         inset: 0;
         outline: none;
         border-style: solid;
-        border-color: var(--_outline-color);
+        border-color: var(--_enabled-outline-color);
         border-width: var(--_outline-width);
         border-start-start-radius: inherit;
         border-start-end-radius: inherit;
@@ -104,7 +104,7 @@ const outline = css`
 `
 
 const elevation = css`
-    .container mdc-elevation {transition-duration: 0ms;${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { level: `var(--_container-elevation)`, 'shadow-color': `var(--_container-shadow-color)` }))};}
+    .container mdc-elevation {transition-duration: 0ms;${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { level: `var(--_enabled-container-elevation)`, 'shadow-color': `var(--_enabled-container-shadow-color)` }))};}
     .container.disabled mdc-elevation {transition: none;${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { level: `var(--_disabled-container-elevation)` }))};}
     .container:focus-within mdc-elevation {${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { level: `var(--_focused-container-elevation)` }))};}
     .container:active mdc-elevation {${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { level: `var(--_pressed-container-elevation)` }))};}

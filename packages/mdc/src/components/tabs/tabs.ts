@@ -27,7 +27,7 @@ declare global {
  * @fires change — Cancelable. Fires before selection commits; `preventDefault()`
  *     reverts the selection.
  *
- * @cssproperty --mdc-tabs-divider-color
+ * @cssproperty --mdc-tabs-enabled-divider-color
  * @cssproperty --mdc-tabs-divider-height
  */
 @customElement('mdc-tabs')

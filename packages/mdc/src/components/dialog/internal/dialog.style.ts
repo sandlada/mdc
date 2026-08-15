@@ -73,7 +73,7 @@ export const basicDialogStyle = css`
 
     .headline {
         align-items: center;
-        color: var(--_headline-label-color);
+        color: var(--_enabled-headline-label-color);
         display: flex;
         flex-direction: column;
         font-family: var(--_headline-label-font);
@@ -99,7 +99,7 @@ export const basicDialogStyle = css`
     slot[name='icon']::slotted(*) {
         fill: currentColor;
         margin-top: 24px;
-        color: var(--_icon-color);
+        color: var(--_enabled-icon-color);
         font-size: var(--_icon-size);
         height: var(--_icon-size);
         width: var(--_icon-size);
@@ -129,7 +129,7 @@ export const basicDialogStyle = css`
     }
 
     .container::before {
-        background: var(--_container-color);
+        background: var(--_enabled-container-color);
         border-radius: inherit;
         content: '';
         inset: 0;
@@ -149,7 +149,7 @@ export const basicDialogStyle = css`
     }
 
     .content {
-        color: var(--_supporting-text-label-color);
+        color: var(--_enabled-supporting-text-label-color);
         font-family: var(--_supporting-text-label-font);
         font-size: var(--_supporting-text-label-size);
         line-height: var(--_supporting-text-label-line-height);

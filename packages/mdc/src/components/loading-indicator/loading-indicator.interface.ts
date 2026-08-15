@@ -46,14 +46,17 @@ export type LoadingIndicatorVariant = 'primary' | 'secondary' | 'tertiary' | 'er
  *
  * @cssproperty --mdc-loading-indicator-container-size
  * @cssproperty --mdc-loading-indicator-indicator-size
- * @cssproperty --mdc-loading-indicator-container-shape
- * @cssproperty --mdc-loading-indicator-uncontained-container-color
- * @cssproperty --mdc-loading-indicator-uncontained-indicator-color
- * @cssproperty --mdc-loading-indicator-contained-container-color
- * @cssproperty --mdc-loading-indicator-contained-indicator-color
+ * @cssproperty --mdc-loading-indicator-container-shape-start-start
+ * @cssproperty --mdc-loading-indicator-container-shape-start-end
+ * @cssproperty --mdc-loading-indicator-container-shape-end-start
+ * @cssproperty --mdc-loading-indicator-container-shape-end-end
+ * @cssproperty --mdc-loading-indicator-enabled-uncontained-container-color
+ * @cssproperty --mdc-loading-indicator-enabled-uncontained-indicator-color
+ * @cssproperty --mdc-loading-indicator-enabled-contained-container-color
+ * @cssproperty --mdc-loading-indicator-enabled-contained-indicator-color
  *
  * Each color token also has a `-{variant}` counterpart (e.g.
- * `--mdc-loading-indicator-contained-container-color-secondary`), selected via
+ * `--mdc-loading-indicator-enabled-contained-container-color-secondary`), selected via
  * the `variant-{v}` class on the render root (no inline style).
  */
 export interface ILoadingIndicator extends LitElement {

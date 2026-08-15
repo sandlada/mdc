@@ -50,16 +50,16 @@ const teRecord = defineTokenRefsRecord(TertiaryExtendedFabDefinition, {
 const tes = unsafeCSS(defineVars(teRecord, true).join(''))
 
 const getElevationStyles = () => {
-    const getSingleStateLevelStyles = (state: '' | 'hovered-' | 'pressed-' | 'focused-') => stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
-        "level": `var(--_${state}container-elevation)`,
+    const getSingleStateLevelStyles = (state: 'enabled-' | 'hovered-' | 'pressed-' | 'focused-') => stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
+        "enabled-level": `var(--_${state}container-elevation)`,
     }))
     const getShadowColorStyles = () => stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
-        "shadow-color": `var(--_container-shadow-color)`,
+        "enabled-shadow-color": `var(--_enabled-container-shadow-color)`,
     }))
     return css`
         mdc-elevation {
             ${getShadowColorStyles()};
-            ${getSingleStateLevelStyles('')};
+            ${getSingleStateLevelStyles('enabled-')};
         }
         button:hover mdc-elevation {${getSingleStateLevelStyles('hovered-')};}
         button:focus-within mdc-elevation {${getSingleStateLevelStyles('focused-')};}
@@ -81,10 +81,10 @@ const getFocusRingStyles = () => {
 }
 const getRippleStyles = () => {
     const styles = stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', {
-        "hovered-color": `var(--_hovered-state-layer-color)`,
-        "hovered-opacity": `var(--_hovered-state-layer-opacity)`,
-        "pressed-color": `var(--_pressed-state-layer-color)`,
-        "pressed-opacity": `var(--_pressed-state-layer-opacity)`,
+        "enabled-hovered-color": `var(--_hovered-state-layer-color)`,
+        "enabled-hovered-opacity": `var(--_hovered-state-layer-opacity)`,
+        "enabled-pressed-color": `var(--_pressed-state-layer-color)`,
+        "enabled-pressed-opacity": `var(--_pressed-state-layer-opacity)`,
     }))
     return css`
         button mdc-ripple {${styles};}
@@ -109,12 +109,12 @@ const getIconStyles = () => {
         button.small :is(.icon, ::slotted([name="icon"])) {${getSize('small')};}
         button.medium :is(.icon, ::slotted([name="icon"])) {${getSize('medium')};}
         button.large :is(.icon, ::slotted([name="icon"])) {${getSize('large')};}
-        button.small .icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_small-icon-size)` }))};}
-        button.medium .icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_medium-icon-size)` }))};}
-        button.large .icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_large-icon-size)` }))};}
+        button.small .icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': `var(--_small-icon-size)` }))};}
+        button.medium .icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': `var(--_medium-icon-size)` }))};}
+        button.large .icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': `var(--_large-icon-size)` }))};}
 
         button :is(.icon, ::slotted([name="icon"])) {
-            color: var(--_icon-color);
+            color: var(--_enabled-icon-color);
         }
         button:hover :is(.icon, ::slotted([name="icon"])) {
             color: var(--_hovered-icon-color);
@@ -175,7 +175,7 @@ const labelStyles = css`
         font-weight: var(--_large-label-weight);
     }
     button .label {
-        color: var(--_label-color);
+        color: var(--_enabled-label-color);
     }
     button:hover .label {
         color: var(--_hovered-label-color);
@@ -216,7 +216,7 @@ const containerStyles = css`
         cursor: pointer;
         position: relative;
         align-items: center;
-        background: var(--_container-color);
+        background: var(--_enabled-container-color);
         transition-property: width, background, padding;
         transition-duration: 200ms;
     }
@@ -236,29 +236,29 @@ const containerStyles = css`
         width: var(--_large-container-width);
     }
     button.small {
-        gap: var(--_small-icon-label-space);
+        gap: var(--_small-icon-label-padding-space);
         height: var(--_small-container-height);
     }
     button.medium {
-        gap: var(--_medium-icon-label-space);
+        gap: var(--_medium-icon-label-padding-space);
         height: var(--_medium-container-height);
     }
     button.large {
-        gap: var(--_large-icon-label-space);
+        gap: var(--_large-icon-label-padding-space);
         height: var(--_large-container-height);
     }
 
     button.extended.small {
-        padding-inline-start: var(--_small-leading-space);
-        padding-inline-end: var(--_small-trailing-space);
+        padding-inline-start: var(--_small-container-inline-leading-padding-space);
+        padding-inline-end: var(--_small-container-inline-trailing-padding-space);
     }
     button.extended.medium {
-        padding-inline-start: var(--_medium-leading-space);
-        padding-inline-end: var(--_medium-trailing-space);
+        padding-inline-start: var(--_medium-container-inline-leading-padding-space);
+        padding-inline-end: var(--_medium-container-inline-trailing-padding-space);
     }
     button.extended.large {
-        padding-inline-start: var(--_large-leading-space);
-        padding-inline-end: var(--_large-trailing-space);
+        padding-inline-start: var(--_large-container-inline-leading-padding-space);
+        padding-inline-end: var(--_large-container-inline-trailing-padding-space);
     }
 
     :host([show]) button {

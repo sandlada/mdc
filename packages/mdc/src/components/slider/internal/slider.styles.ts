@@ -32,8 +32,8 @@ export const sliderStyles = [
 
             /* Elevation for the handle nub (see _slider.scss elevation.theme). */
             ${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
-                level: `var(--_handle-elevation)`,
-                'shadow-color': `var(--_handle-shadow-color)`,
+                'enabled-level': `var(--_enabled-handle-elevation)`,
+                'enabled-shadow-color': `var(--_enabled-handle-shadow-color)`,
             }))};
         }
 
@@ -44,7 +44,7 @@ export const sliderStyles = [
             opacity: var(--_disabled-active-track-opacity);
 
             ${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
-                level: `var(--_disabled-handle-elevation)`,
+                'enabled-level': `var(--_disabled-handle-elevation)`,
             }))};
         }
         mdc-focus-ring {
@@ -128,14 +128,14 @@ export const sliderStyles = [
         }
 
         .track::before {
-            background: var(--_inactive-track-color);
+            background: var(--_enabled-inactive-track-color);
         }
 
         .tickmarks::before {
             background-image: radial-gradient(
                 circle at var(--_with-tick-marks-container-size) center,
-                var(--_with-tick-marks-inactive-container-color) 0,
-                var(--_with-tick-marks-inactive-container-color) calc(var(--_with-tick-marks-container-size) / 2),
+                var(--_enabled-with-tick-marks-inactive-container-color) 0,
+                var(--_enabled-with-tick-marks-inactive-container-color) calc(var(--_with-tick-marks-container-size) / 2),
                 transparent calc(var(--_with-tick-marks-container-size) / 2)
             );
         }
@@ -156,14 +156,14 @@ export const sliderStyles = [
         }
 
         .track::after {
-            background: var(--_active-track-color);
+            background: var(--_enabled-active-track-color);
         }
 
         .tickmarks::after {
             background-image: radial-gradient(
                 circle at var(--_with-tick-marks-container-size) center,
-                var(--_with-tick-marks-active-container-color) 0,
-                var(--_with-tick-marks-active-container-color) calc(var(--_with-tick-marks-container-size) / 2),
+                var(--_enabled-with-tick-marks-active-container-color) 0,
+                var(--_enabled-with-tick-marks-active-container-color) calc(var(--_with-tick-marks-container-size) / 2),
                 transparent calc(var(--_with-tick-marks-container-size) / 2)
             );
         }
@@ -184,8 +184,8 @@ export const sliderStyles = [
         :host([disabled]) .tickmarks::before {
             background-image: radial-gradient(
                 circle at var(--_with-tick-marks-container-size) center,
-                var(--_with-tick-marks-disabled-container-color) 0,
-                var(--_with-tick-marks-disabled-container-color) calc(var(--_with-tick-marks-container-size) / 2),
+                var(--_disabled-with-tick-marks-container-color) 0,
+                var(--_disabled-with-tick-marks-container-color) calc(var(--_with-tick-marks-container-size) / 2),
                 transparent calc(var(--_with-tick-marks-container-size) / 2)
             );
         }
@@ -233,7 +233,7 @@ export const sliderStyles = [
             height: var(--_handle-height);
             width: var(--_handle-width);
             border-radius: var(--_handle-shape);
-            background: var(--_handle-color);
+            background: var(--_enabled-handle-color);
         }
 
         :host([disabled]) .handleNub {
@@ -242,12 +242,12 @@ export const sliderStyles = [
 
         input.end:focus ~ .handleContainerPadded .handle.end > .handleNub,
         input.start:focus ~ .handleContainerPadded .handle.start > .handleNub {
-            background: var(--_focus-handle-color);
+            background: var(--_focused-handle-color);
         }
 
         /* prefix classes exist to overcome specificity of focus styling. */
         .container > .handleContainerPadded .handle.hover > .handleNub {
-            background: var(--_hover-handle-color);
+            background: var(--_hovered-handle-color);
         }
 
         :host(:not([disabled])) {
@@ -260,11 +260,11 @@ export const sliderStyles = [
         .onTop.isOverlapping {
             .label,
             .label::before {
-                outline: var(--_with-overlap-handle-outline-color) solid var(--_with-overlap-handle-outline-width);
+                outline: var(--_enabled-with-overlap-handle-outline-color) solid var(--_with-overlap-handle-outline-width);
             }
 
             .handleNub {
-                border: var(--_with-overlap-handle-outline-color) solid var(--_with-overlap-handle-outline-width);
+                border: var(--_enabled-with-overlap-handle-outline-color) solid var(--_with-overlap-handle-outline-width);
             }
         }
 
@@ -285,7 +285,7 @@ export const sliderStyles = [
             place-items: center;
             border-radius: ${unsafeCSS(Shape.Full.ToCSSVariable())};
 
-            color: var(--_label-text-color);
+            color: var(--_enabled-label-text-color);
             font-family: var(--_label-text-font);
             font-size: var(--_label-text-size);
             line-height: var(--_label-text-line-height);
@@ -294,7 +294,7 @@ export const sliderStyles = [
             inset-block-end: 100%;
             min-inline-size: var(--_label-container-height);
             min-block-size: var(--_label-container-height);
-            background: var(--_label-container-color);
+            background: var(--_enabled-label-container-color);
             transform-origin: center bottom;
             transform: scale(0);
             transition-property: transform;

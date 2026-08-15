@@ -101,25 +101,25 @@ const getFocusRingStyles = () => {
 }
 const getIconSizeStyle = () => {
     return css`
-        .container.extra-small :is(::slotted([slot="icon"]), .icon) {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_extra-small-icon-size)` }))};}
-        .container.small :is(::slotted([slot="icon"]), .icon) {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_small-icon-size)` }))};}
-        .container.medium :is(::slotted([slot="icon"]), .icon) {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_medium-icon-size)` }))};}
-        .container.large :is(::slotted([slot="icon"]), .icon) {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_large-icon-size)` }))};}
-        .container.extra-large :is(::slotted([slot="icon"]), .icon) {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: `var(--_extra-large-icon-size)` }))};}
+        .container.extra-small :is(::slotted([slot="icon"]), .icon) {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': `var(--_extra-small-icon-size)` }))};}
+        .container.small :is(::slotted([slot="icon"]), .icon) {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': `var(--_small-icon-size)` }))};}
+        .container.medium :is(::slotted([slot="icon"]), .icon) {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': `var(--_medium-icon-size)` }))};}
+        .container.large :is(::slotted([slot="icon"]), .icon) {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': `var(--_large-icon-size)` }))};}
+        .container.extra-large :is(::slotted([slot="icon"]), .icon) {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': `var(--_extra-large-icon-size)` }))};}
     `
 }
 
 const ripple = css`
-    .container mdc-ripple {${stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', { 'hovered-color': `var(--_hovered-state-layer-color)`, 'focused-color': `var(--_focused-state-layer-color)`,'pressed-color': `var(--_pressed-state-layer-color)`, 'hovered-opacity': `var(--_hovered-state-layer-opacity)`, 'focused-opacity': `var(--_focused-state-layer-opacity)`, 'pressed-opacity': `var(--_pressed-state-layer-opacity)`, }))};}
-    .container.togglable.selected mdc-ripple {${stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', { 'hovered-color': `var(--_hovered-state-layer-color-toggle-selected)`, 'focused-color': `var(--_focused-state-layer-color-toggle-selected)`, 'pressed-color': `var(--_pressed-state-layer-color-toggle-selected)` }))};}
-    .container.togglable.unselected mdc-ripple {${stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', { 'hovered-color': `var(--_hovered-state-layer-color-toggle-unselected)`, 'focused-color': `var(--_focused-state-layer-color-toggle-unselected)`, 'pressed-color': `var(--_pressed-state-layer-color-toggle-unselected)` }))};}
+    .container mdc-ripple {${stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', { 'enabled-hovered-color': `var(--_hovered-state-layer-color)`, 'enabled-focused-color': `var(--_focused-state-layer-color)`, 'enabled-pressed-color': `var(--_pressed-state-layer-color)`, 'enabled-hovered-opacity': `var(--_hovered-state-layer-opacity)`, 'enabled-focused-opacity': `var(--_focused-state-layer-opacity)`, 'enabled-pressed-opacity': `var(--_pressed-state-layer-opacity)`, }))};}
+    .container.togglable.selected mdc-ripple {${stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', { 'enabled-hovered-color': `var(--_hovered-state-layer-color-toggle-selected)`, 'enabled-focused-color': `var(--_focused-state-layer-color-toggle-selected)`, 'enabled-pressed-color': `var(--_pressed-state-layer-color-toggle-selected)` }))};}
+    .container.togglable.unselected mdc-ripple {${stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', { 'enabled-hovered-color': `var(--_hovered-state-layer-color-toggle-unselected)`, 'enabled-focused-color': `var(--_focused-state-layer-color-toggle-unselected)`, 'enabled-pressed-color': `var(--_pressed-state-layer-color-toggle-unselected)` }))};}
 `
 const elevation = css`
-    .container mdc-elevation {transition-duration: 0ms;${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { level: `var(--_container-elevation)`, 'shadow-color': `var(--_container-shadow-color)` }))};}
-    .container:hover mdc-elevation {${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { level: `var(--_hovered-container-elevation)` }))};}
-    .container:focus-within mdc-elevation {${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { level: `var(--_focused-container-elevation)` }))};}
-    .container:active mdc-elevation {${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { level: `var(--_pressed-container-elevation)` }))};}
-    .container.disabled mdc-elevation {transition: none;${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { level: `var(--_disabled-container-elevation)` }))};}
+    .container mdc-elevation {transition-duration: 0ms;${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { 'enabled-level': `var(--_enabled-container-elevation)`, 'enabled-shadow-color': `var(--_enabled-container-shadow-color)` }))};}
+    .container:hover mdc-elevation {${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { 'enabled-level': `var(--_hovered-container-elevation)` }))};}
+    .container:focus-within mdc-elevation {${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { 'enabled-level': `var(--_focused-container-elevation)` }))};}
+    .container:active mdc-elevation {${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { 'enabled-level': `var(--_pressed-container-elevation)` }))};}
+    .container.disabled mdc-elevation {transition: none;${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { 'enabled-level': `var(--_disabled-container-elevation)` }))};}
 `
 const shared = css`
     :host {
@@ -164,52 +164,52 @@ const shared = css`
     .container {
         &.extra-small {
             height: var(--_extra-small-container-height);
-            min-width: calc(64px - var(--_extra-small-leading-space) - var(--_extra-small-trailing-space));
+            min-width: calc(64px - var(--_extra-small-container-inline-leading-padding-space) - var(--_extra-small-container-inline-trailing-padding-space));
         }
         &.small {
             height: var(--_small-container-height);
-            min-width: calc(64px - var(--_small-leading-space) - var(--_small-trailing-space));
+            min-width: calc(64px - var(--_small-container-inline-leading-padding-space) - var(--_small-container-inline-trailing-padding-space));
         }
         &.medium {
             height: var(--_medium-container-height);
-            min-width: calc(64px - var(--_medium-leading-space) - var(--_medium-trailing-space));
+            min-width: calc(64px - var(--_medium-container-inline-leading-padding-space) - var(--_medium-container-inline-trailing-padding-space));
         }
         &.large {
             height: var(--_large-container-height);
-            min-width: calc(64px - var(--_large-leading-space) - var(--_large-trailing-space));
+            min-width: calc(64px - var(--_large-container-inline-leading-padding-space) - var(--_large-container-inline-trailing-padding-space));
         }
         &.extra-large {
             height: var(--_extra-large-container-height);
-            min-width: calc(64px - var(--_extra-large-leading-space) - var(--_extra-large-trailing-space));
+            min-width: calc(64px - var(--_extra-large-container-inline-leading-padding-space) - var(--_extra-large-container-inline-trailing-padding-space));
         }
     }
 
     /* Button Size */
 
     .container.extra-small {
-        padding-inline-start: var(--_extra-small-leading-space);
-        padding-inline-end: var(--_extra-small-trailing-space);
-        gap: var(--_extra-small-between-icon-label-space);
+        padding-inline-start: var(--_extra-small-container-inline-leading-padding-space);
+        padding-inline-end: var(--_extra-small-container-inline-trailing-padding-space);
+        gap: var(--_extra-small-icon-label-padding-space);
     }
     .container.small{
-        padding-inline-start: var(--_small-leading-space);
-        padding-inline-end: var(--_small-trailing-space);
-        gap: var(--_small-between-icon-label-space);
+        padding-inline-start: var(--_small-container-inline-leading-padding-space);
+        padding-inline-end: var(--_small-container-inline-trailing-padding-space);
+        gap: var(--_small-icon-label-padding-space);
     }
     .container.medium{
-        padding-inline-start: var(--_medium-leading-space);
-        padding-inline-end: var(--_medium-trailing-space);
-        gap: var(--_medium-between-icon-label-space);
+        padding-inline-start: var(--_medium-container-inline-leading-padding-space);
+        padding-inline-end: var(--_medium-container-inline-trailing-padding-space);
+        gap: var(--_medium-icon-label-padding-space);
     }
     .container.large{
-        padding-inline-start: var(--_large-leading-space);
-        padding-inline-end: var(--_large-trailing-space);
-        gap: var(--_large-between-icon-label-space);
+        padding-inline-start: var(--_large-container-inline-leading-padding-space);
+        padding-inline-end: var(--_large-container-inline-trailing-padding-space);
+        gap: var(--_large-icon-label-padding-space);
     }
     .container.extra-large{
-        padding-inline-start: var(--_extra-large-leading-space);
-        padding-inline-end: var(--_extra-large-trailing-space);
-        gap: var(--_extra-large-between-icon-label-space);
+        padding-inline-start: var(--_extra-large-container-inline-leading-padding-space);
+        padding-inline-end: var(--_extra-large-container-inline-trailing-padding-space);
+        gap: var(--_extra-large-icon-label-padding-space);
     }
 
     .container:not(.has-label) .label {

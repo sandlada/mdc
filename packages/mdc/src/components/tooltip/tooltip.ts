@@ -42,12 +42,12 @@ declare global {
  * @fires tooltip-hiding - Dispatched when the tooltip starts hiding.
  * @fires tooltip-hidden - Dispatched when the tooltip is fully hidden.
  *
- * @cssproperty --mdc-tooltip-container-color
+ * @cssproperty --mdc-tooltip-enabled-container-color
  * @cssproperty --mdc-tooltip-container-shape-start-start
  * @cssproperty --mdc-tooltip-container-shape-start-end
  * @cssproperty --mdc-tooltip-container-shape-end-start
  * @cssproperty --mdc-tooltip-container-shape-end-end
- * @cssproperty --mdc-tooltip-label-text-color
+ * @cssproperty --mdc-tooltip-enabled-label-color
  *
  * @version
  * Material Design 3

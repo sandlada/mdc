@@ -36,7 +36,7 @@ const standardIconButtonRecord = defineTokenRefsRecord(StandardIconButtonDefinit
 })
 const standardString = unsafeCSS(defineVars(standardIconButtonRecord, true).join(''))
 
-type TShapeState = 'container-shape-round' | 'container-shape-square' | 'selected-container-shape-round' | 'selected-container-shape-square' | 'shape-pressed-morph'
+type TShapeState = 'container-shape-round' | 'container-shape-square' | 'container-shape-round-selected' | 'container-shape-square-selected' | 'container-shape-pressed-morph'
 type TSize = 'extra-small' | 'small' | 'medium' | 'large' | 'extra-large'
 const Sizes: Array<TSize> = ['extra-small', 'small', 'medium', 'large', 'extra-large']
 type TWidth = 'narrow' | 'default' | 'wide'
@@ -60,21 +60,21 @@ const getContainerShapes = () => {
         .container.round {${sizedShape('container-shape-round')};}
         .container.square {${sizedShape('container-shape-square')};}
         .container.togglable.selected {
-            &.round {${sizedShape('selected-container-shape-round')};}
-            &.square {${sizedShape('selected-container-shape-square')};}
+            &.round {${sizedShape('container-shape-round-selected')};}
+            &.square {${sizedShape('container-shape-square-selected')};}
         }
-        .container:not(.disable-morph, .togglable):is(.round, .square):active {${sizedShape('shape-pressed-morph')};}
-        .container:not(.disable-morph).togglable:has(input:active) {${sizedShape('shape-pressed-morph')};}
+        .container:not(.disable-morph, .togglable):is(.round, .square):active {${sizedShape('container-shape-pressed-morph')};}
+        .container:not(.disable-morph).togglable:has(input:active) {${sizedShape('container-shape-pressed-morph')};}
     `
 }
 const getRippleStyle = () => {
     const getStyles = (togglable: boolean, selected: boolean) => unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', {
-        "hovered-color": togglable ? `var(--_hovered-state-layer-color-toggle-${selected ? 'selected' : 'unselected'})` : `var(--_hovered-state-layer-color)`,
-        "focused-color": togglable ? `var(--_focused-state-layer-color-toggle-${selected ? 'selected' : 'unselected'})` : `var(--_focused-state-layer-color)`,
-        "pressed-color": togglable ? `var(--_pressed-state-layer-color-toggle-${selected ? 'selected' : 'unselected'})` : `var(--_pressed-state-layer-color)`,
-        "hovered-opacity": `var(--_hovered-state-layer-opacity)`,
-        "focused-opacity": `var(--_focused-state-layer-opacity)`,
-        "pressed-opacity": `var(--_pressed-state-layer-opacity)`,
+        "enabled-hovered-color": togglable ? `var(--_hovered-state-layer-color-toggle-${selected ? 'selected' : 'unselected'})` : `var(--_hovered-state-layer-color)`,
+        "enabled-focused-color": togglable ? `var(--_focused-state-layer-color-toggle-${selected ? 'selected' : 'unselected'})` : `var(--_focused-state-layer-color)`,
+        "enabled-pressed-color": togglable ? `var(--_pressed-state-layer-color-toggle-${selected ? 'selected' : 'unselected'})` : `var(--_pressed-state-layer-color)`,
+        "enabled-hovered-opacity": `var(--_hovered-state-layer-opacity)`,
+        "enabled-focused-opacity": `var(--_focused-state-layer-opacity)`,
+        "enabled-pressed-opacity": `var(--_pressed-state-layer-opacity)`,
     })))
     return css`
         mdc-ripple { ${getStyles(false, false)}; }
@@ -102,10 +102,10 @@ const getFocusRingStyles = () => {
     return css`
         .container.round {${getSizedShape('container-shape-round')};}
         .container.square {${getSizedShape('container-shape-square')};}
-        .container.togglable.selected.round {${getSizedShape('selected-container-shape-round')};}
-        .container.togglable.selected.square {${getSizedShape('selected-container-shape-square')};}
+        .container.togglable.selected.round {${getSizedShape('container-shape-round-selected')};}
+        .container.togglable.selected.square {${getSizedShape('container-shape-square-selected')};}
         .container:not(.disable-morph, .togglable):is(.round, .square):active,
-        .container:not(.disable-morph).togglable:has(input:active) {${getSizedShape('shape-pressed-morph')};}
+        .container:not(.disable-morph).togglable:has(input:active) {${getSizedShape('container-shape-pressed-morph')};}
     `
 }
 
@@ -157,13 +157,13 @@ const getContainerSize = () => {
 
 const containerColor = css`
     .container:is(.filled, .filled-tonal):not(.disabled) .background {
-        background: var(--_container-color);
+        background: var(--_enabled-container-color);
     }
     .container:is(.filled, .filled-tonal):not(.disabled).togglable.unselected .background {
-        background: var(--_container-color-toggle-unselected);
+        background: var(--_enabled-container-color-toggle-unselected);
     }
     .container:is(.filled, .filled-tonal):not(.disabled).togglable.selected .background {
-        background: var(--_container-color-toggle-selected);
+        background: var(--_enabled-container-color-toggle-selected);
     }
     .container:is(.filled, .filled-tonal).disabled .background {
         background: var(--_disabled-container-color);
@@ -171,13 +171,13 @@ const containerColor = css`
     }
 
     .container.outlined:not(.disabled) .background {
-        background: var(--_container-color);
+        background: var(--_enabled-container-color);
     }
     .container.outlined.togglable.unselected .background {
-        background: var(--_container-color-toggle-unselected);
+        background: var(--_enabled-container-color-toggle-unselected);
     }
     .container.outlined.togglable.selected .background {
-        background: var(--_container-color-toggle-selected);
+        background: var(--_enabled-container-color-toggle-selected);
     }
     .container.outlined:not(.togglable).disabled .background {
         background: var(--_disabled-container-color);
@@ -225,13 +225,13 @@ const outlineStyle = css`
     }
 
     .container.outlined:not(.disabled) .outline {
-        border-color: var(--_outline-color);
+        border-color: var(--_enabled-outline-color);
     }
     .container.outlined:not(.disabled).togglable.unselected .outline {
-        border-color: var(--_outline-color-toggle-unselected);
+        border-color: var(--_enabled-outline-color-toggle-unselected);
     }
     .container.outlined:not(.disabled).togglable.selected .outline {
-        border-color: var(--_outline-color-toggle-selected);
+        border-color: var(--_enabled-outline-color-toggle-selected);
     }
 
     .container.outlined.disabled .outline {
@@ -330,13 +330,13 @@ const buttonSharedStyle = css`
 
 const iconColorStyle = css`
     .container:not(.disabled) {
-        color: var(--_icon-color);
+        color: var(--_enabled-icon-color);
     }
     .container:not(.disabled).togglable.unselected {
-        color: var(--_icon-color-toggle-unselected);
+        color: var(--_enabled-icon-color-toggle-unselected);
     }
     .container:not(.disabled).togglable.selected {
-        color: var(--_icon-color-toggle-selected);
+        color: var(--_enabled-icon-color-toggle-selected);
     }
 
     .container:not(.disabled):hover {
@@ -402,11 +402,11 @@ const iconSizeStyle = css`
         width: var(--_extra-large-icon-size);
     }
 
-    .container.extra-small .icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: 'var(--_extra-small-icon-size)', }))};}
-    .container.small .icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: 'var(: var(--_small-icon-size)', }))};}
-    .container.medium .icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: 'var(: var(--_medium-icon-size)', }))};}
-    .container.large .icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: 'var(: var(--_large-icon-size)', }))};}
-    .container.extra-large .icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { size: 'var(--_extra-large-icon-size)', }))};}
+    .container.extra-small .icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': 'var(--_extra-small-icon-size)', }))};}
+    .container.small .icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': 'var(--_small-icon-size)', }))};}
+    .container.medium .icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': 'var(--_medium-icon-size)', }))};}
+    .container.large .icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': 'var(--_large-icon-size)', }))};}
+    .container.extra-large .icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': 'var(--_extra-large-icon-size)', }))};}
 `
 
 const iconSlotStyle = css`

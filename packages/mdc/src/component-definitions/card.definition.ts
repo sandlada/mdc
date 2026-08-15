@@ -21,13 +21,16 @@ const shared = {
 
 export const ElevatedCardDefinition = createStyleDefinition({
     ...shared,
-    'container-shape': Shape.Medium,
+    'container-shape-start-start': Shape.Medium,
+    'container-shape-start-end'  : Shape.Medium,
+    'container-shape-end-start'  : Shape.Medium,
+    'container-shape-end-end'    : Shape.Medium,
 
-    'container-color'       : Color.SurfaceContainerLow,
-    'container-elevation'   : '1',
-    'container-shadow-color': Color.Shadow,
-    'icon-color'            : Color.Primary,
-    'icon-size'             : `24px`,
+    'enabled-container-color'       : Color.SurfaceContainerLow,
+    'enabled-container-elevation'   : '1',
+    'enabled-container-shadow-color': Color.Shadow,
+    'enabled-icon-color'            : Color.Primary,
+    'icon-size'                      : `24px`,
 
     // Disabled
     'disabled-container-color'    : Color.Surface,
@@ -64,11 +67,11 @@ export const FilledCardDefinition = createStyleDefinition({
     'container-shape-start-end': Shape.Medium,
     'container-shape-end-start': Shape.Medium,
     'container-shape-end-end': Shape.Medium,
-    'container-color'       : Color.SurfaceContainerHighest,
-    'container-elevation'   : '0',
-    'container-shadow-color': Color.Shadow,
-    'icon-color'            : Color.Primary,
-    'icon-size'             : `24px`,
+    'enabled-container-color'       : Color.SurfaceContainerHighest,
+    'enabled-container-elevation'   : '0',
+    'enabled-container-shadow-color': Color.Shadow,
+    'enabled-icon-color'            : Color.Primary,
+    'icon-size'                      : `24px`,
 
     // Disabled
     'disabled-container-color'    : Color.SurfaceVariant,
@@ -105,13 +108,13 @@ export const OutlinedCardDefinition = createStyleDefinition({
     'container-shape-start-end': Shape.Medium,
     'container-shape-end-start': Shape.Medium,
     'container-shape-end-end': Shape.Medium,
-    'container-color'       : Color.Surface,
-    'container-elevation'   : '0',
-    'container-shadow-color': Color.Shadow,
-    'outline-color'         : Color.OutlineVariant,
-    'outline-width'         : `1px`,
-    'icon-color'            : Color.Primary,
-    'icon-size'             : `24px`,
+    'enabled-container-color'       : Color.Surface,
+    'enabled-container-elevation'   : '0',
+    'enabled-container-shadow-color': Color.Shadow,
+    'enabled-outline-color'         : Color.OutlineVariant,
+    'outline-width'                  : `1px`,
+    'enabled-icon-color'            : Color.Primary,
+    'icon-size'                      : `24px`,
 
     // Disabled
     'disabled-container-elevation': '0',

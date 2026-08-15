@@ -41,12 +41,12 @@ export const CarouselStyles = css`
         overflow-x: auto;
         overflow-y: hidden;
         gap: var(--_item-spacing);
-        padding-inline: var(--_leading-padding) var(--_trailing-padding);
-        padding-block: var(--_top-padding) var(--_bottom-padding);
+        padding-inline: var(--_container-inline-leading-padding-space) var(--_container-inline-trailing-padding-space);
+        padding-block: var(--_container-block-leading-padding-space) var(--_container-block-trailing-padding-space);
         /* Items snap their start edge to the leading keyline (the inline
            padding position), matching the Compose keyline alignment. */
         scroll-snap-type: x mandatory;
-        scroll-padding-inline: var(--_leading-padding) var(--_trailing-padding);
+        scroll-padding-inline: var(--_container-inline-leading-padding-space) var(--_container-inline-trailing-padding-space);
         overscroll-behavior-x: contain;
         outline: none;
         scrollbar-width: none;

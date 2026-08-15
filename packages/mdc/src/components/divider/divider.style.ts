@@ -8,7 +8,7 @@ import { DividerDefinition } from '../../component-definitions/divider.definitio
 import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
 
 const tokenRecord = defineTokenRefsRecord(DividerDefinition, {
-    expandShapes: true,
+    expandShapes: false,
     useBaseFallback: true,
     prefix: '--mdc-divider'
 })
@@ -21,9 +21,9 @@ export const DividerStyles = css`
     @layer mdc.divider.base {
         :host {
             box-sizing: border-box;
-            color: var(--_color);
+            color: var(--_enabled-color);
             display: flex;
-            height: var(--_thickness);
+            height: var(--_enabled-thickness);
             width: 100%;
         }
 

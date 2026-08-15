@@ -30,10 +30,10 @@ declare global {
  * @fires segmented-button-interaction — Dispatched when the segment is
  *     activated; the parent set decides whether the selection commits.
  *
- * @cssproperty --mdc-segmented-button-selected-container-color
- * @cssproperty --mdc-segmented-button-selected-label-text-color
- * @cssproperty --mdc-segmented-button-unselected-label-text-color
- * @cssproperty --mdc-segmented-button-outline-color
+ * @cssproperty --mdc-segmented-button-enabled-container-color-selected
+ * @cssproperty --mdc-segmented-button-enabled-label-color-selected
+ * @cssproperty --mdc-segmented-button-enabled-label-color-unselected
+ * @cssproperty --mdc-segmented-button-enabled-outline-color
  * @cssproperty --mdc-segmented-button-icon-size
  * ...
  */

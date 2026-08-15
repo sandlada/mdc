@@ -17,13 +17,13 @@ import { Color } from '../utils/tokens/theme'
 import { createStyleDefinition } from '../utils/tokens/create-style-definition'
 
 interface ITabsScheme {
-    'container-color': string
-    'divider-color': string
+    'enabled-container-color': string
+    'enabled-divider-color': string
     'divider-height': string
 }
 
 export const TabsDefinition = createStyleDefinition({
-    'container-color': `transparent`,
-    'divider-color': Color.OutlineVariant,
+    'enabled-container-color': `transparent`,
+    'enabled-divider-color': Color.OutlineVariant,
     'divider-height': `1px`,
 })

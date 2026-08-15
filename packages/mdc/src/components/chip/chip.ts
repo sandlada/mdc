@@ -44,13 +44,13 @@ declare global {
  * @fires chip-navigate - Dispatched on assist/suggestion click.
  * @fires chip-close - Dispatched when close icon is clicked (input).
  *
- * @cssproperty --mdc-chip-container-color
+ * @cssproperty --mdc-chip-enabled-container-color
  * @cssproperty --mdc-chip-container-shape-start-start
  * @cssproperty --mdc-chip-container-shape-start-end
  * @cssproperty --mdc-chip-container-shape-end-start
  * @cssproperty --mdc-chip-container-shape-end-end
- * @cssproperty --mdc-chip-label-text-color
- * @cssproperty --mdc-chip-outline-color
+ * @cssproperty --mdc-chip-enabled-label-color
+ * @cssproperty --mdc-chip-enabled-outline-color
  * @cssproperty --mdc-chip-icon-size
  *
  * @version

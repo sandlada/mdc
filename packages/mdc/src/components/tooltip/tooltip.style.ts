@@ -75,13 +75,13 @@ export const TooltipStyles = css`
             border-start-end-radius: var(--_container-shape-start-end);
             border-end-start-radius: var(--_container-shape-end-start);
             border-end-end-radius: var(--_container-shape-end-end);
-            background-color: var(--_container-color);
-            color: var(--_label-text-color);
-            font-family: var(--_label-text-font);
-            font-size: var(--_label-text-size);
-            font-weight: var(--_label-text-weight);
-            letter-spacing: var(--_label-text-tracking);
-            line-height: var(--_label-text-line-height);
+            background-color: var(--_enabled-container-color);
+            color: var(--_enabled-label-color);
+            font-family: var(--_label-font);
+            font-size: var(--_label-size);
+            font-weight: var(--_label-weight);
+            letter-spacing: var(--_label-tracking);
+            line-height: var(--_label-line-height);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -98,18 +98,18 @@ export const TooltipStyles = css`
             border-start-end-radius: var(--_container-shape-start-end);
             border-end-start-radius: var(--_container-shape-end-start);
             border-end-end-radius: var(--_container-shape-end-end);
-            background-color: var(--_container-color);
-            color: var(--_label-text-color);
+            background-color: var(--_enabled-container-color);
+            color: var(--_enabled-label-color);
             box-shadow: 0 1px 2px 0 rgba(0,0,0,0.3), 0 1px 3px 1px rgba(0,0,0,0.15);
         }
 
         :host([rich]) .headline {
-            font-family: var(--_headline-text-font);
-            font-size: var(--_headline-text-size);
-            font-weight: var(--_headline-text-weight);
-            letter-spacing: var(--_headline-text-tracking);
-            line-height: var(--_headline-text-line-height);
-            color: var(--_headline-text-color);
+            font-family: var(--_headline-font);
+            font-size: var(--_headline-size);
+            font-weight: var(--_headline-weight);
+            letter-spacing: var(--_headline-tracking);
+            line-height: var(--_headline-line-height);
+            color: var(--_enabled-headline-color);
             padding-bottom: var(--_headline-padding-block);
         }
 
@@ -118,12 +118,12 @@ export const TooltipStyles = css`
         }
 
         :host([rich]) .content {
-            font-family: var(--_label-text-font);
-            font-size: var(--_label-text-size);
-            font-weight: var(--_label-text-weight);
-            letter-spacing: var(--_label-text-tracking);
-            line-height: var(--_label-text-line-height);
-            color: var(--_label-text-color);
+            font-family: var(--_label-font);
+            font-size: var(--_label-size);
+            font-weight: var(--_label-weight);
+            letter-spacing: var(--_label-tracking);
+            line-height: var(--_label-line-height);
+            color: var(--_enabled-label-color);
         }
 
         :host([rich]) .actions {

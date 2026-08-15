@@ -7,6 +7,6 @@ import { Color } from '../utils/tokens/theme'
 import { createStyleDefinition } from '../utils/tokens/create-style-definition'
 
 export const DividerDefinition = createStyleDefinition({
-    'thickness': `1px`,
-    'color'    : Color.OutlineVariant,
+    'enabled-thickness': `1px`,
+    'enabled-color'    : Color.OutlineVariant,
 })

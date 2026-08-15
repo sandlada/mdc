@@ -39,7 +39,7 @@ export const FocusRingStyle = css`
             transition-timing-function: ${unsafeCSS(Easing.Emphasized.ToCSSVariable())};
             transition-duration: calc(var(--_duration) * 0.5);
             box-sizing: border-box;
-            color: var(--_color);
+            color: var(--_enabled-color);
             display: none;
             pointer-events: none;
             position: absolute;
@@ -152,7 +152,7 @@ export const FocusRingStyle = css`
 
         @media (prefers-contrast: less) {
             :host {
-                color: var(--_color-reduced-contrast);
+                color: var(--_enabled-color-reduced-contrast);
             }
         }
     }

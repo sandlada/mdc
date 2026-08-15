@@ -34,19 +34,19 @@ const ripple = css`
         border-radius: inherit;
         z-index: 0;
         ${stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', {
-            'hovered-color': `var(--_unselected-hover-state-layer-color)`,
-            'focused-color': `var(--_unselected-focus-state-layer-color)`,
-            'pressed-color': `var(--_unselected-pressed-state-layer-color)`,
-            'hovered-opacity': `var(--_hover-state-layer-opacity)`,
-            'focused-opacity': `var(--_focus-state-layer-opacity)`,
-            'pressed-opacity': `var(--_pressed-state-layer-opacity)`,
+            'enabled-hovered-color': `var(--_hovered-state-layer-color-unselected)`,
+            'enabled-focused-color': `var(--_focused-state-layer-color-unselected)`,
+            'enabled-pressed-color': `var(--_pressed-state-layer-color-unselected)`,
+            'enabled-hovered-opacity': `var(--_hovered-state-layer-opacity)`,
+            'enabled-focused-opacity': `var(--_focused-state-layer-opacity)`,
+            'enabled-pressed-opacity': `var(--_pressed-state-layer-opacity)`,
         }))};
     }
     .container.selected mdc-ripple {
         ${stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', {
-            'hovered-color': `var(--_selected-hover-state-layer-color)`,
-            'focused-color': `var(--_selected-focus-state-layer-color)`,
-            'pressed-color': `var(--_selected-pressed-state-layer-color)`,
+            'enabled-hovered-color': `var(--_hovered-state-layer-color-selected)`,
+            'enabled-focused-color': `var(--_focused-state-layer-color-selected)`,
+            'enabled-pressed-color': `var(--_pressed-state-layer-color-selected)`,
         }))};
     }
 `
@@ -63,7 +63,7 @@ const icon = css`
         display: inline-flex;
         justify-content: center;
         ${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', {
-            size: `var(--_icon-size)`,
+            'enabled-size': `var(--_icon-size)`,
         }))};
     }
 `
@@ -81,7 +81,7 @@ const shared = css`
         ${tokenString};
 
         align-items: center;
-        background: var(--_unselected-container-color);
+        background: var(--_enabled-container-color-unselected);
         border: none;
         border-radius: inherit;
         box-sizing: border-box;
@@ -103,7 +103,7 @@ const shared = css`
         -webkit-tap-highlight-color: transparent;
     }
     .container.selected {
-        background: var(--_selected-container-color);
+        background: var(--_enabled-container-color-selected);
     }
     .container.disabled {
         cursor: default;
@@ -112,27 +112,27 @@ const shared = css`
 
     /* Label — label-large. */
     .label {
-        font-family: var(--_label-text-font);
-        font-size: var(--_label-text-size);
-        font-weight: var(--_label-text-weight);
-        letter-spacing: var(--_label-text-tracking);
-        line-height: var(--_label-text-line-height);
+        font-family: var(--_label-font);
+        font-size: var(--_label-size);
+        font-weight: var(--_label-weight);
+        letter-spacing: var(--_label-tracking);
+        line-height: var(--_label-line-height);
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
 
-    .container.unselected:enabled .label { color: var(--_unselected-label-text-color); }
-    .container.unselected:enabled:hover .label { color: var(--_unselected-hover-label-text-color); }
-    .container.unselected:enabled:focus-visible .label { color: var(--_unselected-focus-label-text-color); }
-    .container.unselected:enabled:active .label { color: var(--_unselected-pressed-label-text-color); }
-    .container.selected:enabled .label { color: var(--_selected-label-text-color); }
-    .container.selected:enabled:hover .label { color: var(--_selected-hover-label-text-color); }
-    .container.selected:enabled:focus-visible .label { color: var(--_selected-focus-label-text-color); }
-    .container.selected:enabled:active .label { color: var(--_selected-pressed-label-text-color); }
+    .container.unselected:enabled .label { color: var(--_enabled-label-color-unselected); }
+    .container.unselected:enabled:hover .label { color: var(--_hovered-label-color-unselected); }
+    .container.unselected:enabled:focus-visible .label { color: var(--_focused-label-color-unselected); }
+    .container.unselected:enabled:active .label { color: var(--_pressed-label-color-unselected); }
+    .container.selected:enabled .label { color: var(--_enabled-label-color-selected); }
+    .container.selected:enabled:hover .label { color: var(--_hovered-label-color-selected); }
+    .container.selected:enabled:focus-visible .label { color: var(--_focused-label-color-selected); }
+    .container.selected:enabled:active .label { color: var(--_pressed-label-color-selected); }
     .container.disabled .label {
-        color: var(--_disabled-label-text-color);
-        opacity: var(--_disabled-label-text-opacity);
+        color: var(--_disabled-label-color);
+        opacity: var(--_disabled-label-opacity);
     }
 
     /* Leading icon / checkmark */
@@ -190,15 +190,15 @@ const shared = css`
     }
 
     /* Icon colors */
-    .container.unselected:enabled .icon { color: var(--_unselected-icon-color); }
-    .container.unselected:enabled:hover .icon { color: var(--_unselected-hover-icon-color); }
-    .container.unselected:enabled:focus-visible .icon { color: var(--_unselected-focus-icon-color); }
-    .container.unselected:enabled:active .icon { color: var(--_unselected-pressed-icon-color); }
-    .container.selected:enabled .icon { color: var(--_selected-icon-color); }
-    .container.selected.without-label:enabled .icon { color: var(--_selected-with-icon-icon-color); }
-    .container.selected:enabled:hover .icon { color: var(--_selected-hover-icon-color); }
-    .container.selected:enabled:focus-visible .icon { color: var(--_selected-focus-icon-color); }
-    .container.selected:enabled:active .icon { color: var(--_selected-pressed-icon-color); }
+    .container.unselected:enabled .icon { color: var(--_enabled-icon-color-unselected); }
+    .container.unselected:enabled:hover .icon { color: var(--_hovered-icon-color-unselected); }
+    .container.unselected:enabled:focus-visible .icon { color: var(--_focused-icon-color-unselected); }
+    .container.unselected:enabled:active .icon { color: var(--_pressed-icon-color-unselected); }
+    .container.selected:enabled .icon { color: var(--_enabled-icon-color-selected); }
+    .container.selected.without-label:enabled .icon { color: var(--_enabled-with-icon-icon-color-selected); }
+    .container.selected:enabled:hover .icon { color: var(--_hovered-icon-color-selected); }
+    .container.selected:enabled:focus-visible .icon { color: var(--_focused-icon-color-selected); }
+    .container.selected:enabled:active .icon { color: var(--_pressed-icon-color-selected); }
     .container.disabled .icon {
         color: var(--_disabled-icon-color);
         opacity: var(--_disabled-icon-opacity);
@@ -206,13 +206,13 @@ const shared = css`
 
     /* Checkmark */
     .checkmark-path {
-        stroke: var(--_selected-icon-color);
+        stroke: var(--_enabled-icon-color-selected);
         stroke-dasharray: ${CHECKMARK_LENGTH};
         stroke-width: 2px;
     }
-    .container.selected:enabled:hover .checkmark-path { stroke: var(--_selected-hover-icon-color); }
-    .container.selected:enabled:focus-visible .checkmark-path { stroke: var(--_selected-focus-icon-color); }
-    .container.selected:enabled:active .checkmark-path { stroke: var(--_selected-pressed-icon-color); }
+    .container.selected:enabled:hover .checkmark-path { stroke: var(--_hovered-icon-color-selected); }
+    .container.selected:enabled:focus-visible .checkmark-path { stroke: var(--_focused-icon-color-selected); }
+    .container.selected:enabled:active .checkmark-path { stroke: var(--_pressed-icon-color-selected); }
     .container.disabled .checkmark-path { stroke: var(--_disabled-icon-color); }
 
     .container.selecting .checkmark-path {
@@ -267,7 +267,7 @@ const shared = css`
 
     @media (forced-colors: active) {
         .container.disabled {
-            --_disabled-label-text-opacity: 1;
+            --_disabled-label-opacity: 1;
             --_disabled-icon-opacity: 1;
             --_disabled-outline-opacity: 1;
         }
@@ -276,7 +276,7 @@ const shared = css`
 
 const outline = css`
     .outline {
-        border-color: var(--_outline-color);
+        border-color: var(--_enabled-outline-color);
         border-radius: inherit;
         border-style: solid;
         border-width: var(--_outline-width);

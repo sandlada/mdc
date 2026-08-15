@@ -32,8 +32,8 @@ export const CarouselDefinition = createStyleDefinition({
 
     // Spacing & container padding
     'item-spacing'     : Space.Space100,
-    'leading-padding'  : Space.Space200,
-    'trailing-padding' : Space.Space200,
-    'top-padding'      : Space.Space100,
-    'bottom-padding'   : Space.Space100,
+    'container-inline-leading-padding-space' : Space.Space200,
+    'container-inline-trailing-padding-space': Space.Space200,
+    'container-block-leading-padding-space'  : Space.Space100,
+    'container-block-trailing-padding-space' : Space.Space100,
 })

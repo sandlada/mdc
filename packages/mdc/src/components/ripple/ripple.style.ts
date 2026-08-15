@@ -8,7 +8,7 @@ import { RippleDefinition } from '../../component-definitions/ripple.definition'
 import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
 
 const tokenRecord = defineTokenRefsRecord(RippleDefinition, {
-    expandShapes: true,
+    expandShapes: false,
     useBaseFallback: true,
     prefix: '--mdc-ripple'
 })
@@ -66,35 +66,35 @@ export const styles = css`
 
     .hover-state-layer {
         inset: 0;
-        background-color: var(--_hovered-color);
+        background-color: var(--_enabled-hovered-color);
         transition: opacity 15ms linear, background-color 15ms linear;
     }
 
     .focus-state-layer {
         inset: 0;
-        background-color: var(--_focused-color);
+        background-color: var(--_enabled-focused-color);
         transition: opacity 50ms linear, background-color 15ms linear;
     }
 
     .press-state-layer {
         inset: 0;
-        background: radial-gradient(closest-side, var(--_pressed-color) max(calc(100% - 70px), 65%), transparent 100%);
+        background: radial-gradient(closest-side, var(--_enabled-pressed-color) max(calc(100% - 70px), 65%), transparent 100%);
         transform-origin: center center;
         transition: opacity 375ms linear;
     }
 
     :host([hovered]:not([disable-hover-state-layer])) .hover-state-layer {
-        background-color: var(--_hovered-color);
-        opacity: var(--_hovered-opacity);
+        background-color: var(--_enabled-hovered-color);
+        opacity: var(--_enabled-hovered-opacity);
     }
 
     :host([focused]:not([disable-focus-state-layer])) .focus-state-layer {
-        background-color: var(--_focused-color);
-        opacity: var(--_focused-opacity);
+        background-color: var(--_enabled-focused-color);
+        opacity: var(--_enabled-focused-opacity);
     }
 
     :host([pressed]:not([disable-press-state-layer])) .press-state-layer {
-        opacity: var(--_pressed-opacity);
+        opacity: var(--_enabled-pressed-opacity);
         transition-duration: 105ms;
     }
 `
