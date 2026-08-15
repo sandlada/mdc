@@ -9,7 +9,7 @@ import type { LitElement } from 'lit'
  * Chip variant type.
  * - `assist`: Guides user during a task with a leading icon
  * - `filter`: Refine content from a set of options (selectable)
- * - `input`: Represents user-provided information (selectable)
+ * - `input`: Represents user-provided information (selectable, removable)
  * - `suggestion`: Recommendations based on recent activity
  */
 export type ChipVariant = 'assist' | 'filter' | 'input' | 'suggestion'
@@ -24,6 +24,22 @@ export interface IChip extends LitElement {
     selected: boolean
     /** Whether the chip is disabled. */
     disabled: boolean
+    /** Whether the chip is soft-disabled (dimmed, focusable, but not interactive). */
+    softDisabled: boolean
+    /** Whether the chip stays focusable even when disabled. */
+    alwaysFocusable: boolean
+    /** Whether the chip renders an elevated surface (MD3 elevated assist chip). */
+    elevated: boolean
+    /** Optional label used as `aria-label` when no explicit `aria-label` is set. */
+    label: string
+    /** The `aria-label` of the trailing remove button (input variant). */
+    ariaLabelRemove: string
+    /** Whether the trailing remove button is the only interactive element (input variant). */
+    removeOnly: boolean
+    /** Whether the filter chip has a custom `selected-icon` slot. */
+    hasSelectedIcon: boolean
+    /** The `tabindex` of the primary surface, managed by `mdc-chip-set` roving tabindex. */
+    chipTabIndex: number
     /** Whether the chip has a leading icon. */
     hasIcon: boolean
     /** Whether the chip has an avatar (input only). */

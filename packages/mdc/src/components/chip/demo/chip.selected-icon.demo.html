@@ -1,0 +1,25 @@
+<style>
+    .demo-row {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        padding: 16px;
+        flex-wrap: wrap;
+    }
+</style>
+
+<div class="demo-row">
+    <mdc-chip variant="filter" selected>
+        <span>Default Checkmark</span>
+    </mdc-chip>
+
+    <mdc-chip variant="filter" selected>
+        <mdc-icon slot="selected-icon">favorite</mdc-icon>
+        <span>Custom Selected Icon</span>
+    </mdc-chip>
+
+    <mdc-chip variant="filter">
+        <mdc-icon slot="selected-icon">favorite</mdc-icon>
+        <span>Custom Icon (unselected)</span>
+    </mdc-chip>
+</div>

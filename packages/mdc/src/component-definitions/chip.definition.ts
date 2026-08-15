@@ -58,6 +58,20 @@ const shared = {
     'disabled-label-opacity'      : `0.38`,
     'disabled-icon-opacity'       : `0.38`,
     'disabled-outline-opacity'    : `0.12`,
+
+    // Elevated surface (MD3 elevated assist chip, toggled via `elevated`)
+    'enabled-container-color-elevated'   : Color.SurfaceContainerLow,
+    'hovered-container-color-elevated'   : Color.SurfaceContainerLow,
+    'focused-container-color-elevated'   : Color.SurfaceContainerLow,
+    'pressed-container-color-elevated'   : Color.SurfaceContainerLow,
+    'disabled-container-color-elevated'  : Color.SurfaceContainerLow,
+    'enabled-outline-color-elevated'     : `transparent`,
+    'enabled-container-elevation'        : `1`,
+    'hovered-container-elevation'        : `1`,
+    'focused-container-elevation'        : `1`,
+    'pressed-container-elevation'        : `1`,
+    'disabled-container-elevation'       : `0`,
+    'enabled-container-shadow-color'     : Color.Shadow,
 } as const
 
 // Assist Chip — Widget.Material3.Chip.Assist

@@ -1,0 +1,38 @@
+<style>
+    .demo-row {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        padding: 16px;
+        flex-wrap: wrap;
+    }
+
+    .demo-caption {
+        display: block;
+        font-size: 12px;
+        color: #757575;
+        padding: 0 16px;
+    }
+</style>
+
+<span class="demo-caption">always-focusable keeps a disabled chip focusable (Tab through the set):</span>
+<div class="demo-row">
+    <mdc-chip variant="assist" disabled always-focusable>
+        <span>Disabled, Always Focusable</span>
+    </mdc-chip>
+
+    <mdc-chip variant="assist" disabled>
+        <span>Plain Disabled</span>
+    </mdc-chip>
+</div>
+
+<span class="demo-caption">soft-disabled dims the chip but leaves it focusable and in the tab order:</span>
+<div class="demo-row">
+    <mdc-chip variant="assist" soft-disabled>
+        <span>Soft Disabled</span>
+    </mdc-chip>
+
+    <mdc-chip variant="filter" soft-disabled selected>
+        <span>Soft Disabled Selected</span>
+    </mdc-chip>
+</div>

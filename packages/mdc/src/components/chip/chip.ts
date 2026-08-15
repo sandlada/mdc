@@ -3,12 +3,13 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { html, isServer, LitElement, nothing, type PropertyValues, type TemplateResult } from 'lit'
+import { html, LitElement, nothing, type PropertyValues, type TemplateResult } from 'lit'
 import { customElement, property, query, queryAssignedElements, queryAssignedNodes, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import type { AriaMixinStrict } from '../../utils/aria/aria'
 import { mixinDelegatesAria } from '../../utils/aria/delegate'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
+import { mixinElevationOptions } from '../elevation/elevation-options.mixin'
 import { mixinFocusRingOptions } from '../focus-ring/focus-ring-options.mixin'
 import { mixinRippleOptions } from '../ripple/ripple-options.mixin'
 import {
@@ -39,10 +40,12 @@ declare global {
  * @slot icon - Leading icon (assist/filter variants).
  * @slot avatar - Avatar element (input variant).
  * @slot trailing-icon - Trailing icon/close button (input variant).
+ * @slot selected-icon - Custom checkmark icon when selected (filter variant).
  *
  * @fires chip-toggle - Dispatched when selection changes (filter/input).
  * @fires chip-navigate - Dispatched on assist/suggestion click.
  * @fires chip-close - Dispatched when close icon is clicked (input).
+ * @fires update-focus - Dispatched when `disabled` is toggled (bubbles).
  *
  * @cssproperty --mdc-chip-enabled-container-color
  * @cssproperty --mdc-chip-container-shape-start-start
@@ -52,6 +55,9 @@ declare global {
  * @cssproperty --mdc-chip-enabled-label-color
  * @cssproperty --mdc-chip-enabled-outline-color
  * @cssproperty --mdc-chip-icon-size
+ * @cssproperty --mdc-chip-enabled-container-color-elevated
+ * @cssproperty --mdc-chip-enabled-container-elevation
+ * @cssproperty --mdc-chip-enabled-container-shadow-color
  *
  * @version
  * Material Design 3
@@ -63,6 +69,7 @@ declare global {
 export class MDCChip extends composeMixin(
     mixinDelegatesAria,
     mixinRippleOptions,
+    mixinElevationOptions,
     mixinFocusRingOptions
 )(LitElement) implements IChip {
 
@@ -77,6 +84,33 @@ export class MDCChip extends composeMixin(
     @property({ type: Boolean, reflect: true })
     public disabled: boolean = false
 
+    @property({ type: Boolean, attribute: 'soft-disabled', reflect: true })
+    public softDisabled: boolean = false
+
+    @property({ type: Boolean, attribute: 'always-focusable', reflect: true })
+    public alwaysFocusable: boolean = false
+
+    @property({ type: Boolean, reflect: true })
+    public elevated: boolean = false
+
+    @property({ type: String, reflect: true })
+    public href: string = ''
+
+    @property({ type: String, reflect: true })
+    public target: string = ''
+
+    @property({ type: String, reflect: true })
+    public label: string = ''
+
+    @property({ type: String, attribute: 'aria-label-remove', reflect: true })
+    public ariaLabelRemove: string = ''
+
+    @property({ type: Boolean, attribute: 'remove-only', reflect: true })
+    public removeOnly: boolean = false
+
+    @property({ type: Number })
+    public chipTabIndex: number = 0
+
     @state()
     public hasIcon: boolean = false
 
@@ -87,10 +121,13 @@ export class MDCChip extends composeMixin(
     public hasTrailingIcon: boolean = false
 
     @state()
+    public hasSelectedIcon: boolean = false
+
+    @state()
     public hasLabel: boolean = false
 
     @query('.container')
-    protected readonly chipElement!: HTMLDivElement | null
+    protected readonly chipElement!: HTMLElement | null
 
     @queryAssignedElements({ slot: 'icon', flatten: true })
     private readonly assignedIcons!: HTMLElement[]
@@ -100,6 +137,9 @@ export class MDCChip extends composeMixin(
 
     @queryAssignedElements({ slot: 'trailing-icon', flatten: true })
     private readonly assignedTrailingIcons!: HTMLElement[]
+
+    @queryAssignedElements({ slot: 'selected-icon', flatten: true })
+    private readonly assignedSelectedIcons!: HTMLElement[]
 
     @queryAssignedNodes({ flatten: true })
     private readonly assignedDefaultNodes!: Node[]
@@ -112,14 +152,6 @@ export class MDCChip extends composeMixin(
     }
     public override get focusRingControl(): HTMLElement | null {
         return this.chipElement
-    }
-
-    public constructor() {
-        super()
-        if (isServer) {
-            return
-        }
-        this.addEventListener('click', this.handleClick)
     }
 
     protected override willUpdate(changedProperties: PropertyValues<this>): void {
@@ -136,15 +168,27 @@ export class MDCChip extends composeMixin(
         }
     }
 
+    protected override updated(changedProperties: PropertyValues<this>): void {
+        super.updated(changedProperties)
+        // Notify the parent `mdc-chip-set` to recompute roving tabindex.
+        if (changedProperties.has('disabled') && changedProperties.get('disabled') !== undefined) {
+            this.dispatchEvent(new Event('update-focus', { bubbles: true }))
+        }
+    }
+
     protected getRenderClasses() {
         return ({
             'container': true,
             [this.variant]: true,
             'selected': this.selected,
             'unselected': !this.selected,
+            'elevated': this.elevated,
+            'soft-disabled': this.softDisabled,
+            'remove-only': this.removeOnly,
             'has-icon': this.hasIcon,
             'has-avatar': this.hasAvatar,
-            'has-trailing-icon': this.hasTrailingIcon,
+            'has-trailing-icon': this.hasTrailingIcon || this.removeOnly,
+            'has-selected-icon': this.hasSelectedIcon,
             'has-label': this.hasLabel,
             'selecting': this.animState === 'selecting',
             'deselecting': this.animState === 'deselecting',
@@ -152,24 +196,57 @@ export class MDCChip extends composeMixin(
         })
     }
 
+    protected getRole(): 'checkbox' | 'button' | 'link' {
+        switch (this.variant) {
+            case 'filter':
+                return 'checkbox'
+            case 'input':
+                return 'button'
+            default:
+                return this.href ? 'link' : 'button'
+        }
+    }
+
     protected override render(): TemplateResult {
         const { ariaLabel } = this as AriaMixinStrict
+        const tabIndex = this.disabled && !this.alwaysFocusable ? -1 : this.chipTabIndex
+        const role = this.getRole()
+        const content = html`
+            ${this.elevated ? this.renderElevation() : nothing}
+            ${this.renderFocusRing()}
+            ${this.renderRipple()}
+            ${this.renderLeading()}
+            ${this.renderLabel()}
+            ${this.renderTrailing()}
+            ${this.renderTouchTarget()}
+        `
+        if (this.href) {
+            return html`
+                <a
+                    class="${classMap(this.getRenderClasses())}"
+                    role="${role}"
+                    href=${this.href}
+                    target=${this.target || nothing}
+                    aria-label=${this.label || ariaLabel || nothing}
+                    aria-disabled=${this.disabled || this.softDisabled ? 'true' : nothing}
+                    tabindex=${tabIndex}
+                    @click=${this.handleClick}
+                    @keydown=${this.handleKeydown}
+                >${content}</a>
+            `
+        }
         return html`
             <div
                 class="${classMap(this.getRenderClasses())}"
-                role="${this.variant === 'filter' ? 'checkbox' : nothing}"
-                aria-checked="${this.variant === 'filter' ? String(this.selected) : nothing}"
-                aria-disabled="${this.disabled ? 'true' : nothing}"
-                aria-label=${ariaLabel || nothing}
-                tabindex=${this.disabled ? -1 : 0}
-            >
-                ${this.renderFocusRing()}
-                ${this.renderRipple()}
-                ${this.renderLeading()}
-                ${this.renderLabel()}
-                ${this.renderTrailing()}
-                ${this.renderTouchTarget()}
-            </div>
+                role="${role}"
+                aria-checked=${this.variant === 'filter' ? String(this.selected) : nothing}
+                aria-pressed=${this.variant === 'input' ? String(this.selected) : nothing}
+                aria-label=${this.label || ariaLabel || nothing}
+                aria-disabled=${this.disabled || this.softDisabled ? 'true' : nothing}
+                tabindex=${tabIndex}
+                @click=${this.handleClick}
+                @keydown=${this.handleKeydown}
+            >${content}</div>
         `
     }
 
@@ -204,13 +281,16 @@ export class MDCChip extends composeMixin(
             return html``
         }
         return html`
-            <svg class="checkmark" viewBox="0 0 24 24" aria-hidden="true">
-                <path
-                    class="checkmark-path"
-                    fill="none"
-                    d="M1.73,12.91 8.1,19.28 22.79,4.59"
-                ></path>
-            </svg>
+            <span class="checkmark">
+                <slot name="selected-icon" @slotchange=${this.handleSelectedIconSlotChange}>
+                    <svg class="checkmark-path" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                        <path
+                            fill="none"
+                            d="M1.73,12.91 8.1,19.28 22.79,4.59"
+                        ></path>
+                    </svg>
+                </slot>
+            </span>
         `
     }
 
@@ -227,13 +307,19 @@ export class MDCChip extends composeMixin(
             return html``
         }
         return html`
-            <span class="trailing-icon">
+            <button
+                type="button"
+                class="trailing-icon"
+                aria-label=${this.ariaLabelRemove || nothing}
+                ?disabled=${this.disabled || this.softDisabled}
+                @click=${this.handleTrailingIconClick}
+            >
                 <slot name="trailing-icon" @slotchange=${this.handleTrailingIconSlotChange}>
                     <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
                         <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
                     </svg>
                 </slot>
-            </span>
+            </button>
         `
     }
 
@@ -244,6 +330,9 @@ export class MDCChip extends composeMixin(
     }
 
     public override focus(): void {
+        if (this.disabled && !this.alwaysFocusable) {
+            return
+        }
         this.chipElement?.focus()
     }
     public override blur(): void {
@@ -251,10 +340,36 @@ export class MDCChip extends composeMixin(
     }
 
     private readonly handleClick = (event: MouseEvent): void => {
-        if (this.disabled) {
+        if (this.disabled || this.softDisabled) {
+            event.preventDefault()
             return
         }
+        if (this.removeOnly) {
+            // removeOnly: the primary surface is inert, only the remove button acts.
+            return
+        }
+        this.activate()
+    }
 
+    private readonly handleKeydown = (event: KeyboardEvent): void => {
+        // Only respond to keys pressed on the primary surface itself, so the
+        // trailing remove button's keys are ignored and arrow keys bubble up
+        // to a parent `mdc-chip-set`.
+        if (event.target !== this.chipElement) {
+            return
+        }
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault()
+            if (this.removeOnly) {
+                // removeOnly: the primary surface is inert, only the remove
+                // button acts (matches the click path).
+                return
+            }
+            this.activate()
+        }
+    }
+
+    private activate(): void {
         // Toggle selection for filter/input variants
         if (this.variant === 'filter' || this.variant === 'input') {
             this.selected = !this.selected
@@ -281,7 +396,7 @@ export class MDCChip extends composeMixin(
 
     private readonly handleTrailingIconClick = (event: MouseEvent): void => {
         event.stopPropagation()
-        if (this.disabled) {
+        if (this.disabled || this.softDisabled) {
             return
         }
         this.dispatchEvent(new CustomEvent<IChipCloseEventDetail>(
@@ -304,6 +419,10 @@ export class MDCChip extends composeMixin(
 
     private readonly handleTrailingIconSlotChange = (): void => {
         this.hasTrailingIcon = this.assignedTrailingIcons.length > 0
+    }
+
+    private readonly handleSelectedIconSlotChange = (): void => {
+        this.hasSelectedIcon = this.assignedSelectedIcons.length > 0
     }
 
     private readonly handleLabelSlotChange = (): void => {

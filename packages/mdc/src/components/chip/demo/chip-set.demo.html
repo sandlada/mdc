@@ -1,0 +1,58 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 16px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">Multi-select set (ArrowLeft / ArrowRight / Home / End to rove):</span>
+    <mdc-chip-set aria-label="Filter options">
+        <mdc-chip variant="filter">
+            <span>Extras</span>
+        </mdc-chip>
+        <mdc-chip variant="filter">
+            <span>Sea View</span>
+        </mdc-chip>
+        <mdc-chip variant="filter" selected>
+            <span>Wi-Fi</span>
+        </mdc-chip>
+    </mdc-chip-set>
+</div>
+
+<div class="demo-column">
+    <span class="demo-caption">Single-select set (single-select keeps at most one selected):</span>
+    <mdc-chip-set single-select aria-label="Travel method">
+        <mdc-chip variant="filter">
+            <span>Car</span>
+        </mdc-chip>
+        <mdc-chip variant="filter">
+            <span>Train</span>
+        </mdc-chip>
+        <mdc-chip variant="filter" selected>
+            <span>Flight</span>
+        </mdc-chip>
+    </mdc-chip-set>
+</div>
+
+<div class="demo-column">
+    <span class="demo-caption">Set with a disabled chip — arrow keys skip it:</span>
+    <mdc-chip-set aria-label="With disabled">
+        <mdc-chip variant="filter">
+            <span>One</span>
+        </mdc-chip>
+        <mdc-chip variant="filter" disabled>
+            <span>Disabled</span>
+        </mdc-chip>
+        <mdc-chip variant="filter">
+            <span>Two</span>
+        </mdc-chip>
+    </mdc-chip-set>
+</div>

@@ -5,6 +5,7 @@
  */
 import { Easing } from '@sandlada/mdk'
 import { css, unsafeCSS } from 'lit'
+import type { ElevationDefinition } from '../../component-definitions/elevation.definition'
 import type { FocusRingDefinition } from '../../component-definitions/focus-ring.definition'
 import type { IconDefinition } from '../../component-definitions/icon.definition'
 import type { RippleDefinition } from '../../component-definitions/ripple.definition'
@@ -50,12 +51,29 @@ const iconStyles = stringTokens(overrideComponentTokens<keyof typeof IconDefinit
     'enabled-size': `var(--_icon-size)`,
 }))
 
+const elevationStyles = stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
+    'enabled-level': `var(--_enabled-container-elevation)`,
+    'enabled-shadow-color': `var(--_enabled-container-shadow-color)`,
+}))
+const hoveredElevationStyles = stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
+    'enabled-level': `var(--_hovered-container-elevation)`,
+}))
+const focusedElevationStyles = stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
+    'enabled-level': `var(--_focused-container-elevation)`,
+}))
+const pressedElevationStyles = stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
+    'enabled-level': `var(--_pressed-container-elevation)`,
+}))
+const disabledElevationStyles = stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
+    'enabled-level': `var(--_disabled-container-elevation)`,
+}))
+
 export const ChipStyles = css`
     @layer mdc.chip.variable {
-        :host(:has(.container.assist)) { ${unsafeCSS(assistTokens)}; }
-        :host(:has(.container.filter)) { ${unsafeCSS(filterTokens)}; }
-        :host(:has(.container.input)) { ${unsafeCSS(inputTokens)}; }
-        :host(:has(.container.suggestion)) { ${unsafeCSS(suggestionTokens)}; }
+        :host([variant="assist"]) { ${unsafeCSS(assistTokens)}; }
+        :host([variant="filter"]) { ${unsafeCSS(filterTokens)}; }
+        :host([variant="input"]) { ${unsafeCSS(inputTokens)}; }
+        :host([variant="suggestion"]) { ${unsafeCSS(suggestionTokens)}; }
     }
 
     @layer mdc.chip.composite.ripple {
@@ -69,6 +87,28 @@ export const ChipStyles = css`
     @layer mdc.chip.composite.focus-ring {
         .container mdc-focus-ring {
             z-index: 1;
+        }
+    }
+
+    @layer mdc.chip.composite.elevation {
+        .container mdc-elevation {
+            border-radius: inherit;
+            z-index: 0;
+            transition-duration: 0ms;
+            ${unsafeCSS(elevationStyles)};
+        }
+        .container:hover mdc-elevation {
+            ${unsafeCSS(hoveredElevationStyles)};
+        }
+        .container:focus-visible mdc-elevation {
+            ${unsafeCSS(focusedElevationStyles)};
+        }
+        .container:active mdc-elevation {
+            ${unsafeCSS(pressedElevationStyles)};
+        }
+        .container.disabled mdc-elevation {
+            transition: none;
+            ${unsafeCSS(disabledElevationStyles)};
         }
     }
 
@@ -128,6 +168,33 @@ export const ChipStyles = css`
             background-color: var(--_disabled-container-color);
             border-color: var(--_disabled-outline-color);
             opacity: var(--_disabled-outline-opacity);
+        }
+
+        .container.soft-disabled {
+            opacity: var(--_disabled-label-opacity);
+        }
+    }
+
+    @layer mdc.chip.base.elevated {
+        .container.elevated {
+            background-color: var(--_enabled-container-color-elevated);
+            border-color: var(--_enabled-outline-color-elevated);
+        }
+
+        .container.elevated:hover {
+            background-color: var(--_hovered-container-color-elevated);
+        }
+
+        .container.elevated:focus-visible {
+            background-color: var(--_focused-container-color-elevated);
+        }
+
+        .container.elevated:active {
+            background-color: var(--_pressed-container-color-elevated);
+        }
+
+        .container.elevated.disabled {
+            background-color: var(--_disabled-container-color-elevated);
         }
     }
 
@@ -208,6 +275,7 @@ export const ChipStyles = css`
 
     @layer mdc.chip.base.trailing-icon {
         .trailing-icon {
+            all: unset;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -221,6 +289,7 @@ export const ChipStyles = css`
             color: var(--_enabled-trailing-icon-color);
             cursor: pointer;
             border-radius: 50%;
+            z-index: 1;
             outline: none;
             -webkit-tap-highlight-color: transparent;
         }
@@ -231,6 +300,16 @@ export const ChipStyles = css`
 
         .trailing-icon:hover {
             background-color: rgba(0, 0, 0, 0.08);
+        }
+
+        .trailing-icon:focus-visible {
+            outline: 2px solid var(--_focused-outline-color);
+            outline-offset: -2px;
+        }
+
+        .trailing-icon:disabled {
+            opacity: var(--_disabled-icon-opacity);
+            cursor: default;
         }
     }
 
@@ -243,6 +322,11 @@ export const ChipStyles = css`
             width: 18px;
             height: 18px;
             opacity: 0;
+        }
+
+        .container.has-selected-icon .checkmark {
+            width: auto;
+            height: auto;
         }
 
         .container.selected .checkmark {

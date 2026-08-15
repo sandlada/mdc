@@ -1,0 +1,28 @@
+<style>
+    .demo-row {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        padding: 16px;
+        flex-wrap: wrap;
+    }
+</style>
+
+<div class="demo-row">
+    <mdc-chip variant="assist" elevated>
+        <span>Elevated Assist</span>
+    </mdc-chip>
+
+    <mdc-chip variant="assist" elevated>
+        <mdc-icon slot="icon">add</mdc-icon>
+        <span>Elevated Assist with Icon</span>
+    </mdc-chip>
+
+    <mdc-chip variant="filter" elevated selected>
+        <span>Elevated Filter</span>
+    </mdc-chip>
+
+    <mdc-chip variant="assist" elevated disabled>
+        <span>Elevated Disabled</span>
+    </mdc-chip>
+</div>
