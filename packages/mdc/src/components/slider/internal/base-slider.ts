@@ -224,18 +224,18 @@ export class BaseSlider extends composeMixin(
     // handle hover/pressed states are set manually since the handle
     // does not receive pointer events so that the native inputs are
     // interaction targets.
-    @state() private handleStartHover = false
-    @state() private handleEndHover = false
+    @state() protected handleStartHover = false
+    @state() protected handleEndHover = false
 
     @state() private startOnTop = false
     @state() private handlesOverlapping = false
 
-    @state() private renderValueStart?: number
-    @state() private renderValueEnd?: number
+    @state() protected renderValueStart?: number
+    @state() protected renderValueEnd?: number
 
     // Note: start aria-* properties are only applied when range=true, which is
     // why they do not need to handle both cases.
-    private get renderAriaLabelStart() {
+    protected get renderAriaLabelStart() {
         // Needed for closure conformance
         const { ariaLabel } = this as AriaMixinStrict
         return (
@@ -246,7 +246,7 @@ export class BaseSlider extends composeMixin(
         )
     }
 
-    private get renderAriaValueTextStart() {
+    protected get renderAriaValueTextStart() {
         return (
             this.ariaValueTextStart || this.valueLabelStart || String(this.valueStart)
         )
@@ -255,7 +255,7 @@ export class BaseSlider extends composeMixin(
     // Note: end aria-* properties are applied for single and range sliders, which
     // is why it needs to handle `this.range` (while start aria-* properties do
     // not).
-    private get renderAriaLabelEnd() {
+    protected get renderAriaLabelEnd() {
         // Needed for closure conformance
         const { ariaLabel } = this as AriaMixinStrict
         if (this.range) {
@@ -270,7 +270,7 @@ export class BaseSlider extends composeMixin(
         return ariaLabel || this.valueLabel || String(this.value)
     }
 
-    private get renderAriaValueTextEnd() {
+    protected get renderAriaValueTextEnd() {
         if (this.range) {
             return (
                 this.ariaValueTextEnd || this.valueLabelEnd || String(this.valueEnd)
@@ -448,14 +448,14 @@ export class BaseSlider extends composeMixin(
         `
     }
 
-    private renderTrack() {
+    protected renderTrack() {
         return html`
             <div class="track"></div>
             ${this.ticks ? html`<div class="tickmarks"></div>` : nothing}
         `
     }
 
-    private renderLabel(value: string) {
+    protected renderLabel(value: string) {
         return html`
             <div class="label" aria-hidden="true">
                 <span class="labelContent" part="label">${value}</span>
@@ -463,7 +463,7 @@ export class BaseSlider extends composeMixin(
         `
     }
 
-    private renderHandle({
+    protected renderHandle({
         start,
         hover,
         label,
@@ -497,7 +497,7 @@ export class BaseSlider extends composeMixin(
         `
     }
 
-    private renderInput({
+    protected renderInput({
         start,
         value,
         ariaLabel,
