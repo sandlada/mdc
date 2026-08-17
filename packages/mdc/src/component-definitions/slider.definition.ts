@@ -61,7 +61,16 @@ export const SliderDefinition = createStyleDefinition({
     'large-icon-size'                          : `24px`,
     'extra-large-icon-padding'                 : `8px`,
     'extra-large-icon-size'                    : `32px`,
-    // Enabled
+    // Enabled — label (value indicator)
+    'label-container-height'                   : `28px`,
+    'enabled-label-container-color'            : Color.Primary,
+    'enabled-label-text-color'                 : Color.OnPrimary,
+    'label-text-font'                          : Typescale.LabelMedium.Font,
+    'label-text-line-height'                   : Typescale.LabelMedium.LineHeight,
+    'label-text-size'                          : Typescale.LabelMedium.FontSize,
+    'label-text-tracking'                      : Typescale.LabelMedium.Tracking,
+    'label-text-weight'                        : Typescale.LabelMedium.FontWeight,
+    // Enabled — stop indicator
     'stop-indicator-size'                      : `4px`,
     'stop-indicator-shape'                     : Shape.Full,
     'stop-indicator-trailing-space'            : `4px`,

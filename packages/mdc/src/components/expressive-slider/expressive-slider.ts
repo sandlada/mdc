@@ -125,9 +125,16 @@ export class MDCExpressiveSlider extends BaseSlider implements IExpressiveSlider
         // Centered: position handle absolutely so it tracks the value
         // (the centered handle is the single handle whose position is
         // determined by the value, not by flex siblings).
+        // In writing-mode: vertical-lr, the block axis is horizontal and the
+        // inline axis is vertical — so the handle is centered horizontally
+        // (inset-block-start: 50% + translateX(-50%)) and positioned vertically
+        // by value (inset-inline-start: calc(value * (100% - handle-width))).
+        const isVerticalDirection = this.direction === Direction.Vertical
         const centeredHandleStyle =
             this.type === Type.Centered
-                ? `position: absolute; inset-block-start: 50%; transform: translateY(-50%); inset-inline-start: calc(${normalized} * (100% - var(--_handle-width)));`
+                ? isVerticalDirection
+                    ? `position: absolute; inset-block-start: 50%; transform: translateX(-50%); inset-inline-start: calc(${normalized} * (100% - var(--_handle-width)));`
+                    : `position: absolute; inset-block-start: 50%; transform: translateY(-50%); inset-inline-start: calc(${normalized} * (100% - var(--_handle-width)));`
                 : ''
 
         return html`
@@ -216,11 +223,12 @@ export class MDCExpressiveSlider extends BaseSlider implements IExpressiveSlider
         }
 
         // Active overlay (centered only): grows from center toward value.
-        const overlayStyle = isVertical
-            ? `block-size: calc(var(--_${position}-fraction, 0) * 100%);`
-              + (position === 'start' ? ' align-self: end;' : '')
-            : `inline-size: calc(var(--_${position}-fraction, 0) * 100%);`
-              + (position === 'start' ? ' align-self: end;' : '')
+        // The overlay always grows along the slider's main axis. In horizontal
+        // writing-mode that's inline-size; in writing-mode: vertical-lr the
+        // inline axis is vertical, so inline-size is still the correct
+        // property to drive vertical growth.
+        const overlayStyle = `inline-size: calc(var(--_${position}-fraction, 0) * 100%);`
+            + (position === 'start' ? ' align-self: end;' : '')
 
         return html`
             <div

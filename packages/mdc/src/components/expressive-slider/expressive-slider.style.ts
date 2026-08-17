@@ -139,7 +139,14 @@ export const ExpressiveSliderStyles = [
             --_handle-width: var(--_extra-large-handle-width);
         }
 
-        /* ── Container (flex row → column in vertical) ──────────────────────── */
+        /* ── Container (flex row → column in vertical) ────────────────────────
+           In writing-mode: horizontal-tb, flex-direction: row gives a
+           horizontal main axis. In writing-mode: vertical-lr the same
+           flex-direction: row gives a VERTICAL main axis (because the
+           flex direction 'row' maps to the inline axis of the writing
+           mode). The base flex-direction: row therefore works for both
+           modes without needing to flip — flipping to 'column' would
+           give a horizontal main axis in vertical-lr, which is wrong. */
         .container {
             flex: 1;
             display: flex;
@@ -152,10 +159,6 @@ export const ExpressiveSliderStyles = [
             touch-action: none;
             user-select: none;
             position: relative;
-        }
-
-        :host([direction='vertical']) .container {
-            flex-direction: column;
         }
 
         /* ── Track segments (active + inactive) ─────────────────────────────── */
@@ -173,7 +176,24 @@ export const ExpressiveSliderStyles = [
             background: var(--_enabled-active-track-color);
         }
 
-        /* Rounded corners — leading side carries the rounded cap, trailing is 2px. */
+        /* Rounded corners — outer edge (slider edge) carries the rounded cap,
+           inner edge (where the track meets the handle / next segment) is 2px.
+           Naming convention:
+             active-leading-shape   — rounded cap on the slider's leading edge
+                                      (used for active's outer corner)
+             active-trailing-shape  — 2px on the slider's trailing edge
+                                      (used for active's inner corner)
+             inactive-trailing-shape — rounded cap on the slider's trailing edge
+                                       (used for inactive's outer corner)
+             inactive-leading-shape — 2px on the slider's leading edge
+                                      (used for inactive's inner corner)
+           Because the tokens map opposite sides for active vs inactive, the
+           inactive CSS swaps the leading/trailing assignments relative to the
+           active CSS. */
+
+        /* Horizontal — active segment carries the rounded cap on its outer
+           edge (slider-leading side for data-position='start', slider-trailing
+           side for data-position='end'). */
         .track[data-position='start'][data-active='true'] {
             border-start-start-radius: var(--_active-leading-shape);
             border-end-start-radius: var(--_active-leading-shape);
@@ -186,32 +206,39 @@ export const ExpressiveSliderStyles = [
             border-start-end-radius: var(--_active-leading-shape);
             border-end-end-radius: var(--_active-leading-shape);
         }
+
+        /* Horizontal — inactive segment carries the rounded cap on its outer
+           edge. inactive-trailing-shape is the rounded value, so it goes on
+           the slider-trailing side (RIGHT in horizontal). */
         .track[data-position='start'][data-active='false'] {
-            border-start-start-radius: var(--_inactive-leading-shape);
-            border-end-start-radius: var(--_inactive-leading-shape);
-            border-start-end-radius: var(--_inactive-trailing-shape);
-            border-end-end-radius: var(--_inactive-trailing-shape);
-        }
-        .track[data-position='end'][data-active='false'] {
             border-start-start-radius: var(--_inactive-trailing-shape);
             border-end-start-radius: var(--_inactive-trailing-shape);
             border-start-end-radius: var(--_inactive-leading-shape);
             border-end-end-radius: var(--_inactive-leading-shape);
         }
-
-        /* Vertical mode: flip which side carries the rounded cap because the
-           active grows from the bottom (min) upward, not from the left. */
-        :host([direction='vertical']) .track[data-position='start'][data-active='true'] {
-            border-start-start-radius: var(--_active-trailing-shape);
-            border-end-start-radius: var(--_active-trailing-shape);
-            border-start-end-radius: var(--_active-leading-shape);
-            border-end-end-radius: var(--_active-leading-shape);
+        .track[data-position='end'][data-active='false'] {
+            border-start-start-radius: var(--_inactive-leading-shape);
+            border-end-start-radius: var(--_inactive-leading-shape);
+            border-start-end-radius: var(--_inactive-trailing-shape);
+            border-end-end-radius: var(--_inactive-trailing-shape);
         }
-        :host([direction='vertical']) .track[data-position='end'][data-active='true'] {
+
+        /* Vertical — same logical rule, but the outer edge is now at the top
+           or bottom of the track. The active segment in vertical standard
+           sits on the BOTTOM (slider-min end), so its outer corner is the
+           bottom corner. The inactive-start (TOP) and inactive-end (BOTTOM)
+           tracks each carry the rounded cap on their outer edge. */
+        :host([direction='vertical']) .track[data-position='start'][data-active='true'] {
             border-start-start-radius: var(--_active-leading-shape);
             border-end-start-radius: var(--_active-leading-shape);
             border-start-end-radius: var(--_active-trailing-shape);
             border-end-end-radius: var(--_active-trailing-shape);
+        }
+        :host([direction='vertical']) .track[data-position='end'][data-active='true'] {
+            border-start-start-radius: var(--_active-trailing-shape);
+            border-end-start-radius: var(--_active-trailing-shape);
+            border-start-end-radius: var(--_active-leading-shape);
+            border-end-end-radius: var(--_active-leading-shape);
         }
         :host([direction='vertical']) .track[data-position='start'][data-active='false'] {
             border-start-start-radius: var(--_inactive-trailing-shape);
@@ -235,14 +262,23 @@ export const ExpressiveSliderStyles = [
         }
 
         /* Vertical mode: tracks are narrower than the container so the
-           handle can stick out beyond the track edges. */
+           handle can stick out beyond the track edges. In writing-mode:
+           vertical-lr the inline axis is vertical (top→bottom) and the
+           block axis is horizontal (left→right). The track is therefore a
+           horizontal bar (block = full-width-ish, inline = flex-grow
+           controlled vertically). */
         :host([direction='vertical']) .track {
-            inline-size: var(--_track-height);
-            block-size: auto;
+            block-size: var(--_track-height);
+            inline-size: auto;
             align-self: center;
         }
 
-        /* ── Stop indicator (4px dot at the inactive track end) ─────────────── */
+        /* ── Stop indicator (4px dot at the OUTER end of each inactive segment) ──
+           The dot marks the slider's min (left edge of left segment) and max
+           (right edge of right segment). Outer edge depends on data-position:
+             data-position='end'   → inline-end of the segment
+             data-position='start' → inline-start of the segment
+           In vertical mode the axis swaps, so it becomes block-end / block-start. */
         .stop-indicator {
             position: absolute;
             inline-size: var(--_stop-indicator-size);
@@ -250,7 +286,15 @@ export const ExpressiveSliderStyles = [
             border-radius: 50%;
             background: var(--_enabled-active-stop-indicator-color);
             inset-block-start: 50%;
-            inset-inline-end: 4px;
+            inset-inline-end: var(--_stop-indicator-trailing-space);
+            transform: translateY(-50%);
+        }
+
+        /* Horizontal: flip dot to inline-start when the segment sits on the
+           LEFT half of the slider. */
+        .track[data-position='start'] .stop-indicator {
+            inset-inline-end: auto;
+            inset-inline-start: var(--_stop-indicator-trailing-space);
             transform: translateY(-50%);
         }
 
@@ -258,11 +302,22 @@ export const ExpressiveSliderStyles = [
             background: var(--_disabled-active-stop-indicator-color);
         }
 
-        /* Vertical: stop indicator on the right edge of the top track. */
+        /* Vertical: writing-mode: vertical-lr → inline axis is vertical,
+           block axis is horizontal. The dot is centered horizontally
+           (block-center) and pinned to the outer vertical edge. */
         :host([direction='vertical']) .track[data-position='start'] .stop-indicator {
-            inset-block-start: auto;
-            inset-block-end: 4px;
-            transform: unset;
+            inset-block-start: 50%;
+            inset-block-end: auto;
+            inset-inline-start: var(--_stop-indicator-trailing-space);
+            inset-inline-end: auto;
+            transform: translate(-50%, 0);
+        }
+        :host([direction='vertical']) .track[data-position='end'] .stop-indicator {
+            inset-block-start: 50%;
+            inset-block-end: auto;
+            inset-inline-start: auto;
+            inset-inline-end: var(--_stop-indicator-trailing-space);
+            transform: translate(-50%, 0);
         }
 
         /* ── Center dot (range slider center reference) ────────────────────── */
@@ -294,10 +349,13 @@ export const ExpressiveSliderStyles = [
             opacity: var(--_disabled-handle-opacity);
         }
 
-        /* Vertical: handle is transposed (wide + 4px tall). */
+        /* Vertical: handle is transposed (wide + 4px tall). In writing-mode:
+           vertical-lr the inline axis is vertical, block is horizontal —
+           so the wide dimension is block-size and the short dimension
+           is inline-size. */
         :host([direction='vertical']) .handle {
-            inline-size: var(--_handle-size);
-            block-size: var(--_handle-width);
+            block-size: var(--_handle-size);
+            inline-size: var(--_handle-width);
         }
 
         /* ── Range handles — symmetric about center ────────────────────────── */
