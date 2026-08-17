@@ -5,127 +5,113 @@
  */
 
 import type { LitElement } from 'lit'
+import type { FormAssociated } from '../../utils/form/form-associated'
 
-/** Size presets for the expressive slider (maps to track height + handle size tokens). */
+/**
+ * Slider orientation. `'horizontal'` lays the track left-to-right;
+ * `'vertical'` lays it top-to-bottom.
+ */
+export type ExpressiveSliderDirection = 'horizontal' | 'vertical'
+export const ExpressiveSliderDirection = {
+    Horizontal: 'horizontal',
+    Vertical: 'vertical',
+} as const satisfies Record<string, ExpressiveSliderDirection>
+
+/**
+ * Five-step size scale locked to the Figma prototype (node-id `58008:10353`):
+ *
+ * | Size          | Track height | Handle height | Rounded end |
+ * | ------------- | ------------ | ------------- | ----------- |
+ * | `extra-small` | 16px         | 44px          | 16px        |
+ * | `small`       | 24px         | 44px          | 8px         |
+ * | `medium`      | 40px         | 52px          | 12px        |
+ * | `large`       | 56px         | 68px          | 16px        |
+ * | `extra-large` | 96px         | 108px         | 28px        |
+ */
 export type ExpressiveSliderSize = 'extra-small' | 'small' | 'medium' | 'large' | 'extra-large'
+export const ExpressiveSliderSize = {
+    ExtraSmall: 'extra-small',
+    Small: 'small',
+    Medium: 'medium',
+    Large: 'large',
+    ExtraLarge: 'extra-large',
+} as const satisfies Record<string, ExpressiveSliderSize>
+
+/**
+ * Behavioral type of the slider.
+ *
+ * - `standard` — single handle; active track fills `min → value`.
+ * - `centered` — handle sits at the geometric center; positive values fill the
+ *   right (or bottom) half with the active color, negative values fill the
+ *   left (or top) half. Maps to one `<input type="range">` whose effective
+ *   `min` is `-max`, `max` is `+max`.
+ * - `range` — two handles symmetric about the center with a track-dot marker.
+ */
+export type ExpressiveSliderType = 'standard' | 'centered' | 'range'
+export const ExpressiveSliderType = {
+    Standard: 'standard',
+    Centered: 'centered',
+    Range: 'range',
+} as const satisfies Record<string, ExpressiveSliderType>
 
 /**
  * `mdc-expressive-slider` — Material Design 3 Expressive slider.
  *
- * Follows the MD3E spec as implemented by Jetpack Compose Material3:
- * - Track is split around the thumb with `thumbTrackGapSize` separation.
- * - Active track ends at (thumbPosition - gap), inactive track starts at (thumbPosition + gap).
- * - Track uses configurable corner size (pill shape).
- * - Thumb is a thin pill (handleWidth) that expands on hover/press.
- * - Round stop indicators at track edges.
- * - 5 size presets: extra-small, small, medium, large, extra-large.
- * - Springy handle movement with `cubic-bezier(0.34, 1.56, 0.64, 1)`.
- * - Value indicator label on hover/press.
- * - Track icons at start/end of active and inactive segments.
+ * Layout pulled from the Figma prototype (node-id `58008:10353`):
+ * - Standard: `[active-track] [handle] [inactive-track]`, no gap between
+ *   segments and the handle. Active fills from min up to the handle position.
+ * - Centered: two inactive halves split at 50%, with an active overlay
+ *   growing from the center toward the value side.
+ * - Range: two inactive halves with two handles symmetric about the center
+ *   and a center dot at the 50% mark.
+ *
+ * Five size presets and two orientations. The host element behaves as a
+ * single (or pair of) `<input type="range">` for form submission and a11y.
  *
  * @slot icon-start — Optional icon at the start of the track.
  * @slot icon-end — Optional icon at the end of the track.
- *
- * @cssproperty --mdc-expressive-slider-enabled-active-track-color
- * @cssproperty --mdc-expressive-slider-enabled-inactive-track-color
- * @cssproperty --mdc-expressive-slider-enabled-handle-color
- * @cssproperty --mdc-expressive-slider-handle-width
- * @cssproperty --mdc-expressive-slider-stop-indicator-size
  */
-export interface IExpressiveSlider extends LitElement {
-    /**
-     * The slider minimum value.
-     */
+export interface IExpressiveSlider extends LitElement, FormAssociated {
     min: number
-
-    /**
-     * The slider maximum value.
-     */
     max: number
 
-    /**
-     * The slider value displayed when range is false.
-     */
+    /** Single-handle value (used when `type='standard'` or `).). */
     value?: number
 
-    /**
-     * The slider start value displayed when range is true.
-     */
+    /** Range-start value (used when `type='range'`). */
     valueStart?: number
-
-    /**
-     * The slider end value displayed when range is true.
-     */
+    /** Range-end value (used when `type='range'`). */
     valueEnd?: number
 
-    /**
-     * An optional label for the slider's value displayed when range is false.
-     */
     valueLabel: string
-
-    /**
-     * An optional label for the slider's start value displayed when range is true.
-     */
     valueLabelStart: string
-
-    /**
-     * An optional label for the slider's end value displayed when range is true.
-     */
     valueLabelEnd: string
 
-    /**
-     * The step between values.
-     */
+    ariaLabelStart: string
+    ariaLabelEnd: string
+    ariaValueTextStart: string
+    ariaValueTextEnd: string
+
     step: number
-
-    /**
-     * Whether or not to show tick marks.
-     */
     ticks: boolean
-
-    /**
-     * Whether or not to show a value label when activated.
-     */
     labeled: boolean
 
     /**
-     * Whether or not to show a value range.
+     * Backward-compat alias. Setting `range=true` switches `type` to `'range'`;
+     * reading returns whether `type === 'range'`.
+     *
+     * @deprecated Use the `type` attribute instead.
      */
     range: boolean
 
-    /**
-     * Whether the component is disabled.
-     */
-    disabled: boolean
+    /** Slider orientation. Reflects to the `direction` attribute. */
+    direction: ExpressiveSliderDirection
 
-    /**
-     * The HTML name to use in form submission.
-     */
-    name: string
-
-    /**
-     * Size preset: `'extra-small'`, `'small'`, `'medium'` (default),
-     * `'large'`, or `'extra-large'`. Reflects to the `size` attribute.
-     */
+    /** Size preset. Reflects to the `size` attribute. */
     size: ExpressiveSliderSize
 
-    /**
-     * Aria label for the slider's start handle (range mode).
-     */
-    ariaLabelStart: string
+    /** Behavioral type. Reflects to the `type` attribute. */
+    type: ExpressiveSliderType
 
-    /**
-     * Aria label for the slider's end handle.
-     */
-    ariaLabelEnd: string
-
-    /**
-     * Aria value text for the slider's start value (range mode).
-     */
-    ariaValueTextStart: string
-
-    /**
-     * Aria value text for the slider's end value.
-     */
-    ariaValueTextEnd: string
+    name: string
 }
