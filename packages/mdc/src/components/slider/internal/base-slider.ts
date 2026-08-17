@@ -570,7 +570,7 @@ export class BaseSlider extends composeMixin(
         }
     }
 
-    private handleFocus(event: Event) {
+    protected handleFocus(event: Event) {
         this.updateOnTop(event.target as HTMLInputElement)
     }
 
@@ -593,15 +593,15 @@ export class BaseSlider extends composeMixin(
         this.action = undefined
     }
 
-    private handleKeydown(event: KeyboardEvent) {
+    protected handleKeydown(event: KeyboardEvent) {
         this.startAction(event)
     }
 
-    private handleKeyup(event: KeyboardEvent) {
+    protected handleKeyup(event: KeyboardEvent) {
         this.finishAction(event)
     }
 
-    private handleDown(event: PointerEvent) {
+    protected handleDown(event: PointerEvent) {
         this.startAction(event)
         this.ripplePointerId = event.pointerId
         const isStart = (event.target as HTMLInputElement) === this.inputStart
@@ -612,7 +612,7 @@ export class BaseSlider extends composeMixin(
         this.handleEndHover = !this.disabled && !isStart && Boolean(this.handleEnd)
     }
 
-    private async handleUp(event: PointerEvent) {
+    protected async handleUp(event: PointerEvent) {
         if (!this.action) {
             return
         }
@@ -647,7 +647,7 @@ export class BaseSlider extends composeMixin(
      * of the directive. This is done based on the hover state when the
      * slider is updated.
      */
-    private handleMove(event: PointerEvent) {
+    protected handleMove(event: PointerEvent) {
         if (this.disabled) {
             this.handleStartHover = false
             this.handleEndHover = false
@@ -657,11 +657,11 @@ export class BaseSlider extends composeMixin(
         this.handleEndHover = inBounds(event, this.handleEnd)
     }
 
-    private handleEnter(event: PointerEvent) {
+    protected handleEnter(event: PointerEvent) {
         this.handleMove(event)
     }
 
-    private handleLeave() {
+    protected handleLeave() {
         this.handleStartHover = false
         this.handleEndHover = false
     }
@@ -728,7 +728,7 @@ export class BaseSlider extends composeMixin(
         return true
     }
 
-    private handleInput(event: InputEvent) {
+    protected handleInput(event: InputEvent) {
         // avoid processing a re-dispatched event
         if (this.isRedispatchingEvent) {
             return
@@ -766,7 +766,7 @@ export class BaseSlider extends composeMixin(
         }
     }
 
-    private handleChange(event: Event) {
+    protected handleChange(event: Event) {
         // prevent keyboard triggered changes from dispatching for
         // clamped values; note, this only occurs for keyboard
         const changeTarget = event.target as HTMLInputElement

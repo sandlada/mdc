@@ -113,7 +113,7 @@ export class MDCExpressiveSlider extends BaseSlider implements IExpressiveSlider
             '--_tick-count': String(range / step),
         }
         const containerClasses = {
-            range: this.type === Type.Range,
+            ranged: this.type === Type.Range,
             centered: this.type === Type.Centered,
         }
 
@@ -122,19 +122,43 @@ export class MDCExpressiveSlider extends BaseSlider implements IExpressiveSlider
             (this.type === Type.Range ? this.valueLabelEnd : this.valueLabel) ||
             String(this.renderValueEnd)
 
-        // Centered: position handle absolutely so it tracks the value
-        // (the centered handle is the single handle whose position is
-        // determined by the value, not by flex siblings).
-        // In writing-mode: vertical-lr, the block axis is horizontal and the
-        // inline axis is vertical — so the handle is centered horizontally
-        // (inset-block-start: 50% + translateX(-50%)) and positioned vertically
-        // by value (inset-inline-start: calc(value * (100% - handle-width))).
+        // Centered: the input range runs from -max..+max so the cursor
+        // position matches the handle position exactly (cursor at 50%
+        // → value=0 → handle centered). The slider's `min` is ignored
+        // because the value is symmetric around 0.
         const isVerticalDirection = this.direction === Direction.Vertical
+        const centeredInputMin = -this.max
+        const centeredInputMax = this.max
+
+        // Build inline position styles for absolutely-positioned handles.
+// The container's writing-mode determines which inset property
+// drives the value-driven axis (inline-start in both horizontal-tb
+// and vertical-lr maps to the slider's main axis).
+// The handle's CENTER (not its left/top edge) is positioned at
+// fraction * 100% — subtracting half the handle width from inset-inline-start
+// keeps the handle centered on the cursor across the whole range, instead
+// of the previous formula which offset the center by up to half the handle
+// width (and the offset grew with fraction).
+        const handlePosStyle = (fraction: number) =>
+            `position: absolute; inset-block-start: 50%; inset-inline-start: calc(${fraction} * 100% - var(--_handle-width) / 2);`
+
         const centeredHandleStyle =
             this.type === Type.Centered
                 ? isVerticalDirection
-                    ? `position: absolute; inset-block-start: 50%; transform: translateX(-50%); inset-inline-start: calc(${normalized} * (100% - var(--_handle-width)));`
-                    : `position: absolute; inset-block-start: 50%; transform: translateY(-50%); inset-inline-start: calc(${normalized} * (100% - var(--_handle-width)));`
+                    ? `${handlePosStyle(normalized)} transform: translateX(-50%);`
+                    : `${handlePosStyle(normalized)} transform: translateY(-50%);`
+                : ''
+        const rangeHandleEndStyle =
+            this.type === Type.Range
+                ? isVerticalDirection
+                    ? `${handlePosStyle(endFraction)} transform: translateX(-50%);`
+                    : `${handlePosStyle(endFraction)} transform: translateY(-50%);`
+                : ''
+        const rangeHandleStartStyle =
+            this.type === Type.Range
+                ? isVerticalDirection
+                    ? `${handlePosStyle(startFraction)} transform: translateX(-50%);`
+                    : `${handlePosStyle(startFraction)} transform: translateY(-50%);`
                 : ''
 
         return html`
@@ -148,17 +172,44 @@ export class MDCExpressiveSlider extends BaseSlider implements IExpressiveSlider
                     ariaLabel: this.renderAriaLabelStart,
                     ariaValueText: this.renderAriaValueTextStart,
                     ariaMin: this.min,
-                    ariaMax: this.valueEnd ?? this.max,
+                    ariaMax: this.max,
+                    // Both range inputs span the FULL slider range so the
+                    // native click-to-value mapping stays linear with the
+                    // cursor. The clip-path (below) decides which half
+                    // each input owns; the base-slider's clampAction /
+                    // flipAction handle the case where one handle is
+                    // dragged past the other. With per-half ranges the
+                    // click would map to valueStart + X*(valueEnd-valueStart)
+                    // and the handle would visibly lag the cursor.
+                    inputMin: this.min,
+                    inputMax: this.max,
                 }))}
                 ${this.renderInput({
                     start: false,
                     value: this.renderValueEnd,
                     ariaLabel: this.renderAriaLabelEnd,
                     ariaValueText: this.renderAriaValueTextEnd,
-                    ariaMin: this.type === Type.Range ? this.valueStart ?? this.min : this.min,
-                    ariaMax: this.max,
+                    ariaMin:
+                        this.type === Type.Range
+                            ? this.valueStart ?? this.min
+                            : this.type === Type.Centered
+                                ? centeredInputMin
+                                : this.min,
+                    ariaMax:
+                        this.type === Type.Centered ? centeredInputMax : this.max,
+                    inputMin:
+                        this.type === Type.Range
+                            ? this.min
+                            : this.type === Type.Centered
+                                ? centeredInputMin
+                                : this.min,
+                    inputMax:
+                        this.type === Type.Centered
+                            ? centeredInputMax
+                            : this.max,
                 })}
                 ${this.renderTrackStart()}
+                ${when(this.type === Type.Range, () => this.renderTrackMiddle())}
                 ${this.type !== Type.Range && this.type !== Type.Centered
                     ? this.renderHandle({ start: false, hover: this.handleEndHover, label: labelEnd })
                     : nothing}
@@ -171,8 +222,18 @@ export class MDCExpressiveSlider extends BaseSlider implements IExpressiveSlider
                           style: centeredHandleStyle,
                       })
                     : nothing}
-                ${when(this.type === Type.Range, () => this.renderHandle({ start: false, hover: this.handleEndHover, label: labelEnd }))}
-                ${when(this.type === Type.Range, () => this.renderHandle({ start: true, hover: this.handleStartHover, label: labelStart }))}
+                ${when(this.type === Type.Range, () => this.renderHandle({
+                    start: false,
+                    hover: this.handleEndHover,
+                    label: labelEnd,
+                    style: rangeHandleEndStyle,
+                }))}
+                ${when(this.type === Type.Range, () => this.renderHandle({
+                    start: true,
+                    hover: this.handleStartHover,
+                    label: labelStart,
+                    style: rangeHandleStartStyle,
+                }))}
                 ${when(this.type === Type.Range, () => this.renderCenterDot())}
                 ${this.ticks ? html`<div class="tickmarks"></div>` : nothing}
             </div>
@@ -193,6 +254,30 @@ export class MDCExpressiveSlider extends BaseSlider implements IExpressiveSlider
         return this.renderTrackSegment('end')
     }
 
+    /**
+     * Middle track for range sliders — represents the selected portion
+     * (valueStart..valueEnd). It carries the active color and its
+     * flex-grow equals the difference between the two value fractions so
+     * it exactly fills the gap between the two handles. Rounded ends
+     * match the rest of the slider's geometry (sharp at both edges, since
+     * it butts up against the handles in the gaps).
+     */
+    protected renderTrackMiddle() {
+        const step = this.step === 0 ? 1 : this.step
+        const range = Math.max(this.max - this.min, step)
+        const startFraction = ((this.renderValueStart ?? this.min) - this.min) / range
+        const endFraction = ((this.renderValueEnd ?? this.min) - this.min) / range
+        const grow = Math.max(0, endFraction - startFraction)
+        return html`
+            <div
+                class="track track-middle"
+                data-position="middle"
+                data-active="true"
+                style="flex-grow: ${grow};"
+            ></div>
+        `
+    }
+
     protected renderTrackSegment(position: 'start' | 'end') {
         const isVertical = this.direction === Direction.Vertical
         const isCentered = this.type === Type.Centered
@@ -202,7 +287,11 @@ export class MDCExpressiveSlider extends BaseSlider implements IExpressiveSlider
         let active = false
 
         if (isRange) {
-            grow = 1
+            // Range: track-start covers [min, valueStart], track-end covers
+            // [valueEnd, max]. The middle track fills the gap.
+            grow = position === 'start'
+                ? 'var(--_start-fraction, 0)'
+                : 'calc(1 - var(--_end-fraction, 0))'
         } else if (isCentered) {
             grow = 1
         } else {
@@ -252,6 +341,66 @@ export class MDCExpressiveSlider extends BaseSlider implements IExpressiveSlider
     /** Center dot for range sliders — marks the geometric center. */
     protected renderCenterDot() {
         return html`<div class="center-dot" aria-hidden="true"></div>`
+    }
+
+    /**
+     * Override the base slider's input renderer so we can drive the actual
+     * `.min` / `.max` properties on the native `<input type="range">`,
+     * not just the `aria-valuemin` / `aria-valuemax` attributes. The base
+     * implementation only sets the ARIA attributes, which leaves the
+     * input's clamp range at the slider's configured `[min, max]`. For
+     * `type='centered'` we need the native clamp range to be
+     * `[-max, +max]` so the cursor position matches the handle position.
+     * For `type='range'` we want the clamp to reflect the current handle
+     * ordering so dragging past the other handle clamps correctly.
+     */
+    protected override renderInput({
+        start,
+        value,
+        ariaLabel,
+        ariaValueText,
+        ariaMin,
+        ariaMax,
+        inputMin,
+        inputMax,
+    }: {
+        start: boolean
+        value?: number
+        ariaLabel: string
+        ariaValueText: string
+        ariaMin: number
+        ariaMax: number
+        inputMin: number
+        inputMax: number
+    }) {
+        const name = start ? `start` : `end`
+        return html`
+            <input
+                type="range"
+                class="${classMap({start, end: !start})}"
+                @focus=${this.handleFocus}
+                @pointerdown=${this.handleDown}
+                @pointerup=${this.handleUp}
+                @pointerenter=${this.handleEnter}
+                @pointermove=${this.handleMove}
+                @pointerleave=${this.handleLeave}
+                @keydown=${this.handleKeydown}
+                @keyup=${this.handleKeyup}
+                @input=${this.handleInput}
+                @change=${this.handleChange}
+                id=${name}
+                .disabled=${this.disabled}
+                .min=${String(inputMin)}
+                aria-valuemin=${ariaMin}
+                .max=${String(inputMax)}
+                aria-valuemax=${ariaMax}
+                .step=${String(this.step)}
+                .value=${String(value)}
+                .tabIndex=${start ? 1 : 0}
+                aria-label=${ariaLabel || nothing}
+                aria-valuetext=${ariaValueText}
+            />
+        `
     }
 
     protected override renderHandle({

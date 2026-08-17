@@ -146,7 +146,15 @@ export const ExpressiveSliderStyles = [
            flex direction 'row' maps to the inline axis of the writing
            mode). The base flex-direction: row therefore works for both
            modes without needing to flip — flipping to 'column' would
-           give a horizontal main axis in vertical-lr, which is wrong. */
+           give a horizontal main axis in vertical-lr, which is wrong.
+
+           For ranged mode, the base slider's .ranged input.start/end
+           clip-path rules (which split pointer events between the two
+           handles) consume --_state-layer-size, --_start-fraction and
+           --_end-fraction. We publish --_start-fraction / --_end-fraction
+           already via styleMap; --_state-layer-size is pinned to 0 here
+           so the base formula collapses to a clean midpoint between
+           valueStart and valueEnd. */
         .container {
             flex: 1;
             display: flex;
@@ -159,6 +167,13 @@ export const ExpressiveSliderStyles = [
             touch-action: none;
             user-select: none;
             position: relative;
+
+            --_state-layer-size: 0px;
+            --_clip-to-start: calc(
+                var(--_start-fraction) * 100%
+                + (var(--_end-fraction) - var(--_start-fraction)) * 50%
+            );
+            --_clip-to-end: calc(100% - var(--_clip-to-start));
         }
 
         /* ── Track segments (active + inactive) ─────────────────────────────── */
@@ -174,6 +189,16 @@ export const ExpressiveSliderStyles = [
 
         .track[data-active='true'] {
             background: var(--_enabled-active-track-color);
+        }
+
+        /* Range middle track — fills the active selection between the two
+           handles. Both edges but up against the handles in the gaps, so
+           both sides are sharp (2px trailing-shape). */
+        .track.track-middle {
+            border-start-start-radius: var(--_active-trailing-shape);
+            border-end-start-radius: var(--_active-trailing-shape);
+            border-start-end-radius: var(--_active-trailing-shape);
+            border-end-end-radius: var(--_active-trailing-shape);
         }
 
         /* Rounded corners — outer edge (slider edge) carries the rounded cap,
@@ -358,24 +383,16 @@ export const ExpressiveSliderStyles = [
             inline-size: var(--_handle-width);
         }
 
-        /* ── Range handles — symmetric about center ────────────────────────── */
-        .handle.range-handle-start {
-            position: absolute;
-            inset-inline-start: 50%;
-            inset-block-start: 50%;
-            transform: translate(
-                calc(-1 * (var(--_range-handle-center-gap) / 2 + var(--_handle-width))),
-                -50%
-            );
-        }
+        /* ── Range handles — position is set per-instance via inline style ───
+           The render code computes startFraction/endFraction from the
+           current renderValueStart/renderValueEnd and emits a position
+           style attribute on each handle. The CSS only needs to give the
+           handles the same default size/color as the standard handle and
+           let the inline style drive the placement. */
+        .handle.range-handle-start,
         .handle.range-handle-end {
             position: absolute;
-            inset-inline-start: 50%;
             inset-block-start: 50%;
-            transform: translate(
-                calc(var(--_range-handle-center-gap) / 2),
-                -50%
-            );
         }
 
         /* ── Tick marks (per-step dots) ─────────────────────────────────────── */
@@ -405,7 +422,13 @@ export const ExpressiveSliderStyles = [
             );
         }
 
-        /* ── Value indicator (label pill) ───────────────────────────────────── */
+        /* ── Value indicator (label pill) ─────────────────────────────────────
+           Position relative to the .handle element (its parent). In
+           horizontal mode the label sits ABOVE the handle, centered
+           horizontally. In vertical mode it sits to the RIGHT of the
+           handle, centered vertically. The transform folds in the
+           centering offset so the scale animation pivots on the same
+           point as the placement. */
         .label {
             position: absolute;
             box-sizing: border-box;
@@ -422,11 +445,12 @@ export const ExpressiveSliderStyles = [
             font-weight: var(--_label-text-weight);
 
             inset-block-end: 100%;
+            inset-inline-start: 50%;
             min-inline-size: var(--_label-container-height);
             min-block-size: var(--_label-container-height);
             background: var(--_enabled-label-container-color);
             transform-origin: center bottom;
-            transform: scale(0);
+            transform: translate(-50%, 0) scale(0);
             transition-property: transform;
             transition-duration: ${short2Duration};
             transition-timing-function: ${emphasizedEasing};
@@ -435,24 +459,34 @@ export const ExpressiveSliderStyles = [
             white-space: nowrap;
         }
 
-        /* Vertical mode: label sits to the right of the handle. */
+        /* Vertical mode: in writing-mode: vertical-lr the inline axis is
+           vertical and the block axis is horizontal. The label sits to
+           the RIGHT of the handle (block axis = horizontal) and is
+           vertically centered (inline axis = vertical). The
+           translateY(-50%) folds the vertical centering into the
+           transform so the scale animation pivots on the same point
+           as the placement. */
         :host([direction='vertical']) .label {
             inset-block-end: auto;
-            inset-inline-start: 100%;
+            inset-block-start: 100%;
+            inset-inline-start: 50%;
             transform-origin: center left;
-            margin-inline-start: 8px;
+            margin-block-start: 8px;
+            transform: translate(0, -50%) scale(0);
         }
 
         :host(:focus-within) .label,
         :where(:has(input:active)) .label,
         .handle.hover .label {
-            transform: scale(1);
+            transform: translate(-50%, 0) scale(1);
         }
 
+        /* Vertical mode: label is positioned to the right of the handle
+           and vertically centered. The scale pivots around the same
+           center point as the placement. */
         :host([direction='vertical']:focus-within) .label,
-        :host([direction='vertical']:has(input:active)) .label,
         :host([direction='vertical']) .handle.hover .label {
-            transform: scale(1);
+            transform: translate(0, -50%) scale(1);
         }
 
         /* ── Native input (interaction target) ──────────────────────────────── */
@@ -471,6 +505,27 @@ export const ExpressiveSliderStyles = [
 
         input[type='range']:focus {
             outline: none;
+        }
+
+        /* Range: clip the two native inputs so each half of the slider
+           feeds pointer events to the right handle. input.start owns the
+           left half (clipped to the right of the midpoint), input.end owns
+           the right half (clipped to the left of the midpoint). The
+           midpoint is computed from the --_start-fraction / --_end-fraction
+           custom props. Mirrors the base slider's .ranged rules; those
+           don't apply here because the expressive-slider overrides
+           static styles and ships its own sheet. */
+        .ranged input.start {
+            clip-path: inset(0 var(--_clip-to-end) 0 0);
+        }
+        .ranged input.end {
+            clip-path: inset(0 0 0 var(--_clip-to-start));
+        }
+        :host([direction='vertical']) .ranged input.start {
+            clip-path: inset(var(--_clip-to-end) 0 0 0);
+        }
+        :host([direction='vertical']) .ranged input.end {
+            clip-path: inset(0 0 var(--_clip-to-start) 0);
         }
 
         /* Vertical: native input needs vertical orientation. */
