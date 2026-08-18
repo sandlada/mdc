@@ -1,7 +1,7 @@
 import { html, LitElement, type TemplateResult } from 'lit'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import type { BadgeSize, IBadge } from './badge.interface'
-import { customElement, property, query, state } from 'lit/decorators.js'
+import { customElement, property, query } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import { mixinDelegatesAria } from '../../utils/aria/delegate'
 import { mixinElementInternals } from '../../utils/behaviors/element-internals'
@@ -35,11 +35,11 @@ export class MDCBadge extends composeMixin(
     @property({ type: String, attribute: 'size', reflect: true })
     public size: BadgeSize = 'small'
 
-    @state()
-    protected hasLabel: boolean = false
+    @property({ type: String, reflect: true })
+    public value: string | number | null = null
 
     @query('.label')
-    protected readonly labelElement!: HTMLLabelElement
+    protected readonly labelElement!: HTMLSpanElement
 
     private readonly opacityController = new OpacityTransitionController(
         this,
@@ -78,14 +78,18 @@ export class MDCBadge extends composeMixin(
 
     protected renderLabel() {
         return html`
-            <span class="label">
-                <slot @slotchange=${this.handleLabelSlotChange}></slot>
-            </span>
+            <span class="label">${this.displayValue}</span>
         `
     }
 
-    protected handleLabelSlotChange(e: Event) {
-        this.hasLabel = (e.target as HTMLSlotElement).assignedElements().length > 0
+    protected get displayValue(): string {
+        if (this.value == null) return ''
+        if (typeof this.value === 'string') return this.value
+        return this.value > 99 ? '99+' : String(this.value)
+    }
+
+    protected get hasLabel(): boolean {
+        return this.value != null && this.value !== ''
     }
 
 }

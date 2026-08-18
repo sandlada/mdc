@@ -6,4 +6,5 @@ export const BadgeSize = {
 
 export interface IBadge {
     size: BadgeSize
+    value: string | number | null
 }
