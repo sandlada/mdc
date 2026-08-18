@@ -67,9 +67,6 @@ export const ExpressiveSliderType = {
  *
  * Five size presets and two orientations. The host element behaves as a
  * single (or pair of) `<input type="range">` for form submission and a11y.
- *
- * @slot icon-start — Optional icon at the start of the track.
- * @slot icon-end — Optional icon at the end of the track.
  */
 export interface IExpressiveSlider extends LitElement, FormAssociated {
     min: number

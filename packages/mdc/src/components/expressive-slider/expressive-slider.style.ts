@@ -21,6 +21,17 @@
  * `horizontal` (default), `vertical` — swap flex direction and per-track
  * `inline-size` / `block-size`.
  *
+ * ── Edge inset ────────────────────────────────────────────────────────
+ * The visible track is inset by `--_edge-inset` (= `handleWidth / 2`) on
+ * each side so the handle's interaction center is offset from the slider
+ * edge at extremes and the edge-tick / edge-stop-indicator dots all line
+ * up with the visible track edges. See expressive-slider.ts for the
+ * per-segment inline-style math that uses this inset.
+ *
+ * Centered mode mirrors the same inset on each side of the 50% midpoint
+ * (`--_center-inset`) so the active overlay has a center gap and rounded
+ * ends on BOTH sides (per MD3E / Compose Material3 spec).
+ *
  * @link https://m3.material.io/components/sliders/specs
  */
 
@@ -52,15 +63,38 @@ export const ExpressiveSliderStyles = [
             --_inactive-trailing-shape: 16px;
             --_handle-size: 44px;
             --_handle-width: 4px;
-            --_track-segment-gap: 6px;
-            --_range-handle-center-gap: 6px;
             --_center-dot-size: 4px;
             --_stop-indicator-size: 4px;
+            /* Visible gap between handle edge and track edge. */
+            --_thumb-track-gap: 4px;
+            /* Edge inset: the visible track is inset by handleWidth/2 on
+               each side. Derives from --_handle-width so each size preset
+               gets its own inset for free. */
+            --_edge-inset: calc(var(--_handle-width) / 2);
+            /* Centered-mode mirror: a symmetric inset on each side of 50%
+               so the active overlay has a center gap. */
+            --_center-inset: var(--_edge-inset);
 
             /* Fractions set at render time by the component. */
             --_start-fraction: 0;
             --_end-fraction: 0;
             --_tick-count: 0;
+            /* Range-mode input clip points (published from the inline
+               style so the input pointer-event split matches the handle
+               split; defaults to fixed 50% when no override is set). */
+            --_clip-to-start: 50%;
+            --_clip-to-end: 50%;
+            /* Active-tick clip math (see .tickmarks::after). The base
+               formula uses --_with-tick-marks-container-size for the
+               inset; we use --_edge-inset so the active ticks align
+               with the visible track edges. */
+            --_active-track-max-clip: calc(100% - var(--_edge-inset) * 2);
+            --_start-fraction-not-zero: min(var(--_start-fraction) * 1e9, 1);
+            --_active-track-start-offset: calc(var(--_with-tick-marks-container-size) * var(--_start-fraction-not-zero));
+            --_active-track-start-clip: calc(var(--_active-track-start-offset) + var(--_active-track-max-clip) * var(--_start-fraction));
+            --_end-fraction-not-one: min((1 - var(--_end-fraction)) * 1e9, 1);
+            --_active-track-end-offset: calc(var(--_with-tick-marks-container-size) * var(--_end-fraction-not-one));
+            --_active-track-end-clip: calc(var(--_active-track-end-offset) + var(--_active-track-max-clip) * (1 - var(--_end-fraction)));
 
             display: inline-flex;
             vertical-align: middle;
@@ -140,28 +174,13 @@ export const ExpressiveSliderStyles = [
         }
 
         /* ── Container (block layout) ─────────────────────────────────────────
-           The expressive slider uses ABSOLUTE positioning for both the
-           tracks and the handles (no flex layout). This is the only way
-           to keep the cursor, the handle, the active overlay, and the
-           ticks all aligned to the same fraction of the slider width.
-
-           With a flex layout, the handle acted as a flex item in a fixed
-           gap, so its position was determined by the gap center, not by
-           the value. The cursor-to-value mapping is linear across the full
-           slider width, so the handle drifted away from the cursor
-           wherever the flex-gap-center formula disagreed with the value%
-           formula. The only way to have both correct is to position
-           everything absolutely.
-
-           The visible gap between the handle and the surrounding tracks
-           is set by the inline styles (the gap argument) — the container
-           itself has no flex gap. The cursor-to-value mapping stays
-           linear because the input still spans the full container.
-
-           For ranged mode, the base slider's .ranged input.start/end
-           clip-path rules consume --_clip-to-start/--_clip-to-end. We
-           publish those from the inline styles so the input's
-           pointer-event split matches the visible handle split. */
+           Absolute-positioned tracks and handles; no flex gap. The visible
+           gap between the handle and surrounding tracks is set by the
+           inline styles (and reads var(--_thumb-track-gap)). Cursor-to-
+           value mapping stays linear because the native input spans the
+           full container. For ranged mode the .ranged input.start/end
+           clip-path rules consume --_clip-to-start/--_clip-to-end which
+           are published from the inline style. */
         .container {
             flex: 1;
             display: block;
@@ -171,8 +190,6 @@ export const ExpressiveSliderStyles = [
             touch-action: none;
             user-select: none;
             position: relative;
-
-            --_state-layer-size: 0px;
         }
 
         /* ── Track segments (active + inactive) ─────────────────────────────── */
@@ -183,6 +200,11 @@ export const ExpressiveSliderStyles = [
             block-size: var(--_track-height);
             background: var(--_enabled-inactive-track-color);
             overflow: clip;
+            /* Default edge inset — overridden inline by renderTrackSegment.
+               Without this, a track would bleed to the slider edge when the
+               inline style is missing (e.g. during first-paint before render). */
+            inset-inline-start: var(--_edge-inset);
+            inset-inline-end: var(--_edge-inset);
         }
 
         .track[data-active='true'] {
@@ -190,88 +212,35 @@ export const ExpressiveSliderStyles = [
         }
 
         /* Range middle track — fills the active selection between the two
-           handles. Both edges but up against the handles in the gaps, so
-           both sides are sharp (2px trailing-shape). */
+           handles. The handle body sits over each end, so both caps are
+           rounded (CornerFull / --_active-leading-shape) — no inner-
+           corner shaping is needed since the handle hides the very end. */
         .track.track-middle {
-            border-start-start-radius: var(--_active-trailing-shape);
-            border-end-start-radius: var(--_active-trailing-shape);
-            border-start-end-radius: var(--_active-trailing-shape);
-            border-end-end-radius: var(--_active-trailing-shape);
-        }
-
-        /* Rounded corners — outer edge (slider edge) carries the rounded cap,
-           inner edge (where the track meets the handle / next segment) is 2px.
-           Naming convention:
-             active-leading-shape   — rounded cap on the slider's leading edge
-                                      (used for active's outer corner)
-             active-trailing-shape  — 2px on the slider's trailing edge
-                                      (used for active's inner corner)
-             inactive-trailing-shape — rounded cap on the slider's trailing edge
-                                       (used for inactive's outer corner)
-             inactive-leading-shape — 2px on the slider's leading edge
-                                      (used for inactive's inner corner)
-           Because the tokens map opposite sides for active vs inactive, the
-           inactive CSS swaps the leading/trailing assignments relative to the
-           active CSS. */
-
-        /* Horizontal — active segment carries the rounded cap on its outer
-           edge (slider-leading side for data-position='start', slider-trailing
-           side for data-position='end'). */
-        .track[data-position='start'][data-active='true'] {
             border-start-start-radius: var(--_active-leading-shape);
             border-end-start-radius: var(--_active-leading-shape);
-            border-start-end-radius: var(--_active-trailing-shape);
-            border-end-end-radius: var(--_active-trailing-shape);
+            border-start-end-radius: var(--_active-leading-shape);
+            border-end-end-radius: var(--_active-leading-shape);
         }
+
+        /* All four corners of every track segment are the rounded cap
+           value. The active track uses --_active-leading-shape (the
+           rounded-cap token); the inactive uses --_inactive-trailing-shape
+           (also rounded-cap, equal to leading per size). The handle
+           body hides the very end of each track, so we don't need an
+           inner-corner shaping. Writing-mode handles the axis swap. */
+
+        .track[data-position='start'][data-active='true'],
         .track[data-position='end'][data-active='true'] {
-            border-start-start-radius: var(--_active-trailing-shape);
-            border-end-start-radius: var(--_active-trailing-shape);
-            border-start-end-radius: var(--_active-leading-shape);
-            border-end-end-radius: var(--_active-leading-shape);
-        }
-
-        /* Horizontal — inactive segment carries the rounded cap on its outer
-           edge. inactive-trailing-shape is the rounded value, so it goes on
-           the slider-trailing side (RIGHT in horizontal). */
-        .track[data-position='start'][data-active='false'] {
-            border-start-start-radius: var(--_inactive-trailing-shape);
-            border-end-start-radius: var(--_inactive-trailing-shape);
-            border-start-end-radius: var(--_inactive-leading-shape);
-            border-end-end-radius: var(--_inactive-leading-shape);
-        }
-        .track[data-position='end'][data-active='false'] {
-            border-start-start-radius: var(--_inactive-leading-shape);
-            border-end-start-radius: var(--_inactive-leading-shape);
-            border-start-end-radius: var(--_inactive-trailing-shape);
-            border-end-end-radius: var(--_inactive-trailing-shape);
-        }
-
-        /* Vertical — same logical rule, but the outer edge is now at the top
-           or bottom of the track. The active segment in vertical standard
-           sits on the BOTTOM (slider-min end), so its outer corner is the
-           bottom corner. The inactive-start (TOP) and inactive-end (BOTTOM)
-           tracks each carry the rounded cap on their outer edge. */
-        :host([direction='vertical']) .track[data-position='start'][data-active='true'] {
             border-start-start-radius: var(--_active-leading-shape);
             border-end-start-radius: var(--_active-leading-shape);
-            border-start-end-radius: var(--_active-trailing-shape);
-            border-end-end-radius: var(--_active-trailing-shape);
-        }
-        :host([direction='vertical']) .track[data-position='end'][data-active='true'] {
-            border-start-start-radius: var(--_active-trailing-shape);
-            border-end-start-radius: var(--_active-trailing-shape);
             border-start-end-radius: var(--_active-leading-shape);
             border-end-end-radius: var(--_active-leading-shape);
         }
-        :host([direction='vertical']) .track[data-position='start'][data-active='false'] {
+
+        .track[data-position='start'][data-active='false'],
+        .track[data-position='end'][data-active='false'] {
             border-start-start-radius: var(--_inactive-trailing-shape);
             border-end-start-radius: var(--_inactive-trailing-shape);
-            border-start-end-radius: var(--_inactive-leading-shape);
-            border-end-end-radius: var(--_inactive-leading-shape);
-        }
-        :host([direction='vertical']) .track[data-position='end'][data-active='false'] {
-            border-start-start-radius: var(--_inactive-leading-shape);
-            border-end-start-radius: var(--_inactive-leading-shape);
             border-start-end-radius: var(--_inactive-trailing-shape);
             border-end-end-radius: var(--_inactive-trailing-shape);
         }
@@ -284,24 +253,14 @@ export const ExpressiveSliderStyles = [
             opacity: calc(var(--_disabled-inactive-track-opacity) / var(--_disabled-active-track-opacity));
         }
 
-        /* Vertical mode: tracks are absolutely positioned along the
-           vertical axis. The inline styles set top / bottom (which
-           are inset-block-start / inset-block-end in writing-mode:
-           vertical-lr) instead of left / right. The cross-axis
-           sizing (block-size = track-height) is the same as horizontal. */
-        :host([direction='vertical']) .track {
-            block-size: var(--_track-height);
-            inline-size: auto;
-            inset-inline-start: 0;
-            inset-inline-end: 0;
-        }
-
         /* ── Stop indicator (4px dot at the OUTER end of each inactive segment) ──
-           The dot marks the slider's min (left edge of left segment) and max
-           (right edge of right segment). Outer edge depends on data-position:
-             data-position='end'   → inline-end of the segment
-             data-position='start' → inline-start of the segment
-           In vertical mode the axis swaps, so it becomes block-end / block-start. */
+           The dot's CENTER sits on the visible track's outer edge, which
+           is edge-inset away from the slider edge. The dot's CENTER also
+           lines up with the edge tick dot (when ticks enabled) and the
+           handle center at value=min/value=max. Inset is calc'd so the
+           dot's left/right edge lands at the slider edge: the dot then
+           spans [0, stopIndicatorSize] with center at stopIndicatorSize/2
+           which equals edge-inset when stop-indicator-size == handle-width. */
         .stop-indicator {
             position: absolute;
             inline-size: var(--_stop-indicator-size);
@@ -309,15 +268,17 @@ export const ExpressiveSliderStyles = [
             border-radius: 50%;
             background: var(--_enabled-active-stop-indicator-color);
             inset-block-start: 50%;
-            inset-inline-end: var(--_stop-indicator-trailing-space);
+            /* Default for data-position='end' (right half / bottom half):
+               dot pinned to the slider's right edge; center at edge-inset. */
+            inset-inline-end: calc(var(--_edge-inset) - var(--_stop-indicator-size) / 2);
             transform: translateY(-50%);
         }
 
-        /* Horizontal: flip dot to inline-start when the segment sits on the
-           LEFT half of the slider. */
+        /* Horizontal: flip dot to inline-start when the segment sits on
+           the LEFT half of the slider. */
         .track[data-position='start'] .stop-indicator {
             inset-inline-end: auto;
-            inset-inline-start: var(--_stop-indicator-trailing-space);
+            inset-inline-start: calc(var(--_edge-inset) - var(--_stop-indicator-size) / 2);
             transform: translateY(-50%);
         }
 
@@ -327,19 +288,22 @@ export const ExpressiveSliderStyles = [
 
         /* Vertical: writing-mode: vertical-lr → inline axis is vertical,
            block axis is horizontal. The dot is centered horizontally
-           (block-center) and pinned to the outer vertical edge. */
+           (block-center) and pinned to the outer vertical edge. For
+           data-position='start' (TOP half): dot's top edge at the slider
+           top; for data-position='end' (BOTTOM half): dot's bottom edge
+           at the slider bottom. */
         :host([direction='vertical']) .track[data-position='start'] .stop-indicator {
-            inset-block-start: 50%;
+            inset-block-start: calc(var(--_edge-inset) - var(--_stop-indicator-size) / 2);
             inset-block-end: auto;
-            inset-inline-start: var(--_stop-indicator-trailing-space);
+            inset-inline-start: 50%;
             inset-inline-end: auto;
             transform: translate(-50%, 0);
         }
         :host([direction='vertical']) .track[data-position='end'] .stop-indicator {
-            inset-block-start: 50%;
-            inset-block-end: auto;
-            inset-inline-start: auto;
-            inset-inline-end: var(--_stop-indicator-trailing-space);
+            inset-block-start: auto;
+            inset-block-end: calc(var(--_edge-inset) - var(--_stop-indicator-size) / 2);
+            inset-inline-start: 50%;
+            inset-inline-end: auto;
             transform: translate(-50%, 0);
         }
 
@@ -357,6 +321,23 @@ export const ExpressiveSliderStyles = [
             pointer-events: none;
         }
 
+        /* ── Centered-mode center stop indicator (rendered when value=0) ──────
+           A 4px dot at the slider's geometric center, used as the visual
+           marker when the centered slider's value is exactly at the
+           midpoint. Same shape and color as the corner stop indicators. */
+        .center-stop {
+            position: absolute;
+            inset-inline-start: 50%;
+            inset-block-start: 50%;
+            inline-size: var(--_stop-indicator-size);
+            block-size: var(--_stop-indicator-size);
+            border-radius: 50%;
+            background: var(--_enabled-active-stop-indicator-color);
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
         /* ── Handle (visual thumb) ───────────────────────────────────────────── */
         .handle {
             position: absolute;
@@ -366,6 +347,7 @@ export const ExpressiveSliderStyles = [
             block-size: var(--_handle-size);
             background: var(--_enabled-handle-color);
             border-radius: 2px;
+            z-index: 2;
         }
 
         :host([disabled]) .handle {
@@ -382,6 +364,18 @@ export const ExpressiveSliderStyles = [
             inline-size: var(--_handle-width);
         }
 
+        /* ── Handle nub (rendered inside .handle for state layers / focus) ─────
+           Base slider's .handleNub holds the elevation wrapper; in the
+           expressive variant we don't use elevation, but the nub still
+           provides a hit-test surface for the ripple / focus-ring. Make
+           it the full size of the handle so the state layers cover it. */
+        .handleNub {
+            inline-size: 100%;
+            block-size: 100%;
+            border-radius: inherit;
+            pointer-events: none;
+        }
+
         /* ── Range handles — position is set per-instance via inline style ───
            The render code computes startFraction/endFraction from the
            current renderValueStart/renderValueEnd and emits a position
@@ -394,36 +388,78 @@ export const ExpressiveSliderStyles = [
             inset-block-start: 50%;
         }
 
-        /* ── Tick marks (per-step dots) ─────────────────────────────────────── */
+        /* ── Tick marks (per-step dots) ───────────────────────────────────────
+           Two radial-gradients on ::before (inactive) and ::after (active),
+           tiled across the visible-track width (inset by edge-inset on each
+           side). The active variant is clipped by --_active-track-start-clip
+           and --_active-track-end-clip (published from .container) so dots
+           in the active region render in the active color. Per the base
+           slider's pattern: the dot is placed at the LEFT edge of each
+           background tile so the dots land on the slider's value positions
+           (0%, 10%, ..., 100% for step=10 over min=0,max=100).
+
+           Vertical mode: the radial-gradient tile pattern tiles along the
+           inline axis (vertical in writing-mode: vertical-lr) — switch
+           background-repeat from repeat-x to repeat-y under the vertical
+           host. */
         .tickmarks {
             position: absolute;
             inset: 0;
             pointer-events: none;
+            /* The tick container is inset by --_edge-inset on the main axis
+               so the dots line up with the visible track edges. */
+            padding-inline-start: var(--_edge-inset);
+            padding-inline-end: var(--_edge-inset);
+            inset-inline-start: var(--_edge-inset);
+            inset-inline-end: var(--_edge-inset);
+            block-size: 100%;
         }
 
-        .tickmarks::before {
+        .tickmarks::before,
+        .tickmarks::after {
             content: '';
             position: absolute;
             inset: 0;
-            /* The dot is placed at the LEFT edge of each background tile so
-               the dots land on the slider's value positions (0%, 10%, ...,
-               100% for step=10). The background-position is offset by
-               NEGATIVE container-size so the FIRST tile's left edge sits
-               at -2px, putting its dot at 0px (the slider's left edge).
-               The last visible tile bleeds 2px past the right edge, so
-               the 11th dot lands at 100% (the slider's right edge).
-               This keeps the dots aligned with the handle position for
-               every tick value, including the slider's edges. */
+            background-size: calc((100% - var(--_with-tick-marks-container-size) * 2) / var(--_tick-count)) 100%;
+            background-repeat: repeat-x;
+        }
+
+        /* Inactive ticks — dots in the inactive color tiled across the
+           visible track. The radial-gradient places the dot at the LEFT
+           edge of each tile, and the background is offset so the FIRST
+           dot lands at the left edge of the visible track. */
+        .tickmarks::before {
             background-image: radial-gradient(
                 circle at var(--_with-tick-marks-container-size) center,
                 var(--_enabled-with-tick-marks-inactive-container-color, currentColor) 0,
-                var(--_enabled-with-tick-marks-inactive-container-color, currentColor)
-                    calc(var(--_with-tick-marks-container-size) / 2),
+                var(--_enabled-with-tick-marks-inactive-container-color, currentColor) calc(var(--_with-tick-marks-container-size) / 2),
                 transparent calc(var(--_with-tick-marks-container-size) / 2)
             );
-            background-size: calc(100% / var(--_tick-count)) 100%;
-            background-position: calc(-1 * var(--_with-tick-marks-container-size)) 0;
-            background-repeat: repeat-x;
+        }
+
+        /* Active ticks — same gradient but in the active color, clipped
+           by the active region (between valueStart and valueEnd). */
+        .tickmarks::after {
+            background-image: radial-gradient(
+                circle at var(--_with-tick-marks-container-size) center,
+                var(--_enabled-with-tick-marks-active-container-color, currentColor) 0,
+                var(--_enabled-with-tick-marks-active-container-color, currentColor) calc(var(--_with-tick-marks-container-size) / 2),
+                transparent calc(var(--_with-tick-marks-container-size) / 2)
+            );
+            clip-path: inset(0 var(--_active-track-end-clip) 0 var(--_active-track-start-clip));
+        }
+
+        /* RTL: swap the clip sides so the active-tick region flips with
+           the value direction. */
+        .tickmarks:dir(rtl)::after {
+            clip-path: inset(0 var(--_active-track-start-clip) 0 var(--_active-track-end-clip));
+        }
+
+        /* Vertical: switch repeat axis so dots tile along the main axis
+           (vertical in writing-mode: vertical-lr). */
+        :host([direction='vertical']) .tickmarks::before,
+        :host([direction='vertical']) .tickmarks::after {
+            background-repeat: repeat-y;
         }
 
         /* ── Value indicator (label pill) ─────────────────────────────────────
@@ -464,12 +500,11 @@ export const ExpressiveSliderStyles = [
         }
 
         /* Vertical mode: in writing-mode: vertical-lr the inline axis is
-           vertical and the block axis is horizontal. The label sits to
-           the RIGHT of the handle (block axis = horizontal) and is
-           vertically centered (inline axis = vertical). The
-           translateY(-50%) folds the vertical centering into the
-           transform so the scale animation pivots on the same point
-           as the placement. */
+           vertical and the block axis is horizontal. The label sits to the
+           RIGHT of the handle (block axis = horizontal) and is vertically
+           centered (inline axis = vertical). The translateY(-50%) folds the
+           vertical centering into the transform so the scale animation
+           pivots on the same point as the placement. */
         :host([direction='vertical']) .label {
             inset-block-end: auto;
             inset-block-start: 100%;
@@ -485,9 +520,6 @@ export const ExpressiveSliderStyles = [
             transform: translate(-50%, 0) scale(1);
         }
 
-        /* Vertical mode: label is positioned to the right of the handle
-           and vertically centered. The scale pivots around the same
-           center point as the placement. */
         :host([direction='vertical']:focus-within) .label,
         :host([direction='vertical']) .handle.hover .label {
             transform: translate(0, -50%) scale(1);
@@ -513,24 +545,18 @@ export const ExpressiveSliderStyles = [
 
         /* Range: clip the two native inputs so each half of the slider
            feeds pointer events to the right handle. input.start owns the
-           left half (clipped to the right of 50%), input.end owns the
-           right half (clipped to the left of 50%). The clip is set via
-           inline style on the input directly (passed from renderInput)
-           so the main-axis logic (horizontal vs vertical writing-mode)
-           is centralized in the TS, not duplicated in CSS. The clip
-           pieces look like inset-inline-end: 50% (left half) or
-           inset-inline-start: 50% (right half). */
+           half to the LEFT of the midpoint between the values; input.end
+           owns the right half. The clip is driven by --_clip-to-start /
+           --_clip-to-end (published from the inline style), so the split
+           moves with the values rather than being fixed at 50%. Writing-
+           mode handles the axis swap — clip-path inset() works on physical
+           edges, and the input itself is reoriented via writing-mode:
+           vertical-lr in vertical mode. */
         .ranged input.start {
-            clip-path: inset(0 50% 0 0);
+            clip-path: inset(0 var(--_clip-to-end) 0 0);
         }
         .ranged input.end {
-            clip-path: inset(0 0 0 50%);
-        }
-        :host([direction='vertical']) .ranged input.start {
-            clip-path: inset(50% 0 0 0);
-        }
-        :host([direction='vertical']) .ranged input.end {
-            clip-path: inset(0 0 50% 0);
+            clip-path: inset(0 0 0 var(--_clip-to-start));
         }
 
         /* Vertical: native input needs vertical orientation. */
@@ -569,32 +595,21 @@ export const ExpressiveSliderStyles = [
         /* ── Active overlay (centered type only) ─────────────────────────────
            The overlay's block-size matches the track height (not the
            container) so it sits flush with the inactive tracks on the
-           cross axis. It's vertically centered within the container. */
+           cross axis. It's vertically centered within the container.
+           The center-side edge sits against --_center-inset (not against
+           the handle), so both ends of the overlay are rounded (CornerFull).
+           z-index: 1 keeps it above the tracks in vertical mode where DOM
+           order may place tracks above the overlay. */
         .active-overlay {
             position: absolute;
             background: var(--_enabled-active-track-color);
             block-size: var(--_track-height);
             inset-block-start: calc((100% - var(--_track-height)) / 2);
-        }
-
-        /* Rounded corners for the centered active overlay. The overlay is
-           positioned at the container level (set inline), so these
-           rules only own the rounded caps. The edge touching the value
-           (the handle side) is rounded; the edge touching the slider
-           center is sharp. */
-        .active-overlay[data-position='end'] {
-            border-start-start-radius: var(--_active-trailing-shape);
-            border-end-start-radius: var(--_active-trailing-shape);
-            border-start-end-radius: var(--_active-leading-shape);
-            border-end-end-radius: var(--_active-leading-shape);
-        }
-        .active-overlay[data-position='start'] {
+            z-index: 1;
             border-start-start-radius: var(--_active-leading-shape);
             border-end-start-radius: var(--_active-leading-shape);
-            border-start-end-radius: var(--_active-trailing-shape);
-            border-end-end-radius: var(--_active-trailing-shape);
-        }
-            border-end-end-radius: var(--_active-trailing-shape);
+            border-start-end-radius: var(--_active-leading-shape);
+            border-end-end-radius: var(--_active-leading-shape);
         }
     `,
 ]

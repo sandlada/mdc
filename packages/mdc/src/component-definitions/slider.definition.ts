@@ -52,8 +52,6 @@ export const SliderDefinition = createStyleDefinition({
     'extra-large-inactive-track-trailing-shape': `28px`,
     'extra-large-active-handle-height'         : `108px`,
     'extra-large-handle-width'                 : `4px`,
-    'track-segment-gap'                        : `6px`,
-    'range-handle-center-gap'                  : `6px`,
     'center-dot-size'                          : `4px`,
     'medium-icon-padding'                      : `6px`,
     'medium-icon-size'                         : `24px`,
