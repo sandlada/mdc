@@ -59,15 +59,21 @@ export const SliderDefinition = createStyleDefinition({
     'large-icon-size'                          : `24px`,
     'extra-large-icon-padding'                 : `8px`,
     'extra-large-icon-size'                    : `32px`,
-    // Enabled — label (value indicator)
-    'label-container-height'                   : `28px`,
-    'enabled-label-container-color'            : Color.Primary,
-    'enabled-label-text-color'                 : Color.OnPrimary,
-    'label-text-font'                          : Typescale.LabelMedium.Font,
-    'label-text-line-height'                   : Typescale.LabelMedium.LineHeight,
-    'label-text-size'                          : Typescale.LabelMedium.FontSize,
-    'label-text-tracking'                      : Typescale.LabelMedium.Tracking,
-    'label-text-weight'                        : Typescale.LabelMedium.FontWeight,
+    // Enabled - label (value indicator). MD3E spec: 48x44 pill with
+    // 16/12 padding, InverseSurface background, InverseOnSurface text,
+    // label-large typography, and a 6px gap to the slider edge.
+    'label-container-width'                    : `48px`,
+    'label-container-height'                   : `44px`,
+    'label-x-padding'                          : `16px`,
+    'label-y-padding'                          : `12px`,
+    'label-bottom-space'                       : `6px`,
+    'enabled-label-container-color'            : Color.InverseSurface,
+    'enabled-label-text-color'                 : Color.InverseOnSurface,
+    'label-text-font'                          : Typescale.LabelLarge.Font,
+    'label-text-line-height'                   : Typescale.LabelLarge.LineHeight,
+    'label-text-size'                          : Typescale.LabelLarge.FontSize,
+    'label-text-tracking'                      : Typescale.LabelLarge.Tracking,
+    'label-text-weight'                        : Typescale.LabelLarge.FontWeight,
     // Enabled — stop indicator
     'stop-indicator-size'                      : `4px`,
     'stop-indicator-shape'                     : Shape.Full,
@@ -125,7 +131,7 @@ export const SliderDefinition = createStyleDefinition({
     'pressed-value-indicator-label-size'         : Typescale.LabelLarge.FontSize,
     'pressed-value-indicator-label-tracking'     : Typescale.LabelLarge.Tracking,
     'pressed-value-indicator-label-weight'       : Typescale.LabelLarge.FontWeight,
-    'pressed-value-indicator-active-bottom-space': `12px`,
+    'pressed-value-indicator-active-bottom-space': `6px`,
 })
 
 /**

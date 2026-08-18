@@ -67,6 +67,16 @@ export const ExpressiveSliderStyles = [
             --_stop-indicator-size: 4px;
             /* Visible gap between handle edge and track edge. */
             --_thumb-track-gap: 4px;
+            /* Label (value indicator) — MD3E spec: 48x44 pill, 16/12
+               padding, Full shape, 6px gap to slider. Hardcoded here
+               because the public token indirection loses the fallback
+               in the current vite/oxc transform pipeline; the public
+               tokens are still in slider.definition.ts for consumers. */
+            --_label-container-width: 48px;
+            --_label-container-height: 44px;
+            --_label-container-padding-inline: 16px;
+            --_label-container-padding-block: 12px;
+            --_label-bottom-space: 6px;
             /* Edge inset: the visible track is inset by handleWidth/2 on
                each side. Derives from --_handle-width so each size preset
                gets its own inset for free. */
@@ -464,7 +474,10 @@ export const ExpressiveSliderStyles = [
         }
 
         /* ── Value indicator (label pill) ─────────────────────────────────────
-           Position relative to the .handle element (its parent). In
+           48×44 pill (MD3E spec) with 16px horizontal and 12px vertical
+           padding, Full shape, InverseSurface color, InverseOnSurface
+           text, label-large typography, and a 6px gap to the slider.
+           Position is relative to the .handle element (its parent). In
            horizontal mode the label sits ABOVE the handle, centered
            horizontally. In vertical mode it sits to the RIGHT of the
            handle, centered vertically. The transform folds in the
@@ -474,7 +487,8 @@ export const ExpressiveSliderStyles = [
             position: absolute;
             box-sizing: border-box;
             display: flex;
-            padding: 4px;
+            padding-inline: var(--_label-container-padding-inline);
+            padding-block: var(--_label-container-padding-block);
             place-content: center;
             place-items: center;
             border-radius: ${unsafeCSS(Shape.Full.ToCSSVariable())};
@@ -484,10 +498,12 @@ export const ExpressiveSliderStyles = [
             font-size: var(--_label-text-size);
             line-height: var(--_label-text-line-height);
             font-weight: var(--_label-text-weight);
+            letter-spacing: var(--_label-text-tracking);
 
-            inset-block-end: 100%;
+            /* 6px gap above the handle's bottom edge in horizontal mode. */
+            inset-block-end: calc(100% + var(--_label-bottom-space));
             inset-inline-start: 50%;
-            min-inline-size: var(--_label-container-height);
+            min-inline-size: var(--_label-container-width);
             min-block-size: var(--_label-container-height);
             background: var(--_enabled-label-container-color);
             transform-origin: center bottom;
@@ -508,10 +524,9 @@ export const ExpressiveSliderStyles = [
            pivots on the same point as the placement. */
         :host([direction='vertical']) .label {
             inset-block-end: auto;
-            inset-block-start: 100%;
+            inset-block-start: calc(100% + var(--_label-bottom-space));
             inset-inline-start: 50%;
             transform-origin: center left;
-            margin-block-start: 8px;
             transform: translate(0, -50%) scale(0);
         }
 
