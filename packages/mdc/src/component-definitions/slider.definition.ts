@@ -74,6 +74,13 @@ export const SliderDefinition = createStyleDefinition({
     'stop-indicator-size'                      : `4px`,
     'stop-indicator-shape'                     : Shape.Full,
     'stop-indicator-trailing-space'            : `4px`,
+    // Enabled — tick marks
+    'with-tick-marks-container-shape'          : Shape.Full,
+    'with-tick-marks-container-size'           : `2px`,
+    'enabled-with-tick-marks-active-container-color'    : Color.OnPrimary,
+    'enabled-with-tick-marks-active-container-opacity'  : `0.38`,
+    'enabled-with-tick-marks-inactive-container-color'  : Color.OnSurfaceVariant,
+    'enabled-with-tick-marks-inactive-container-opacity': `0.38`,
     'enabled-active-stop-indicator-color'              : Color.OnSecondaryContainer,
     'enabled-inactive-stop-indicator-color'            : Color.OnPrimary,
     'enabled-active-stop-indicator-container-color'    : Color.OnPrimary,
