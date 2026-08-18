@@ -195,14 +195,19 @@ export const ExpressiveSliderStyles = [
         /* ── Track segments (active + inactive) ─────────────────────────────── */
         .track {
             position: absolute;
-            inset-block-start: 50%;
-            transform: translateY(-50%);
+            /* Cross-axis centering on the BLOCK axis. In horizontal mode
+               (block axis = vertical) this centers the track vertically;
+               in vertical-lr (block axis = horizontal) it centers the
+               track horizontally. The track's block-size matches its
+               track-height, so this is exact centering. */
+            inset-block-start: calc(50% - var(--_track-height) / 2);
             block-size: var(--_track-height);
             background: var(--_enabled-inactive-track-color);
             overflow: clip;
-            /* Default edge inset — overridden inline by renderTrackSegment.
-               Without this, a track would bleed to the slider edge when the
-               inline style is missing (e.g. during first-paint before render). */
+            /* Main-axis edge-inset fallback. The TS render code always
+               overrides these via inline styles, but the defaults keep
+               the track from bleeding past the visible track range
+               before the first paint. */
             inset-inline-start: var(--_edge-inset);
             inset-inline-end: var(--_edge-inset);
         }
@@ -267,11 +272,12 @@ export const ExpressiveSliderStyles = [
             block-size: var(--_stop-indicator-size);
             border-radius: 50%;
             background: var(--_enabled-active-stop-indicator-color);
-            inset-block-start: 50%;
+            /* Cross-axis centering on the BLOCK axis (horizontal for
+               vertical mode, vertical for horizontal mode). */
+            inset-block-start: calc(50% - var(--_stop-indicator-size) / 2);
             /* Default for data-position='end' (right half / bottom half):
                dot pinned to the slider's right edge; center at edge-inset. */
             inset-inline-end: calc(var(--_edge-inset) - var(--_stop-indicator-size) / 2);
-            transform: translateY(-50%);
         }
 
         /* Horizontal: flip dot to inline-start when the segment sits on
@@ -279,7 +285,6 @@ export const ExpressiveSliderStyles = [
         .track[data-position='start'] .stop-indicator {
             inset-inline-end: auto;
             inset-inline-start: calc(var(--_edge-inset) - var(--_stop-indicator-size) / 2);
-            transform: translateY(-50%);
         }
 
         :host([disabled]) .stop-indicator {
@@ -293,18 +298,19 @@ export const ExpressiveSliderStyles = [
            top; for data-position='end' (BOTTOM half): dot's bottom edge
            at the slider bottom. */
         :host([direction='vertical']) .track[data-position='start'] .stop-indicator {
-            inset-block-start: calc(var(--_edge-inset) - var(--_stop-indicator-size) / 2);
+            /* In vertical mode, block axis is horizontal (cross-axis). Center
+               the dot horizontally on the cross-axis. The inline-axis position
+               (top/bottom) is the edge. */
+            inset-block-start: calc(50% - var(--_stop-indicator-size) / 2);
             inset-block-end: auto;
-            inset-inline-start: 50%;
+            inset-inline-start: calc(var(--_edge-inset) - var(--_stop-indicator-size) / 2);
             inset-inline-end: auto;
-            transform: translate(-50%, 0);
         }
         :host([direction='vertical']) .track[data-position='end'] .stop-indicator {
-            inset-block-start: auto;
-            inset-block-end: calc(var(--_edge-inset) - var(--_stop-indicator-size) / 2);
-            inset-inline-start: 50%;
-            inset-inline-end: auto;
-            transform: translate(-50%, 0);
+            inset-block-start: calc(50% - var(--_stop-indicator-size) / 2);
+            inset-block-end: auto;
+            inset-inline-start: auto;
+            inset-inline-end: calc(var(--_edge-inset) - var(--_stop-indicator-size) / 2);
         }
 
         /* ── Center dot (range slider center reference) ────────────────────── */
@@ -341,8 +347,10 @@ export const ExpressiveSliderStyles = [
         /* ── Handle (visual thumb) ───────────────────────────────────────────── */
         .handle {
             position: absolute;
-            inset-block-start: 50%;
-            transform: translateY(-50%);
+            /* Cross-axis centering on the BLOCK axis. In horizontal mode
+               (block = vertical) this centers the handle vertically; in
+               vertical-lr (block = horizontal) it centers horizontally. */
+            inset-block-start: calc(50% - var(--_handle-size) / 2);
             inline-size: var(--_handle-width);
             block-size: var(--_handle-size);
             background: var(--_enabled-handle-color);
@@ -559,10 +567,16 @@ export const ExpressiveSliderStyles = [
             clip-path: inset(0 0 0 var(--_clip-to-start));
         }
 
-        /* Vertical: native input needs vertical orientation. */
+        /* Vertical: native input needs vertical orientation. The
+           direction: rtl previously used here flipped the input's
+           internal min/max orientation, which inverted the scroll
+           direction (drag DOWN decreased value while the layout had
+           max at the bottom). Removing it makes the native input's
+           value mapping match the rendered layout: drag DOWN increases
+           value (toward max at the bottom of the slider), drag UP
+           decreases value (toward min at the top). */
         :host([direction='vertical']) input[type='range'] {
             writing-mode: vertical-lr;
-            direction: rtl;
             inline-size: 100%;
             block-size: 100%;
         }
@@ -610,6 +624,10 @@ export const ExpressiveSliderStyles = [
             border-end-start-radius: var(--_active-leading-shape);
             border-start-end-radius: var(--_active-leading-shape);
             border-end-end-radius: var(--_active-leading-shape);
+        }
+
+        :host([disabled]) .active-overlay {
+            background: var(--_disabled-active-track-color);
         }
     `,
 ]

@@ -117,8 +117,15 @@ export class MDCExpressiveSlider extends BaseSlider implements IExpressiveSlider
         const centeredInputMin = -this.max
         const centeredInputMax = this.max
 
-        const posMainStart = isVerticalDirection ? 'inset-block-start' : 'inset-inline-start'
-        const posMainEnd = isVerticalDirection ? 'inset-block-end' : 'inset-inline-end'
+        // Main axis is always the INLINE axis — horizontal in default
+        // writing mode (horizontal-tb), vertical in vertical-lr. The
+        // writing-mode declaration on :host reorients the inline axis,
+        // so the same `inset-inline-start` / `inset-inline-end` strings
+        // work for both directions. (The OLD code swapped to
+        // `inset-block-*` for vertical, which positioned along the
+        // CROSS axis instead — making vertical broken.)
+        const posMainStart = 'inset-inline-start'
+        const posMainEnd = 'inset-inline-end'
 
         // ── Inline position styles ──────────────────────────────────────────
         // The container is `display: block` (no flex gap). Tracks and
@@ -132,9 +139,6 @@ export class MDCExpressiveSlider extends BaseSlider implements IExpressiveSlider
         // is `--_thumb-track-gap` (4px by default), positioned at the
         // handle's leading/trailing edge so the rounded track cap is
         // visible on both sides of the handle.
-        //
-        // In vertical mode every `left`/`right` becomes
-        // `inset-block-start`/`inset-block-end` (writing-mode: vertical-lr).
 
         // Handle: `inset-inline-start = fraction * (100% - handleWidth)`.
         // At fraction=0, left edge at 0, center at handleWidth/2 (= edge-inset).
@@ -274,8 +278,8 @@ export class MDCExpressiveSlider extends BaseSlider implements IExpressiveSlider
      */
     protected renderTrackMiddle(startFraction: number, endFraction: number) {
         const isVertical = this.direction === Direction.Vertical
-        const posMainStart = isVertical ? 'inset-block-start' : 'inset-inline-start'
-        const posMainEnd = isVertical ? 'inset-block-end' : 'inset-inline-end'
+        const posMainStart = 'inset-inline-start'
+        const posMainEnd = 'inset-inline-end'
         const style =
             `${posMainStart}: calc(${startFraction} * (100% - var(--_handle-width)) + var(--_handle-width) + var(--_thumb-track-gap)); ` +
             `${posMainEnd}: calc(100% - ${endFraction} * (100% - var(--_handle-width)) + var(--_thumb-track-gap));`
@@ -297,8 +301,8 @@ export class MDCExpressiveSlider extends BaseSlider implements IExpressiveSlider
         const fractions = this.computeFractions()
         const { startFraction, endFraction, normalized } = fractions
 
-        const posMainStart = isVertical ? 'inset-block-start' : 'inset-inline-start'
-        const posMainEnd = isVertical ? 'inset-block-end' : 'inset-inline-end'
+        const posMainStart = 'inset-inline-start'
+        const posMainEnd = 'inset-inline-end'
 
         if (isStandard) {
             // Standard: track-start is active, track-end is inactive. In
@@ -396,8 +400,8 @@ export class MDCExpressiveSlider extends BaseSlider implements IExpressiveSlider
     protected renderCenteredOverlay(fractions: ReturnType<MDCExpressiveSlider['computeFractions']>) {
         const { normalized: valueFraction } = fractions
         const isVertical = this.direction === Direction.Vertical
-        const posMainStart = isVertical ? 'inset-block-start' : 'inset-inline-start'
-        const posMainEnd = isVertical ? 'inset-block-end' : 'inset-inline-end'
+        const posMainStart = 'inset-inline-start'
+        const posMainEnd = 'inset-inline-end'
 
         // Exactly at center: render a single stop indicator at 50%.
         if (valueFraction === 0.5) {
