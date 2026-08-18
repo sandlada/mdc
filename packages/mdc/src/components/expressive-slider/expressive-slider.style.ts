@@ -384,17 +384,10 @@ export const ExpressiveSliderStyles = [
             pointer-events: none;
         }
 
-        /* ── Range handles — position is set per-instance via inline style ───
-           The render code computes startFraction/endFraction from the
-           current renderValueStart/renderValueEnd and emits a position
-           style attribute on each handle. The CSS only needs to give the
-           handles the same default size/color as the standard handle and
-           let the inline style drive the placement. */
-        .handle.range-handle-start,
-        .handle.range-handle-end {
-            position: absolute;
-            inset-block-start: 50%;
-        }
+        /* Range handles inherit positioning from the .handle rule above —
+           cross-axis centering (inset-block-start: calc(50% - handle-size / 2)),
+           sizes, and colors are all shared. The inline style set by the
+           render code drives per-handle placement along the main axis. */
 
         /* ── Tick marks (per-step dots) ───────────────────────────────────────
            Two radial-gradients on ::before (inactive) and ::after (active),
@@ -565,6 +558,21 @@ export const ExpressiveSliderStyles = [
         }
         .ranged input.end {
             clip-path: inset(0 0 0 var(--_clip-to-start));
+        }
+
+        /* Vertical: the slider's value axis is top-to-bottom (inline axis
+           in vertical-lr), so input.start owns the TOP half and input.end
+           owns the BOTTOM half. The clip-path inset function uses
+           PHYSICAL edges (top/right/bottom/left), so we inset from the
+           top/bottom here instead of from the right/left. --_clip-to-start
+           is measured from inline-start (= top in vertical-lr);
+           --_clip-to-end is measured from inline-end (= bottom in
+           vertical-lr). */
+        :host([direction='vertical']) .ranged input.start {
+            clip-path: inset(0 0 var(--_clip-to-end) 0);
+        }
+        :host([direction='vertical']) .ranged input.end {
+            clip-path: inset(var(--_clip-to-start) 0 0 0);
         }
 
         /* Vertical: native input needs vertical orientation. The
