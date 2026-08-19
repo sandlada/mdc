@@ -29,17 +29,17 @@ const modalTokenString = unsafeCSS(
     defineVars(modalTokenRecord, true).join('')
 )
 
-// Each variant's tokens are scoped to its host-class so the modal record
+// Each variant's tokens are scoped to its variant-class so the modal record
 // does not clobber the standard record (and vice versa). The variant class
 // lives on the inner `<dialog>` element (rendered via classMap), so we
-// reach it through `:host:has(...)` — same pattern as snackbar.style.ts and
-// button.style.ts.
+// target it directly via `dialog.<variant>` — Lit shadow CSS can match
+// elements rendered in the shadow root this way.
 const standardTokens = css`
-    :host:has(.standard) {${standardTokenString};}
+    dialog.standard {${standardTokenString};}
 `
 
 const modalTokens = css`
-    :host:has(.modal) {${modalTokenString};}
+    dialog.modal {${modalTokenString};}
 `
 
 export const sideSheetStyles = [

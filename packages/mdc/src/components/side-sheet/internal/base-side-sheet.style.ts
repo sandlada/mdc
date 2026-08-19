@@ -31,7 +31,7 @@ export const baseSideSheetStyles = css`
         z-index: 0;
     }
 
-    :host(.modal[open]) .scrim {
+    dialog.modal[open] .scrim {
         opacity: var(--mdc-side-sheet-enabled-container-opacity-modal, 0.32);
         pointer-events: auto;
     }
@@ -73,12 +73,12 @@ export const baseSideSheetStyles = css`
         z-index: 1;
     }
 
-    :host(.open) .container {
+    dialog.open .container {
         transform: translateX(0);
     }
 
     /* sheet-edge=start: anchor to inline-start, flip rounded corners. */
-    :host(.edge-start) .container {
+    dialog.edge-start .container {
         inset-inline-end: auto;
         inset-inline-start: 0;
         border-start-start-radius: 0;
@@ -94,14 +94,14 @@ export const baseSideSheetStyles = css`
         transform: translateX(-100%);
     }
 
-    :host(.edge-start.open) .container {
+    dialog.edge-start.open .container {
         transform: translateX(0);
     }
 
     /* Quick mode: no transitions. */
-    :host(.quick) .container,
-    :host(.quick.open) .container,
-    :host(.quick) .scrim {
+    dialog.quick .container,
+    dialog.quick.open .container,
+    dialog.quick .scrim {
         transition: none;
     }
 
@@ -130,8 +130,8 @@ export const baseSideSheetStyles = css`
         color: var(--mdc-side-sheet-enabled-headline-color, currentColor);
     }
 
-    :host(.has-back-icon) .headline,
-    :host(.show-back-button) .headline {
+    dialog.has-back-icon .headline,
+    dialog.show-back-button .headline {
         padding-inline-start: var(
             --mdc-side-sheet-headline-icon-container-inline-leading-padding-space,
             16px
