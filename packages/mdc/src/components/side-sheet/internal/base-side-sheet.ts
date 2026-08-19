@@ -9,10 +9,18 @@ import { classMap } from 'lit/directives/class-map.js'
 import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
 import { baseSideSheetStyles } from './base-side-sheet.style'
-import type {
-    ISideSheet,
-    SideSheetEdge,
-    SideSheetVariant,
+import {
+    SIDE_SHEET_ACTION_EVENT,
+    SIDE_SHEET_CLOSED_EVENT,
+    SIDE_SHEET_CLOSING_EVENT,
+    SIDE_SHEET_OPENED_EVENT,
+    SIDE_SHEET_OPENING_EVENT,
+    type ISideSheet,
+    type ISideSheetActionEventDetail,
+    type ISideSheetClosedEventDetail,
+    type SideSheetCloseReason,
+    type SideSheetEdge,
+    type SideSheetVariant,
 } from '../side-sheet.interface'
 
 /**
@@ -77,6 +85,10 @@ export abstract class BaseSideSheet extends composeMixin(
     @state()
     protected hasBackIcon: boolean = false
 
+    private lastCloseReason: SideSheetCloseReason = 'programmatic'
+
+    public declare ariaLabel: string | null
+
     protected getRenderClasses(): Record<string, boolean | string> {
         return {
             'standard'    : this.variant === 'standard',
@@ -102,18 +114,97 @@ export abstract class BaseSideSheet extends composeMixin(
                 part="host"
                 ?open=${this.open}
                 .returnValue=${this.returnValue}
-            ></dialog>
+                aria-label=${this.ariaLabel || nothing}
+                role="dialog"
+                @cancel=${this.handleNativeCancel}
+                @click=${this.handleHostClick}
+                @keydown=${this.handleKeydown}
+            >
+                ${!this.noFocusTrap ? this.renderFocusTrap('first') : nothing}
+
+                <span class="scrim" aria-hidden="true"></span>
+
+                <div class="container"
+                    part="container"
+                    @transitionend=${this.handleContainerTransitionEnd}>
+                    <header class="headline">
+                        ${this.renderHeadlineBackIcon()}
+                        <h2 class="headline-label">
+                            <slot name="headline"
+                                @slotchange=${this.handleHeadlineSlotChange}></slot>
+                        </h2>
+                        <button class="close-icon"
+                            type="button"
+                            aria-label="Close"
+                            @click=${this.handleCloseIconClick}>
+                            <slot name="close-icon"
+                                @slotchange=${this.handleCloseIconSlotChange}>
+                                <svg viewBox="0 0 24 24" width="24" height="24"
+                                    fill="currentColor" aria-hidden="true">
+                                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41
+                                        10.59 12 5 17.59 6.41 19 12 13.41 17.59 19
+                                        19 17.59 13.41 12z"/>
+                                </svg>
+                            </slot>
+                        </button>
+                    </header>
+
+                    <mdc-divider></mdc-divider>
+
+                    <div class="content">
+                        <slot @slotchange=${this.handleContentSlotChange}></slot>
+                    </div>
+
+                    <footer class="actions"
+                        ?hidden=${!this.hasActions}>
+                        <mdc-divider></mdc-divider>
+                        <div class="actions-row">
+                            <slot name="actions"
+                                @slotchange=${this.handleActionsSlotChange}></slot>
+                        </div>
+                    </footer>
+                </div>
+
+                ${!this.noFocusTrap ? this.renderFocusTrap('last') : nothing}
+            </dialog>
+        `
+    }
+
+    protected renderHeadlineBackIcon(): TemplateResult | typeof nothing {
+        if (this.variant !== 'modal' || !this.showBackButton) return nothing
+        return html`
+            <button class="headline-icon"
+                type="button"
+                aria-label="Back"
+                @click=${this.handleBackIconClick}>
+                <slot name="headline-icon"
+                    @slotchange=${this.handleBackIconSlotChange}></slot>
+            </button>
+        `
+    }
+
+    protected renderFocusTrap(position: 'first' | 'last'): TemplateResult {
+        return html`
+            <div class="focus-trap focus-trap-${position}"
+                tabindex="0"
+                @focus=${position === 'first'
+                    ? this.handleFirstFocusTrapFocus
+                    : this.handleLastFocusTrapFocus}>
+            </div>
         `
     }
 
     public async show(): Promise<void> {
         if (this.open) return
         this.open = true
+        if (this.quick) await this.resolveQuick('open')
     }
 
     public async hide(): Promise<void> {
         if (!this.open) return
+        this.lastCloseReason = 'programmatic'
         this.open = false
+        if (this.quick) await this.resolveQuick('close')
     }
 
     public async close(returnValue?: string): Promise<void> {
@@ -121,7 +212,121 @@ export abstract class BaseSideSheet extends composeMixin(
         await this.hide()
     }
 
-    protected override willUpdate(_changedProperties: PropertyValues<this>): void {
-        // Filled in by Task 4.
+    protected override willUpdate(changed: PropertyValues<this>): void {
+        if (changed.has('open')) {
+            if (this.open) {
+                this.dispatchEvent(new Event(
+                    SIDE_SHEET_OPENING_EVENT,
+                    { bubbles: true, composed: true },
+                ))
+            } else {
+                this.dispatchEvent(new Event(
+                    SIDE_SHEET_CLOSING_EVENT,
+                    { bubbles: true, composed: true },
+                ))
+            }
+        }
+    }
+
+    private handleContainerTransitionEnd(event: TransitionEvent): void {
+        if (event.propertyName !== 'transform') return
+        if (this.open) {
+            this.dispatchEvent(new Event(
+                SIDE_SHEET_OPENED_EVENT,
+                { bubbles: true, composed: true },
+            ))
+        } else {
+            this.dispatchEvent(new CustomEvent<ISideSheetClosedEventDetail>(
+                SIDE_SHEET_CLOSED_EVENT,
+                {
+                    bubbles: true,
+                    composed: true,
+                    detail: {
+                        returnValue: this.returnValue,
+                        reason: this.lastCloseReason,
+                    },
+                },
+            ))
+        }
+    }
+
+    private async resolveQuick(which: 'open' | 'close'): Promise<void> {
+        // Wait one frame so the attribute is committed, then dispatch the
+        // matching 'after' event.
+        await new Promise(requestAnimationFrame)
+        if (which === 'open') {
+            this.dispatchEvent(new Event(
+                SIDE_SHEET_OPENED_EVENT,
+                { bubbles: true, composed: true },
+            ))
+        } else {
+            this.dispatchEvent(new CustomEvent<ISideSheetClosedEventDetail>(
+                SIDE_SHEET_CLOSED_EVENT,
+                {
+                    bubbles: true,
+                    composed: true,
+                    detail: { returnValue: this.returnValue, reason: this.lastCloseReason },
+                },
+            ))
+        }
+    }
+
+    private handleHeadlineSlotChange(event: Event): void {
+        const slot = event.target as HTMLSlotElement
+        this.hasHeadline = slot.assignedElements({ flatten: true }).length > 0
+    }
+
+    private handleContentSlotChange(event: Event): void {
+        const slot = event.target as HTMLSlotElement
+        this.hasContent = slot.assignedElements({ flatten: true }).length > 0
+    }
+
+    private handleActionsSlotChange(event: Event): void {
+        const slot = event.target as HTMLSlotElement
+        this.hasActions = slot.assignedElements({ flatten: true }).length > 0
+    }
+
+    private handleCloseIconSlotChange(event: Event): void {
+        const slot = event.target as HTMLSlotElement
+        this.hasCloseIcon = slot.assignedElements({ flatten: true }).length > 0
+    }
+
+    private handleBackIconSlotChange(event: Event): void {
+        const slot = event.target as HTMLSlotElement
+        this.hasBackIcon = slot.assignedElements({ flatten: true }).length > 0
+    }
+
+    private handleNativeCancel(_event: Event): void {
+        // Modal-specific; Task 8 fills this in.
+    }
+
+    private handleHostClick(_event: MouseEvent): void {
+        // Modal-specific; Task 8 fills this in.
+    }
+
+    private handleKeydown(_event: KeyboardEvent): void {
+        // Modal-specific; Task 8 fills this in.
+    }
+
+    private handleCloseIconClick(_event: MouseEvent): void {
+        this.lastCloseReason = 'close-button'
+        void this.hide()
+    }
+
+    private handleBackIconClick(_event: MouseEvent): void {
+        this.dispatchEvent(new CustomEvent<ISideSheetActionEventDetail>(
+            SIDE_SHEET_ACTION_EVENT,
+            { bubbles: true, composed: true, detail: { source: 'back' } },
+        ))
+        this.lastCloseReason = 'back-button'
+        void this.hide()
+    }
+
+    private handleFirstFocusTrapFocus(): void {
+        // Filled in by Task 6.
+    }
+
+    private handleLastFocusTrapFocus(): void {
+        // Filled in by Task 6.
     }
 }
