@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 import { html, LitElement, nothing, type PropertyValues, type TemplateResult } from 'lit'
-import { property, state } from 'lit/decorators.js'
+import { property, query, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
@@ -88,6 +88,9 @@ export abstract class BaseSideSheet extends composeMixin(
     private lastCloseReason: SideSheetCloseReason = 'programmatic'
 
     private previouslyFocused: Element | null = null
+
+    @query('.container')
+    protected readonly containerEl!: HTMLElement | null
 
     public declare ariaLabel: string | null
 
@@ -274,7 +277,7 @@ export abstract class BaseSideSheet extends composeMixin(
     }
 
     private getFocusableElements(): HTMLElement[] {
-        const container = this.querySelector<HTMLElement>('.container')
+        const container = this.containerEl
         if (!container) return []
         const candidates = container.querySelectorAll<HTMLElement>(
             'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
