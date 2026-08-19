@@ -29,15 +29,21 @@ const modalTokenString = unsafeCSS(
     defineVars(modalTokenRecord, true).join('')
 )
 
+// Each variant's tokens are scoped to its host-class so the modal record
+// does not clobber the standard record (and vice versa). The variant class
+// lives on the inner `<dialog>` element (rendered via classMap), so we
+// reach it through `:host:has(...)` — same pattern as snackbar.style.ts and
+// button.style.ts.
+const standardTokens = css`
+    :host:has(.standard) {${standardTokenString};}
+`
+
+const modalTokens = css`
+    :host:has(.modal) {${modalTokenString};}
+`
+
 export const sideSheetStyles = [
     baseSideSheetStyles,
-    standardTokenString,
-    modalTokenString,
-    css`
-        :host(.standard) {
-            /* Standard tokens are bound at the host level so the
-             * .container, .headline, .close-icon etc. selectors can read
-             * them through inheritance. */
-        }
-    `,
+    standardTokens,
+    modalTokens,
 ]

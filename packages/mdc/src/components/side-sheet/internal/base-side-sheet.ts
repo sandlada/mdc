@@ -379,6 +379,10 @@ export abstract class BaseSideSheet extends composeMixin(
     }
 
     private handleCloseIconClick(_event: MouseEvent): void {
+        this.dispatchEvent(new CustomEvent<ISideSheetActionEventDetail>(
+            SIDE_SHEET_ACTION_EVENT,
+            { bubbles: true, composed: true, detail: { source: 'close' } },
+        ))
         this.lastCloseReason = 'close-button'
         void this.hide()
     }
