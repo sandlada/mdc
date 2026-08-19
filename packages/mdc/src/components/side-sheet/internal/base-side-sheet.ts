@@ -11,12 +11,14 @@ import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
 import { baseSideSheetStyles } from './base-side-sheet.style'
 import {
     SIDE_SHEET_ACTION_EVENT,
+    SIDE_SHEET_CANCEL_EVENT,
     SIDE_SHEET_CLOSED_EVENT,
     SIDE_SHEET_CLOSING_EVENT,
     SIDE_SHEET_OPENED_EVENT,
     SIDE_SHEET_OPENING_EVENT,
     type ISideSheet,
     type ISideSheetActionEventDetail,
+    type ISideSheetCancelEventDetail,
     type ISideSheetClosedEventDetail,
     type SideSheetCloseReason,
     type SideSheetEdge,
@@ -340,16 +342,40 @@ export abstract class BaseSideSheet extends composeMixin(
         this.hasBackIcon = slot.assignedElements({ flatten: true }).length > 0
     }
 
-    private handleNativeCancel(_event: Event): void {
-        // Modal-specific; Task 8 fills this in.
+    private handleNativeCancel(event: Event): void {
+        if (this.variant !== 'modal' || !this.cancelable) {
+            // Standard variant, or modal-but-not-cancelable: prevent the
+            // browser's default close. We don't want any close without an
+            // explicit user gesture.
+            event.preventDefault()
+            return
+        }
+        event.preventDefault()
+        this.lastCloseReason = 'escape'
+        this.dispatchEvent(new CustomEvent<ISideSheetCancelEventDetail>(
+            SIDE_SHEET_CANCEL_EVENT,
+            { bubbles: true, composed: true, detail: { reason: 'escape' } },
+        ))
+        void this.hide()
     }
 
-    private handleHostClick(_event: MouseEvent): void {
-        // Modal-specific; Task 8 fills this in.
+    private handleHostClick(event: MouseEvent): void {
+        if (this.variant !== 'modal' || !this.cancelable) return
+        const path = event.composedPath()
+        if (path.some((node) => (node as Element).classList?.contains?.('scrim'))) {
+            this.lastCloseReason = 'scrim'
+            this.dispatchEvent(new CustomEvent<ISideSheetCancelEventDetail>(
+                SIDE_SHEET_CANCEL_EVENT,
+                { bubbles: true, composed: true, detail: { reason: 'scrim' } },
+            ))
+            void this.hide()
+        }
     }
 
     private handleKeydown(_event: KeyboardEvent): void {
-        // Modal-specific; Task 8 fills this in.
+        // The native `cancel` event on `<dialog>` already handles Esc.
+        // This handler is reserved for future hotkeys (e.g., Ctrl+W) and is
+        // intentionally a no-op in v1.
     }
 
     private handleCloseIconClick(_event: MouseEvent): void {
