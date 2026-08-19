@@ -87,6 +87,8 @@ export abstract class BaseSideSheet extends composeMixin(
 
     private lastCloseReason: SideSheetCloseReason = 'programmatic'
 
+    private previouslyFocused: Element | null = null
+
     public declare ariaLabel: string | null
 
     protected getRenderClasses(): Record<string, boolean | string> {
@@ -215,6 +217,7 @@ export abstract class BaseSideSheet extends composeMixin(
     protected override willUpdate(changed: PropertyValues<this>): void {
         if (changed.has('open')) {
             if (this.open) {
+                this.previouslyFocused = this.ownerDocument?.activeElement ?? null
                 this.dispatchEvent(new Event(
                     SIDE_SHEET_OPENING_EVENT,
                     { bubbles: true, composed: true },
@@ -235,6 +238,10 @@ export abstract class BaseSideSheet extends composeMixin(
                 SIDE_SHEET_OPENED_EVENT,
                 { bubbles: true, composed: true },
             ))
+            // Focus the first focusable element after the entrance transition.
+            requestAnimationFrame(() => {
+                if (!this.noFocusTrap) this.focusFirstInside()
+            })
         } else {
             this.dispatchEvent(new CustomEvent<ISideSheetClosedEventDetail>(
                 SIDE_SHEET_CLOSED_EVENT,
@@ -247,7 +254,36 @@ export abstract class BaseSideSheet extends composeMixin(
                     },
                 },
             ))
+            // Restore focus to the previously-focused element.
+            if (!this.noFocusTrap) this.restoreFocus()
         }
+    }
+
+    private focusFirstInside(): void {
+        const focusable = this.getFocusableElements()
+        const target = focusable[0] ?? this.querySelector<HTMLElement>('.close-icon')
+        target?.focus()
+    }
+
+    private restoreFocus(): void {
+        const previous = this.previouslyFocused
+        if (previous && 'focus' in previous && previous instanceof HTMLElement) {
+            previous.focus()
+        }
+        this.previouslyFocused = null
+    }
+
+    private getFocusableElements(): HTMLElement[] {
+        const container = this.querySelector<HTMLElement>('.container')
+        if (!container) return []
+        const candidates = container.querySelectorAll<HTMLElement>(
+            'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
+        )
+        return Array.from(candidates).filter(
+            (el) => !el.hasAttribute('disabled')
+                && el.getAttribute('aria-hidden') !== 'true'
+                && !el.classList.contains('focus-trap')
+        )
     }
 
     private async resolveQuick(which: 'open' | 'close'): Promise<void> {
@@ -259,6 +295,7 @@ export abstract class BaseSideSheet extends composeMixin(
                 SIDE_SHEET_OPENED_EVENT,
                 { bubbles: true, composed: true },
             ))
+            if (!this.noFocusTrap) this.focusFirstInside()
         } else {
             this.dispatchEvent(new CustomEvent<ISideSheetClosedEventDetail>(
                 SIDE_SHEET_CLOSED_EVENT,
@@ -268,6 +305,7 @@ export abstract class BaseSideSheet extends composeMixin(
                     detail: { returnValue: this.returnValue, reason: this.lastCloseReason },
                 },
             ))
+            if (!this.noFocusTrap) this.restoreFocus()
         }
     }
 
@@ -323,10 +361,18 @@ export abstract class BaseSideSheet extends composeMixin(
     }
 
     private handleFirstFocusTrapFocus(): void {
-        // Filled in by Task 6.
+        // Wrapped from start — jump focus to the last focusable element.
+        const focusable = this.getFocusableElements()
+        if (focusable.length > 0) {
+            focusable[focusable.length - 1].focus()
+        }
     }
 
     private handleLastFocusTrapFocus(): void {
-        // Filled in by Task 6.
+        // Wrapped from end — jump focus to the first focusable element.
+        const focusable = this.getFocusableElements()
+        if (focusable.length > 0) {
+            focusable[0].focus()
+        }
     }
 }
