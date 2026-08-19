@@ -92,6 +92,9 @@ export abstract class BaseSideSheet extends composeMixin(
     @query('.container')
     protected readonly containerEl!: HTMLElement | null
 
+    @query('.close-icon')
+    protected readonly closeIconEl!: HTMLElement | null
+
     public declare ariaLabel: string | null
 
     protected getRenderClasses(): Record<string, boolean | string> {
@@ -264,7 +267,7 @@ export abstract class BaseSideSheet extends composeMixin(
 
     private focusFirstInside(): void {
         const focusable = this.getFocusableElements()
-        const target = focusable[0] ?? this.querySelector<HTMLElement>('.close-icon')
+        const target = focusable[0] ?? this.closeIconEl
         target?.focus()
     }
 
