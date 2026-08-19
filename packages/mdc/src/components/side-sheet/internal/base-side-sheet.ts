@@ -206,6 +206,7 @@ export abstract class BaseSideSheet extends composeMixin(
 
     public async show(): Promise<void> {
         if (this.open) return
+        this.lastCloseReason = 'programmatic'   // ← ADDED: reset stale reason
         this.open = true
         if (this.quick) await this.resolveQuick('open')
     }
