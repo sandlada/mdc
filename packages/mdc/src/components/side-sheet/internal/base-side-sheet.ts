@@ -212,7 +212,6 @@ export abstract class BaseSideSheet extends composeMixin(
 
     public async hide(): Promise<void> {
         if (!this.open) return
-        this.lastCloseReason = 'programmatic'
         this.open = false
         if (this.quick) await this.resolveQuick('close')
     }
