@@ -1,12 +1,155 @@
-<mdc-bottom-sheet id="bs-variant-standard" variant="standard">
-    <h2 style="margin: 0 0 8px 0; font: var(--mdc-typescale-title-medium);">Standard</h2>
-    <p>Co-exists with the page: no scrim, rest of the UI stays interactive.</p>
+<style>
+    .demo-sheet-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+    .demo-sheet-title {
+        margin: 0;
+        font: var(--mdc-typescale-title-medium, 500 1rem/1.5rem system-ui);
+    }
+    .demo-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px 8px;
+        text-align: center;
+        margin: 12px 0;
+    }
+    .demo-grid-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        background: none;
+        border: none;
+        padding: 4px;
+        color: inherit;
+        font: var(--mdc-typescale-label-medium, 500 0.75rem/1rem system-ui);
+    }
+    .demo-grid-icon-circle {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--mdc-color-surface-container-high, #ece6f0);
+        color: var(--mdc-color-primary, #6750a4);
+        transition: transform 0.15s ease;
+    }
+    .demo-grid-item:hover .demo-grid-icon-circle {
+        transform: scale(1.08);
+    }
+</style>
+
+<!-- Standard variant: 3 states (Closed, Peek [Header only], Full [Header + Content]) -->
+<mdc-bottom-sheet id="bs-variant-standard" variant="standard" detent="peek">
+    <div slot="header" class="demo-sheet-header">
+        <div>
+            <h2 class="demo-sheet-title">3 Photos Selected (Google Photos style)</h2>
+            <span style="font: var(--mdc-typescale-body-small); opacity: 0.7;">Standard Sheet · No scrim · Background 100% interactive</span>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <mdc-button
+                variant="outlined"
+                onclick="const s = this.closest('mdc-bottom-sheet'); s.detent = s.detent === 'peek' ? 'full' : 'peek'"
+            >
+                <span>Toggle Peek / Full</span>
+            </mdc-button>
+            <mdc-button variant="text" onclick="this.closest('mdc-bottom-sheet').close()"><span>Close</span></mdc-button>
+        </div>
+    </div>
+
+    <!-- Lower slot (content / details): displayed only in 'full' state -->
+    <div style="margin-top: 8px;">
+        <h3 style="margin: 0 0 8px 0; font: var(--mdc-typescale-title-small);">Detailed Information & Operations</h3>
+        <p style="margin: 0 0 12px 0; font: var(--mdc-typescale-body-small); opacity: 0.8;">
+            Captured on August 20, 2026 · Sony A7R V · 24-70mm F2.8 GM II · Location: Tokyo, Japan
+        </p>
+        <mdc-list aria-label="Photo operations">
+            <mdc-list-item type="button">
+                <mdc-icon slot="start">share</mdc-icon>
+                <span>Share Album to Contacts</span>
+                <span slot="supporting-text">Send high-res link via cloud</span>
+                <mdc-icon slot="end">chevron_right</mdc-icon>
+            </mdc-list-item>
+            <mdc-list-item type="button">
+                <mdc-icon slot="start">auto_fix_high</mdc-icon>
+                <span>Enhance & Magic Eraser</span>
+                <span slot="supporting-text">AI background cleanup & color boost</span>
+                <mdc-icon slot="end">chevron_right</mdc-icon>
+            </mdc-list-item>
+            <mdc-list-item type="button">
+                <mdc-icon slot="start">drive_file_move</mdc-icon>
+                <span>Move to Locked Folder</span>
+                <span slot="supporting-text">Protected by biometrics</span>
+                <mdc-icon slot="end">chevron_right</mdc-icon>
+            </mdc-list-item>
+            <mdc-list-item type="button">
+                <mdc-icon slot="start">delete_outline</mdc-icon>
+                <span>Move to Trash</span>
+                <span slot="supporting-text">Items in trash deleted after 30 days</span>
+                <mdc-icon slot="end">chevron_right</mdc-icon>
+            </mdc-list-item>
+        </mdc-list>
+    </div>
 </mdc-bottom-sheet>
 
+<!-- Modal variant -->
 <mdc-bottom-sheet id="bs-variant-modal" variant="modal">
-    <h2 style="margin: 0 0 8px 0; font: var(--mdc-typescale-title-medium);">Modal</h2>
-    <p>Blocks the page behind a scrim until dismissed.</p>
+    <div slot="header" class="demo-sheet-header">
+        <h2 class="demo-sheet-title">Share & Actions (Modal with Scrim)</h2>
+        <mdc-button variant="text" onclick="this.closest('mdc-bottom-sheet').close()"><span>Done</span></mdc-button>
+    </div>
+
+    <!-- First Grid Section: Share channels -->
+    <div style="font: var(--mdc-typescale-label-large); opacity: 0.8; margin-bottom: 4px;">Share via</div>
+    <div class="demo-grid">
+        <button class="demo-grid-item" type="button">
+            <div class="demo-grid-icon-circle"><mdc-icon>chat</mdc-icon></div>
+            <span>Messages</span>
+        </button>
+        <button class="demo-grid-item" type="button">
+            <div class="demo-grid-icon-circle"><mdc-icon>mail</mdc-icon></div>
+            <span>Email</span>
+        </button>
+        <button class="demo-grid-item" type="button">
+            <div class="demo-grid-icon-circle"><mdc-icon>cloud_upload</mdc-icon></div>
+            <span>Drive</span>
+        </button>
+        <button class="demo-grid-item" type="button">
+            <div class="demo-grid-icon-circle"><mdc-icon>bluetooth</mdc-icon></div>
+            <span>Nearby</span>
+        </button>
+    </div>
+
+    <mdc-divider style="margin: 16px 0;"></mdc-divider>
+
+    <!-- Second Grid Section: File Actions -->
+    <div style="font: var(--mdc-typescale-label-large); opacity: 0.8; margin-bottom: 4px;">Actions</div>
+    <div class="demo-grid">
+        <button class="demo-grid-item" type="button">
+            <div class="demo-grid-icon-circle"><mdc-icon>content_copy</mdc-icon></div>
+            <span>Copy link</span>
+        </button>
+        <button class="demo-grid-item" type="button">
+            <div class="demo-grid-icon-circle"><mdc-icon>bookmark_border</mdc-icon></div>
+            <span>Bookmark</span>
+        </button>
+        <button class="demo-grid-item" type="button">
+            <div class="demo-grid-icon-circle"><mdc-icon>print</mdc-icon></div>
+            <span>Print</span>
+        </button>
+        <button class="demo-grid-item" type="button">
+            <div class="demo-grid-icon-circle"><mdc-icon>qr_code</mdc-icon></div>
+            <span>QR Code</span>
+        </button>
+    </div>
 </mdc-bottom-sheet>
 
-<mdc-button onclick="this.getRootNode().querySelector('#bs-variant-standard').show()"><span>Standard</span></mdc-button>
-<mdc-button onclick="this.getRootNode().querySelector('#bs-variant-modal').show()"><span>Modal</span></mdc-button>
+<mdc-button onclick="const s = this.getRootNode().querySelector('#bs-variant-standard'); s.detent = 'peek'; s.show()"><span>Standard (Peek State - Header Only)</span></mdc-button>
+<mdc-button onclick="const s = this.getRootNode().querySelector('#bs-variant-standard'); s.detent = 'full'; s.show()"><span>Standard (Full State - All Slots)</span></mdc-button>
+<mdc-button onclick="const s = this.getRootNode().querySelector('#bs-variant-modal'); s.detent = 'peek'; s.show()"><span>Modal (Peek State)</span></mdc-button>
+<mdc-button onclick="const s = this.getRootNode().querySelector('#bs-variant-modal'); s.detent = 'full'; s.show()"><span>Modal (Full State)</span></mdc-button>

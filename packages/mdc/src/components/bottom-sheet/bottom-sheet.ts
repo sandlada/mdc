@@ -18,30 +18,30 @@ declare global {
  *
  * A horizontally-spanning panel anchored to the bottom edge of the viewport.
  * Two variants:
- *  - standard: co-exists with main UI, no scrim, `surface` background
- *  - modal: blocks interaction via a scrim, `surface-container-low` background
+ *  - standard: co-exists with main UI, no scrim, `surface` background. Supports
+ *    3 display stages (closed, peek [header only], full [header + content]) and
+ *    single-step drag transitions.
+ *  - modal: blocks interaction via a scrim, `surface-container-low` background,
+ *    focus trap, dismissible via Esc or scrim tap. Supports 3 display stages
+ *    (closed, peek [header only], full [header + content]) and single-step drag transitions.
  *
- * Default variant is `modal`. The modal variant supports two detents
- * (`peek`, `full`). A drag handle is rendered at the top of the panel —
- * pointer-down on it initiates a swipe-to-dismiss gesture (can be disabled
- * via `draggable="false"`). Set `hide-drag-handle` to hide the visual
- * bar while keeping swipe-to-dismiss functional.
+ * Default variant is `modal`.
  *
- * The element renders only the drag handle and the content slot. Headlines,
- * close buttons, and action bars are intentionally NOT provided — developers
- * compose those inside the default slot.
- *
- * @slot - Body content. The developer composes everything (titles, action
- *         buttons, dividers, etc.) inside this slot.
+ * @slot header - Upper slot. Rendered in both `peek` and `full` states. Ideal for
+ *                compact titles, action bars, search fields, or mini-players.
+ * @slot - Body / lower content slot. Rendered only in `full` state; hidden in `peek` state.
  *
  * @example
  * ```html
- * <mdc-bottom-sheet variant="modal" detent="peek">
- *     <h2>Filters</h2>
- *     <p>Filter content</p>
- *     <mdc-button onclick="this.closest('mdc-bottom-sheet').close()">
- *         <span>Apply</span>
- *     </mdc-button>
+ * <mdc-bottom-sheet variant="standard" detent="peek">
+ *     <div slot="header" style="display: flex; justify-content: space-between;">
+ *         <span>Selected 3 photos</span>
+ *         <mdc-button variant="text">Share</mdc-button>
+ *     </div>
+ *     <div class="details">
+ *         <h3>Photo Details</h3>
+ *         <p>Location, date, and EXIF information...</p>
+ *     </div>
  * </mdc-bottom-sheet>
  * ```
  *

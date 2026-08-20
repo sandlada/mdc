@@ -12,8 +12,11 @@ import type { LitElement } from 'lit'
 export type BottomSheetVariant = 'standard' | 'modal'
 
 /**
- * Vertical snap position for the modal variant. Ignored when
- * `variant='standard'`.
+ * Vertical snap position (detent). Supported for both standard and modal variants
+ * per Material Design 3 guidelines:
+ * - 'peek' : Peek state (Peek態) — resting compact height (e.g. mini-player, preview, header only)
+ * - 'full' : Full / Expanded state (完全態) — expanded maximum height (header + content)
+ * Combined with `open=false` (關閉態 / Closed), both standard and modal bottom sheets support all 3 stages.
  */
 export type BottomSheetDetent = 'peek' | 'full'
 
@@ -66,22 +69,40 @@ export interface IBottomSheetDragEventDetail {
 }
 
 /**
+ * Snap target decided upon drag release:
+ * - 'full'   : Snap to full / expanded state (完全態)
+ * - 'peek'   : Snap to peek / collapsed state (Peek態)
+ * - 'closed' : Commit close / hidden state (關閉態)
+ */
+export type BottomSheetDragTarget = 'full' | 'peek' | 'closed'
+
+/**
  * Detail payload of the `bottom-sheet-drag-end` event.
- * `committed=true` means the drag triggered a close. `reason` distinguishes
- * which threshold triggered the close (only present when `committed=true`).
+ * `committed=true` means the drag triggered a close (`target === 'closed'`).
+ * `target` specifies the 3-state snap target ('full' | 'peek' | 'closed').
+ * `reason` distinguishes which threshold triggered the decision.
  */
 export interface IBottomSheetDragEndEventDetail {
     committed: boolean
+    target?: BottomSheetDragTarget
     reason?: 'distance' | 'velocity' | 'cancel'
+    dy?: number
 }
 
 /**
  * Bottom sheet component contract.
  *
- * The element renders two things only: a drag handle (for swipe-to-dismiss)
- * and a content panel for the default slot. Header titles, close buttons,
- * and action rows are intentionally NOT provided — developers compose those
- * inside the default slot.
+ * The element provides a two-slot layout:
+ * - `slot="header"` (upper slot) : displayed in both 'peek' and 'full' states.
+ *   Ideal for titles, mini-players, search bars, or compact action bars.
+ * - default slot (lower slot / body content) : displayed only in 'full' state;
+ *   hidden in 'peek' state.
+ *
+ * Variants:
+ * - `standard`: co-exists with main UI, renders NO scrim, supports 3-stage
+ *   display (closed, peek, full) and single-step drag transitions.
+ * - `modal`: displays a scrim backdrop, traps focus, dismissible via Esc or scrim tap,
+ *   supports 3-stage display (closed, peek, full) and single-step drag transitions.
  *
  * @version
  * Material Design 3
@@ -90,11 +111,11 @@ export interface IBottomSheetDragEndEventDetail {
  * https://m3.material.io/components/bottom-sheets/overview
  */
 export interface IBottomSheet extends LitElement {
-    /** Visual variant. */
+    /** Visual variant ('standard' | 'modal'). */
     variant: BottomSheetVariant
     /** Visibility driver. */
     open: boolean
-    /** Modal only — vertical snap position. Ignored when `variant='standard'`. */
+    /** Vertical snap position ('peek' | 'full'). Supported in both standard and modal variants. */
     detent: BottomSheetDetent
     /** Skip opening/closing animations. */
     quick: boolean

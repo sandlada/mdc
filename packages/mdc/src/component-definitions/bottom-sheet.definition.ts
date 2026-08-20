@@ -31,15 +31,27 @@ const sharedStructural = {
     'enabled-container-max-height-peek'              : `40vh`,
     'enabled-container-max-height-full'              : `96vh`,
 
-    // Container shape (top corners rounded; bottom flush against viewport)
-    'container-shape-start-start'                    : Shape.ExtraLarge,
-    'container-shape-start-end'                      : Shape.ExtraLarge,
-    'container-shape-end-start'                      : `0`,
-    'container-shape-end-end'                        : `0`,
+    // Container shape (default enabled: top corners rounded ExtraLarge 28px; bottom flush 0 against viewport)
+    'enabled-container-shape-start-start'            : Shape.ExtraLarge,
+    'enabled-container-shape-start-end'              : Shape.ExtraLarge,
+    'enabled-container-shape-end-start'              : `0`,
+    'enabled-container-shape-end-end'                : `0`,
+
+    // Container shape (dragged state: when dragged upwards off screen bottom, all 4 corners rounded)
+    'dragged-container-shape-start-start'            : Shape.ExtraLarge,
+    'dragged-container-shape-start-end'              : Shape.ExtraLarge,
+    'dragged-container-shape-end-start'              : Shape.ExtraLarge,
+    'dragged-container-shape-end-end'                : Shape.ExtraLarge,
 
     // Container elevation
     'container-elevation'                             : ElevationLevel.Level1,
     'container-shadow-color'                          : Color.Shadow,
+
+    // Header padding (upper slot)
+    'header-container-inline-leading-padding-space'   : `24px`,
+    'header-container-inline-trailing-padding-space'  : `24px`,
+    'header-container-block-leading-padding-space'    : `0px`,
+    'header-container-block-trailing-padding-space'   : `16px`,
 
     // Body content padding (the developer fills this with whatever they want)
     'content-container-inline-leading-padding-space'  : `24px`,

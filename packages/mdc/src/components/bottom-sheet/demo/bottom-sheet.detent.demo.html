@@ -1,12 +1,160 @@
+<style>
+    .demo-sheet-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+    .demo-sheet-title {
+        margin: 0;
+        font: var(--mdc-typescale-title-medium, 500 1rem/1.5rem system-ui);
+    }
+    .demo-table-container {
+        width: 100%;
+        overflow-x: auto;
+        margin: 12px 0;
+    }
+    .demo-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+        font: var(--mdc-typescale-body-medium, 400 0.875rem/1.25rem system-ui);
+    }
+    .demo-table th {
+        padding: 10px 12px;
+        background: var(--mdc-color-surface-container-high, #ece6f0);
+        font: var(--mdc-typescale-label-large, 500 0.875rem/1.25rem system-ui);
+        border-bottom: 2px solid var(--mdc-color-outline-variant, #cac4d0);
+    }
+    .demo-table td {
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--mdc-color-outline-variant, #cac4d0);
+    }
+    .demo-table tr:hover td {
+        background: var(--mdc-color-surface-container-lowest, #fdf8fd);
+    }
+    .demo-badge-success {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 500;
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
+    .demo-badge-warning {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 500;
+        background: #fff3e0;
+        color: #e65100;
+    }
+</style>
+
 <mdc-bottom-sheet id="bs-detent-peek" variant="modal" detent="peek">
-    <h2 style="margin: 0 0 8px 0; font: var(--mdc-typescale-title-medium);">Peek detent</h2>
-    <p>Default height ~40vh. Drag the handle downward to dismiss, or set <code>detent="full"</code> to expand.</p>
+    <div slot="header" class="demo-sheet-header">
+        <div>
+            <h2 class="demo-sheet-title">Recent Files (Peek Detent - Header Slot)</h2>
+            <span style="font: var(--mdc-typescale-body-small); opacity: 0.7;">Default compact height (~40vh)</span>
+        </div>
+        <mdc-button variant="text" onclick="this.closest('mdc-bottom-sheet').close()"><span>Close</span></mdc-button>
+    </div>
+
+    <mdc-list aria-label="Recent files list">
+        <mdc-list-item type="button">
+            <mdc-icon slot="start">description</mdc-icon>
+            <span>Q3_Financial_Report.pdf</span>
+            <span slot="supporting-text">Modified 2 hours ago · 2.4 MB</span>
+            <mdc-icon slot="end">more_vert</mdc-icon>
+        </mdc-list-item>
+        <mdc-list-item type="button">
+            <mdc-icon slot="start">image</mdc-icon>
+            <span>Design_System_M3E_Hero.png</span>
+            <span slot="supporting-text">Modified Yesterday · 14.8 MB</span>
+            <mdc-icon slot="end">more_vert</mdc-icon>
+        </mdc-list-item>
+        <mdc-list-item type="button">
+            <mdc-icon slot="start">code</mdc-icon>
+            <span>bottom-sheet.animation.ts</span>
+            <span slot="supporting-text">Modified 3 days ago · 5.6 KB</span>
+            <mdc-icon slot="end">more_vert</mdc-icon>
+        </mdc-list-item>
+    </mdc-list>
 </mdc-bottom-sheet>
 
 <mdc-bottom-sheet id="bs-detent-full" variant="modal" detent="full">
-    <h2 style="margin: 0 0 8px 0; font: var(--mdc-typescale-title-medium);">Full detent</h2>
-    <p>Maximum height ~96vh. Drag the handle downward to peek or close.</p>
+    <div slot="header" class="demo-sheet-header">
+        <div>
+            <h2 class="demo-sheet-title">Order & Inventory Report (Full Detent - All Slots)</h2>
+            <span style="font: var(--mdc-typescale-body-small); opacity: 0.7;">Expanded full viewport (~96vh) with tabular data</span>
+        </div>
+        <mdc-button variant="text" onclick="this.closest('mdc-bottom-sheet').close()"><span>Close</span></mdc-button>
+    </div>
+
+    <div class="demo-table-container">
+        <table class="demo-table">
+            <thead>
+                <tr>
+                    <th>Item ID</th>
+                    <th>Product Name</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Stock</th>
+                    <th>Unit Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>#PRD-1092</code></td>
+                    <td><b>Pixel 9 Pro XL</b></td>
+                    <td>Hardware</td>
+                    <td><span class="demo-badge-success">In Stock</span></td>
+                    <td>142</td>
+                    <td>$1,099.00</td>
+                </tr>
+                <tr>
+                    <td><code>#PRD-1093</code></td>
+                    <td><b>Pixel Watch 3 (45mm)</b></td>
+                    <td>Wearables</td>
+                    <td><span class="demo-badge-success">In Stock</span></td>
+                    <td>68</td>
+                    <td>$399.00</td>
+                </tr>
+                <tr>
+                    <td><code>#PRD-1094</code></td>
+                    <td><b>Pixel Buds Pro 2</b></td>
+                    <td>Audio</td>
+                    <td><span class="demo-badge-warning">Low Stock</span></td>
+                    <td>12</td>
+                    <td>$229.00</td>
+                </tr>
+                <tr>
+                    <td><code>#PRD-1095</code></td>
+                    <td><b>45W USB-C Fast Charger</b></td>
+                    <td>Accessories</td>
+                    <td><span class="demo-badge-success">In Stock</span></td>
+                    <td>310</td>
+                    <td>$29.99</td>
+                </tr>
+                <tr>
+                    <td><code>#PRD-1096</code></td>
+                    <td><b>M3E Folio Protective Case</b></td>
+                    <td>Accessories</td>
+                    <td><span class="demo-badge-success">In Stock</span></td>
+                    <td>85</td>
+                    <td>$49.99</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
+        <mdc-button variant="outlined" onclick="this.closest('mdc-bottom-sheet').close()"><span>Export CSV</span></mdc-button>
+        <mdc-button variant="filled" onclick="this.closest('mdc-bottom-sheet').close()"><span>Done</span></mdc-button>
+    </div>
 </mdc-bottom-sheet>
 
-<mdc-button onclick="this.getRootNode().querySelector('#bs-detent-peek').show()"><span>Peek</span></mdc-button>
-<mdc-button onclick="this.getRootNode().querySelector('#bs-detent-full').show()"><span>Full</span></mdc-button>
+<mdc-button onclick="this.getRootNode().querySelector('#bs-detent-peek').show()"><span>Peek (File List)</span></mdc-button>
+<mdc-button onclick="this.getRootNode().querySelector('#bs-detent-full').show()"><span>Full (Data Table)</span></mdc-button>

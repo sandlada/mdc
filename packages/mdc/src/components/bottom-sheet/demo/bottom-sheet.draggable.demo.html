@@ -1,12 +1,129 @@
+<style>
+    .demo-sheet-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+    .demo-sheet-title {
+        margin: 0;
+        font: var(--mdc-typescale-title-medium, 500 1rem/1.5rem system-ui);
+    }
+    .demo-tool-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px 8px;
+        text-align: center;
+        margin: 12px 0;
+    }
+    .demo-tool-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        background: none;
+        border: none;
+        padding: 4px;
+        color: inherit;
+        font: var(--mdc-typescale-label-medium, 500 0.75rem/1rem system-ui);
+    }
+    .demo-tool-icon-box {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--mdc-color-surface-container-high, #ece6f0);
+        color: var(--mdc-color-primary, #6750a4);
+        transition: transform 0.15s ease;
+    }
+    .demo-tool-btn:hover .demo-tool-icon-box {
+        transform: translateY(-2px);
+    }
+</style>
+
 <mdc-bottom-sheet id="bs-draggable-true" variant="modal" detent="peek" draggable>
-    <h2 style="margin: 0 0 8px 0; font: var(--mdc-typescale-title-medium);">Draggable (true, default)</h2>
-    <p>Drag the handle downward — past the 25% threshold or with enough velocity — to close. Otherwise it snaps back to <code>peek</code>.</p>
+    <div class="demo-sheet-header">
+        <div>
+            <h2 class="demo-sheet-title">Create & Edit Tools (Draggable)</h2>
+            <span style="font: var(--mdc-typescale-body-small); opacity: 0.7;">Drag handle down to dismiss; release to snap back</span>
+        </div>
+        <mdc-button variant="text" onclick="this.closest('mdc-bottom-sheet').close()"><span>Close</span></mdc-button>
+    </div>
+
+    <!-- Tool Grid -->
+    <div class="demo-tool-grid">
+        <button class="demo-tool-btn" type="button">
+            <div class="demo-tool-icon-box"><mdc-icon>add_photo_alternate</mdc-icon></div>
+            <span>Photo</span>
+        </button>
+        <button class="demo-tool-btn" type="button">
+            <div class="demo-tool-icon-box"><mdc-icon>document_scanner</mdc-icon></div>
+            <span>Scan doc</span>
+        </button>
+        <button class="demo-tool-btn" type="button">
+            <div class="demo-tool-icon-box"><mdc-icon>mic</mdc-icon></div>
+            <span>Audio</span>
+        </button>
+        <button class="demo-tool-btn" type="button">
+            <div class="demo-tool-icon-box"><mdc-icon>draw</mdc-icon></div>
+            <span>Draw</span>
+        </button>
+    </div>
+
+    <mdc-divider style="margin: 16px 0;"></mdc-divider>
+
+    <!-- Detailed List Section -->
+    <div style="font: var(--mdc-typescale-label-large); opacity: 0.8; margin-bottom: 4px;">More Options</div>
+    <mdc-list aria-label="Tool options">
+        <mdc-list-item type="button">
+            <mdc-icon slot="start">folder_open</mdc-icon>
+            <span>Import from Google Drive</span>
+            <span slot="supporting-text">Synced automatically with workspace</span>
+            <mdc-icon slot="end">chevron_right</mdc-icon>
+        </mdc-list-item>
+        <mdc-list-item type="button">
+            <mdc-icon slot="start">settings</mdc-icon>
+            <span>Canvas & Grid Settings</span>
+            <span slot="supporting-text">Customize background, snap-to-grid</span>
+            <mdc-icon slot="end">chevron_right</mdc-icon>
+        </mdc-list-item>
+    </mdc-list>
 </mdc-bottom-sheet>
 
 <mdc-bottom-sheet id="bs-draggable-false" variant="modal" detent="peek" draggable="false">
-    <h2 style="margin: 0 0 8px 0; font: var(--mdc-typescale-title-medium);">Not draggable (false)</h2>
-    <p>Swipe gestures are ignored. Use Esc, scrim tap, or set a return value via <code>close()</code>.</p>
+    <div class="demo-sheet-header">
+        <div>
+            <h2 class="demo-sheet-title">Privacy Permissions (Non-Draggable)</h2>
+            <span style="font: var(--mdc-typescale-body-small); opacity: 0.7;">Swipe gestures disabled — must confirm or close explicitly</span>
+        </div>
+        <mdc-button variant="text" onclick="this.closest('mdc-bottom-sheet').close()"><span>Cancel</span></mdc-button>
+    </div>
+
+    <mdc-list aria-label="Privacy checkboxes">
+        <mdc-list-item type="text">
+            <mdc-checkbox slot="control" checked></mdc-checkbox>
+            <span>Location Access</span>
+            <span slot="supporting-text">Allow app to use precise location</span>
+        </mdc-list-item>
+        <mdc-list-item type="text">
+            <mdc-checkbox slot="control" checked></mdc-checkbox>
+            <span>Camera & Microphone</span>
+            <span slot="supporting-text">Required for video call capture</span>
+        </mdc-list-item>
+        <mdc-list-item type="text">
+            <mdc-checkbox slot="control"></mdc-checkbox>
+            <span>Diagnostic Telemetry</span>
+            <span slot="supporting-text">Help improve performance and stability</span>
+        </mdc-list-item>
+    </mdc-list>
+
+    <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
+        <mdc-button variant="filled" onclick="this.closest('mdc-bottom-sheet').close()"><span>Save Preferences</span></mdc-button>
+    </div>
 </mdc-bottom-sheet>
 
-<mdc-button onclick="this.getRootNode().querySelector('#bs-draggable-true').show()"><span>Draggable</span></mdc-button>
-<mdc-button onclick="this.getRootNode().querySelector('#bs-draggable-false').show()"><span>Static</span></mdc-button>
+<mdc-button onclick="this.getRootNode().querySelector('#bs-draggable-true').show()"><span>Draggable (Grid + Divider + List)</span></mdc-button>
+<mdc-button onclick="this.getRootNode().querySelector('#bs-draggable-false').show()"><span>Static (Permission Checkboxes)</span></mdc-button>

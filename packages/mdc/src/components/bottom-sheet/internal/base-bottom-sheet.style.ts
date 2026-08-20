@@ -74,6 +74,10 @@ export const baseBottomSheetStyles = css`
         z-index: 0;
     }
 
+    dialog.standard .scrim {
+        display: none !important;
+    }
+
     :host([open]) dialog.modal .scrim {
         opacity: var(--_enabled-container-opacity-modal, 0.32);
         pointer-events: auto;
@@ -83,20 +87,26 @@ export const baseBottomSheetStyles = css`
      *
      * MD3 measurement (per docs/overviews/bottom-sheet/measurement.png):
      *   - Window ≤ 640dp (default rule below):
-     *       full width, 72dp top margin
+     *       full width, bottom-anchored, 72dp gap at top is natural
+     *         (sheet height is well below 100vh − 72dp for any reasonable
+     *         viewport on the default peek detent)
      *   - Window > 640dp (media query below):
-     *       56dp side margins, 56dp top margin, max 640dp wide, centered
+     *       56dp side margins, max 640dp wide, horizontally centered,
+     *         still bottom-anchored. For detent=full, additionally cap
+     *         max-height so the top edge has at least 56px of viewport.
      *
-     * The container is bottom-anchored (bottom: 0); the top is set with
-     * a top rule for narrow viewports and overridden inside the media
-     * query for wide ones.
-     *
-     * detent controls max-height (peek 40vh, full 96vh) — see bottom of file.
+     * Positioning notes:
+     *   - bottom: 0 keeps the sheet flush against the viewport bottom.
+     *   - max-height controls how tall the sheet can grow (peek 40vh,
+     *     full see below). Anything taller scrolls inside .content.
+     *   - We deliberately DO NOT set a top offset here. Combining both
+     *     top and bottom makes the height derive from their
+     *     difference, so the max-height clamp would then place the
+     *     bottom edge in the middle of the viewport instead of at 0.
      */
     .container {
         position: absolute;
         inset-inline: 0;
-        top: 72px;
         bottom: 0;
         width: 100%;
         max-height: var(
@@ -110,17 +120,25 @@ export const baseBottomSheetStyles = css`
         box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.15);
 
         /* Bottom-anchored sheet: the top edge (toward the viewport) is
-         * rounded; the bottom edge is flush against the viewport. */
+         * rounded; the bottom edge is flush against the viewport by default.
+         * Border radius transitions smoothly over 200ms. */
         border-start-start-radius: var(
-            --_container-shape-start-start,
-            28px
+            --_enabled-container-shape-start-start,
+            var(--_container-shape-start-start, 28px)
         );
         border-start-end-radius: var(
-            --_container-shape-start-end,
-            28px
+            --_enabled-container-shape-start-end,
+            var(--_container-shape-start-end, 28px)
         );
-        border-end-start-radius: 0;
-        border-end-end-radius: 0;
+        border-end-start-radius: var(
+            --_enabled-container-shape-end-start,
+            var(--_container-shape-end-start, 0)
+        );
+        border-end-end-radius: var(
+            --_enabled-container-shape-end-end,
+            var(--_container-shape-end-end, 0)
+        );
+        transition: border-radius 200ms cubic-bezier(0.2, 0, 0, 1);
 
         transform: translateY(100%);
         /* transform is animated by WAAPI (see bottom-sheet.animation.ts). */
@@ -131,17 +149,47 @@ export const baseBottomSheetStyles = css`
     }
 
     /*
+     * When dragging upward off the viewport bottom, round the bottom two corners
+     * to match the top corners (dragged state).
+     */
+    :host([dragged-upward]) .container,
+    .host.dragged-upward .container {
+        border-start-start-radius: var(
+            --_dragged-container-shape-start-start,
+            var(--_enabled-container-shape-start-start, var(--_container-shape-start-start, 28px))
+        );
+        border-start-end-radius: var(
+            --_dragged-container-shape-start-end,
+            var(--_enabled-container-shape-start-end, var(--_container-shape-start-end, 28px))
+        );
+        border-end-start-radius: var(
+            --_dragged-container-shape-end-start,
+            var(--_enabled-container-shape-start-start, var(--_container-shape-start-start, 28px))
+        );
+        border-end-end-radius: var(
+            --_dragged-container-shape-end-end,
+            var(--_enabled-container-shape-start-end, var(--_container-shape-start-end, 28px))
+        );
+    }
+
+    /*
      * Wide-viewport sizing per the MD3 spec — bottom-sheet centers itself
-     * with 56dp side margins and caps at 640dp wide. The peek-detent
-     * top: 56px matches the spec's "top margin of 56dp" for windows
-     * wider than 640dp.
+     * with 56dp side margins and caps at 640dp wide. The sheet remains
+     * bottom-anchored; only inset-inline, max-width, and the detent-full
+     * top-margin clamp (≥56dp) change here.
      */
     @media (min-width: 641px) {
         .container {
-            top: 56px;
             inset-inline: 56px;
             max-width: 640px;
             margin-inline: auto;
+        }
+        /* Wide-viewport detent-full: tighten the top-margin clamp to ≥56dp. */
+        dialog.detent-full .container {
+            max-height: min(
+                var(--_enabled-container-max-height-full, 96vh),
+                calc(100vh - 56px)
+            );
         }
     }
 
@@ -165,11 +213,14 @@ export const baseBottomSheetStyles = css`
         transform: translateY(0);
     }
 
-    /* Detent: full */
+    /* Detent: full — clamps to the smaller of the token value and the
+     * viewport-aware spec gap (≥72dp narrow / ≥56dp wide). Without this
+     * the sheet would eat into the top margin when the token's 96vh is
+     * larger than (100vh − gap). */
     dialog.detent-full .container {
-        max-height: var(
-            --_enabled-container-max-height-full,
-            96vh
+        max-height: min(
+            var(--_enabled-container-max-height-full, 96vh),
+            calc(100vh - 72px)
         );
     }
 
@@ -193,7 +244,8 @@ export const baseBottomSheetStyles = css`
      * would compete with the drag's per-frame transform).
      */
     :host([touch-action='none']) .container {
-        transition: none;
+        /* Preserve border-radius animation while transform is updated directly */
+        transition: border-radius 200ms cubic-bezier(0.2, 0, 0, 1);
     }
 
     /* ─── Drag handle ───
@@ -225,7 +277,9 @@ export const baseBottomSheetStyles = css`
         );
         flex-shrink: 0;
         cursor: grab;
-        touch-action: pan-y;
+        touch-action: none;
+        user-select: none;
+        -webkit-user-select: none;
     }
 
     .drag-handle-bar {
@@ -253,7 +307,32 @@ export const baseBottomSheetStyles = css`
         cursor: grabbing;
     }
 
-    /* ─── Content ─── */
+    /* ─── Header (upper slot) ─── */
+    .header {
+        flex-shrink: 0;
+        padding-inline-start: var(
+            --_header-container-inline-leading-padding-space,
+            var(--_content-container-inline-leading-padding-space, 24px)
+        );
+        padding-inline-end: var(
+            --_header-container-inline-trailing-padding-space,
+            var(--_content-container-inline-trailing-padding-space, 24px)
+        );
+        padding-block-start: var(
+            --_header-container-block-leading-padding-space,
+            0px
+        );
+        padding-block-end: var(
+            --_header-container-block-trailing-padding-space,
+            16px
+        );
+    }
+
+    .host:not(.has-header) .header {
+        display: none;
+    }
+
+    /* ─── Content (lower slot / body) ─── */
     .content {
         flex: 1 1 auto;
         overflow-y: auto;
@@ -274,6 +353,15 @@ export const baseBottomSheetStyles = css`
             24px
         );
         min-height: 0; /* flex child can shrink for overflow */
+    }
+
+    .host:not(.has-content) .content {
+        display: none;
+    }
+
+    /* In peek detent: hide the lower content slot so only header (and drag handle) are displayed */
+    dialog.detent-peek .content {
+        display: none;
     }
 
     /* ─── Focus traps ─── */

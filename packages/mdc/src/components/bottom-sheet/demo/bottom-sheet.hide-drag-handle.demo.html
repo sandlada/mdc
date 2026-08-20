@@ -1,11 +1,43 @@
 <mdc-bottom-sheet id="bs-handle-shown" variant="modal">
-    <h2 style="margin: 0 0 8px 0; font: var(--mdc-typescale-title-medium);">Drag handle visible (default)</h2>
-    <p>The 32×4dp bar is rendered at the top. Swipe down on it to dismiss.</p>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h2 style="margin: 0; font: var(--mdc-typescale-title-medium);">Handle Visible (Default)</h2>
+        <mdc-button variant="text" onclick="this.closest('mdc-bottom-sheet').close()"><span>Close</span></mdc-button>
+    </div>
+    <mdc-list aria-label="Audio output devices">
+        <mdc-list-item type="button">
+            <mdc-icon slot="start">speaker</mdc-icon>
+            <span>Living Room Soundbar</span>
+            <span slot="supporting-text">Connected · 85% Volume</span>
+        </mdc-list-item>
+        <mdc-list-item type="button">
+            <mdc-icon slot="start">headphones</mdc-icon>
+            <span>Pixel Buds Pro 2</span>
+            <span slot="supporting-text">Bluetooth · Active Noise Cancellation</span>
+        </mdc-list-item>
+    </mdc-list>
 </mdc-bottom-sheet>
 
 <mdc-bottom-sheet id="bs-handle-hidden" variant="modal" hide-drag-handle>
-    <h2 style="margin: 0 0 8px 0; font: var(--mdc-typescale-title-medium);">Drag handle hidden</h2>
-    <p>The visual bar is hidden, but the region stays interactive — pointerdown on the same area still engages swipe-to-dismiss.</p>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <div>
+            <h2 style="margin: 0; font: var(--mdc-typescale-title-medium);">Handle Hidden (Seamless)</h2>
+            <span style="font: var(--mdc-typescale-body-small); opacity: 0.7;">Top region is still draggable</span>
+        </div>
+        <mdc-button variant="text" onclick="this.closest('mdc-bottom-sheet').close()"><span>Done</span></mdc-button>
+    </div>
+    <mdc-list aria-label="Network connections">
+        <mdc-list-item type="button">
+            <mdc-icon slot="start">wifi</mdc-icon>
+            <span>Office-5G-Ultra</span>
+            <span slot="supporting-text">Connected · 1200 Mbps</span>
+            <mdc-icon slot="end">check</mdc-icon>
+        </mdc-list-item>
+        <mdc-list-item type="button">
+            <mdc-icon slot="start">signal_cellular_alt</mdc-icon>
+            <span>5G Mobile Data</span>
+            <span slot="supporting-text">Carrier fallback enabled</span>
+        </mdc-list-item>
+    </mdc-list>
 </mdc-bottom-sheet>
 
 <mdc-button onclick="this.getRootNode().querySelector('#bs-handle-shown').show()"><span>Handle visible</span></mdc-button>

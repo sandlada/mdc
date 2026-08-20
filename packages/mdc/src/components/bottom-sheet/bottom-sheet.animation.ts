@@ -104,7 +104,7 @@ export const BottomSheetDetentChangeAnimation = (
 ): BottomSheetAnimation => {
     void direction
     return {
-        container: currentOffset > 0
+        container: Math.abs(currentOffset) > 0.5
             ? [
                 [
                     [

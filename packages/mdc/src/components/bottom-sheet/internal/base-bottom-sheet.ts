@@ -94,7 +94,14 @@ export abstract class BaseBottomSheet extends composeMixin(
      * Swipe-to-dismiss from the drag handle. Modal default is `true` per
      * the MD3 spec — the handle is the swipe affordance.
      */
-    @property({ type: Boolean })
+    @property({
+        attribute: 'draggable',
+        converter: {
+            fromAttribute: (value: string | null) =>
+                value !== null && value !== 'false',
+            toAttribute: (value: boolean) => (value ? '' : 'false'),
+        },
+    })
     public override draggable: boolean = true
 
     /**
@@ -106,6 +113,9 @@ export abstract class BaseBottomSheet extends composeMixin(
 
     @property({ type: Number, attribute: 'max-height' })
     public maxHeight: number = 0
+
+    @state()
+    protected hasHeader: boolean = false
 
     @state()
     protected hasContent: boolean = false
@@ -124,6 +134,9 @@ export abstract class BaseBottomSheet extends composeMixin(
 
     @query('.container')
     protected readonly containerEl!: HTMLElement | null
+
+    @query('.header')
+    protected readonly headerEl!: HTMLElement | null
 
     @query('.drag-handle')
     protected readonly dragHandleEl!: HTMLElement | null
@@ -146,28 +159,33 @@ export abstract class BaseBottomSheet extends composeMixin(
     // current refs rather than caching.
     public dragHandleRef(): HTMLElement | null { return this.dragHandleEl }
     public containerRef(): HTMLElement | null { return this.containerEl }
+    public headerRef(): HTMLElement | null { return this.headerEl }
     public scrimRef(): HTMLElement | null { return this.scrimEl }
     public enabled(): boolean {
         return this.open
-            && this.variant === 'modal'
             && this.draggable
             && !this.quick
     }
+    public getVariant(): BottomSheetVariant { return this.variant }
     public getRestingDetent(): BottomSheetDetent { return this.detent }
+    public hasHeaderContent(): boolean { return this.hasHeader }
+    public hasBodyContent(): boolean { return this.hasContent }
 
     protected getRenderClasses(): Record<string, boolean | string> {
         return {
-            'standard'         : this.variant === 'standard',
-            'modal'            : this.variant === 'modal',
+            'standard'          : this.variant === 'standard',
+            'modal'             : this.variant === 'modal',
             [`detent-${this.detent}`]: true,
-            'has-content'      : this.hasContent,
-            'no-focus-trap'    : this.noFocusTrap,
-            'quick'            : this.quick,
+            'has-header'        : this.hasHeader,
+            'has-content'       : this.hasContent,
+            'no-focus-trap'     : this.noFocusTrap,
+            'quick'             : this.quick,
             'drag-handle-hidden': this.hideDragHandle,
         }
     }
 
     protected override render(): TemplateResult {
+        const isModal = this.variant === 'modal'
         return html`
             <dialog
                 class="host ${classMap(this.getRenderClasses())}"
@@ -182,20 +200,28 @@ export abstract class BaseBottomSheet extends composeMixin(
                 @click=${this.handleHostClick}
                 @keydown=${this.handleKeydown}
             >
-                ${!this.noFocusTrap ? this.renderFocusTrap('first') : nothing}
+                ${isModal && !this.noFocusTrap ? this.renderFocusTrap('first') : nothing}
 
                 <span class="scrim" aria-hidden="true"></span>
 
                 <div class="container" part="container">
-                    <div class="drag-handle" part="drag-handle" aria-hidden="true">
+                    <div
+                        class="drag-handle"
+                        part="drag-handle"
+                        aria-hidden="true"
+                        @pointerdown=${this.handleDragHandlePointerDown}
+                    >
                         <div class="drag-handle-bar"></div>
                     </div>
-                    <div class="content">
+                    <header class="header" part="header">
+                        <slot name="header" @slotchange=${this.handleHeaderSlotChange}></slot>
+                    </header>
+                    <div class="content" part="content">
                         <slot @slotchange=${this.handleContentSlotChange}></slot>
                     </div>
                 </div>
 
-                ${!this.noFocusTrap ? this.renderFocusTrap('last') : nothing}
+                ${isModal && !this.noFocusTrap ? this.renderFocusTrap('last') : nothing}
             </dialog>
         `
     }
@@ -213,7 +239,10 @@ export abstract class BaseBottomSheet extends composeMixin(
 
     // ── Lifecycle: open / close ─────────────────────────────────────────────
 
-    public async show(): Promise<void> {
+    public async show(detent?: BottomSheetDetent): Promise<void> {
+        if (detent) {
+            this.detent = detent
+        }
         if (this.open) return
         this.open = true
         await this.updateComplete
@@ -231,7 +260,7 @@ export abstract class BaseBottomSheet extends composeMixin(
             bubbles: true, composed: true,
         }))
         requestAnimationFrame(() => {
-            if (!this.noFocusTrap) this.focusFirstInside()
+            if (this.variant === 'modal' && !this.noFocusTrap) this.focusFirstInside()
         })
     }
 
@@ -269,21 +298,24 @@ export abstract class BaseBottomSheet extends composeMixin(
 
     // ── Drag-committed close / snap-back (invoked by drag controller) ───────
 
-    public async dragCommittedClose(): Promise<void> {
+    public async dragCommittedClose(fromDy?: number): Promise<void> {
         if (!this.open) return
         const scrimCurrent = this.scrimEl
             ? parseFloat(getComputedStyle(this.scrimEl).opacity)
             : 0
-        const fromDy = this.containerEl
+        const currentDy = fromDy ?? (this.containerEl
             ? this.readTranslateY(this.containerEl)
-            : 0
+            : 0)
         // Reset the inline styles the drag controller wrote so the WAAPI
         // animation can drive the container / scrim.
-        if (this.containerEl) this.containerEl.style.removeProperty('transform')
+        if (this.containerEl) {
+            this.containerEl.style.removeProperty('transform')
+            this.containerEl.style.removeProperty('cursor')
+        }
         if (this.scrimEl) this.scrimEl.style.removeProperty('opacity')
         this.removeAttribute('touch-action')
         await this.animateBottomSheet(
-            BottomSheetDragCommitCloseAnimation(fromDy, scrimCurrent),
+            BottomSheetDragCommitCloseAnimation(currentDy, scrimCurrent),
         )
         this.lastCloseReason = 'drag'
         this.open = false
@@ -302,18 +334,79 @@ export abstract class BaseBottomSheet extends composeMixin(
         if (!this.noFocusTrap) this.restoreFocus()
     }
 
-    public async dragSnapBack(): Promise<void> {
+    private detentTransitionOffset: number | null = null
+
+    public async dragSnapToFull(fromDy?: number): Promise<void> {
+        if (!this.open) return
+        const currentDy = fromDy ?? (this.containerEl ? this.readTranslateY(this.containerEl) : 0)
+        if (this.containerEl) {
+            this.containerEl.style.removeProperty('transform')
+            this.containerEl.style.removeProperty('cursor')
+        }
+        if (this.scrimEl) this.scrimEl.style.removeProperty('opacity')
+        this.removeAttribute('touch-action')
+
+        if (this.detent === 'full') {
+            await this.animateBottomSheet(
+                BottomSheetDragSnapBackAnimation(currentDy, SCRIM_OPACITY_PEAK),
+            )
+        } else {
+            const vh = window.innerHeight
+            const maxFull = window.innerWidth > 640 ? Math.min(0.96 * vh, vh - 56) : Math.min(0.96 * vh, vh - 72)
+            const peekH = this.containerEl ? this.containerEl.getBoundingClientRect().height : 0.4 * vh
+            const deltaH = Math.max(0, maxFull - peekH)
+            this.detentTransitionOffset = deltaH + currentDy
+            this.detent = 'full'
+            await this.updateComplete
+        }
+    }
+
+    public async dragSnapToPeek(fromDy?: number): Promise<void> {
+        if (!this.open) return
+        const currentDy = fromDy ?? (this.containerEl ? this.readTranslateY(this.containerEl) : 0)
+        if (this.containerEl) {
+            this.containerEl.style.removeProperty('transform')
+            this.containerEl.style.removeProperty('cursor')
+        }
+        if (this.scrimEl) this.scrimEl.style.removeProperty('opacity')
+        this.removeAttribute('touch-action')
+
+        if (this.detent === 'peek') {
+            await this.animateBottomSheet(
+                BottomSheetDragSnapBackAnimation(currentDy, SCRIM_OPACITY_PEAK),
+            )
+        } else {
+            const vh = window.innerHeight
+            const maxFull = window.innerWidth > 640 ? Math.min(0.96 * vh, vh - 56) : Math.min(0.96 * vh, vh - 72)
+            let peekH = 0
+            if (this.headerEl && this.dragHandleEl) {
+                peekH = this.dragHandleEl.offsetHeight + this.headerEl.offsetHeight
+            } else {
+                peekH = Math.min(0.40 * vh, maxFull)
+            }
+            const currentFullH = this.containerEl ? this.containerEl.getBoundingClientRect().height : maxFull
+            const deltaH = Math.max(0, currentFullH - peekH)
+            this.detentTransitionOffset = currentDy - deltaH
+            this.detent = 'peek'
+            await this.updateComplete
+        }
+    }
+
+    public async dragSnapBack(fromDy?: number): Promise<void> {
         const scrimCurrent = this.scrimEl
             ? parseFloat(getComputedStyle(this.scrimEl).opacity)
             : SCRIM_OPACITY_PEAK
-        const fromDy = this.containerEl
+        const currentDy = fromDy ?? (this.containerEl
             ? this.readTranslateY(this.containerEl)
-            : 0
-        if (this.containerEl) this.containerEl.style.removeProperty('transform')
+            : 0)
+        if (this.containerEl) {
+            this.containerEl.style.removeProperty('transform')
+            this.containerEl.style.removeProperty('cursor')
+        }
         if (this.scrimEl) this.scrimEl.style.removeProperty('opacity')
         this.removeAttribute('touch-action')
         await this.animateBottomSheet(
-            BottomSheetDragSnapBackAnimation(fromDy, scrimCurrent),
+            BottomSheetDragSnapBackAnimation(currentDy, scrimCurrent),
         )
     }
 
@@ -347,11 +440,12 @@ export abstract class BaseBottomSheet extends composeMixin(
                 ))
             }
         }
-        if (changed.has('detent') && this.open && this.variant === 'modal') {
-            // Detent changed while open + modal — animate between detents.
-            const currentOffset = this.containerEl
-                ? this.readTranslateY(this.containerEl)
-                : 0
+        if (changed.has('detent') && this.open) {
+            // Detent changed while open (standard or modal) — animate between detents.
+            const currentOffset = this.detentTransitionOffset !== null
+                ? this.detentTransitionOffset
+                : (this.containerEl ? this.readTranslateY(this.containerEl) : 0)
+            this.detentTransitionOffset = null
             const direction: 'expand' | 'collapse' =
                 this.detent === 'full' ? 'expand' : 'collapse'
             void this.animateBottomSheet(BottomSheetDetentChangeAnimation(direction, currentOffset))
@@ -411,6 +505,7 @@ export abstract class BaseBottomSheet extends composeMixin(
     }
 
     private restoreFocus(): void {
+        if (this.variant !== 'modal') return
         const previous = this.previouslyFocused
         if (previous && 'focus' in previous && previous instanceof HTMLElement) {
             previous.focus()
@@ -433,6 +528,11 @@ export abstract class BaseBottomSheet extends composeMixin(
     }
 
     // ── Slot change handlers ───────────────────────────────────────────────
+
+    private handleHeaderSlotChange(event: Event): void {
+        const slot = event.target as HTMLSlotElement
+        this.hasHeader = slot.assignedElements({ flatten: true }).length > 0
+    }
 
     private handleContentSlotChange(event: Event): void {
         const slot = event.target as HTMLSlotElement
@@ -487,12 +587,20 @@ export abstract class BaseBottomSheet extends composeMixin(
         }
     }
 
+    private handleDragHandlePointerDown(event: PointerEvent): void {
+        this.dragController.handlePointerDown(event)
+    }
+
     private handleDragEnd(event: Event): void {
         const detail = (event as CustomEvent<IBottomSheetDragEndEventDetail>).detail
-        if (detail.committed) {
-            void this.dragCommittedClose()
+        if (detail.target === 'closed' || (detail.committed && !detail.target)) {
+            void this.dragCommittedClose(detail.dy)
+        } else if (detail.target === 'full') {
+            void this.dragSnapToFull(detail.dy)
+        } else if (detail.target === 'peek') {
+            void this.dragSnapToPeek(detail.dy)
         } else if (detail.reason !== 'cancel') {
-            void this.dragSnapBack()
+            void this.dragSnapBack(detail.dy)
         }
         // 'cancel' reason (horizontal-dominant): drag controller already
         // cleared inline styles; nothing more to do.

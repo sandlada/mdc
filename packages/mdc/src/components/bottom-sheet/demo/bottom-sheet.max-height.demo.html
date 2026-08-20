@@ -1,18 +1,95 @@
+<style>
+    .demo-sheet-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+    .demo-sheet-title {
+        margin: 0;
+        font: var(--mdc-typescale-title-medium, 500 1rem/1.5rem system-ui);
+    }
+    .demo-table-container {
+        width: 100%;
+        overflow-x: auto;
+        margin: 12px 0;
+    }
+    .demo-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+        font: var(--mdc-typescale-body-medium, 400 0.875rem/1.25rem system-ui);
+    }
+    .demo-table th {
+        padding: 8px 12px;
+        background: var(--mdc-color-surface-container-high, #ece6f0);
+        font: var(--mdc-typescale-label-large, 500 0.875rem/1.25rem system-ui);
+        border-bottom: 2px solid var(--mdc-color-outline-variant, #cac4d0);
+    }
+    .demo-table td {
+        padding: 8px 12px;
+        border-bottom: 1px solid var(--mdc-color-outline-variant, #cac4d0);
+    }
+</style>
+
 <mdc-bottom-sheet id="bs-maxheight-0" variant="modal" max-height="0">
-    <h2 style="margin: 0 0 8px 0; font: var(--mdc-typescale-title-medium);">No max-height cap</h2>
-    <p>Container height driven by detent + content.</p>
+    <div class="demo-sheet-header">
+        <div>
+            <h2 class="demo-sheet-title">Task List (No max-height cap)</h2>
+            <span style="font: var(--mdc-typescale-body-small); opacity: 0.7;">Container height natural with content</span>
+        </div>
+        <mdc-button variant="text" onclick="this.closest('mdc-bottom-sheet').close()"><span>Close</span></mdc-button>
+    </div>
+    <mdc-list aria-label="Tasks list">
+        <mdc-list-item type="text">
+            <mdc-checkbox slot="control" checked></mdc-checkbox>
+            <span>Review M3 Expressive Tokens Specification</span>
+            <span slot="supporting-text">Completed by Engineering team</span>
+        </mdc-list-item>
+        <mdc-list-item type="text">
+            <mdc-checkbox slot="control"></mdc-checkbox>
+            <span>Implement Drag-to-Dismiss Gestures</span>
+            <span slot="supporting-text">In Progress · ETA Today</span>
+        </mdc-list-item>
+        <mdc-list-item type="text">
+            <mdc-checkbox slot="control"></mdc-checkbox>
+            <span>Add Comprehensive Interactive Demos</span>
+            <span slot="supporting-text">Pending Review</span>
+        </mdc-list-item>
+    </mdc-list>
 </mdc-bottom-sheet>
 
 <mdc-bottom-sheet id="bs-maxheight-400" variant="modal" max-height="400">
-    <h2 style="margin: 0 0 8px 0; font: var(--mdc-typescale-title-medium);">max-height: 400px</h2>
-    <p>Hard ceiling — sheet cannot grow past 400px.</p>
+    <div class="demo-sheet-header">
+        <div>
+            <h2 class="demo-sheet-title">Transaction Ledger (max-height: 400px)</h2>
+            <span style="font: var(--mdc-typescale-body-small); opacity: 0.7;">Capped at 400px; internal table scrolls vertically</span>
+        </div>
+        <mdc-button variant="text" onclick="this.closest('mdc-bottom-sheet').close()"><span>Close</span></mdc-button>
+    </div>
+    <div class="demo-table-container">
+        <table class="demo-table">
+            <thead>
+                <tr>
+                    <th>Tx ID</th>
+                    <th>Description</th>
+                    <th>Date</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><code>#TX-901</code></td><td>AWS Cloud Infrastructure</td><td>Aug 20</td><td>-$142.50</td></tr>
+                <tr><td><code>#TX-902</code></td><td>Figma Organization License</td><td>Aug 19</td><td>-$45.00</td></tr>
+                <tr><td><code>#TX-903</code></td><td>Google Workspace Subscription</td><td>Aug 18</td><td>-$72.00</td></tr>
+                <tr><td><code>#TX-904</code></td><td>Client Payment - Acme Corp</td><td>Aug 17</td><td>+$3,400.00</td></tr>
+                <tr><td><code>#TX-905</code></td><td>GitHub Enterprise Seats</td><td>Aug 16</td><td>-$84.00</td></tr>
+                <tr><td><code>#TX-906</code></td><td>Domain Registration Renewal</td><td>Aug 15</td><td>-$18.00</td></tr>
+                <tr><td><code>#TX-907</code></td><td>Stripe Processing Payout</td><td>Aug 14</td><td>+$1,280.00</td></tr>
+                <tr><td><code>#TX-908</code></td><td>Vercel Pro Team Plan</td><td>Aug 13</td><td>-$20.00</td></tr>
+            </tbody>
+        </table>
+    </div>
 </mdc-bottom-sheet>
 
-<mdc-bottom-sheet id="bs-maxheight-800" variant="modal" max-height="800">
-    <h2 style="margin: 0 0 8px 0; font: var(--mdc-typescale-title-medium);">max-height: 800px</h2>
-    <p>Hard ceiling at 800px.</p>
-</mdc-bottom-sheet>
-
-<mdc-button onclick="this.getRootNode().querySelector('#bs-maxheight-0').show()"><span>No cap</span></mdc-button>
-<mdc-button onclick="this.getRootNode().querySelector('#bs-maxheight-400').show()"><span>400px</span></mdc-button>
-<mdc-button onclick="this.getRootNode().querySelector('#bs-maxheight-800').show()"><span>800px</span></mdc-button>
+<mdc-button onclick="this.getRootNode().querySelector('#bs-maxheight-0').show()"><span>Natural Height (Task List)</span></mdc-button>
+<mdc-button onclick="this.getRootNode().querySelector('#bs-maxheight-400').show()"><span>400px Cap (Scrollable Table)</span></mdc-button>
