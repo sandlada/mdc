@@ -1,9 +1,12 @@
-<mdc-bottom-sheet id="bs-detent-peek" variant="modal" detent="peek" open>
+<mdc-bottom-sheet id="bs-detent-peek" variant="modal" detent="peek">
     <span slot="headline">Peek detent</span>
-    <p>Default height ~40vh. Drag the sheet upward to expand (or call setDetent).</p>
+    <p>Default height ~40vh. Drag the sheet downward to dismiss, or set <code>detent="full"</code> to expand.</p>
 </mdc-bottom-sheet>
 
-<mdc-bottom-sheet id="bs-detent-full" variant="modal" detent="full" open>
+<mdc-bottom-sheet id="bs-detent-full" variant="modal" detent="full">
     <span slot="headline">Full detent</span>
     <p>Maximum height ~96vh. Drag downward to peek or close.</p>
 </mdc-bottom-sheet>
+
+<mdc-button onclick="this.getRootNode().querySelector('#bs-detent-peek').show()"><span>Peek</span></mdc-button>
+<mdc-button onclick="this.getRootNode().querySelector('#bs-detent-full').show()"><span>Full</span></mdc-button>

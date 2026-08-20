@@ -1,9 +1,12 @@
-<mdc-bottom-sheet id="bs-quick-true" variant="modal" quick open>
+<mdc-bottom-sheet id="bs-quick-true" variant="modal" quick>
     <span slot="headline">Quick (true)</span>
     <p>Open / close jump directly to the target state — no animation.</p>
 </mdc-bottom-sheet>
 
-<mdc-bottom-sheet id="bs-quick-false" variant="modal" open>
+<mdc-bottom-sheet id="bs-quick-false" variant="modal">
     <span slot="headline">Quick (false, default)</span>
     <p>Open / close animate via WAAPI.</p>
 </mdc-bottom-sheet>
+
+<mdc-button onclick="this.getRootNode().querySelector('#bs-quick-true').show()"><span>Quick</span></mdc-button>
+<mdc-button onclick="this.getRootNode().querySelector('#bs-quick-false').show()"><span>Animated</span></mdc-button>

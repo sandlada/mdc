@@ -1,9 +1,12 @@
-<mdc-bottom-sheet id="bs-draggable-true" variant="modal" detent="peek" draggable open>
+<mdc-bottom-sheet id="bs-draggable-true" variant="modal" detent="peek" draggable>
     <span slot="headline">Draggable (true)</span>
     <p>Drag the sheet downward — past the 25% threshold or with enough velocity — to close. Otherwise it snaps back to <code>peek</code>.</p>
 </mdc-bottom-sheet>
 
-<mdc-bottom-sheet id="bs-draggable-false" variant="modal" detent="peek" open>
+<mdc-bottom-sheet id="bs-draggable-false" variant="modal" detent="peek">
     <span slot="headline">Not draggable (false)</span>
     <p>Pointer drags are ignored. Only the close button, scrim tap, or Esc can dismiss.</p>
 </mdc-bottom-sheet>
+
+<mdc-button onclick="this.getRootNode().querySelector('#bs-draggable-true').show()"><span>Draggable</span></mdc-button>
+<mdc-button onclick="this.getRootNode().querySelector('#bs-draggable-false').show()"><span>Static</span></mdc-button>

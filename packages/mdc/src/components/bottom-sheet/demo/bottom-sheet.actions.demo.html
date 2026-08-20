@@ -1,4 +1,4 @@
-<mdc-bottom-sheet id="bs-actions-yes" variant="modal" open>
+<mdc-bottom-sheet id="bs-actions-yes" variant="modal">
     <span slot="headline">With actions</span>
     <p>Body content.</p>
     <div slot="actions">
@@ -7,7 +7,10 @@
     </div>
 </mdc-bottom-sheet>
 
-<mdc-bottom-sheet id="bs-actions-no" variant="modal" open>
+<mdc-bottom-sheet id="bs-actions-no" variant="modal">
     <span slot="headline">Without actions</span>
     <p>Body content only.</p>
 </mdc-bottom-sheet>
+
+<mdc-button onclick="this.getRootNode().querySelector('#bs-actions-yes').show()"><span>With actions</span></mdc-button>
+<mdc-button onclick="this.getRootNode().querySelector('#bs-actions-no').show()"><span>Without actions</span></mdc-button>

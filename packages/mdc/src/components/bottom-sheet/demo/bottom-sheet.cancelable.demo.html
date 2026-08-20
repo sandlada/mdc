@@ -1,9 +1,12 @@
-<mdc-bottom-sheet id="bs-cancelable-true" variant="modal" cancelable open>
+<mdc-bottom-sheet id="bs-cancelable-true" variant="modal" cancelable>
     <span slot="headline">Cancelable (true)</span>
     <p>Esc and outside-tap (scrim) dismiss the sheet.</p>
 </mdc-bottom-sheet>
 
-<mdc-bottom-sheet id="bs-cancelable-false" variant="modal" cancelable="false" open>
+<mdc-bottom-sheet id="bs-cancelable-false" variant="modal" cancelable="false">
     <span slot="headline">Not cancelable (false)</span>
     <p>Esc and scrim taps are ignored. Use the close button.</p>
 </mdc-bottom-sheet>
+
+<mdc-button onclick="this.getRootNode().querySelector('#bs-cancelable-true').show()"><span>Cancelable</span></mdc-button>
+<mdc-button onclick="this.getRootNode().querySelector('#bs-cancelable-false').show()"><span>Not cancelable</span></mdc-button>
