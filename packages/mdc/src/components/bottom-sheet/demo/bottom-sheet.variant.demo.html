@@ -1,0 +1,12 @@
+<mdc-bottom-sheet id="bs-variant-standard" variant="standard">
+    <span slot="headline">Standard</span>
+    <p>Co-exists with the page: no scrim, rest of the UI stays interactive.</p>
+</mdc-bottom-sheet>
+
+<mdc-bottom-sheet id="bs-variant-modal" variant="modal">
+    <span slot="headline">Modal</span>
+    <p>Blocks the page behind a scrim until dismissed.</p>
+</mdc-bottom-sheet>
+
+<mdc-button onclick="this.getRootNode().querySelector('#bs-variant-standard').show()"><span>Standard</span></mdc-button>
+<mdc-button onclick="this.getRootNode().querySelector('#bs-variant-modal').show()"><span>Modal</span></mdc-button>
