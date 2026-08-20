@@ -46,12 +46,14 @@ const MAX_HORIZONTAL_RATIO = 2
 /**
  * Host contract for {@link BottomSheetDragController}.
  *
- * The host must provide refs that resolve to the inner container (whose
- * `transform` is animated) and the scrim (whose `opacity` is animated). The
- * `enabled` function is re-evaluated on every `pointerdown` so changes to
- * `open`, `variant`, or `draggable` take effect immediately.
+ * The host must provide refs that resolve to the drag handle (where
+ * `pointerdown` is observed), the inner container (whose `transform` is
+ * animated) and the scrim (whose `opacity` is animated). The `enabled`
+ * function is re-evaluated on every `pointerdown` so changes to `open`,
+ * `variant`, or `draggable` take effect immediately.
  */
 export interface IBottomSheetDragHost extends ReactiveControllerHost, HTMLElement {
+    dragHandleRef: () => HTMLElement | null
     containerRef: () => HTMLElement | null
     scrimRef: () => HTMLElement | null
     enabled: () => boolean
@@ -105,13 +107,13 @@ export class BottomSheetDragController implements ReactiveController {
     // ── ReactiveController lifecycle ───────────────────────────────────────
 
     public hostConnected(): void {
-        const container = this.host.containerRef()
-        container?.addEventListener('pointerdown', this.handlePointerDownBound)
+        const handle = this.host.dragHandleRef()
+        handle?.addEventListener('pointerdown', this.handlePointerDownBound)
     }
 
     public hostDisconnected(): void {
-        const container = this.host.containerRef()
-        container?.removeEventListener('pointerdown', this.handlePointerDownBound)
+        const handle = this.host.dragHandleRef()
+        handle?.removeEventListener('pointerdown', this.handlePointerDownBound)
         window.removeEventListener('pointermove', this.handlePointerMoveBound)
         window.removeEventListener('pointerup', this.handlePointerUpBound)
         window.removeEventListener('pointercancel', this.handlePointerCancelBound)
@@ -145,9 +147,6 @@ export class BottomSheetDragController implements ReactiveController {
         if (!this.host.enabled()) return
         // Only primary pointer (left mouse / first touch / pen tip).
         if (!event.isPrimary) return
-        // Ignore pointerdown on the close-icon button (let the click fire).
-        const target = event.target as HTMLElement | null
-        if (target?.closest('button, a, [role="button"]')) return
 
         this.pointerId = event.pointerId
         this.startX = event.clientX

@@ -1,0 +1,12 @@
+<mdc-bottom-sheet id="bs-handle-shown" variant="modal">
+    <h2 style="margin: 0 0 8px 0; font: var(--mdc-typescale-title-medium);">Drag handle visible (default)</h2>
+    <p>The 32×4dp bar is rendered at the top. Swipe down on it to dismiss.</p>
+</mdc-bottom-sheet>
+
+<mdc-bottom-sheet id="bs-handle-hidden" variant="modal" hide-drag-handle>
+    <h2 style="margin: 0 0 8px 0; font: var(--mdc-typescale-title-medium);">Drag handle hidden</h2>
+    <p>The visual bar is hidden, but the region stays interactive — pointerdown on the same area still engages swipe-to-dismiss.</p>
+</mdc-bottom-sheet>
+
+<mdc-button onclick="this.getRootNode().querySelector('#bs-handle-shown').show()"><span>Handle visible</span></mdc-button>
+<mdc-button onclick="this.getRootNode().querySelector('#bs-handle-hidden').show()"><span>Handle hidden</span></mdc-button>

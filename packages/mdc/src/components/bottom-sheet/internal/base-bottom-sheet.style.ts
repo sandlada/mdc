@@ -31,7 +31,7 @@ export const baseBottomSheetStyles = css`
      * while the slide-out transition plays; JS calls dialog.close() after
      * the close animation settles.
      *
-     * color picks up the variant headline-color token declared on
+     * color picks up the variant surface-color token declared on
      * dialog.standard / dialog.modal in bottom-sheet.style.ts. The token is
      * not visible on :host, only on the dialog itself, so var() is read here.
      */
@@ -50,7 +50,7 @@ export const baseBottomSheetStyles = css`
         outline: none;
         overflow: hidden;
         background: transparent;
-        color: var(--_enabled-headline-color, currentColor);
+        color: currentColor;
         pointer-events: none;
     }
 
@@ -79,10 +79,24 @@ export const baseBottomSheetStyles = css`
         pointer-events: auto;
     }
 
-    /* ─── Container ─── */
+    /* ─── Container ───
+     *
+     * MD3 measurement (per docs/overviews/bottom-sheet/measurement.png):
+     *   - Window ≤ 640dp (default rule below):
+     *       full width, 72dp top margin
+     *   - Window > 640dp (media query below):
+     *       56dp side margins, 56dp top margin, max 640dp wide, centered
+     *
+     * The container is bottom-anchored (bottom: 0); the top is set with
+     * a top rule for narrow viewports and overridden inside the media
+     * query for wide ones.
+     *
+     * detent controls max-height (peek 40vh, full 96vh) — see bottom of file.
+     */
     .container {
         position: absolute;
         inset-inline: 0;
+        top: 72px;
         bottom: 0;
         width: 100%;
         max-height: var(
@@ -114,6 +128,21 @@ export const baseBottomSheetStyles = css`
         z-index: 1;
         will-change: transform;
         touch-action: pan-y;
+    }
+
+    /*
+     * Wide-viewport sizing per the MD3 spec — bottom-sheet centers itself
+     * with 56dp side margins and caps at 640dp wide. The peek-detent
+     * top: 56px matches the spec's "top margin of 56dp" for windows
+     * wider than 640dp.
+     */
+    @media (min-width: 641px) {
+        .container {
+            top: 56px;
+            inset-inline: 56px;
+            max-width: 640px;
+            margin-inline: auto;
+        }
     }
 
     /*
@@ -167,62 +196,61 @@ export const baseBottomSheetStyles = css`
         transition: none;
     }
 
-    /* ─── Headline row ─── */
-    .headline {
+    /* ─── Drag handle ───
+     *
+     * The handle is the only swipe-to-dismiss affordance. It is always
+     * present in the DOM so consumers can hide-drag-handle to hide the
+     * visual bar while keeping swipe functional (pointerdown on the
+     * padded region still fires the drag controller).
+     *
+     * Geometry (per MD3 spec):
+     *   - 22dp padding top and bottom around the bar
+     *   - 32dp × 4dp centered pill at full width
+     *
+     * The inner .drag-handle-bar is the only visual element; the outer
+     * .drag-handle is the click/touch target (cushions the precise tap
+     * point and provides the swipe region when the bar is hidden).
+     */
+    .drag-handle {
         display: flex;
+        justify-content: center;
         align-items: center;
-        gap: 8px;
-        padding-inline-start: var(
-            --_headline-container-inline-leading-padding-space,
-            24px
-        );
-        padding-inline-end: var(
-            --_headline-container-inline-trailing-padding-space,
-            12px
-        );
         padding-block-start: var(
-            --_headline-container-block-leading-padding-space,
-            16px
+            --_drag-handle-container-block-leading-padding-space,
+            22px
         );
         padding-block-end: var(
-            --_headline-container-block-trailing-padding-space,
-            12px
+            --_drag-handle-container-block-trailing-padding-space,
+            22px
         );
-        min-height: 56px;
-        color: var(--_enabled-headline-color, currentColor);
-    }
-
-    .headline-label {
-        flex: 1;
-        margin: 0;
-        font-family: var(--mdc-typescale-title-small-font, system-ui);
-        font-size: var(--mdc-typescale-title-small-size, 14px);
-        font-weight: var(--mdc-typescale-title-small-weight, 500);
-        line-height: var(--mdc-typescale-title-small-line-height, 20px);
-        letter-spacing: var(--mdc-typescale-title-small-tracking, 0.1px);
-    }
-
-    .close-icon {
         flex-shrink: 0;
-        width: 40px;
-        height: 40px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        background: transparent;
-        border: none;
-        cursor: pointer;
-        color: inherit;
-        border-radius: 50%;
+        cursor: grab;
+        touch-action: pan-y;
     }
 
-    .close-icon {
-        color: var(--_enabled-close-icon-color, currentColor);
+    .drag-handle-bar {
+        width: var(--_drag-handle-width, 32px);
+        height: var(--_drag-handle-height, 4px);
+        border-radius: var(--_drag-handle-shape, 2px);
+        background: var(--_enabled-drag-handle-color, currentColor);
     }
 
-    /* ─── Dividers ─── */
-    mdc-divider {
-        --mdc-divider-enabled-color: var(--_enabled-divider-color, currentColor);
+    /*
+     * Hide the bar visually when hide-drag-handle is set; the outer
+     * .drag-handle (with its padding region) stays interactive so swipe
+     * still engages from the same screen position.
+     */
+    .drag-handle-hidden .drag-handle-bar {
+        visibility: hidden;
+    }
+
+    /*
+     * While the drag controller is active it sets the host's
+     * touch-action attribute to 'none' and the draggable cursor. Reflect
+     * that on the handle.
+     */
+    :host([touch-action='none']) .drag-handle {
+        cursor: grabbing;
     }
 
     /* ─── Content ─── */
@@ -246,39 +274,6 @@ export const baseBottomSheetStyles = css`
             24px
         );
         min-height: 0; /* flex child can shrink for overflow */
-    }
-
-    /* ─── Actions ─── */
-    .actions {
-        flex-shrink: 0;
-        padding-block-start: var(
-            --_actions-container-block-leading-padding-space,
-            16px
-        );
-        padding-block-end: var(
-            --_actions-container-block-trailing-padding-space,
-            24px
-        );
-        min-height: var(
-            --_actions-container-height,
-            72px
-        );
-    }
-
-    .actions[hidden] { display: none; }
-
-    .actions-row {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-        padding-inline-start: var(
-            --_content-container-inline-leading-padding-space,
-            24px
-        );
-        padding-inline-end: var(
-            --_content-container-inline-trailing-padding-space,
-            24px
-        );
     }
 
     /* ─── Focus traps ─── */

@@ -24,7 +24,6 @@ import {
     type BottomSheetAnimationArgs,
 } from '../bottom-sheet.animation'
 import {
-    BOTTOM_SHEET_ACTION_EVENT,
     BOTTOM_SHEET_CANCEL_EVENT,
     BOTTOM_SHEET_CLOSED_EVENT,
     BOTTOM_SHEET_CLOSING_EVENT,
@@ -35,7 +34,6 @@ import {
     type BottomSheetDetent,
     type BottomSheetVariant,
     type IBottomSheet,
-    type IBottomSheetActionEventDetail,
     type IBottomSheetCancelEventDetail,
     type IBottomSheetClosedEventDetail,
     type IBottomSheetDragEndEventDetail,
@@ -92,23 +90,25 @@ export abstract class BaseBottomSheet extends composeMixin(
     @property({ type: String, attribute: 'return-value' })
     public returnValue: string = ''
 
+    /**
+     * Swipe-to-dismiss from the drag handle. Modal default is `true` per
+     * the MD3 spec — the handle is the swipe affordance.
+     */
     @property({ type: Boolean })
-    public override draggable: boolean = false
+    public override draggable: boolean = true
+
+    /**
+     * Hide the visual drag-handle bar. The handle element stays in the
+     * shadow DOM so swipe-to-dismiss continues to work from its position.
+     */
+    @property({ type: Boolean, attribute: 'hide-drag-handle' })
+    public hideDragHandle: boolean = false
 
     @property({ type: Number, attribute: 'max-height' })
     public maxHeight: number = 0
 
     @state()
-    protected hasHeadline: boolean = false
-
-    @state()
     protected hasContent: boolean = false
-
-    @state()
-    protected hasActions: boolean = false
-
-    @state()
-    protected hasCloseIcon: boolean = false
 
     private lastCloseReason: BottomSheetCloseReason = 'programmatic'
     private previouslyFocused: Element | null = null
@@ -125,11 +125,11 @@ export abstract class BaseBottomSheet extends composeMixin(
     @query('.container')
     protected readonly containerEl!: HTMLElement | null
 
+    @query('.drag-handle')
+    protected readonly dragHandleEl!: HTMLElement | null
+
     @query('.scrim')
     protected readonly scrimEl!: HTMLElement | null
-
-    @query('.close-icon')
-    protected readonly closeIconEl!: HTMLElement | null
 
     public declare ariaLabel: string | null
 
@@ -144,6 +144,7 @@ export abstract class BaseBottomSheet extends composeMixin(
     // ── IBottomSheetDragHost implementation ─────────────────────────────────
     // The drag controller reads these each pointerdown, so they return the
     // current refs rather than caching.
+    public dragHandleRef(): HTMLElement | null { return this.dragHandleEl }
     public containerRef(): HTMLElement | null { return this.containerEl }
     public scrimRef(): HTMLElement | null { return this.scrimEl }
     public enabled(): boolean {
@@ -156,15 +157,13 @@ export abstract class BaseBottomSheet extends composeMixin(
 
     protected getRenderClasses(): Record<string, boolean | string> {
         return {
-            'standard'      : this.variant === 'standard',
-            'modal'         : this.variant === 'modal',
+            'standard'         : this.variant === 'standard',
+            'modal'            : this.variant === 'modal',
             [`detent-${this.detent}`]: true,
-            'has-headline'  : this.hasHeadline,
-            'has-content'   : this.hasContent,
-            'has-actions'   : this.hasActions,
-            'has-close-icon': this.hasCloseIcon,
-            'no-focus-trap' : this.noFocusTrap,
-            'quick'         : this.quick,
+            'has-content'      : this.hasContent,
+            'no-focus-trap'    : this.noFocusTrap,
+            'quick'            : this.quick,
+            'drag-handle-hidden': this.hideDragHandle,
         }
     }
 
@@ -188,40 +187,12 @@ export abstract class BaseBottomSheet extends composeMixin(
                 <span class="scrim" aria-hidden="true"></span>
 
                 <div class="container" part="container">
-                    <header class="headline">
-                        <h2 class="headline-label">
-                            <slot name="headline"
-                                @slotchange=${this.handleHeadlineSlotChange}></slot>
-                        </h2>
-                        <button class="close-icon"
-                            type="button"
-                            aria-label="Close"
-                            @click=${this.handleCloseIconClick}>
-                            <slot name="close-icon"
-                                @slotchange=${this.handleCloseIconSlotChange}>
-                                <svg viewBox="0 0 24 24" width="24" height="24"
-                                    fill="currentColor" aria-hidden="true">
-                                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41
-                                        10.59 12 5 17.59 6.41 19 12 13.41 17.59 19
-                                        19 17.59 13.41 12z"/>
-                                </svg>
-                            </slot>
-                        </button>
-                    </header>
-
-                    <mdc-divider></mdc-divider>
-
+                    <div class="drag-handle" part="drag-handle" aria-hidden="true">
+                        <div class="drag-handle-bar"></div>
+                    </div>
                     <div class="content">
                         <slot @slotchange=${this.handleContentSlotChange}></slot>
                     </div>
-
-                    <footer class="actions" ?hidden=${!this.hasActions}>
-                        <mdc-divider></mdc-divider>
-                        <div class="actions-row">
-                            <slot name="actions"
-                                @slotchange=${this.handleActionsSlotChange}></slot>
-                        </div>
-                    </footer>
                 </div>
 
                 ${!this.noFocusTrap ? this.renderFocusTrap('last') : nothing}
@@ -435,7 +406,7 @@ export abstract class BaseBottomSheet extends composeMixin(
 
     private focusFirstInside(): void {
         const focusable = this.getFocusableElements()
-        const target = focusable[0] ?? this.closeIconEl
+        const target = focusable[0]
         target?.focus()
     }
 
@@ -457,29 +428,15 @@ export abstract class BaseBottomSheet extends composeMixin(
             (el) => !el.hasAttribute('disabled')
                 && el.getAttribute('aria-hidden') !== 'true'
                 && !el.classList.contains('focus-trap')
+                && !el.classList.contains('drag-handle')
         )
     }
 
     // ── Slot change handlers ───────────────────────────────────────────────
 
-    private handleHeadlineSlotChange(event: Event): void {
-        const slot = event.target as HTMLSlotElement
-        this.hasHeadline = slot.assignedElements({ flatten: true }).length > 0
-    }
-
     private handleContentSlotChange(event: Event): void {
         const slot = event.target as HTMLSlotElement
         this.hasContent = slot.assignedElements({ flatten: true }).length > 0
-    }
-
-    private handleActionsSlotChange(event: Event): void {
-        const slot = event.target as HTMLSlotElement
-        this.hasActions = slot.assignedElements({ flatten: true }).length > 0
-    }
-
-    private handleCloseIconSlotChange(event: Event): void {
-        const slot = event.target as HTMLSlotElement
-        this.hasCloseIcon = slot.assignedElements({ flatten: true }).length > 0
     }
 
     // ── Host-level event handlers ──────────────────────────────────────────
@@ -514,17 +471,6 @@ export abstract class BaseBottomSheet extends composeMixin(
 
     private handleKeydown(_event: KeyboardEvent): void {
         // Reserved for future hotkeys; intentionally a no-op in v1.
-    }
-
-    private handleCloseIconClick(_event: MouseEvent): void {
-        this.dispatchEvent(new CustomEvent<IBottomSheetActionEventDetail>(
-            BOTTOM_SHEET_ACTION_EVENT, {
-                bubbles: true, composed: true,
-                detail: { source: 'close' },
-            },
-        ))
-        this.lastCloseReason = 'close-button'
-        void this.hide()
     }
 
     private handleFirstFocusTrapFocus(): void {

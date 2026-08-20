@@ -22,19 +22,26 @@ declare global {
  *  - modal: blocks interaction via a scrim, `surface-container-low` background
  *
  * Default variant is `modal`. The modal variant supports two detents
- * (`peek`, `full`); drag-to-dismiss with snap-to-detent-or-close when
- * `draggable=true`.
+ * (`peek`, `full`). A drag handle is rendered at the top of the panel —
+ * pointer-down on it initiates a swipe-to-dismiss gesture (can be disabled
+ * via `draggable="false"`). Set `hide-drag-handle` to hide the visual
+ * bar while keeping swipe-to-dismiss functional.
  *
- * @slot - Body content.
- * @slot headline - The `<h2>` headline text.
- * @slot close-icon - Optional replacement close icon (default inline SVG).
- * @slot actions - Footer action buttons.
+ * The element renders only the drag handle and the content slot. Headlines,
+ * close buttons, and action bars are intentionally NOT provided — developers
+ * compose those inside the default slot.
+ *
+ * @slot - Body content. The developer composes everything (titles, action
+ *         buttons, dividers, etc.) inside this slot.
  *
  * @example
  * ```html
- * <mdc-bottom-sheet variant="modal" detent="peek" open>
- *     <span slot="headline">Filters</span>
+ * <mdc-bottom-sheet variant="modal" detent="peek">
+ *     <h2>Filters</h2>
  *     <p>Filter content</p>
+ *     <mdc-button onclick="this.closest('mdc-bottom-sheet').close()">
+ *         <span>Apply</span>
+ *     </mdc-button>
  * </mdc-bottom-sheet>
  * ```
  *

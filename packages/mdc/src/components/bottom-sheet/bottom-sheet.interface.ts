@@ -22,14 +22,12 @@ export type BottomSheetDetent = 'peek' | 'full'
  * - `programmatic`  : consumer called `hide()` or `close()`
  * - `escape`       : modal's Esc key (when `cancelable=true`)
  * - `scrim`        : modal's scrim tap (when `cancelable=true`)
- * - `close-button` : the close icon-button was clicked
  * - `drag`         : drag gesture committed close (when `draggable=true`)
  */
 export type BottomSheetCloseReason =
     | 'programmatic'
     | 'escape'
     | 'scrim'
-    | 'close-button'
     | 'drag'
 
 /**
@@ -47,15 +45,6 @@ export interface IBottomSheetClosedEventDetail {
  */
 export interface IBottomSheetCancelEventDetail {
     reason: 'escape' | 'scrim'
-}
-
-/**
- * Detail payload of the `bottom-sheet-action` event.
- * The action source distinguishes which icon-button was clicked (only `close`
- * is supported in v1 — back-button is not part of MD3 bottom-sheet).
- */
-export interface IBottomSheetActionEventDetail {
-    source: 'close'
 }
 
 /**
@@ -89,6 +78,11 @@ export interface IBottomSheetDragEndEventDetail {
 /**
  * Bottom sheet component contract.
  *
+ * The element renders two things only: a drag handle (for swipe-to-dismiss)
+ * and a content panel for the default slot. Header titles, close buttons,
+ * and action rows are intentionally NOT provided — developers compose those
+ * inside the default slot.
+ *
  * @version
  * Material Design 3
  *
@@ -110,8 +104,17 @@ export interface IBottomSheet extends LitElement {
     noFocusTrap: boolean
     /** Round-tripped in `bottom-sheet-closed` event detail. */
     returnValue: string
-    /** When `true`, pointer-down on the container initiates a drag gesture (vertical). */
+    /**
+     * When `true` (default), pointer-down on the drag handle initiates a
+     * vertical swipe-to-dismiss gesture. The handle is the swipe affordance;
+     * the rest of the container does NOT start a drag.
+     */
     draggable: boolean
+    /**
+     * Hide the drag handle's visual bar (the handle element remains in the
+     * shadow DOM so swipe-to-dismiss continues to work from its position).
+     */
+    hideDragHandle: boolean
     /** Hard ceiling on container height in CSS px. `0` (default) means no ceiling. */
     maxHeight: number
 
@@ -133,8 +136,6 @@ export const BOTTOM_SHEET_CLOSING_EVENT = 'bottom-sheet-closing'
 export const BOTTOM_SHEET_CLOSED_EVENT = 'bottom-sheet-closed'
 /** Modal only — fired before `closing` when Esc or scrim is invoked. */
 export const BOTTOM_SHEET_CANCEL_EVENT = 'bottom-sheet-cancel'
-/** Fired when the default close icon-button is clicked. */
-export const BOTTOM_SHEET_ACTION_EVENT = 'bottom-sheet-action'
 /** Fired when a drag gesture engages. Only when `draggable=true`. */
 export const BOTTOM_SHEET_DRAG_START_EVENT = 'bottom-sheet-drag-start'
 /** Fired (throttled to rAF) during an active drag. Only when `draggable=true`. */

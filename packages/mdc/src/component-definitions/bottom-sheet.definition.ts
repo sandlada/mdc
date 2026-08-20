@@ -15,7 +15,7 @@ import { createStyleDefinition } from '../utils/tokens/create-style-definition'
  * Style definitions for `mdc-bottom-sheet`.
  *
  * Both variants share structural tokens (detent heights, shapes, padding,
- * actions row height). They differ in container surface color — `Standard`
+ * drag-handle geometry). They differ in container surface color — `Standard`
  * uses `Color.Surface`, `Modal` uses `Color.SurfaceContainerLow`, matching
  * the `app:backgroundTint` defaults from the Material Components Android
  * reference.
@@ -41,29 +41,22 @@ const sharedStructural = {
     'container-elevation'                             : ElevationLevel.Level1,
     'container-shadow-color'                          : Color.Shadow,
 
-    // Headline padding
-    'headline-container-inline-leading-padding-space'  : `24px`,
-    'headline-container-inline-trailing-padding-space' : `12px`,
-    'headline-container-block-leading-padding-space'   : `16px`,
-    'headline-container-block-trailing-padding-space'  : `12px`,
-
-    // Body content padding
+    // Body content padding (the developer fills this with whatever they want)
     'content-container-inline-leading-padding-space'  : `24px`,
     'content-container-inline-trailing-padding-space' : `24px`,
     'content-container-block-leading-padding-space'   : `16px`,
     'content-container-block-trailing-padding-space'  : `24px`,
 
-    // Actions padding + row height
-    'actions-container-block-leading-padding-space'   : `16px`,
-    'actions-container-block-trailing-padding-space'  : `24px`,
-    'actions-container-height'                         : `72px`,
+    // Drag handle geometry (per MD3 spec: centered bar with 22dp top/bottom padding)
+    'drag-handle-width'                              : `32px`,
+    'drag-handle-height'                             : `4px`,
+    'drag-handle-shape'                              : `2px`,
+    'drag-handle-container-block-leading-padding-space'  : `22px`,
+    'drag-handle-container-block-trailing-padding-space' : `22px`,
 
     // Modal scrim
     'enabled-container-color-modal'                  : Color.Scrim,
     'enabled-container-opacity-modal'                : `0.32`,
-
-    // Close icon size
-    'close-icon-size'                                 : `24px`,
 } as const
 
 /**
@@ -73,9 +66,7 @@ const sharedStructural = {
 export const StandardBottomSheetDefinition = createStyleDefinition({
     ...sharedStructural,
     'enabled-container-color'           : Color.Surface,
-    'enabled-headline-color'            : Color.OnSurfaceVariant,
-    'enabled-close-icon-color'          : Color.OnSurfaceVariant,
-    'enabled-divider-color'             : Color.OutlineVariant,
+    'enabled-drag-handle-color'         : Color.OnSurfaceVariant,
 })
 
 /**
@@ -86,9 +77,7 @@ export const StandardBottomSheetDefinition = createStyleDefinition({
 export const ModalBottomSheetDefinition = createStyleDefinition({
     ...sharedStructural,
     'enabled-container-color'           : Color.SurfaceContainerLow,
-    'enabled-headline-color'            : Color.OnSurfaceVariant,
-    'enabled-close-icon-color'          : Color.OnSurfaceVariant,
-    'enabled-divider-color'             : Color.OutlineVariant,
+    'enabled-drag-handle-color'         : Color.OnSurfaceVariant,
 })
 
 /** Default definition — the standard variant. */

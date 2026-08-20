@@ -1,11 +1,15 @@
 <mdc-bottom-sheet id="bs-focus-trap-on" variant="modal">
-    <span slot="headline">Focus trap enabled (default)</span>
-    <p>Tab cycles within the sheet. Try tabbing from the close button.</p>
+    <h2 style="margin: 0 0 8px 0; font: var(--mdc-typescale-title-medium);">Focus trap enabled (default)</h2>
+    <p>Tab cycles within the sheet. Try tabbing from the buttons.</p>
+    <mdc-button variant="text"><span>First</span></mdc-button>
+    <mdc-button variant="text"><span>Last</span></mdc-button>
 </mdc-bottom-sheet>
 
 <mdc-bottom-sheet id="bs-focus-trap-off" variant="modal" no-focus-trap>
-    <span slot="headline">Focus trap disabled</span>
+    <h2 style="margin: 0 0 8px 0; font: var(--mdc-typescale-title-medium);">Focus trap disabled</h2>
     <p>Tab leaves the sheet and moves to the page.</p>
+    <mdc-button variant="text"><span>First</span></mdc-button>
+    <mdc-button variant="text"><span>Last</span></mdc-button>
 </mdc-bottom-sheet>
 
 <mdc-button onclick="this.getRootNode().querySelector('#bs-focus-trap-on').show()"><span>Trap enabled</span></mdc-button>
