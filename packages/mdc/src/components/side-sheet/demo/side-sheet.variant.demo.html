@@ -1,9 +1,12 @@
-<mdc-side-sheet variant="standard" open>
+<mdc-side-sheet id="ss-variant-standard" variant="standard">
     <span slot="headline">Standard</span>
-    <p>Body content for the standard variant.</p>
+    <p>Co-exists with the page: no scrim, and the rest of the UI stays interactive.</p>
 </mdc-side-sheet>
 
-<mdc-side-sheet variant="modal" open>
+<mdc-side-sheet id="ss-variant-modal" variant="modal">
     <span slot="headline">Modal</span>
-    <p>Body content for the modal variant.</p>
+    <p>Blocks the page behind a scrim until dismissed.</p>
 </mdc-side-sheet>
+
+<mdc-button onclick="this.getRootNode().querySelector('#ss-variant-standard').show()"><span>Standard</span></mdc-button>
+<mdc-button onclick="this.getRootNode().querySelector('#ss-variant-modal').show()"><span>Modal</span></mdc-button>

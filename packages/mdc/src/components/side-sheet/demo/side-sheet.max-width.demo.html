@@ -1,14 +1,21 @@
-<mdc-side-sheet variant="modal" max-width="320" open>
-    <span slot="headline">320px</span>
-    <p>Narrow panel.</p>
+<mdc-side-sheet id="ss-max-width-280" variant="modal" max-width="280"
+    style="--mdc-side-sheet-enabled-container-width: 640px">
+    <span slot="headline">640px token, 280px ceiling</span>
+    <p>max-width clamps the container-width token.</p>
 </mdc-side-sheet>
 
-<mdc-side-sheet variant="modal" open>
-    <span slot="headline">400px (default)</span>
-    <p>Default MD3 spec width.</p>
+<mdc-side-sheet id="ss-max-width-400" variant="modal" max-width="400"
+    style="--mdc-side-sheet-enabled-container-width: 640px">
+    <span slot="headline">640px token, 400px ceiling</span>
+    <p>The MD3 spec width, enforced as a ceiling.</p>
 </mdc-side-sheet>
 
-<mdc-side-sheet variant="modal" max-width="640" open>
-    <span slot="headline">640px</span>
-    <p>Wide panel.</p>
+<mdc-side-sheet id="ss-max-width-none" variant="modal"
+    style="--mdc-side-sheet-enabled-container-width: 640px">
+    <span slot="headline">640px token, no ceiling</span>
+    <p>Without max-width the token drives the width outright.</p>
 </mdc-side-sheet>
+
+<mdc-button onclick="this.getRootNode().querySelector('#ss-max-width-280').show()"><span>280px ceiling</span></mdc-button>
+<mdc-button onclick="this.getRootNode().querySelector('#ss-max-width-400').show()"><span>400px ceiling</span></mdc-button>
+<mdc-button onclick="this.getRootNode().querySelector('#ss-max-width-none').show()"><span>No ceiling</span></mdc-button>

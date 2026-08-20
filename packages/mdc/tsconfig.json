@@ -48,6 +48,5 @@
         "./src/**/popup-controller/*",
         "./src/**/wave/*",
         "./src/**/toolbar/*",
-        "./src/**/side-sheet/*"
     ]
 }

@@ -6,6 +6,7 @@
 import { html, LitElement, nothing, type PropertyValues, type TemplateResult } from 'lit'
 import { property, query, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
+import { styleMap } from 'lit/directives/style-map.js'
 import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
 import { baseSideSheetStyles } from './base-side-sheet.style'
@@ -52,12 +53,24 @@ export abstract class BaseSideSheet extends composeMixin(
     public sheetEdge: SideSheetEdge = 'end'
 
     @property({ type: Number, attribute: 'max-width' })
-    public maxWidth: number = 400
+    public maxWidth: number = 0
 
     @property({ type: Boolean })
     public quick: boolean = false
 
-    @property({ type: Boolean })
+    /**
+     * Whether Esc and scrim taps dismiss the modal sheet. Custom string-aware
+     * converter so `cancelable="false"` is honoured (Lit default treats any
+     * present attribute as `true`).
+     */
+    @property({
+        attribute: 'cancelable',
+        converter: {
+            fromAttribute: (value: string | null) =>
+                value !== null && value !== 'false',
+            toAttribute: (value: boolean) => (value ? '' : 'false'),
+        },
+    })
     public cancelable: boolean = true
 
     @property({ type: Boolean, attribute: 'no-focus-trap' })
@@ -91,6 +104,15 @@ export abstract class BaseSideSheet extends composeMixin(
 
     private previouslyFocused: Element | null = null
 
+    /**
+     * When `true`, the sheet is in the process of closing: the CSS slide-out
+     * transition is running and `dialog.close()` will be called once it ends.
+     */
+    private pendingClose = false
+
+    @query('dialog')
+    protected readonly dialogEl!: HTMLDialogElement | null
+
     @query('.container')
     protected readonly containerEl!: HTMLElement | null
 
@@ -104,8 +126,6 @@ export abstract class BaseSideSheet extends composeMixin(
             'standard'    : this.variant === 'standard',
             'modal'       : this.variant === 'modal',
             [`edge-${this.sheetEdge}`]: true,
-            'open'        : this.open,
-            'closing'     : false,
             'has-headline': this.hasHeadline,
             'has-content' : this.hasContent,
             'has-actions' : this.hasActions,
@@ -122,7 +142,9 @@ export abstract class BaseSideSheet extends composeMixin(
             <dialog
                 class="host ${classMap(this.getRenderClasses())}"
                 part="host"
-                ?open=${this.open}
+                style=${styleMap(this.maxWidth > 0
+                    ? { '--_container-max-width': `${this.maxWidth}px` }
+                    : {})}
                 .returnValue=${this.returnValue}
                 aria-label=${this.ariaLabel || nothing}
                 role="dialog"
@@ -206,15 +228,39 @@ export abstract class BaseSideSheet extends composeMixin(
 
     public async show(): Promise<void> {
         if (this.open) return
-        this.lastCloseReason = 'programmatic'   // ← ADDED: reset stale reason
+        // The state reset (lastCloseReason, pendingClose, previouslyFocused)
+        // happens in willUpdate() so declaratively-opened sheets get the same
+        // fresh state.
         this.open = true
+        await this.updateComplete
+        const dialog = this.dialogEl
+        if (!dialog) return
+        // Re-opening while the exit transition is still running leaves the
+        // dialog in the top layer; show()/showModal() throw InvalidStateError
+        // on an already-open dialog. updated() guards the declarative case
+        // with the same check.
+        if (!dialog.open) {
+            if (this.variant === 'modal') {
+                dialog.showModal()
+            } else {
+                dialog.show()
+            }
+        }
         if (this.quick) await this.resolveQuick('open')
     }
 
     public async hide(): Promise<void> {
-        if (!this.open) return
+        if (!this.open || this.pendingClose) return
         this.open = false
-        if (this.quick) await this.resolveQuick('close')
+        if (this.quick) {
+            this.closeDialog()
+            await this.resolveQuick('close')
+        } else {
+            // The CSS slide-out transition runs while the dialog stays in the
+            // top layer. handleContainerTransitionEnd will call closeDialog()
+            // once the transition completes.
+            this.pendingClose = true
+        }
     }
 
     public async close(returnValue?: string): Promise<void> {
@@ -222,9 +268,25 @@ export abstract class BaseSideSheet extends composeMixin(
         await this.hide()
     }
 
+    /**
+     * Close the native `<dialog>` element, removing it from the top layer.
+     * Safe to call multiple times — no-ops if the dialog is already closed.
+     */
+    private closeDialog(): void {
+        const dialog = this.dialogEl
+        if (!dialog?.open) return
+        dialog.close(this.returnValue)
+    }
+
     protected override willUpdate(changed: PropertyValues<this>): void {
         if (changed.has('open')) {
             if (this.open) {
+                // Reset here (not in show()) so declaratively-opened sheets
+                // get the same fresh state. The close path leaves these
+                // fields alone, preserving the "preserve caller-set
+                // lastCloseReason" behaviour (commits 0a82180 / 6983438).
+                this.lastCloseReason = 'programmatic'
+                this.pendingClose = false
                 this.previouslyFocused = this.ownerDocument?.activeElement ?? null
                 this.dispatchEvent(new Event(
                     SIDE_SHEET_OPENING_EVENT,
@@ -236,6 +298,22 @@ export abstract class BaseSideSheet extends composeMixin(
                     { bubbles: true, composed: true },
                 ))
             }
+        }
+    }
+
+    protected override updated(changed: PropertyValues<this>): void {
+        super.updated(changed)
+        // Promote the dialog to the top layer (or non-modal show) so
+        // declarative `<mdc-side-sheet open>` works. Imperative show()
+        // also lands here on its `this.open = true` write and is guarded
+        // against double-firing by the `dialog.open` check below.
+        if (!changed.has('open') || !this.open) return
+        const dialog = this.dialogEl
+        if (!dialog || dialog.open) return
+        if (this.variant === 'modal') {
+            dialog.showModal()
+        } else {
+            dialog.show()
         }
     }
 
@@ -251,6 +329,12 @@ export abstract class BaseSideSheet extends composeMixin(
                 if (!this.noFocusTrap) this.focusFirstInside()
             })
         } else {
+            // Close the native dialog (removes from top layer) now that the
+            // slide-out transition has finished.
+            if (this.pendingClose) {
+                this.pendingClose = false
+                this.closeDialog()
+            }
             this.dispatchEvent(new CustomEvent<ISideSheetClosedEventDetail>(
                 SIDE_SHEET_CLOSED_EVENT,
                 {
@@ -343,14 +427,12 @@ export abstract class BaseSideSheet extends composeMixin(
     }
 
     private handleNativeCancel(event: Event): void {
-        if (this.variant !== 'modal' || !this.cancelable) {
-            // Standard variant, or modal-but-not-cancelable: prevent the
-            // browser's default close. We don't want any close without an
-            // explicit user gesture.
-            event.preventDefault()
+        // Always prevent the browser's default close — we manage the dialog
+        // lifecycle ourselves via show()/hide().
+        event.preventDefault()
+        if (this.variant !== 'modal' || !this.cancelable || this.pendingClose) {
             return
         }
-        event.preventDefault()
         this.lastCloseReason = 'escape'
         this.dispatchEvent(new CustomEvent<ISideSheetCancelEventDetail>(
             SIDE_SHEET_CANCEL_EVENT,
@@ -360,7 +442,7 @@ export abstract class BaseSideSheet extends composeMixin(
     }
 
     private handleHostClick(event: MouseEvent): void {
-        if (this.variant !== 'modal' || !this.cancelable) return
+        if (this.variant !== 'modal' || !this.cancelable || this.pendingClose) return
         const path = event.composedPath()
         if (path.some((node) => (node as Element).classList?.contains?.('scrim'))) {
             this.lastCloseReason = 'scrim'

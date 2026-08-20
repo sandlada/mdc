@@ -1,9 +1,12 @@
-<mdc-side-sheet variant="modal" cancelable open>
+<mdc-side-sheet id="ss-cancelable-on" variant="modal" cancelable>
     <span slot="headline">Cancelable (default)</span>
     <p>Press Esc or click the scrim to close.</p>
 </mdc-side-sheet>
 
-<mdc-side-sheet variant="modal" cancelable="false" open>
+<mdc-side-sheet id="ss-cancelable-off" variant="modal" cancelable="false">
     <span slot="headline">Not cancelable</span>
     <p>Esc and scrim taps are no-ops; only the close button dismisses.</p>
 </mdc-side-sheet>
+
+<mdc-button onclick="this.getRootNode().querySelector('#ss-cancelable-on').show()"><span>Cancelable</span></mdc-button>
+<mdc-button onclick="this.getRootNode().querySelector('#ss-cancelable-off').show()"><span>Not cancelable</span></mdc-button>

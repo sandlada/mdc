@@ -73,7 +73,11 @@ export interface ISideSheet extends LitElement {
     open: boolean
     /** Edge the sheet docks to. */
     sheetEdge: SideSheetEdge
-    /** Hard ceiling on panel width in CSS px. */
+    /**
+     * Hard ceiling on panel width in CSS px.
+     * `0` (default) means no ceiling — width is driven solely by the
+     * `--mdc-side-sheet-enabled-container-width` token.
+     */
     maxWidth: number
     /** Skip opening/closing animations. */
     quick: boolean

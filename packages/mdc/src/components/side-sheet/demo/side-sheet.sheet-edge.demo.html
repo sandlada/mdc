@@ -1,9 +1,12 @@
-<mdc-side-sheet variant="modal" sheet-edge="end" open>
+<mdc-side-sheet id="ss-edge-end" variant="modal" sheet-edge="end">
     <span slot="headline">End edge</span>
-    <p>Sheet docked to inline-end (right in LTR).</p>
+    <p>Docked to inline-end (right in LTR).</p>
 </mdc-side-sheet>
 
-<mdc-side-sheet variant="modal" sheet-edge="start" open>
+<mdc-side-sheet id="ss-edge-start" variant="modal" sheet-edge="start">
     <span slot="headline">Start edge</span>
-    <p>Sheet docked to inline-start (left in LTR).</p>
+    <p>Docked to inline-start (left in LTR). The rounded corners mirror.</p>
 </mdc-side-sheet>
+
+<mdc-button onclick="this.getRootNode().querySelector('#ss-edge-end').show()"><span>End edge</span></mdc-button>
+<mdc-button onclick="this.getRootNode().querySelector('#ss-edge-start').show()"><span>Start edge</span></mdc-button>

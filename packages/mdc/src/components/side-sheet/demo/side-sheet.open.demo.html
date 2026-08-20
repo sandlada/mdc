@@ -1,9 +1,12 @@
-<mdc-side-sheet variant="modal">
-    <span slot="headline">Closed</span>
-    <p>This sheet is closed by default; toggle the open attribute to display.</p>
+<mdc-side-sheet id="ss-open-imperative" variant="modal">
+    <span slot="headline">Opened via show()</span>
+    <p>Imperative: <code>sheet.show()</code> sets <code>open</code> and promotes the dialog to the top layer.</p>
 </mdc-side-sheet>
 
-<mdc-side-sheet variant="modal" open>
-    <span slot="headline">Open</span>
-    <p>This sheet is open.</p>
+<mdc-side-sheet id="ss-open-declarative" variant="modal" open>
+    <span slot="headline">Opened via the open property</span>
+    <p>Declarative: setting <code>open = true</code> (or the <code>open</code> attribute) drives the same lifecycle.</p>
 </mdc-side-sheet>
+
+<mdc-button onclick="this.getRootNode().querySelector('#ss-open-imperative').show()"><span>show()</span></mdc-button>
+<mdc-button onclick="this.getRootNode().querySelector('#ss-open-declarative').show()"><span>show() declarative</span></mdc-button>

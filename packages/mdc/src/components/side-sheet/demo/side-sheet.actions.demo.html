@@ -1,11 +1,14 @@
-<mdc-side-sheet variant="modal" open>
+<mdc-side-sheet id="ss-actions-with" variant="modal">
     <span slot="headline">With actions</span>
     <p>Body content.</p>
-    <mdc-button slot="actions">Save</mdc-button>
-    <mdc-button slot="actions" variant="outlined">Cancel</mdc-button>
+    <mdc-button slot="actions" onclick="this.closest('mdc-side-sheet').close('save')"><span>Save</span></mdc-button>
+    <mdc-button slot="actions" variant="outlined" onclick="this.closest('mdc-side-sheet').close('cancel')"><span>Cancel</span></mdc-button>
 </mdc-side-sheet>
 
-<mdc-side-sheet variant="modal" open>
+<mdc-side-sheet id="ss-actions-without" variant="modal">
     <span slot="headline">Without actions</span>
     <p>Body content. The actions footer is hidden.</p>
 </mdc-side-sheet>
+
+<mdc-button onclick="this.getRootNode().querySelector('#ss-actions-with').show()"><span>With actions</span></mdc-button>
+<mdc-button onclick="this.getRootNode().querySelector('#ss-actions-without').show()"><span>Without actions</span></mdc-button>

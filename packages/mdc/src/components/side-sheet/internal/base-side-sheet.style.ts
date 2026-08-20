@@ -9,30 +9,75 @@ export const baseSideSheetStyles = css`
     :host {
         position: fixed;
         inset: 0;
+        /* Never auto: the host spans the whole viewport, so an interactive
+         * host would swallow every click on the page. The panel and the modal
+         * scrim opt back in individually. */
         pointer-events: none;
         background: transparent;
-        color: var(--mdc-side-sheet-enabled-headline-color, currentColor);
+        color: inherit;
         z-index: 1000;
-        isolation: isolate; /* keep scrim + container stacked without bleed */
+        isolation: isolate;
     }
 
-    :host([open]) { pointer-events: auto; }
+    /*
+     * The UA stylesheet lays a <dialog> out as a centred, fit-content box
+     * (position: absolute; inset-inline: 0; width/height: fit-content;
+     * margin: auto; border: solid; padding: 1em). For :modal it additionally
+     * caps at calc(100% - 6px - 2em) and sets overflow: auto.
+     *
+     * Override every one of those so the dialog is a transparent, inert,
+     * full-viewport stage. Only then does the container rule below
+     * (position: absolute; top/bottom/inset-inline-end: 0) resolve against
+     * the viewport instead of a small centred box.
+     *
+     * display: block !important additionally defeats
+     * dialog:not([open]) { display: none } so the element stays rendered
+     * while the slide-out transition plays; JS calls dialog.close() at
+     * transitionend.
+     *
+     * color picks up the variant headline-color token declared on
+     * dialog.standard / dialog.modal in side-sheet.style.ts. The token is
+     * not visible on :host, only on the dialog itself, so var() is read here.
+     */
+    dialog {
+        display: block !important;
+        position: fixed;
+        inset: 0;
+        box-sizing: border-box;
+        width: 100%;
+        height: 100%;
+        max-width: none;
+        max-height: none;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        outline: none;
+        /* Closed container sits at translateX(100%); UA overflow: auto would
+         * add scrollable overflow to that transformed box. */
+        overflow: hidden;
+        background: transparent;
+        color: var(--_enabled-headline-color, currentColor);
+        pointer-events: none;
+    }
+
+    /* Hide the native ::backdrop — the side-sheet uses a custom scrim. */
+    dialog::backdrop { display: none; }
 
     /* ─── Scrim (modal only — visible at runtime when variant is modal and open) ─── */
     .scrim {
         position: absolute;
         inset: 0;
-        background: var(--mdc-side-sheet-enabled-container-color-modal, #000);
+        background: var(--_enabled-container-color-modal, #000);
         opacity: 0;
         pointer-events: none;
         transition-property: opacity;
-        transition-duration: var(--mdc-side-sheet-container-motion-duration, 250ms);
+        transition-duration: var(--_container-motion-duration, 250ms);
         transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
         z-index: 0;
     }
 
-    dialog.modal[open] .scrim {
-        opacity: var(--mdc-side-sheet-enabled-container-opacity-modal, 0.32);
+    :host([open]) dialog.modal .scrim {
+        opacity: var(--_enabled-container-opacity-modal, 0.32);
         pointer-events: auto;
     }
 
@@ -43,10 +88,11 @@ export const baseSideSheetStyles = css`
         bottom: 0;
         inset-inline-end: 0;
         width: min(
-            var(--mdc-side-sheet-enabled-container-width, 400px),
+            var(--_enabled-container-width, 400px),
             100%
         );
-        background: var(--mdc-side-sheet-enabled-container-color, #fff);
+        max-width: var(--_container-max-width, 100%);
+        background: var(--_enabled-container-color, #fff);
         color: inherit;
         display: flex;
         flex-direction: column;
@@ -56,24 +102,42 @@ export const baseSideSheetStyles = css`
          * opposite edge is the rounded exterior corner. Sheet-edges are
          * defined relative to inline-end (the default below). */
         border-start-start-radius: var(
-            --mdc-side-sheet-container-shape-start-start,
+            --_container-shape-start-start,
             28px
         );
         border-end-start-radius: var(
-            --mdc-side-sheet-container-shape-end-start,
+            --_container-shape-end-start,
             28px
         );
 
         transform: translateX(100%);
         transition-property: transform;
-        transition-duration: var(--mdc-side-sheet-container-motion-duration, 250ms);
+        transition-duration: var(--_container-motion-duration, 250ms);
         transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
         pointer-events: auto;
         will-change: transform, opacity;
         z-index: 1;
     }
 
-    dialog.open .container {
+    /*
+     * Suppress the box-shadow once the dialog has left the top layer.
+     *
+     * The closed container sits at translateX(100%) — its box is fully
+     * off-screen right — but its 16px box-shadow blur bleeds 16px back
+     * INSIDE the dialog content box (which is full-viewport with
+     * overflow: hidden). That sliver is visible at the right edge of
+     * the viewport even though the container itself is gone.
+     *
+     * The native dialog element keeps its [open] attribute while the
+     * slide-out transition runs (closeDialog() is deferred to
+     * transitionend), so the shadow stays painted during the exit
+     * animation and disappears the instant the dialog is closed.
+     */
+    dialog:not([open]) .container {
+        box-shadow: none;
+    }
+
+    :host([open]) .container {
         transform: translateX(0);
     }
 
@@ -84,24 +148,27 @@ export const baseSideSheetStyles = css`
         border-start-start-radius: 0;
         border-end-start-radius: 0;
         border-start-end-radius: var(
-            --mdc-side-sheet-container-shape-start-end,
+            --_container-shape-start-end,
             28px
         );
         border-end-end-radius: var(
-            --mdc-side-sheet-container-shape-end-end,
+            --_container-shape-end-end,
             28px
         );
         transform: translateX(-100%);
     }
 
-    dialog.edge-start.open .container {
+    :host([open]) dialog.edge-start .container {
         transform: translateX(0);
     }
 
-    /* Quick mode: no transitions. */
+    /* Quick mode: no transitions. The :host([open]) variants are added so
+     * the new visibility selector key (host[open] = "should be visible")
+     * wins the specificity battle against dialog.quick. */
     dialog.quick .container,
-    dialog.quick.open .container,
-    dialog.quick .scrim {
+    :host([open]) dialog.quick .container,
+    dialog.quick .scrim,
+    :host([open]) dialog.quick .scrim {
         transition: none;
     }
 
@@ -111,29 +178,29 @@ export const baseSideSheetStyles = css`
         align-items: center;
         gap: 8px;
         padding-inline-start: var(
-            --mdc-side-sheet-headline-container-inline-leading-padding-space,
+            --_headline-container-inline-leading-padding-space,
             24px
         );
         padding-inline-end: var(
-            --mdc-side-sheet-headline-container-inline-trailing-padding-space,
+            --_headline-container-inline-trailing-padding-space,
             12px
         );
         padding-block-start: var(
-            --mdc-side-sheet-headline-container-block-leading-padding-space,
+            --_headline-container-block-leading-padding-space,
             24px
         );
         padding-block-end: var(
-            --mdc-side-sheet-headline-container-block-trailing-padding-space,
+            --_headline-container-block-trailing-padding-space,
             12px
         );
         min-height: 56px;
-        color: var(--mdc-side-sheet-enabled-headline-color, currentColor);
+        color: var(--_enabled-headline-color, currentColor);
     }
 
     dialog.has-back-icon .headline,
     dialog.show-back-button .headline {
         padding-inline-start: var(
-            --mdc-side-sheet-headline-icon-container-inline-leading-padding-space,
+            --_headline-icon-container-inline-leading-padding-space,
             16px
         );
     }
@@ -164,16 +231,16 @@ export const baseSideSheetStyles = css`
     }
 
     .headline-icon {
-        color: var(--mdc-side-sheet-enabled-headline-icon-color, currentColor);
+        color: var(--_enabled-headline-icon-color, currentColor);
     }
 
     .close-icon {
-        color: var(--mdc-side-sheet-enabled-close-icon-color, currentColor);
+        color: var(--_enabled-close-icon-color, currentColor);
     }
 
     /* ─── Dividers ─── */
     mdc-divider {
-        --mdc-divider-enabled-color: var(--mdc-side-sheet-enabled-divider-color, currentColor);
+        --mdc-divider-enabled-color: var(--_enabled-divider-color, currentColor);
     }
 
     /* ─── Content ─── */
@@ -181,19 +248,19 @@ export const baseSideSheetStyles = css`
         flex: 1 1 auto;
         overflow-y: auto;
         padding-inline-start: var(
-            --mdc-side-sheet-content-container-inline-leading-padding-space,
+            --_content-container-inline-leading-padding-space,
             24px
         );
         padding-inline-end: var(
-            --mdc-side-sheet-content-container-inline-trailing-padding-space,
+            --_content-container-inline-trailing-padding-space,
             24px
         );
         padding-block-start: var(
-            --mdc-side-sheet-content-container-block-leading-padding-space,
+            --_content-container-block-leading-padding-space,
             16px
         );
         padding-block-end: var(
-            --mdc-side-sheet-content-container-block-trailing-padding-space,
+            --_content-container-block-trailing-padding-space,
             24px
         );
         min-height: 0; /* flex child can shrink for overflow */
@@ -203,15 +270,15 @@ export const baseSideSheetStyles = css`
     .actions {
         flex-shrink: 0;
         padding-block-start: var(
-            --mdc-side-sheet-actions-container-block-leading-padding-space,
+            --_actions-container-block-leading-padding-space,
             16px
         );
         padding-block-end: var(
-            --mdc-side-sheet-actions-container-block-trailing-padding-space,
+            --_actions-container-block-trailing-padding-space,
             24px
         );
         min-height: var(
-            --mdc-side-sheet-actions-container-height,
+            --_actions-container-height,
             72px
         );
     }
@@ -223,11 +290,11 @@ export const baseSideSheetStyles = css`
         gap: 8px;
         align-items: center;
         padding-inline-start: var(
-            --mdc-side-sheet-content-container-inline-leading-padding-space,
+            --_content-container-inline-leading-padding-space,
             24px
         );
         padding-inline-end: var(
-            --mdc-side-sheet-content-container-inline-trailing-padding-space,
+            --_content-container-inline-trailing-padding-space,
             24px
         );
     }

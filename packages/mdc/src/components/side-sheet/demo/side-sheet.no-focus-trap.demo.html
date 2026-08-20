@@ -1,9 +1,12 @@
-<mdc-side-sheet variant="modal" no-focus-trap open>
+<mdc-side-sheet id="ss-focus-trap-off" variant="standard" no-focus-trap>
     <span slot="headline">No focus trap</span>
-    <p>Tab moves through the page despite the open sheet.</p>
+    <p>Tab moves out of the sheet and on through the page.</p>
 </mdc-side-sheet>
 
-<mdc-side-sheet variant="modal" open>
+<mdc-side-sheet id="ss-focus-trap-on" variant="standard">
     <span slot="headline">Traps focus (default)</span>
-    <p>Tab is constrained to the sheet.</p>
+    <p>Tab wraps around inside the sheet.</p>
 </mdc-side-sheet>
+
+<mdc-button onclick="this.getRootNode().querySelector('#ss-focus-trap-off').show()"><span>No focus trap</span></mdc-button>
+<mdc-button onclick="this.getRootNode().querySelector('#ss-focus-trap-on').show()"><span>Focus trap</span></mdc-button>
