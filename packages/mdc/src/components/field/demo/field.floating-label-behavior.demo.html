@@ -1,0 +1,26 @@
+<style>
+    .demo-row {
+        display: flex;
+        gap: 24px;
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+    .demo-row > * {
+        flex: 1 1 240px;
+        min-width: 240px;
+    }
+</style>
+
+<div class="demo-row">
+    <mdc-field variant="filled" label="Auto" floating-label-behavior="auto">
+        <input type="text" />
+    </mdc-field>
+
+    <mdc-field variant="filled" label="Always" floating-label-behavior="always">
+        <input type="text" />
+    </mdc-field>
+
+    <mdc-field variant="filled" label="Never" floating-label-behavior="never">
+        <input type="text" />
+    </mdc-field>
+</div>

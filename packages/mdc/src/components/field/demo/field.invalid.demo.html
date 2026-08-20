@@ -1,0 +1,21 @@
+<style>
+    .demo-row {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+</style>
+
+<div class="demo-row">
+    <mdc-field variant="filled" label="Valid">
+        <input type="text" value="hello" />
+    </mdc-field>
+
+    <mdc-field variant="filled" label="Invalid" invalid error-text="This field has an error">
+        <input type="text" value="bad" />
+    </mdc-field>
+
+    <mdc-field variant="outlined" label="Invalid (outlined)" invalid error-text="Please enter a valid email">
+        <input type="email" value="not-an-email" />
+    </mdc-field>
+</div>

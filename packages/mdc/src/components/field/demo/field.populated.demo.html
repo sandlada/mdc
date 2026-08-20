@@ -1,0 +1,25 @@
+<style>
+    .demo-row {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+</style>
+
+<div class="demo-row">
+    <mdc-field variant="filled" label="Empty">
+        <input type="text" />
+    </mdc-field>
+
+    <mdc-field variant="filled" label="Populated" populated>
+        <input type="text" value="hello world" />
+    </mdc-field>
+
+    <mdc-field variant="outlined" label="Empty (outlined)">
+        <input type="text" />
+    </mdc-field>
+
+    <mdc-field variant="outlined" label="Populated (outlined)" populated>
+        <input type="text" value="hello world" />
+    </mdc-field>
+</div>

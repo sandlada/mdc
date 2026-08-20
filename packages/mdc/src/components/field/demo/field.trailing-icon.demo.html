@@ -1,0 +1,23 @@
+<style>
+    .demo-row {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+</style>
+
+<div class="demo-row">
+    <mdc-field variant="filled" label="Search" populated>
+        <input type="search" value="hello" />
+        <mdc-icon slot="trailing-icon">close</mdc-icon>
+    </mdc-field>
+
+    <mdc-field variant="filled" label="Password">
+        <input type="password" value="secret" />
+        <mdc-icon slot="trailing-icon">visibility</mdc-icon>
+    </mdc-field>
+
+    <mdc-field variant="filled" label="No trailing icon">
+        <input type="text" />
+    </mdc-field>
+</div>

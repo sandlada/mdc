@@ -1,0 +1,21 @@
+<style>
+    .demo-row {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+</style>
+
+<div class="demo-row">
+    <mdc-field variant="filled" label="Start aligned (default)">
+        <input type="text" value="hello" />
+    </mdc-field>
+
+    <mdc-field variant="filled" label="End aligned" align-end>
+        <input type="text" value="hello" />
+    </mdc-field>
+
+    <mdc-field variant="outlined" label="End aligned (outlined)" align-end prefix-text="$">
+        <input type="number" value="0.00" />
+    </mdc-field>
+</div>

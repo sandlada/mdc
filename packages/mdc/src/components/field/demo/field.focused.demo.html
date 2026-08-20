@@ -1,0 +1,45 @@
+<style>
+    .demo-row {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+    button {
+        margin-block-end: 16px;
+        padding: 8px 16px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background: white;
+        cursor: pointer;
+    }
+</style>
+
+<button id="toggle-focus">Toggle focused on all fields below</button>
+
+<div class="demo-row">
+    <mdc-field id="f1" variant="filled" label="Unfocused">
+        <input type="text" />
+    </mdc-field>
+
+    <mdc-field id="f2" variant="filled" label="Focused" focused>
+        <input type="text" />
+    </mdc-field>
+
+    <mdc-field id="f3" variant="outlined" label="Focused (outlined)" focused>
+        <input type="text" />
+    </mdc-field>
+</div>
+
+<script type="module">
+    const button = document.getElementById('toggle-focus')
+    const fields = [
+        document.getElementById('f1'),
+        document.getElementById('f2'),
+        document.getElementById('f3'),
+    ]
+    button?.addEventListener('click', () => {
+        for (const field of fields) {
+            if (field) field.focused = !field.focused
+        }
+    })
+</script>

@@ -1,0 +1,23 @@
+<style>
+    .demo-row {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+</style>
+
+<div class="demo-row">
+    <mdc-field variant="filled" label="Price" prefix-text="$">
+        <input type="number" value="0.00" />
+    </mdc-field>
+
+    <mdc-field variant="filled" label="Website">
+        <span slot="prefix">https://</span>
+        <input type="url" value="example.com" />
+    </mdc-field>
+
+    <mdc-field variant="filled" label="Weight" prefix-text="Weight">
+        <span slot="prefix"><mdc-icon>scale</mdc-icon></span>
+        <input type="number" value="70" />
+    </mdc-field>
+</div>

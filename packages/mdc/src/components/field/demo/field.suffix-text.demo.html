@@ -1,0 +1,23 @@
+<style>
+    .demo-row {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+</style>
+
+<div class="demo-row">
+    <mdc-field variant="filled" label="Amount" suffix-text=".00">
+        <input type="number" value="0" />
+    </mdc-field>
+
+    <mdc-field variant="filled" label="Weight">
+        <input type="number" value="70" />
+        <span slot="suffix">kg</span>
+    </mdc-field>
+
+    <mdc-field variant="filled" label="Email">
+        <input type="email" value="user" />
+        <span slot="suffix"><mdc-icon>mail</mdc-icon></span>
+    </mdc-field>
+</div>

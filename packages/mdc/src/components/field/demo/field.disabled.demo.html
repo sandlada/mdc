@@ -1,0 +1,21 @@
+<style>
+    .demo-row {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+</style>
+
+<div class="demo-row">
+    <mdc-field variant="filled" label="Disabled (empty)" disabled>
+        <input type="text" disabled />
+    </mdc-field>
+
+    <mdc-field variant="filled" label="Disabled (populated)" disabled populated>
+        <input type="text" value="read only" disabled />
+    </mdc-field>
+
+    <mdc-field variant="outlined" label="Disabled (outlined)" disabled supporting-text="This field is disabled">
+        <input type="text" disabled />
+    </mdc-field>
+</div>

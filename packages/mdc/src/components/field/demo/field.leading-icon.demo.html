@@ -1,0 +1,25 @@
+<style>
+    .demo-row {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+</style>
+
+<div class="demo-row">
+    <mdc-field variant="filled" label="Search">
+        <mdc-icon slot="leading-icon">search</mdc-icon>
+        <input type="search" />
+    </mdc-field>
+
+    <mdc-field variant="filled" label="Search">
+        <mdc-icon-button slot="leading-icon">
+            <mdc-icon>menu</mdc-icon>
+        </mdc-icon-button>
+        <input type="search" />
+    </mdc-field>
+
+    <mdc-field variant="filled" label="No icon">
+        <input type="text" />
+    </mdc-field>
+</div>
