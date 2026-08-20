@@ -1,4 +1,5 @@
 export * from './component-definitions/badge.definition'
+export * from './component-definitions/bottom-sheet.definition'
 export * from './component-definitions/button.definition'
 export * from './component-definitions/carousel.definition'
 export * from './component-definitions/checkbox.definition'

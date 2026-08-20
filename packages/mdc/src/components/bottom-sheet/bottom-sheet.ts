@@ -5,6 +5,7 @@
  */
 import { customElement } from 'lit/decorators.js'
 import { BaseBottomSheet } from './internal/base-bottom-sheet'
+import { bottomSheetStyles } from './bottom-sheet.style'
 
 declare global {
     interface HTMLElementTagNameMap {
@@ -45,6 +46,5 @@ declare global {
  */
 @customElement('mdc-bottom-sheet')
 export class BottomSheet extends BaseBottomSheet {
-    // Default variant is 'modal' (set in BaseBottomSheet).
-    // Default detent is 'peek' (set in BaseBottomSheet).
+    public static override styles = bottomSheetStyles
 }
