@@ -117,7 +117,6 @@ export const baseBottomSheetStyles = css`
         color: inherit;
         display: flex;
         flex-direction: column;
-        box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.15);
 
         /* Bottom-anchored sheet: the top edge (toward the viewport) is
          * rounded; the bottom edge is flush against the viewport by default.
@@ -194,19 +193,16 @@ export const baseBottomSheetStyles = css`
     }
 
     /*
-     * Suppress the box-shadow once the dialog has left the top layer.
+     * Suppress the container and elevation once the dialog has left the top layer.
      * The closed container sits at translateY(100%) — its box is fully
-     * off-screen below — but its 16px box-shadow blur bleeds 16px back
-     * INSIDE the dialog content box. That sliver is visible at the bottom
-     * edge of the viewport even though the container itself is gone.
+     * off-screen below — but its elevation shadow blur bleeds back
+     * INSIDE the dialog content box.
      *
-     * The native dialog element keeps its [open] attribute while the
-     * slide-out transition runs (closeDialog() is deferred), so the
-     * shadow stays painted during the exit animation and disappears the
-     * instant the dialog is closed.
+     * When closed (dialog:not([open])), hide the dialog and its elements entirely
+     * so zero shadow bleeds into the viewport.
      */
-    dialog:not([open]) .container {
-        box-shadow: none;
+    dialog:not([open]) {
+        display: none !important;
     }
 
     :host([open]) .container {
@@ -362,6 +358,24 @@ export const baseBottomSheetStyles = css`
     /* In peek detent: hide the lower content slot so only header (and drag handle) are displayed */
     dialog.detent-peek .content {
         display: none;
+    }
+
+    .drag-handle,
+    .header,
+    .content {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* ─── Elevation ─── */
+    .container > mdc-elevation {
+        --mdc-elevation-level: var(--_enabled-container-elevation, 1);
+        --mdc-elevation-shadow-color: var(--_container-shadow-color, rgba(0, 0, 0, 0.15));
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        pointer-events: none;
+        z-index: 0;
     }
 
     /* ─── Focus traps ─── */

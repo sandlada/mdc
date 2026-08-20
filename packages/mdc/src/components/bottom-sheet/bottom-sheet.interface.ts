@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 import type { LitElement } from 'lit'
+import type { IMixinElevationAttributes } from '../elevation/elevation-options.mixin'
 
 /**
  * Visual variant of the bottom sheet. Standard co-exists with main UI;
@@ -110,7 +111,7 @@ export interface IBottomSheetDragEndEventDetail {
  * @link
  * https://m3.material.io/components/bottom-sheets/overview
  */
-export interface IBottomSheet extends LitElement {
+export interface IBottomSheet extends LitElement, IMixinElevationAttributes {
     /** Visual variant ('standard' | 'modal'). */
     variant: BottomSheetVariant
     /** Visibility driver. */

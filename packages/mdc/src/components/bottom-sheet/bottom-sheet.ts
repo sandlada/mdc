@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 import { customElement } from 'lit/decorators.js'
+import '../elevation/elevation'
 import { BaseBottomSheet } from './internal/base-bottom-sheet'
 import { bottomSheetStyles } from './bottom-sheet.style'
 

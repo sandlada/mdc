@@ -9,6 +9,7 @@ import { classMap } from 'lit/directives/class-map.js'
 import { styleMap } from 'lit/directives/style-map.js'
 import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
+import { mixinElevationOptions } from '../../elevation/elevation-options.mixin'
 import { baseBottomSheetStyles } from './base-bottom-sheet.style'
 import {
     BottomSheetDragController,
@@ -53,7 +54,8 @@ const SCRIM_OPACITY_PEAK = 0.32
  * https://m3.material.io/components/bottom-sheets/overview
  */
 export abstract class BaseBottomSheet extends composeMixin(
-    mixinDelegatesAria
+    mixinDelegatesAria,
+    mixinElevationOptions,
 )(LitElement) implements IBottomSheet, IBottomSheetDragHost {
 
     public static override styles = [baseBottomSheetStyles]
@@ -205,6 +207,7 @@ export abstract class BaseBottomSheet extends composeMixin(
                 <span class="scrim" aria-hidden="true"></span>
 
                 <div class="container" part="container">
+                    ${this.renderElevation()}
                     <div
                         class="drag-handle"
                         part="drag-handle"

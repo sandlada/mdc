@@ -43,9 +43,9 @@ const sharedStructural = {
     'dragged-container-shape-end-start'              : Shape.ExtraLarge,
     'dragged-container-shape-end-end'                : Shape.ExtraLarge,
 
-    // Container elevation
-    'container-elevation'                             : ElevationLevel.Level1,
-    'container-shadow-color'                          : Color.Shadow,
+    // Container elevation (unitless level string for mdc-elevation clamp/calc math)
+    'enabled-container-elevation'                    : '1',
+    'container-shadow-color'                         : Color.Shadow,
 
     // Header padding (upper slot)
     'header-container-inline-leading-padding-space'   : `24px`,

@@ -5,10 +5,12 @@
  */
 import { css, unsafeCSS } from 'lit'
 import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+import type { ElevationDefinition } from '../../component-definitions/elevation.definition'
 import {
     ModalBottomSheetDefinition,
     StandardBottomSheetDefinition,
 } from '../../component-definitions/bottom-sheet.definition'
+import { overrideComponentTokens, stringTokens } from '../../utils/tokens'
 import { baseBottomSheetStyles } from './internal/base-bottom-sheet.style'
 
 const standardTokenRecord = defineTokenRefsRecord(StandardBottomSheetDefinition, {
@@ -42,8 +44,28 @@ const modalTokens = css`
     dialog.modal {${modalTokenString};}
 `
 
+const getElevationStyles = () => {
+    const styles = stringTokens(
+        overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
+            'enabled-level': `var(--_enabled-container-elevation, 1)`,
+            'enabled-shadow-color': `var(--_container-shadow-color, rgba(0, 0, 0, 0.15))`,
+        })
+    )
+    return css`
+        .container > mdc-elevation {
+            ${styles};
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            pointer-events: none;
+            z-index: 0;
+        }
+    `
+}
+
 export const bottomSheetStyles = [
     baseBottomSheetStyles,
     standardTokens,
     modalTokens,
+    getElevationStyles(),
 ]
