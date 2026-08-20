@@ -17,7 +17,7 @@
     },
     "explorer.fileNesting.expand": true,
     "explorer.fileNesting.patterns": {
-        "*.ts": "$(capture).interface.ts, $(capture).style.ts, $(capture).base.ts, $(capture).mixin.ts, $(capture)-options.mixin.ts, $(capture).js, $(capture).d.ts, $(capture).js.map, $(capture).spec.ts, $(capture).test.ts",
+        "*.ts": "$(capture).interface.ts, $(capture).style.ts, $(capture).base.ts, $(capture).mixin.ts, $(capture)-options.mixin.ts, $(capture).js, $(capture).d.ts, $(capture).js.map, $(capture).spec.ts, $(capture).test.ts, $(capture).animation.ts",
         "*.d.ts": "$(capture).d.ts.map, $(capture).js.map",
         "*.js": "$(capture).js.map, $(capture).d.ts",
         "tsconfig.json": "tsconfig.*.json",
