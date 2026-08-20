@@ -9,10 +9,17 @@ import { classMap } from 'lit/directives/class-map.js'
 import { styleMap } from 'lit/directives/style-map.js'
 import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
+import { mixinElevationOptions } from '../../elevation/elevation-options.mixin'
 import { baseSideSheetStyles } from './base-side-sheet.style'
+import {
+    SideSheetDragController,
+    type ISideSheetDragHost,
+} from './side-sheet-drag-controller'
 import {
     SideSheetDefaultCloseAnimation,
     SideSheetDefaultOpenAnimation,
+    SideSheetDragCommitCloseAnimation,
+    SideSheetDragSnapBackAnimation,
     type SideSheetAnimation,
     type SideSheetAnimationArgs,
 } from '../side-sheet.animation'
@@ -21,20 +28,24 @@ import {
     SIDE_SHEET_CANCEL_EVENT,
     SIDE_SHEET_CLOSED_EVENT,
     SIDE_SHEET_CLOSING_EVENT,
+    SIDE_SHEET_DRAG_END_EVENT,
     SIDE_SHEET_OPENED_EVENT,
     SIDE_SHEET_OPENING_EVENT,
     type ISideSheet,
     type ISideSheetActionEventDetail,
     type ISideSheetCancelEventDetail,
     type ISideSheetClosedEventDetail,
+    type ISideSheetDragEndEventDetail,
     type SideSheetCloseReason,
     type SideSheetEdge,
     type SideSheetVariant,
 } from '../side-sheet.interface'
 
+const SCRIM_OPACITY_PEAK = 0.32
+
 /**
  * Abstract base for `mdc-side-sheet`. Owns the lifecycle, focus traps,
- * and event dispatch. Subclasses define the public tag and the default
+ * drag controller, and event dispatch. Subclasses define the public tag and the default
  * variant.
  *
  * @version
@@ -44,8 +55,9 @@ import {
  * https://m3.material.io/components/side-sheets/guidelines
  */
 export abstract class BaseSideSheet extends composeMixin(
-    mixinDelegatesAria
-)(LitElement) implements ISideSheet {
+    mixinDelegatesAria,
+    mixinElevationOptions,
+)(LitElement) implements ISideSheet, ISideSheetDragHost {
 
     public static override styles = [baseSideSheetStyles]
 
@@ -88,8 +100,18 @@ export abstract class BaseSideSheet extends composeMixin(
     @property({ type: Boolean, attribute: 'show-back-button' })
     public showBackButton: boolean = false
 
-    @property({ type: Boolean })
-    public override draggable: boolean = false
+    /**
+     * Swipe-to-dismiss drag gesture. Enabled by default.
+     */
+    @property({
+        attribute: 'draggable',
+        converter: {
+            fromAttribute: (value: string | null) =>
+                value !== null && value !== 'false',
+            toAttribute: (value: boolean) => (value ? '' : 'false'),
+        },
+    })
+    public override draggable: boolean = true
 
     @state()
     protected hasHeadline: boolean = false
@@ -129,10 +151,33 @@ export abstract class BaseSideSheet extends composeMixin(
     @query('.scrim')
     protected readonly scrimEl!: HTMLElement | null
 
+    @query('.headline')
+    protected readonly headlineEl!: HTMLElement | null
+
     @query('.close-icon')
     protected readonly closeIconEl!: HTMLElement | null
 
     public declare ariaLabel: string | null
+
+    private readonly dragController: SideSheetDragController
+
+    public constructor() {
+        super()
+        this.dragController = new SideSheetDragController(this)
+        this.addEventListener(SIDE_SHEET_DRAG_END_EVENT, this.handleDragEnd as EventListener)
+    }
+
+    // ── ISideSheetDragHost implementation ───────────────────────────────────
+    public containerRef(): HTMLElement | null { return this.containerEl }
+    public headlineRef(): HTMLElement | null { return this.headlineEl }
+    public scrimRef(): HTMLElement | null { return this.scrimEl }
+    public enabled(): boolean {
+        return this.open
+            && this.draggable
+            && !this.quick
+    }
+    public getVariant(): SideSheetVariant { return this.variant }
+    public getSheetEdge(): SideSheetEdge { return this.sheetEdge }
 
     protected getRenderClasses(): Record<string, boolean | string> {
         return {
@@ -170,8 +215,12 @@ export abstract class BaseSideSheet extends composeMixin(
                 <span class="scrim" aria-hidden="true"></span>
 
                 <div class="container"
-                    part="container">
-                    <header class="headline">
+                    part="container"
+                    @pointerdown=${this.handleContainerPointerDown}>
+                    ${this.renderElevation()}
+                    <header class="headline"
+                        part="headline"
+                        @pointerdown=${this.handleHeadlinePointerDown}>
                         ${this.renderHeadlineBackIcon()}
                         <h2 class="headline-label">
                             <slot name="headline"
@@ -271,6 +320,8 @@ export abstract class BaseSideSheet extends composeMixin(
 
     public async hide(): Promise<void> {
         if (!this.open) return
+        // Cancel any in-flight drag before tearing down.
+        this.dragController.cancel()
         this.open = false
         await this.updateComplete
         // The close animation runs while the dialog stays in the top layer;
@@ -296,6 +347,88 @@ export abstract class BaseSideSheet extends composeMixin(
     public async close(returnValue?: string): Promise<void> {
         this.returnValue = returnValue ?? ''
         await this.hide()
+    }
+
+    // ── Drag-committed close / snap-back (invoked by drag controller) ───────
+
+    public async dragCommittedClose(fromDx?: number): Promise<void> {
+        if (!this.open) return
+        const scrimCurrent = this.scrimEl
+            ? parseFloat(getComputedStyle(this.scrimEl).opacity)
+            : 0
+        const currentDx = fromDx ?? (this.containerEl
+            ? this.readTranslateX(this.containerEl)
+            : 0)
+        // Reset inline styles before animating.
+        if (this.containerEl) {
+            this.containerEl.style.removeProperty('transform')
+            this.containerEl.style.removeProperty('cursor')
+        }
+        if (this.scrimEl) this.scrimEl.style.removeProperty('opacity')
+        this.removeAttribute('touch-action')
+        await this.animateSideSheet(
+            SideSheetDragCommitCloseAnimation(this.sheetEdge, currentDx, scrimCurrent),
+        )
+        this.lastCloseReason = 'drag'
+        this.open = false
+        await this.updateComplete
+        this.closeDialog()
+        this.dispatchEvent(new CustomEvent<ISideSheetClosedEventDetail>(
+            SIDE_SHEET_CLOSED_EVENT, {
+                bubbles: true,
+                composed: true,
+                detail: {
+                    returnValue: this.returnValue,
+                    reason: 'drag',
+                },
+            },
+        ))
+        if (!this.noFocusTrap) this.restoreFocus()
+    }
+
+    public async dragSnapBack(fromDx?: number): Promise<void> {
+        const scrimCurrent = this.scrimEl
+            ? parseFloat(getComputedStyle(this.scrimEl).opacity)
+            : SCRIM_OPACITY_PEAK
+        const currentDx = fromDx ?? (this.containerEl
+            ? this.readTranslateX(this.containerEl)
+            : 0)
+        if (this.containerEl) {
+            this.containerEl.style.removeProperty('transform')
+            this.containerEl.style.removeProperty('cursor')
+        }
+        if (this.scrimEl) this.scrimEl.style.removeProperty('opacity')
+        this.removeAttribute('touch-action')
+        await this.animateSideSheet(
+            SideSheetDragSnapBackAnimation(this.sheetEdge, currentDx, scrimCurrent),
+        )
+    }
+
+    private readTranslateX(el: HTMLElement): number {
+        const t = getComputedStyle(el).transform
+        if (!t || t === 'none') return 0
+        const match = t.match(/matrix\([^)]*\)/)
+        if (!match) return 0
+        const parts = match[0].slice(7, -1).split(',').map((s) => parseFloat(s.trim()))
+        // matrix(a, b, c, d, tx, ty)
+        return parts.length >= 5 ? parts[4] : 0
+    }
+
+    private handleDragEnd(event: Event): void {
+        const detail = (event as CustomEvent<ISideSheetDragEndEventDetail>).detail
+        if (detail.target === 'closed' || detail.committed) {
+            void this.dragCommittedClose(detail.dx)
+        } else if (detail.reason !== 'cancel') {
+            void this.dragSnapBack(detail.dx)
+        }
+    }
+
+    private handleHeadlinePointerDown(event: PointerEvent): void {
+        this.dragController.handlePointerDown(event)
+    }
+
+    private handleContainerPointerDown(event: PointerEvent): void {
+        this.dragController.handlePointerDown(event)
     }
 
     /**
@@ -500,3 +633,4 @@ export abstract class BaseSideSheet extends composeMixin(
         }
     }
 }
+

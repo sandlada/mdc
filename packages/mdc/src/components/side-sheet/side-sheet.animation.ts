@@ -97,3 +97,78 @@ export const SideSheetDefaultCloseAnimation = (sheetEdge: SideSheetEdge): SideSh
         ],
     ],
 })
+
+/**
+ * The drag-snap-back animation. Animates the container from the current drag
+ * offset back to its resting position (translateX 0), and the scrim from its current
+ * (interpolated) opacity back to the peak.
+ *
+ *  - Scrim: opacity scrimCurrent -> 0.32 over 250ms, linear.
+ *  - Container: translateX(fromDx) -> translateX(0) over 250ms,
+ *    EmphasizedDecelerate.
+ */
+export const SideSheetDragSnapBackAnimation = (
+    sheetEdge: SideSheetEdge,
+    fromDx: number,
+    scrimCurrent: number,
+): SideSheetAnimation => {
+    void sheetEdge
+    return {
+        scrim: [
+            [
+                [
+                    { opacity: scrimCurrent },
+                    { opacity: SCRIM_OPACITY_PEAK },
+                ],
+                { duration: 250, easing: 'linear' },
+            ],
+        ],
+        container: [
+            [
+                [
+                    { transform: `translateX(${fromDx}px)` },
+                    { transform: 'translateX(0)' },
+                ],
+                { duration: 250, easing: Easing.EmphasizedDecelerate.ToCSSValue() },
+            ],
+        ],
+    }
+}
+
+/**
+ * The drag-commit-close animation. Animates the container from the current
+ * drag offset out the viewport edge, and fades the scrim to 0.
+ *
+ *  - Scrim: opacity scrimCurrent -> 0 over 200ms, linear.
+ *  - Container: translateX(fromDx) -> translateX(±100%) over 200ms,
+ *    EmphasizedAccelerate.
+ */
+export const SideSheetDragCommitCloseAnimation = (
+    sheetEdge: SideSheetEdge,
+    fromDx: number,
+    scrimCurrent: number,
+): SideSheetAnimation => ({
+    scrim: [
+        [
+            [
+                { opacity: scrimCurrent },
+                { opacity: 0 },
+            ],
+            { duration: 200, easing: 'linear' },
+        ],
+    ],
+    container: [
+        [
+            sheetEdge === 'start'
+                ? [
+                    { transform: `translateX(${fromDx}px)` },
+                    { transform: 'translateX(-100%)' },
+                ]
+                : [
+                    { transform: `translateX(${fromDx}px)` },
+                    { transform: 'translateX(100%)' },
+                ],
+            { duration: 200, easing: Easing.EmphasizedAccelerate.ToCSSValue() },
+        ],
+    ],
+})

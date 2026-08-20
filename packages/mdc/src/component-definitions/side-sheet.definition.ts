@@ -30,15 +30,20 @@ import { createStyleDefinition } from '../utils/tokens/create-style-definition'
  * reference.
  */
 const sharedStructural = {
-    // Container width and shape
-    'enabled-container-width'                  : `400px`,
-    'container-shape-start-start'              : Shape.ExtraLarge,
-    'container-shape-start-end'                : Shape.ExtraLarge,
-    'container-shape-end-start'                : Shape.ExtraLarge,
-    'container-shape-end-end'                  : Shape.ExtraLarge,
+    // Container shape (default enabled: end edge corners 0 when docked, start edge corners ExtraLarge 28px)
+    'enabled-container-shape-start-start'      : Shape.ExtraLarge,
+    'enabled-container-shape-start-end'        : `0`,
+    'enabled-container-shape-end-start'        : Shape.ExtraLarge,
+    'enabled-container-shape-end-end'          : `0`,
 
-    // Container elevation
-    'container-elevation'                      : ElevationLevel.Level1,
+    // Container shape (dragged state: when dragged, right corners match left corners - all 4 corners ExtraLarge 28px)
+    'dragged-container-shape-start-start'      : Shape.ExtraLarge,
+    'dragged-container-shape-start-end'        : Shape.ExtraLarge,
+    'dragged-container-shape-end-start'        : Shape.ExtraLarge,
+    'dragged-container-shape-end-end'          : Shape.ExtraLarge,
+
+    // Container elevation (unitless integer level string for mdc-elevation clamp/calc math)
+    'enabled-container-elevation'              : '1',
     'container-shadow-color'                   : Color.Shadow,
 
     // Headline padding (24dp per spec)

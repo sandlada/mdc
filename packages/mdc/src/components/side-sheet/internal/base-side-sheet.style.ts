@@ -20,11 +20,7 @@ export const baseSideSheetStyles = css`
     }
 
     /*
-     * The UA stylesheet lays a <dialog> out as a centred, fit-content box
-     * (position: absolute; inset-inline: 0; width/height: fit-content;
-     * margin: auto; border: solid; padding: 1em). For :modal it additionally
-     * caps at calc(100% - 6px - 2em) and sets overflow: auto.
-     *
+     * The UA stylesheet lays a <dialog> out as a centred, fit-content box.
      * Override every one of those so the dialog is a transparent, inert,
      * full-viewport stage. Only then does the container rule below
      * (position: absolute; top/bottom/inset-inline-end: 0) resolve against
@@ -32,8 +28,8 @@ export const baseSideSheetStyles = css`
      *
      * display: block !important additionally defeats
      * dialog:not([open]) { display: none } so the element stays rendered
-     * while the slide-out transition plays; JS calls dialog.close() at
-     * transitionend.
+     * while the slide-out transition plays; JS calls dialog.close() after
+     * the close animation settles.
      *
      * color picks up the variant headline-color token declared on
      * dialog.standard / dialog.modal in side-sheet.style.ts. The token is
@@ -52,8 +48,6 @@ export const baseSideSheetStyles = css`
         padding: 0;
         border: 0;
         outline: none;
-        /* Closed container sits at translateX(100%); UA overflow: auto would
-         * add scrollable overflow to that transformed box. */
         overflow: hidden;
         background: transparent;
         color: var(--_enabled-headline-color, currentColor);
@@ -79,6 +73,10 @@ export const baseSideSheetStyles = css`
         z-index: 0;
     }
 
+    dialog.standard .scrim {
+        display: none !important;
+    }
+
     :host([open]) dialog.modal .scrim {
         opacity: var(--_enabled-container-opacity-modal, 0.32);
         pointer-events: auto;
@@ -99,42 +97,67 @@ export const baseSideSheetStyles = css`
         color: inherit;
         display: flex;
         flex-direction: column;
-        box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.15);
 
         /* The sheet edge that touches the viewport is straight; the
          * opposite edge is the rounded exterior corner. Sheet-edges are
          * defined relative to inline-end (the default below). */
         border-start-start-radius: var(
-            --_container-shape-start-start,
-            28px
+            --_enabled-container-shape-start-start,
+            var(--_container-shape-start-start, 28px)
         );
         border-end-start-radius: var(
-            --_container-shape-end-start,
-            28px
+            --_enabled-container-shape-end-start,
+            var(--_container-shape-end-start, 28px)
         );
+        border-start-end-radius: var(
+            --_enabled-container-shape-start-end,
+            var(--_container-shape-start-end, 0)
+        );
+        border-end-end-radius: var(
+            --_enabled-container-shape-end-end,
+            var(--_container-shape-end-end, 0)
+        );
+        transition: border-radius 200ms cubic-bezier(0.2, 0, 0, 1);
 
         transform: translateX(100%);
         /* transform is animated by WAAPI (see side-sheet.animation.ts). */
         pointer-events: auto;
         z-index: 1;
+        will-change: transform;
+        touch-action: pan-x;
     }
 
     /*
-     * Suppress the box-shadow once the dialog has left the top layer.
-     *
-     * The closed container sits at translateX(100%) — its box is fully
-     * off-screen right — but its 16px box-shadow blur bleeds 16px back
-     * INSIDE the dialog content box (which is full-viewport with
-     * overflow: hidden). That sliver is visible at the right edge of
-     * the viewport even though the container itself is gone.
-     *
-     * The native dialog element keeps its [open] attribute while the
-     * slide-out transition runs (closeDialog() is deferred to
-     * transitionend), so the shadow stays painted during the exit
-     * animation and disappears the instant the dialog is closed.
+     * When dragging the side sheet, round all four corners to match (dragged state),
+     * so the right two corners match the left two corners (identical to bottom-sheet behavior).
      */
-    dialog:not([open]) .container {
-        box-shadow: none;
+    :host([dragged]) .container,
+    .host.dragged .container {
+        border-start-start-radius: var(
+            --_dragged-container-shape-start-start,
+            var(--_enabled-container-shape-start-start, var(--_container-shape-start-start, 28px))
+        );
+        border-end-start-radius: var(
+            --_dragged-container-shape-end-start,
+            var(--_enabled-container-shape-end-start, var(--_container-shape-end-start, 28px))
+        );
+        border-start-end-radius: var(
+            --_dragged-container-shape-start-end,
+            var(--_enabled-container-shape-start-start, var(--_container-shape-start-start, 28px))
+        );
+        border-end-end-radius: var(
+            --_dragged-container-shape-end-end,
+            var(--_enabled-container-shape-end-start, var(--_container-shape-end-start, 28px))
+        );
+    }
+
+    /*
+     * Suppress the container and elevation once the dialog has left the top layer.
+     * When closed (dialog:not([open])), hide the dialog and its elements entirely
+     * so zero shadow bleeds into the viewport.
+     */
+    dialog:not([open]) {
+        display: none !important;
     }
 
     :host([open]) .container {
@@ -145,15 +168,21 @@ export const baseSideSheetStyles = css`
     dialog.edge-start .container {
         inset-inline-end: auto;
         inset-inline-start: 0;
-        border-start-start-radius: 0;
-        border-end-start-radius: 0;
+        border-start-start-radius: var(
+            --_enabled-container-shape-start-end,
+            var(--_container-shape-start-end, 0)
+        );
+        border-end-start-radius: var(
+            --_enabled-container-shape-end-end,
+            var(--_container-shape-end-end, 0)
+        );
         border-start-end-radius: var(
-            --_container-shape-start-end,
-            28px
+            --_enabled-container-shape-start-start,
+            var(--_container-shape-start-start, 28px)
         );
         border-end-end-radius: var(
-            --_container-shape-end-end,
-            28px
+            --_enabled-container-shape-end-start,
+            var(--_container-shape-end-start, 28px)
         );
         transform: translateX(-100%);
     }
@@ -165,6 +194,30 @@ export const baseSideSheetStyles = css`
     /* Quick mode is handled in JS — animateSideSheet returns early when
      * 'quick' is true, so no WAAPI Animation is ever started. The static
      * :host([open]) rules above apply immediately. */
+
+    /* ─── Drag visual feedback ─── */
+    :host([touch-action='none']) .container {
+        transition: border-radius 200ms cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    /* ─── Elevation ─── */
+    .container > mdc-elevation {
+        --mdc-elevation-enabled-level: var(--_enabled-container-elevation, 1);
+        --mdc-elevation-enabled-shadow-color: var(--_container-shadow-color, rgba(0, 0, 0, 0.15));
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .headline,
+    mdc-divider,
+    .content,
+    .actions {
+        position: relative;
+        z-index: 1;
+    }
 
     /* ─── Headline row ─── */
     .headline {
@@ -189,6 +242,8 @@ export const baseSideSheetStyles = css`
         );
         min-height: 56px;
         color: var(--_enabled-headline-color, currentColor);
+        user-select: none;
+        -webkit-user-select: none;
     }
 
     dialog.has-back-icon .headline,
@@ -202,11 +257,11 @@ export const baseSideSheetStyles = css`
     .headline-label {
         flex: 1;
         margin: 0;
-        font-family: var(--mdc-typescale-title-small-font, system-ui);
-        font-size: var(--mdc-typescale-title-small-size, 14px);
-        font-weight: var(--mdc-typescale-title-small-weight, 500);
-        line-height: var(--mdc-typescale-title-small-line-height, 20px);
-        letter-spacing: var(--mdc-typescale-title-small-tracking, 0.1px);
+        font-family: var(--mdc-typescale-title-large-font, var(--mdc-typescale-title-medium-font, system-ui));
+        font-size: var(--mdc-typescale-title-large-size, 22px);
+        font-weight: var(--mdc-typescale-title-large-weight, 400);
+        line-height: var(--mdc-typescale-title-large-line-height, 28px);
+        letter-spacing: var(--mdc-typescale-title-large-tracking, 0px);
     }
 
     .headline-icon,
@@ -222,6 +277,17 @@ export const baseSideSheetStyles = css`
         cursor: pointer;
         color: inherit;
         border-radius: 50%;
+        transition: background-color 150ms cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .headline-icon:hover,
+    .close-icon:hover {
+        background-color: var(--_icon-hover-container-color, rgba(0, 0, 0, 0.08));
+    }
+
+    .headline-icon:active,
+    .close-icon:active {
+        background-color: var(--_icon-pressed-container-color, rgba(0, 0, 0, 0.12));
     }
 
     .headline-icon {
@@ -293,7 +359,7 @@ export const baseSideSheetStyles = css`
         );
     }
 
-    /* ─── Focus traps (forwarded to Task 6) ─── */
+    /* ─── Focus traps ─── */
     .focus-trap {
         position: absolute;
         width: 1px;

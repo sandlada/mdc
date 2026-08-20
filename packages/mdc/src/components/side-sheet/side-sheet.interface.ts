@@ -31,6 +31,12 @@ export type SideSheetCloseReason =
     | 'scrim'
     | 'close-button'
     | 'back-button'
+    | 'drag'
+
+/**
+ * Snap target decided on release of a drag gesture.
+ */
+export type SideSheetDragTarget = 'closed' | 'open'
 
 /**
  * Detail payload of the `side-sheet-closed` event.
@@ -55,6 +61,37 @@ export interface ISideSheetCancelEventDetail {
  */
 export interface ISideSheetActionEventDetail {
     source: 'close' | 'back'
+}
+
+/**
+ * Detail payload of the `side-sheet-drag-start` event.
+ */
+export interface ISideSheetDragStartEventDetail {
+    sheetEdge: SideSheetEdge
+}
+
+/**
+ * Detail payload of the `side-sheet-drag` event.
+ */
+export interface ISideSheetDragEventDetail {
+    /** Live horizontal delta (px) from resting position. */
+    dx: number
+    /** Fractional progress [0..1] towards dismiss. */
+    progress: number
+}
+
+/**
+ * Detail payload of the `side-sheet-drag-end` event.
+ */
+export interface ISideSheetDragEndEventDetail {
+    /** True when the drag decided to commit a dismiss. */
+    committed: boolean
+    /** Snap target decided by the release heuristics. */
+    target: SideSheetDragTarget
+    /** Whether committed via velocity or distance. */
+    reason?: 'distance' | 'velocity' | 'cancel'
+    /** The horizontal translation at the instant of release. */
+    dx: number
 }
 
 /**
@@ -89,7 +126,7 @@ export interface ISideSheet extends LitElement {
     returnValue: string
     /** Modal only — surface a back icon-button in the headline row. */
     showBackButton: boolean
-    /** Reserved for v2 drag gesture. Recognized but no handler installed in v1. */
+    /** Swipe-to-dismiss drag gesture. */
     draggable: boolean
 
     /** Open the sheet and resolve when the entrance transition completes. */
@@ -112,3 +149,9 @@ export const SIDE_SHEET_CLOSED_EVENT = 'side-sheet-closed'
 export const SIDE_SHEET_CANCEL_EVENT = 'side-sheet-cancel'
 /** Fired when the default close or back icon-button is clicked. */
 export const SIDE_SHEET_ACTION_EVENT = 'side-sheet-action'
+/** Fired when a pointer drag engages. */
+export const SIDE_SHEET_DRAG_START_EVENT = 'side-sheet-drag-start'
+/** Fired on every pointer move while a drag is active. */
+export const SIDE_SHEET_DRAG_EVENT = 'side-sheet-drag'
+/** Fired when the pointer is released after an active drag. */
+export const SIDE_SHEET_DRAG_END_EVENT = 'side-sheet-drag-end'
