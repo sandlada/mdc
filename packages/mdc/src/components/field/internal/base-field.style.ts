@@ -20,6 +20,7 @@ export const baseFieldStyles = css`
             color: var(--_enabled-label-color);
             min-width: 240px;
             -webkit-tap-highlight-color: transparent;
+            vertical-align: top;
         }
 
         /* ---------- Container (the visible bounding box) ---------- */
@@ -31,13 +32,10 @@ export const baseFieldStyles = css`
             height: var(--_container-height, 56px);
             padding-inline-start: var(--_container-inline-leading-padding-space, 16px);
             padding-inline-end: var(--_container-inline-trailing-padding-space, 16px);
-            background-color: var(--_enabled-container-color);
             border-start-start-radius: var(--_container-shape-start-start, 4px);
             border-start-end-radius: var(--_container-shape-start-end, 4px);
             border-end-start-radius: var(--_container-shape-end-start, 0px);
             border-end-end-radius: var(--_container-shape-end-end, 0px);
-            transition: background-color 200ms cubic-bezier(0.2, 0, 0, 1),
-                        border-color 200ms cubic-bezier(0.2, 0, 0, 1);
             cursor: text;
         }
 
@@ -45,8 +43,156 @@ export const baseFieldStyles = css`
             height: auto;
             min-height: var(--_container-height, 56px);
             align-items: flex-start;
-            padding-block-start: 12px;
-            padding-block-end: 12px;
+            padding-block-start: 8px;
+            padding-block-end: 8px;
+        }
+
+        /* ---------- Filled Variant: Background & Animated Active Indicator (Underline) ---------- */
+        :host([variant="filled"]) .container {
+            background-color: var(--_enabled-container-color);
+            transition: background-color 200ms cubic-bezier(0.2, 0, 0, 1);
+        }
+
+        :host([variant="filled"]:not([disabled]):hover) .container {
+            background-color: var(--_hovered-container-color, var(--_enabled-container-color));
+        }
+
+        :host([variant="filled"][disabled]) .container {
+            background-color: var(--_disabled-container-color, var(--_enabled-container-color));
+        }
+
+        /* Filled resting 1px indicator */
+        :host([variant="filled"]) .container::before {
+            content: '';
+            position: absolute;
+            inset-inline: 0;
+            bottom: 0;
+            height: var(--_enabled-active-indicator-height, 1px);
+            background-color: var(--_enabled-active-indicator-color);
+            transition: background-color 150ms cubic-bezier(0.2, 0, 0, 1);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        :host([variant="filled"]:not([focused]):not(:focus-within):not([disabled]):hover) .container::before {
+            background-color: var(--_hovered-active-indicator-color);
+        }
+
+        :host([variant="filled"][invalid]:not([disabled])) .container::before {
+            background-color: var(--_invalid-active-indicator-color);
+        }
+
+        :host([variant="filled"][disabled]) .container::before {
+            background-color: var(--_disabled-active-indicator-color);
+            opacity: var(--_disabled-label-opacity, 0.38);
+        }
+
+        /* Filled focus 2px active indicator with smooth scaleX & opacity transition */
+        :host([variant="filled"]) .container::after {
+            content: '';
+            position: absolute;
+            inset-inline: 0;
+            bottom: 0;
+            height: var(--_focused-active-indicator-height, 2px);
+            background-color: var(--_focused-active-indicator-color);
+            pointer-events: none;
+            z-index: 2;
+            transform: scaleX(0);
+            opacity: 0;
+            transform-origin: center bottom;
+            transition: transform 200ms cubic-bezier(0.2, 0, 0, 1),
+                        opacity 150ms cubic-bezier(0.2, 0, 0, 1),
+                        background-color 150ms cubic-bezier(0.2, 0, 0, 1);
+        }
+
+        :host([variant="filled"][focused]) .container::after,
+        :host([variant="filled"]:not([disabled]):focus-within) .container::after {
+            transform: scaleX(1);
+            opacity: 1;
+        }
+
+        :host([variant="filled"][invalid]) .container::after {
+            background-color: var(--_invalid-active-indicator-color);
+        }
+
+        :host([variant="filled"][disabled]) .container::after {
+            display: none;
+        }
+
+        /* ---------- Outlined Variant: Dual-Layer Animated Outline (Zero Layout Shift) ---------- */
+        :host([variant="outlined"]) .container {
+            background-color: transparent;
+        }
+
+        /* Outlined resting 1px border */
+        :host([variant="outlined"]) .container::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            pointer-events: none;
+            box-sizing: border-box;
+            border: var(--_outline-width, 1px) solid var(--_enabled-outline-color);
+            transition: border-color 150ms cubic-bezier(0.2, 0, 0, 1);
+            z-index: 0;
+        }
+
+        :host([variant="outlined"]:not([focused]):not(:focus-within):not([disabled]):hover) .container::before {
+            border-color: var(--_hovered-outline-color);
+        }
+
+        :host([variant="outlined"][invalid]) .container::before {
+            border-color: var(--_invalid-outline-color);
+        }
+
+        :host([variant="outlined"][disabled]) .container::before {
+            border-color: var(--_disabled-outline-color);
+            opacity: var(--_disabled-label-opacity, 0.38);
+        }
+
+        /* Outlined focus 2px active border with smooth opacity transition */
+        :host([variant="outlined"]) .container::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            pointer-events: none;
+            box-sizing: border-box;
+            border: 2px solid var(--_focused-outline-color);
+            opacity: 0;
+            transition: opacity 150ms cubic-bezier(0.2, 0, 0, 1),
+                        border-color 150ms cubic-bezier(0.2, 0, 0, 1);
+            z-index: 1;
+        }
+
+        :host([variant="outlined"][focused]) .container::after,
+        :host([variant="outlined"]:not([disabled]):focus-within) .container::after {
+            opacity: 1;
+        }
+
+        :host([variant="outlined"][invalid]) .container::after {
+            border-color: var(--_invalid-outline-color);
+        }
+
+        :host([variant="outlined"][invalid][focused]) .container::after,
+        :host([variant="outlined"][invalid]:not([disabled]):focus-within) .container::after {
+            opacity: 1;
+            border-color: var(--_invalid-outline-color);
+        }
+
+        :host([variant="outlined"][disabled]) .container::after {
+            display: none;
+        }
+
+        /* ---------- Disabled Host State ---------- */
+        :host([disabled]) {
+            pointer-events: none;
+        }
+        :host([disabled]) .container {
+            cursor: default;
+        }
+        :host([disabled]) .supporting-wrapper {
+            opacity: var(--_disabled-supporting-text-opacity, 0.38);
         }
 
         /* ---------- Content area (prefix, input, suffix) ---------- */
@@ -55,15 +201,33 @@ export const baseFieldStyles = css`
             min-width: 0;
             display: flex;
             align-items: center;
-            position: relative;
             height: 100%;
             box-sizing: border-box;
+            z-index: 2;
         }
 
-        /* In filled variant with label, push input down so it sits below floating label */
+        /* In filled variant with label, align input text in the lower half of container (MD3 spec: y = 24px..48px) */
         :host([variant="filled"]) .container.has-label .content {
-            padding-block-start: 16px;
-            padding-block-end: 2px;
+            padding-top: 24px;
+            padding-bottom: 8px;
+        }
+
+        :host([variant="filled"]:not(.has-label)) .content,
+        :host([variant="outlined"]) .content {
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+
+        /* Multiline textarea content padding */
+        :host([multiline][variant="filled"]) .container.has-label .content {
+            padding-top: 16px;
+            padding-bottom: 4px;
+        }
+
+        :host([multiline][variant="outlined"]) .content,
+        :host([multiline][variant="filled"]:not(.has-label)) .content {
+            padding-top: 4px;
+            padding-bottom: 4px;
         }
 
         /* ---------- Slotted input / textarea / select reset ---------- */
@@ -77,7 +241,6 @@ export const baseFieldStyles = css`
         }
 
         .input ::slotted(input),
-        .input ::slotted(textarea),
         .input ::slotted(select) {
             background: transparent;
             border: none;
@@ -91,20 +254,40 @@ export const baseFieldStyles = css`
             -moz-appearance: none;
             width: 100%;
             min-width: 0;
-            height: 100%;
-            font-family: inherit;
-            font-size: inherit;
-            font-weight: inherit;
-            letter-spacing: inherit;
-            line-height: inherit;
+            height: 24px;
+            line-height: 24px;
+            font-family: var(--_enabled-label-font, inherit);
+            font-size: var(--_enabled-label-size, 16px);
+            font-weight: var(--_enabled-label-weight, 400);
+            letter-spacing: var(--_enabled-label-tracking, 0.5px);
             color: inherit;
+            vertical-align: middle;
             -webkit-tap-highlight-color: transparent;
         }
 
         .input ::slotted(textarea) {
+            background: transparent;
+            border: none;
+            outline: none;
+            padding: 0;
+            margin: 0;
+            box-shadow: none;
+            box-sizing: border-box;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            width: 100%;
+            min-width: 0;
+            height: 100%;
+            min-height: 24px;
+            line-height: 24px;
+            font-family: var(--_enabled-label-font, inherit);
+            font-size: var(--_enabled-label-size, 16px);
+            font-weight: var(--_enabled-label-weight, 400);
+            letter-spacing: var(--_enabled-label-tracking, 0.5px);
+            color: inherit;
             resize: none;
-            min-height: 1.5em;
-            padding-block-start: 0;
+            -webkit-tap-highlight-color: transparent;
         }
 
         :host([resizable]) .input ::slotted(textarea) {
@@ -116,14 +299,21 @@ export const baseFieldStyles = css`
         .input ::slotted(select:disabled) {
             cursor: default;
             pointer-events: none;
-            opacity: 1;
+            opacity: var(--_disabled-label-opacity, 0.38);
         }
 
-        /* Placeholder */
+        /* Slotted Placeholder */
         .input ::slotted(input::placeholder),
         .input ::slotted(textarea::placeholder) {
             color: var(--_enabled-label-color);
             opacity: 0.6;
+            transition: opacity 150ms cubic-bezier(0.2, 0, 0, 1);
+        }
+
+        /* Hide placeholder when label is resting in an empty field */
+        .container.has-label.resting-label .input ::slotted(input::placeholder),
+        .container.has-label.resting-label .input ::slotted(textarea::placeholder) {
+            opacity: 0;
         }
 
         /* Hide native spinner buttons on number inputs */
@@ -136,68 +326,6 @@ export const baseFieldStyles = css`
             -moz-appearance: textfield;
         }
 
-        /* ---------- Filled variant: bottom indicator (underline) ---------- */
-        :host([variant="filled"]) .container::after {
-            content: '';
-            position: absolute;
-            inset-inline: 0;
-            bottom: 0;
-            height: var(--_enabled-active-indicator-height, 1px);
-            background-color: var(--_enabled-active-indicator-color);
-            transition: height 100ms cubic-bezier(0.2, 0, 0, 1),
-                        background-color 200ms cubic-bezier(0.2, 0, 0, 1);
-            pointer-events: none;
-        }
-
-        :host([variant="filled"][focused]) .container::after,
-        :host([variant="filled"]:focus-within) .container::after {
-            height: var(--_focused-active-indicator-height, 2px);
-            background-color: var(--_focused-active-indicator-color);
-        }
-
-        :host([variant="filled"]:not([focused]):not(:focus-within):hover) .container::after {
-            background-color: var(--_hovered-active-indicator-color);
-        }
-
-        :host([variant="filled"][invalid]) .container::after {
-            height: var(--_invalid-active-indicator-height, 2px);
-            background-color: var(--_invalid-active-indicator-color);
-        }
-
-        /* ---------- Outlined variant: 4-sided outline ---------- */
-        :host([variant="outlined"]) .container {
-            border: var(--_outline-width, 1px) solid var(--_enabled-outline-color);
-            background-color: transparent;
-        }
-
-        :host([variant="outlined"]:not([focused]):not(:focus-within):hover) .container {
-            border-color: var(--_hovered-outline-color);
-        }
-
-        :host([variant="outlined"][focused]) .container,
-        :host([variant="outlined"]:focus-within) .container {
-            border-width: 2px;
-            border-color: var(--_focused-outline-color);
-        }
-
-        :host([variant="outlined"][invalid]) .container {
-            border-color: var(--_invalid-outline-color);
-        }
-
-        /* ---------- Disabled state ---------- */
-        :host([disabled]) {
-            opacity: var(--_disabled-label-opacity, 0.38);
-            pointer-events: none;
-        }
-        :host([disabled]) .container {
-            background-color: var(--_disabled-container-color);
-            border-color: var(--_disabled-outline-color);
-            cursor: default;
-        }
-        :host([disabled]) .supporting-wrapper {
-            opacity: var(--_disabled-supporting-text-opacity, 0.38);
-        }
-
         /* ---------- Leading / Trailing icons ---------- */
         .leading,
         .trailing {
@@ -206,6 +334,7 @@ export const baseFieldStyles = css`
             justify-content: center;
             flex-shrink: 0;
             color: var(--_enabled-icon-color);
+            z-index: 2;
         }
         .leading {
             width: var(--_leading-icon-size, 24px);
@@ -220,6 +349,21 @@ export const baseFieldStyles = css`
         .container:not(.has-leading-icon) .leading { display: none; }
         .container:not(.has-trailing-icon) .trailing { display: none; }
 
+        :host([focused]:not([disabled])) .leading,
+        :host([focused]:not([disabled])) .trailing {
+            color: var(--_focused-icon-color, var(--_enabled-icon-color));
+        }
+
+        :host([invalid]:not([disabled])) .trailing {
+            color: var(--_invalid-icon-color, var(--_enabled-icon-color));
+        }
+
+        :host([disabled]) .leading,
+        :host([disabled]) .trailing {
+            color: var(--_disabled-icon-color, var(--_enabled-icon-color));
+            opacity: var(--_disabled-icon-opacity, 0.38);
+        }
+
         /* ---------- Prefix / Suffix (text + slot) ---------- */
         .prefix,
         .suffix {
@@ -227,6 +371,14 @@ export const baseFieldStyles = css`
             align-items: center;
             flex-shrink: 0;
             color: var(--_enabled-label-color);
+            font-family: var(--_enabled-label-font, inherit);
+            font-size: var(--_enabled-label-size, 16px);
+            font-weight: var(--_enabled-label-weight, 400);
+            letter-spacing: var(--_enabled-label-tracking, 0.5px);
+            line-height: 24px;
+            height: 24px;
+            white-space: nowrap;
+            opacity: 1;
             transition: opacity 150ms cubic-bezier(0.2, 0, 0, 1);
         }
         .prefix {
@@ -241,18 +393,19 @@ export const baseFieldStyles = css`
         .container:not(.has-suffix) .suffix { display: none; }
 
         /* Hide prefix/suffix when label is resting in an empty field */
-        .container.has-label.resting-label:not(.has-leading-icon) .prefix,
-        .container.has-label.resting-label:not(.has-leading-icon) .suffix {
+        .container.has-label.resting-label .prefix,
+        .container.has-label.resting-label .suffix {
             opacity: 0;
+            pointer-events: none;
         }
 
-        /* ---------- Floating label ---------- */
+        /* ---------- Floating label & Smooth Expanding Animation ---------- */
         .label {
             position: absolute;
             inset-inline-start: var(--_container-inline-leading-padding-space, 16px);
             top: 50%;
             transform: translateY(-50%);
-            transform-origin: start center;
+            transform-origin: top start;
             pointer-events: auto;
             cursor: text;
             color: var(--_enabled-label-color);
@@ -266,15 +419,18 @@ export const baseFieldStyles = css`
             text-overflow: ellipsis;
             white-space: nowrap;
             box-sizing: border-box;
+            z-index: 3;
             transition: transform 150ms cubic-bezier(0.2, 0, 0, 1),
                         top 150ms cubic-bezier(0.2, 0, 0, 1),
                         font-size 150ms cubic-bezier(0.2, 0, 0, 1),
+                        line-height 150ms cubic-bezier(0.2, 0, 0, 1),
                         color 150ms cubic-bezier(0.2, 0, 0, 1),
-                        inset-inline-start 150ms cubic-bezier(0.2, 0, 0, 1);
+                        inset-inline-start 150ms cubic-bezier(0.2, 0, 0, 1),
+                        background-color 150ms cubic-bezier(0.2, 0, 0, 1);
         }
 
-        /* When there is a leading icon and label is resting, offset label start */
-        .container.has-leading-icon .label.resting,
+        /* When there is a leading icon and label is resting, offset label start to match input column */
+        .container.has-leading-icon.resting-label .label,
         .container.has-leading-icon:not(.floating-label) .label {
             inset-inline-start: calc(var(--_container-inline-leading-padding-space, 16px) + var(--_leading-icon-size, 24px) + 12px);
         }
@@ -308,7 +464,12 @@ export const baseFieldStyles = css`
             letter-spacing: var(--_floating-label-tracking);
             line-height: var(--_floating-label-line-height);
             border-radius: 2px;
-            z-index: 1;
+        }
+
+        /* Multiline textarea resting label alignment */
+        :host([multiline]) .container.has-label:not(.floating-label) .label {
+            top: 16px;
+            transform: translateY(0);
         }
 
         /* Label hidden when behavior==='never' and not populated */
@@ -316,12 +477,23 @@ export const baseFieldStyles = css`
             display: none;
         }
 
-        :host([focused]) .label,
-        :host(:focus-within) .label {
+        /* Label colors across interaction states */
+        :host(:hover:not([disabled])) .label {
+            color: var(--_hovered-label-color, var(--_enabled-label-color));
+        }
+
+        :host([focused]:not([disabled])) .label,
+        :host(:not([disabled]):focus-within) .label {
             color: var(--_focused-label-color);
         }
-        :host([invalid]) .label {
+
+        :host([invalid]:not([disabled])) .label {
             color: var(--_invalid-label-color);
+        }
+
+        :host([disabled]) .label {
+            color: var(--_disabled-label-color);
+            opacity: var(--_disabled-label-opacity, 0.38);
         }
 
         /* Required asterisk */
@@ -360,10 +532,10 @@ export const baseFieldStyles = css`
             color: var(--_enabled-counter-color, var(--_enabled-supporting-text-color));
         }
 
-        :host([invalid]) .supporting-text {
+        :host([invalid]:not([disabled])) .supporting-text {
             color: var(--_invalid-supporting-text-color);
         }
-        :host([invalid]) .counter {
+        :host([invalid]:not([disabled])) .counter {
             color: var(--_invalid-counter-color, var(--_invalid-supporting-text-color));
         }
 
@@ -379,6 +551,7 @@ export const baseFieldStyles = css`
         @media (prefers-reduced-motion: reduce) {
             .container,
             .container::after,
+            .container::before,
             .label,
             .prefix,
             .suffix {
@@ -388,8 +561,8 @@ export const baseFieldStyles = css`
 
         /* ---------- Forced colors (Windows High Contrast) ---------- */
         @media (forced-colors: active) {
-            .container {
-                border: 1px solid CanvasText;
+            .container::before {
+                border-color: CanvasText;
             }
             :host([disabled]) {
                 opacity: 1;

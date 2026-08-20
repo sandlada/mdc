@@ -248,11 +248,11 @@ export abstract class BaseField extends composeMixin(
                 <div class="supporting-wrapper" part="supporting-wrapper">
                     <div class="supporting-text" part="supporting-text">
                         ${this.invalid && (this.errorText || this.hasErrorText)
-                            ? html`<slot name="error-text">${this.errorText}</slot>`
-                            : html`<slot name="supporting-text">${this.supportingText}</slot>`}
+                            ? html`<slot name="error-text" @slotchange=${this.handleErrorTextSlotChange}>${this.errorText}</slot>`
+                            : html`<slot name="supporting-text" @slotchange=${this.handleSupportingTextSlotChange}>${this.supportingText}</slot>`}
                     </div>
                     <div class="counter" part="counter">
-                        <slot name="counter">${this.counterText}</slot>
+                        <slot name="counter" @slotchange=${this.handleCounterSlotChange}>${this.counterText}</slot>
                     </div>
                 </div>
             ` : nothing}
