@@ -64,15 +64,18 @@ export const baseSideSheetStyles = css`
     dialog::backdrop { display: none; }
 
     /* ─── Scrim (modal only — visible at runtime when variant is modal and open) ─── */
+    /*
+     * Opacity is animated by WAAPI via SideSheetDefaultOpenAnimation /
+     * SideSheetDefaultCloseAnimation (see side-sheet.animation.ts). CSS
+     * transitions were removed: a cancelled transition never fires
+     * the transitionend event, which caused the rapid-toggle stuck-state bug.
+     */
     .scrim {
         position: absolute;
         inset: 0;
         background: var(--_enabled-container-color-modal, #000);
         opacity: 0;
         pointer-events: none;
-        transition-property: opacity;
-        transition-duration: var(--_container-motion-duration, 250ms);
-        transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
         z-index: 0;
     }
 
@@ -111,11 +114,8 @@ export const baseSideSheetStyles = css`
         );
 
         transform: translateX(100%);
-        transition-property: transform;
-        transition-duration: var(--_container-motion-duration, 250ms);
-        transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+        /* transform is animated by WAAPI (see side-sheet.animation.ts). */
         pointer-events: auto;
-        will-change: transform, opacity;
         z-index: 1;
     }
 
@@ -162,15 +162,9 @@ export const baseSideSheetStyles = css`
         transform: translateX(0);
     }
 
-    /* Quick mode: no transitions. The :host([open]) variants are added so
-     * the new visibility selector key (host[open] = "should be visible")
-     * wins the specificity battle against dialog.quick. */
-    dialog.quick .container,
-    :host([open]) dialog.quick .container,
-    dialog.quick .scrim,
-    :host([open]) dialog.quick .scrim {
-        transition: none;
-    }
+    /* Quick mode is handled in JS — animateSideSheet returns early when
+     * 'quick' is true, so no WAAPI Animation is ever started. The static
+     * :host([open]) rules above apply immediately. */
 
     /* ─── Headline row ─── */
     .headline {

@@ -11,6 +11,12 @@ import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
 import { baseSideSheetStyles } from './base-side-sheet.style'
 import {
+    SideSheetDefaultCloseAnimation,
+    SideSheetDefaultOpenAnimation,
+    type SideSheetAnimation,
+    type SideSheetAnimationArgs,
+} from '../side-sheet.animation'
+import {
     SIDE_SHEET_ACTION_EVENT,
     SIDE_SHEET_CANCEL_EVENT,
     SIDE_SHEET_CLOSED_EVENT,
@@ -105,16 +111,23 @@ export abstract class BaseSideSheet extends composeMixin(
     private previouslyFocused: Element | null = null
 
     /**
-     * When `true`, the sheet is in the process of closing: the CSS slide-out
-     * transition is running and `dialog.close()` will be called once it ends.
+     * Cancels any in-flight WAAPI animations (scrim + container) when a fresh
+     * `show()` or `hide()` interrupts them. Replaces the old CSS
+     * `transitionend` + `pendingClose` design — the CSS version wedged the
+     * sheet open when consumers toggled faster than the close animation
+     * finished (the cancelled transition never fired `transitionend`, so
+     * `pendingClose` stayed `true` forever). See `animateSideSheet`.
      */
-    private pendingClose = false
+    protected cancelAnimations?: AbortController
 
     @query('dialog')
     protected readonly dialogEl!: HTMLDialogElement | null
 
     @query('.container')
     protected readonly containerEl!: HTMLElement | null
+
+    @query('.scrim')
+    protected readonly scrimEl!: HTMLElement | null
 
     @query('.close-icon')
     protected readonly closeIconEl!: HTMLElement | null
@@ -157,8 +170,7 @@ export abstract class BaseSideSheet extends composeMixin(
                 <span class="scrim" aria-hidden="true"></span>
 
                 <div class="container"
-                    part="container"
-                    @transitionend=${this.handleContainerTransitionEnd}>
+                    part="container">
                     <header class="headline">
                         ${this.renderHeadlineBackIcon()}
                         <h2 class="headline-label">
@@ -228,17 +240,15 @@ export abstract class BaseSideSheet extends composeMixin(
 
     public async show(): Promise<void> {
         if (this.open) return
-        // The state reset (lastCloseReason, pendingClose, previouslyFocused)
-        // happens in willUpdate() so declaratively-opened sheets get the same
-        // fresh state.
+        // The state reset (lastCloseReason, previouslyFocused) happens in
+        // willUpdate() so declaratively-opened sheets get the same fresh state.
         this.open = true
         await this.updateComplete
         const dialog = this.dialogEl
         if (!dialog) return
-        // Re-opening while the exit transition is still running leaves the
-        // dialog in the top layer; show()/showModal() throw InvalidStateError
-        // on an already-open dialog. updated() guards the declarative case
-        // with the same check.
+        // Re-opening while a prior close is still animating: dialog.showModal()
+        // throws InvalidStateError on an already-open dialog, so guard with
+        // `dialog.open`.
         if (!dialog.open) {
             if (this.variant === 'modal') {
                 dialog.showModal()
@@ -246,21 +256,41 @@ export abstract class BaseSideSheet extends composeMixin(
                 dialog.show()
             }
         }
-        if (this.quick) await this.resolveQuick('open')
+        // Promote to the top layer first so the scrim + container animate
+        // against the live render tree (matches DialogAction.show ordering).
+        await this.animateSideSheet(SideSheetDefaultOpenAnimation(this.sheetEdge))
+        this.dispatchEvent(new Event(
+            SIDE_SHEET_OPENED_EVENT,
+            { bubbles: true, composed: true },
+        ))
+        // Focus the first focusable element after the entrance animation.
+        requestAnimationFrame(() => {
+            if (!this.noFocusTrap) this.focusFirstInside()
+        })
     }
 
     public async hide(): Promise<void> {
-        if (!this.open || this.pendingClose) return
+        if (!this.open) return
         this.open = false
-        if (this.quick) {
-            this.closeDialog()
-            await this.resolveQuick('close')
-        } else {
-            // The CSS slide-out transition runs while the dialog stays in the
-            // top layer. handleContainerTransitionEnd will call closeDialog()
-            // once the transition completes.
-            this.pendingClose = true
-        }
+        await this.updateComplete
+        // The close animation runs while the dialog stays in the top layer;
+        // closeDialog() is called after it settles so the slide-out is visible.
+        // animateSideSheet is reentrant-safe via AbortController — a fresh
+        // show() mid-hide() will abort this animation cleanly.
+        await this.animateSideSheet(SideSheetDefaultCloseAnimation(this.sheetEdge))
+        this.closeDialog()
+        this.dispatchEvent(new CustomEvent<ISideSheetClosedEventDetail>(
+            SIDE_SHEET_CLOSED_EVENT,
+            {
+                bubbles: true,
+                composed: true,
+                detail: {
+                    returnValue: this.returnValue,
+                    reason: this.lastCloseReason,
+                },
+            },
+        ))
+        if (!this.noFocusTrap) this.restoreFocus()
     }
 
     public async close(returnValue?: string): Promise<void> {
@@ -286,7 +316,6 @@ export abstract class BaseSideSheet extends composeMixin(
                 // fields alone, preserving the "preserve caller-set
                 // lastCloseReason" behaviour (commits 0a82180 / 6983438).
                 this.lastCloseReason = 'programmatic'
-                this.pendingClose = false
                 this.previouslyFocused = this.ownerDocument?.activeElement ?? null
                 this.dispatchEvent(new Event(
                     SIDE_SHEET_OPENING_EVENT,
@@ -301,54 +330,54 @@ export abstract class BaseSideSheet extends composeMixin(
         }
     }
 
-    protected override updated(changed: PropertyValues<this>): void {
-        super.updated(changed)
-        // Promote the dialog to the top layer (or non-modal show) so
-        // declarative `<mdc-side-sheet open>` works. Imperative show()
-        // also lands here on its `this.open = true` write and is guarded
-        // against double-firing by the `dialog.open` check below.
-        if (!changed.has('open') || !this.open) return
-        const dialog = this.dialogEl
-        if (!dialog || dialog.open) return
-        if (this.variant === 'modal') {
-            dialog.showModal()
-        } else {
-            dialog.show()
-        }
+    public override disconnectedCallback(): void {
+        super.disconnectedCallback()
+        // Cancel any in-flight animations; otherwise the WAAPI Animation
+        // objects would keep ticking against a detached shadow tree.
+        this.cancelAnimations?.abort()
     }
 
-    private handleContainerTransitionEnd(event: TransitionEvent): void {
-        if (event.propertyName !== 'transform') return
-        if (this.open) {
-            this.dispatchEvent(new Event(
-                SIDE_SHEET_OPENED_EVENT,
-                { bubbles: true, composed: true },
-            ))
-            // Focus the first focusable element after the entrance transition.
-            requestAnimationFrame(() => {
-                if (!this.noFocusTrap) this.focusFirstInside()
-            })
-        } else {
-            // Close the native dialog (removes from top layer) now that the
-            // slide-out transition has finished.
-            if (this.pendingClose) {
-                this.pendingClose = false
-                this.closeDialog()
+    private async animateSideSheet(animation: SideSheetAnimation): Promise<void> {
+        // Abort any prior in-flight animations. Each prior Animation registered
+        // an abort listener below that calls Animation.cancel(); its
+        // `finished` Promise then rejects with AbortError, which the
+        // `.catch(() => {})` below swallows. The fresh run then takes over.
+        this.cancelAnimations?.abort()
+        this.cancelAnimations = new AbortController()
+        if (this.quick) return
+
+        const sheetContainer = this.containerEl
+        const scrim = this.scrimEl
+        const isModal = this.variant === 'modal'
+        // Standard variant has no scrim; the modal scrim must exist or we
+        // bail rather than animating against a missing target.
+        if (!sheetContainer || (isModal && !scrim)) return
+
+        const { scrim: scrimArgs, container: containerArgs } = animation
+
+        const targets: Array<[Element, SideSheetAnimationArgs[]]> = [
+            [sheetContainer, containerArgs ?? []],
+        ]
+        if (isModal && scrim) targets.push([scrim, scrimArgs ?? []])
+
+        const animations: Animation[] = []
+        for (const [element, args] of targets) {
+            for (const a of args) {
+                const anim = element.animate(...a)
+                this.cancelAnimations!.signal.addEventListener('abort', () => {
+                    anim.cancel()
+                })
+                animations.push(anim)
             }
-            this.dispatchEvent(new CustomEvent<ISideSheetClosedEventDetail>(
-                SIDE_SHEET_CLOSED_EVENT,
-                {
-                    bubbles: true,
-                    composed: true,
-                    detail: {
-                        returnValue: this.returnValue,
-                        reason: this.lastCloseReason,
-                    },
-                },
-            ))
-            // Restore focus to the previously-focused element.
-            if (!this.noFocusTrap) this.restoreFocus()
         }
+
+        await Promise.all(
+            animations.map((anim) =>
+                anim.finished.catch(() => {
+                    // Ignore intentional AbortErrors when calling anim.cancel().
+                }),
+            ),
+        )
     }
 
     private focusFirstInside(): void {
@@ -376,29 +405,6 @@ export abstract class BaseSideSheet extends composeMixin(
                 && el.getAttribute('aria-hidden') !== 'true'
                 && !el.classList.contains('focus-trap')
         )
-    }
-
-    private async resolveQuick(which: 'open' | 'close'): Promise<void> {
-        // Wait one frame so the attribute is committed, then dispatch the
-        // matching 'after' event.
-        await new Promise(requestAnimationFrame)
-        if (which === 'open') {
-            this.dispatchEvent(new Event(
-                SIDE_SHEET_OPENED_EVENT,
-                { bubbles: true, composed: true },
-            ))
-            if (!this.noFocusTrap) this.focusFirstInside()
-        } else {
-            this.dispatchEvent(new CustomEvent<ISideSheetClosedEventDetail>(
-                SIDE_SHEET_CLOSED_EVENT,
-                {
-                    bubbles: true,
-                    composed: true,
-                    detail: { returnValue: this.returnValue, reason: this.lastCloseReason },
-                },
-            ))
-            if (!this.noFocusTrap) this.restoreFocus()
-        }
     }
 
     private handleHeadlineSlotChange(event: Event): void {
@@ -430,7 +436,7 @@ export abstract class BaseSideSheet extends composeMixin(
         // Always prevent the browser's default close — we manage the dialog
         // lifecycle ourselves via show()/hide().
         event.preventDefault()
-        if (this.variant !== 'modal' || !this.cancelable || this.pendingClose) {
+        if (this.variant !== 'modal' || !this.cancelable || !this.open) {
             return
         }
         this.lastCloseReason = 'escape'
@@ -442,7 +448,7 @@ export abstract class BaseSideSheet extends composeMixin(
     }
 
     private handleHostClick(event: MouseEvent): void {
-        if (this.variant !== 'modal' || !this.cancelable || this.pendingClose) return
+        if (this.variant !== 'modal' || !this.cancelable || !this.open) return
         const path = event.composedPath()
         if (path.some((node) => (node as Element).classList?.contains?.('scrim'))) {
             this.lastCloseReason = 'scrim'

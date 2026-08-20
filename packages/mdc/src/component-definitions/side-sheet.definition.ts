@@ -65,9 +65,6 @@ const sharedStructural = {
     'enabled-container-color-modal'            : Color.Scrim,
     'enabled-container-opacity-modal'          : `0.32`,
 
-    // Transitions
-    'container-motion-duration'                : `250ms`,
-
     // Icon sizes
     'close-icon-size'                          : `24px`,
     'headline-icon-size'                       : `24px`,
