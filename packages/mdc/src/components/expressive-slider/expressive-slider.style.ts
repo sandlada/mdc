@@ -470,7 +470,24 @@ export const ExpressiveSliderStyles = [
            (vertical in writing-mode: vertical-lr). */
         :host([direction='vertical']) .tickmarks::before,
         :host([direction='vertical']) .tickmarks::after {
+            background-size: 100% calc((100% - var(--_with-tick-marks-container-size) * 2) / var(--_tick-count));
             background-repeat: repeat-y;
+            background-image: radial-gradient(
+                circle at center var(--_with-tick-marks-container-size),
+                var(--_enabled-with-tick-marks-inactive-container-color) 0,
+                var(--_enabled-with-tick-marks-inactive-container-color) calc(var(--_with-tick-marks-container-size) / 2),
+                transparent calc(var(--_with-tick-marks-container-size) / 2)
+            );
+        }
+
+        :host([direction='vertical']) .tickmarks::after {
+            background-image: radial-gradient(
+                circle at center var(--_with-tick-marks-container-size),
+                var(--_enabled-with-tick-marks-active-container-color) 0,
+                var(--_enabled-with-tick-marks-active-container-color) calc(var(--_with-tick-marks-container-size) / 2),
+                transparent calc(var(--_with-tick-marks-container-size) / 2)
+            );
+            clip-path: inset(var(--_active-track-start-clip) 0 var(--_active-track-end-clip) 0);
         }
 
         /* ── Value indicator (label pill) ─────────────────────────────────────
@@ -559,15 +576,13 @@ export const ExpressiveSliderStyles = [
             outline: none;
         }
 
-        /* Range: clip the two native inputs so each half of the slider
-           feeds pointer events to the right handle. input.start owns the
-           half to the LEFT of the midpoint between the values; input.end
-           owns the right half. The clip is driven by --_clip-to-start /
-           --_clip-to-end (published from the inline style), so the split
-           moves with the values rather than being fixed at 50%. Writing-
-           mode handles the axis swap — clip-path inset() works on physical
-           edges, and the input itself is reoriented via writing-mode:
-           vertical-lr in vertical mode. */
+        /* Range clip-paths:
+           - isVisualReversed = false:
+             - horizontal default: start on left, end on right
+             - vertical reversed: start on top, end on bottom
+           - isVisualReversed = true:
+             - horizontal reversed: start on right, end on left
+             - vertical default: start on bottom, end on top */
         .ranged input.start {
             clip-path: inset(0 var(--_clip-to-end) 0 0);
         }
@@ -575,33 +590,41 @@ export const ExpressiveSliderStyles = [
             clip-path: inset(0 0 0 var(--_clip-to-start));
         }
 
-        /* Vertical: the slider's value axis is top-to-bottom (inline axis
-           in vertical-lr), so input.start owns the TOP half and input.end
-           owns the BOTTOM half. The clip-path inset function uses
-           PHYSICAL edges (top/right/bottom/left), so we inset from the
-           top/bottom here instead of from the right/left. --_clip-to-start
-           is measured from inline-start (= top in vertical-lr);
-           --_clip-to-end is measured from inline-end (= bottom in
-           vertical-lr). */
-        :host([direction='vertical']) .ranged input.start {
+        :host(:not([direction='vertical'])[reversed]) .ranged input.start {
+            clip-path: inset(0 0 0 var(--_clip-to-start));
+        }
+        :host(:not([direction='vertical'])[reversed]) .ranged input.end {
+            clip-path: inset(0 var(--_clip-to-end) 0 0);
+        }
+
+        :host([direction='vertical']:not([reversed])) .ranged input.start {
+            clip-path: inset(var(--_clip-to-start) 0 0 0);
+        }
+        :host([direction='vertical']:not([reversed])) .ranged input.end {
             clip-path: inset(0 0 var(--_clip-to-end) 0);
         }
-        :host([direction='vertical']) .ranged input.end {
+
+        :host([direction='vertical'][reversed]) .ranged input.start {
+            clip-path: inset(0 0 var(--_clip-to-end) 0);
+        }
+        :host([direction='vertical'][reversed]) .ranged input.end {
             clip-path: inset(var(--_clip-to-start) 0 0 0);
         }
 
-        /* Vertical: native input needs vertical orientation. The
-           direction: rtl previously used here flipped the input's
-           internal min/max orientation, which inverted the scroll
-           direction (drag DOWN decreased value while the layout had
-           max at the bottom). Removing it makes the native input's
-           value mapping match the rendered layout: drag DOWN increases
-           value (toward max at the bottom of the slider), drag UP
-           decreases value (toward min at the top). */
+        /* Vertical: native input needs vertical orientation. */
         :host([direction='vertical']) input[type='range'] {
             writing-mode: vertical-lr;
             inline-size: 100%;
             block-size: 100%;
+        }
+
+        :host(:not([direction='vertical'])[reversed]) input[type='range'],
+        :host([direction='vertical']:not([reversed])) input[type='range'] {
+            direction: rtl;
+        }
+
+        :host([direction='vertical'][reversed]) input[type='range'] {
+            direction: ltr;
         }
 
         ::-webkit-slider-runnable-track {

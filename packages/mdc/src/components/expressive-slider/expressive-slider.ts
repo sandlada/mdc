@@ -68,6 +68,21 @@ export class MDCExpressiveSlider extends BaseSlider implements IExpressiveSlider
     public type: ExpressiveSliderType = Type.Standard
 
     /**
+     * Whether the value scale is reversed.
+     *
+     * - When `false` (default):
+     *   - `horizontal`: small to large, left-to-right (min at left, max at right).
+     *   - `vertical`: small to large, top-to-bottom (min at top, max at bottom).
+     * - When `true`:
+     *   - `horizontal`: large to small, left-to-right (max at left, min at right).
+     *   - `vertical`: large to small, top-to-bottom (max at top, min at bottom).
+     *
+     * Reflects to the `reversed` attribute.
+     */
+    @property({ type: Boolean, reflect: true })
+    public reversed: boolean = false
+
+    /**
      * Backward-compat alias for the legacy `range` boolean. Setting
      * `range=true` switches `type` to `'range'`; reading returns whether
      * `type === 'range'`.
@@ -84,7 +99,7 @@ export class MDCExpressiveSlider extends BaseSlider implements IExpressiveSlider
     /**
      * Compose the classes for the `.container` element. Per CLAUDE.md
      * convention for non-host root elements. The classes map every
-     * reflected attribute (size / direction / type) onto the container
+     * reflected attribute (size / direction / type / reversed) onto the container
      * so CSS selectors can target combinations like
      * `:host([size='medium']) .container` without duplicating the lookup.
      */
@@ -92,6 +107,7 @@ export class MDCExpressiveSlider extends BaseSlider implements IExpressiveSlider
         return {
             ranged: this.type === Type.Range,
             centered: this.type === Type.Centered,
+            reversed: this.reversed,
             [this.size]: true,
             [this.direction]: true,
         }
@@ -99,13 +115,19 @@ export class MDCExpressiveSlider extends BaseSlider implements IExpressiveSlider
 
     protected override render() {
         const fractions = this.computeFractions()
-        const { startFraction, endFraction, normalized } = fractions
+        const {
+            visualNormalized,
+            visualStartFraction,
+            visualEndFraction,
+            minVisualFraction,
+            maxVisualFraction,
+        } = fractions
         const step = this.step === 0 ? 1 : this.step
         const range = Math.max(this.max - this.min, step)
 
         const containerStyles: Record<string, string> = {
-            '--_start-fraction': String(startFraction),
-            '--_end-fraction': String(endFraction),
+            '--_start-fraction': String(minVisualFraction),
+            '--_end-fraction': String(maxVisualFraction),
             '--_tick-count': String(range / step),
         }
 
@@ -113,7 +135,6 @@ export class MDCExpressiveSlider extends BaseSlider implements IExpressiveSlider
         // position matches the handle position exactly (cursor at 50%
         // → value=0 → handle centered). The slider's `min` is ignored
         // because the value is symmetric around 0.
-        const isVerticalDirection = this.direction === Direction.Vertical
         const centeredInputMin = -this.max
         const centeredInputMax = this.max
 
@@ -121,11 +142,8 @@ export class MDCExpressiveSlider extends BaseSlider implements IExpressiveSlider
         // writing mode (horizontal-tb), vertical in vertical-lr. The
         // writing-mode declaration on :host reorients the inline axis,
         // so the same `inset-inline-start` / `inset-inline-end` strings
-        // work for both directions. (The OLD code swapped to
-        // `inset-block-*` for vertical, which positioned along the
-        // CROSS axis instead — making vertical broken.)
+        // work for both directions.
         const posMainStart = 'inset-inline-start'
-        const posMainEnd = 'inset-inline-end'
 
         // ── Inline position styles ──────────────────────────────────────────
         // The container is `display: block` (no flex gap). Tracks and
@@ -141,8 +159,8 @@ export class MDCExpressiveSlider extends BaseSlider implements IExpressiveSlider
         // visible on both sides of the handle.
 
         // Handle: `inset-inline-start = fraction * (100% - handleWidth)`.
-        // At fraction=0, left edge at 0, center at handleWidth/2 (= edge-inset).
-        // At fraction=1, left edge at 100% - handleWidth, center at 100% - handleWidth/2.
+        // At fraction=0, left/top edge at 0, center at handleWidth/2 (= edge-inset).
+        // At fraction=1, left/top edge at 100% - handleWidth, center at 100% - handleWidth/2.
         const handlePosStyle = (fraction: number) =>
             `${posMainStart}: calc(${fraction} * (100% - var(--_handle-width)));`
 
@@ -150,7 +168,7 @@ export class MDCExpressiveSlider extends BaseSlider implements IExpressiveSlider
         // two native inputs split at the MIDPOINT of the two handle
         // positions (not at fixed 50%). The split moves with the values.
         if (this.type === Type.Range) {
-            const midFraction = (startFraction + endFraction) / 2
+            const midFraction = (visualStartFraction + visualEndFraction) / 2
             containerStyles['--_clip-to-start'] =
                 `calc(var(--_edge-inset) + ${midFraction} * (100% - 2 * var(--_edge-inset)))`
             containerStyles['--_clip-to-end'] = `calc(100% - ${containerStyles['--_clip-to-start']})`
@@ -164,13 +182,13 @@ export class MDCExpressiveSlider extends BaseSlider implements IExpressiveSlider
         return html`
             <div class="container ${classMap(this.getRenderClasses())}" style="${styleMap(containerStyles)}">
                 ${this.renderTrackStart()}
-                ${when(this.type === Type.Range, () => this.renderTrackMiddle(startFraction, endFraction))}
+                ${when(this.type === Type.Range, () => this.renderTrackMiddle(minVisualFraction, maxVisualFraction))}
                 ${this.type === Type.Standard
                     ? this.renderHandle({
                           start: false,
                           hover: this.handleEndHover,
                           label: labelEnd,
-                          style: handlePosStyle(normalized),
+                          style: handlePosStyle(visualNormalized),
                       })
                     : nothing}
                 ${this.renderTrackEnd()}
@@ -179,20 +197,20 @@ export class MDCExpressiveSlider extends BaseSlider implements IExpressiveSlider
                           start: false,
                           hover: this.handleEndHover,
                           label: labelEnd,
-                          style: handlePosStyle(normalized),
+                          style: handlePosStyle(visualNormalized),
                       })
                     : nothing}
                 ${when(this.type === Type.Range, () => this.renderHandle({
                     start: false,
                     hover: this.handleEndHover,
                     label: labelEnd,
-                    style: handlePosStyle(endFraction),
+                    style: handlePosStyle(visualEndFraction),
                 }))}
                 ${when(this.type === Type.Range, () => this.renderHandle({
                     start: true,
                     hover: this.handleStartHover,
                     label: labelStart,
-                    style: handlePosStyle(startFraction),
+                    style: handlePosStyle(visualStartFraction),
                 }))}
                 ${when(this.type === Type.Range, () => this.renderCenterDot())}
                 ${when(this.type === Type.Centered, () => this.renderCenteredOverlay(fractions))}
@@ -226,9 +244,9 @@ export class MDCExpressiveSlider extends BaseSlider implements IExpressiveSlider
     }
 
     /**
-     * Compute the four fractions needed by the render tree, based on
-     * the current `type` and the slider's value state. Centralised so
-     * each render method doesn't recompute.
+     * Compute the fractions needed by the render tree, based on
+     * the current `type`, `direction`, `reversed`, and the slider's value state.
+     * Centralised so each render method doesn't recompute.
      */
     private computeFractions() {
         const step = this.step === 0 ? 1 : this.step
@@ -254,7 +272,49 @@ export class MDCExpressiveSlider extends BaseSlider implements IExpressiveSlider
             normalized = ((this.renderValueEnd ?? this.min) - this.min) / range
             endFraction = normalized
         }
-        return { startFraction, endFraction, normalized, centeredFraction }
+
+        // isVisualReversed determines whether value 0 is at visual start (inline-start)
+        // or visual end (inline-end).
+        // - Horizontal: default (reversed=false) is Left(0)->Right(100), so isVisualReversed=false.
+        // - Vertical: default (reversed=false) is Bottom(0)->Top(100), so isVisualReversed=true (since inline-start is Top).
+        const isVisualReversed =
+            this.direction === Direction.Vertical ? !this.reversed : this.reversed
+
+        const visualNormalized = isVisualReversed ? 1 - normalized : normalized
+        let visualStartFraction: number
+        let visualEndFraction: number
+        let minVisualFraction: number
+        let maxVisualFraction: number
+
+        if (this.type === Type.Range) {
+            visualStartFraction = isVisualReversed ? 1 - startFraction : startFraction
+            visualEndFraction = isVisualReversed ? 1 - endFraction : endFraction
+            minVisualFraction = Math.min(visualStartFraction, visualEndFraction)
+            maxVisualFraction = Math.max(visualStartFraction, visualEndFraction)
+        } else if (this.type === Type.Centered) {
+            visualStartFraction = visualNormalized
+            visualEndFraction = visualNormalized
+            minVisualFraction = Math.min(0.5, visualNormalized)
+            maxVisualFraction = Math.max(0.5, visualNormalized)
+        } else {
+            visualStartFraction = 0
+            visualEndFraction = visualNormalized
+            minVisualFraction = isVisualReversed ? visualNormalized : 0
+            maxVisualFraction = isVisualReversed ? 1 : visualNormalized
+        }
+
+        return {
+            startFraction,
+            endFraction,
+            normalized,
+            centeredFraction,
+            isVisualReversed,
+            visualNormalized,
+            visualStartFraction,
+            visualEndFraction,
+            minVisualFraction,
+            maxVisualFraction,
+        }
     }
 
     /**
@@ -276,13 +336,12 @@ export class MDCExpressiveSlider extends BaseSlider implements IExpressiveSlider
      * (valueStart..valueEnd). Both edges are inset from the handle
      * centers by `--_thumb-track-gap`; both caps are rounded (CornerFull).
      */
-    protected renderTrackMiddle(startFraction: number, endFraction: number) {
-        const isVertical = this.direction === Direction.Vertical
+    protected renderTrackMiddle(minVisualFraction: number, maxVisualFraction: number) {
         const posMainStart = 'inset-inline-start'
         const posMainEnd = 'inset-inline-end'
         const style =
-            `${posMainStart}: calc(${startFraction} * (100% - var(--_handle-width)) + var(--_handle-width) + var(--_thumb-track-gap)); ` +
-            `${posMainEnd}: calc(100% - ${endFraction} * (100% - var(--_handle-width)) + var(--_thumb-track-gap));`
+            `${posMainStart}: calc(${minVisualFraction} * (100% - var(--_handle-width)) + var(--_handle-width) + var(--_thumb-track-gap)); ` +
+            `${posMainEnd}: calc(100% - ${maxVisualFraction} * (100% - var(--_handle-width)) + var(--_thumb-track-gap));`
         return html`
             <div
                 class="track track-middle"
@@ -294,26 +353,23 @@ export class MDCExpressiveSlider extends BaseSlider implements IExpressiveSlider
     }
 
     protected renderTrackSegment(position: 'start' | 'end') {
-        const isVertical = this.direction === Direction.Vertical
         const isCentered = this.type === Type.Centered
         const isRange = this.type === Type.Range
         const isStandard = this.type === Type.Standard
         const fractions = this.computeFractions()
-        const { startFraction, endFraction, normalized } = fractions
+        const { isVisualReversed, visualNormalized, minVisualFraction, maxVisualFraction } = fractions
 
         const posMainStart = 'inset-inline-start'
         const posMainEnd = 'inset-inline-end'
 
         if (isStandard) {
-            // Standard: track-start is active, track-end is inactive. In
-            // horizontal mode the active side is the LEFT segment; in
-            // vertical mode it's the BOTTOM segment. Both ends of the
-            // active track are rounded (CornerFull via --_active-leading-
-            // shape); the handle body hides the very end of the track.
-            const active = position === 'start' !== isVertical
+            // Standard: active track fills from min up to current value.
+            // When isVisualReversed=false: start segment is active, end segment is inactive.
+            // When isVisualReversed=true: start segment is inactive, end segment is active.
+            const active = isVisualReversed ? position === 'end' : position === 'start'
             const styleShift = position === 'start'
-                ? `${posMainStart}: var(--_edge-inset); ${posMainEnd}: calc(100% - ${normalized} * (100% - var(--_handle-width)) + var(--_thumb-track-gap));`
-                : `${posMainStart}: calc(${normalized} * (100% - var(--_handle-width)) + var(--_handle-width) + var(--_thumb-track-gap)); ${posMainEnd}: var(--_edge-inset);`
+                ? `${posMainStart}: var(--_edge-inset); ${posMainEnd}: calc(100% - ${visualNormalized} * (100% - var(--_handle-width)) + var(--_thumb-track-gap));`
+                : `${posMainStart}: calc(${visualNormalized} * (100% - var(--_handle-width)) + var(--_handle-width) + var(--_thumb-track-gap)); ${posMainEnd}: var(--_edge-inset);`
             return html`
                 <div
                     class="track"
@@ -327,12 +383,12 @@ export class MDCExpressiveSlider extends BaseSlider implements IExpressiveSlider
         }
 
         if (isRange) {
-            // Range: track-start covers [edge-inset, valueStart - thumb-track-gap]
-            // (inactive), track-end covers [valueEnd + thumb-track-gap, 100% - edge-inset]
+            // Range: track-start covers [edge-inset, minHandle - thumb-track-gap]
+            // (inactive), track-end covers [maxHandle + thumb-track-gap, 100% - edge-inset]
             // (inactive). The middle track is rendered separately.
             const styleShift = position === 'start'
-                ? `${posMainStart}: var(--_edge-inset); ${posMainEnd}: calc(100% - ${startFraction} * (100% - var(--_handle-width)) + var(--_thumb-track-gap));`
-                : `${posMainStart}: calc(${endFraction} * (100% - var(--_handle-width)) + var(--_handle-width) + var(--_thumb-track-gap)); ${posMainEnd}: var(--_edge-inset);`
+                ? `${posMainStart}: var(--_edge-inset); ${posMainEnd}: calc(100% - ${minVisualFraction} * (100% - var(--_handle-width)) + var(--_thumb-track-gap));`
+                : `${posMainStart}: calc(${maxVisualFraction} * (100% - var(--_handle-width)) + var(--_handle-width) + var(--_thumb-track-gap)); ${posMainEnd}: var(--_edge-inset);`
             return html`
                 <div
                     class="track"
@@ -351,14 +407,6 @@ export class MDCExpressiveSlider extends BaseSlider implements IExpressiveSlider
             // [50% + edge-inset, 100% - edge-inset]. The active overlay
             // is drawn on top of track-end (positive value) or track-
             // start (negative value) by renderCenteredOverlay.
-            //
-            // `inset-inline-end` measures from the RIGHT edge of the
-            // parent, so track-start's right edge at `50% - edge-inset`
-            // is `inset-inline-end: 100% - (50% - edge-inset) = 50% +
-            // edge-inset`. Track-end's left edge at `50% + edge-inset`
-            // is `inset-inline-start: 50% + edge-inset`. The center
-            // gap is `[50% - edge-inset, 50% + edge-inset]` (4px wide
-            // when edge-inset = 2px).
             const style = position === 'start'
                 ? `${posMainStart}: var(--_edge-inset); ${posMainEnd}: calc(50% + var(--_edge-inset));`
                 : `${posMainStart}: calc(50% + var(--_edge-inset)); ${posMainEnd}: var(--_edge-inset);`
@@ -398,22 +446,21 @@ export class MDCExpressiveSlider extends BaseSlider implements IExpressiveSlider
      * `.center-stop` dot at the 50% mark instead (per MD3E spec).
      */
     protected renderCenteredOverlay(fractions: ReturnType<MDCExpressiveSlider['computeFractions']>) {
-        const { normalized: valueFraction } = fractions
-        const isVertical = this.direction === Direction.Vertical
+        const { visualNormalized } = fractions
         const posMainStart = 'inset-inline-start'
         const posMainEnd = 'inset-inline-end'
 
         // Exactly at center: render a single stop indicator at 50%.
-        if (valueFraction === 0.5) {
+        if (visualNormalized === 0.5) {
             return html`<div class="center-stop" aria-hidden="true"></div>`
         }
 
-        const isPositive = valueFraction > 0.5
-        // Positive value: overlay spans [50% + edge-inset, handleLeft - thumbTrackGap].
-        // Negative value: overlay spans [handleRight + thumbTrackGap, 50% - edge-inset].
+        const isPositive = visualNormalized > 0.5
+        // Positive side: overlay spans [50% + edge-inset, handleLeft - thumbTrackGap].
+        // Negative side: overlay spans [handleRight + thumbTrackGap, 50% - edge-inset].
         const style = isPositive
-            ? `${posMainStart}: calc(50% + var(--_edge-inset)); ${posMainEnd}: calc(100% - ${valueFraction} * (100% - var(--_handle-width)) + var(--_thumb-track-gap));`
-            : `${posMainStart}: calc(${valueFraction} * (100% - var(--_handle-width)) + var(--_handle-width) + var(--_thumb-track-gap)); ${posMainEnd}: calc(50% + var(--_edge-inset));`
+            ? `${posMainStart}: calc(50% + var(--_edge-inset)); ${posMainEnd}: calc(100% - ${visualNormalized} * (100% - var(--_handle-width)) + var(--_thumb-track-gap));`
+            : `${posMainStart}: calc(${visualNormalized} * (100% - var(--_handle-width)) + var(--_handle-width) + var(--_thumb-track-gap)); ${posMainEnd}: calc(50% + var(--_edge-inset));`
         return html`<div
             class="active-overlay"
             data-position="${isPositive ? 'end' : 'start'}"
@@ -459,10 +506,13 @@ export class MDCExpressiveSlider extends BaseSlider implements IExpressiveSlider
         inputMax: number
     }) {
         const name = start ? `start` : `end`
+        const fractions = this.computeFractions()
+        const dir = fractions.isVisualReversed ? 'rtl' : nothing
         return html`
             <input
                 type="range"
                 class="${classMap({start, end: !start})}"
+                dir=${dir}
                 @focus=${this.handleFocus}
                 @pointerdown=${this.handleDown}
                 @pointerup=${this.handleUp}

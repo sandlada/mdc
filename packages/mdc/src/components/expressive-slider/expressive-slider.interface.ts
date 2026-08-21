@@ -104,6 +104,20 @@ export interface IExpressiveSlider extends LitElement, FormAssociated {
     /** Slider orientation. Reflects to the `direction` attribute. */
     direction: ExpressiveSliderDirection
 
+    /**
+     * Whether the slider's value scale is reversed.
+     *
+     * - When `false` (default):
+     *   - `horizontal`: small to large, left-to-right (min at left, max at right).
+     *   - `vertical`: small to large, bottom-to-top (min at bottom, max at top).
+     * - When `true`:
+     *   - `horizontal`: large to small, left-to-right (max at left, min at right).
+     *   - `vertical`: large to small, bottom-to-top (max at bottom, min at top / min at top, max at bottom).
+     *
+     * Reflects to the `reversed` attribute.
+     */
+    reversed: boolean
+
     /** Size preset. Reflects to the `size` attribute. */
     size: ExpressiveSliderSize
 
