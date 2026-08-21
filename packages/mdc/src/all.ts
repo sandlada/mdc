@@ -1,3 +1,4 @@
+export * from './components/appbar/appbar'
 // export * from './components/button-group/connected-button-group'
 // export * from './components/button-group/standard-button-group'
 export * from './components/button/button'

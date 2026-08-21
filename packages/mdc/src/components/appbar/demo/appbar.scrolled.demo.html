@@ -1,0 +1,31 @@
+<div style="display: flex; flex-direction: column; gap: 24px; width: 100%;">
+    <!-- Flat / Resting State -->
+    <div>
+        <p style="margin: 0 0 8px 4px; font-size: 14px; color: var(--md-sys-color-outline, #79747e);">Flat (Resting state)</p>
+        <mdc-appbar variant="small" headline="Flat App Bar">
+            <mdc-icon-button slot="leading"><mdc-icon>arrow_back</mdc-icon></mdc-icon-button>
+            <mdc-icon-button slot="trailing"><mdc-icon>search</mdc-icon></mdc-icon-button>
+            <mdc-icon-button slot="trailing"><mdc-icon>more_vert</mdc-icon></mdc-icon-button>
+        </mdc-appbar>
+    </div>
+
+    <!-- On-Scroll State -->
+    <div>
+        <p style="margin: 0 0 8px 4px; font-size: 14px; color: var(--md-sys-color-outline, #79747e);">On Scroll (Scrolled state - Surface Container + Elevation)</p>
+        <mdc-appbar variant="small" headline="Scrolled App Bar" scrolled>
+            <mdc-icon-button slot="leading"><mdc-icon>arrow_back</mdc-icon></mdc-icon-button>
+            <mdc-icon-button slot="trailing"><mdc-icon>search</mdc-icon></mdc-icon-button>
+            <mdc-icon-button slot="trailing"><mdc-icon>more_vert</mdc-icon></mdc-icon-button>
+        </mdc-appbar>
+    </div>
+
+    <!-- Search On-Scroll State -->
+    <div>
+        <p style="margin: 0 0 8px 4px; font-size: 14px; color: var(--md-sys-color-outline, #79747e);">Search App Bar On Scroll (Higher container surface)</p>
+        <mdc-appbar variant="search" headline="Search product" scrolled>
+            <mdc-icon-button slot="leading"><mdc-icon>menu</mdc-icon></mdc-icon-button>
+            <mdc-icon-button slot="trailing"><mdc-icon>mic</mdc-icon></mdc-icon-button>
+            <mdc-icon-button slot="trailing"><mdc-icon>account_circle</mdc-icon></mdc-icon-button>
+        </mdc-appbar>
+    </div>
+</div>

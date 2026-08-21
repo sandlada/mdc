@@ -1,3 +1,4 @@
+export * from './component-definitions/appbar.definition'
 export * from './component-definitions/badge.definition'
 export * from './component-definitions/bottom-sheet.definition'
 export * from './component-definitions/button.definition'
