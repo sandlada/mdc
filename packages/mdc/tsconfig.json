@@ -42,7 +42,6 @@
     ],
     "exclude": [
         "./src/**/button-group/*",
-        "./src/**/card/*",
         "./src/**/*-old/*",
         "./src/**/draggable-modal/*",
         "./src/**/popup-controller/*",
