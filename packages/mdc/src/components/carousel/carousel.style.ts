@@ -30,10 +30,10 @@ export const CarouselStyles = css`
 
         /* Item sizes — widths are computed in base-carousel.ts; shapes come
            from CarouselDefinition. Both inherit to the slotted items. */
-        --_item-width-large: var(--mdc-carousel-large-item-width, var(--_carousel-computed-large, 186px));
-        --_item-width-medium: var(--mdc-carousel-medium-item-width, var(--_carousel-computed-medium, 121px));
-        --_item-width-small: var(--mdc-carousel-small-item-width, var(--_carousel-computed-small, 56px));
-        --_item-height: var(--mdc-carousel-item-height, auto);
+        --_item-width-large: var(--mdc-carousel-large-item-width, var(--_carousel-computed-large));
+        --_item-width-medium: var(--mdc-carousel-medium-item-width, var(--_carousel-computed-medium));
+        --_item-width-small: var(--mdc-carousel-small-item-width, var(--_carousel-computed-small));
+        --_item-height: var(--mdc-carousel-item-height);
 
         display: flex;
         box-sizing: border-box;

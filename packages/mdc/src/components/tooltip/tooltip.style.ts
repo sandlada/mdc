@@ -143,28 +143,28 @@ export const TooltipStyles = css`
             left: 50%;
             bottom: 100%;
             transform: translateX(-50%);
-            margin-bottom: var(--_container-margin, 4px);
+            margin-bottom: var(--_container-margin);
         }
 
         :host([position="bottom"]) {
             left: 50%;
             top: 100%;
             transform: translateX(-50%);
-            margin-top: var(--_container-margin, 4px);
+            margin-top: var(--_container-margin);
         }
 
         :host([position="left"]) {
             right: 100%;
             top: 50%;
             transform: translateY(-50%);
-            margin-right: var(--_container-margin, 4px);
+            margin-right: var(--_container-margin);
         }
 
         :host([position="right"]) {
             left: 100%;
             top: 50%;
             transform: translateY(-50%);
-            margin-left: var(--_container-margin, 4px);
+            margin-left: var(--_container-margin);
         }
     }
 

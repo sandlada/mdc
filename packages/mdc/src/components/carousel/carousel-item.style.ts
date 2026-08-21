@@ -20,22 +20,22 @@ export const CarouselItemStyles = css`
         box-sizing: border-box;
         overflow: hidden;
         flex: none;
-        height: var(--_item-height, auto);
+        height: var(--_item-height);
     }
 
     :host([size='large']) {
-        width: var(--_item-width-large, 186px);
-        border-radius: var(--_item-shape-large, 28px);
+        width: var(--_item-width-large);
+        border-radius: var(--_item-shape-large);
     }
 
     :host([size='medium']) {
-        width: var(--_item-width-medium, 121px);
-        border-radius: var(--_item-shape-medium, 20px);
+        width: var(--_item-width-medium);
+        border-radius: var(--_item-shape-medium);
     }
 
     :host([size='small']) {
-        width: var(--_item-width-small, 56px);
-        border-radius: var(--_item-shape-small, 12px);
+        width: var(--_item-width-small);
+        border-radius: var(--_item-shape-small);
     }
 
     /* Slotted content fills the cell. */

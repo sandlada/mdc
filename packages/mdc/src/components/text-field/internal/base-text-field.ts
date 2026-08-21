@@ -35,7 +35,7 @@ import {
     type ITextField,
     type TextFieldType,
 } from '../text-field.interface'
-import { baseTextFieldStyles } from './base-text-field.style'
+import { textFieldStyles } from '../text-field.style'
 
 /**
  * Abstract base for `mdc-text-field`.
@@ -65,7 +65,7 @@ export abstract class BaseTextField extends composeMixin(
     mixinFocusRingOptions,
 )(LitElement) implements ITextField {
 
-    public static override styles = [baseTextFieldStyles]
+    public static override styles = textFieldStyles
 
     public static override shadowRootOptions: ShadowRootInit = {
         mode: 'open',

@@ -95,9 +95,5 @@ export const NavigationBarStyles = css`
        along the Y axis. Horizontal edges collapse the host width; the inner
        container slides along the X axis. The base class sets inline
        height/width + transform during/after animation, so no static hidden
-       rules are needed here. The peek sliver size is exposed as a token for
-       JS fallback / theming. */
-    :host {
-        --_peek-size: var(--mdc-navigation-bar-peek-size, 24px);
-    }
+       rules are needed here. */
 `

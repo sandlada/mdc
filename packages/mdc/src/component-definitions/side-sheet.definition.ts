@@ -7,7 +7,7 @@
 // exports the class as `ElevationLevel` (no `Elevation` export). Using
 // `ElevationLevel.Level1` matches the project convention used by
 // dialog.definition.ts / search.definition.ts / tab.definition.ts.
-import { ElevationLevel, Shape } from '@sandlada/mdk'
+import { ElevationLevel, Shape, Typescale } from '@sandlada/mdk'
 import { Color } from '../utils/tokens/theme'
 import { createStyleDefinition } from '../utils/tokens/create-style-definition'
 
@@ -30,6 +30,9 @@ import { createStyleDefinition } from '../utils/tokens/create-style-definition'
  * reference.
  */
 const sharedStructural = {
+    // Container size
+    'enabled-container-width'                  : `400px`,
+
     // Container shape (default enabled: end edge corners 0 when docked, start edge corners ExtraLarge 28px)
     'enabled-container-shape-start-start'      : Shape.ExtraLarge,
     'enabled-container-shape-start-end'        : `0`,
@@ -52,6 +55,13 @@ const sharedStructural = {
     'headline-container-block-leading-padding-space'   : `24px`,
     'headline-container-block-trailing-padding-space'  : `12px`,
 
+    // Headline typography
+    'enabled-headline-font'                    : Typescale.TitleLarge.Font,
+    'enabled-headline-line-height'             : Typescale.TitleLarge.LineHeight,
+    'enabled-headline-size'                    : Typescale.TitleLarge.FontSize,
+    'enabled-headline-tracking'                : Typescale.TitleLarge.Tracking,
+    'enabled-headline-weight'                  : Typescale.TitleLarge.FontWeight,
+
     // Body content padding (24dp per spec)
     'content-container-inline-leading-padding-space'  : `24px`,
     'content-container-inline-trailing-padding-space' : `24px`,
@@ -70,9 +80,11 @@ const sharedStructural = {
     'enabled-container-color-modal'            : Color.Scrim,
     'enabled-container-opacity-modal'          : `0.32`,
 
-    // Icon sizes
+    // Icon sizes and state layers
     'close-icon-size'                          : `24px`,
     'headline-icon-size'                       : `24px`,
+    'hovered-icon-container-color'             : `rgba(0, 0, 0, 0.08)`,
+    'pressed-icon-container-color'             : `rgba(0, 0, 0, 0.12)`,
 } as const
 
 /**

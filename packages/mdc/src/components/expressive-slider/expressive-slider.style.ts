@@ -442,8 +442,8 @@ export const ExpressiveSliderStyles = [
         .tickmarks::before {
             background-image: radial-gradient(
                 circle at var(--_with-tick-marks-container-size) center,
-                var(--_enabled-with-tick-marks-inactive-container-color, currentColor) 0,
-                var(--_enabled-with-tick-marks-inactive-container-color, currentColor) calc(var(--_with-tick-marks-container-size) / 2),
+                var(--_enabled-with-tick-marks-inactive-container-color) 0,
+                var(--_enabled-with-tick-marks-inactive-container-color) calc(var(--_with-tick-marks-container-size) / 2),
                 transparent calc(var(--_with-tick-marks-container-size) / 2)
             );
         }
@@ -453,8 +453,8 @@ export const ExpressiveSliderStyles = [
         .tickmarks::after {
             background-image: radial-gradient(
                 circle at var(--_with-tick-marks-container-size) center,
-                var(--_enabled-with-tick-marks-active-container-color, currentColor) 0,
-                var(--_enabled-with-tick-marks-active-container-color, currentColor) calc(var(--_with-tick-marks-container-size) / 2),
+                var(--_enabled-with-tick-marks-active-container-color) 0,
+                var(--_enabled-with-tick-marks-active-container-color) calc(var(--_with-tick-marks-container-size) / 2),
                 transparent calc(var(--_with-tick-marks-container-size) / 2)
             );
             clip-path: inset(0 var(--_active-track-end-clip) 0 var(--_active-track-start-clip));

@@ -10,7 +10,7 @@ import { styleMap } from 'lit/directives/style-map.js'
 import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
 import { mixinElevationOptions } from '../../elevation/elevation-options.mixin'
-import { baseSideSheetStyles } from './base-side-sheet.style'
+import { sideSheetStyles } from '../side-sheet.style'
 import {
     SideSheetDragController,
     type ISideSheetDragHost,
@@ -59,7 +59,7 @@ export abstract class BaseSideSheet extends composeMixin(
     mixinElevationOptions,
 )(LitElement) implements ISideSheet, ISideSheetDragHost {
 
-    public static override styles = [baseSideSheetStyles]
+    public static override styles = sideSheetStyles
 
     @property({ type: String })
     public variant: SideSheetVariant = 'standard'

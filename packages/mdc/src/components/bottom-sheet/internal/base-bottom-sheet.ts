@@ -7,10 +7,10 @@ import { html, LitElement, nothing, type PropertyValues, type TemplateResult } f
 import { property, query, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import { styleMap } from 'lit/directives/style-map.js'
-import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
+import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import { mixinElevationOptions } from '../../elevation/elevation-options.mixin'
-import { baseBottomSheetStyles } from './base-bottom-sheet.style'
+import { bottomSheetStyles } from '../bottom-sheet.style'
 import {
     BottomSheetDragController,
     type IBottomSheetDragHost,
@@ -58,7 +58,7 @@ export abstract class BaseBottomSheet extends composeMixin(
     mixinElevationOptions,
 )(LitElement) implements IBottomSheet, IBottomSheetDragHost {
 
-    public static override styles = [baseBottomSheetStyles]
+    public static override styles = bottomSheetStyles
 
     @property({ type: String })
     public variant: BottomSheetVariant = 'modal'

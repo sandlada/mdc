@@ -5,7 +5,6 @@
  */
 import { customElement } from 'lit/decorators.js'
 import { BaseField } from './internal/base-field'
-import { baseFieldStyles } from './internal/base-field.style'
 import { fieldStyles } from './field.style'
 
 declare global {
@@ -107,5 +106,5 @@ declare global {
  */
 @customElement('mdc-field')
 export class MDCField extends BaseField {
-    public static override styles = [baseFieldStyles, ...fieldStyles]
+    public static override styles = fieldStyles
 }

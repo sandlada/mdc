@@ -10,7 +10,7 @@ import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import { mixinElementInternals } from '../../../utils/behaviors/element-internals'
 import { mixinFocusRingOptions } from '../../focus-ring/focus-ring-options.mixin'
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
-import { baseFieldStyles } from './base-field.style'
+import { fieldStyles } from '../field.style'
 import {
     type FieldVariant,
     type FloatingLabelBehavior,
@@ -45,7 +45,7 @@ export abstract class BaseField extends composeMixin(
     mixinFocusRingOptions
 )(LitElement) implements IField {
 
-    public static override styles = [baseFieldStyles]
+    public static override styles = fieldStyles
 
     @property({ type: String, reflect: true })
     public variant: FieldVariant = 'filled'
