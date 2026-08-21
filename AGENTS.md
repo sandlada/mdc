@@ -47,8 +47,8 @@
 
 1. **`xxx.interface.ts`** — 元件契約（屬性、型別約束、`extends` 介面），**始終最先讀**
 2. **`xxx.ts`** — 元件入口（`@customElement` 註冊、form-associated 宣告）
-3. **`internal/base-xxx.ts`**（**注意命名順序**）— 內部基礎類別（mixins、樣式、複雜邏輯），僅當元件有 `internal/` 資料夾時
-4. **`xxx.style.ts`** — 元件樣式
+3. **`internal/base-xxx.ts`**（**注意命名順序**）— 內部基礎類別（mixins、狀態、複雜邏輯，樣式不在此處），僅當元件有 `internal/` 資料夾時
+4. **`xxx.style.ts`** — 元件樣式（所有樣式統一集中於此）
 
 對於簡單元件（無 `internal/`），`xxx.ts` 包含全部實作，第 3 步跳過。
 
@@ -164,7 +164,12 @@ export abstract class BaseButton extends composeMixin(
 - `mixinFormAssociated` 必須在 `mixinElementInternals` 之後使用
 - `mixinConstraintValidation` 必須在 `mixinFormAssociated` 之後使用
 
-### 2. 檔案結構約定
+### 2. 檔案結構與「樣式不抽象」原則
+
+**核心架構原則：`base-*.ts` 用於抽象 TypeScript / Lit 邏輯（mixins、生命週期、事件、狀態），而樣式不需要抽象。**
+- **禁止建立 `base-*.style.ts`**，嚴禁將樣式拆分為 base 與 concrete 兩層樣式檔案。
+- 所有樣式（包含 base layer、variant layer、動畫等）統一集中在元件頂層的 `{name}.style.ts` 中。
+- `internal/` 目錄僅用於存放被封裝的內部邏輯基類（`base-{name}.ts`）或內部輔助 controller，不得存放抽象樣式。
 
 每個元件資料夾依複雜度按以下模式組織：
 
@@ -173,7 +178,7 @@ export abstract class BaseButton extends composeMixin(
 ```
 src/components/{name}/
 ├── {name}.ts                       # 公開元件類別，@customElement 註冊
-├── {name}.style.ts                 # 元件樣式（可選）
+├── {name}.style.ts                 # 元件全部樣式（base + variant + tokens 統一集中於此）
 ├── {name}.interface.ts             # 元件介面（可選）
 ├── {name}-options.mixin.ts         # 選項混入（可選，僅當作為其它元件子元素時）
 ├── {name}-action.ts / sibling.ts   # 相關公開類別（可選）
@@ -181,8 +186,7 @@ src/components/{name}/
 ├── demo/*.demo.html                # 使用範例
 ├── README.md                       # 元件說明（可選）
 └── internal/
-    ├── base-{name}.ts              # 內部基礎類別（**注意：`base` 在前**）
-    └── {name}.style.ts             # 基類樣式（可選）
+    └── base-{name}.ts              # 內部基礎類別（**注意：`base` 在前**，純邏輯抽象，不含樣式檔）
 ```
 
 **中等複雜（具頂層 `base-*.ts`）**：
@@ -190,8 +194,8 @@ src/components/{name}/
 ```
 src/components/{name}/
 ├── {name}.ts
-├── base-{name}.ts                  # 基礎類別在頂層而非 internal/
-├── {name}.style.ts
+├── base-{name}.ts                  # 基礎類別在頂層而非 internal/（純邏輯抽象）
+├── {name}.style.ts                 # 全部樣式集中於此
 └── {name}.interface.ts             # 視需要
 ```
 
@@ -302,7 +306,17 @@ public shape: 'round' | 'square' = 'round'
 
 > 並非所有元件都需實作全部三個軸向。對於不適用的元件，可以選擇性省略。
 
-### 6. Copyright 標頭
+### 6. CSS 禁止手動編寫 fallback 數值
+
+元件的 Token 映射與回退鏈由 `ComponentDefinition` + `defineTokenRefsRecord` + `defineVars` 自動在 `:host` 注入處理。
+
+**核心規則：**
+- **直接使用 `var(--_*)`**：元件內部 CSS 規則應直接消費注入在 `:host` 的 `--_*` 變數（例如 `var(--_enabled-container-color)`），**嚴禁**手動編寫硬編碼的第二參數 fallback（例如 ❌ `var(--_enabled-container-color, #f4fbf1)` 或 ❌ `var(--_container-margin, 4px)`）。
+- **單一事實來源（SSOT）**：所有預設值、系統色、回退值一律在 `src/component-definitions/{name}.definition.ts` 中透過 `createStyleDefinition()` 定義。在 CSS 中手寫 fallback 會破壞單一事實來源，導致 token 變更時數值分歧與維護漂移。
+- **自動化回退鏈機制**：`defineTokenRefsRecord` 搭配 `defineVars(tokenRecord, true)` 已自動為 `:host` 注入多層 fallback（例如 `--_enabled-container-color: var(--mdc-{name}-enabled-container-color, var(--md-sys-color-surface, ...));`）。在 CSS 選擇器內部重複書寫 fallback 是完全多餘的代碼膨脹。
+- **動態/可選變數例外**：僅當該 CSS 變數是由組件 TypeScript 邏輯（如 `styleMap`）或 consumer inline style 動態計算設置、且**未在 component definition 中定義**時（如 `--_carousel-computed-large`、`--_active-track-start-clip` 等），才允許在 CSS 中提供 inline fallback。
+
+### 7. Copyright 標頭
 
 每個原始檔案必須以下列標頭開頭：
 
@@ -508,6 +522,34 @@ linear-rotate }`），linear 容器會被整支旋轉成極端 AABB（576×4 旋
 （本 session 已踩過兩次）。反引號只能用於 `css` / `unsafeCSS` 的插值。
 
 **規則**：Lit `css` 模板的註解內禁用反引號，改用單引號或改寫措辭。
+
+### 4. Slider 方向與取值方向約定（Vertical / Horizontal 與 reversed）
+
+Slider 元件（如 `expressive-slider`）在處理水平與垂直方向時，取值與激活軌道必須嚴格遵守以下方向約定：
+
+**取值方向矩陣**：
+
+| `direction` | `reversed` | 取值方向 (從小到大) | 起點 (Min 0) | 終點 (Max 100) | 激活軌道（Active Track） | 適用場景 |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| `horizontal` | `false`（預設） | 從左到右 | 左側（Left） | 右側（Right） | 左側（從左側延伸至 Handle） | 標準水平控制項 |
+| `horizontal` | `true` | 從右到左 | 右側（Right） | 左側（Left） | 右側（從右側延伸至 Handle） | RTL 或逆向進度 |
+| `vertical` | `false`（預設） | **從下到上** | **底部（Bottom）** | **頂部（Top）** | **底部（從底部延伸至 Handle）** | 音量推子、混音器 (Fader)、高度/溫度計 |
+| `vertical` | `true` | **從上到下** | **頂部（Top）** | **底部（Bottom）** | **頂部（從頂部延伸至 Handle）** | 捲動條、頁面位置、列表位置 |
+
+**核心實作教訓與規則**：
+
+1. **`isVisualReversed` 映射公式**：
+   在 CSS `writing-mode: vertical-lr` 下，邏輯座標起點 `inline-start` 為物理**頂部（Top）**。
+   因為垂直預設模式（`reversed = false`）數值 0 在**底部（Bottom）**，所以渲染計算時必須將垂直預設視為視覺倒序：
+   ```typescript
+   const isVisualReversed =
+       this.direction === Direction.Vertical ? !this.reversed : this.reversed
+   ```
+2. **原生 `<input type="range">` 聯動**：
+   當 `isVisualReversed = true` 時，原生 input 必須設置 `dir="rtl"` 且 CSS 設置 `direction: rtl`，以確保指針拖曳、鍵盤方向鍵（Up 增加、Down 減少）與視覺呈現完全同步。
+3. **雙滑塊模式（`type="range"`）與刻度裁剪**：
+   - 雙滑塊的 clip-path 與中間軌道（`track-middle`）必須以視覺 fraction（`minVisualFraction` / `maxVisualFraction`）為依據進行定位與命中區域分割。
+   - 垂直刻度點（Tick marks）必須使用 `background-repeat: repeat-y` 並配合 `clip-path: inset(start 0 end 0)` 進行主軸裁剪。
 
 ---
 
