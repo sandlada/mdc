@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>On This Page — MDC Docs</title>
+    <script type="module" src="/shared/base-imports.ts"></script>
+    <script type="module" src="/shared/theme.ts"></script>
+    <script type="module" src="/shared/docs-page.ts"></script>
+    <script type="module">
+        import '@sandlada/mdc/components/on-this-page/on-this-page'
+        import '@sandlada/mdc/components/on-this-page/on-this-page-item'
+        import '@sandlada/mdc/components/ripple/ripple'
+        import '@sandlada/mdc/components/focus-ring/focus-ring'
+    </script>
+    <link rel="stylesheet" href="https://esm.sh/material-symbols@latest" />
+    <link rel="stylesheet" href="/shared/styles.css" />
+    <style>
+        .interactive-showcase-container {
+            display: grid;
+            grid-template-columns: 1fr 240px;
+            gap: 32px;
+            position: relative;
+            background: var(--md-sys-color-surface-container-low);
+            border: 1px solid var(--md-sys-color-outline-variant);
+            border-radius: 16px;
+            padding: 24px;
+            margin-top: 24px;
+        }
+
+        .scrollable-content {
+            height: 480px;
+            overflow-y: auto;
+            padding-right: 16px;
+            scroll-behavior: smooth;
+        }
+
+        .scrollable-content section {
+            padding: 20px;
+            margin-bottom: 24px;
+            background: var(--md-sys-color-surface);
+            border: 1px solid var(--md-sys-color-outline-variant);
+            border-radius: 12px;
+        }
+
+        .scrollable-content h3 {
+            margin-top: 0;
+            margin-bottom: 12px;
+            color: var(--md-sys-color-on-surface);
+            font-size: 20px;
+        }
+
+        .scrollable-content p {
+            color: var(--md-sys-color-on-surface-variant);
+            line-height: 1.6;
+        }
+
+        .sticky-aside {
+            position: sticky;
+            top: 0;
+            align-self: start;
+            padding: 16px;
+            background: var(--md-sys-color-surface);
+            border: 1px solid var(--md-sys-color-outline-variant);
+            border-radius: 16px;
+        }
+    </style>
+</head>
+<body>
+    <mdc-docs-page
+        component="on-this-page"
+        title="On This Page"
+        subtitle="In-page table of contents and anchor navigation. Automatically tracks viewport scroll position and animates a pill outline indicator around the active section."
+        demo-files="on-this-page.basic.demo.html,on-this-page.indicator-fit.demo.html,on-this-page.headline.demo.html,on-this-page.caption.demo.html,on-this-page.level.demo.html"
+    >
+        <section>
+            <h2>Interactive Live Scroll-Spy Preview</h2>
+            <p style="color: var(--md-sys-color-on-surface-variant); margin-bottom: 16px;">
+                Scroll the content box below or click any item in the table of contents to see the active border indicator smoothly adjust position and width in real-time.
+            </p>
+            <div class="interactive-showcase-container">
+                <div id="demo-scroll-area" class="scrollable-content">
+                    <section id="variants">
+                        <h3>Variants</h3>
+                        <p>Navigation rails come in primary and modal variants, accommodating both standard wide views and compact floating overlays.</p>
+                        <p>When expanded, labels and destinations are displayed side-by-side or stacked vertically according to the breakpoint.</p>
+                    </section>
+                    <section id="configurations">
+                        <h3>Configurations</h3>
+                        <p>Customize rail destinations, top app bar actions, floating action buttons (FAB), and footer items.</p>
+                        <p>Destinations can include badges, tooltips, and ripple interaction feedback.</p>
+                    </section>
+                    <section id="tokens-specs">
+                        <h3>Tokens & specs</h3>
+                        <p>Design token mappings conforming to Material 3 Expressive standards, including container color, elevation, shape, and state layers.</p>
+                    </section>
+                    <section id="anatomy">
+                        <h3>Anatomy</h3>
+                        <p>Composed of a container, active indicator, destination icons, destination labels, and optional badges or floating action buttons.</p>
+                    </section>
+                    <section id="color">
+                        <h3>Color</h3>
+                        <p>Adapts to light and dark color schemes using sys.color roles such as surface, surfaceContainer, onSurface, and primary.</p>
+                    </section>
+                    <section id="states">
+                        <h3>States</h3>
+                        <p>Destinations reflect interactive states: enabled, hovered, focused, pressed, and selected with smooth transitions.</p>
+                    </section>
+                    <section id="measurements">
+                        <h3>Measurements</h3>
+                        <p>Collapsed width defaults to 96dp; expanded width defaults to 220dp, providing ample room for descriptive labels.</p>
+                    </section>
+                    <section id="common-layouts">
+                        <h3>Common layouts</h3>
+                        <p>Side-by-side layout alongside main content pane, split panes, and responsive adaptive grids for tablets and desktops.</p>
+                    </section>
+                    <section id="baseline-navigation-rail">
+                        <h3>Baseline navigation rail</h3>
+                        <p>Standard baseline implementation providing accessible keyboard navigation, roving tabindex, and ARIA roles.</p>
+                    </section>
+                </div>
+
+                <div class="sticky-aside">
+                    <mdc-on-this-page
+                        caption="On this page"
+                        headline="Navigation rail"
+                        scroll-target="#demo-scroll-area"
+                        scroll-offset="20"
+                        indicator-fit="content"
+                    >
+                        <mdc-on-this-page-item href="#variants" active>Variants</mdc-on-this-page-item>
+                        <mdc-on-this-page-item href="#configurations">Configurations</mdc-on-this-page-item>
+                        <mdc-on-this-page-item href="#tokens-specs">Tokens & specs</mdc-on-this-page-item>
+                        <mdc-on-this-page-item href="#anatomy">Anatomy</mdc-on-this-page-item>
+                        <mdc-on-this-page-item href="#color">Color</mdc-on-this-page-item>
+                        <mdc-on-this-page-item href="#states">States</mdc-on-this-page-item>
+                        <mdc-on-this-page-item href="#measurements">Measurements</mdc-on-this-page-item>
+                        <mdc-on-this-page-item href="#common-layouts">Common layouts</mdc-on-this-page-item>
+                        <mdc-on-this-page-item href="#baseline-navigation-rail">Baseline navigation rail</mdc-on-this-page-item>
+                    </mdc-on-this-page>
+                </div>
+            </div>
+        </section>
+    </mdc-docs-page>
+</body>
+</html>
