@@ -11,12 +11,7 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url))
  * they match the relative paths returned by Node's fs APIs.
  */
 const WIP_DIRS = [
-    'dialog',
     'button-group',
-    'card',
-    'draggable-modal',
-    'popup-controller',
-    'progress-indicator',
     'wave',
     'toolbar',
 ]
