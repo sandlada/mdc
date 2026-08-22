@@ -42,21 +42,21 @@ import { Color } from '../utils/tokens/theme'
 import { createStyleDefinition } from '../utils/tokens/create-style-definition'
 
 interface IScheme {
-    'icon-container-shape'                  : string
-    'indicator-shape'                       : string
-    'icon-size'                             : string
-    'unselected-icon-color'                 : string
-    'selected-icon-color'                   : string
-    'icon-container-height'                 : string
-    'icon-container-width'                  : string
-    'icon-container-block-leading-space'    : string
-    'icon-container-block-trailing-space'   : string
-    'icon-container-inline-leading-space'   : string
-    'icon-container-inline-trailing-space'  : string
-    'unselected-indicator-color'            : string
-    'selected-indicator-color'              : string
-    'indicator-height'                      : string
-    'indicator-width'                       : string
+    'icon-container-shape'                  : any
+    'indicator-shape'                       : any
+    'icon-size'                             : any
+    'unselected-icon-color'                 : any
+    'selected-icon-color'                   : any
+    'icon-container-height'                 : any
+    'icon-container-width'                  : any
+    'icon-container-block-leading-space'    : any
+    'icon-container-block-trailing-space'   : any
+    'icon-container-inline-leading-space'   : any
+    'icon-container-inline-trailing-space'  : any
+    'unselected-indicator-color'            : any
+    'selected-indicator-color'              : any
+    'indicator-height'                      : any
+    'indicator-width'                       : any
     'unselected-label-color'                : any
     'selected-label-color'                  : any
     'label-size'                            : any
@@ -64,35 +64,35 @@ interface IScheme {
     'label-font'                            : any
     'label-tracking'                        : any
     'label-font-weight'                     : any
-    'badge-color'                           : string
-    'badge-height'                          : string
-    'badge-width'                           : string
+    'badge-color'                           : any
+    'badge-height'                          : any
+    'badge-width'                           : any
     'badge-label-color'                     : any
     'badge-label-size'                      : any
     'badge-label-line-height'               : any
     'badge-label-font'                      : any
     'badge-label-tracking'                  : any
     'badge-label-font-weight'               : any
-    'unselected-enabled-state-layer-color'  : string
-    'unselected-hovered-state-layer-color'  : string
-    'unselected-focused-state-layer-color'  : string
-    'unselected-pressed-state-layer-color'  : string
-    'selected-enabled-state-layer-color'    : string
-    'selected-hovered-state-layer-color'    : string
-    'selected-focused-state-layer-color'    : string
-    'selected-pressed-state-layer-color'    : string
-    'unselected-enabled-state-layer-opacity': string
-    'unselected-hovered-state-layer-opacity': string
-    'unselected-focused-state-layer-opacity': string
-    'unselected-pressed-state-layer-opacity': string
-    'selected-enabled-state-layer-opacity'  : string
-    'selected-hovered-state-layer-opacity'  : string
-    'selected-focused-state-layer-opacity'  : string
-    'selected-pressed-state-layer-opacity'  : string
-    'container-height'                      : string
-    'container-width'                       : string
-    'container-block-leading-space'         : string
-    'container-block-trailing-space'        : string
+    'unselected-enabled-state-layer-color'  : any
+    'unselected-hovered-state-layer-color'  : any
+    'unselected-focused-state-layer-color'  : any
+    'unselected-pressed-state-layer-color'  : any
+    'selected-enabled-state-layer-color'    : any
+    'selected-hovered-state-layer-color'    : any
+    'selected-focused-state-layer-color'    : any
+    'selected-pressed-state-layer-color'    : any
+    'unselected-enabled-state-layer-opacity': any
+    'unselected-hovered-state-layer-opacity': any
+    'unselected-focused-state-layer-opacity': any
+    'unselected-pressed-state-layer-opacity': any
+    'selected-enabled-state-layer-opacity'  : any
+    'selected-hovered-state-layer-opacity'  : any
+    'selected-focused-state-layer-opacity'  : any
+    'selected-pressed-state-layer-opacity'  : any
+    'container-height'                      : any
+    'container-width'                       : any
+    'container-block-leading-space'         : any
+    'container-block-trailing-space'        : any
     'container-inline-leading-space'        : string
     'container-inline-trailing-space'       : string
     'spacing-between-icon-and-label'        : any
@@ -294,3 +294,65 @@ export const NavigationRailXRRoundTabDefinition = createStyleDefinition<Partial<
     'icon-container-width': '56px',
     'spacing-between-icon-and-label': `0px`,
 })
+
+export const NavigationDrawerTabDefinition = createStyleDefinition<Partial<IScheme>>({
+    ...DefaultScheme,
+    'container-height': `56px`,
+    'container-width': `336px`,
+    'container-block-leading-space': `0px`,
+    'container-block-trailing-space': `0px`,
+    'container-inline-leading-space': `0px`,
+    'container-inline-trailing-space': `0px`,
+
+    'icon-size': `24px`,
+    'icon-container-height': '24px',
+    'icon-container-width': '24px',
+    'icon-container-block-leading-space': `0px`,
+    'icon-container-block-trailing-space': `0px`,
+    'icon-container-inline-leading-space': `16px`,
+    'icon-container-inline-trailing-space': `16px`,
+
+    'indicator-height': `56px`,
+    'indicator-width': `336px`,
+    'indicator-shape': Shape.Full,
+    'icon-container-shape': Shape.Full,
+    'spacing-between-icon-and-label': `12px`,
+
+    'label-font': Typescale.LabelLarge.Font,
+    'label-size': Typescale.LabelLarge.FontSize,
+    'label-line-height': Typescale.LabelLarge.LineHeight,
+    'label-tracking': Typescale.LabelLarge.Tracking,
+    'label-font-weight': Typescale.LabelLarge.FontWeight,
+
+    'badge-label-font': Typescale.LabelLarge.Font,
+    'badge-label-size': Typescale.LabelLarge.FontSize,
+    'badge-label-line-height': Typescale.LabelLarge.LineHeight,
+    'badge-label-tracking': Typescale.LabelLarge.Tracking,
+    'badge-label-font-weight': Typescale.LabelLarge.FontWeight,
+
+    'unselected-icon-color': Color.OnSurfaceVariant,
+    'selected-icon-color': Color.OnSecondaryContainer,
+    'unselected-label-color': Color.OnSurfaceVariant,
+    'selected-label-color': Color.OnSecondaryContainer,
+    'selected-indicator-color': Color.SecondaryContainer,
+    'unselected-indicator-color': 'transparent',
+
+    'unselected-enabled-state-layer-color': Color.OnSurface,
+    'unselected-hovered-state-layer-color': Color.OnSurface,
+    'unselected-focused-state-layer-color': Color.OnSurface,
+    'unselected-pressed-state-layer-color': Color.OnSurface,
+    'selected-enabled-state-layer-color': Color.OnSecondaryContainer,
+    'selected-hovered-state-layer-color': Color.OnSecondaryContainer,
+    'selected-focused-state-layer-color': Color.OnSecondaryContainer,
+    'selected-pressed-state-layer-color': Color.OnSecondaryContainer,
+
+    'unselected-enabled-state-layer-opacity': `0`,
+    'unselected-hovered-state-layer-opacity': State.HoveredStateLayerOpacity,
+    'unselected-focused-state-layer-opacity': State.FocusedStateLayerOpacity,
+    'unselected-pressed-state-layer-opacity': State.PressedStateLayerOpacity,
+    'selected-enabled-state-layer-opacity': `0`,
+    'selected-hovered-state-layer-opacity': State.HoveredStateLayerOpacity,
+    'selected-focused-state-layer-opacity': State.FocusedStateLayerOpacity,
+    'selected-pressed-state-layer-opacity': State.PressedStateLayerOpacity,
+})
+

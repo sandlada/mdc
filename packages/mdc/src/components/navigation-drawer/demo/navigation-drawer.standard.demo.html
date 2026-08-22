@@ -1,0 +1,33 @@
+<!-- Standard Navigation Drawer Layout with Toggle Button -->
+<div style="display: flex; height: 400px; border: 1px solid var(--md-sys-color-outline-variant, #c4c7c5); border-radius: 16px; overflow: hidden; position: relative;">
+    <mdc-navigation-drawer id="standard-drawer-demo" variant="standard" open headline="App Navigation" navigation-scope="standard-page-scope">
+        <mdc-navigation-tab name="std-page-tabs" value="/home" checked label="Home">
+            <mdc-icon slot="inactive-icon">home</mdc-icon>
+            <mdc-icon slot="active-icon" filled>home</mdc-icon>
+        </mdc-navigation-tab>
+        <mdc-navigation-tab name="std-page-tabs" value="/explore" label="Explore">
+            <mdc-icon slot="inactive-icon">explore</mdc-icon>
+            <mdc-icon slot="active-icon" filled>explore</mdc-icon>
+        </mdc-navigation-tab>
+        <mdc-navigation-tab name="std-page-tabs" value="/library" label="Library">
+            <mdc-icon slot="inactive-icon">video_library</mdc-icon>
+            <mdc-icon slot="active-icon" filled>video_library</mdc-icon>
+        </mdc-navigation-tab>
+        <mdc-navigation-tab name="std-page-tabs" value="/settings" label="Settings">
+            <mdc-icon slot="inactive-icon">settings</mdc-icon>
+            <mdc-icon slot="active-icon" filled>settings</mdc-icon>
+        </mdc-navigation-tab>
+    </mdc-navigation-drawer>
+
+    <div style="flex: 1; padding: 24px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; background: var(--md-sys-color-surface, #fff);">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <mdc-icon-button onclick="this.getRootNode().querySelector('#standard-drawer-demo').toggle()">
+                <mdc-icon>menu</mdc-icon>
+            </mdc-icon-button>
+            <h2 style="margin: 0; font-size: 20px; font-weight: 500;">Standard In-Flow Drawer Layout</h2>
+        </div>
+        <p style="margin: 0; color: var(--md-sys-color-on-surface-variant, #444746); font-size: 14px; line-height: 20px;">
+            Standard navigation drawers are co-planar with the main content and share screen real estate without a scrim. Click the hamburger icon above to toggle the drawer open or closed with smooth width transitions.
+        </p>
+    </div>
+</div>

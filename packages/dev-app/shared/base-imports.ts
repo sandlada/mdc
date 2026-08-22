@@ -12,5 +12,6 @@ import '@sandlada/mdc/components/divider/divider'
 import '@sandlada/mdc/components/ripple/ripple'
 import '@sandlada/mdc/components/focus-ring/focus-ring'
 import '@sandlada/mdc/components/elevation/elevation'
+import '@sandlada/mdc/components/typography/typography'
 
 export {}

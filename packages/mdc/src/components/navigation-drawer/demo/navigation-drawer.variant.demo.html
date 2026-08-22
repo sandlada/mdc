@@ -1,0 +1,88 @@
+<!-- Modal Navigation Drawer -->
+<mdc-button variant="filled" onclick="this.getRootNode().querySelector('#variant-modal-drawer').show()"><span>Open Modal Drawer</span></mdc-button>
+<mdc-navigation-drawer id="variant-modal-drawer" variant="modal" headline="Mail" navigation-scope="modal-variant-demo">
+    <mdc-navigation-tab name="modal-var-tabs" value="/inbox" checked label="Inbox" badge="24">
+        <mdc-icon slot="inactive-icon">inbox</mdc-icon>
+        <mdc-icon slot="active-icon" filled>inbox</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="modal-var-tabs" value="/outbox" label="Outbox">
+        <mdc-icon slot="inactive-icon">send</mdc-icon>
+        <mdc-icon slot="active-icon" filled>send</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="modal-var-tabs" value="/favorites" label="Favorites">
+        <mdc-icon slot="inactive-icon">favorite</mdc-icon>
+        <mdc-icon slot="active-icon" filled>favorite</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="modal-var-tabs" value="/trash" label="Trash">
+        <mdc-icon slot="inactive-icon">delete</mdc-icon>
+        <mdc-icon slot="active-icon" filled>delete</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-divider></mdc-divider>
+    <mdc-typography variant="title-small" class="section-title">Labels</mdc-typography>
+    <mdc-navigation-tab name="modal-var-tabs" value="/label-1" label="Label">
+        <mdc-icon slot="inactive-icon">circle</mdc-icon>
+        <mdc-icon slot="active-icon" filled>circle</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="modal-var-tabs" value="/label-2" label="Label">
+        <mdc-icon slot="inactive-icon">change_history</mdc-icon>
+        <mdc-icon slot="active-icon" filled>change_history</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="modal-var-tabs" value="/label-3" label="Label">
+        <mdc-icon slot="inactive-icon">square</mdc-icon>
+        <mdc-icon slot="active-icon" filled>square</mdc-icon>
+    </mdc-navigation-tab>
+</mdc-navigation-drawer>
+
+<!-- Standard Navigation Drawer (in-flow) -->
+<mdc-navigation-drawer variant="standard" open headline="Mail" navigation-scope="standard-demo">
+    <mdc-navigation-tab name="standard-tabs" value="/inbox" checked label="Inbox" badge="24">
+        <mdc-icon slot="inactive-icon">inbox</mdc-icon>
+        <mdc-icon slot="active-icon" filled>inbox</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="standard-tabs" value="/outbox" label="Outbox">
+        <mdc-icon slot="inactive-icon">send</mdc-icon>
+        <mdc-icon slot="active-icon" filled>send</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="standard-tabs" value="/favorites" label="Favorites">
+        <mdc-icon slot="inactive-icon">favorite</mdc-icon>
+        <mdc-icon slot="active-icon" filled>favorite</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="standard-tabs" value="/trash" label="Trash">
+        <mdc-icon slot="inactive-icon">delete</mdc-icon>
+        <mdc-icon slot="active-icon" filled>delete</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-divider></mdc-divider>
+    <mdc-typography variant="title-small" class="section-title">Labels</mdc-typography>
+    <mdc-navigation-tab name="standard-tabs" value="/label-1" label="Label">
+        <mdc-icon slot="inactive-icon">circle</mdc-icon>
+        <mdc-icon slot="active-icon" filled>circle</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="standard-tabs" value="/label-2" label="Label">
+        <mdc-icon slot="inactive-icon">change_history</mdc-icon>
+        <mdc-icon slot="active-icon" filled>change_history</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="standard-tabs" value="/label-3" label="Label">
+        <mdc-icon slot="inactive-icon">square</mdc-icon>
+        <mdc-icon slot="active-icon" filled>square</mdc-icon>
+    </mdc-navigation-tab>
+</mdc-navigation-drawer>
+
+<!-- Permanent Navigation Drawer (persistent side panel) -->
+<mdc-navigation-drawer variant="permanent" headline="Mail" navigation-scope="permanent-demo">
+    <mdc-navigation-tab name="permanent-tabs" value="/inbox" checked label="Inbox" badge="24">
+        <mdc-icon slot="inactive-icon">inbox</mdc-icon>
+        <mdc-icon slot="active-icon" filled>inbox</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="permanent-tabs" value="/outbox" label="Outbox">
+        <mdc-icon slot="inactive-icon">send</mdc-icon>
+        <mdc-icon slot="active-icon" filled>send</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="permanent-tabs" value="/favorites" label="Favorites">
+        <mdc-icon slot="inactive-icon">favorite</mdc-icon>
+        <mdc-icon slot="active-icon" filled>favorite</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="permanent-tabs" value="/trash" label="Trash">
+        <mdc-icon slot="inactive-icon">delete</mdc-icon>
+        <mdc-icon slot="active-icon" filled>delete</mdc-icon>
+    </mdc-navigation-tab>
+</mdc-navigation-drawer>

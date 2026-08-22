@@ -51,7 +51,8 @@ export abstract class BaseNavigationContainer extends LitElement {
         })
     }
 
-    protected override firstUpdated(): void {
+    protected override firstUpdated(_changedProperties?: PropertyValues): void {
+        super.firstUpdated(_changedProperties as PropertyValues)
         this.syncTabsScope()
     }
 

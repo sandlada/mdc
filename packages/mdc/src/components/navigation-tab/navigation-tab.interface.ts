@@ -9,6 +9,8 @@ export type NavigationTabVariant
     | 'rail-round'
     | 'rail-xr-vertical'
     | 'rail-xr-round'
+    | 'drawer'
+    | 'drawer-horizontal'
 export const NavigationTabVariant = {
     BarVertical: 'bar-vertical',
     BarHorizontal: 'bar-horizontal',
@@ -18,11 +20,15 @@ export const NavigationTabVariant = {
     RailRound: 'rail-round',
     RailXRVertical: 'rail-xr-vertical',
     RailXRRound: 'rail-xr-round',
+    Drawer: 'drawer',
+    DrawerHorizontal: 'drawer-horizontal',
 } as const satisfies Record<string, NavigationTabVariant>
 
 export interface INavigationTab extends LitElement {
     name           : string
     value          : string
+    label          : string
+    badge          : string
     href           : string | null
     navigationScope: string
     checked        : boolean

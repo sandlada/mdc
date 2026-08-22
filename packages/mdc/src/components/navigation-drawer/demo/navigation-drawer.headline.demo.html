@@ -1,0 +1,24 @@
+<!-- Navigation Drawer with Headline -->
+<mdc-navigation-drawer variant="standard" open headline="Mailbox" navigation-scope="headline-demo-1">
+    <mdc-navigation-tab name="headline-tabs-1" value="/all-mail" checked label="All Mail">
+        <mdc-icon slot="inactive-icon">mail</mdc-icon>
+        <mdc-icon slot="active-icon" filled>mail</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="headline-tabs-1" value="/starred" label="Starred">
+        <mdc-icon slot="inactive-icon">star</mdc-icon>
+        <mdc-icon slot="active-icon" filled>star</mdc-icon>
+    </mdc-navigation-tab>
+</mdc-navigation-drawer>
+
+<!-- Navigation Drawer with custom slotted headline -->
+<mdc-navigation-drawer variant="standard" open navigation-scope="headline-demo-2">
+    <mdc-typography slot="headline" variant="title-small" style="font-weight: 700; color: var(--md-sys-color-primary, #006a6a);">Custom Projects</mdc-typography>
+    <mdc-navigation-tab name="headline-tabs-2" value="/project-a" checked label="Project Alpha">
+        <mdc-icon slot="inactive-icon">folder</mdc-icon>
+        <mdc-icon slot="active-icon" filled>folder</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="headline-tabs-2" value="/project-b" label="Project Beta">
+        <mdc-icon slot="inactive-icon">folder</mdc-icon>
+        <mdc-icon slot="active-icon" filled>folder</mdc-icon>
+    </mdc-navigation-tab>
+</mdc-navigation-drawer>

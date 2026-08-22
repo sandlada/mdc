@@ -1,6 +1,30 @@
-<mdc-navigation-drawer open navigation-scope="drawer-scope">
-    <mdc-navigation-tab name="dn" value="/" checked label="Drawer" navigation-scope="drawer-scope">
-        <mdc-icon slot="inactive-icon">menu</mdc-icon>
-        <mdc-icon slot="active-icon" filled>menu</mdc-icon>
+<!-- Synchronized Navigation Drawer in shared scope -->
+<mdc-navigation-drawer variant="standard" open headline="Drawer A" navigation-scope="sync-scope">
+    <mdc-navigation-tab name="sync-tabs" value="/dashboard" checked label="Dashboard">
+        <mdc-icon slot="inactive-icon">dashboard</mdc-icon>
+        <mdc-icon slot="active-icon" filled>dashboard</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="sync-tabs" value="/messages" label="Messages">
+        <mdc-icon slot="inactive-icon">mail</mdc-icon>
+        <mdc-icon slot="active-icon" filled>mail</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="sync-tabs" value="/profile" label="Profile">
+        <mdc-icon slot="inactive-icon">person</mdc-icon>
+        <mdc-icon slot="active-icon" filled>person</mdc-icon>
+    </mdc-navigation-tab>
+</mdc-navigation-drawer>
+
+<mdc-navigation-drawer variant="standard" open headline="Drawer B (Synced)" navigation-scope="sync-scope">
+    <mdc-navigation-tab name="sync-tabs" value="/dashboard" checked label="Dashboard">
+        <mdc-icon slot="inactive-icon">dashboard</mdc-icon>
+        <mdc-icon slot="active-icon" filled>dashboard</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="sync-tabs" value="/messages" label="Messages">
+        <mdc-icon slot="inactive-icon">mail</mdc-icon>
+        <mdc-icon slot="active-icon" filled>mail</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="sync-tabs" value="/profile" label="Profile">
+        <mdc-icon slot="inactive-icon">person</mdc-icon>
+        <mdc-icon slot="active-icon" filled>person</mdc-icon>
     </mdc-navigation-tab>
 </mdc-navigation-drawer>

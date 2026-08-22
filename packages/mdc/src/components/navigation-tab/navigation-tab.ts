@@ -22,7 +22,7 @@
  * </script>
  * ```
  */
-import { html, isServer, LitElement, type PropertyValues } from 'lit'
+import { html, isServer, LitElement, nothing, type PropertyValues } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
 import { SelectionController } from '../../utils/controller/selection-controller'
 import {
@@ -94,6 +94,9 @@ export class MDCNavigationTab extends composeMixin(
 
     @property({ type: String, reflect: true })
     public label: string = ''
+
+    @property({ type: String, reflect: true })
+    public badge: string = ''
 
     @property({ type: String, reflect: true })
     public name: string = ''
@@ -252,16 +255,24 @@ export class MDCNavigationTab extends composeMixin(
                     <div class="label in-icon-container">${this.label}</div>
                 </div>
                 <div class="label out-icon-container">${this.label}</div>
+                <div class="badge-container">${this.renderBadgeSlot()}</div>
                 ${this.renderInput()}
                 ${this.renderFocusRing()}
             </button>
         `
     }
     protected renderInactiveIconSlot() {
-        return html`<slot name="inactive-icon"></slot>`
+        return html`<slot name="inactive-icon"><slot name="icon"></slot></slot>`
     }
     protected renderActiveIconSlot() {
-        return html`<slot name="active-icon"></slot>`
+        return html`<slot name="active-icon"><slot name="icon"></slot></slot>`
+    }
+    protected renderBadgeSlot() {
+        return html`
+            <slot name="badge">
+                ${this.badge ? html`<span class="badge-label">${this.badge}</span>` : nothing}
+            </slot>
+        `
     }
     protected renderInput() {
         return html`

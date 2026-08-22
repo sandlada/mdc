@@ -1,0 +1,23 @@
+<!-- Navigation Drawer with Quick animation suppression -->
+<mdc-navigation-drawer variant="standard" open quick headline="Quick Drawer" navigation-scope="quick-demo-1">
+    <mdc-navigation-tab name="quick-tabs-1" value="/q1" checked label="Instant Tab 1">
+        <mdc-icon slot="inactive-icon">bolt</mdc-icon>
+        <mdc-icon slot="active-icon" filled>bolt</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="quick-tabs-1" value="/q2" label="Instant Tab 2">
+        <mdc-icon slot="inactive-icon">flash_on</mdc-icon>
+        <mdc-icon slot="active-icon" filled>flash_on</mdc-icon>
+    </mdc-navigation-tab>
+</mdc-navigation-drawer>
+
+<!-- Navigation Drawer standard without Quick -->
+<mdc-navigation-drawer variant="standard" open headline="Animated Drawer" navigation-scope="quick-demo-2">
+    <mdc-navigation-tab name="quick-tabs-2" value="/a1" checked label="Animated Tab 1">
+        <mdc-icon slot="inactive-icon">animation</mdc-icon>
+        <mdc-icon slot="active-icon" filled>animation</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="quick-tabs-2" value="/a2" label="Animated Tab 2">
+        <mdc-icon slot="inactive-icon">motion_photos_on</mdc-icon>
+        <mdc-icon slot="active-icon" filled>motion_photos_on</mdc-icon>
+    </mdc-navigation-tab>
+</mdc-navigation-drawer>

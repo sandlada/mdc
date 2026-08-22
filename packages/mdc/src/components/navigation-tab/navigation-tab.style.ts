@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit'
-import { IconDefinition, NavigationBarHorizontalTabDefinition, NavigationBarVerticalTabDefinition, NavigationBarXRVerticalTabDefinition, NavigationRailHorizontalTabDefinition, NavigationRailRoundTabDefinition, NavigationRailVerticalTabDefinition, NavigationRailXRRoundTabDefinition, NavigationRailXRVerticalTabDefinition, RippleDefinition } from '../../definitions'
+import { IconDefinition, NavigationBarHorizontalTabDefinition, NavigationBarVerticalTabDefinition, NavigationBarXRVerticalTabDefinition, NavigationDrawerTabDefinition, NavigationRailHorizontalTabDefinition, NavigationRailRoundTabDefinition, NavigationRailVerticalTabDefinition, NavigationRailXRRoundTabDefinition, NavigationRailXRVerticalTabDefinition, RippleDefinition } from '../../definitions'
 import { Easing } from '@sandlada/mdk'
 import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
 import { overrideComponentTokens, stringTokens } from '../../utils'
@@ -52,7 +52,12 @@ const railXRRRecord = defineTokenRefsRecord(NavigationRailXRRoundTabDefinition, 
     prefix: '--mdc-navigation-tab'
 })
 const railXRRS = unsafeCSS(defineVars(railXRRRecord, true).join(''))
-console.log(railVS.cssText)
+const drawerRecord = defineTokenRefsRecord(NavigationDrawerTabDefinition, {
+    expandShapes: true,
+    useBaseFallback: true,
+    prefix: '--mdc-navigation-tab'
+})
+const drawerS = unsafeCSS(defineVars(drawerRecord, true).join(''))
 
 const tabIndicatorGrowEasing = Easing.ExpressiveDefaultSpatial.ToCSSVariable()
 
@@ -60,23 +65,23 @@ const overrideRipple = {
     unselected: stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>(
         '--mdc-ripple',
         {
-            "enabled-hovered-color": "var(--_unselected-hovered-ripple-color)",
-            "enabled-hovered-opacity": "var(--_unselected-hovered-ripple-opacity)",
-            "enabled-focused-color": "var(--_unselected-focused-ripple-color)",
-            "enabled-focused-opacity": "var(--_unselected-focused-ripple-opacity)",
-            "enabled-pressed-color": "var(--_unselected-pressed-ripple-color)",
-            "enabled-pressed-opacity": "var(--_unselected-pressed-ripple-opacity)",
+            "enabled-hovered-color": "var(--_unselected-hovered-state-layer-color)",
+            "enabled-hovered-opacity": "var(--_unselected-hovered-state-layer-opacity)",
+            "enabled-focused-color": "var(--_unselected-focused-state-layer-color)",
+            "enabled-focused-opacity": "var(--_unselected-focused-state-layer-opacity)",
+            "enabled-pressed-color": "var(--_unselected-pressed-state-layer-color)",
+            "enabled-pressed-opacity": "var(--_unselected-pressed-state-layer-opacity)",
         }
     )),
     selected: stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>(
         '--mdc-ripple',
         {
-            "enabled-hovered-color": "var(--_selected-hovered-ripple-color)",
-            "enabled-hovered-opacity": "var(--_selected-hovered-ripple-opacity)",
-            "enabled-focused-color": "var(--_selected-focused-ripple-color)",
-            "enabled-focused-opacity": "var(--_selected-focused-ripple-opacity)",
-            "enabled-pressed-color": "var(--_selected-pressed-ripple-color)",
-            "enabled-pressed-opacity": "var(--_selected-pressed-ripple-opacity)",
+            "enabled-hovered-color": "var(--_selected-hovered-state-layer-color)",
+            "enabled-hovered-opacity": "var(--_selected-hovered-state-layer-opacity)",
+            "enabled-focused-color": "var(--_selected-focused-state-layer-color)",
+            "enabled-focused-opacity": "var(--_selected-focused-state-layer-opacity)",
+            "enabled-pressed-color": "var(--_selected-pressed-state-layer-color)",
+            "enabled-pressed-opacity": "var(--_selected-pressed-state-layer-opacity)",
         }
     )),
 }
@@ -111,6 +116,10 @@ export const NavigationTabStyles = [
     :host([variant="rail-xr-round"]) {
         ${railXRRS};
     }
+    :host([variant="drawer"]),
+    :host([variant="drawer-horizontal"]) {
+        ${drawerS};
+    }
     `,
     // Shared Layout
     css`
@@ -131,6 +140,7 @@ export const NavigationTabStyles = [
 
     input {
         all: unset;
+        color-scheme: inherit;
         position: absolute;
         inset: 0;
         z-index: 1;
@@ -141,6 +151,7 @@ export const NavigationTabStyles = [
 
     .container {
         all: unset;
+        color-scheme: inherit;
         position: relative;
         box-sizing: border-box;
         z-index: 0;
@@ -249,7 +260,7 @@ export const NavigationTabStyles = [
         display: none;
     }
     `,
-    // For Horizontal
+    // For Horizontal Bar & Rail
     css`
     :host([variant="rail-horizontal"]) .container,
     :host([variant="bar-horizontal"]) .container {
@@ -301,6 +312,162 @@ export const NavigationTabStyles = [
         place-content: center;
         grid-column: 1/2;
         grid-row: 1/-1;
+    }
+    `,
+    // For Drawer & Drawer Horizontal (MD3 Navigation Drawer destination items)
+    css`
+    :host([variant="drawer"]),
+    :host([variant="drawer-horizontal"]) {
+        width: 100%;
+        max-width: var(--_container-width);
+        height: var(--_container-height);
+        display: flex;
+        position: relative;
+        box-sizing: border-box;
+    }
+
+    :host([variant="drawer"]) .container,
+    :host([variant="drawer-horizontal"]) .container {
+        all: unset;
+        color-scheme: inherit;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+        position: relative;
+        border-radius: var(--_indicator-shape-start-start);
+        padding-inline-start: var(--_icon-container-inline-leading-space);
+        padding-inline-end: var(--_icon-container-inline-trailing-space);
+        cursor: pointer;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    :host([variant="drawer"]) .indicator,
+    :host([variant="drawer-horizontal"]) .indicator {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: inherit;
+        z-index: -1;
+        pointer-events: none;
+        transform-origin: center;
+        transition-property: opacity, background-color, transform;
+        transition-duration: 200ms;
+        transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+    }
+    :host([variant="drawer"]:not([checked])) .indicator,
+    :host([variant="drawer-horizontal"]:not([checked])) .indicator {
+        opacity: 0;
+        transform: scaleX(0.92);
+        background-color: var(--_unselected-indicator-color);
+    }
+    :host([variant="drawer"][checked]) .indicator,
+    :host([variant="drawer-horizontal"][checked]) .indicator {
+        opacity: 1;
+        transform: scaleX(1);
+        background-color: var(--_selected-indicator-color);
+    }
+
+    :host([variant="drawer"]) .ripple-layer,
+    :host([variant="drawer-horizontal"]) .ripple-layer {
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        pointer-events: none;
+        overflow: hidden;
+    }
+
+    :host([variant="drawer"]) .icon-container,
+    :host([variant="drawer-horizontal"]) .icon-container {
+        display: inline-grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr;
+        width: var(--_icon-size);
+        height: var(--_icon-size);
+        flex-shrink: 0;
+        align-items: center;
+        justify-items: center;
+        margin-inline-end: var(--_spacing-between-icon-and-label);
+        z-index: 1;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    :host([variant="drawer"]) .icon,
+    :host([variant="drawer-horizontal"]) .icon {
+        grid-column: 1/2;
+        grid-row: 1/2;
+        width: var(--_icon-size);
+        height: var(--_icon-size);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        place-content: center;
+    }
+
+    :host([variant="drawer"]) .label.in-icon-container,
+    :host([variant="drawer-horizontal"]) .label.in-icon-container {
+        display: none;
+    }
+
+    :host([variant="drawer"]) .label.out-icon-container,
+    :host([variant="drawer-horizontal"]) .label.out-icon-container {
+        display: block;
+        flex: 1;
+        text-align: start;
+        justify-self: start;
+        z-index: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-family: var(--_label-font);
+        font-size: var(--_label-size);
+        font-weight: var(--_label-font-weight);
+        line-height: var(--_label-line-height);
+        letter-spacing: var(--_label-tracking);
+    }
+
+    :host([variant="drawer"]) .badge-container,
+    :host([variant="drawer-horizontal"]) .badge-container {
+        margin-inline-start: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1;
+        flex-shrink: 0;
+    }
+
+    :host([variant="drawer"]) .badge-label,
+    :host([variant="drawer-horizontal"]) .badge-label {
+        font-family: var(--_badge-label-font);
+        font-size: var(--_badge-label-size);
+        font-weight: var(--_badge-label-font-weight);
+        line-height: var(--_badge-label-line-height);
+        letter-spacing: var(--_badge-label-tracking);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    :host([variant="drawer"]:not([checked])) .badge-label,
+    :host([variant="drawer-horizontal"]:not([checked])) .badge-label {
+        color: var(--_unselected-label-color);
+    }
+    :host([variant="drawer"][checked]) .badge-label,
+    :host([variant="drawer-horizontal"][checked]) .badge-label {
+        color: var(--_selected-label-color);
+    }
+
+    :host([variant="drawer"]) mdc-focus-ring,
+    :host([variant="drawer-horizontal"]) mdc-focus-ring {
+        --mdc-focus-ring-shape-start-start: var(--_indicator-shape-start-start);
+        --mdc-focus-ring-shape-start-end: var(--_indicator-shape-start-end);
+        --mdc-focus-ring-shape-end-end: var(--_indicator-shape-end-end);
+        --mdc-focus-ring-shape-end-start: var(--_indicator-shape-end-start);
+        border-radius: var(--_indicator-shape-start-start);
     }
     `,
     // For Round
@@ -370,16 +537,21 @@ export const NavigationTabStyles = [
         .ripple-layer {
             position: absolute;
             inset: 0;
-            /* background:red; */
             border-start-start-radius: var(--_indicator-shape-start-start);
             border-start-end-radius: var(--_indicator-shape-start-end);
             border-end-start-radius: var(--_indicator-shape-end-start);
             border-end-end-radius: var(--_indicator-shape-end-end);
-            /* height: var(--_indicator-height); */
         }
     `,
     // FocusRing
-    css``,
+    css`
+    mdc-focus-ring {
+        --mdc-focus-ring-shape-start-start: var(--_indicator-shape-start-start);
+        --mdc-focus-ring-shape-start-end: var(--_indicator-shape-start-end);
+        --mdc-focus-ring-shape-end-end: var(--_indicator-shape-end-end);
+        --mdc-focus-ring-shape-end-start: var(--_indicator-shape-end-start);
+    }
+    `,
     // Icon & IconContainer
     css`
     :host(:not([checked])) .icon {
@@ -406,28 +578,36 @@ export const NavigationTabStyles = [
         min-width: var(--_icon-container-width);
     }
     `,
-    // Indicator
+    // Indicator (for vertical and round tabs)
     css`
-    .indicator {
+    :host(:not([variant*="drawer"])) .indicator {
         border-start-start-radius: var(--_indicator-shape-start-start);
         border-start-end-radius: var(--_indicator-shape-start-end);
         border-end-start-radius: var(--_indicator-shape-end-start);
         border-end-end-radius: var(--_indicator-shape-end-end);
         height: var(--_indicator-height);
     }
-    :host(:not([checked])) .indicator {
+    :host(:not([variant*="drawer"]):not([checked])) .indicator {
         transform: scaleX(0) scaleY(0.8);
         opacity: 0;
         background: var(--_unselected-indicator-color);
     }
-    :host([checked]) .indicator {
+    :host(:not([variant*="drawer"])[checked]) .indicator {
         transform: scaleX(1) scaleY(1);
         opacity: 1;
         background: var(--_selected-indicator-color);
     }
     `,
     // Badge - Singleton
-    css``,
+    css`
+    .badge-container {
+        display: none;
+    }
+    :host([variant="drawer"]) .badge-container,
+    :host([variant="drawer-horizontal"]) .badge-container {
+        display: flex;
+    }
+    `,
     // Label - Singleton
     css`
     .label {
@@ -447,6 +627,4 @@ export const NavigationTabStyles = [
     :host([checked]) .label {
         color: var(--_selected-label-color);
     }
-
-
 `]

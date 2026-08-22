@@ -5,6 +5,7 @@
  */
 
 :root {
+    color-scheme: light dark;
     --md-sys-color-primary-palette-key-color: light-dark(#388647, #388647);
     --md-sys-color-secondary-palette-key-color: light-dark(#697c68, #697c68);
     --md-sys-color-tertiary-palette-key-color: light-dark(#527e86, #527e86);
