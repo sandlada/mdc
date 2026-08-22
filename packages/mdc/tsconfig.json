@@ -41,7 +41,6 @@
         "./src/**/*"
     ],
     "exclude": [
-        "./src/**/button-group/*",
         "./src/**/*-old/*",
         "./src/**/draggable-modal/*",
         "./src/**/popup-controller/*",

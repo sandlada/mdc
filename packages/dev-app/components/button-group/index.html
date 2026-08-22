@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Button Group — MDC Docs</title>
+    <script type="module" src="/shared/base-imports.ts"></script>
+    <script type="module" src="/shared/theme.ts"></script>
+    <script type="module" src="/shared/docs-page.ts"></script>
+    <script type="module">
+        import '@sandlada/mdc/components/button-group/button-group'
+        import '@sandlada/mdc/components/button/button'
+        import '@sandlada/mdc/components/button/toggle-button'
+        import '@sandlada/mdc/components/icon-button/icon-button'
+        import '@sandlada/mdc/components/icon-button/toggle-icon-button'
+        import '@sandlada/mdc/components/icon/icon'
+        import '@sandlada/mdc/components/ripple/ripple'
+        import '@sandlada/mdc/components/focus-ring/focus-ring'
+        import '@sandlada/mdc/components/elevation/elevation'
+    </script>
+    <link rel="stylesheet" href="https://esm.sh/material-symbols@latest" />
+    <link rel="stylesheet" href="/shared/styles.css" />
+    <style>
+        .interactive-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding: 24px;
+            border-radius: 12px;
+            background: var(--md-sys-color-surface-container-low);
+            border: 1px solid var(--md-sys-color-outline-variant);
+        }
+        .controls-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+        .controls-row button {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--md-sys-color-outline);
+            background: var(--md-sys-color-surface-container);
+            color: var(--md-sys-color-on-surface);
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .controls-row button:hover {
+            background: var(--md-sys-color-surface-container-high);
+        }
+        .event-log {
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--md-sys-color-surface-container);
+            font-family: monospace;
+            font-size: 13px;
+            color: var(--md-sys-color-on-surface-variant);
+            max-height: 120px;
+            overflow-y: auto;
+            border: 1px solid var(--md-sys-color-outline-variant);
+        }
+    </style>
+</head>
+<body>
+    <mdc-docs-page
+        component="button-group"
+        title="Button Group"
+        subtitle="Material 3 Expressive Button Group organizes buttons into connected or standard layouts with shape morphing, selection models, and keyboard navigation."
+        demo-files="button-group.variant.demo.html,button-group.size.demo.html,button-group.shape.demo.html,button-group.selection-mode.demo.html,button-group.icon-buttons.demo.html,button-group.mixed.demo.html,button-group.expand-on-active.demo.html,button-group.disabled.demo.html,button-group.vertical.demo.html"
+    >
+        <section>
+            <h2>Interactive Dynamic State & API Testing</h2>
+            <div class="interactive-container">
+                <div class="controls-row">
+                    <button id="btn-toggle-variant">Toggle Variant (Connected / Standard)</button>
+                    <button id="btn-toggle-mode">Toggle Selection Mode (Single / Multiple / None)</button>
+                    <button id="btn-add-item">Add Button</button>
+                    <button id="btn-remove-item">Remove Button</button>
+                    <button id="btn-select-second">Select 2nd Button</button>
+                </div>
+
+                <div style="padding: 16px 0;">
+                    <mdc-button-group id="interactive-group" variant="connected" selection-mode="single">
+                        <mdc-toggle-button variant="filled-tonal" checked>First Item</mdc-toggle-button>
+                        <mdc-toggle-button variant="filled-tonal">Second Item</mdc-toggle-button>
+                        <mdc-toggle-button variant="filled-tonal">Third Item</mdc-toggle-button>
+                    </mdc-button-group>
+                </div>
+
+                <div>
+                    <strong>Selection & Interaction Event Log:</strong>
+                    <div id="event-log" class="event-log">Listening for button-group-selection-change and interaction events...</div>
+                </div>
+            </div>
+        </section>
+    </mdc-docs-page>
+
+    <script type="module">
+        const group = document.getElementById('interactive-group');
+        const log = document.getElementById('event-log');
+
+        function appendLog(msg) {
+            const time = new Date().toLocaleTimeString();
+            log.innerHTML = `[${time}] ${msg}<br/>` + log.innerHTML;
+        }
+
+        group.addEventListener('button-group-selection-change', (e) => {
+            appendLog(`Selection change: index=${e.detail.index}, selected=${e.detail.selected}, totalSelected=${e.detail.selectedIndexes.join(',')}`);
+        });
+
+        group.addEventListener('button-group-interaction', (e) => {
+            appendLog(`Interaction: clicked index=${e.detail.index}`);
+        });
+
+        document.getElementById('btn-toggle-variant').addEventListener('click', () => {
+            group.variant = group.variant === 'connected' ? 'standard' : 'connected';
+            appendLog(`Variant changed to: ${group.variant}`);
+        });
+
+        document.getElementById('btn-toggle-mode').addEventListener('click', () => {
+            const modes = ['single', 'multiple', 'none'];
+            const nextIdx = (modes.indexOf(group.selectionMode) + 1) % modes.length;
+            group.selectionMode = modes[nextIdx];
+            appendLog(`Selection mode changed to: ${group.selectionMode}`);
+        });
+
+        document.getElementById('btn-add-item').addEventListener('click', () => {
+            const count = group.querySelectorAll('mdc-toggle-button').length + 1;
+            const newBtn = document.createElement('mdc-toggle-button');
+            newBtn.setAttribute('variant', 'filled-tonal');
+            newBtn.textContent = `Item ${count}`;
+            group.appendChild(newBtn);
+            appendLog(`Added new button: Item ${count}`);
+        });
+
+        document.getElementById('btn-remove-item').addEventListener('click', () => {
+            const buttons = group.querySelectorAll('mdc-toggle-button');
+            if (buttons.length > 1) {
+                const last = buttons[buttons.length - 1];
+                last.remove();
+                appendLog(`Removed last button`);
+            }
+        });
+
+        document.getElementById('btn-select-second').addEventListener('click', () => {
+            group.setIndexSelected(1, true);
+            appendLog(`Called setIndexSelected(1, true)`);
+        });
+    </script>
+</body>
+</html>
