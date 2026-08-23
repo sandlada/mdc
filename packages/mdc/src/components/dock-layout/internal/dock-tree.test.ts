@@ -14,6 +14,7 @@ import {
     type GridNode,
     type LeafNode,
 } from './dock-tree.ts'
+import { projectLayout } from './dock-layout-projection.ts'
 
 const makeLeaf = (id: string, view = id): LeafNode => ({ kind: 'leaf', id, view })
 
@@ -124,4 +125,56 @@ test('serialize/deserialize round-trips', () => {
     const json = serialize(data)
     const back = deserialize(json)
     assert.equal(back.root.id, 'a')
+})
+
+test('projectLayout projects a single leaf to the container', () => {
+    const tree: GridNode = makeLeaf('a')
+    const rects = projectLayout({ x: 0, y: 0, width: 100, height: 50 }, tree)
+    assert.deepEqual(rects.get('a'), { x: 0, y: 0, width: 100, height: 50 })
+})
+
+test('projectLayout distributes horizontal branch equally', () => {
+    const tree: GridNode = {
+        kind: 'branch',
+        id: 'root',
+        orientation: 'horizontal',
+        children: [makeLeaf('a'), makeLeaf('b'), makeLeaf('c')],
+    }
+    const rects = projectLayout({ x: 0, y: 0, width: 300, height: 100 }, tree)
+    assert.deepEqual(rects.get('a'), { x: 0, y: 0, width: 100, height: 100 })
+    assert.deepEqual(rects.get('b'), { x: 100, y: 0, width: 100, height: 100 })
+    assert.deepEqual(rects.get('c'), { x: 200, y: 0, width: 100, height: 100 })
+})
+
+test('projectLayout respects explicit size weights', () => {
+    const tree: GridNode = {
+        kind: 'branch',
+        id: 'root',
+        orientation: 'horizontal',
+        children: [{ ...makeLeaf('a'), size: 1 }, { ...makeLeaf('b'), size: 3 }],
+    }
+    const rects = projectLayout({ x: 0, y: 0, width: 400, height: 100 }, tree)
+    assert.deepEqual(rects.get('a'), { x: 0, y: 0, width: 100, height: 100 })
+    assert.deepEqual(rects.get('b'), { x: 100, y: 0, width: 300, height: 100 })
+})
+
+test('projectLayout handles nested branches with different orientations', () => {
+    const tree: GridNode = {
+        kind: 'branch',
+        id: 'root',
+        orientation: 'horizontal',
+        children: [
+            makeLeaf('a'),
+            {
+                kind: 'branch',
+                id: 'mid',
+                orientation: 'vertical',
+                children: [makeLeaf('b'), makeLeaf('c')],
+            },
+        ],
+    }
+    const rects = projectLayout({ x: 0, y: 0, width: 200, height: 100 }, tree)
+    assert.deepEqual(rects.get('a'), { x: 0, y: 0, width: 100, height: 100 })
+    assert.deepEqual(rects.get('b'), { x: 100, y: 0, width: 100, height: 50 })
+    assert.deepEqual(rects.get('c'), { x: 100, y: 50, width: 100, height: 50 })
 })
