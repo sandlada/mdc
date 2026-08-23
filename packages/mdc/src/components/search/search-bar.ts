@@ -1,3 +1,8 @@
+/**
+ * @license
+ * Copyright 2026 Kai-Orion & Sandlada
+ * SPDX-License-Identifier: MIT
+ */
 import { html, LitElement, type TemplateResult } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
@@ -6,6 +11,7 @@ import { redispatchEvent } from '../../utils/event/redispatch-event'
 import { searchBarStyle } from './search-bar.style'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import { mixinFocusRingOptions } from '../focus-ring/focus-ring-options.mixin'
+import { mixinRippleOptions } from '../ripple/ripple-options.mixin'
 
 declare global {
     interface HTMLElementTagNameMap {
@@ -15,6 +21,7 @@ declare global {
 
 @customElement('mdc-search-bar')
 export class MDCSearchBar extends composeMixin(
+    mixinRippleOptions,
     mixinFocusRingOptions
 )(LitElement) {
 
@@ -27,6 +34,7 @@ export class MDCSearchBar extends composeMixin(
 
     public override focusRingInward: boolean = true
     public override get focusRingControl(): HTMLElement | null { return this.inputElement }
+    public override get rippleControl(): HTMLElement | null { return this.inputElement }
 
     @property({ type: String, attribute: 'supporting-text' })
     public supportingText: string = 'Type here to search'
@@ -54,6 +62,7 @@ export class MDCSearchBar extends composeMixin(
         return html`
             <div role="search" class="search ${classMap(this.getRenderClasses())}">
                 <span class="background" aria-hidden="true"></span>
+                ${this.renderRipple()}
                 ${this.renderLeadingIcon()}
                 ${this.renderInput()}
                 ${this.renderTrailingIcon()}
