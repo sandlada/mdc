@@ -12,7 +12,7 @@
     <style>
         .interactive-showcase-container {
             display: grid;
-            grid-template-columns: 1fr 240px;
+            grid-template-columns: 1fr 280px;
             gap: 32px;
             position: relative;
             background: var(--md-sys-color-surface-container-low);
@@ -23,7 +23,7 @@
         }
 
         .scrollable-content {
-            height: 480px;
+            height: 540px;
             overflow-y: auto;
             padding-right: 16px;
             scroll-behavior: smooth;
@@ -42,11 +42,29 @@
             margin-bottom: 12px;
             color: var(--md-sys-color-on-surface);
             font-size: 20px;
+            font-weight: 600;
+        }
+
+        .scrollable-content h4 {
+            margin-top: 18px;
+            margin-bottom: 8px;
+            color: var(--md-sys-color-primary);
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .scrollable-content h5 {
+            margin-top: 14px;
+            margin-bottom: 6px;
+            color: var(--md-sys-color-on-surface);
+            font-size: 14px;
+            font-weight: 500;
         }
 
         .scrollable-content p {
             color: var(--md-sys-color-on-surface-variant);
             line-height: 1.6;
+            margin: 8px 0;
         }
 
         .sticky-aside {
@@ -57,6 +75,8 @@
             background: var(--md-sys-color-surface);
             border: 1px solid var(--md-sys-color-outline-variant);
             border-radius: 16px;
+            max-height: 540px;
+            overflow-y: auto;
         }
     </style>
 </head>
@@ -65,52 +85,99 @@
         component="on-this-page"
         title="On This Page"
         subtitle="In-page table of contents and anchor navigation. Automatically tracks viewport scroll position and animates a pill outline indicator around the active section."
-        demo-files="on-this-page.basic.demo.html,on-this-page.indicator-fit.demo.html,on-this-page.headline.demo.html,on-this-page.caption.demo.html,on-this-page.level.demo.html"
+        demo-files="on-this-page.basic.demo.html,on-this-page.level.demo.html,on-this-page.indicator-fit.demo.html,on-this-page.headline.demo.html,on-this-page.caption.demo.html"
     >
         <section>
-            <h2>Interactive Live Scroll-Spy Preview</h2>
+            <h2>Interactive Live Scroll-Spy Preview (Multi-Level Hierarchy)</h2>
             <p style="color: var(--md-sys-color-on-surface-variant); margin-bottom: 16px;">
-                Scroll the content box below or click any item in the table of contents to see the active border indicator smoothly adjust position and width in real-time.
+                Scroll the content box below or click any multi-level item in the table of contents to see the active border indicator smoothly adjust position and width in real-time across nested levels (Level 1, Level 2, Level 3).
             </p>
             <div class="interactive-showcase-container">
                 <div id="demo-scroll-area" class="scrollable-content">
-                    <section id="variants">
-                        <h3>Variants</h3>
-                        <p>Navigation rails come in primary and modal variants, accommodating both standard wide views and compact floating overlays.</p>
-                        <p>When expanded, labels and destinations are displayed side-by-side or stacked vertically according to the breakpoint.</p>
+                    <section id="overview">
+                        <h3>1. Overview & Architecture</h3>
+                        <p>The <code>mdc-on-this-page</code> component delivers seamless in-page table of contents navigation conforming to Material 3 Expressive guidelines.</p>
+                        
+                        <div id="overview-purpose">
+                            <h4>1.1 Purpose & Design Goals</h4>
+                            <p>Provides users with immediate orientation within long-form technical documentation, guides, and complex article layouts.</p>
+                            <p>Maintains persistent visual hierarchy with nested subheadings while preventing layout shift during reading.</p>
+                        </div>
+
+                        <div id="overview-key-features">
+                            <h4>1.2 Key Features</h4>
+                            <p>Features include smooth scroll-spy tracking, bounding-rect matching pill indicator, inward focus ring, customizable indicator fit, and full keyboard roving accessibility.</p>
+                        </div>
                     </section>
-                    <section id="configurations">
-                        <h3>Configurations</h3>
-                        <p>Customize rail destinations, top app bar actions, floating action buttons (FAB), and footer items.</p>
-                        <p>Destinations can include badges, tooltips, and ripple interaction feedback.</p>
+
+                    <section id="guidelines">
+                        <h3>2. Design Guidelines</h3>
+                        <p>Conforms to Material 3 Expressive motion tokens and typography specifications.</p>
+
+                        <div id="guidelines-variants">
+                            <h4>2.1 Layout Variants</h4>
+                            <p>Supports both floating sidebar positioning and embedded multi-column page layouts.</p>
+                            
+                            <div id="variants-standard">
+                                <h5>2.1.1 Standard Side Rail</h5>
+                                <p>Anchored to the right side of documentation pages, tracking the primary viewport scroll position.</p>
+                            </div>
+
+                            <div id="variants-modal">
+                                <h5>2.1.2 Modal Drawer Integration</h5>
+                                <p>Used in compact screen viewports where the table of contents opens inside an overlay modal sheet.</p>
+                            </div>
+                        </div>
+
+                        <div id="guidelines-tokens">
+                            <h4>2.2 Design Tokens</h4>
+                            <p>Design token mappings conforming to Material 3 Expressive standards, including container color, elevation, shape, and state layers.</p>
+
+                            <div id="tokens-color">
+                                <h5>2.2.1 Color Roles & Elevation</h5>
+                                <p>Adapts to light and dark color schemes using <code>sys.color</code> roles such as surface, surfaceContainer, onSurface, and primary.</p>
+                            </div>
+
+                            <div id="tokens-typography">
+                                <h5>2.2.2 Typography Scale</h5>
+                                <p>Uses <code>Typescale.HeadlineSmall</code> for headlines, <code>Typescale.LabelMedium</code> for captions, and <code>Typescale.BodyMedium</code> for items.</p>
+                            </div>
+                        </div>
                     </section>
-                    <section id="tokens-specs">
-                        <h3>Tokens & specs</h3>
-                        <p>Design token mappings conforming to Material 3 Expressive standards, including container color, elevation, shape, and state layers.</p>
+
+                    <section id="behavior">
+                        <h3>3. Interaction & Behavior</h3>
+                        <p>Smoothly animates indicator state transitions with spatial cubic bezier easing.</p>
+
+                        <div id="behavior-scroll-spy">
+                            <h4>3.1 Scroll Spy Tracking</h4>
+                            <p>Automatically calculates threshold intersection distances to determine the currently active reading section.</p>
+                        </div>
+
+                        <div id="behavior-indicator">
+                            <h4>3.2 Dynamic Pill Indicator</h4>
+                            <p>The floating pill indicator precisely aligns its bounding rectangle with the active item, supporting both content-fit and full-width modes.</p>
+                        </div>
+
+                        <div id="behavior-states">
+                            <h4>3.3 State Layers & Ripple</h4>
+                            <p>Links provide tactile ripple feedback on click and state layer opacity transitions on hover, focus, and press.</p>
+                        </div>
                     </section>
-                    <section id="anatomy">
-                        <h3>Anatomy</h3>
-                        <p>Composed of a container, active indicator, destination icons, destination labels, and optional badges or floating action buttons.</p>
-                    </section>
-                    <section id="color">
-                        <h3>Color</h3>
-                        <p>Adapts to light and dark color schemes using sys.color roles such as surface, surfaceContainer, onSurface, and primary.</p>
-                    </section>
-                    <section id="states">
-                        <h3>States</h3>
-                        <p>Destinations reflect interactive states: enabled, hovered, focused, pressed, and selected with smooth transitions.</p>
-                    </section>
-                    <section id="measurements">
-                        <h3>Measurements</h3>
-                        <p>Collapsed width defaults to 96dp; expanded width defaults to 220dp, providing ample room for descriptive labels.</p>
-                    </section>
-                    <section id="common-layouts">
-                        <h3>Common layouts</h3>
-                        <p>Side-by-side layout alongside main content pane, split panes, and responsive adaptive grids for tablets and desktops.</p>
-                    </section>
-                    <section id="baseline-navigation-rail">
-                        <h3>Baseline navigation rail</h3>
-                        <p>Standard baseline implementation providing accessible keyboard navigation, roving tabindex, and ARIA roles.</p>
+
+                    <section id="accessibility">
+                        <h3>4. Accessibility & Standards</h3>
+                        <p>Fully compliant with WCAG 2.2 AA accessibility requirements.</p>
+
+                        <div id="a11y-keyboard">
+                            <h4>4.1 Keyboard Navigation</h4>
+                            <p>Supports ArrowDown, ArrowUp, Home, and End keys for rapid navigation through table of contents items.</p>
+                        </div>
+
+                        <div id="a11y-screen-readers">
+                            <h4>4.2 ARIA & Screen Readers</h4>
+                            <p>Uses <code>role="navigation"</code>, <code>aria-label</code>, <code>aria-current="true"</code> on the active item, and delegates focus ring outward/inward.</p>
+                        </div>
                     </section>
                 </div>
 
@@ -121,16 +188,25 @@
                         scroll-target="#demo-scroll-area"
                         scroll-offset="20"
                         indicator-fit="content"
+                        style="width: 100%;"
                     >
-                        <mdc-on-this-page-item href="#variants" active>Variants</mdc-on-this-page-item>
-                        <mdc-on-this-page-item href="#configurations">Configurations</mdc-on-this-page-item>
-                        <mdc-on-this-page-item href="#tokens-specs">Tokens & specs</mdc-on-this-page-item>
-                        <mdc-on-this-page-item href="#anatomy">Anatomy</mdc-on-this-page-item>
-                        <mdc-on-this-page-item href="#color">Color</mdc-on-this-page-item>
-                        <mdc-on-this-page-item href="#states">States</mdc-on-this-page-item>
-                        <mdc-on-this-page-item href="#measurements">Measurements</mdc-on-this-page-item>
-                        <mdc-on-this-page-item href="#common-layouts">Common layouts</mdc-on-this-page-item>
-                        <mdc-on-this-page-item href="#baseline-navigation-rail">Baseline navigation rail</mdc-on-this-page-item>
+                        <mdc-on-this-page-item href="#overview" level="1" active>1. Overview & Architecture</mdc-on-this-page-item>
+                        <mdc-on-this-page-item href="#overview-purpose" level="2">1.1 Purpose & Design Goals</mdc-on-this-page-item>
+                        <mdc-on-this-page-item href="#overview-key-features" level="2">1.2 Key Features</mdc-on-this-page-item>
+                        <mdc-on-this-page-item href="#guidelines" level="1">2. Design Guidelines</mdc-on-this-page-item>
+                        <mdc-on-this-page-item href="#guidelines-variants" level="2">2.1 Layout Variants</mdc-on-this-page-item>
+                        <mdc-on-this-page-item href="#variants-standard" level="3">2.1.1 Standard Side Rail</mdc-on-this-page-item>
+                        <mdc-on-this-page-item href="#variants-modal" level="3">2.1.2 Modal Drawer</mdc-on-this-page-item>
+                        <mdc-on-this-page-item href="#guidelines-tokens" level="2">2.2 Design Tokens</mdc-on-this-page-item>
+                        <mdc-on-this-page-item href="#tokens-color" level="3">2.2.1 Color Roles & Elevation</mdc-on-this-page-item>
+                        <mdc-on-this-page-item href="#tokens-typography" level="3">2.2.2 Typography Scale</mdc-on-this-page-item>
+                        <mdc-on-this-page-item href="#behavior" level="1">3. Interaction & Behavior</mdc-on-this-page-item>
+                        <mdc-on-this-page-item href="#behavior-scroll-spy" level="2">3.1 Scroll Spy Tracking</mdc-on-this-page-item>
+                        <mdc-on-this-page-item href="#behavior-indicator" level="2">3.2 Dynamic Pill Indicator</mdc-on-this-page-item>
+                        <mdc-on-this-page-item href="#behavior-states" level="2">3.3 State Layers & Ripple</mdc-on-this-page-item>
+                        <mdc-on-this-page-item href="#accessibility" level="1">4. Accessibility</mdc-on-this-page-item>
+                        <mdc-on-this-page-item href="#a11y-keyboard" level="2">4.1 Keyboard Navigation</mdc-on-this-page-item>
+                        <mdc-on-this-page-item href="#a11y-screen-readers" level="2">4.2 ARIA Semantics</mdc-on-this-page-item>
                     </mdc-on-this-page>
                 </div>
             </div>

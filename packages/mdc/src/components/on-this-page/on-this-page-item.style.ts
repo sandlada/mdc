@@ -69,6 +69,10 @@ export const OnThisPageItemStyles = css`
         padding-inline-start: calc(var(--_enabled-container-inline-leading-padding-space) + 24px);
     }
 
+    .item.level-4 {
+        padding-inline-start: calc(var(--_enabled-container-inline-leading-padding-space) + 36px);
+    }
+
     .label {
         font-family: var(--_enabled-label-font);
         font-size: var(--_enabled-label-size);

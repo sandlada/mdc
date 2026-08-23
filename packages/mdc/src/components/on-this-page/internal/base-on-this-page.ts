@@ -503,7 +503,7 @@ export abstract class BaseOnThisPage extends composeMixin(
         const root = this.contentSelector ? document.querySelector(this.contentSelector) : document.querySelector('main, article, [role="main"]')
         if (!root) return
 
-        const headings = Array.from(root.querySelectorAll<HTMLHeadingElement>('h2, h3, h4'))
+        const headings = Array.from(root.querySelectorAll<HTMLHeadingElement>('h2, h3, h4, h5'))
         const discovered: Array<{ id: string; label: string; level: number }> = []
 
         for (const heading of headings) {
@@ -512,7 +512,7 @@ export abstract class BaseOnThisPage extends composeMixin(
                 id = slugify(heading.textContent || '')
                 heading.id = id
             }
-            const level = heading.tagName === 'H2' ? 1 : heading.tagName === 'H3' ? 2 : 3
+            const level = heading.tagName === 'H2' ? 1 : heading.tagName === 'H3' ? 2 : heading.tagName === 'H4' ? 3 : 4
             discovered.push({
                 id,
                 label: heading.textContent?.trim() || '',
