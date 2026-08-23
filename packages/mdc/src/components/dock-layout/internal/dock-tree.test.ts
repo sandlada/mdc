@@ -178,3 +178,54 @@ test('projectLayout handles nested branches with different orientations', () => 
     assert.deepEqual(rects.get('b'), { x: 100, y: 0, width: 100, height: 50 })
     assert.deepEqual(rects.get('c'), { x: 100, y: 50, width: 100, height: 50 })
 })
+
+import { evaluate } from './dock-hit-tester.ts'
+
+test('hit tester: pointer in center of leaf → merge', () => {
+    const tree: GridNode = makeLeaf('a')
+    const zone = evaluate({ x: 50, y: 25 }, { x: 0, y: 0, width: 100, height: 50 }, tree)
+    assert.equal(zone?.kind, 'merge')
+    if (zone?.kind === 'merge') assert.equal(zone.leafId, 'a')
+})
+
+test('hit tester: pointer near right edge → split-right', () => {
+    const tree: GridNode = makeLeaf('a')
+    const zone = evaluate({ x: 95, y: 25 }, { x: 0, y: 0, width: 100, height: 50 }, tree)
+    assert.equal(zone?.kind, 'split')
+    if (zone?.kind === 'split') {
+        assert.equal(zone.edge, 'right')
+        assert.equal(zone.leafId, 'a')
+    }
+})
+
+test('hit tester: pointer outside container → null', () => {
+    const tree: GridNode = makeLeaf('a')
+    const zone = evaluate({ x: 200, y: 25 }, { x: 0, y: 0, width: 100, height: 50 }, tree)
+    assert.equal(zone, null)
+})
+
+test('hit tester: pointer on outer left band → outer:left', () => {
+    const tree: GridNode = makeLeaf('a')
+    const zone = evaluate(
+        { x: 5, y: 25 },
+        { x: 0, y: 0, width: 100, height: 50 },
+        tree,
+        undefined,
+        { left: { x: 0, y: 0, width: 100, height: 50 } },
+    )
+    assert.equal(zone?.kind, 'outer')
+    if (zone?.kind === 'outer') assert.equal(zone.edge, 'left')
+})
+
+test('hit tester: pointer on outer bottom band → outer:bottom', () => {
+    const tree: GridNode = makeLeaf('a')
+    const zone = evaluate(
+        { x: 50, y: 48 },
+        { x: 0, y: 0, width: 100, height: 50 },
+        tree,
+        undefined,
+        { panel: { x: 0, y: 0, width: 100, height: 50 } },
+    )
+    assert.equal(zone?.kind, 'outer')
+    if (zone?.kind === 'outer') assert.equal(zone.edge, 'bottom')
+})
