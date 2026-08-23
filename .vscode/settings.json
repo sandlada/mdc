@@ -22,6 +22,9 @@
         "*.js": "$(capture).js.map, $(capture).d.ts",
         "tsconfig.json": "tsconfig.*.json",
         "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, bun.lockb, bun.lock",
+        "README.md": "SECURITY.md, LICENSE, CONTRIBUTING.md, CODE_OF_CONDUCT.md",
+        "AGENTS.md": "AGENTS.md, GEMINI.md, CLAUDE.md",
+        ".gitattributes": ".gitatttributes, .gitignore",
     },
     "betterAlign.surroundSpace": {
         "arrow": [
