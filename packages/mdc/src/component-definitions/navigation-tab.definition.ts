@@ -161,6 +161,14 @@ const DefaultScheme = createStyleDefinition({
 
     'icon-container-shape': Shape.Full,
     'indicator-shape': Shape.Full,
+
+    // Disabled
+    'disabled-unselected-icon-color': Color.Outline,
+    'disabled-selected-icon-color': Color.Outline,
+    'disabled-unselected-indicator-color': `transparent`,
+    'disabled-selected-indicator-color': Color.OutlineVariant,
+    'disabled-unselected-label-color': Color.Outline,
+    'disabled-selected-label-color': Color.Outline,
 })
 
 export const NavigationBarVerticalTabDefinition = createStyleDefinition<Partial<IScheme>>(DefaultScheme)
@@ -355,4 +363,3 @@ export const NavigationDrawerTabDefinition = createStyleDefinition<Partial<ISche
     'selected-focused-state-layer-opacity': State.FocusedStateLayerOpacity,
     'selected-pressed-state-layer-opacity': State.PressedStateLayerOpacity,
 })
-

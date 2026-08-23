@@ -1,4 +1,5 @@
 import type { LitElement } from 'lit'
+import type { FormAssociated } from '../../utils/form/form-associated'
 
 export type NavigationTabVariant
     = 'bar-vertical'
@@ -24,15 +25,18 @@ export const NavigationTabVariant = {
     DrawerHorizontal: 'drawer-horizontal',
 } as const satisfies Record<string, NavigationTabVariant>
 
-export interface INavigationTab extends LitElement {
+export interface INavigationTab extends LitElement, FormAssociated {
     name           : string
     value          : string
     label          : string
     badge          : string
     href           : string | null
+    target         : string | null
     navigationScope: string
     checked        : boolean
+    defaultChecked : boolean
     disabled       : boolean
+    required       : boolean
 
     variant: NavigationTabVariant
 }

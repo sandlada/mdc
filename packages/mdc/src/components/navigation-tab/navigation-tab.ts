@@ -22,8 +22,8 @@
  * </script>
  * ```
  */
-import { html, isServer, LitElement, nothing, type PropertyValues } from 'lit'
-import { customElement, property, query } from 'lit/decorators.js'
+import { html, isServer, LitElement, nothing, type PropertyValues, type TemplateResult } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators.js'
 import { SelectionController } from '../../utils/controller/selection-controller'
 import {
     GlobalNavigationStateStore,
@@ -35,12 +35,16 @@ import type { INavigationTab, NavigationTabVariant } from './navigation-tab.inte
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import { mixinRippleOptions } from '../ripple/ripple-options.mixin'
 import { mixinFocusRingOptions } from '../focus-ring/focus-ring-options.mixin'
-import { mixinElementInternals } from '../../utils/behaviors/element-internals'
+import { internals, mixinElementInternals } from '../../utils/behaviors/element-internals'
 import { mixinDelegatesAria } from '../../utils/aria/delegate'
+import { createValidator, getValidityAnchor, mixinConstraintValidation } from '../../utils/behaviors/constraint-validation'
+import { getFormState, getFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
+import { RadioValidator } from '../../utils/behaviors/validators/radio-validator'
 import { NavigationTabStyles } from './navigation-tab.style'
 import { classMap } from 'lit/directives/class-map.js'
 import { OpacityTransitionController } from '../../utils/controller/opacity-transition-controller'
 import { MeasuredDimensionController } from '../../utils/controller/measured-dimension-controller'
+import { isActivationClick } from '../../utils/event/form-label-activation'
 
 const KEYBOARD_SELECTION_KEYS = new Set([' ', 'Enter', 'Spacebar'])
 
@@ -79,10 +83,12 @@ declare global {
  */
 @customElement('mdc-navigation-tab')
 export class MDCNavigationTab extends composeMixin(
-    mixinElementInternals,
     mixinDelegatesAria,
+    mixinConstraintValidation,
+    mixinFormAssociated,
+    mixinElementInternals,
     mixinRippleOptions,
-    mixinFocusRingOptions
+    mixinFocusRingOptions,
 )(LitElement) implements INavigationTab {
 
     static override shadowRootOptions = {
@@ -92,29 +98,35 @@ export class MDCNavigationTab extends composeMixin(
 
     static override styles = NavigationTabStyles
 
+    declare disabled: boolean
+    declare name: string
+
     @property({ type: String, reflect: true })
     public label: string = ''
 
     @property({ type: String, reflect: true })
     public badge: string = ''
 
-    @property({ type: String, reflect: true })
-    public name: string = ''
-
     @property({ type: String })
     public value: string = ''
 
-    @property({ type: String })
+    @property({ type: String, reflect: true })
     public href: string | null = null
 
+    @property({ type: String, reflect: true })
+    public target: string | null = null
+
     @property({ type: String, reflect: true, attribute: 'navigation-scope' })
-    public navigationScope: string = 'global'
+    public navigationScope: string = ''
 
     @property({ type: Boolean, reflect: true })
     public checked: boolean = false
 
+    @property({ type: Boolean, reflect: true, attribute: 'default-checked' })
+    public defaultChecked: boolean = false
+
     @property({ type: Boolean, reflect: true })
-    public disabled: boolean = false
+    public required: boolean = false
 
     /**
      * horizontal is not available for bar-xr and rail-xr types.
@@ -122,8 +134,8 @@ export class MDCNavigationTab extends composeMixin(
     @property({ type: String, reflect: true })
     public variant: NavigationTabVariant = 'bar-vertical'
 
-    @query('#touch-target')
-    private inputElement!: HTMLInputElement
+    @query('.container')
+    protected readonly rootElement!: HTMLElement | null
 
     @query('.indicator')
     private indicatorElement!: HTMLElement | null
@@ -132,12 +144,24 @@ export class MDCNavigationTab extends composeMixin(
     private labelElement!: HTMLLabelElement
 
     public override get rippleControl(): HTMLElement | null {
-        // Use the host as control so pointer clicks and synthetic keyboard clicks
-        // both trigger ripple, while the ripple visual remains clipped by indicator.
-        return this.inputElement
+        return this.rootElement
     }
-    public override get focusRingControl() { return this.inputElement }
+    public override get focusRingControl(): HTMLElement | null {
+        return this.rootElement
+    }
     public override focusRingInward: boolean = true
+
+    public override focus(): void {
+        this.rootElement?.focus()
+    }
+
+    public override blur(): void {
+        this.rootElement?.blur()
+    }
+
+    public override click(): void {
+        this.rootElement?.click()
+    }
 
     private readonly tabId: string = createNavigationTabId()
     private unsubscribeScope: (() => void) | null = null
@@ -152,7 +176,7 @@ export class MDCNavigationTab extends composeMixin(
         preventSelectionDuringInitialFocus: true,
         preventSelectionDuringSwitching: true,
         dispatchNavigationClick: false,
-        dispatchInputChangeEvents: false,
+        dispatchInputChangeEvents: true,
         getFocusableElement: (host) => host,
         onBeforeSelect: () => {
             this.selectionHandledByController = true
@@ -176,12 +200,13 @@ export class MDCNavigationTab extends composeMixin(
         super()
         if (isServer) return
 
-        this.role = 'tab'
+        this[internals].role = 'tab'
         this.tabIndex = 0
         this.setAttribute('aria-label', this.label)
         this.setAttribute('aria-selected', String(this.checked))
         this.setAttribute('aria-disabled', String(this.disabled))
 
+        this.addEventListener('click', this.handleHostClick)
         this.addEventListener('pointerdown', this.handlePointerDownCapture, { capture: true })
         this.addEventListener('keydown', this.handleKeyDownCapture, { capture: true })
     }
@@ -189,6 +214,15 @@ export class MDCNavigationTab extends composeMixin(
     public override connectedCallback(): void {
         super.connectedCallback()
         if (isServer) return
+
+        // Apply the `default-checked` attribute as the initial `checked`
+        // state, mirroring native HTML `defaultChecked` semantics. Runs
+        // before `formStateRestoreCallback` so a restored form value can
+        // still override the default.
+        if (this.hasAttribute('default-checked') || this.defaultChecked) {
+            this.checked = true
+        }
+
         this.subscribeScope()
     }
 
@@ -207,6 +241,14 @@ export class MDCNavigationTab extends composeMixin(
     protected override updated(changedProperties: PropertyValues<this>): void {
         super.updated(changedProperties)
 
+        if (changedProperties.has('defaultChecked') && this.defaultChecked) {
+            this.checked = true
+        }
+
+        if (changedProperties.has('label')) {
+            this.setAttribute('aria-label', this.label)
+        }
+
         if (changedProperties.has('checked')) {
             this.setAttribute('aria-selected', String(this.checked))
             this.handleCheckedMutation()
@@ -214,6 +256,10 @@ export class MDCNavigationTab extends composeMixin(
 
         if (changedProperties.has('disabled')) {
             this.setAttribute('aria-disabled', String(this.disabled))
+        }
+
+        if (changedProperties.has('required')) {
+            this.setAttribute('aria-required', String(this.required))
         }
 
         if (changedProperties.has('navigationScope') && this.isConnected) {
@@ -225,48 +271,115 @@ export class MDCNavigationTab extends composeMixin(
         }
     }
 
+    public override [getFormValue]() {
+        return this.checked ? this.value : null
+    }
+
+    public override [getFormState]() {
+        return String(this.checked)
+    }
+
+    public override formResetCallback(): void {
+        this.checked = this.hasAttribute('default-checked')
+    }
+
+    public override formStateRestoreCallback(state: string | null): void {
+        this.checked = state === 'true'
+    }
+
+    public override [createValidator]() {
+        return new RadioValidator(() => {
+            if (!this.selectionController) {
+                return [this] as [MDCNavigationTab]
+            }
+            return this.selectionController.controls as [MDCNavigationTab, ...MDCNavigationTab[]]
+        })
+    }
+
+    public override [getValidityAnchor]() {
+        return this.rootElement ?? this
+    }
+
+    @state()
+    protected hasDefaultIcon: boolean = false
+
+    @state()
+    protected hasActiveIcon: boolean = false
+
+    @state()
+    protected hasInactiveIcon: boolean = false
+
     protected getRenderClasses() {
         return ({
             'container': true,
             [this.variant]: true,
+            'has-default-icon': this.hasDefaultIcon,
+            'has-active-icon': this.hasActiveIcon,
+            'has-inactive-icon': this.hasInactiveIcon,
+            'disabled': this.disabled,
         })
     }
 
-    /**
-     * Render logic intentionally uses a native input element to mirror
-     * input-like semantics (`name`, `checked`, `disabled`) for the tab control.
-     */
-    protected override render(): unknown {
-        return html`
-            <button class="${classMap(this.getRenderClasses())}">
-                <div aria-hidden="true" class="indicator">
-                    <div aria-hidden="true" class="ripple-layer">
-                        ${this.renderRipple()}
-                    </div>
+    protected override render(): TemplateResult {
+        const classes = classMap(this.getRenderClasses())
+        const tabIndex = this.disabled ? -1 : 0
+        const content = html`
+            <div aria-hidden="true" class="indicator">
+                <div aria-hidden="true" class="ripple-layer">
+                    ${this.renderRipple()}
                 </div>
+            </div>
 
-                <div class="icon-container">
-                    <span class="icon inactive-icon">
-                        ${this.renderInactiveIconSlot()}
-                    </span>
-                    <span class="icon active-icon">
-                        ${this.renderActiveIconSlot()}
-                    </span>
-                    <div class="label in-icon-container">${this.label}</div>
-                </div>
-                <div class="label out-icon-container">${this.label}</div>
-                <div class="badge-container">${this.renderBadgeSlot()}</div>
-                ${this.renderInput()}
-                ${this.renderFocusRing()}
+            <div class="icon-container">
+                <span class="icon default-icon">
+                    <slot name="icon" @slotchange=${this.handleDefaultIconSlotChange}></slot>
+                </span>
+                <span class="icon inactive-icon">
+                    <slot name="inactive-icon" @slotchange=${this.handleInactiveIconSlotChange}></slot>
+                </span>
+                <span class="icon active-icon">
+                    <slot name="active-icon" @slotchange=${this.handleActiveIconSlotChange}></slot>
+                </span>
+                <div class="label in-icon-container">${this.label}</div>
+            </div>
+            <div class="label out-icon-container">${this.label}</div>
+            <div class="badge-container">${this.renderBadgeSlot()}</div>
+            ${this.renderFocusRing()}
+        `
+
+        if (this.href) {
+            return html`
+                <a
+                    class="${classes}"
+                    href=${this.href}
+                    target=${this.target || nothing}
+                    aria-label=${this.label || nothing}
+                    aria-selected=${String(this.checked)}
+                    aria-disabled=${this.disabled ? 'true' : nothing}
+                    tabindex=${tabIndex}
+                    @click=${this.handleClick}
+                >
+                    ${content}
+                </a>
+            `
+        }
+
+        return html`
+            <button
+                type="button"
+                class="${classes}"
+                ?disabled=${this.disabled}
+                aria-label=${this.label || nothing}
+                aria-selected=${String(this.checked)}
+                aria-disabled=${this.disabled ? 'true' : nothing}
+                tabindex=${tabIndex}
+                @click=${this.handleClick}
+            >
+                ${content}
             </button>
         `
     }
-    protected renderInactiveIconSlot() {
-        return html`<slot name="inactive-icon"><slot name="icon"></slot></slot>`
-    }
-    protected renderActiveIconSlot() {
-        return html`<slot name="active-icon"><slot name="icon"></slot></slot>`
-    }
+
     protected renderBadgeSlot() {
         return html`
             <slot name="badge">
@@ -274,20 +387,37 @@ export class MDCNavigationTab extends composeMixin(
             </slot>
         `
     }
-    protected renderInput() {
-        return html`
-            <input
-                id="touch-target"
-                tabindex="-1"
-                type="radio"
-                name=${this.name}
-                .value=${this.value}
-                .checked=${this.checked}
-                ?disabled=${this.disabled}
-                @input=${this.stopNativeInputAndChange}
-                @change=${this.stopNativeInputAndChange}
-            />
-        `
+
+    protected handleDefaultIconSlotChange(e: Event): void {
+        this.hasDefaultIcon = (e.target as HTMLSlotElement).assignedElements({ flatten: true }).length > 0
+    }
+
+    protected handleActiveIconSlotChange(e: Event): void {
+        this.hasActiveIcon = (e.target as HTMLSlotElement).assignedElements({ flatten: true }).length > 0
+    }
+
+    protected handleInactiveIconSlotChange(e: Event): void {
+        this.hasInactiveIcon = (e.target as HTMLSlotElement).assignedElements({ flatten: true }).length > 0
+    }
+
+    private readonly handleHostClick = (event: MouseEvent): void => {
+        if (this.disabled) {
+            event.preventDefault()
+            event.stopImmediatePropagation()
+            return
+        }
+        if (!isActivationClick(event) || !this.rootElement) {
+            return
+        }
+        this.rootElement.click()
+    }
+
+    private readonly handleClick = (event: MouseEvent): void => {
+        if (this.disabled) {
+            event.preventDefault()
+            event.stopImmediatePropagation()
+            return
+        }
     }
 
     private readonly handlePointerDownCapture = () => {
@@ -299,10 +429,6 @@ export class MDCNavigationTab extends composeMixin(
         if (this.disabled) return
         if (!KEYBOARD_SELECTION_KEYS.has(event.key)) return
         this.pendingUserTrigger = 'keyboard'
-    }
-
-    private readonly stopNativeInputAndChange = (event: Event) => {
-        event.stopPropagation()
     }
 
     // Apply store mutations from other tabs/containers in the same scope.
@@ -337,7 +463,7 @@ export class MDCNavigationTab extends composeMixin(
         const trigger = this.pendingUserTrigger ?? 'programmatic'
         this.pendingUserTrigger = null
 
-        if (this.checked && !this.disabled) {
+        if (this.checked && !this.disabled && this.normalizedScope) {
             const mutation = GlobalNavigationStateStore.setActive(this.normalizedScope, this.value, {
                 source: 'user',
                 trigger,
@@ -368,7 +494,7 @@ export class MDCNavigationTab extends composeMixin(
             return
         }
 
-        if (!this.checked || this.disabled) {
+        if (!this.checked || this.disabled || !this.normalizedScope) {
             return
         }
 
@@ -387,11 +513,16 @@ export class MDCNavigationTab extends composeMixin(
 
     private subscribeScope(): void {
         this.unsubscribeScope?.()
+        this.unsubscribeScope = null
+        if (!this.normalizedScope) return
+
         this.unsubscribeScope = GlobalNavigationStateStore.subscribe(this.normalizedScope, this.handleScopeMutation)
         this.syncWithScopeState()
     }
 
     private syncWithScopeState(): void {
+        if (!this.normalizedScope) return
+
         const activeValue = GlobalNavigationStateStore.getActive(this.normalizedScope)
 
         if (activeValue === null) {
@@ -437,7 +568,6 @@ export class MDCNavigationTab extends composeMixin(
     }
 
     private get normalizedScope(): string {
-        const scope = this.navigationScope.trim()
-        return scope.length > 0 ? scope : 'global'
+        return this.navigationScope?.trim() ?? ''
     }
 }

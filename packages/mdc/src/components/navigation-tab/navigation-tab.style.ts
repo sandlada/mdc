@@ -85,8 +85,8 @@ const overrideRipple = {
         }
     )),
 }
-const overrideIcon = stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', {
-    "enabled-size": "var(--_icon-size)",
+const overrideIcon = (value: string = 'var(--_icon-size)') => stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', {
+    "enabled-size": value,
 }))
 
 
@@ -121,6 +121,27 @@ export const NavigationTabStyles = [
         ${drawerS};
     }
     `,
+    // Disabled
+    css`
+        :host([checked]):has(.container.disabled) .icon {
+            color: var(--_disabled-selected-icon-color);
+        }
+        :host(:not([checked])):has(.container.disabled) .icon {
+            color: var(--_disabled-unselected-icon-color);
+        }
+        :host([checked]):has(.container.disabled) .indicator {
+            background: var(--_disabled-selected-indicator-color);
+        }
+        :host(:not([checked])):has(.container.disabled) .indicator {
+            background: var(--_disabled-unselected-indicator-color);
+        }
+            :host([checked]):has(.container.disabled) .label {
+            color: var(--_disabled-selected-label-color);
+        }
+        :host(:not([checked])):has(.container.disabled) .label {
+            color: var(--_disabled-unselected-label-color);
+        }
+    `,
     // Shared Layout
     css`
     :host {
@@ -138,23 +159,14 @@ export const NavigationTabStyles = [
         z-index: 0;
     }
 
-    input {
-        all: unset;
-        color-scheme: inherit;
-        position: absolute;
-        inset: 0;
-        z-index: 1;
-        width: 100%;
-        height: 100%;
-        cursor: pointer;
-    }
-
     .container {
         all: unset;
         color-scheme: inherit;
         position: relative;
         box-sizing: border-box;
         z-index: 0;
+        text-decoration: none;
+        color: inherit;
     }
 
     .indicator {
@@ -184,16 +196,22 @@ export const NavigationTabStyles = [
         pointer-events: none;
         user-select: none;
     }
-    :host(:not([checked])) .icon.inactive-icon {
+
+    .icon:is(.default-icon, .active-icon, .inactive-icon) {
+        opacity: 0;
+    }
+
+    :host(:not([checked])) .container.has-inactive-icon .icon.inactive-icon {
         opacity: 1;
     }
-    :host(:not([checked])) .icon.active-icon {
-        opacity: 0;
+    :host(:not([checked])) .container:not(.has-inactive-icon) .icon.default-icon {
+        opacity: 1;
     }
-    :host([checked]) .icon.inactive-icon {
-        opacity: 0;
+
+    :host([checked]) .container.has-active-icon .icon.active-icon {
+        opacity: 1;
     }
-    :host([checked]) .icon.active-icon {
+    :host([checked]) .container:not(.has-active-icon) .icon.default-icon {
         opacity: 1;
     }
     `,
@@ -555,13 +573,13 @@ export const NavigationTabStyles = [
     // Icon & IconContainer
     css`
     :host(:not([checked])) .icon {
-        ${unsafeCSS(overrideIcon)};
+        ${unsafeCSS(overrideIcon())};
         size: var(--_icon-size);
-    }
-    :host(:not([checked])) .icon.inactive-icon {
         color: var(--_unselected-icon-color);
     }
-    :host([checked]) .icon.active-icon {
+    :host([checked]) .icon {
+        ${unsafeCSS(overrideIcon())};
+        size: var(--_icon-size);
         color: var(--_selected-icon-color);
     }
 
