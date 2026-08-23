@@ -102,9 +102,9 @@ export const NavigationDrawerStyles = [
             height: 100vh;
             height: 100dvh;
         }
-        :host([variant="modal"]:not([open])),
-        :host(:not([variant]):not([open])) {
-            display: none;
+        :host([variant="modal"]) dialog:not([open]),
+        :host(:not([variant])) dialog:not([open]) {
+            display: none !important;
         }
 
         dialog {
@@ -139,7 +139,7 @@ export const NavigationDrawerStyles = [
             width: 100vw;
             max-width: 100vw;
             pointer-events: none;
-            display: block !important;
+            display: block;
             overflow: hidden;
             background: transparent;
             border-radius: 0;

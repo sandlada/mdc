@@ -141,9 +141,8 @@ export abstract class BaseNavigationDrawer extends composeMixin(
 
     private lastCloseReason: NavigationDrawerCloseReason = 'programmatic'
     private previouslyFocused: Element | null = null
-    private handleOpenChange: boolean = true
-    private isAnimating: boolean = false
-    private escapePressedWithoutCancel: boolean = false
+    private isOpening: boolean = false
+    private isClosing: boolean = false
     private intersectionObserver?: IntersectionObserver
     protected cancelAnimations?: AbortController
 
@@ -171,6 +170,30 @@ export abstract class BaseNavigationDrawer extends composeMixin(
         this.syncTabVariants()
     }
 
+    protected override willUpdate(changedProperties: PropertyValues<this>): void {
+        super.willUpdate(changedProperties)
+
+        if (changedProperties.has('open')) {
+            if (this.open) {
+                this.lastCloseReason = 'programmatic'
+                this.previouslyFocused = this.ownerDocument?.activeElement ?? document.activeElement
+                this.dispatchEvent(
+                    new CustomEvent(NAVIGATION_DRAWER_OPENING_EVENT, {
+                        bubbles: true,
+                        composed: true,
+                    }),
+                )
+            } else {
+                this.dispatchEvent(
+                    new CustomEvent(NAVIGATION_DRAWER_CLOSING_EVENT, {
+                        bubbles: true,
+                        composed: true,
+                    }),
+                )
+            }
+        }
+    }
+
     public override updated(changedProperties: PropertyValues<this>): void {
         super.updated(changedProperties)
 
@@ -181,20 +204,25 @@ export abstract class BaseNavigationDrawer extends composeMixin(
             this.syncTabVariants()
         }
 
-        if (changedProperties.has('open') && this.handleOpenChange) {
+        if (changedProperties.has('open')) {
             if (this.variant === 'permanent') {
                 this.open = true
                 return
             }
             if (this.open) {
-                void this.show()
+                if (!this.isOpening) {
+                    void this.show()
+                }
             } else {
-                void this.hide()
+                if (!this.isClosing) {
+                    void this.hide()
+                }
             }
         }
     }
 
     public override disconnectedCallback(): void {
+        this.cancelAnimations?.abort()
         this.intersectionObserver?.disconnect()
         this.intersectionObserver = undefined
         this.removeEventListener(
@@ -212,38 +240,34 @@ export abstract class BaseNavigationDrawer extends composeMixin(
             this.open = true
             return
         }
+        if (this.isOpening || (this.open && this.dialogEl?.open && !this.isClosing)) {
+            return
+        }
+        this.isOpening = true
+        this.isClosing = false
 
         this.cleanUpDragStyles()
-        this.isAnimating = true
+        this.open = true
         await this.isConnectedPromise
         await this.updateComplete
 
-        const dialog = this.dialogEl
+        const targetDialog = this.dialogEl
         const isModal = this.isModal
 
-        if (dialog && !dialog.open) {
-            this.previouslyFocused = document.activeElement
+        if (targetDialog && !targetDialog.open) {
+            if (!this.previouslyFocused) {
+                this.previouslyFocused = this.ownerDocument?.activeElement ?? document.activeElement
+            }
             if (isModal) {
-                dialog.showModal()
+                targetDialog.showModal()
             } else {
-                dialog.show()
+                targetDialog.show()
             }
         }
-
-        this.handleOpenChange = false
-        this.open = true
-        this.handleOpenChange = true
 
         if (this.scroller) {
             this.scroller.scrollTop = 0
         }
-
-        this.dispatchEvent(
-            new CustomEvent(NAVIGATION_DRAWER_OPENING_EVENT, {
-                bubbles: true,
-                composed: true,
-            }),
-        )
 
         if (isModal && !this.quick) {
             await this.animateDrawer(
@@ -269,7 +293,7 @@ export abstract class BaseNavigationDrawer extends composeMixin(
                 composed: true,
             }),
         )
-        this.isAnimating = false
+        this.isOpening = false
     }
 
     /**
@@ -282,40 +306,34 @@ export abstract class BaseNavigationDrawer extends composeMixin(
         if (this.variant === 'permanent') {
             return
         }
+        if (this.isClosing || (!this.open && !this.dialogEl?.open && !this.isOpening)) {
+            return
+        }
+        this.isClosing = true
+        this.isOpening = false
 
-        this.isAnimating = true
         this.lastCloseReason = reason
         this.returnValue = returnValue
         this.dragController.cancel()
 
+        this.open = false
         await this.isConnectedPromise
         await this.updateComplete
 
-        const dialog = this.dialogEl
+        const targetDialog = this.dialogEl
         const isModal = this.isModal
 
-        this.dispatchEvent(
-            new CustomEvent(NAVIGATION_DRAWER_CLOSING_EVENT, {
-                bubbles: true,
-                composed: true,
-            }),
-        )
-
-        if (isModal && !this.quick && dialog && dialog.open && reason !== 'drag') {
+        if (isModal && !this.quick && targetDialog && targetDialog.open && reason !== 'drag') {
             await this.animateDrawer(
                 NavigationDrawerDefaultCloseAnimation(this.drawerEdge),
             )
         }
 
-        if (dialog && dialog.open) {
-            dialog.close(returnValue)
+        if (targetDialog && targetDialog.open) {
+            targetDialog.close(returnValue)
         }
 
         this.cleanUpDragStyles()
-
-        this.handleOpenChange = false
-        this.open = false
-        this.handleOpenChange = true
 
         if (this.previouslyFocused instanceof HTMLElement && document.contains(this.previouslyFocused)) {
             this.previouslyFocused.focus()
@@ -335,7 +353,7 @@ export abstract class BaseNavigationDrawer extends composeMixin(
                 },
             ),
         )
-        this.isAnimating = false
+        this.isClosing = false
     }
 
     /**
@@ -379,15 +397,12 @@ export abstract class BaseNavigationDrawer extends composeMixin(
     }
 
     protected override render(): TemplateResult {
-        const isEffectiveOpen = this.variant === 'permanent' || this.open
         return html`
             <dialog
                 class=${classMap(this.getRenderClasses())}
-                .open=${isEffectiveOpen}
                 .returnValue=${this.returnValue}
                 @cancel=${this.handleCancel}
                 @click=${this.handleDialogClick}
-                @close=${this.handleClose}
                 @keydown=${this.handleKeydown}
             >
                 <span
@@ -516,8 +531,9 @@ export abstract class BaseNavigationDrawer extends composeMixin(
     }
 
     private readonly handleScrimClick = (): void => {
-        if (!this.isModal || !this.cancelable) return
+        if (!this.isModal || !this.cancelable || !this.open) return
 
+        this.lastCloseReason = 'scrim'
         const preventDefault = !this.dispatchEvent(
             new CustomEvent<INavigationDrawerCancelEventDetail>(
                 NAVIGATION_DRAWER_CANCEL_EVENT,
@@ -549,8 +565,9 @@ export abstract class BaseNavigationDrawer extends composeMixin(
         if (!this.isModal) return
 
         event.preventDefault()
-        if (!this.cancelable) return
+        if (!this.cancelable || !this.open) return
 
+        this.lastCloseReason = 'escape'
         const preventDefault = !this.dispatchEvent(
             new CustomEvent<INavigationDrawerCancelEventDetail>(
                 NAVIGATION_DRAWER_CANCEL_EVENT,
@@ -567,24 +584,8 @@ export abstract class BaseNavigationDrawer extends composeMixin(
         void this.hide('escape')
     }
 
-    private readonly handleClose = (): void => {
-        if (this.escapePressedWithoutCancel) {
-            this.escapePressedWithoutCancel = false
-            if (this.cancelable) {
-                void this.hide('escape')
-            }
-        }
-    }
-
-    private readonly handleKeydown = (event: KeyboardEvent): void => {
-        if (!this.isModal) return
-
-        if (event.key === 'Escape') {
-            this.escapePressedWithoutCancel = true
-            setTimeout(() => {
-                this.escapePressedWithoutCancel = false
-            })
-        }
+    private readonly handleKeydown = (_event: KeyboardEvent): void => {
+        // Native `<dialog>` cancel event handles Esc. Reserved for future hotkeys.
     }
 
     private cleanUpDragStyles(): void {
