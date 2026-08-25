@@ -46,7 +46,7 @@ export class DocsPage extends LitElement {
         .demo-frame {
             padding: 24px;
             border-radius: 12px;
-            background: var(--md-sys-color-surface-container-low);
+            background: transparent;
             border: 1px solid var(--md-sys-color-outline-variant);
             overflow-x: auto;
         }

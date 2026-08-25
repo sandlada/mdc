@@ -223,6 +223,10 @@ export class MDCNavigationTab extends composeMixin(
             this.checked = true
         }
 
+        if (!this.label && this.textContent?.trim()) {
+            this.label = this.textContent.trim()
+        }
+
         this.subscribeScope()
     }
 

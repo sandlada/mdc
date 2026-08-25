@@ -1,0 +1,29 @@
+<div style="display: flex; gap: 32px; align-items: flex-start;">
+    <mdc-navigation-rail style="height: 380px;">
+        <mdc-icon-button slot="menu" onclick="const rail = this.closest('mdc-navigation-rail'); rail.toggle(); this.querySelector('mdc-icon').textContent = rail.expanded ? 'menu_open' : 'menu';">
+            <mdc-icon>menu</mdc-icon>
+        </mdc-icon-button>
+        <mdc-navigation-tab name="rail-menu-1" value="/home" label="Home" checked>
+            <mdc-icon slot="inactive-icon">home</mdc-icon>
+            <mdc-icon slot="active-icon" filled>home</mdc-icon>
+        </mdc-navigation-tab>
+        <mdc-navigation-tab name="rail-menu-1" value="/search" label="Search">
+            <mdc-icon slot="inactive-icon">search</mdc-icon>
+            <mdc-icon slot="active-icon" filled>search</mdc-icon>
+        </mdc-navigation-tab>
+    </mdc-navigation-rail>
+
+    <mdc-navigation-rail expanded style="height: 380px;">
+        <mdc-icon-button slot="menu" onclick="const rail = this.closest('mdc-navigation-rail'); rail.toggle(); this.querySelector('mdc-icon').textContent = rail.expanded ? 'menu_open' : 'menu';">
+            <mdc-icon>menu_open</mdc-icon>
+        </mdc-icon-button>
+        <mdc-navigation-tab name="rail-menu-2" value="/home" label="Home" checked>
+            <mdc-icon slot="inactive-icon">home</mdc-icon>
+            <mdc-icon slot="active-icon" filled>home</mdc-icon>
+        </mdc-navigation-tab>
+        <mdc-navigation-tab name="rail-menu-2" value="/search" label="Search">
+            <mdc-icon slot="inactive-icon">search</mdc-icon>
+            <mdc-icon slot="active-icon" filled>search</mdc-icon>
+        </mdc-navigation-tab>
+    </mdc-navigation-rail>
+</div>
