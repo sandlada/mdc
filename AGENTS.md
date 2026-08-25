@@ -387,9 +387,16 @@ render 內部最外層非 host 元素（通常作為 container 角色），其�
 `*-shape-end-start` / `*-shape-end-end`
 
 **規則 5 — padding / margin 格式**：
-必須使用 `{inline|block}-{leading|trailing}-{padding|margin}-space`：
-`enabled-container-inline-leading-padding-space`（= `padding-inline-start`）
-`enabled-container-block-trailing-margin-space`（= `margin-block-end`）
+必須使用 `[state-]?[size-]?[element-]{padding|margin}-{inline|block}-{start|end}` 格式。
+即使 4 個方向數值均相等，也必須拆分為 4 個獨立欄位，禁止使用 `padding-block` 或 `padding-inline` 縮寫，必須搭配 `start` 與 `end`：
+- `enabled-container-padding-inline-start`（= `padding-inline-start`）
+- `enabled-container-padding-inline-end`（= `padding-inline-end`）
+- `enabled-container-padding-block-start`（= `padding-block-start`）
+- `enabled-container-padding-block-end`（= `padding-block-end`）
+- `enabled-container-margin-inline-start`（= `margin-inline-start`）
+- `enabled-container-margin-inline-end`（= `margin-inline-end`）
+- `enabled-container-margin-block-start`（= `margin-block-start`）
+- `enabled-container-margin-block-end`（= `margin-block-end`）
 
 **規則 6 — 字體完整性**：
 label 等文字元素必須包含全部 6 項字體 token：

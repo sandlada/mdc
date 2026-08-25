@@ -164,52 +164,62 @@ const shared = css`
     .container {
         &.extra-small {
             height: var(--_extra-small-container-height);
-            min-width: calc(64px - var(--_extra-small-container-inline-leading-padding-space) - var(--_extra-small-container-inline-trailing-padding-space));
+            min-width: calc(64px - var(--_extra-small-container-padding-inline-start) - var(--_extra-small-container-padding-inline-end));
         }
         &.small {
             height: var(--_small-container-height);
-            min-width: calc(64px - var(--_small-container-inline-leading-padding-space) - var(--_small-container-inline-trailing-padding-space));
+            min-width: calc(64px - var(--_small-container-padding-inline-start) - var(--_small-container-padding-inline-end));
         }
         &.medium {
             height: var(--_medium-container-height);
-            min-width: calc(64px - var(--_medium-container-inline-leading-padding-space) - var(--_medium-container-inline-trailing-padding-space));
+            min-width: calc(64px - var(--_medium-container-padding-inline-start) - var(--_medium-container-padding-inline-end));
         }
         &.large {
             height: var(--_large-container-height);
-            min-width: calc(64px - var(--_large-container-inline-leading-padding-space) - var(--_large-container-inline-trailing-padding-space));
+            min-width: calc(64px - var(--_large-container-padding-inline-start) - var(--_large-container-padding-inline-end));
         }
         &.extra-large {
             height: var(--_extra-large-container-height);
-            min-width: calc(64px - var(--_extra-large-container-inline-leading-padding-space) - var(--_extra-large-container-inline-trailing-padding-space));
+            min-width: calc(64px - var(--_extra-large-container-padding-inline-start) - var(--_extra-large-container-padding-inline-end));
         }
     }
 
     /* Button Size */
 
     .container.extra-small {
-        padding-inline-start: var(--_extra-small-container-inline-leading-padding-space);
-        padding-inline-end: var(--_extra-small-container-inline-trailing-padding-space);
-        gap: var(--_extra-small-icon-label-padding-space);
+        padding-inline-start: var(--_extra-small-container-padding-inline-start);
+        padding-inline-end: var(--_extra-small-container-padding-inline-end);
+        padding-block-start: var(--_extra-small-container-padding-block-start);
+        padding-block-end: var(--_extra-small-container-padding-block-end);
+        gap: var(--_extra-small-icon-label-space);
     }
     .container.small{
-        padding-inline-start: var(--_small-container-inline-leading-padding-space);
-        padding-inline-end: var(--_small-container-inline-trailing-padding-space);
-        gap: var(--_small-icon-label-padding-space);
+        padding-inline-start: var(--_small-container-padding-inline-start);
+        padding-inline-end: var(--_small-container-padding-inline-end);
+        padding-block-start: var(--_small-container-padding-block-start);
+        padding-block-end: var(--_small-container-padding-block-end);
+        gap: var(--_small-icon-label-space);
     }
     .container.medium{
-        padding-inline-start: var(--_medium-container-inline-leading-padding-space);
-        padding-inline-end: var(--_medium-container-inline-trailing-padding-space);
-        gap: var(--_medium-icon-label-padding-space);
+        padding-inline-start: var(--_medium-container-padding-inline-start);
+        padding-inline-end: var(--_medium-container-padding-inline-end);
+        padding-block-start: var(--_medium-container-padding-block-start);
+        padding-block-end: var(--_medium-container-padding-block-end);
+        gap: var(--_medium-icon-label-space);
     }
     .container.large{
-        padding-inline-start: var(--_large-container-inline-leading-padding-space);
-        padding-inline-end: var(--_large-container-inline-trailing-padding-space);
-        gap: var(--_large-icon-label-padding-space);
+        padding-inline-start: var(--_large-container-padding-inline-start);
+        padding-inline-end: var(--_large-container-padding-inline-end);
+        padding-block-start: var(--_large-container-padding-block-start);
+        padding-block-end: var(--_large-container-padding-block-end);
+        gap: var(--_large-icon-label-space);
     }
     .container.extra-large{
-        padding-inline-start: var(--_extra-large-container-inline-leading-padding-space);
-        padding-inline-end: var(--_extra-large-container-inline-trailing-padding-space);
-        gap: var(--_extra-large-icon-label-padding-space);
+        padding-inline-start: var(--_extra-large-container-padding-inline-start);
+        padding-inline-end: var(--_extra-large-container-padding-inline-end);
+        padding-block-start: var(--_extra-large-container-padding-block-start);
+        padding-block-end: var(--_extra-large-container-padding-block-end);
+        gap: var(--_extra-large-icon-label-space);
     }
 
     .container:not(.has-label) .label {

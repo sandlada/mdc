@@ -37,10 +37,10 @@ export const BadgeStyles = [
             border-end-end-radius: var(--_large-container-shape-end-end);
             border-end-start-radius: var(--_large-container-shape-end-start);
 
-            padding-block-start: var(--_large-container-block-leading-padding-space);
-            padding-block-end: var(--_large-container-block-trailing-padding-space);
-            padding-inline-start: var(--_large-container-inline-leading-padding-space);
-            padding-inline-end: var(--_large-container-inline-trailing-padding-space);
+            padding-block-start: var(--_large-container-padding-block-start);
+            padding-block-end: var(--_large-container-padding-block-end);
+            padding-inline-start: var(--_large-container-padding-inline-start);
+            padding-inline-end: var(--_large-container-padding-inline-end);
         }
         .container.small {
             height: var(--_small-container-size);
@@ -50,10 +50,10 @@ export const BadgeStyles = [
             border-start-end-radius: var(--_small-container-shape-start-end);
             border-end-end-radius: var(--_small-container-shape-end-end);
             border-end-start-radius: var(--_small-container-shape-end-start);
-            padding-block-start: var(--_small-container-block-leading-padding-space);
-            padding-block-end: var(--_small-container-block-trailing-padding-space);
-            padding-inline-start: var(--_small-container-inline-leading-padding-space);
-            padding-inline-end: var(--_small-container-inline-trailing-padding-space);
+            padding-block-start: var(--_small-container-padding-block-start);
+            padding-block-end: var(--_small-container-padding-block-end);
+            padding-inline-start: var(--_small-container-padding-inline-start);
+            padding-inline-end: var(--_small-container-padding-inline-end);
         }
 
         .label {

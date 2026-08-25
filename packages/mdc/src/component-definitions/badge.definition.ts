@@ -21,10 +21,10 @@ export const BadgeDefinition = createStyleDefinition({
     'large-label-size'                                   : Typescale.LabelSmall.FontSize,
     'large-label-tracking'                               : Typescale.LabelSmall.Tracking,
     'large-label-weight'                                 : Typescale.LabelSmall.FontWeight,
-    'large-container-block-leading-padding-space'        : Space.Space0,
-    'large-container-block-trailing-padding-space'       : Space.Space0,
-    'large-container-inline-leading-padding-space'       : Space.Space50,
-    'large-container-inline-trailing-padding-space'      : Space.Space50,
+    'large-container-padding-block-start'                : Space.Space0,
+    'large-container-padding-block-end'                  : Space.Space0,
+    'large-container-padding-inline-start'                : Space.Space50,
+    'large-container-padding-inline-end'                  : Space.Space50,
 
     // Small
     'enabled-small-container-color'                      : Color.Error,
@@ -33,8 +33,8 @@ export const BadgeDefinition = createStyleDefinition({
     'small-container-shape-end-start'                    : Shape.Full,
     'small-container-shape-end-end'                      : Shape.Full,
     'small-container-size'                               : `6px`,
-    'small-container-block-leading-padding-space'        : Space.Space25,
-    'small-container-block-trailing-padding-space'       : Space.Space25,
-    'small-container-inline-leading-padding-space'       : Space.Space25,
-    'small-container-inline-trailing-padding-space'      : Space.Space25,
+    'small-container-padding-block-start'                : Space.Space25,
+    'small-container-padding-block-end'                  : Space.Space25,
+    'small-container-padding-inline-start'                : Space.Space25,
+    'small-container-padding-inline-end'                  : Space.Space25,
 })

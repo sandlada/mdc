@@ -33,8 +33,10 @@ export const ListItemDefinition = createStyleDefinition({
     'two-line-container-height'   : `72px`,
     'three-line-container-height' : `88px`,
 
-    'enabled-container-inline-leading-padding-space'  : `16px`,
-    'enabled-container-inline-trailing-padding-space' : `16px`,
+    'enabled-container-padding-inline-start': `16px`,
+    'enabled-container-padding-inline-end'  : `16px`,
+    'enabled-container-padding-block-start' : `0px`,
+    'enabled-container-padding-block-end'   : `0px`,
 
     // Container colors (state × element × `-selected` suffix at END)
     'enabled-container-color'     : `transparent`,
