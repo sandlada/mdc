@@ -1,6 +1,6 @@
 import { defineConfig, type Plugin } from 'vite'
 import { fileURLToPath, URL } from 'node:url'
-import { readdirSync } from 'node:fs'
+import { readdirSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 
 const srcRoot = fileURLToPath(new URL('../mdc/src', import.meta.url))
@@ -26,7 +26,9 @@ function collectHtmlInputs(devAppRoot: string): Record<string, string> {
     const compsDir = join(devAppRoot, 'components')
     for (const name of readdirSync(compsDir)) {
         const file = join(compsDir, name, 'index.html')
-        inputs[`components/${name}/index`] = file
+        if (existsSync(file)) {
+            inputs[`components/${name}/index`] = file
+        }
     }
     return inputs
 }

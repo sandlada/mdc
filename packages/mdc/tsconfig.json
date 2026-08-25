@@ -42,6 +42,7 @@
     ],
     "exclude": [
         "./src/**/*-old/*",
+        "./src/**/dock-layout/*",
         "./src/**/draggable-modal/*",
         "./src/**/popup-controller/*",
         "./src/**/wave/*",
