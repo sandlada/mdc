@@ -429,6 +429,31 @@ label 等文字元素必須包含全部 6 項字體 token：
 
 ---
 
+## 測試約定與 TDD 紀律
+
+本專案採用嚴格的測試驅動開發（TDD）流程：
+
+### 1. 測試框架與執行
+- 測試統一採用 **`vitest`**。
+- 指令：`npm run test`（在各 workspace 執行 `vitest`）。
+
+### 2. 測試檔案同源共置（Co-location）
+- 測試檔案與被測原始碼檔案**位於同一個目錄下**（同 `src/`）。
+- 命名規範：`{name}.spec.ts` 與 `{name}.ts` 一一對應。
+  - 例如：`src/utils/tokens/create-style-sheet.ts` 對應 `src/utils/tokens/create-style-sheet.spec.ts`
+  - 例如：`src/components/badge/badge.ts` 對應 `src/components/badge/badge.spec.ts`
+
+### 3. TDD 鐵律（先寫測試，再寫實作）
+- **紅燈 -> 綠燈 -> 重構**：在編寫功能實現代碼之前，**必須先編寫測試檔案**。
+- 測試用例必須全覆蓋各種邊界與分支：
+  - 基礎 / 預設情境
+  - 邊界條件與空值 / 例外處理
+  - 互動狀態（`enabled`, `hovered`, `focused`, `pressed`, `disabled`）
+  - 多維度修飾與二態組合（如 `selected`, `unselected`, `error`）
+- **任何功能的實現必須 100% 通過測試**，方可視為完成。
+
+---
+
 ## 構建說明
 
 **當前狀態**：專案正在從 `rollup` 遷移到 `rolldown`（過渡期）。
@@ -536,12 +561,12 @@ Slider 元件（如 `expressive-slider`）在處理水平與垂直方向時，�
 
 **取值方向矩陣**：
 
-| `direction` | `reversed` | 取值方向 (從小到大) | 起點 (Min 0) | 終點 (Max 100) | 激活軌道（Active Track） | 適用場景 |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| `horizontal` | `false`（預設） | 從左到右 | 左側（Left） | 右側（Right） | 左側（從左側延伸至 Handle） | 標準水平控制項 |
-| `horizontal` | `true` | 從右到左 | 右側（Right） | 左側（Left） | 右側（從右側延伸至 Handle） | RTL 或逆向進度 |
-| `vertical` | `false`（預設） | **從下到上** | **底部（Bottom）** | **頂部（Top）** | **底部（從底部延伸至 Handle）** | 音量推子、混音器 (Fader)、高度/溫度計 |
-| `vertical` | `true` | **從上到下** | **頂部（Top）** | **底部（Bottom）** | **頂部（從頂部延伸至 Handle）** | 捲動條、頁面位置、列表位置 |
+| `direction`  | `reversed`      | 取值方向 (從小到大) | 起點 (Min 0)       | 終點 (Max 100)     | 激活軌道（Active Track）        | 適用場景                              |
+| :----------- | :-------------- | :------------------ | :----------------- | :----------------- | :------------------------------ | :------------------------------------ |
+| `horizontal` | `false`（預設） | 從左到右            | 左側（Left）       | 右側（Right）      | 左側（從左側延伸至 Handle）     | 標準水平控制項                        |
+| `horizontal` | `true`          | 從右到左            | 右側（Right）      | 左側（Left）       | 右側（從右側延伸至 Handle）     | RTL 或逆向進度                        |
+| `vertical`   | `false`（預設） | **從下到上**        | **底部（Bottom）** | **頂部（Top）**    | **底部（從底部延伸至 Handle）** | 音量推子、混音器 (Fader)、高度/溫度計 |
+| `vertical`   | `true`          | **從上到下**        | **頂部（Top）**    | **底部（Bottom）** | **頂部（從頂部延伸至 Handle）** | 捲動條、頁面位置、列表位置            |
 
 **核心實作教訓與規則**：
 

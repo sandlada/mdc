@@ -11,6 +11,7 @@
         "build:dts": "npm run build:dts -w @sandlada/mdc",
         "dev": "npm run dev -w @sandlada/mdc-dev",
         "build:dev": "npm run build -w @sandlada/mdc-dev",
-        "preview:dev": "npm run preview -w @sandlada/mdc-dev"
+        "preview:dev": "npm run preview -w @sandlada/mdc-dev",
+        "test": "npm run test -w @sandlada/mdc"
     }
 }
