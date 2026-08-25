@@ -4,19 +4,14 @@
  * SPDX-License-Identifier: MIT
  */
 
-export interface HasToCSSVariable {
-    ToCSSVariable: () => any
-}
+import {
+    STATE_NAMES,
+    type HasToCSSVariable,
+    type Nil,
+    type StateTuple,
+} from './state'
 
-export type StateTuple<T = any> = readonly [
-    enabled?: T,
-    hovered?: T,
-    pressed?: T,
-    focused?: T,
-    disabled?: T
-]
-
-type Nil = null | undefined | void
+export type { HasToCSSVariable, StateTuple }
 
 type ResolveValue<V> = V extends HasToCSSVariable
     ? ReturnType<V['ToCSSVariable']>
@@ -66,9 +61,6 @@ export type ResolvedStyle<T> = {
         ? ReturnType<T[K]['ToCSSVariable']>
         : T[K]
 }
-
-const STATES = ['enabled', 'hovered', 'pressed', 'focused', 'disabled'] as const
-
 /**
  * Creates a style definition mapping state tuples to expanded token records.
  *
@@ -85,10 +77,10 @@ export function createStyleDefinition(record: any): any {
 
     for (const [k, v] of Object.entries(record ?? {})) {
         if (Array.isArray(v)) {
-            for (let i = 0; i < STATES.length; i++) {
+            for (let i = 0; i < STATE_NAMES.length; i++) {
                 const stateVal = v[i]
                 if (stateVal !== null && stateVal !== undefined) {
-                    result[`${STATES[i]}-${k}`] = typeof (stateVal as any)?.ToCSSVariable === 'function'
+                    result[`${STATE_NAMES[i]}-${k}`] = typeof (stateVal as any)?.ToCSSVariable === 'function'
                         ? (stateVal as any).ToCSSVariable()
                         : stateVal
                 }
