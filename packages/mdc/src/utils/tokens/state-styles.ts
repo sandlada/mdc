@@ -15,6 +15,7 @@ export { STATE_NAMES, type StateName, type StateTuple }
 export type StateSelectorFunction = (state: StateName, stateIndex: number) => string | null | undefined
 
 export type StateSelectorMap = {
+    /** Base selector template used when an explicit per-state selector is not specified */
     base?: string
     enabled?: string | null
     hovered?: string | null
@@ -29,6 +30,17 @@ export type StateSelectorInput =
     | StateSelectorMap
     | StateSelectorFunction
 
+export type StatePropertyFunction = (
+    state: StateName,
+    stateIndex: number
+) => string | number | null | undefined | void
+
+export type StatePropertyValue =
+    | string
+    | number
+    | StatePropertyFunction
+    | StateTuple<string | number | StatePropertyFunction | null | undefined | void>
+
 export interface StateStylesOptions {
     /**
      * Selector template, tuple, object map, or generator function.
@@ -36,15 +48,28 @@ export interface StateStylesOptions {
      * - **Placeholder string**: e.g. `':host(:not([checked])$state) .label'` or `'.container$state .icon'`
      * - **Auto-inject string**: e.g. `':host(:not([checked])) .label'` or `'.container .label'`
      * - **5-state tuple**: `[enabledSel, hoveredSel, pressedSel, focusedSel, disabledSel]`
-     * - **Object map**: `{ enabled: '...', disabled: '...' }`
+     * - **Object map with base/overrides**: `{ base: '...', disabled: '...' }`
      * - **Function**: `(state, index) => string`
      */
     selector: StateSelectorInput
 
     /**
+     * Complete selector overrides for individual states.
+     * When specified for a state, this selector completely replaces any template calculation.
+     * Set to `null` to disable generating CSS for that specific state.
+     *
+     * @example
+     * ```typescript
+     * selectors: {
+     *     disabled: ':host(:not([checked])):has(.container.disabled) .label',
+     * }
+     * ```
+     */
+    selectors?: Partial<Record<StateName, string | null | undefined>>
+
+    /**
      * Replacement for `$state` in the disabled state.
      * Defaults to `[disabled]` when selector contains `:host`, otherwise `.disabled`.
-     * Can be set to `:has(.container.disabled)`, `.disabled`, `[disabled]`, or any custom selector fragment.
      */
     disabled?: string
 
@@ -73,14 +98,13 @@ export interface StateStylesOptions {
      *
      * Values can be:
      * - Token name suffix (e.g. `'unselected-label-color'`) -> auto-expands to `var(--_{state}-${suffix})`
+     * - Value template with `$state` / `{state}` (e.g. `'var(--_$state-indicator-height) min(var(--_$state-label-line-height), var(--_$state-label-size))'`)
+     * - Dynamic function: `(state, index) => string`
      * - Raw CSS string / CSS variable (e.g. `'var(--sys-primary)'`, `'1px'`, `'0.38'`)
      * - State tuple: `[enabled, hovered, pressed, focused, disabled]`, where each entry can be
-     *   a token suffix, raw CSS value, or `null`/`undefined`/`void 0` to omit that state.
+     *   a token suffix, template, raw CSS value, or `null`/`undefined`/`void 0` to omit that state.
      */
-    properties: Record<
-        string,
-        string | number | StateTuple<string | number | null | undefined | void>
-    >
+    properties: Record<string, StatePropertyValue>
 }
 
 /**
@@ -90,6 +114,9 @@ function isRawCssValue(val: string): boolean {
     return (
         val.startsWith('var(') ||
         val.startsWith('calc(') ||
+        val.startsWith('min(') ||
+        val.startsWith('max(') ||
+        val.startsWith('clamp(') ||
         val.startsWith('url(') ||
         val.startsWith('linear-gradient(') ||
         val.startsWith('radial-gradient(') ||
@@ -117,9 +144,27 @@ function isRawCssValue(val: string): boolean {
 /**
  * Resolves a property value for a given state name.
  */
-function formatPropertyValue(state: StateName, val: string | number): string {
+function formatPropertyValue(
+    state: StateName,
+    val: string | number | StatePropertyFunction,
+    index: number
+): string | null {
+    if (typeof val === 'function') {
+        const res = val(state, index)
+        return res !== null && res !== undefined ? String(res) : null
+    }
+
     if (typeof val === 'number') {
         return String(val)
+    }
+
+    // Support $state or {state} placeholders in complex CSS expressions
+    if (val.includes('$state')) {
+        return val.replaceAll('$state', state)
+    }
+
+    if (val.includes('{state}')) {
+        return val.replaceAll('{state}', state)
     }
 
     if (val.startsWith('--')) {
@@ -134,6 +179,44 @@ function formatPropertyValue(state: StateName, val: string | number): string {
 }
 
 /**
+ * Resolves a template string with state modifier injection.
+ */
+function resolveTemplateSelector(
+    template: string,
+    options: StateStylesOptions,
+    index: number
+): string {
+    const enabledMod = options.enabled ?? ''
+    const hoveredMod = options.hovered ?? ':hover'
+    const pressedMod = options.pressed ?? ':active'
+    const focusedMod = options.focused ?? ':focus-within'
+    const disabledMod = options.disabled ?? (template.includes(':host') ? '[disabled]' : '.disabled')
+
+    const modifiers = [enabledMod, hoveredMod, pressedMod, focusedMod, disabledMod]
+    const mod = modifiers[index]
+
+    if (template.includes('$state')) {
+        return template.replaceAll('$state', mod).trim()
+    }
+
+    if (template.includes('{state}')) {
+        return template.replaceAll('{state}', mod).trim()
+    }
+
+    // Auto-inject into :host(...) or :host
+    if (template.startsWith(':host(')) {
+        return template.replace(/:host\((.*?)\)/, (_, inner) => `:host(${inner}${mod})`).trim()
+    }
+
+    if (template.startsWith(':host')) {
+        return template.replace(/:host/, `:host${mod}`).trim()
+    }
+
+    // Auto-inject after the first class or element identifier
+    return template.replace(/^(\.[a-zA-Z0-9_-]+|#[a-zA-Z0-9_-]+|[a-zA-Z0-9_-]+)/, `$1${mod}`).trim()
+}
+
+/**
  * Resolves the selector string for a specific state index.
  */
 function resolveSelectorForState(
@@ -141,53 +224,42 @@ function resolveSelectorForState(
     state: StateName,
     index: number
 ): string | null {
-    const { selector } = options
+    const { selector, selectors } = options
 
+    // 1. Check explicit override in options.selectors
+    if (selectors && selectors[state] !== undefined) {
+        const custom = selectors[state]
+        return custom ? custom.trim() : null
+    }
+
+    // 2. Function generator
     if (typeof selector === 'function') {
         const res = selector(state, index)
         return res ? res.trim() : null
     }
 
+    // 3. 5-element array / tuple
     if (Array.isArray(selector)) {
         const res = selector[index]
         return res ? res.trim() : null
     }
 
+    // 4. Object map (with per-state overrides and optional .base template)
     if (typeof selector === 'object' && selector !== null) {
         const map = selector as StateSelectorMap
-        const res = map[state] ?? (state === 'enabled' ? map.base : undefined)
-        return res ? res.trim() : null
+        if (map[state] !== undefined) {
+            const res = map[state]
+            return res ? res.trim() : null
+        }
+        if (map.base) {
+            return resolveTemplateSelector(map.base, options, index)
+        }
+        return null
     }
 
+    // 5. String template
     if (typeof selector === 'string') {
-        const enabledMod = options.enabled ?? ''
-        const hoveredMod = options.hovered ?? ':hover'
-        const pressedMod = options.pressed ?? ':active'
-        const focusedMod = options.focused ?? ':focus-within'
-        const disabledMod = options.disabled ?? (selector.includes(':host') ? '[disabled]' : '.disabled')
-
-        const modifiers = [enabledMod, hoveredMod, pressedMod, focusedMod, disabledMod]
-        const mod = modifiers[index]
-
-        if (selector.includes('$state')) {
-            return selector.replaceAll('$state', mod).trim()
-        }
-
-        if (selector.includes('{state}')) {
-            return selector.replaceAll('{state}', mod).trim()
-        }
-
-        // Auto-inject into :host(...) or :host
-        if (selector.startsWith(':host(')) {
-            return selector.replace(/:host\((.*?)\)/, (_, inner) => `:host(${inner}${mod})`).trim()
-        }
-
-        if (selector.startsWith(':host')) {
-            return selector.replace(/:host/, `:host${mod}`).trim()
-        }
-
-        // Auto-inject after the first class or element identifier
-        return selector.replace(/^(\.[a-zA-Z0-9_-]+|#[a-zA-Z0-9_-]+|[a-zA-Z0-9_-]+)/, `$1${mod}`).trim()
+        return resolveTemplateSelector(selector, options, index)
     }
 
     return null
@@ -201,9 +273,12 @@ function resolveSelectorForState(
  * ```typescript
  * stateStyles({
  *     selector: ':host(:not([checked])$state) .label',
- *     disabled: ':has(.container.disabled)',
+ *     selectors: {
+ *         disabled: ':host(:not([checked]):has(.container.disabled)) .label',
+ *     },
  *     properties: {
  *         color: 'unselected-label-color',
+ *         'grid-template-rows': 'var(--_$state-indicator-height) min(var(--_$state-label-line-height), var(--_$state-label-size))',
  *         opacity: [null, null, null, null, 'disabled-label-opacity'],
  *     },
  * })
@@ -222,17 +297,19 @@ export function stateStyles(options: StateStylesOptions): CSSResult {
         for (const [prop, val] of Object.entries(options.properties)) {
             if (val === null || val === undefined) continue
 
-            let entryVal: string | number | null | undefined
+            let entryVal: string | number | StatePropertyFunction | null | undefined
 
             if (Array.isArray(val)) {
                 entryVal = val[i]
             } else {
-                entryVal = val as string | number
+                entryVal = val as string | number | StatePropertyFunction
             }
 
             if (entryVal !== null && entryVal !== undefined) {
-                const formatted = formatPropertyValue(state, entryVal)
-                declarations.push(`${prop}: ${formatted};`)
+                const formatted = formatPropertyValue(state, entryVal, i)
+                if (formatted !== null && formatted !== undefined) {
+                    declarations.push(`${prop}: ${formatted};`)
+                }
             }
         }
 
