@@ -1,3 +1,8 @@
+/**
+ * @license
+ * Copyright 2026 Kai-Orion & Sandlada
+ * SPDX-License-Identifier: MIT
+ */
 import { html, LitElement, type TemplateResult } from 'lit'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import type { BadgeSize, IBadge } from './badge.interface'
@@ -38,6 +43,15 @@ export class MDCBadge extends composeMixin(
     @property({ type: String, reflect: true })
     public value: string | number | null = null
 
+    @property({ type: String, reflect: true })
+    public label: string | null = null
+
+    @property({ type: Number, reflect: true })
+    public max: number | null = 99
+
+    @property({ type: Boolean, attribute: 'auto-size-on-zero', reflect: true })
+    public autoSizeOnZero: boolean = false
+
     @query('.label')
     protected readonly labelElement!: HTMLSpanElement
 
@@ -60,9 +74,46 @@ export class MDCBadge extends composeMixin(
         super()
     }
 
+    protected get isZero(): boolean {
+        if (this.label != null && this.label !== '') return false
+        return this.value === 0 || this.value === '0'
+    }
+
+    public get effectiveSize(): BadgeSize {
+        if (this.autoSizeOnZero) {
+            return this.isZero ? 'small' : 'large'
+        }
+        return this.size
+    }
+
+    protected get displayText(): string {
+        if (this.effectiveSize === 'small') {
+            return ''
+        }
+        if (this.label != null && this.label !== '') {
+            return this.label
+        }
+        if (this.value == null || this.value === '') return ''
+        if (this.isZero) {
+            return '0'
+        }
+        const num = typeof this.value === 'number' ? this.value : Number(this.value)
+        if (!isNaN(num) && typeof this.value !== 'boolean') {
+            if (this.max != null && this.max > 0 && num > this.max) {
+                return `${this.max}+`
+            }
+            return String(this.value)
+        }
+        return String(this.value)
+    }
+
+    protected get hasLabel(): boolean {
+        return this.displayText !== ''
+    }
+
     protected getRenderClasses() {
         return ({
-            [this.size]: true,
+            [this.effectiveSize]: true,
             'container': true,
             'has-label': this.hasLabel,
         })
@@ -78,18 +129,9 @@ export class MDCBadge extends composeMixin(
 
     protected renderLabel() {
         return html`
-            <span class="label">${this.displayValue}</span>
+            <span class="label">${this.displayText}</span>
         `
     }
 
-    protected get displayValue(): string {
-        if (this.value == null) return ''
-        if (typeof this.value === 'string') return this.value
-        return this.value > 99 ? '99+' : String(this.value)
-    }
-
-    protected get hasLabel(): boolean {
-        return this.value != null && this.value !== ''
-    }
-
 }
+
