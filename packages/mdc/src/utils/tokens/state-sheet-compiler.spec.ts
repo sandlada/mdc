@@ -433,5 +433,37 @@ describe('state-sheet-compiler', () => {
             expect(result).not.toContain(':host ,')
             expect(result).not.toContain('@layer mdc @keyframes')
         })
+
+        it('correctly handles @starting-style wrapper at-rule', () => {
+
+            const inputCss = `
+                @layer mdc {
+                    :host {
+                        display: none;
+                        opacity: 0;
+                        transition: display 0.3s allow-discrete, opacity 0.3s;
+                    }
+
+                    :host([focused]) {
+                        display: flex;
+                        opacity: 1;
+                    }
+
+                    @starting-style {
+                        :host([focused]) {
+                            opacity: 0;
+                        }
+                    }
+                }
+            `
+
+            const result = compileStateSheet(sampleDefinition, inputCss)
+
+            expect(result).toContain('@starting-style {')
+            expect(result).toContain(':host([focused]) {')
+            expect(result).toContain('opacity: 0;')
+            expect(result).not.toContain('@starting-style :host')
+        })
     })
 })
+

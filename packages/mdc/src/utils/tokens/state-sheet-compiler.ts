@@ -152,8 +152,9 @@ function parseKeyframeSteps(body: string, meta: StateTokenMetadata): KeyframeSte
 }
 
 function isWrapperAtRule(header: string): boolean {
-    return /^@(layer|media|supports|container)(\s|$)/i.test(header)
+    return /^@(layer|media|supports|container|starting-style)(\s|$)/i.test(header)
 }
+
 
 function isKeyframesAtRule(header: string): boolean {
     return /^@(-webkit-)?keyframes(\s|$)/i.test(header)
