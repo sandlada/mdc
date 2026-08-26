@@ -50,12 +50,32 @@ interface Declaration {
     stateTokens: string[]
 }
 
-interface RuleNode {
+export interface KeyframeStep {
+    selector: string
+    declarations: Declaration[]
+}
+
+export interface KeyframesNode {
+    type: 'keyframes'
+    header: string
+    steps: KeyframeStep[]
+}
+
+export interface WrapperAtRuleNode {
+    type: 'wrapper-at-rule'
+    atRuleHeader: string
+    children: AstNode[]
+}
+
+export interface StyleRuleNode {
+    type: 'style-rule'
     selector: string
     anchor: string
     whenCondition?: string
     declarations: Declaration[]
 }
+
+export type AstNode = WrapperAtRuleNode | KeyframesNode | StyleRuleNode
 
 /**
  * Strips CSS comments.
@@ -89,8 +109,58 @@ function parseDeclarationString(raw: string, meta: StateTokenMetadata): Declarat
     }
 }
 
+function parseKeyframeSteps(body: string, meta: StateTokenMetadata): KeyframeStep[] {
+    const steps: KeyframeStep[] = []
+    let i = 0
+    const len = body.length
+
+    while (i < len) {
+        while (i < len && /\s/.test(body[i])) i++
+        if (i >= len) break
+
+        const openBrace = body.indexOf('{', i)
+        if (openBrace === -1) break
+
+        const selector = body.slice(i, openBrace).trim()
+        let depth = 1
+        let j = openBrace + 1
+
+        while (j < len && depth > 0) {
+            if (body[j] === '{') depth++
+            else if (body[j] === '}') depth--
+            j++
+        }
+
+        const stepContent = body.slice(openBrace + 1, j - 1).trim()
+        i = j
+
+        const declStrings = stepContent.split(';')
+        const declarations: Declaration[] = []
+        for (const raw of declStrings) {
+            const trimmed = raw.trim()
+            if (!trimmed) continue
+            const decl = parseDeclarationString(trimmed, meta)
+            if (decl) declarations.push(decl)
+        }
+
+        if (selector) {
+            steps.push({ selector, declarations })
+        }
+    }
+
+    return steps
+}
+
+function isWrapperAtRule(header: string): boolean {
+    return /^@(layer|media|supports|container)(\s|$)/i.test(header)
+}
+
+function isKeyframesAtRule(header: string): boolean {
+    return /^@(-webkit-)?keyframes(\s|$)/i.test(header)
+}
+
 /**
- * Recursive descent parser for nested CSS blocks supporting @anchor, @when, and nested selectors.
+ * Recursive descent parser for nested CSS blocks supporting @anchor, @when, @layer, @keyframes, @media, etc.
  */
 function parseCssRecursive(
     css: string,
@@ -99,8 +169,8 @@ function parseCssRecursive(
     currentTarget: string = '',
     currentWhen?: string,
     isExplicitAnchor: boolean = false
-): RuleNode[] {
-    const rules: RuleNode[] = []
+): AstNode[] {
+    const nodes: AstNode[] = []
     const currentDeclarations: Declaration[] = []
 
     let i = 0
@@ -152,7 +222,7 @@ function parseCssRecursive(
         if (header.startsWith('@anchor')) {
             const anchorSelector = header.replace(/^@anchor\s+/, '').trim()
             const childRules = parseCssRecursive(body, meta, anchorSelector, anchorSelector, currentWhen, true)
-            rules.push(...childRules)
+            nodes.push(...childRules)
             continue
         }
 
@@ -161,7 +231,29 @@ function parseCssRecursive(
             const whenMatch = header.match(/^@when\((.*?)\)/)
             const whenCondition = whenMatch ? whenMatch[1].trim() : ''
             const childRules = parseCssRecursive(body, meta, currentAnchor, currentTarget, whenCondition, isExplicitAnchor)
-            rules.push(...childRules)
+            nodes.push(...childRules)
+            continue
+        }
+
+        // Handle @keyframes / @-webkit-keyframes
+        if (isKeyframesAtRule(header)) {
+            const steps = parseKeyframeSteps(body, meta)
+            nodes.push({
+                type: 'keyframes',
+                header,
+                steps,
+            })
+            continue
+        }
+
+        // Handle wrapper at-rules (@layer, @media, @supports, @container)
+        if (isWrapperAtRule(header)) {
+            const children = parseCssRecursive(body, meta, currentAnchor, currentTarget, currentWhen, isExplicitAnchor)
+            nodes.push({
+                type: 'wrapper-at-rule',
+                atRuleHeader: header,
+                children,
+            })
             continue
         }
 
@@ -184,11 +276,12 @@ function parseCssRecursive(
         }
 
         const childRules = parseCssRecursive(body, meta, childAnchor, composedTarget, currentWhen, isExplicitAnchor)
-        rules.push(...childRules)
+        nodes.push(...childRules)
     }
 
     if (currentDeclarations.length > 0) {
-        rules.unshift({
+        nodes.unshift({
+            type: 'style-rule',
             selector: currentTarget || currentAnchor,
             anchor: currentAnchor,
             whenCondition: currentWhen,
@@ -196,7 +289,7 @@ function parseCssRecursive(
         })
     }
 
-    return rules
+    return nodes
 }
 
 /**
@@ -309,17 +402,16 @@ function buildStateSelector(
     return `${composedAnchor} ${targetSelector}`
 }
 
-/**
- * Compiles an MDC CSS template string with token state awareness into standard CSS.
- */
-export function compileStateSheet(definition: any, cssText: string): string {
-    const meta = extractStateTokenMetadata(definition)
-    const cleanCss = stripComments(cssText)
-    const nodes = parseCssRecursive(cleanCss, meta)
+type StateDeltaName = 'hovered' | 'focused' | 'pressed' | 'disabled'
+const STATE_DELTA_NAMES: StateDeltaName[] = ['hovered', 'focused', 'pressed', 'disabled']
 
-    const baseRules: string[] = []
-    const deltaRules: Record<StateName, string[]> = {
-        enabled: [],
+interface CompiledChunks extends Record<StateDeltaName, string[]> {
+    base: string[]
+}
+
+function compileAstNodes(nodes: AstNode[]): CompiledChunks {
+    const chunks: CompiledChunks = {
+        base: [],
         hovered: [],
         focused: [],
         pressed: [],
@@ -327,49 +419,90 @@ export function compileStateSheet(definition: any, cssText: string): string {
     }
 
     for (const node of nodes) {
-        const { anchor, selector, whenCondition, declarations } = node
+        if (node.type === 'style-rule') {
+            const { anchor, selector, whenCondition, declarations } = node
 
-        // 1. Generate Base Rule (Enabled State)
-        const baseDecls: string[] = []
-        for (const decl of declarations) {
-            if (decl.isStateful) {
-                const resolvedVal = resolveStateValue(decl, 'enabled')
-                baseDecls.push(`${decl.property}: ${resolvedVal};`)
-            } else {
-                baseDecls.push(`${decl.property}: ${decl.value};`)
-            }
-        }
-
-        if (baseDecls.length > 0) {
-            const baseSel = buildStateSelector(anchor, selector, whenCondition, 0)
-            baseRules.push(`${baseSel} {\n    ${baseDecls.join('\n    ')}\n}`)
-        }
-
-        // 2. Generate Delta Rules for interactive / disabled states
-        for (let i = 1; i < STATE_NAMES.length; i++) {
-            const state = STATE_NAMES[i]
-            const stateDecls: string[] = []
-
+            // Base Rule (Enabled State)
+            const baseDecls: string[] = []
             for (const decl of declarations) {
                 if (decl.isStateful) {
-                    const resolvedVal = resolveStateValue(decl, state)
-                    stateDecls.push(`${decl.property}: ${resolvedVal};`)
+                    const resolvedVal = resolveStateValue(decl, 'enabled')
+                    baseDecls.push(`${decl.property}: ${resolvedVal};`)
+                } else {
+                    baseDecls.push(`${decl.property}: ${decl.value};`)
                 }
             }
 
-            if (stateDecls.length > 0) {
-                const stateSel = buildStateSelector(anchor, selector, whenCondition, i)
-                deltaRules[state].push(`${stateSel} {\n    ${stateDecls.join('\n    ')}\n}`)
+            if (baseDecls.length > 0) {
+                const baseSel = buildStateSelector(anchor, selector, whenCondition, 0)
+                chunks.base.push(`${baseSel} {\n    ${baseDecls.join('\n    ')}\n}`)
+            }
+
+            // Delta Rules for interactive / disabled states
+            for (let i = 0; i < STATE_DELTA_NAMES.length; i++) {
+                const state = STATE_DELTA_NAMES[i]
+                const stateDecls: string[] = []
+
+                for (const decl of declarations) {
+                    if (decl.isStateful) {
+                        const resolvedVal = resolveStateValue(decl, state)
+                        stateDecls.push(`${decl.property}: ${resolvedVal};`)
+                    }
+                }
+
+                if (stateDecls.length > 0) {
+                    const stateSel = buildStateSelector(anchor, selector, whenCondition, i + 1)
+                    chunks[state].push(`${stateSel} {\n    ${stateDecls.join('\n    ')}\n}`)
+                }
+            }
+        } else if (node.type === 'keyframes') {
+            const stepStrings: string[] = []
+            for (const step of node.steps) {
+                const declStrings: string[] = []
+                for (const decl of step.declarations) {
+                    if (decl.isStateful) {
+                        const resolvedVal = resolveStateValue(decl, 'enabled')
+                        declStrings.push(`${decl.property}: ${resolvedVal};`)
+                    } else {
+                        declStrings.push(`${decl.property}: ${decl.value};`)
+                    }
+                }
+                stepStrings.push(`    ${step.selector} {\n        ${declStrings.join('\n        ')}\n    }`)
+            }
+            chunks.base.push(`${node.header} {\n${stepStrings.join('\n\n')}\n}`)
+        } else if (node.type === 'wrapper-at-rule') {
+            const inner = compileAstNodes(node.children)
+
+            if (inner.base.length > 0) {
+                chunks.base.push(`${node.atRuleHeader} {\n${inner.base.join('\n\n')}\n}`)
+            }
+
+            for (const state of STATE_DELTA_NAMES) {
+                if (inner[state].length > 0) {
+                    chunks[state].push(`${node.atRuleHeader} {\n${inner[state].join('\n\n')}\n}`)
+                }
             }
         }
     }
 
+    return chunks
+}
+
+/**
+ * Compiles an MDC CSS template string with token state awareness into standard CSS.
+ */
+export function compileStateSheet(definition: any, cssText: string): string {
+    const meta = extractStateTokenMetadata(definition)
+    const cleanCss = stripComments(cssText)
+    const nodes = parseCssRecursive(cleanCss, meta)
+    const chunks = compileAstNodes(nodes)
+
     const output: string[] = []
-    if (baseRules.length > 0) output.push(baseRules.join('\n\n'))
-    if (deltaRules.hovered.length > 0) output.push(deltaRules.hovered.join('\n\n'))
-    if (deltaRules.focused.length > 0) output.push(deltaRules.focused.join('\n\n'))
-    if (deltaRules.pressed.length > 0) output.push(deltaRules.pressed.join('\n\n'))
-    if (deltaRules.disabled.length > 0) output.push(deltaRules.disabled.join('\n\n'))
+    if (chunks.base.length > 0) output.push(chunks.base.join('\n\n'))
+    if (chunks.hovered.length > 0) output.push(chunks.hovered.join('\n\n'))
+    if (chunks.focused.length > 0) output.push(chunks.focused.join('\n\n'))
+    if (chunks.pressed.length > 0) output.push(chunks.pressed.join('\n\n'))
+    if (chunks.disabled.length > 0) output.push(chunks.disabled.join('\n\n'))
 
     return output.join('\n\n')
 }

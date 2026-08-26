@@ -312,4 +312,126 @@ describe('state-sheet-compiler', () => {
             expect(result).not.toContain(':not([variant*="drawer"][checked][disabled]')
         })
     })
+
+    describe('compileStateSheet - CSS At-rules support (@layer, @keyframes, @media, @supports)', () => {
+        it('correctly wraps rules in @layer without treating layer as a DOM selector', () => {
+            const inputCss = `
+                @layer mdc {
+                    :host([focused]) {
+                        display: flex;
+                        color: var(--_label-color);
+                    }
+                }
+            `
+
+            const result = compileStateSheet(sampleDefinition, inputCss)
+
+            // Should wrap rules inside @layer mdc { ... }
+            expect(result).toContain('@layer mdc {')
+            expect(result).toContain(':host([focused]) {')
+            expect(result).toContain('display: flex;')
+            expect(result).toContain('color: var(--_enabled-label-color);')
+
+            // Must NOT have broken pseudo-selector prefixes like :host([focused]) , @layer
+            expect(result).not.toContain('@layer mdc :host')
+            expect(result).not.toContain(':host([focused]) ,')
+
+            // Delta rules inside @layer mdc
+            expect(result).toContain(':host([focused]:hover) {')
+            expect(result).toContain('color: var(--_hovered-label-color);')
+        })
+
+        it('correctly compiles @keyframes preserving animation structure and resolving unprefixed tokens', () => {
+            const inputCss = `
+                @keyframes outward-shrink {
+                    from {
+                        outline-width: var(--_outline-color);
+                    }
+                    to {
+                        outline-width: 0;
+                    }
+                }
+            `
+
+            const result = compileStateSheet(sampleDefinition, inputCss)
+
+            expect(result).toContain('@keyframes outward-shrink {')
+            expect(result).toContain('from {')
+            expect(result).toContain('outline-width: var(--_enabled-outline-color);')
+            expect(result).toContain('to {')
+            expect(result).toContain('outline-width: 0;')
+
+            // Keyframes must NOT be prepended with :host or selector combinators
+            expect(result).not.toContain(':host @keyframes')
+            expect(result).not.toContain(':host ,')
+            expect(result).not.toContain('@keyframes outward-shrink from')
+
+            // Keyframes must NOT generate hover/focus delta rules
+            expect(result).not.toContain('outward-shrink:hover')
+        })
+
+        it('preserves explicit state tokens inside @keyframes', () => {
+            const inputCss = `
+                @keyframes focus-grow {
+                    from {
+                        outline-width: 0;
+                    }
+                    to {
+                        outline-width: var(--_focused-outline-color);
+                    }
+                }
+            `
+
+            const result = compileStateSheet(sampleDefinition, inputCss)
+
+            expect(result).toContain('@keyframes focus-grow {')
+            expect(result).toContain('outline-width: var(--_focused-outline-color);')
+        })
+
+        it('correctly handles nested @layer with @keyframes and @media queries', () => {
+            const inputCss = `
+                @layer mdc {
+                    :host {
+                        box-sizing: border-box;
+                    }
+
+                    :host([focused]) {
+                        display: flex;
+                    }
+
+                    @keyframes outward-grow {
+                        from {
+                            outline-width: 0;
+                        }
+                        to {
+                            outline-width: var(--_outline-color);
+                        }
+                    }
+
+                    @media (prefers-reduced-motion: reduce) {
+                        :host {
+                            animation: none;
+                        }
+                    }
+                }
+            `
+
+            const result = compileStateSheet(sampleDefinition, inputCss)
+
+            expect(result).toContain('@layer mdc {')
+            expect(result).toContain(':host {')
+            expect(result).toContain('box-sizing: border-box;')
+            expect(result).toContain(':host([focused]) {')
+            expect(result).toContain('display: flex;')
+
+            expect(result).toContain('@keyframes outward-grow {')
+            expect(result).toContain('outline-width: var(--_enabled-outline-color);')
+
+            expect(result).toContain('@media (prefers-reduced-motion: reduce) {')
+            expect(result).toContain('animation: none;')
+
+            expect(result).not.toContain(':host ,')
+            expect(result).not.toContain('@layer mdc @keyframes')
+        })
+    })
 })
