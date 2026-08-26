@@ -16,6 +16,7 @@
 - **目標**：MD3 / MD3E 規範下的 Web Components 元件庫，無框架鎖定
 - **核心技術**：Lit 3 + `@lit/context` + Web Animations API + Web Components
 - **建構系統**：`rolldown`（當前主動）+ `rollup`（過渡期殘留），詳見「構建說明」
+- **目標環境基線**：**Chrome 150+** / **CSS Baseline 2026** / **ECMA Next**（面向未來版本，零相容性負擔）
 - **當前活躍元件**：`src/all.ts` 中未註解的 22 個項目（其餘為 WIP）
 - **當前正式打包元件**：`ripple`、`focus-ring` 兩者（`rolldown.config.js` 唯一 entry 集合）
 
@@ -40,6 +41,15 @@
 ---
 
 ## Agent 行為規則
+
+### 技術選型與標準優先原則（面向未來）
+
+- **最新標準優先，零兼容托底**：當遇到技術選型（Web API、CSS 特性、JavaScript 語法）時，**一律優先採用最新標準與規範，絕不考慮向後相容或版本托底**（Zero Legacy / No Backward Compatibility）。
+- **面向未來版本開發**：本專案在架構與開發設計時始終面向未來版本。現在所謂的「未來技術」在將來也會成為普遍標準；反之，為了相容過時系統或舊版瀏覽器編寫降級、polyfill 或 fallback 邏輯，只會引入龐大的技術債務與冗餘代碼，隨著時間推移將使專案難以閱讀、難以維護。
+- **目標執行環境與標準基線**：
+  - **瀏覽器標準**：**Chrome 150+**
+  - **CSS 規範**：**CSS Baseline 2026**（優先使用最新 CSS 特性，嚴禁編寫降級 fallback 或相容性 hack）
+  - **JavaScript / TypeScript 規範**：**ECMA Next**（使用最新 ECMAScript 特性與現代語法）
 
 ### 閱讀優先級
 
@@ -337,6 +347,12 @@ public shape: 'round' | 'square' = 'round'
  * SPDX-License-Identifier: Apache-2.0
  */
 ```
+
+### 8. 技術選型零托底原則（Zero Legacy & Modern Standards First）
+
+在編寫組件邏輯、DOM 操作、事件處理、樣式或建構設定時：
+- **禁止為了相容舊環境編寫降級邏輯**：嚴禁加入針對舊版瀏覽器的 feature detection fallback、vendor prefix、polyfill 或降級替代路徑。
+- **直接使用標準 Web API 與現代語法**：以 Chrome 150+、CSS Baseline 2026、ECMA Next 為唯一標竿，保持代碼極致精簡、清晰與現代化。
 
 ---
 
