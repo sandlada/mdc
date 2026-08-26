@@ -195,25 +195,24 @@ function resolveTemplateSelector(
     const modifiers = [enabledMod, hoveredMod, pressedMod, focusedMod, disabledMod]
     const mod = modifiers[index]
 
-    if (template.includes('$state')) {
-        return template.replaceAll('$state', mod).trim()
+    let result = template
+
+    if (result.includes('$state')) {
+        result = result.replaceAll('$state', mod)
+    } else if (result.includes('{state}')) {
+        result = result.replaceAll('{state}', mod)
+    } else if (result.startsWith(':host(')) {
+        result = result.replace(/:host\((.*?)\)/, (_, inner) => `:host(${inner}${mod})`)
+    } else if (result.startsWith(':host')) {
+        result = result.replace(/:host/, `:host${mod}`)
+    } else {
+        result = result.replace(/^(\.[a-zA-Z0-9_-]+|#[a-zA-Z0-9_-]+|[a-zA-Z0-9_-]+)/, `$1${mod}`)
     }
 
-    if (template.includes('{state}')) {
-        return template.replaceAll('{state}', mod).trim()
-    }
+    // Clean up invalid :host() empty argument (e.g. when $state was empty inside :host($state))
+    result = result.replaceAll(':host()', ':host')
 
-    // Auto-inject into :host(...) or :host
-    if (template.startsWith(':host(')) {
-        return template.replace(/:host\((.*?)\)/, (_, inner) => `:host(${inner}${mod})`).trim()
-    }
-
-    if (template.startsWith(':host')) {
-        return template.replace(/:host/, `:host${mod}`).trim()
-    }
-
-    // Auto-inject after the first class or element identifier
-    return template.replace(/^(\.[a-zA-Z0-9_-]+|#[a-zA-Z0-9_-]+|[a-zA-Z0-9_-]+)/, `$1${mod}`).trim()
+    return result.trim()
 }
 
 /**
