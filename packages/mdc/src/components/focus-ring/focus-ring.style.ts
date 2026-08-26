@@ -1,28 +1,22 @@
 /**
  * @license
- * Copyright 2025 Kai-Orion & Sandlada
+ * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
 import { Easing } from '@sandlada/mdk'
 import { css, unsafeCSS } from 'lit'
 import { FocusRingDefinition } from '../../component-definitions/focus-ring.definition'
 import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+import { createStyleSheet } from '../../utils'
 
 const tokenRecord = defineTokenRefsRecord(FocusRingDefinition, {
     expandShapes: false,
     useBaseFallback: true,
-    prefix: '--mdc-focus-ring'
+    prefix: '--mdc-focus-ring',
 })
 const tokenString = unsafeCSS(defineVars(tokenRecord, true).join(''))
 
-export const FocusRingStyle = css`
-
-    @layer mdc {
-        :host {
-            ${tokenString}
-        }
-    }
-
+const stylePart = createStyleSheet([FocusRingDefinition], () => css`
     @layer mdc {
 
         :host {
@@ -35,21 +29,36 @@ export const FocusRingStyle = css`
             animation-delay: 0s, calc(var(--_duration) * 0.25);
             animation-duration: calc(var(--_duration) * 0.25), calc(var(--_duration) * 0.75);
             animation-timing-function: ${unsafeCSS(Easing.Emphasized.ToCSSVariable())};
-            transition-property: border-width, outline-width, border-color, outline-color, color, opacity;
+            transition-property: display, opacity, border-width, outline-width, border-color, outline-color, color;
+            transition-duration: calc(var(--_duration) * 0.4);
+            transition-behavior: allow-discrete;
             transition-timing-function: ${unsafeCSS(Easing.Emphasized.ToCSSVariable())};
-            transition-duration: calc(var(--_duration) * 0.5);
             box-sizing: border-box;
-            color: var(--_enabled-color);
+            color: var(--_color);
             display: none;
+            opacity: 0;
             pointer-events: none;
             position: absolute;
         }
-        :host([focused]) {
+
+        :host([focused]),
+        :host([persistent]) {
             display: flex;
+            opacity: 1;
+            transition-duration: calc(var(--_duration) * 0.15);
         }
+
+        @starting-style {
+            :host([focused]),
+            :host([persistent]) {
+                opacity: 0;
+            }
+        }
+
 
         :host([disabled]) {
             display: none;
+            opacity: 0;
         }
 
         :host([animation-disabled]) {
@@ -58,22 +67,22 @@ export const FocusRingStyle = css`
         }
 
         :host(:not([inward])) {
-            animation-name: outward-grow, outward-shrink;
             inset: calc(-1 * var(--_outward-offset));
             outline-width: var(--_width);
         }
-        :host(:not([inward])[closing]) {
-            opacity: 0;
-        }
-
         :host([inward]) {
-            animation-name: inward-grow, inward-shrink;
             border-width: var(--_width);
             inset: var(--_inward-offset);
         }
-        :host([inward][closing]) {
-            opacity: 0;
+
+        :host([focused]:not([inward])) {
+            animation-name: outward-grow, outward-shrink;
         }
+        :host([focused][inward]) {
+            animation-name: inward-grow, inward-shrink;
+        }
+
+
 
         :host([shape-inherit]) {
             border-end-end-radius: inherit;
@@ -140,9 +149,12 @@ export const FocusRingStyle = css`
 
         @media (forced-colors: active) {
             :host {
-                color: CanvasText;
+                border-color: Highlight;
+                outline-color: Highlight;
+                color: Highlight;
             }
         }
+
 
         @media (prefers-contrast: more) {
             :host {
@@ -152,8 +164,13 @@ export const FocusRingStyle = css`
 
         @media (prefers-contrast: less) {
             :host {
-                color: var(--_enabled-color-reduced-contrast);
+                color: var(--_color-reduced-contrast);
             }
         }
     }
-`
+`)
+
+export const FocusRingStyle = [
+    css`@layer mdc {:host {${tokenString}}}`,
+    stylePart,
+]
