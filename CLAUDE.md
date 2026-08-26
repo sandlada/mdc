@@ -354,6 +354,21 @@ public shape: 'round' | 'square' = 'round'
 - **禁止為了相容舊環境編寫降級邏輯**：嚴禁加入針對舊版瀏覽器的 feature detection fallback、vendor prefix、polyfill 或降級替代路徑。
 - **直接使用標準 Web API 與現代語法**：以 Chrome 150+、CSS Baseline 2026、ECMA Next 為唯一標竿，保持代碼極致精簡、清晰與現代化。
 
+### 9. UI 設計無障礙規範（Accessibility / a11y）
+
+所有元件之 UI 設計與樣式實作必須原生滿足現代 Web 無障礙標準（WCAG 2.2+），支援各項系統級使用者偏好：
+
+1. **強制色彩模式 (`forced-colors: active`)**：
+   - 針對 Windows 高對比模式與系統強制色彩環境，必須採用標準原生系統色彩關鍵字（如 `Highlight`、`HighlightText`、`Canvas`、`CanvasText`、`ButtonText`、`GrayText`、`LinkText` 等）。
+   - 必要時搭配 `forced-color-adjust: none` 維持元件自訂結構，並顯式定義原生系統色背景、文字與對比外框（如 `outline: 1px solid CanvasText` / `HighlightText`），確保所有互動狀態（hover, focus, active, disabled）在強制色彩下清晰可辨。
+2. **對比度偏好適配 (`prefers-contrast`)**：
+   - **`@media (prefers-contrast: more)`**：在高對比度偏好下，增強文字與容器邊界（如加入 `CanvasText` 外框、提升對比度或加粗邊框），提升弱視與視覺障礙使用者的識別度。
+   - **`@media (prefers-contrast: less)`**：在低對比度偏好下，適度降低視覺刺眼度（如微調透明度或柔化邊框）。
+3. **減少動態效果 (`prefers-reduced-motion: reduce`)**：
+   - 在使用者偏好減少動態時，應關閉或簡化過度動態過渡與動畫（例如 `animation: none;`、`transition: none;` 或瞬時切換），防止引發前庭神經不適或動態眩暈。
+4. **降低透明度 (`prefers-reduced-transparency: reduce`)**：
+   - 在使用者偏好降低透明度時，應移除或替換半透明效果（如 `backdrop-filter`、`opacity < 1`、半透明遮罩等），改用 100% 不透明的純色背景與實體邊框，以確保文字與主要內容之最大易讀性。
+
 ---
 
 ## 元件定義（`component-definitions/`）模式
