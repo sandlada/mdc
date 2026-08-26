@@ -465,5 +465,76 @@ describe('state-sheet-compiler', () => {
             expect(result).not.toContain('@starting-style :host')
         })
     })
+
+    describe('compileStateSheet - Partial and null state definitions', () => {
+        it('does NOT emit interactive/disabled delta rules when those states are omitted/null in definition', () => {
+            // Like BadgeDefinition, only enabled state exists
+            const enabledOnlyDef = {
+                'enabled-container-color': 'red',
+                'enabled-label-color': 'white',
+            }
+
+            const inputCss = `
+                @anchor .container {
+                    background: var(--_container-color);
+                    color: var(--_label-color);
+                }
+            `
+
+            const result = compileStateSheet(enabledOnlyDef, inputCss)
+
+            // Base rule should exist
+            expect(result).toContain('.container {')
+            expect(result).toContain('background: var(--_enabled-container-color);')
+            expect(result).toContain('color: var(--_enabled-label-color);')
+
+            // MUST NOT emit any hover, focus-within, active, or disabled delta rules
+            expect(result).not.toContain(':hover')
+            expect(result).not.toContain(':focus-within')
+            expect(result).not.toContain(':active')
+            expect(result).not.toContain('.disabled')
+            expect(result).not.toContain('[disabled]')
+            expect(result).not.toContain('--_hovered-')
+            expect(result).not.toContain('--_focused-')
+            expect(result).not.toContain('--_pressed-')
+            expect(result).not.toContain('--_disabled-')
+        })
+
+        it('only emits delta rules for states that actually have tokens defined', () => {
+            // Only enabled and hovered exist, focused/pressed/disabled are null/omitted
+            const partialDef = {
+                'enabled-container-color': 'red',
+                'hovered-container-color': 'darkred',
+                'enabled-label-color': 'white',
+                // label-color has NO hovered state
+            }
+
+            const inputCss = `
+                @anchor .container {
+                    background: var(--_container-color);
+                    color: var(--_label-color);
+                }
+            `
+
+            const result = compileStateSheet(partialDef, inputCss)
+
+            // Base rule
+            expect(result).toContain('.container {')
+            expect(result).toContain('background: var(--_enabled-container-color);')
+            expect(result).toContain('color: var(--_enabled-label-color);')
+
+            // Hover delta rule should ONLY contain container-color (since label-color has no hover state)
+            expect(result).toContain('.container:hover {')
+            expect(result).toContain('background: var(--_hovered-container-color);')
+            expect(result).not.toMatch(/\.container:hover \{[^}]*color:/)
+
+            // Other states should NOT be emitted at all
+            expect(result).not.toContain(':focus-within')
+            expect(result).not.toContain(':active')
+            expect(result).not.toContain('.disabled')
+            expect(result).not.toContain('[disabled]')
+        })
+    })
 })
+
 

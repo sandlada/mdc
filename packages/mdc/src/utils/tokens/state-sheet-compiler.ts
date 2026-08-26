@@ -7,27 +7,41 @@ import { STATE_NAMES, type StateName } from './state'
 
 export interface StateTokenMetadata {
     isStateToken(name: string): boolean
+    hasStateToken(name: string, state: StateName): boolean
     allStateTokens: ReadonlySet<string>
 }
 
 /**
- * Extracts all 5-state token base names from one or more ComponentDefinition objects.
+ * Extracts all 5-state token base names and their defined states from one or more ComponentDefinition objects.
  */
 export function extractStateTokenMetadata(definition: any): StateTokenMetadata {
     const definitions = Array.isArray(definition) ? definition : [definition]
     const stateTokens = new Set<string>()
+    const definedStatesPerToken = new Map<string, Set<StateName>>()
 
-    const prefixes = ['enabled-', 'hovered-', 'focused-', 'pressed-', 'disabled-']
+    const prefixes: [StateName, string][] = [
+        ['enabled', 'enabled-'],
+        ['hovered', 'hovered-'],
+        ['focused', 'focused-'],
+        ['pressed', 'pressed-'],
+        ['disabled', 'disabled-'],
+    ]
 
     for (const def of definitions) {
         if (!def || typeof def !== 'object') continue
 
         for (const key of Object.keys(def)) {
-            for (const prefix of prefixes) {
+            for (const [stateName, prefix] of prefixes) {
                 if (key.startsWith(prefix)) {
                     const baseName = key.slice(prefix.length)
                     if (baseName.length > 0) {
                         stateTokens.add(baseName)
+                        let states = definedStatesPerToken.get(baseName)
+                        if (!states) {
+                            states = new Set<StateName>()
+                            definedStatesPerToken.set(baseName, states)
+                        }
+                        states.add(stateName)
                     }
                     break
                 }
@@ -38,6 +52,9 @@ export function extractStateTokenMetadata(definition: any): StateTokenMetadata {
     return {
         isStateToken(name: string) {
             return stateTokens.has(name)
+        },
+        hasStateToken(name: string, state: StateName) {
+            return definedStatesPerToken.get(name)?.has(state) ?? false
         },
         allStateTokens: stateTokens,
     }
@@ -296,13 +313,34 @@ function parseCssRecursive(
 /**
  * Formats a declaration value for a specific state.
  */
-function resolveStateValue(decl: Declaration, state: StateName): string {
+function resolveStateValue(
+    decl: Declaration,
+    state: StateName,
+    meta: StateTokenMetadata
+): string {
     let result = decl.value
     for (const token of decl.stateTokens) {
-        const stateTokenVar = `--_${state}-${token}`
-        result = result.replaceAll(`var(--_${token})`, `var(${stateTokenVar})`)
+        if (meta.hasStateToken(token, state)) {
+            const stateTokenVar = `--_${state}-${token}`
+            result = result.replaceAll(`var(--_${token})`, `var(${stateTokenVar})`)
+        } else {
+            const fallbackTokenVar = `--_enabled-${token}`
+            result = result.replaceAll(`var(--_${token})`, `var(${fallbackTokenVar})`)
+        }
     }
     return result
+}
+
+/**
+ * Checks if a declaration has any state delta for a specific state based on the definition metadata.
+ */
+function declHasStateDelta(
+    decl: Declaration,
+    state: StateDeltaName,
+    meta: StateTokenMetadata
+): boolean {
+    if (!decl.isStateful) return false
+    return decl.stateTokens.some((token) => meta.hasStateToken(token, state))
 }
 
 /**
@@ -410,7 +448,7 @@ interface CompiledChunks extends Record<StateDeltaName, string[]> {
     base: string[]
 }
 
-function compileAstNodes(nodes: AstNode[]): CompiledChunks {
+function compileAstNodes(nodes: AstNode[], meta: StateTokenMetadata): CompiledChunks {
     const chunks: CompiledChunks = {
         base: [],
         hovered: [],
@@ -427,7 +465,7 @@ function compileAstNodes(nodes: AstNode[]): CompiledChunks {
             const baseDecls: string[] = []
             for (const decl of declarations) {
                 if (decl.isStateful) {
-                    const resolvedVal = resolveStateValue(decl, 'enabled')
+                    const resolvedVal = resolveStateValue(decl, 'enabled', meta)
                     baseDecls.push(`${decl.property}: ${resolvedVal};`)
                 } else {
                     baseDecls.push(`${decl.property}: ${decl.value};`)
@@ -445,8 +483,8 @@ function compileAstNodes(nodes: AstNode[]): CompiledChunks {
                 const stateDecls: string[] = []
 
                 for (const decl of declarations) {
-                    if (decl.isStateful) {
-                        const resolvedVal = resolveStateValue(decl, state)
+                    if (declHasStateDelta(decl, state, meta)) {
+                        const resolvedVal = resolveStateValue(decl, state, meta)
                         stateDecls.push(`${decl.property}: ${resolvedVal};`)
                     }
                 }
@@ -462,7 +500,7 @@ function compileAstNodes(nodes: AstNode[]): CompiledChunks {
                 const declStrings: string[] = []
                 for (const decl of step.declarations) {
                     if (decl.isStateful) {
-                        const resolvedVal = resolveStateValue(decl, 'enabled')
+                        const resolvedVal = resolveStateValue(decl, 'enabled', meta)
                         declStrings.push(`${decl.property}: ${resolvedVal};`)
                     } else {
                         declStrings.push(`${decl.property}: ${decl.value};`)
@@ -472,7 +510,7 @@ function compileAstNodes(nodes: AstNode[]): CompiledChunks {
             }
             chunks.base.push(`${node.header} {\n${stepStrings.join('\n\n')}\n}`)
         } else if (node.type === 'wrapper-at-rule') {
-            const inner = compileAstNodes(node.children)
+            const inner = compileAstNodes(node.children, meta)
 
             if (inner.base.length > 0) {
                 chunks.base.push(`${node.atRuleHeader} {\n${inner.base.join('\n\n')}\n}`)
@@ -496,7 +534,7 @@ export function compileStateSheet(definition: any, cssText: string): string {
     const meta = extractStateTokenMetadata(definition)
     const cleanCss = stripComments(cssText)
     const nodes = parseCssRecursive(cleanCss, meta)
-    const chunks = compileAstNodes(nodes)
+    const chunks = compileAstNodes(nodes, meta)
 
     const output: string[] = []
     if (chunks.base.length > 0) output.push(chunks.base.join('\n\n'))
