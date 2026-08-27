@@ -22,6 +22,8 @@ const stylePart = createStyleSheet([BadgeDefinition], () => css`
         vertical-align: top;
         display: inline-flex;
         -webkit-tap-highlight-color: transparent;
+        flex-grow: 0;
+        flex-shrink: 0;
     }
 
     .container {
