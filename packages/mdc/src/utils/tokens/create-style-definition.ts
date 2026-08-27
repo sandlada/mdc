@@ -68,28 +68,59 @@ export type ResolvedStyle<T> = {
  * into prefixed token keys (`enabled-*`, `hovered-*`, `pressed-*`, `focused-*`, `disabled-*`).
  * Elements that are `null`, `undefined`, or `void 0` are omitted.
  */
+export const FORWARDED_TOKEN_META = Symbol.for('mdc.forwarded_token_meta')
+
 export function createStyleDefinition<const T extends Record<string, any>>(
     record: T
 ): ResolvedStyleDefinition<T>
 
 export function createStyleDefinition(record: any): any {
     const result: Record<string, any> = {}
+    const metaMap = new Map<string, any>()
 
     for (const [k, v] of Object.entries(record ?? {})) {
+        const meta = (v as any)?.[FORWARDED_TOKEN_META] as any | undefined
+
         if (Array.isArray(v)) {
             for (let i = 0; i < STATE_NAMES.length; i++) {
                 const stateVal = v[i]
                 if (stateVal !== null && stateVal !== undefined) {
-                    result[`${STATE_NAMES[i]}-${k}`] = typeof (stateVal as any)?.ToCSSVariable === 'function'
+                    const expandedKey = `${STATE_NAMES[i]}-${k}`
+                    result[expandedKey] = typeof (stateVal as any)?.ToCSSVariable === 'function'
                         ? (stateVal as any).ToCSSVariable()
                         : stateVal
+
+                    if (meta) {
+                        metaMap.set(expandedKey, {
+                            ...meta,
+                            state: STATE_NAMES[i],
+                            targetExpandedKey: `${STATE_NAMES[i]}-${meta.cleanKey}`,
+                        })
+                    }
                 }
             }
         } else {
-            result[k] = typeof (v as any)?.ToCSSVariable === 'function'
-                ? (v as any).ToCSSVariable()
-                : v
+            const actualVal = (v as any)?.__isForwardedPrimitive ? (v as any).rawVal : v
+            result[k] = typeof (actualVal as any)?.ToCSSVariable === 'function'
+                ? (actualVal as any).ToCSSVariable()
+                : actualVal
+
+            if (meta) {
+                metaMap.set(k, {
+                    ...meta,
+                    state: undefined,
+                    targetExpandedKey: meta.cleanKey,
+                })
+            }
         }
+    }
+
+    if (metaMap.size > 0) {
+        Object.defineProperty(result, FORWARDED_TOKEN_META, {
+            value: metaMap,
+            enumerable: false,
+            configurable: true,
+        })
     }
 
     return result

@@ -28,6 +28,7 @@
  * @param prefix The CSS variable prefix of the component you want to override, for example `--mdc-ripple`.
  * @param tokens The variable name of the component you want to override.
  * @returns A record object. Need to be converted into a CSS string using stringTokens wrapper.
+ * @deprecated Use `overrideStyleSheet` instead for direct CSSResult generation and automatic type inference.
  */
 export function overrideComponentTokens<T extends PropertyKey>(
     prefix: string,
