@@ -1,0 +1,128 @@
+{
+    "name": "@sandlada/vscode-mdc",
+    "displayName": "MDC Design System Tools",
+    "description": "IntelliSense, CodeLens token auditing, and AST reflection for @sandlada/mdc components and stylesheets.",
+    "version": "0.1.0",
+    "publisher": "sandlada",
+    "license": "MIT",
+    "type": "module",
+    "main": "./dist/extension.cjs",
+    "module": "./dist/index.js",
+    "types": "./src/index.ts",
+    "exports": {
+        ".": {
+            "require": "./dist/index.cjs",
+            "import": "./dist/index.js",
+            "types": "./src/index.ts",
+            "default": "./dist/index.js"
+        }
+    },
+    "activationEvents": [
+        "onView:mdcExplorer",
+        "onCommand:mdc.inspectTokens",
+        "onCommand:mdc.jumpToToken",
+        "onCommand:mdc.showCompiledCss",
+        "onLanguage:typescript",
+        "onLanguage:javascript",
+        "onLanguage:typescriptreact",
+        "onLanguage:javascriptreact"
+    ],
+    "contributes": {
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "mdc-sidebar",
+                    "title": "MDC Design Tokens",
+                    "icon": "$(symbol-color)"
+                }
+            ]
+        },
+        "views": {
+            "mdc-sidebar": [
+                {
+                    "id": "mdcExplorer",
+                    "name": "Component Tokens"
+                }
+            ]
+        },
+        "snippets": [
+            {
+                "language": "typescript",
+                "path": "./snippets/mdc.json"
+            },
+            {
+                "language": "javascript",
+                "path": "./snippets/mdc.json"
+            }
+        ],
+        "typescriptServerPlugins": [
+            {
+                "name": "@sandlada/vscode-mdc",
+                "enableForWorkspaceTypeScriptVersions": true
+            }
+        ],
+        "commands": [
+            {
+                "command": "mdc.inspectTokens",
+                "title": "MDC: Inspect Tokens in Stylesheet"
+            },
+            {
+                "command": "mdc.jumpToToken",
+                "title": "MDC: Jump to Token in Editor"
+            },
+            {
+                "command": "mdc.showCompiledCss",
+                "title": "MDC: Show Compiled CSS for Stylesheet",
+                "icon": "$(file-code)"
+            }
+        ],
+        "menus": {
+            "editor/title": [
+                {
+                    "command": "mdc.showCompiledCss",
+                    "when": "resourceExtname =~ /\\.(style|styles)\\.ts$/ || editorTextFocus && resourceLangId =~ /^typescript/",
+                    "group": "navigation"
+                }
+            ],
+            "editor/context": [
+                {
+                    "command": "mdc.showCompiledCss",
+                    "when": "resourceExtname =~ /\\.(style|styles)\\.ts$/ || editorTextFocus && resourceLangId =~ /^typescript/",
+                    "group": "1_modification@99"
+                }
+            ],
+            "view/title": [
+                {
+                    "command": "mdc.showCompiledCss",
+                    "when": "view == mdcExplorer",
+                    "group": "navigation"
+                }
+            ]
+        }
+    },
+    "engines": {
+        "vscode": "^1.90.0"
+    },
+    "categories": [
+        "Programming Languages",
+        "Linters",
+        "Snippets"
+    ],
+    "scripts": {
+        "build": "rolldown -c rolldown.config.js",
+        "test": "vitest run",
+        "test:watch": "vitest"
+    },
+    "dependencies": {
+        "@sandlada/jss": "^0.0.1-20260626.a",
+        "@sandlada/mdk": "^3.0.0-20260624.c",
+        "lit": "^3.3.3",
+        "rolldown": "^1.2.4",
+        "typescript": "~7.0.2"
+    },
+    "devDependencies": {
+        "@types/node": "^22.13.0",
+        "@types/vscode": "^1.90.0",
+        "vitest": "^4.1.11"
+    }
+}
