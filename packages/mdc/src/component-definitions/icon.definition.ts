@@ -7,6 +7,6 @@
 import { createStyleDefinition } from '../utils/tokens/create-style-definition'
 
 export const IconDefinition = createStyleDefinition({
-    'enabled-font': 'Material Symbols Outlined',
-    'enabled-size': '24px'
+    'font': ['Material Symbols Outlined'],
+    'size': ['24px'],
 })
