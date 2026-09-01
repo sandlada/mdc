@@ -107,4 +107,61 @@ export {
 } from './create-style-sheet'
 export { Color } from './color'
 
+// 4. Functional Token Transformers Layer
+export {
+    expandShape,
+    type CSSVariableProvider,
+    type ShapeScalarValue,
+    type ShapeCornersObject,
+    type ShapeStateTuple,
+    type ShapeStateRecord,
+    type ShapeValueInput,
+    type NormalizeShapePrefix,
+    type ShapeCornerSuffix,
+    type ShapeTokenKey,
+    type ExpandShapeValueType,
+    type ExpandedShapeResult
+} from './expand-shape'
+
+export {
+    expandPadding,
+    type PrimitivePaddingValue,
+    type PaddingAxisTuple,
+    type PaddingEdgeTuple,
+    type PaddingObject,
+    type SinglePaddingValue,
+    type MultiStatePaddingTuple,
+    type MultiStatePaddingRecord,
+    type ExpandPaddingInput,
+    type NormalizePaddingPrefix,
+    type PaddingEdgeSuffix,
+    type PaddingTokenKey,
+    type ExtractSinglePaddingValue,
+    type ExtractPaddingEdgeValue,
+    type ExpandedPaddingResult
+} from './expand-padding'
+
+export {
+    expandTypescale,
+    type MDKTypescaleLike,
+    type TypographyObject,
+    type SingleTypescaleValue,
+    type TypescaleTuple,
+    type TypescaleRecord,
+    type TypescaleValueInput,
+    type NormalizeTypescalePrefix,
+    type TypescalePropSuffix,
+    type TypescaleTokenKey,
+    type ExpandedTypescaleTokens,
+    type ExpandedTypescaleResult,
+    type ExtractedTypography,
+    type ExtractFont,
+    type ExtractLeading,
+    type ExtractSize,
+    type ExtractTracking,
+    type ExtractWeight
+} from './expand-typescale'
+
 export type CreateStyleSheetOptions = import('./state-sheet-compiler').CompileStateSheetOptions
+
+
