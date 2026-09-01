@@ -30,9 +30,9 @@
  * @returns A record object. Need to be converted into a CSS string using stringTokens wrapper.
  * @deprecated Use `overrideStyleSheet` instead for direct CSSResult generation and automatic type inference.
  */
-export function overrideComponentTokens<T extends PropertyKey>(
+export function overrideComponentTokens<T extends PropertyKey = string>(
     prefix: string,
-    tokens: Partial<{ [K in T]: string }>
+    tokens: Partial<Record<T | (string & {}), any>>
 ) {
     return Object
         .entries(tokens)

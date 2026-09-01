@@ -13,9 +13,13 @@ import {
 
 export type { HasToCSSVariable, StateTuple }
 
-type ResolveValue<V> = V extends HasToCSSVariable
+export type ResolveValue<V> = V extends HasToCSSVariable
     ? ReturnType<V['ToCSSVariable']>
-    : V
+    : V extends string
+        ? V
+        : V extends number
+            ? number
+            : string
 
 type Prettify<T> = {
     [K in keyof T]: T[K]
@@ -40,11 +44,24 @@ type ExpandTupleEntry<K extends string, V extends readonly any[]> =
     (Exclude<V[3], Nil> extends never ? {} : { [P in `focused-${K}`]: ResolveValue<Exclude<V[3], Nil>> }) &
     (Exclude<V[4], Nil> extends never ? {} : { [P in `disabled-${K}`]: ResolveValue<Exclude<V[4], Nil>> })
 
+type ExpandRecordEntry<K extends string, V extends Record<string, any>> =
+    UnionToIntersection<{
+        [S in keyof V & string]: S extends '' | 'base'
+            ? { [P in K]: ResolveValue<Exclude<V[S], Nil>> }
+            : S extends 'enabled'
+                ? { [P in `enabled-${K}`]: ResolveValue<Exclude<V[S], Nil>> } & { [P in K]: ResolveValue<Exclude<V[S], Nil>> }
+                : { [P in `${S}:${K}`]: ResolveValue<Exclude<V[S], Nil>> }
+    }[keyof V & string]>
+
 type ExpandEntry<K extends string, V> = IsAny<V> extends true
     ? { [P in K]: any }
     : V extends readonly any[]
         ? ExpandTupleEntry<K, V>
-        : { [P in K]: ResolveValue<V> }
+        : V extends HasToCSSVariable
+            ? { [P in K]: ResolveValue<V> }
+            : V extends Record<string, any>
+                ? ExpandRecordEntry<K, V>
+                : { [P in K]: ResolveValue<V> }
 
 export type ResolvedStyleDefinition<T> = [keyof T] extends [never]
     ? {}
@@ -61,15 +78,75 @@ export type ResolvedStyle<T> = {
         ? ReturnType<T[K]['ToCSSVariable']>
         : T[K]
 }
-/**
- * Creates a style definition mapping state tuples to expanded token records.
- *
- * Each tuple entry `[enabled, hovered, pressed, focused, disabled]` will be expanded
- * into prefixed token keys (`enabled-*`, `hovered-*`, `pressed-*`, `focused-*`, `disabled-*`).
- * Elements that are `null`, `undefined`, or `void 0` are omitted.
- */
+
 export const FORWARDED_TOKEN_META = Symbol.for('mdc.forwarded_token_meta')
 
+export interface NormalizedStateKey {
+    baseKey: string
+    states: string[]
+    canonicalKey: string
+    isLegacyHyphen: boolean
+}
+
+/**
+ * Normalizes any token key (legacy `hovered-*`, colon `hover:*`, compound `checked:hover:*`, or eternal single-state)
+ * into canonical representation.
+ */
+export function normalizeStateTokenKey(key: string): NormalizedStateKey {
+    // 1. Colon-prefixed state syntax (e.g. 'hover:color', 'checked:hover:container-color')
+    if (key.includes(':')) {
+        const parts = key.split(':')
+        const baseKey = parts.pop()!
+        const canonicalStateMap: Record<string, string> = {
+            'hovered': 'hover',
+            'pressed': 'active',
+            'focused': 'focus',
+        }
+        const states = parts.filter(Boolean).map((s) => canonicalStateMap[s] || s)
+        return {
+            baseKey,
+            states,
+            canonicalKey: states.length === 0 ? baseKey : `${states.join(':')}:${baseKey}`,
+            isLegacyHyphen: false,
+        }
+    }
+
+    // 2. Legacy hyphen prefixes (e.g. 'enabled-color', 'hovered-container-color', 'pressed-container-color')
+    const legacyMap: Record<string, string> = {
+        'enabled-': 'enabled',
+        'hovered-': 'hover',
+        'focused-': 'focus',
+        'pressed-': 'active',
+        'disabled-': 'disabled',
+    }
+
+    for (const [prefix, state] of Object.entries(legacyMap)) {
+        if (key.startsWith(prefix)) {
+            const baseKey = key.slice(prefix.length)
+            if (baseKey.length > 0) {
+                return {
+                    baseKey,
+                    states: [state],
+                    canonicalKey: state === 'enabled' ? baseKey : `${state}:${baseKey}`,
+                    isLegacyHyphen: true,
+                }
+            }
+        }
+    }
+
+    // 3. Eternal single-state token (no state prefix)
+    return {
+        baseKey: key,
+        states: [],
+        canonicalKey: key,
+        isLegacyHyphen: false,
+    }
+}
+
+/**
+ * Creates a style definition mapping arbitrary state tokens, nested state objects, or state tuples
+ * to an expanded token record.
+ */
 export function createStyleDefinition<const T extends Record<string, any>>(
     record: T
 ): ResolvedStyleDefinition<T>
@@ -79,8 +156,11 @@ export function createStyleDefinition(record: any): any {
     const metaMap = new Map<string, any>()
 
     for (const [k, v] of Object.entries(record ?? {})) {
+        if (v === null || v === undefined) continue
+
         const meta = (v as any)?.[FORWARDED_TOKEN_META] as any | undefined
 
+        // Case 1: 5-state tuple [enabled, hovered, pressed, focused, disabled]
         if (Array.isArray(v)) {
             for (let i = 0; i < STATE_NAMES.length; i++) {
                 const stateVal = v[i]
@@ -99,19 +179,61 @@ export function createStyleDefinition(record: any): any {
                     }
                 }
             }
-        } else {
-            const actualVal = (v as any)?.__isForwardedPrimitive ? (v as any).rawVal : v
-            result[k] = typeof (actualVal as any)?.ToCSSVariable === 'function'
-                ? (actualVal as any).ToCSSVariable()
-                : actualVal
+            continue
+        }
 
-            if (meta) {
-                metaMap.set(k, {
-                    ...meta,
-                    state: undefined,
-                    targetExpandedKey: meta.cleanKey,
-                })
+        // Case 2: Nested state record { '': val, 'hover': val, 'checked:hover': val }
+        // (Only when v is a plain object and not a CSS custom variable / wrapper / primitive)
+        if (
+            typeof v === 'object' &&
+            v !== null &&
+            !(v as any).__isForwardedPrimitive &&
+            typeof (v as any).ToCSSVariable !== 'function' &&
+            !('cssText' in (v as any))
+        ) {
+            const entries = Object.entries(v)
+            for (const [state, stateVal] of entries) {
+                if (stateVal === null || stateVal === undefined) continue
+
+                const resolvedVal = typeof (stateVal as any)?.ToCSSVariable === 'function'
+                    ? (stateVal as any).ToCSSVariable()
+                    : stateVal
+
+                let targetKey = k
+                if (state === '' || state === 'base') {
+                    targetKey = k
+                } else if (state === 'enabled') {
+                    targetKey = `enabled-${k}`
+                    result[k] = resolvedVal
+                } else {
+                    targetKey = `${state}:${k}`
+                }
+
+                result[targetKey] = resolvedVal
+
+                if (meta) {
+                    metaMap.set(targetKey, {
+                        ...meta,
+                        state: state || undefined,
+                        targetExpandedKey: state ? `${state}:${meta.cleanKey}` : meta.cleanKey,
+                    })
+                }
             }
+            continue
+        }
+
+        // Case 3: Single value / Flat key (e.g. 'container-height', 'hover:color', 'checked:hover:container-color')
+        const actualVal = (v as any)?.__isForwardedPrimitive ? (v as any).rawVal : v
+        result[k] = typeof (actualVal as any)?.ToCSSVariable === 'function'
+            ? (actualVal as any).ToCSSVariable()
+            : actualVal
+
+        if (meta) {
+            metaMap.set(k, {
+                ...meta,
+                state: undefined,
+                targetExpandedKey: meta.cleanKey,
+            })
         }
     }
 

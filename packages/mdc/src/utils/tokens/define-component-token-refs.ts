@@ -29,16 +29,6 @@ export type DefineComponentTokenRefsPrefixOrOptions = string | DefineComponentTo
  * 1. Parent private variables: `--_enabled-container-color: var(--mdc-button-enabled-container-color, fallback);`
  * 2. Forwarded child public variables (ONLY for states/tokens supported by Target Definition):
  *    e.g. `--mdc-icon-enabled-color: var(--mdc-button-enabled-icon-color, fallback);`
- *
- * @example
- * ```typescript
- * const tokens = defineComponentTokenRefs(ButtonDefinition, { prefix: '--mdc-button' })
- *
- * export const ButtonStyles = [
- *     css`:host { ${tokens} }`,
- *     createStyleSheet(ButtonDefinition, () => css`...`),
- * ]
- * ```
  */
 export function defineComponentTokenRefs(
     definition: Record<string, any>,
@@ -48,7 +38,7 @@ export function defineComponentTokenRefs(
     const selector = typeof prefixOrOptions === 'object' ? prefixOrOptions.selector : undefined
 
     const prefixNormalized = prefix.startsWith('--') ? prefix : `--${prefix}`
-    const metaMap = definition?.[FORWARDED_TOKEN_META] as Map<string, any> | undefined
+    const metaMap = (definition as any)?.[FORWARDED_TOKEN_META] as Map<string, any> | undefined
 
     const declarations: string[] = []
 
@@ -68,11 +58,15 @@ export function defineComponentTokenRefs(
             const targetDefKeysSet = new Set(targetDefKeys || [])
 
             if (meta.state) {
-                // If this is a state variant (e.g. 'hovered', 'enabled', 'pressed')
+                // If this is a state variant (e.g. 'hovered', 'enabled', 'pressed', 'hover')
                 const targetStateKey = `${meta.state}-${cleanKey}`
+                const targetColonKey = `${meta.state}:${cleanKey}`
                 if (targetDefKeysSet.has(targetStateKey)) {
                     // Child definition actually supports this state (e.g. Ripple's hovered-color)
                     const targetVarName = `${targetPrefix}-${targetStateKey}`
+                    declarations.push(`${targetVarName}: var(${parentVarName}, ${value});`)
+                } else if (targetDefKeysSet.has(targetColonKey)) {
+                    const targetVarName = `${targetPrefix}-${targetColonKey}`
                     declarations.push(`${targetVarName}: var(${parentVarName}, ${value});`)
                 } else if (meta.state === 'enabled' && (targetDefKeysSet.has(`enabled-${cleanKey}`) || targetDefKeysSet.has(cleanKey))) {
                     // Target only defines enabled (e.g. Icon only has enabled-color), emit public bridge for enabled

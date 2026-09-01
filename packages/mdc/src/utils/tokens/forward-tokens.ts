@@ -3,17 +3,29 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { STATE_NAMES, type StateName, type StateTuple } from './state'
+import { FORWARDED_TOKEN_META } from './create-style-definition'
+import type { StateTuple } from './state'
 
-export const FORWARDED_TOKEN_META = Symbol.for('mdc.forwarded_token_meta')
+type CleanKey<K extends string> = K extends `--${infer Rest}` ? Rest : K
 
-type StripStatePrefix<K extends string> = K extends `${StateName}-${infer Rest}`
-    ? Rest
-    : K
+type StripStatePrefix<K extends string> =
+    K extends `${string}:${infer Rest}`
+        ? StripStatePrefix<Rest>
+        : K extends `enabled-${infer Rest}`
+            ? Rest
+            : K extends `hovered-${infer Rest}`
+                ? Rest
+                : K extends `pressed-${infer Rest}`
+                    ? Rest
+                    : K extends `focused-${infer Rest}`
+                        ? Rest
+                        : K extends `disabled-${infer Rest}`
+                            ? Rest
+                            : K
 
 type ExtractBaseKeys<T> = T extends Record<string, any>
     ? {
-        [K in keyof T & string]: StripStatePrefix<K>
+        [K in keyof T & string]: StripStatePrefix<CleanKey<K>>
     }[keyof T & string]
     : string
 
@@ -33,13 +45,14 @@ export interface ForwardTokensOptions<TTargetDef> {
 
     /**
      * Token values to forward. Keys are type-checked against `TTargetDef`.
-     * Values can be single values or 5-state tuples `[enabled, hovered, pressed, focused, disabled]`.
+     * Values can be single values, state records, or 5-state tuples `[enabled, hovered, pressed, focused, disabled]`.
      */
     tokens: Partial<{
         [K in ForwardTokenKey<TTargetDef> | (string & {})]:
             | any
             | StateTuple<any>
             | readonly (any | null | undefined)[]
+            | Record<string, any>
     }>
 }
 
@@ -60,13 +73,13 @@ function cleanPrefix(p: string): string {
  * @example
  * ```typescript
  * export const ButtonDefinition = createStyleDefinition({
- *     'container-color': [Color.Primary, Color.Hover, ...],
+ *     'container-color': ['#primary', '#hover', ...],
  *
  *     ...forwardTokens(IconDefinition, {
  *         targetPrefix: '--mdc-icon',
  *         name: 'icon',
  *         tokens: {
- *             'color': [Color.OnPrimary, Color.OnHover, Color.OnActive, Color.OnFocus, Color.Disabled],
+ *             'color': ['#on-primary', '#on-hover', '#on-press', '#on-focus', '#on-disabled'],
  *             'size': '18px',
  *         },
  *     }),

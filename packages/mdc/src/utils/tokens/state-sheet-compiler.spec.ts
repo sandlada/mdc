@@ -535,6 +535,119 @@ describe('state-sheet-compiler', () => {
             expect(result).not.toContain('[disabled]')
         })
     })
+
+    describe('compileStateSheet - Arbitrary custom states & Cross-level State Trigger Registry', () => {
+        it('compiles single-state eternal component with ZERO interactive delta rules', () => {
+            const eternalDef = {
+                'container-height': '40px',
+                'container-color': '#112233',
+            }
+
+            const inputCss = `
+                @anchor .container {
+                    height: var(--_container-height);
+                    background-color: var(--_container-color);
+                }
+            `
+
+            const result = compileStateSheet(eternalDef, inputCss)
+            expect(result).toContain('.container {')
+            expect(result).toContain('height: var(--_container-height);')
+            expect(result).toContain('background-color: var(--_container-color);')
+
+            // Zero delta rules
+            expect(result).not.toContain(':hover')
+            expect(result).not.toContain(':focus-within')
+            expect(result).not.toContain(':active')
+            expect(result).not.toContain('.disabled')
+            expect(result).not.toContain('[disabled]')
+        })
+
+        it('generates differential rules for arbitrary custom states like dragged:, error:, checked:', () => {
+            const customDef = {
+                'container-color': '#primary',
+                'dragged:container-color': '#dragged-color',
+                'error:container-color': '#error-color',
+                'checked:container-color': '#checked-color',
+            }
+
+            const inputCss = `
+                @anchor .container {
+                    background-color: var(--_container-color);
+                }
+            `
+
+            const result = compileStateSheet(customDef, inputCss)
+
+            // Base
+            expect(result).toContain('.container {')
+            expect(result).toContain('background-color: var(--_container-color);')
+
+            // Self class trigger for dragged
+            expect(result).toContain('.container.dragged {')
+            expect(result).toContain('background-color: var(--_dragged:container-color);')
+
+            // Host attribute trigger for error and checked
+            expect(result).toContain(':host([error]) .container {')
+            expect(result).toContain('background-color: var(--_error:container-color);')
+
+            expect(result).toContain(':host([checked]) .container {')
+            expect(result).toContain('background-color: var(--_checked:container-color);')
+        })
+
+        it('synthesizes multi-level compound state selectors across host and anchor levels: :host([checked]) .container:hover', () => {
+            const compoundDef = {
+                'container-color': '#default',
+                'hover:container-color': '#hovered',
+                'checked:container-color': '#checked',
+                'checked:hover:container-color': '#checked-hovered',
+            }
+
+            const inputCss = `
+                @anchor .container {
+                    .label {
+                        color: var(--_container-color);
+                    }
+                }
+            `
+
+            const result = compileStateSheet(compoundDef, inputCss)
+
+            // 1. Base rule
+            expect(result).toContain('.container .label {')
+            expect(result).toContain('color: var(--_container-color);')
+
+            // 2. Pure anchor hover
+            expect(result).toContain('.container:hover .label {')
+            expect(result).toContain('color: var(--_hover:container-color);')
+
+            // 3. Pure host checked
+            expect(result).toContain(':host([checked]) .container .label {')
+            expect(result).toContain('color: var(--_checked:container-color);')
+
+            // 4. Cross-level composite: host checked + container hover
+            expect(result).toContain(':host([checked]) .container:hover .label {')
+            expect(result).toContain('color: var(--_checked:hover:container-color);')
+        })
+
+        it('supports multi-host compound triggers like :host([checked][error]) .container:hover', () => {
+            const multiHostDef = {
+                'container-color': '#default',
+                'checked:error:hover:container-color': '#checked-error-hover',
+            }
+
+            const inputCss = `
+                @anchor .container {
+                    background: var(--_container-color);
+                }
+            `
+
+            const result = compileStateSheet(multiHostDef, inputCss)
+
+            expect(result).toContain(':host([checked][error]) .container:hover {')
+            expect(result).toContain('background: var(--_checked:error:hover:container-color);')
+        })
+    })
 })
 
 

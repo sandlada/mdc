@@ -3,60 +3,140 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { STATE_NAMES, type StateName } from './state'
+import {
+    StateTriggerRegistry,
+    composeStateSelector,
+    splitSelectorByComma,
+    type StateTrigger,
+} from './state-trigger'
+import { normalizeStateTokenKey } from './create-style-definition'
 
 export interface StateTokenMetadata {
+    hasToken(name: string): boolean
     isStateToken(name: string): boolean
-    hasStateToken(name: string, state: StateName): boolean
+    hasStateToken(name: string, state: string): boolean
+    allTokens: ReadonlySet<string>
     allStateTokens: ReadonlySet<string>
+    allDefinedStates: ReadonlySet<string>
+    getDefinedStates(name: string): ReadonlySet<string>
+    resolveStateVarName(name: string, state: string): string
+}
+
+function splitStateVariant(stateVariant: string): string[] {
+    if (stateVariant.includes(':')) {
+        return stateVariant.split(':').filter(Boolean)
+    }
+    return [stateVariant]
+}
+
+function canonicalizeStateName(state: string): string {
+    if (state === 'hovered') return 'hover'
+    if (state === 'pressed') return 'active'
+    if (state === 'focused') return 'focus'
+    return state
 }
 
 /**
- * Extracts all 5-state token base names and their defined states from one or more ComponentDefinition objects.
+ * Extracts state token metadata and defined state variants from one or more ComponentDefinition objects.
  */
 export function extractStateTokenMetadata(definition: any): StateTokenMetadata {
     const definitions = Array.isArray(definition) ? definition : [definition]
+    const allTokens = new Set<string>()
     const stateTokens = new Set<string>()
-    const definedStatesPerToken = new Map<string, Set<StateName>>()
-
-    const prefixes: [StateName, string][] = [
-        ['enabled', 'enabled-'],
-        ['hovered', 'hovered-'],
-        ['focused', 'focused-'],
-        ['pressed', 'pressed-'],
-        ['disabled', 'disabled-'],
-    ]
+    const allDefinedStates = new Set<string>()
+    const definedStatesPerToken = new Map<string, Set<string>>()
+    const stateVarMap = new Map<string, string>()
 
     for (const def of definitions) {
         if (!def || typeof def !== 'object') continue
 
         for (const key of Object.keys(def)) {
-            for (const [stateName, prefix] of prefixes) {
-                if (key.startsWith(prefix)) {
-                    const baseName = key.slice(prefix.length)
-                    if (baseName.length > 0) {
-                        stateTokens.add(baseName)
-                        let states = definedStatesPerToken.get(baseName)
-                        if (!states) {
-                            states = new Set<StateName>()
-                            definedStatesPerToken.set(baseName, states)
-                        }
-                        states.add(stateName)
-                    }
-                    break
+            const normalized = normalizeStateTokenKey(key)
+            const { baseKey, states } = normalized
+
+            if (!baseKey) continue
+
+            allTokens.add(baseKey)
+
+            if (states.length === 0) {
+                // Eternal single-state / base token
+                stateVarMap.set(`${baseKey}:base`, key)
+                stateVarMap.set(`${baseKey}:enabled`, key)
+                continue
+            }
+
+            if (states.length === 1 && states[0] === 'enabled') {
+                // Enabled state token
+                stateVarMap.set(`${baseKey}:enabled`, key)
+                stateVarMap.set(`${baseKey}:base`, key)
+                continue
+            }
+
+            // Interactive or modifier state token
+            stateTokens.add(baseKey)
+
+            let tokenStates = definedStatesPerToken.get(baseKey)
+            if (!tokenStates) {
+                tokenStates = new Set<string>()
+                definedStatesPerToken.set(baseKey, tokenStates)
+            }
+
+            const canonicalStates = states.map(canonicalizeStateName)
+            const canonicalIdentifier = canonicalStates.join(':')
+
+            tokenStates.add(canonicalIdentifier)
+            allDefinedStates.add(canonicalIdentifier)
+            stateVarMap.set(`${baseKey}:${canonicalIdentifier}`, key)
+
+            // Also record aliases if single state
+            if (canonicalStates.length === 1) {
+                const s = canonicalStates[0]
+                if (s === 'hover') {
+                    tokenStates.add('hovered')
+                    stateVarMap.set(`${baseKey}:hovered`, key)
+                } else if (s === 'active') {
+                    tokenStates.add('pressed')
+                    stateVarMap.set(`${baseKey}:pressed`, key)
+                } else if (s === 'focus') {
+                    tokenStates.add('focused')
+                    stateVarMap.set(`${baseKey}:focused`, key)
                 }
             }
         }
     }
 
     return {
+        hasToken(name: string) {
+            return allTokens.has(name)
+        },
         isStateToken(name: string) {
             return stateTokens.has(name)
         },
-        hasStateToken(name: string, state: StateName) {
-            return definedStatesPerToken.get(name)?.has(state) ?? false
+        hasStateToken(name: string, state: string) {
+            const states = definedStatesPerToken.get(name)
+            if (!states) return false
+            const canonical = canonicalizeStateName(state)
+            return states.has(state) || states.has(canonical)
         },
+        allTokens,
         allStateTokens: stateTokens,
+        allDefinedStates,
+        getDefinedStates(name: string) {
+            return definedStatesPerToken.get(name) ?? new Set()
+        },
+        resolveStateVarName(name: string, state: string) {
+            const canonical = canonicalizeStateName(state)
+            const exact = stateVarMap.get(`${name}:${canonical}`) || stateVarMap.get(`${name}:${state}`)
+            if (exact) return exact
+
+            if (state === 'base' || state === 'enabled') {
+                const baseVar = stateVarMap.get(`${name}:enabled`) || stateVarMap.get(`${name}:base`)
+                if (baseVar) return baseVar
+                return name
+            }
+
+            return `${state}-${name}`
+        },
     }
 }
 
@@ -64,6 +144,7 @@ interface Declaration {
     property: string
     value: string
     isStateful: boolean
+    tokens: string[]
     stateTokens: string[]
 }
 
@@ -109,10 +190,14 @@ function parseDeclarationString(raw: string, meta: StateTokenMetadata): Declarat
     const value = raw.slice(colonIdx + 1).trim()
     if (!property || !value) return null
 
+    const tokens: string[] = []
     const stateTokens: string[] = []
-    const varMatches = value.matchAll(/var\(--_([a-zA-Z0-9_-]+)\)/g)
+    const varMatches = value.matchAll(/var\(--_([a-zA-Z0-9_:-]+)\)/g)
     for (const match of varMatches) {
         const tokenName = match[1]
+        if (meta.hasToken(tokenName) || meta.isStateToken(tokenName)) {
+            tokens.push(tokenName)
+        }
         if (meta.isStateToken(tokenName)) {
             stateTokens.push(tokenName)
         }
@@ -122,8 +207,111 @@ function parseDeclarationString(raw: string, meta: StateTokenMetadata): Declarat
         property,
         value,
         isStateful: stateTokens.length > 0,
+        tokens,
         stateTokens,
     }
+}
+
+function findNextDelimiter(css: string, start: number): { type: ';' | '{'; index: number } | null {
+    let inSingleQuote = false
+    let inDoubleQuote = false
+    let parenDepth = 0
+    let isEscaped = false
+
+    for (let i = start; i < css.length; i++) {
+        const ch = css[i]
+
+        if (isEscaped) {
+            isEscaped = false
+            continue
+        }
+
+        if (ch === '\\') {
+            isEscaped = true
+            continue
+        }
+
+        if (ch === "'" && !inDoubleQuote) {
+            inSingleQuote = !inSingleQuote
+            continue
+        }
+
+        if (ch === '"' && !inSingleQuote) {
+            inDoubleQuote = !inDoubleQuote
+            continue
+        }
+
+        if (inSingleQuote || inDoubleQuote) {
+            continue
+        }
+
+        if (ch === '(') {
+            parenDepth++
+            continue
+        }
+
+        if (ch === ')') {
+            if (parenDepth > 0) parenDepth--
+            continue
+        }
+
+        if (parenDepth === 0) {
+            if (ch === ';') {
+                return { type: ';', index: i }
+            }
+            if (ch === '{') {
+                return { type: '{', index: i }
+            }
+        }
+    }
+
+    return null
+}
+
+function findMatchingClosingBrace(css: string, openBraceIndex: number): number {
+    let depth = 1
+    let inSingleQuote = false
+    let inDoubleQuote = false
+    let isEscaped = false
+
+    for (let i = openBraceIndex + 1; i < css.length; i++) {
+        const ch = css[i]
+
+        if (isEscaped) {
+            isEscaped = false
+            continue
+        }
+
+        if (ch === '\\') {
+            isEscaped = true
+            continue
+        }
+
+        if (ch === "'" && !inDoubleQuote) {
+            inSingleQuote = !inSingleQuote
+            continue
+        }
+
+        if (ch === '"' && !inSingleQuote) {
+            inDoubleQuote = !inDoubleQuote
+            continue
+        }
+
+        if (inSingleQuote || inDoubleQuote) {
+            continue
+        }
+
+        if (ch === '{') {
+            depth++
+        } else if (ch === '}') {
+            depth--
+            if (depth === 0) {
+                return i
+            }
+        }
+    }
+
+    return css.length
 }
 
 function parseKeyframeSteps(body: string, meta: StateTokenMetadata): KeyframeStep[] {
@@ -135,29 +323,30 @@ function parseKeyframeSteps(body: string, meta: StateTokenMetadata): KeyframeSte
         while (i < len && /\s/.test(body[i])) i++
         if (i >= len) break
 
-        const openBrace = body.indexOf('{', i)
-        if (openBrace === -1) break
+        const delim = findNextDelimiter(body, i)
+        if (!delim || delim.type !== '{') break
 
+        const openBrace = delim.index
         const selector = body.slice(i, openBrace).trim()
-        let depth = 1
-        let j = openBrace + 1
+        const closeBrace = findMatchingClosingBrace(body, openBrace)
 
-        while (j < len && depth > 0) {
-            if (body[j] === '{') depth++
-            else if (body[j] === '}') depth--
-            j++
-        }
+        const stepContent = body.slice(openBrace + 1, closeBrace).trim()
+        i = closeBrace + 1
 
-        const stepContent = body.slice(openBrace + 1, j - 1).trim()
-        i = j
-
-        const declStrings = stepContent.split(';')
         const declarations: Declaration[] = []
-        for (const raw of declStrings) {
-            const trimmed = raw.trim()
-            if (!trimmed) continue
-            const decl = parseDeclarationString(trimmed, meta)
-            if (decl) declarations.push(decl)
+        let k = 0
+        while (k < stepContent.length) {
+            while (k < stepContent.length && /\s/.test(stepContent[k])) k++
+            if (k >= stepContent.length) break
+            const nextDelim = findNextDelimiter(stepContent, k)
+            const chunk = nextDelim
+                ? stepContent.slice(k, nextDelim.index).trim()
+                : stepContent.slice(k).trim()
+            k = nextDelim ? nextDelim.index + 1 : stepContent.length
+            if (chunk) {
+                const decl = parseDeclarationString(chunk, meta)
+                if (decl) declarations.push(decl)
+            }
         }
 
         if (selector) {
@@ -171,7 +360,6 @@ function parseKeyframeSteps(body: string, meta: StateTokenMetadata): KeyframeSte
 function isWrapperAtRule(header: string): boolean {
     return /^@(layer|media|supports|container|starting-style)(\s|$)/i.test(header)
 }
-
 
 function isKeyframesAtRule(header: string): boolean {
     return /^@(-webkit-)?keyframes(\s|$)/i.test(header)
@@ -199,56 +387,60 @@ function parseCssRecursive(
         while (i < len && /\s/.test(css[i])) i++
         if (i >= len) break
 
-        // Look ahead for declaration or block start '{'
-        const nextSemicolon = css.indexOf(';', i)
-        const nextOpenBrace = css.indexOf('{', i)
-
-        if (nextSemicolon === -1 && nextOpenBrace === -1) {
+        const delim = findNextDelimiter(css, i)
+        if (!delim) {
+            const trailing = css.slice(i).trim()
+            if (trailing) {
+                const decl = parseDeclarationString(trailing, meta)
+                if (decl) currentDeclarations.push(decl)
+            }
             break
         }
 
-        // Case 1: Declaration comes before any nested block '{'
-        if (nextSemicolon !== -1 && (nextOpenBrace === -1 || nextSemicolon < nextOpenBrace)) {
-            const declChunk = css.slice(i, nextSemicolon).trim()
+        // Case 1: Declaration ';' encountered before any nested block '{'
+        if (delim.type === ';') {
+            const declChunk = css.slice(i, delim.index).trim()
             if (declChunk) {
                 const decl = parseDeclarationString(declChunk, meta)
                 if (decl) {
                     currentDeclarations.push(decl)
                 }
             }
-            i = nextSemicolon + 1
+            i = delim.index + 1
             continue
         }
 
-        // Case 2: Nested block encountered at nextOpenBrace
-        const header = css.slice(i, nextOpenBrace).trim()
-        let depth = 1
-        let j = nextOpenBrace + 1
-
-        while (j < len && depth > 0) {
-            if (css[j] === '{') depth++
-            else if (css[j] === '}') depth--
-            j++
-        }
-
-        const body = css.slice(nextOpenBrace + 1, j - 1).trim()
-        i = j
+        // Case 2: Nested block encountered at '{'
+        const header = css.slice(i, delim.index).trim()
+        const openBrace = delim.index
+        const closeBrace = findMatchingClosingBrace(css, openBrace)
+        const body = css.slice(openBrace + 1, closeBrace).trim()
+        i = closeBrace + 1
 
         if (!header) continue
 
         // Handle @anchor
         if (header.startsWith('@anchor')) {
             const anchorSelector = header.replace(/^@anchor\s+/, '').trim()
-            const childRules = parseCssRecursive(body, meta, anchorSelector, anchorSelector, currentWhen, true)
-            nodes.push(...childRules)
+            const anchorParts = splitSelectorByComma(anchorSelector)
+            for (const anc of anchorParts) {
+                const childRules = parseCssRecursive(body, meta, anc, anc, currentWhen, true)
+                nodes.push(...childRules)
+            }
             continue
         }
 
         // Handle @when(...)
         if (header.startsWith('@when')) {
             const whenMatch = header.match(/^@when\((.*?)\)/)
-            const whenCondition = whenMatch ? whenMatch[1].trim() : ''
-            const childRules = parseCssRecursive(body, meta, currentAnchor, currentTarget, whenCondition, isExplicitAnchor)
+            const whenConditionRaw = whenMatch ? whenMatch[1].trim() : ''
+            const formattedWhen = whenConditionRaw.startsWith('.') || whenConditionRaw.startsWith('[') || whenConditionRaw.startsWith(':')
+                ? whenConditionRaw
+                : `.${whenConditionRaw}`
+            const combinedWhen = currentWhen
+                ? `${currentWhen}${formattedWhen}`
+                : formattedWhen
+            const childRules = parseCssRecursive(body, meta, currentAnchor, currentTarget, combinedWhen, isExplicitAnchor)
             nodes.push(...childRules)
             continue
         }
@@ -264,7 +456,7 @@ function parseCssRecursive(
             continue
         }
 
-        // Handle wrapper at-rules (@layer, @media, @supports, @container)
+        // Handle wrapper at-rules (@layer, @media, @supports, @container, @starting-style)
         if (isWrapperAtRule(header)) {
             const children = parseCssRecursive(body, meta, currentAnchor, currentTarget, currentWhen, isExplicitAnchor)
             nodes.push({
@@ -281,16 +473,27 @@ function parseCssRecursive(
             childAnchor = header
         }
 
-        // Normal selector / nested selector
+        // Normal selector / nested selector with comma nesting expansion
         let composedTarget = header
         if (currentTarget) {
-            if (header.startsWith('&')) {
-                composedTarget = header.replace(/^&/, currentTarget)
-            } else if (currentTarget !== childAnchor) {
-                composedTarget = `${currentTarget} ${header}`
-            } else {
-                composedTarget = `${childAnchor} ${header}`
+            const parentParts = splitSelectorByComma(currentTarget)
+            const headerParts = splitSelectorByComma(header)
+            const combined: string[] = []
+
+            for (const p of parentParts) {
+                for (const h of headerParts) {
+                    if (h.startsWith('&')) {
+                        combined.push(h.replace(/^&/, p))
+                    } else if (h.startsWith(':host')) {
+                        if (!combined.includes(h)) {
+                            combined.push(h)
+                        }
+                    } else {
+                        combined.push(`${p} ${h}`)
+                    }
+                }
             }
+            composedTarget = combined.join(', ')
         }
 
         const childRules = parseCssRecursive(body, meta, childAnchor, composedTarget, currentWhen, isExplicitAnchor)
@@ -311,175 +514,107 @@ function parseCssRecursive(
 }
 
 /**
- * Formats a declaration value for a specific state.
+ * Formats a declaration value for a specific state variant.
  */
 function resolveStateValue(
     decl: Declaration,
-    state: StateName,
+    state: string,
     meta: StateTokenMetadata
 ): string {
     let result = decl.value
-    for (const token of decl.stateTokens) {
-        if (meta.hasStateToken(token, state)) {
-            const stateTokenVar = `--_${state}-${token}`
-            result = result.replaceAll(`var(--_${token})`, `var(${stateTokenVar})`)
+    for (const token of decl.tokens) {
+        if (state === 'enabled' || state === 'base') {
+            const baseVarName = meta.resolveStateVarName(token, 'enabled')
+            result = result.replaceAll(`var(--_${token})`, `var(--_${baseVarName})`)
+        } else if (meta.hasStateToken(token, state)) {
+            const stateVarName = meta.resolveStateVarName(token, state)
+            result = result.replaceAll(`var(--_${token})`, `var(--_${stateVarName})`)
         } else {
-            const fallbackTokenVar = `--_enabled-${token}`
-            result = result.replaceAll(`var(--_${token})`, `var(${fallbackTokenVar})`)
+            const fallbackVarName = meta.resolveStateVarName(token, 'enabled')
+            result = result.replaceAll(`var(--_${token})`, `var(--_${fallbackVarName})`)
         }
     }
     return result
 }
 
 /**
- * Checks if a declaration has any state delta for a specific state based on the definition metadata.
+ * Checks if a declaration has any state delta for a specific state variant based on definition metadata.
  */
 function declHasStateDelta(
     decl: Declaration,
-    state: StateDeltaName,
+    state: string,
     meta: StateTokenMetadata
 ): boolean {
     if (!decl.isStateful) return false
     return decl.stateTokens.some((token) => meta.hasStateToken(token, state))
 }
 
-/**
- * Appends a modifier (such as [checked] or :hover or [disabled]) to a host selector,
- * properly respecting nested parentheses like :host(:not([variant*="drawer"])).
- */
-function appendToHostSelector(hostSelector: string, modifier: string): string {
-    if (!modifier) return hostSelector
-
-    if (hostSelector === ':host') {
-        return `:host(${modifier})`
-    }
-
-    if (hostSelector.startsWith(':host(')) {
-        let depth = 0
-        let closeIdx = -1
-        for (let i = 5; i < hostSelector.length; i++) {
-            if (hostSelector[i] === '(') depth++
-            else if (hostSelector[i] === ')') {
-                depth--
-                if (depth === 0) {
-                    closeIdx = i
-                    break
-                }
-            }
-        }
-
-        if (closeIdx !== -1) {
-            const inner = hostSelector.slice(6, closeIdx)
-            const after = hostSelector.slice(closeIdx + 1)
-            return `:host(${inner}${modifier})${after}`
-        }
-    }
-
-    return `${hostSelector}${modifier}`
+export interface CompileStateSheetOptions {
+    registry?: StateTriggerRegistry
+    triggers?: (StateTrigger | Record<string, StateTrigger | string>)[] | Record<string, StateTrigger | string>
 }
 
-/**
- * Builds composed state selector for a given state index.
- */
-function buildStateSelector(
-    anchor: string,
-    targetSelector: string,
-    whenCondition: string | undefined,
-    stateIndex: number
-): string {
-    const isHostAnchor = anchor === ':host' || anchor.startsWith(':host(')
-    const stateName = STATE_NAMES[stateIndex]
-
-    // Modifier string per state
-    let stateMod = ''
-    if (stateName === 'hovered') stateMod = ':hover'
-    else if (stateName === 'focused') stateMod = ':focus-within'
-    else if (stateName === 'pressed') stateMod = ':active'
-    else if (stateName === 'disabled') stateMod = isHostAnchor ? '[disabled]' : '.disabled'
-
-    // 1. Compose Anchor with When Condition
-    let composedAnchor = anchor
-    if (whenCondition) {
-        if (isHostAnchor) {
-            composedAnchor = appendToHostSelector(composedAnchor, whenCondition)
-        } else {
-            if (whenCondition.startsWith('.') || whenCondition.startsWith('[') || whenCondition.startsWith(':')) {
-                composedAnchor = `${anchor}${whenCondition}`
-            } else {
-                composedAnchor = `${anchor}.${whenCondition}`
-            }
-        }
-    }
-
-    // 2. Compose Anchor with State Modifier
-    if (stateMod) {
-        if (isHostAnchor) {
-            composedAnchor = appendToHostSelector(composedAnchor, stateMod)
-        } else {
-            if (stateName === 'disabled') {
-                if (whenCondition) {
-                    composedAnchor = `${anchor}.disabled${whenCondition}`
-                } else {
-                    composedAnchor = `${anchor}.disabled`
-                }
-            } else {
-                composedAnchor = `${composedAnchor}${stateMod}`
-            }
-        }
-    }
-
-    // 3. Compose with Target Selector
-    if (!targetSelector || targetSelector === anchor) {
-        return composedAnchor
-    }
-
-    if (targetSelector.startsWith(anchor)) {
-        const remaining = targetSelector.slice(anchor.length).trim()
-        return remaining ? `${composedAnchor} ${remaining}` : composedAnchor
-    }
-
-    return `${composedAnchor} ${targetSelector}`
-}
-
-type StateDeltaName = 'hovered' | 'focused' | 'pressed' | 'disabled'
-const STATE_DELTA_NAMES: StateDeltaName[] = ['hovered', 'focused', 'pressed', 'disabled']
-
-interface CompiledChunks extends Record<StateDeltaName, string[]> {
+interface CompiledChunks {
     base: string[]
+    deltas: Map<string, string[]>
 }
 
-function compileAstNodes(nodes: AstNode[], meta: StateTokenMetadata): CompiledChunks {
+function getSortedStateVariants(allDefinedStates: ReadonlySet<string>): string[] {
+    const standardOrder: Record<string, number> = {
+        'hover': 10,
+        'focus': 20,
+        'active': 30,
+        'disabled': 40,
+    }
+
+    const list = Array.from(allDefinedStates)
+    return list.sort((a, b) => {
+        const orderA = standardOrder[a] ?? 100
+        const orderB = standardOrder[b] ?? 100
+        if (orderA !== orderB) return orderA - orderB
+        return a.localeCompare(b)
+    })
+}
+
+function compileAstNodes(
+    nodes: AstNode[],
+    meta: StateTokenMetadata,
+    registry: StateTriggerRegistry
+): CompiledChunks {
     const chunks: CompiledChunks = {
         base: [],
-        hovered: [],
-        focused: [],
-        pressed: [],
-        disabled: [],
+        deltas: new Map<string, string[]>(),
+    }
+
+    const stateVariants = getSortedStateVariants(meta.allDefinedStates)
+    for (const state of stateVariants) {
+        chunks.deltas.set(state, [])
     }
 
     for (const node of nodes) {
         if (node.type === 'style-rule') {
             const { anchor, selector, whenCondition, declarations } = node
 
-            // Base Rule (Enabled State)
+            // 1. Base Rule (Enabled / Default State)
             const baseDecls: string[] = []
             for (const decl of declarations) {
-                if (decl.isStateful) {
-                    const resolvedVal = resolveStateValue(decl, 'enabled', meta)
-                    baseDecls.push(`${decl.property}: ${resolvedVal};`)
-                } else {
-                    baseDecls.push(`${decl.property}: ${decl.value};`)
-                }
+                const resolvedVal = resolveStateValue(decl, 'enabled', meta)
+                baseDecls.push(`${decl.property}: ${resolvedVal};`)
             }
 
             if (baseDecls.length > 0) {
-                const baseSel = buildStateSelector(anchor, selector, whenCondition, 0)
+                const baseSel = composeStateSelector({
+                    anchor,
+                    targetSelector: selector,
+                    whenCondition,
+                    states: [],
+                    registry,
+                })
                 chunks.base.push(`${baseSel} {\n    ${baseDecls.join('\n    ')}\n}`)
             }
 
-            // Delta Rules for interactive / disabled states
-            for (let i = 0; i < STATE_DELTA_NAMES.length; i++) {
-                const state = STATE_DELTA_NAMES[i]
+            // 2. Delta Rules for all defined interactive / modifier states
+            for (const state of stateVariants) {
                 const stateDecls: string[] = []
 
                 for (const decl of declarations) {
@@ -490,8 +625,14 @@ function compileAstNodes(nodes: AstNode[], meta: StateTokenMetadata): CompiledCh
                 }
 
                 if (stateDecls.length > 0) {
-                    const stateSel = buildStateSelector(anchor, selector, whenCondition, i + 1)
-                    chunks[state].push(`${stateSel} {\n    ${stateDecls.join('\n    ')}\n}`)
+                    const stateSel = composeStateSelector({
+                        anchor,
+                        targetSelector: selector,
+                        whenCondition,
+                        states: splitStateVariant(state),
+                        registry,
+                    })
+                    chunks.deltas.get(state)!.push(`${stateSel} {\n    ${stateDecls.join('\n    ')}\n}`)
                 }
             }
         } else if (node.type === 'keyframes') {
@@ -499,26 +640,23 @@ function compileAstNodes(nodes: AstNode[], meta: StateTokenMetadata): CompiledCh
             for (const step of node.steps) {
                 const declStrings: string[] = []
                 for (const decl of step.declarations) {
-                    if (decl.isStateful) {
-                        const resolvedVal = resolveStateValue(decl, 'enabled', meta)
-                        declStrings.push(`${decl.property}: ${resolvedVal};`)
-                    } else {
-                        declStrings.push(`${decl.property}: ${decl.value};`)
-                    }
+                    const resolvedVal = resolveStateValue(decl, 'enabled', meta)
+                    declStrings.push(`${decl.property}: ${resolvedVal};`)
                 }
                 stepStrings.push(`    ${step.selector} {\n        ${declStrings.join('\n        ')}\n    }`)
             }
             chunks.base.push(`${node.header} {\n${stepStrings.join('\n\n')}\n}`)
         } else if (node.type === 'wrapper-at-rule') {
-            const inner = compileAstNodes(node.children, meta)
+            const inner = compileAstNodes(node.children, meta, registry)
 
             if (inner.base.length > 0) {
                 chunks.base.push(`${node.atRuleHeader} {\n${inner.base.join('\n\n')}\n}`)
             }
 
-            for (const state of STATE_DELTA_NAMES) {
-                if (inner[state].length > 0) {
-                    chunks[state].push(`${node.atRuleHeader} {\n${inner[state].join('\n\n')}\n}`)
+            for (const state of stateVariants) {
+                const stateRules = inner.deltas.get(state)
+                if (stateRules && stateRules.length > 0) {
+                    chunks.deltas.get(state)!.push(`${node.atRuleHeader} {\n${stateRules.join('\n\n')}\n}`)
                 }
             }
         }
@@ -530,18 +668,34 @@ function compileAstNodes(nodes: AstNode[], meta: StateTokenMetadata): CompiledCh
 /**
  * Compiles an MDC CSS template string with token state awareness into standard CSS.
  */
-export function compileStateSheet(definition: any, cssText: string): string {
+export function compileStateSheet(
+    definition: any,
+    cssText: string,
+    options?: CompileStateSheetOptions
+): string {
+    const registry = options?.registry
+        ? options.registry.clone()
+        : new StateTriggerRegistry(options?.triggers)
+
+    if (options?.triggers && options.registry) {
+        registry.registerAll(options.triggers)
+    }
+
     const meta = extractStateTokenMetadata(definition)
     const cleanCss = stripComments(cssText)
     const nodes = parseCssRecursive(cleanCss, meta)
-    const chunks = compileAstNodes(nodes, meta)
+    const chunks = compileAstNodes(nodes, meta, registry)
 
     const output: string[] = []
-    if (chunks.base.length > 0) output.push(chunks.base.join('\n\n'))
-    if (chunks.hovered.length > 0) output.push(chunks.hovered.join('\n\n'))
-    if (chunks.focused.length > 0) output.push(chunks.focused.join('\n\n'))
-    if (chunks.pressed.length > 0) output.push(chunks.pressed.join('\n\n'))
-    if (chunks.disabled.length > 0) output.push(chunks.disabled.join('\n\n'))
+    if (chunks.base.length > 0) {
+        output.push(chunks.base.join('\n\n'))
+    }
+
+    for (const [_, deltaRules] of chunks.deltas.entries()) {
+        if (deltaRules.length > 0) {
+            output.push(deltaRules.join('\n\n'))
+        }
+    }
 
     return output.join('\n\n')
 }
