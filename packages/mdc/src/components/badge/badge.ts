@@ -5,7 +5,14 @@
  */
 import { html, LitElement, type TemplateResult } from 'lit'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
-import type { BadgeSize, IBadge } from './badge.interface'
+import type {
+    BadgeSize,
+    IMDCBadge,
+    IMDCBadgeValueChangeDetail,
+    IMDCBadgeSizeChangeDetail,
+    IMDCBadgeOverflowChangeDetail,
+    IMDCBadgeAutoSizeDetail,
+} from './badge.interface'
 import { customElement, property, query } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import { mixinDelegatesAria } from '../../utils/aria/delegate'
@@ -33,24 +40,81 @@ declare global {
 export class MDCBadge extends composeMixin(
     mixinDelegatesAria,
     mixinElementInternals
-)(LitElement) implements IBadge {
+)(LitElement) implements IMDCBadge {
 
     static override styles = BadgeStyles
 
+    private _size: BadgeSize = 'small'
+    private _value: string | number | null = null
+    private _label: string | null = null
+    private _max: number | null = 99
+    private _autoSizeOnZero: boolean = false
+
+    private previousEffectiveSize: BadgeSize = 'small'
+    private previousIsOverflow: boolean = false
+
     @property({ type: String, attribute: 'size', reflect: true })
-    public size: BadgeSize = 'small'
+    public get size(): BadgeSize {
+        return this._size
+    }
+    public set size(newSize: BadgeSize) {
+        const oldSize = this._size
+        this._size = newSize
+        this.requestUpdate('size', oldSize)
+        this.checkStateTransitions(oldSize)
+    }
 
     @property({ type: String, reflect: true })
-    public value: string | number | null = null
+    public get value(): string | number | null {
+        return this._value
+    }
+    public set value(newValue: string | number | null) {
+        const oldValue = this._value
+        if (oldValue === newValue) return
+        this._value = newValue
+        this.requestUpdate('value', oldValue)
+
+        this.dispatchEvent(new CustomEvent<IMDCBadgeValueChangeDetail>('change', {
+            detail: { value: newValue, oldValue },
+            bubbles: true,
+            composed: true,
+        }))
+
+        this.checkStateTransitions()
+    }
 
     @property({ type: String, reflect: true })
-    public label: string | null = null
+    public get label(): string | null {
+        return this._label
+    }
+    public set label(newLabel: string | null) {
+        const oldLabel = this._label
+        this._label = newLabel
+        this.requestUpdate('label', oldLabel)
+        this.checkStateTransitions()
+    }
 
     @property({ type: Number, reflect: true })
-    public max: number | null = 99
+    public get max(): number | null {
+        return this._max
+    }
+    public set max(newMax: number | null) {
+        const oldMax = this._max
+        this._max = newMax
+        this.requestUpdate('max', oldMax)
+        this.checkStateTransitions()
+    }
 
     @property({ type: Boolean, attribute: 'auto-size-on-zero', reflect: true })
-    public autoSizeOnZero: boolean = false
+    public get autoSizeOnZero(): boolean {
+        return this._autoSizeOnZero
+    }
+    public set autoSizeOnZero(newVal: boolean) {
+        const oldVal = this._autoSizeOnZero
+        this._autoSizeOnZero = newVal
+        this.requestUpdate('autoSizeOnZero', oldVal)
+        this.checkStateTransitions()
+    }
 
     @query('.label')
     protected readonly labelElement!: HTMLSpanElement
@@ -86,6 +150,17 @@ export class MDCBadge extends composeMixin(
         return this.size
     }
 
+    public get isOverflow(): boolean {
+        if (this.effectiveSize === 'small' || this.label != null && this.label !== '' || this.value == null || this.value === '') {
+            return false
+        }
+        const num = typeof this.value === 'number' ? this.value : Number(this.value)
+        if (!isNaN(num) && typeof this.value !== 'boolean') {
+            return this.max != null && this.max > 0 && num > this.max
+        }
+        return false
+    }
+
     protected get displayText(): string {
         if (this.effectiveSize === 'small') {
             return ''
@@ -107,8 +182,46 @@ export class MDCBadge extends composeMixin(
         return String(this.value)
     }
 
-    protected get hasLabel(): boolean {
+    public get hasLabel(): boolean {
         return this.displayText !== ''
+    }
+
+    private checkStateTransitions(providedOldSize?: BadgeSize): void {
+        const currentEffectiveSize = this.effectiveSize
+        const oldEffectiveSize = providedOldSize !== undefined ? providedOldSize : this.previousEffectiveSize
+
+        if (currentEffectiveSize !== oldEffectiveSize) {
+            this.dispatchEvent(new CustomEvent<IMDCBadgeSizeChangeDetail>('size-change', {
+                detail: { size: currentEffectiveSize, oldSize: oldEffectiveSize },
+                bubbles: true,
+                composed: true,
+            }))
+        }
+
+        if (this.autoSizeOnZero) {
+            this.dispatchEvent(new CustomEvent<IMDCBadgeAutoSizeDetail>('auto-size', {
+                detail: { effectiveSize: currentEffectiveSize, isZero: this.isZero },
+                bubbles: true,
+                composed: true,
+            }))
+        }
+
+        const currentIsOverflow = this.isOverflow
+        const oldIsOverflow = this.previousIsOverflow
+        if (currentIsOverflow !== oldIsOverflow) {
+            this.dispatchEvent(new CustomEvent<IMDCBadgeOverflowChangeDetail>('overflow-change', {
+                detail: {
+                    isOverflow: currentIsOverflow,
+                    oldIsOverflow,
+                    displayText: this.displayText,
+                },
+                bubbles: true,
+                composed: true,
+            }))
+        }
+
+        this.previousEffectiveSize = currentEffectiveSize
+        this.previousIsOverflow = currentIsOverflow
     }
 
     protected getRenderClasses() {
@@ -134,4 +247,5 @@ export class MDCBadge extends composeMixin(
     }
 
 }
+
 

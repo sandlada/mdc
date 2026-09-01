@@ -198,24 +198,96 @@ describe('MDCBadge', () => {
         })
     })
 
-    describe('getRenderClasses', () => {
-        it('returns appropriate classes for small dot badge', () => {
+    describe('event dispatches', () => {
+        it('dispatches change event when value changes', () => {
             const badge = new MDCBadge()
-            badge.size = 'small'
-            const classes = (badge as any).getRenderClasses()
-            expect(classes.container).toBe(true)
-            expect(classes.small).toBe(true)
-            expect(classes['has-label']).toBe(false)
+
+            let eventDetail: any = null
+            badge.addEventListener('change', (e: any) => {
+                eventDetail = e.detail
+            })
+
+            badge.value = 5
+            badge.requestUpdate('value', null)
+
+            expect(eventDetail).toEqual({ value: 5, oldValue: null })
+
+            badge.value = 10
+            badge.requestUpdate('value', 5)
+            expect(eventDetail).toEqual({ value: 10, oldValue: 5 })
         })
 
-        it('returns appropriate classes for large badge with label', () => {
+        it('dispatches size-change event when switching between small and large', () => {
+            const badge = new MDCBadge()
+
+            let eventDetail: any = null
+            badge.addEventListener('size-change', (e: any) => {
+                eventDetail = e.detail
+            })
+
+            badge.size = 'large'
+            badge.requestUpdate('size', 'small')
+            expect(eventDetail).toEqual({ size: 'large', oldSize: 'small' })
+
+            badge.size = 'small'
+            badge.requestUpdate('size', 'large')
+            expect(eventDetail).toEqual({ size: 'small', oldSize: 'large' })
+        })
+
+        it('dispatches overflow-change event when crossing max threshold (e.g. 99 to 99+)', () => {
             const badge = new MDCBadge()
             badge.size = 'large'
-            badge.value = 10
-            const classes = (badge as any).getRenderClasses()
-            expect(classes.container).toBe(true)
-            expect(classes.large).toBe(true)
-            expect(classes['has-label']).toBe(true)
+            badge.max = 99
+
+            let eventDetail: any = null
+            badge.addEventListener('overflow-change', (e: any) => {
+                eventDetail = e.detail
+            })
+
+            badge.value = 99
+            badge.requestUpdate('value', null)
+            expect(eventDetail).toBe(null)
+
+            badge.value = 100
+            badge.requestUpdate('value', 99)
+            expect(eventDetail).toEqual({
+                isOverflow: true,
+                oldIsOverflow: false,
+                displayText: '99+'
+            })
+
+            badge.value = 50
+            badge.requestUpdate('value', 100)
+            expect(eventDetail).toEqual({
+                isOverflow: false,
+                oldIsOverflow: true,
+                displayText: '50'
+            })
+        })
+
+        it('dispatches auto-size event when autoSizeOnZero triggers size recalculation', () => {
+            const badge = new MDCBadge()
+            badge.autoSizeOnZero = true
+
+            let autoSizeDetail: any = null
+            badge.addEventListener('auto-size', (e: any) => {
+                autoSizeDetail = e.detail
+            })
+
+            badge.value = 5
+            badge.requestUpdate('value', null)
+            expect(autoSizeDetail).toEqual({
+                effectiveSize: 'large',
+                isZero: false
+            })
+
+            badge.value = 0
+            badge.requestUpdate('value', 5)
+            expect(autoSizeDetail).toEqual({
+                effectiveSize: 'small',
+                isZero: true
+            })
         })
     })
 })
+

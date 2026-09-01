@@ -16,14 +16,15 @@ describe('BadgeStyles', () => {
         }
     })
 
-    it('contains compiled token references with enabled states', () => {
+    it('contains compiled token references with size states', () => {
         const fullCss = (Array.isArray(BadgeStyles) ? BadgeStyles : [BadgeStyles])
             .map((s) => s.cssText)
             .join('\n')
 
-        expect(fullCss).toContain('var(--_enabled-large-container-color)')
-        expect(fullCss).toContain('var(--_enabled-large-label-color)')
-        expect(fullCss).toContain('var(--_enabled-small-container-color)')
+        expect(fullCss).toContain('var(--_container-color)')
+        expect(fullCss).toContain('var(--_label-color)')
+        expect(fullCss).toContain('var(--_small-container-size)')
+        expect(fullCss).toContain('var(--_large-container-size)')
     })
 
     it('contains high contrast and forced-colors rules using native system colors', () => {
