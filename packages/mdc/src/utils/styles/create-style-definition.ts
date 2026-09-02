@@ -9,7 +9,7 @@ import type { StateSchema } from './define-schema'
 
 export const FORWARDED_TOKEN_META = Symbol.for('mdc.styles.forwarded_token_meta')
 
-export type PrimitiveTokenValue = string | number | CSSResult | { ToCSSVariable: () => string }
+export type PrimitiveTokenValue = string | number | null | undefined | CSSResult | { ToCSSVariable: () => string }
 
 export type StateTuple<TStates extends readonly string[], TValue = PrimitiveTokenValue> = {
     readonly [K in keyof TStates]: TValue

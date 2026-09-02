@@ -53,9 +53,21 @@ export interface KeyframesNode {
     readonly rawBody?: string
 }
 
+export interface StyleDiagnosticWarning {
+    readonly type: 'missing-token-in-shared-scope' | 'missing-token-in-variant-scope' | 'unknown-variant' | string
+    readonly message: string
+    readonly token?: string
+    readonly variant?: string
+    readonly variants?: readonly string[]
+    readonly missingVariants?: readonly string[]
+    readonly ruleSelector?: string
+}
+
 export interface CompileStateSheetOptions {
     readonly registry?: StateTriggerRegistry
     readonly triggers?: Record<string, StateTrigger | string> | (StateTrigger | Record<string, StateTrigger | string>)[]
+    readonly variantSelector?: (variantName: string) => string
+    readonly onWarn?: (warning: StyleDiagnosticWarning) => void
 }
 
 export interface StateTokenMetadata {
@@ -70,6 +82,10 @@ export interface StateTokenMetadata {
     hasStateDelta(tokenName: string, state: string): boolean
     statesList: readonly string[]
     baseState: string
+    isVariantDictionary: boolean
+    allVariantNames: readonly string[]
+    variantTokensMap: ReadonlyMap<string, ReadonlySet<string>>
+    intersectionTokens: ReadonlySet<string>
 }
 
 function canonicalizeState(state: string): string {
@@ -105,11 +121,117 @@ function isPlainObject(value: unknown): value is Record<string, any> {
 
 const RESERVED_DEF_KEYS = new Set(['__brand', 'schema', 'tokens', 'flatTokenKeys', 'forwardedBridges'])
 
+function isVariantDictionary(definition: unknown): definition is Record<string, any> {
+    if (!definition || typeof definition !== 'object' || Array.isArray(definition)) {
+        return false
+    }
+    const obj = definition as Record<string, any>
+    if ('__brand' in obj && obj['__brand'] === 'ResolvedStyleDefinition') {
+        return false
+    }
+    if ('schema' in obj && obj['schema'] && typeof obj['schema'] === 'object' && obj['schema']['__brand'] === 'StateSchema') {
+        return false
+    }
+    if ('tokens' in obj && obj['tokens'] && typeof obj['tokens'] === 'object') {
+        return false
+    }
+    const entries = Object.entries(obj)
+    if (entries.length === 0) {
+        return false
+    }
+    return entries.every(([_, val]) =>
+        val && typeof val === 'object' && !Array.isArray(val) && !('_$cssResult$' in val) && !('ToCSSVariable' in val)
+    )
+}
+
+function globToRegex(glob: string): RegExp {
+    const escaped = glob.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*')
+    return new RegExp(`^${escaped}$`)
+}
+
+export function matchVariants(patterns: readonly string[], allVariantNames: readonly string[]): string[] {
+    const cleanPatterns = patterns.map((p) => p.trim()).filter(Boolean)
+    const positivePatterns = cleanPatterns.filter((p) => !p.startsWith('!'))
+    const negativePatterns = cleanPatterns.filter((p) => p.startsWith('!')).map((p) => p.slice(1).trim()).filter(Boolean)
+
+    let matched: string[] = []
+
+    if (positivePatterns.length > 0) {
+        if (allVariantNames.length > 0) {
+            matched = allVariantNames.filter((name) =>
+                positivePatterns.some((pat) => globToRegex(pat).test(name))
+            )
+        } else {
+            matched = positivePatterns
+        }
+    } else {
+        matched = [...allVariantNames]
+    }
+
+    if (negativePatterns.length > 0) {
+        matched = matched.filter((name) =>
+            !negativePatterns.some((pat) => globToRegex(pat).test(name))
+        )
+    }
+
+    return matched
+}
+
+function emitWarning(options: CompileStateSheetOptions | undefined, warning: StyleDiagnosticWarning): void {
+    if (options?.onWarn) {
+        options.onWarn(warning)
+    } else {
+        console.warn(warning.message)
+    }
+}
+
 /**
- * Extracts comprehensive state token metadata from component style definition(s).
+ * Extracts comprehensive state token metadata from component style definition(s) or variant dictionaries.
  */
 export function extractStateTokenMetadata(definition: any): StateTokenMetadata {
-    const definitions = Array.isArray(definition) ? definition : [definition]
+    const isVarDict = isVariantDictionary(definition)
+    const allVariantNames: string[] = isVarDict ? Object.keys(definition) : []
+    const variantTokensMap = new Map<string, Set<string>>()
+
+    if (isVarDict) {
+        for (const [vName, vDef] of Object.entries(definition)) {
+            if (!vDef || typeof vDef !== 'object') continue
+            const vTokenSet = new Set<string>()
+            const tokensObj = ('tokens' in vDef && typeof vDef.tokens === 'object' && vDef.tokens !== null)
+                ? vDef.tokens
+                : vDef
+
+            for (const [rawKey, rawVal] of Object.entries(tokensObj)) {
+                if (rawVal === null || rawVal === undefined || RESERVED_DEF_KEYS.has(rawKey)) {
+                    continue
+                }
+                const key = rawKey.startsWith('--_')
+                    ? rawKey.slice(3)
+                    : rawKey.startsWith('--')
+                        ? rawKey.slice(2)
+                        : rawKey
+                vTokenSet.add(key)
+            }
+            variantTokensMap.set(vName, vTokenSet)
+        }
+    }
+
+    const intersectionTokens = new Set<string>()
+    if (allVariantNames.length > 0) {
+        const firstSet = variantTokensMap.get(allVariantNames[0]) ?? new Set()
+        for (const token of firstSet) {
+            if (allVariantNames.every((v) => variantTokensMap.get(v)?.has(token))) {
+                intersectionTokens.add(token)
+            }
+        }
+    }
+
+    const definitions = isVarDict
+        ? Object.values(definition)
+        : Array.isArray(definition)
+            ? definition
+            : [definition]
+
     const allTokens = new Set<string>()
     const allStateTokens = new Set<string>()
     const allDefinedStates = new Set<string>()
@@ -313,7 +435,11 @@ export function extractStateTokenMetadata(definition: any): StateTokenMetadata {
             return deltas.has(state) || deltas.has(canonical)
         },
         statesList,
-        baseState
+        baseState,
+        isVariantDictionary: isVarDict,
+        allVariantNames: Object.freeze(allVariantNames),
+        variantTokensMap,
+        intersectionTokens
     }
 }
 
@@ -438,7 +564,6 @@ function findNextDelimiter(css: string, start: number): { type: ';' | '{'; index
 
         if (ch === '(') {
             parenDepth++
-            currentAccum += ch
             continue
         }
 
@@ -469,8 +594,6 @@ function findNextDelimiter(css: string, start: number): { type: ';' | '{'; index
 
     return null
 }
-
-let currentAccum = ''
 
 /**
  * Finds the matching closing brace '}' for an opening brace at openBraceIndex.
@@ -644,29 +767,75 @@ export function splitSelectorByComma(selector: string): string[] {
  */
 export function appendToHostSelector(hostSelector: string, modifier: string): string {
     if (!modifier) return hostSelector
+    if (!hostSelector) return modifier
+
+    const modParts = splitSelectorByComma(modifier)
+    if (modParts.length > 1) {
+        return modParts.map((m) => appendToHostSelector(hostSelector, m)).join(', ')
+    }
 
     const parts = splitSelectorByComma(hostSelector)
     if (parts.length > 1) {
         return parts.map((part) => appendToHostSelector(part, modifier)).join(', ')
     }
 
-    const trimmed = hostSelector.trim()
-    if (trimmed === ':host') {
-        const cleanMod = modifier.startsWith('(') && modifier.endsWith(')')
-            ? modifier
-            : modifier.startsWith('[') || modifier.startsWith(':') || modifier.startsWith('.')
-                ? `(${modifier})`
-                : `(${modifier})`
+    const trimmedHost = hostSelector.trim()
+    const trimmedMod = modifier.trim()
+
+    if (!trimmedMod || trimmedMod === ':host') return trimmedHost
+
+    // Handle :where(...) or :is(...) containing host selectors
+    if (trimmedHost.startsWith(':where(') && trimmedHost.endsWith(')')) {
+        const inner = trimmedHost.slice(7, -1)
+        const innerParts = splitSelectorByComma(inner)
+        const appended = innerParts.map((p) => appendToHostSelector(p, trimmedMod)).join(', ')
+        return `:where(${appended})`
+    }
+
+    if (trimmedHost.startsWith(':is(') && trimmedHost.endsWith(')')) {
+        const inner = trimmedHost.slice(4, -1)
+        const innerParts = splitSelectorByComma(inner)
+        const appended = innerParts.map((p) => appendToHostSelector(p, trimmedMod)).join(', ')
+        return `:is(${appended})`
+    }
+
+    if (trimmedHost === ':host') {
+        if (trimmedMod.startsWith(':where(') || trimmedMod.startsWith(':is(')) {
+            return trimmedMod
+        }
+        if (trimmedMod.startsWith(':host(') && trimmedMod.endsWith(')')) {
+            return trimmedMod
+        }
+        if (trimmedMod.startsWith(':host:')) {
+            return trimmedMod
+        }
+        if (trimmedMod.startsWith(':host[') || trimmedMod.startsWith(':host.')) {
+            return `:host(${trimmedMod.slice(5)})`
+        }
+        const cleanMod = trimmedMod.startsWith('(') && trimmedMod.endsWith(')')
+            ? trimmedMod
+            : `(${trimmedMod})`
         return `:host${cleanMod}`
     }
 
-    if (trimmed.startsWith(':host(')) {
+    let modToAppend = trimmedMod
+    if (trimmedMod.startsWith(':host(') && trimmedMod.endsWith(')')) {
+        modToAppend = trimmedMod.slice(6, -1)
+    } else if (trimmedMod.startsWith(':host')) {
+        modToAppend = trimmedMod.slice(5)
+    } else if (trimmedMod.startsWith('(') && trimmedMod.endsWith(')')) {
+        modToAppend = trimmedMod.slice(1, -1)
+    }
+
+    if (!modToAppend) return trimmedHost
+
+    if (trimmedHost.startsWith(':host(')) {
         let depth = 0
         let closeIdx = -1
 
-        for (let i = 5; i < trimmed.length; i++) {
-            if (trimmed[i] === '(') depth++
-            else if (trimmed[i] === ')') {
+        for (let i = 5; i < trimmedHost.length; i++) {
+            if (trimmedHost[i] === '(') depth++
+            else if (trimmedHost[i] === ')') {
                 depth--
                 if (depth === 0) {
                     closeIdx = i
@@ -676,16 +845,17 @@ export function appendToHostSelector(hostSelector: string, modifier: string): st
         }
 
         if (closeIdx !== -1) {
-            const inner = trimmed.slice(6, closeIdx)
-            const after = trimmed.slice(closeIdx + 1)
-            const modToAppend = modifier.startsWith(':host(')
-                ? modifier.slice(6, -1)
-                : modifier
+            const inner = trimmedHost.slice(6, closeIdx)
+            const after = trimmedHost.slice(closeIdx + 1)
             return `:host(${inner}${modToAppend})${after}`
         }
     }
 
-    return `${trimmed}${modifier}`
+    if (trimmedHost.startsWith(':host:')) {
+        return `:host(${modToAppend})${trimmedHost.slice(5)}`
+    }
+
+    return `${trimmedHost}${trimmedMod}`
 }
 
 export interface ComposeSelectorOptions {
@@ -737,7 +907,7 @@ export function composeStateSelector(options: ComposeSelectorOptions): string {
         return targetSelector
     }
 
-    const isHostAnchor = anchor === ':host' || anchor.startsWith(':host(')
+    const isHostAnchor = anchor.startsWith(':host') || anchor.startsWith(':where(') || anchor.startsWith(':is(')
     const triggerContext: TriggerContext = {
         anchor,
         isHostAnchor,
@@ -802,9 +972,15 @@ export function composeStateSelector(options: ComposeSelectorOptions): string {
     // 1. Compose Host Selector
     let composedHost = ''
     if (isHostAnchor) {
-        composedHost = anchor
+        if (hostCondition) {
+            composedHost = (anchor === ':host' || anchor === hostCondition)
+                ? hostCondition
+                : appendToHostSelector(hostCondition, anchor.startsWith(':host(') ? anchor.slice(6, -1) : anchor)
+        } else {
+            composedHost = anchor
+        }
     } else if (hostCondition) {
-        composedHost = hostCondition.startsWith(':host')
+        composedHost = hostCondition.startsWith(':host') || hostCondition.startsWith(':where(') || hostCondition.startsWith(':is(')
             ? hostCondition
             : `:host(${hostCondition})`
     } else if (hostModifiers.length > 0) {
@@ -947,17 +1123,114 @@ function extractAtRuleParam(header: string, prefix: string): string {
     return ''
 }
 
+function normalizeTokenName(tokenName: string, statesList: readonly string[]): string {
+    const statesToCheck = new Set([...statesList, 'enabled', 'hovered', 'hover', 'pressed', 'active', 'focused', 'focus', 'disabled'])
+    for (const s of statesToCheck) {
+        if (tokenName.startsWith(`${s}-`)) {
+            return tokenName.slice(s.length + 1)
+        }
+    }
+    return tokenName
+}
+
+function checkDeclarationDiagnostics(
+    decl: DeclarationNode,
+    meta: StateTokenMetadata,
+    options: CompileStateSheetOptions | undefined,
+    currentScopeVariants: readonly string[] | null
+): void {
+    if (!meta.isVariantDictionary) return
+
+    for (const rawToken of decl.referencedTokens) {
+        const tokenName = (meta.allTokens.has(rawToken) || meta.hasToken(rawToken))
+            ? rawToken
+            : normalizeTokenName(rawToken, meta.statesList)
+
+        if (currentScopeVariants === null) {
+            // Top-Level Shared Scope
+            const definedIn = meta.allVariantNames.filter((v) => {
+                const vTokens = meta.variantTokensMap.get(v)
+                return vTokens?.has(tokenName) || vTokens?.has(rawToken)
+            })
+            const missingIn = meta.allVariantNames.filter((v) => {
+                const vTokens = meta.variantTokensMap.get(v)
+                return !vTokens?.has(tokenName) && !vTokens?.has(rawToken)
+            })
+
+            if (missingIn.length > 0 && definedIn.length > 0) {
+                emitWarning(options, {
+                    type: 'missing-token-in-shared-scope',
+                    message: `[MDC Style Warning] Token "--_${rawToken}" referenced in top-level shared scope is only defined in variants [${definedIn.join(', ')}], missing in [${missingIn.join(', ')}]. Consider moving it into a @variant(...) block.`,
+                    token: rawToken,
+                    variants: definedIn,
+                    missingVariants: missingIn
+                })
+            }
+        } else {
+            // @variant(...) scope
+            for (const v of currentScopeVariants) {
+                const vTokens = meta.variantTokensMap.get(v)
+                if (vTokens && !vTokens.has(tokenName) && !vTokens.has(rawToken)) {
+                    emitWarning(options, {
+                        type: 'missing-token-in-variant-scope',
+                        message: `[MDC Style Warning] Token "--_${rawToken}" referenced in @variant(${currentScopeVariants.join(', ')}) is not defined in variant "${v}".`,
+                        token: rawToken,
+                        variant: v,
+                        variants: currentScopeVariants
+                    })
+                }
+            }
+        }
+    }
+}
+
+function composeHostCondition(
+    variants: readonly string[] | null,
+    modifiers: readonly string[],
+    options?: CompileStateSheetOptions
+): string | undefined {
+    const selectorFn = options?.variantSelector ?? ((v: string) => `:host([variant="${v}"])`)
+
+    let baseHosts: string[] = []
+    if (variants && variants.length > 0) {
+        baseHosts = variants.map((v) => selectorFn(v))
+    }
+
+    if (baseHosts.length > 0) {
+        return baseHosts.map((base) => {
+            let res = base
+            for (const mod of modifiers) {
+                res = appendToHostSelector(res, mod)
+            }
+            return res
+        }).join(', ')
+    }
+
+    if (modifiers.length > 0) {
+        let res = ':host'
+        for (const mod of modifiers) {
+            res = appendToHostSelector(res, mod)
+        }
+        return res
+    }
+
+    return undefined
+}
+
 /**
  * Recursive descent parser for nested CSS blocks with ATRules.
  */
 function parseCssRecursive(
     css: string,
     meta: StateTokenMetadata,
+    options?: CompileStateSheetOptions,
     currentAnchor: string = ':host',
     currentTarget: string = '',
     currentHostCondition?: string,
     currentWhen?: string,
-    isExplicitAnchor: boolean = false
+    isExplicitAnchor: boolean = false,
+    currentScopeVariants: readonly string[] | null = null,
+    currentHostModifiers: readonly string[] = []
 ): ASTNode[] {
     const nodes: ASTNode[] = []
     const currentDeclarations: DeclarationNode[] = []
@@ -981,7 +1254,10 @@ function parseCssRecursive(
                     }
                 } else {
                     const decl = parseDeclarationString(trailing, meta)
-                    if (decl) currentDeclarations.push(decl)
+                    if (decl) {
+                        checkDeclarationDiagnostics(decl, meta, options, currentScopeVariants)
+                        currentDeclarations.push(decl)
+                    }
                 }
             }
             break
@@ -999,6 +1275,7 @@ function parseCssRecursive(
                 } else {
                     const decl = parseDeclarationString(declChunk, meta)
                     if (decl) {
+                        checkDeclarationDiagnostics(decl, meta, options, currentScopeVariants)
                         currentDeclarations.push(decl)
                     }
                 }
@@ -1021,7 +1298,18 @@ function parseCssRecursive(
             const anchorSelector = header.replace(/^@anchor\s+/, '').trim()
             const anchorParts = splitSelectorByComma(anchorSelector)
             for (const anc of anchorParts) {
-                const childRules = parseCssRecursive(body, meta, anc, anc, currentHostCondition, currentWhen, true)
+                const childRules = parseCssRecursive(
+                    body,
+                    meta,
+                    options,
+                    anc,
+                    anc,
+                    currentHostCondition,
+                    currentWhen,
+                    true,
+                    currentScopeVariants,
+                    currentHostModifiers
+                )
                 nodes.push(...childRules)
             }
             continue
@@ -1031,7 +1319,20 @@ function parseCssRecursive(
         if (header.startsWith('@when')) {
             const whenConditionRaw = extractAtRuleParam(header, '@when')
             if (whenConditionRaw.startsWith(':host')) {
-                const childRules = parseCssRecursive(body, meta, currentAnchor, currentTarget, whenConditionRaw, currentWhen, isExplicitAnchor)
+                const nextHostMods = [...currentHostModifiers, whenConditionRaw]
+                const childHostCond = composeHostCondition(currentScopeVariants, nextHostMods, options)
+                const childRules = parseCssRecursive(
+                    body,
+                    meta,
+                    options,
+                    currentAnchor,
+                    currentTarget,
+                    childHostCond,
+                    currentWhen,
+                    isExplicitAnchor,
+                    currentScopeVariants,
+                    nextHostMods
+                )
                 nodes.push(...childRules)
             } else {
                 const formattedWhen = whenConditionRaw.startsWith('.') || whenConditionRaw.startsWith('[') || whenConditionRaw.startsWith(':')
@@ -1040,7 +1341,18 @@ function parseCssRecursive(
                 const combinedWhen = currentWhen
                     ? `${currentWhen}${formattedWhen}`
                     : formattedWhen
-                const childRules = parseCssRecursive(body, meta, currentAnchor, currentTarget, currentHostCondition, combinedWhen, isExplicitAnchor)
+                const childRules = parseCssRecursive(
+                    body,
+                    meta,
+                    options,
+                    currentAnchor,
+                    currentTarget,
+                    currentHostCondition,
+                    combinedWhen,
+                    isExplicitAnchor,
+                    currentScopeVariants,
+                    currentHostModifiers
+                )
                 nodes.push(...childRules)
             }
             continue
@@ -1049,10 +1361,56 @@ function parseCssRecursive(
         // ATRule: @variant(...)
         if (header.startsWith('@variant')) {
             const variantParam = extractAtRuleParam(header, '@variant')
-            const variantsRaw = variantParam ? variantParam.split(',').map((v) => v.trim()).filter(Boolean) : []
-            const combinedVariantHost = variantsRaw.map((v) => `:host([variant="${v}"])`).join(', ')
+            const patterns = variantParam ? variantParam.split(',').map((v) => v.trim()).filter(Boolean) : []
+            const availableVariants = currentScopeVariants !== null ? currentScopeVariants : meta.allVariantNames
+            const matched = matchVariants(patterns, availableVariants)
 
-            const childRules = parseCssRecursive(body, meta, currentAnchor, currentTarget, combinedVariantHost, currentWhen, isExplicitAnchor)
+            if (meta.isVariantDictionary) {
+                for (const pat of patterns) {
+                    const cleanPat = pat.startsWith('!') ? pat.slice(1).trim() : pat
+                    const patMatches = matchVariants([cleanPat], meta.allVariantNames)
+                    if (patMatches.length === 0) {
+                        emitWarning(options, {
+                            type: 'unknown-variant',
+                            message: `[MDC Style Warning] Unknown variant pattern "${pat}" in @variant(${variantParam}). Available variants: [${meta.allVariantNames.join(', ')}].`,
+                            variant: pat,
+                            variants: meta.allVariantNames
+                        })
+                    }
+                }
+
+                if (matched.length === 0) {
+                    continue
+                }
+            }
+
+            const selectorFn = options?.variantSelector ?? ((v: string) => `:host([variant="${v}"])`)
+            const nextScopeVariants = matched.length > 0
+                ? matched
+                : (meta.isVariantDictionary ? [] : (currentScopeVariants ?? patterns.filter((p) => !p.startsWith('!'))))
+
+            let childHostCond = composeHostCondition(
+                nextScopeVariants.length > 0 ? nextScopeVariants : (patterns.filter((p) => !p.startsWith('!')).length > 0 ? patterns.filter((p) => !p.startsWith('!')) : null),
+                currentHostModifiers,
+                options
+            )
+
+            if (!childHostCond && nextScopeVariants.length === 0 && patterns.length > 0) {
+                childHostCond = patterns.filter((p) => !p.startsWith('!')).map((v) => selectorFn(v)).join(', ')
+            }
+
+            const childRules = parseCssRecursive(
+                body,
+                meta,
+                options,
+                currentAnchor,
+                currentTarget,
+                childHostCond,
+                currentWhen,
+                isExplicitAnchor,
+                nextScopeVariants.length > 0 ? nextScopeVariants : (currentScopeVariants ?? null),
+                currentHostModifiers
+            )
             nodes.push(...childRules)
             continue
         }
@@ -1063,7 +1421,21 @@ function parseCssRecursive(
             const sizesRaw = sizeParam ? sizeParam.split(',').map((s) => s.trim()).filter(Boolean) : []
             const combinedSizeHost = sizesRaw.map((s) => `:host([size="${s}"])`).join(', ')
 
-            const childRules = parseCssRecursive(body, meta, currentAnchor, currentTarget, combinedSizeHost, currentWhen, isExplicitAnchor)
+            const nextHostMods = [...currentHostModifiers, combinedSizeHost]
+            const childHostCond = composeHostCondition(currentScopeVariants, nextHostMods, options)
+
+            const childRules = parseCssRecursive(
+                body,
+                meta,
+                options,
+                currentAnchor,
+                currentTarget,
+                childHostCond,
+                currentWhen,
+                isExplicitAnchor,
+                currentScopeVariants,
+                nextHostMods
+            )
             nodes.push(...childRules)
             continue
         }
@@ -1075,7 +1447,18 @@ function parseCssRecursive(
                 ? '::slotted(:not([slot]))'
                 : `::slotted([slot="${slotName}"])`
 
-            const childRules = parseCssRecursive(body, meta, slottedSelector, slottedSelector, undefined, undefined, true)
+            const childRules = parseCssRecursive(
+                body,
+                meta,
+                options,
+                slottedSelector,
+                slottedSelector,
+                undefined,
+                undefined,
+                true,
+                currentScopeVariants,
+                []
+            )
             nodes.push(...childRules)
             continue
         }
@@ -1087,7 +1470,21 @@ function parseCssRecursive(
                 ? ':host(:has(:not([slot])))'
                 : `:host(:has([slot="${slotName}"]))`
 
-            const childRules = parseCssRecursive(body, meta, currentAnchor, currentTarget, slotQuery, currentWhen, isExplicitAnchor)
+            const nextHostMods = [...currentHostModifiers, slotQuery]
+            const childHostCond = composeHostCondition(currentScopeVariants, nextHostMods, options)
+
+            const childRules = parseCssRecursive(
+                body,
+                meta,
+                options,
+                currentAnchor,
+                currentTarget,
+                childHostCond,
+                currentWhen,
+                isExplicitAnchor,
+                currentScopeVariants,
+                nextHostMods
+            )
             nodes.push(...childRules)
             continue
         }
@@ -1105,7 +1502,18 @@ function parseCssRecursive(
 
         // Wrapper At-Rules (@layer, @media, @supports, @container, @starting-style)
         if (isWrapperAtRule(header)) {
-            const children = parseCssRecursive(body, meta, currentAnchor, currentTarget, currentHostCondition, currentWhen, isExplicitAnchor)
+            const children = parseCssRecursive(
+                body,
+                meta,
+                options,
+                currentAnchor,
+                currentTarget,
+                currentHostCondition,
+                currentWhen,
+                isExplicitAnchor,
+                currentScopeVariants,
+                currentHostModifiers
+            )
             nodes.push({
                 type: 'wrapper-at-rule',
                 atRuleHeader: header,
@@ -1117,14 +1525,21 @@ function parseCssRecursive(
         // Host selector refinement
         let childAnchor = currentAnchor
         let childHostCond = currentHostCondition
-        if (!isExplicitAnchor && header.startsWith(':host')) {
-            childAnchor = header
-            childHostCond = header
-        }
-
-        // Normal descendant / child selector with & expansion
+        let childHostMods = currentHostModifiers
         let composedTarget = header
-        if (currentTarget) {
+
+        if (!isExplicitAnchor && header.startsWith(':host')) {
+            if (header === ':host') {
+                childAnchor = currentHostCondition || ':host'
+                childHostCond = currentHostCondition || ':host'
+                composedTarget = ''
+            } else {
+                childHostMods = [...currentHostModifiers, header]
+                childHostCond = composeHostCondition(currentScopeVariants, childHostMods, options) || header
+                childAnchor = childHostCond
+                composedTarget = ''
+            }
+        } else if (currentTarget) {
             const parentParts = splitSelectorByComma(currentTarget)
             const headerParts = splitSelectorByComma(header)
             const combined: string[] = []
@@ -1141,7 +1556,18 @@ function parseCssRecursive(
             composedTarget = combined.join(', ')
         }
 
-        const childRules = parseCssRecursive(body, meta, childAnchor, composedTarget, childHostCond, currentWhen, isExplicitAnchor)
+        const childRules = parseCssRecursive(
+            body,
+            meta,
+            options,
+            childAnchor,
+            composedTarget,
+            childHostCond,
+            currentWhen,
+            isExplicitAnchor,
+            currentScopeVariants,
+            childHostMods
+        )
         nodes.push(...childRules)
     }
 
@@ -1422,7 +1848,7 @@ export function compileStateSheet(
 
     const meta = extractStateTokenMetadata(definition)
     const cleanCss = stripComments(cssText)
-    const nodes = parseCssRecursive(cleanCss, meta)
+    const nodes = parseCssRecursive(cleanCss, meta, options)
     const chunks = compileAstNodes(nodes, meta, registry)
 
     const output: string[] = []

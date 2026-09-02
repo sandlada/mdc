@@ -58,6 +58,12 @@ export {
 } from './stringify-tokens'
 
 export {
+    defineVariantTokens,
+    type DefineVariantTokensOptions,
+    type DefineVariantTokensOptionsOrPrefix
+} from './define-variant-tokens'
+
+export {
     hostTrigger,
     type TriggerTarget,
     type TriggerContext,

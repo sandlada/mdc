@@ -213,11 +213,11 @@ function extractTypography(source: unknown): ExtractedTypography {
     }
     const src = source as Record<string, any>
     return {
-        font: src['Font'] ?? src['font'] ?? src['fontFamily'] ?? src['typeface'],
-        leading: src['LineHeight'] ?? src['lineHeight'] ?? src['leading'] ?? src['line_height'],
-        size: src['FontSize'] ?? src['fontSize'] ?? src['size'] ?? src['font_size'],
-        tracking: src['Tracking'] ?? src['tracking'] ?? src['letterSpacing'] ?? src['letter_spacing'],
-        weight: src['FontWeight'] ?? src['fontWeight'] ?? src['weight'] ?? src['font_weight']
+        font: src['Font'] ?? src['font'] ?? src['fontFamily'] ?? src['font-family'] ?? src['typeface'],
+        leading: src['LineHeight'] ?? src['lineHeight'] ?? src['line-height'] ?? src['leading'] ?? src['line_height'],
+        size: src['FontSize'] ?? src['fontSize'] ?? src['size'] ?? src['font-size'] ?? src['font_size'],
+        tracking: src['Tracking'] ?? src['tracking'] ?? src['letterSpacing'] ?? src['letter-space']?? src['letter-spacing'] ?? src['letter_spacing'],
+        weight: src['FontWeight'] ?? src['fontWeight'] ?? src['weight'] ?? src['font_weight'] ?? src['font-weight']
     }
 }
 

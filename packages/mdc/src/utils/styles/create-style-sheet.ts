@@ -156,7 +156,7 @@ export const createStyleSheet: CreateStyleSheetFn = function (arg1?: any, arg2?:
     // 2. Options or StateTriggerRegistry passed first: createStyleSheet(options) -> (definition) -> (template)
     if (
         arg1 instanceof StateTriggerRegistry ||
-        (arg1 && typeof arg1 === 'object' && ('registry' in arg1 || 'triggers' in arg1))
+        (arg1 && typeof arg1 === 'object' && ('registry' in arg1 || 'triggers' in arg1 || 'variantSelector' in arg1 || 'onWarn' in arg1))
     ) {
         const compileOptions: CompileStateSheetOptions = arg1 instanceof StateTriggerRegistry
             ? { registry: arg1 }
