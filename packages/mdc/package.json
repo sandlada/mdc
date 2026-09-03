@@ -33,7 +33,9 @@
         "build:dts": "tsc --project tsconfig.json --emitDeclarationOnly --outDir build --skipLibCheck",
         "smoke": "node .smoke/run.mjs",
         "test": "vitest run",
-        "test:watch": "vitest"
+        "test:watch": "vitest",
+        "playground": "vitest run src/utils/styles/playground --disable-console-intercept",
+        "playground:watch": "vitest src/utils/styles/playground --disable-console-intercept"
     },
     "dependencies": {
         "@floating-ui/dom": "^1.8.0",
