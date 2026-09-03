@@ -27,7 +27,7 @@ describe('FocusRingStyle', () => {
         // Must contain @keyframes outward-grow and outward-shrink
         expect(fullCss).toContain('@keyframes outward-grow')
         expect(fullCss).toContain('@keyframes outward-shrink')
-        expect(fullCss).toContain('outline-width: var(--_enabled-active-width);')
+        expect(fullCss).toContain('outline-width: var(--_active-width);')
 
         // Must display on focused or persistent
         expect(fullCss).toContain(':host([persistent])')
@@ -37,8 +37,8 @@ describe('FocusRingStyle', () => {
         expect(fullCss).toContain('@starting-style')
 
         // Must support asymmetric duration (fast entrance, smooth exit)
-        expect(fullCss).toContain('calc(var(--_enabled-duration) * 0.4)')
-        expect(fullCss).toContain('calc(var(--_enabled-duration) * 0.15)')
+        expect(fullCss).toContain('calc(var(--_duration) * 0.4)')
+        expect(fullCss).toContain('calc(var(--_duration) * 0.15)')
 
 
         // Must contain @media queries and forced-colors Highlight

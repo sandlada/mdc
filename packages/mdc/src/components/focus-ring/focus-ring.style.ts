@@ -6,17 +6,11 @@
 import { Easing } from '@sandlada/mdk'
 import { css, unsafeCSS } from 'lit'
 import { FocusRingDefinition } from '../../component-definitions/focus-ring.definition'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
-import { createStyleSheet } from '../../utils'
+import { createStyleSheet, stringifyTokens } from '../../utils/styles'
 
-const tokenRecord = defineTokenRefsRecord(FocusRingDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-focus-ring',
-})
-const tokenString = unsafeCSS(defineVars(tokenRecord, true).join(''))
+const tokens = stringifyTokens('--mdc-focus-ring')(FocusRingDefinition)
 
-const stylePart = createStyleSheet([FocusRingDefinition], () => css`
+const stylePart = createStyleSheet(FocusRingDefinition)(() => css`
     @layer mdc {
 
         :host {
@@ -171,6 +165,6 @@ const stylePart = createStyleSheet([FocusRingDefinition], () => css`
 `)
 
 export const FocusRingStyle = [
-    css`@layer mdc {:host {${tokenString}}}`,
+    css`@layer mdc {:host {${tokens};}}`,
     stylePart,
 ]
