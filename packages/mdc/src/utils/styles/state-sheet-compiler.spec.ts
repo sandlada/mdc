@@ -79,6 +79,71 @@ describe('state-sheet-compiler', () => {
         })
     })
 
+    describe('Comma-Separated :host Selector Lists', () => {
+        const Schema = defineSchema(['enabled'] as const)
+        const Def = createStyleDefinition(Schema)({
+            'duration': '500ms',
+            'color': '#000000'
+        })
+
+        it('emits one valid rule per :host branch instead of a corrupted combination', () => {
+            const compiled = compileStateSheet(Def, `
+                :host([focused]),
+                :host([persistent]) {
+                    display: flex;
+                    opacity: 1;
+                    color: var(--_color);
+                }
+            `)
+
+            expect(compiled).toContain(':host([focused]) {')
+            expect(compiled).toContain(':host([persistent]) {')
+            expect(compiled).toContain('color: var(--_color);')
+            expect(compiled).not.toContain('[focused][')
+            expect(compiled).not.toContain('])([')
+            expect(compiled).not.toContain(':host([focused]), :host([persistent]) {')
+        })
+
+        it('keeps comma :host branches valid inside @starting-style and @media wrappers', () => {
+            const compiled = compileStateSheet(Def, `
+                @starting-style {
+                    :host([focused]),
+                    :host([persistent]) {
+                        opacity: 0;
+                    }
+                }
+
+                @media (forced-colors: active) {
+                    :host([focused]),
+                    :host([persistent]) {
+                        color: Highlight;
+                    }
+                }
+            `)
+
+            expect(compiled).toContain('@starting-style')
+            expect(compiled).toContain('@media (forced-colors: active)')
+            expect(compiled).toContain(':host([focused]) {')
+            expect(compiled).toContain(':host([persistent]) {')
+            expect(compiled).not.toContain('[focused][')
+            expect(compiled).not.toContain('])([')
+        })
+
+        it('keeps single :host selectors and :host with pseudo-classes on the legacy path', () => {
+            const compiled = compileStateSheet(Def, `
+                :host([focused]:not([inward])) {
+                    animation-name: outward-grow;
+                }
+                :host {
+                    display: none;
+                }
+            `)
+
+            expect(compiled).toContain(':host([focused]:not([inward])) {')
+            expect(compiled).toContain(':host {')
+        })
+    })
+
     describe('Base Rule & Differential Minimal Delta Rules', () => {
         const ButtonSchema = defineSchema(['enabled', 'hovered', 'pressed', 'disabled'] as const)
         const ButtonDef = createStyleDefinition(ButtonSchema)({

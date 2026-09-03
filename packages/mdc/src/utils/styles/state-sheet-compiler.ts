@@ -1534,6 +1534,32 @@ function parseCssRecursive(
                 childHostCond = currentHostCondition || ':host'
                 composedTarget = ''
             } else {
+                // Split comma-separated :host selectors (e.g. `:host([a]), :host([b])`)
+                // so every branch keeps a single-host anchor/hostCondition. Without this,
+                // the whole list flows into composeStateSelector, whose single-`:host(...)`
+                // string surgery (`anchor.slice(6, -1)`) corrupts it into fragments like
+                // `:host([a][a]))` or `:host([a]([b])`.
+                const headerParts = splitSelectorByComma(header)
+                if (headerParts.length > 1 && headerParts.every((part) => part.startsWith(':host'))) {
+                    for (const part of headerParts) {
+                        const partMods = [...currentHostModifiers, part]
+                        const partHostCond = composeHostCondition(currentScopeVariants, partMods, options) || part
+                        const partRules = parseCssRecursive(
+                            body,
+                            meta,
+                            options,
+                            partHostCond,
+                            '',
+                            partHostCond,
+                            currentWhen,
+                            isExplicitAnchor,
+                            currentScopeVariants,
+                            partMods
+                        )
+                        nodes.push(...partRules)
+                    }
+                    continue
+                }
                 childHostMods = [...currentHostModifiers, header]
                 childHostCond = composeHostCondition(currentScopeVariants, childHostMods, options) || header
                 childAnchor = childHostCond
