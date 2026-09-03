@@ -10,7 +10,6 @@ import { createStyleSheet, pipe, stringifyTokens } from '../../utils/styles'
 const tokens = stringifyTokens('--mdc-icon')(IconDefinition)
 
 const iconStyles = pipe(
-    tokens,
     createStyleSheet
 )(IconDefinition)(() => css`
 :host {
@@ -22,6 +21,7 @@ const iconStyles = pipe(
 `)
 
 export const styles = [
+    css`:host{${tokens};}`,
     iconStyles,
     css`
 :host {

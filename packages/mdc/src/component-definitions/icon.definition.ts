@@ -6,7 +6,7 @@
 
 import { createStyleDefinition, defineSchema } from '../utils/styles'
 
-const IconSchema = defineSchema([] as const)
+export const IconSchema = defineSchema(['enabled'] as const)
 
 export const IconDefinition = createStyleDefinition(IconSchema)({
     'font': 'Material Symbols Outlined',
