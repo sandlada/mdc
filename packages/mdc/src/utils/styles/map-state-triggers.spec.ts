@@ -70,6 +70,7 @@ describe('mapStateTriggers & StateTriggerRegistry', () => {
         const registry = mapStateTriggers({
             enabled: '',
             checked: '[aria-checked="true"]',
+            hostSelected: ':host([selected])',
             hovered: ':hover',
             dense: '.dense'
         })
@@ -79,6 +80,7 @@ describe('mapStateTriggers & StateTriggerRegistry', () => {
 
         expect(registry.resolve('enabled', hostCtx)).toEqual({ target: 'self', modifier: '' })
         expect(registry.resolve('checked', containerCtx)).toEqual({ target: 'host', modifier: '[aria-checked="true"]' })
+        expect(registry.resolve('hostSelected', containerCtx)).toEqual({ target: 'host', modifier: ':host([selected])' })
         expect(registry.resolve('hovered', containerCtx)).toEqual({ target: 'self', modifier: ':hover' })
         expect(registry.resolve('dense', containerCtx)).toEqual({ target: 'self', modifier: '.dense' })
     })

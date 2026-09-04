@@ -117,17 +117,71 @@ function buildResolvedStyleDefinition<
 
     const flatTokenKeys = Object.freeze(Object.keys(normalizedTokens))
 
-    const result: ResolvedStyleDefinition<TSchema, TTokens> = {
-        __brand: 'ResolvedStyleDefinition',
-        schema,
-        tokens: Object.freeze(normalizedTokens) as unknown as TTokens,
-        flatTokenKeys,
-        ...(Object.keys(forwardedBridges).length > 0
-            ? { forwardedBridges: Object.freeze(forwardedBridges) }
-            : {})
+    const result: any = {}
+
+    for (const [key, val] of Object.entries(normalizedTokens)) {
+        result[key] = val
+
+        if (Array.isArray(val) && schema?.states) {
+            for (let i = 0; i < schema.states.length; i++) {
+                const sVal = val[i]
+                if (sVal !== null && sVal !== undefined) {
+                    const stateName = schema.states[i]
+                    result[`${stateName}-${key}`] = sVal
+                }
+            }
+        } else if (
+            isPlainObject(val) &&
+            typeof (val as any).ToCSSVariable !== 'function' &&
+            !('_$cssResult$' in (val as any)) &&
+            !('cssText' in (val as any))
+        ) {
+            for (const [sKey, sVal] of Object.entries(val)) {
+                if (sVal !== null && sVal !== undefined) {
+                    result[`${sKey}-${key}`] = sVal
+                }
+            }
+        }
     }
 
-    return Object.freeze(result)
+    Object.defineProperties(result, {
+        __brand: {
+            value: 'ResolvedStyleDefinition',
+            enumerable: false,
+            writable: false,
+            configurable: false
+        },
+        schema: {
+            value: schema,
+            enumerable: false,
+            writable: false,
+            configurable: false
+        },
+        tokens: {
+            value: Object.freeze(normalizedTokens),
+            enumerable: false,
+            writable: false,
+            configurable: false
+        },
+        flatTokenKeys: {
+            value: flatTokenKeys,
+            enumerable: false,
+            writable: false,
+            configurable: false
+        },
+        ...(Object.keys(forwardedBridges).length > 0
+            ? {
+                forwardedBridges: {
+                    value: Object.freeze(forwardedBridges),
+                    enumerable: false,
+                    writable: false,
+                    configurable: false
+                }
+            }
+            : {})
+    })
+
+    return Object.freeze(result) as unknown as ResolvedStyleDefinition<TSchema, TTokens>
 }
 
 /**
@@ -169,7 +223,7 @@ export function createStyleDefinition(schemaOrTokens: any): any {
 
     if (
         !schemaOrTokens ||
-        (typeof schemaOrTokens === 'object' && 'states' in schemaOrTokens && schemaOrTokens.__brand !== 'StateSchema')
+        (typeof schemaOrTokens === 'object' && Array.isArray(schemaOrTokens.states) && schemaOrTokens.__brand !== 'StateSchema')
     ) {
         throw new Error('[createStyleDefinition] A valid StateSchema created via defineSchema is required.')
     }

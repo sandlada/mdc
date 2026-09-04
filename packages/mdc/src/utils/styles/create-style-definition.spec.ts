@@ -316,5 +316,61 @@ describe('createStyleDefinition', () => {
         expect(def.flatTokenKeys).toEqual(['container-color', 'container-height'])
         expect(Object.isFrozen(def)).toBe(true)
     })
+
+    it('supports direct token objects that happen to define a states property key', () => {
+        const def = createStyleDefinition({
+            'states': 'all',
+            'container-height': '40px'
+        })
+
+        expect(def.__brand).toBe('ResolvedStyleDefinition')
+        expect(def.tokens['states']).toBe('all')
+        expect(def.flatTokenKeys).toContain('states')
+    })
+
+    it('exposes tokens directly as own properties while keeping metadata non-enumerable', () => {
+        const def = createStyleDefinition({
+            'container-color': '#6750a4',
+            'container-height': '40px'
+        })
+
+        // Direct property access
+        expect((def as any)['container-color']).toBe('#6750a4')
+        expect((def as any)['container-height']).toBe('40px')
+
+        // Enumerable properties must only contain tokens, never metadata
+        const keys = Object.keys(def)
+        expect(keys).toContain('container-color')
+        expect(keys).toContain('container-height')
+        expect(keys).not.toContain('__brand')
+        expect(keys).not.toContain('schema')
+        expect(keys).not.toContain('tokens')
+        expect(keys).not.toContain('flatTokenKeys')
+        expect(keys).not.toContain('forwardedBridges')
+
+        // Non-enumerable metadata still fully accessible
+        expect(def.__brand).toBe('ResolvedStyleDefinition')
+        expect(def.schema).toBeDefined()
+        expect(def.tokens).toBeDefined()
+        expect(def.flatTokenKeys).toBeDefined()
+    })
+
+    it('expands multi-state tuples to state-prefixed own properties for legacy consumer compatibility', () => {
+        const def = createStyleDefinition({
+            'color': ['#111', '#222', '#333', '#444', null],
+            'size': '24px'
+        })
+
+        // Direct tuple access
+        expect((def as any)['color']).toEqual(['#111', '#222', '#333', '#444', null])
+        expect((def as any)['size']).toBe('24px')
+
+        // Expanded state-prefixed properties
+        expect((def as any)['enabled-color']).toBe('#111')
+        expect((def as any)['hovered-color']).toBe('#222')
+        expect((def as any)['focused-color']).toBe('#333')
+        expect((def as any)['pressed-color']).toBe('#444')
+        expect('disabled-color' in def).toBe(false)
+    })
 })
 

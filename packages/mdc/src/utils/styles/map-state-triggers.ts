@@ -151,7 +151,7 @@ export class StateTriggerRegistry {
             if (!modifier || name === 'enabled') {
                 return Object.freeze({ target: 'self', modifier: '' })
             }
-            if (modifier.startsWith('[')) {
+            if (modifier.startsWith('[') || modifier.startsWith(':host')) {
                 return Object.freeze({ target: 'host', modifier })
             }
             if (modifier.startsWith(':') || modifier.startsWith('.')) {
@@ -171,7 +171,7 @@ export class StateTriggerRegistry {
             return Object.freeze({ target: 'self', modifier: '' })
         }
 
-        if (name.startsWith('[')) {
+        if (name.startsWith('[') || name.startsWith(':host')) {
             return Object.freeze({ target: 'host', modifier: name })
         }
 

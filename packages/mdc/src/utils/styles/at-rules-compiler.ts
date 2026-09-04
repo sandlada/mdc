@@ -733,7 +733,7 @@ function resolveStateModifiers(
                 items.push({
                     name: sName,
                     modifier: resolved.modifier,
-                    target: 'self'
+                    target: resolved.target
                 })
             }
             comboItems.push(items)
