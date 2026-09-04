@@ -250,7 +250,7 @@ const realWorldCase: PlaygroundCase = {
         '--_duration: var(--mdc-focus-ring-duration',
         '--_shape-start-start: var(--mdc-focus-ring-shape-start-start',
         ':host([focused]) {',
-        'primary=58'
+        'primary=22'
     ],
     mustNotContain: [
         '--___brand',

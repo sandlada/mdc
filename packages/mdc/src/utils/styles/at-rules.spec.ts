@@ -6,10 +6,24 @@
  * @fileoverview
  */
 
-import { describe } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { createStyleDefinition } from './create-style-definition'
 import { defineSchema } from './define-schema'
 import { mapStateTriggers } from './map-state-triggers'
+import { compileStateSheet } from './compile-state-sheet'
+
+function normalizeCss(css: string | string[]): string {
+    const text = Array.isArray(css) ? css.join(' ') : css
+    return text
+        .replace(/\r\n/g, ' ')
+        .replace(/\n/g, ' ')
+        .replace(/\s+/g, ' ')
+        .replace(/\{\s+/g, '{ ')
+        .replace(/\s+\}/g, ' }')
+        .replace(/\{\s*\}/g, '{}')
+        .replace(/;\s*\}/g, '; }')
+        .trim()
+}
 
 describe('button', () => {
     const SizeSchema = defineSchema(['small', 'medium', 'large'] as const)
@@ -220,6 +234,13 @@ describe('button', () => {
         ['.wrapper { @state(button) button ~button {} }', '.wrapper { button.small ~button.small {} button.medium ~button.medium {} button.large ~button.large {} }'],
 
     ]
+
+    for (const [input, expected] of mapping) {
+        it(input, () => {
+            const output = compileStateSheet(SizeDef, input, { registry: SizeTriggers })
+            expect(normalizeCss(output)).toBe(normalizeCss(expected))
+        })
+    }
 })
 
 describe(':host', () => {
@@ -294,6 +315,13 @@ describe(':host', () => {
         [':where(:host) { @state(button) button {} }', ':where(:host) { button {} button:hover {} } :where(:host([disabled])) { button {} }'],
 
     ]
+
+    for (const [input, expected] of mapping) {
+        it(input, () => {
+            const output = compileStateSheet(SizeDef, input, { registry: SizeTriggers })
+            expect(normalizeCss(output)).toBe(normalizeCss(expected))
+        })
+    }
 })
 
 describe('combo', () => {
@@ -356,6 +384,13 @@ describe('combo', () => {
         [':host { @state(button) button {} }', ':host { button.medium {} button.medium[disabled] {} button.large {} button.large[disabled] {} }'],
 
     ]
+
+    for (const [input, expected] of mapping) {
+        it(input, () => {
+            const output = compileStateSheet(ComboDef, input, { registry: ComboTriggers })
+            expect(normalizeCss(output)).toBe(normalizeCss(expected))
+        })
+    }
 })
 
 describe('variant', () => {
@@ -400,6 +435,13 @@ describe('variant', () => {
         ['@variant(filled, tonal,) { button {} }', ':host([variant="filled"]), :host([variant="tonal"]) { button {} }'],
 
     ]
+
+    for (const [input, expected] of mapping) {
+        it(input, () => {
+            const output = compileStateSheet(VariantDefs, input, { registry: StateTriggers })
+            expect(normalizeCss(output)).toBe(normalizeCss(expected))
+        })
+    }
 })
 
 describe('when', () => {
@@ -439,6 +481,13 @@ describe('when', () => {
             '@layer components { .card {} :host([dense]) { .card { padding: 4px; } } }'
         ],
     ]
+
+    for (const [input, expected] of mapping) {
+        it(input, () => {
+            const output = compileStateSheet({}, input)
+            expect(normalizeCss(output)).toBe(normalizeCss(expected))
+        })
+    }
 })
 
 describe('property-expanders', () => {
@@ -499,6 +548,13 @@ describe('property-expanders', () => {
         ],
 
     ]
+
+    for (const [input, expected] of mapping) {
+        it(input, () => {
+            const output = compileStateSheet({}, input)
+            expect(normalizeCss(output)).toBe(normalizeCss(expected))
+        })
+    }
 })
 
 describe('custom-state', () => {
@@ -529,6 +585,13 @@ describe('custom-state', () => {
         ['@when(:host(:state(checked))) { button {} }', ':host(:state(checked)) { button {} }'],
         ['.container { button { @when(:host(:state(checked))) { color: red; } } }', '.container { button {} } :host(:state(checked)) { .container { button { color: red; } } }'],
     ]
+
+    for (const [input, expected] of mapping) {
+        it(input, () => {
+            const output = compileStateSheet(StateDef, input, { registry: StateTriggers })
+            expect(normalizeCss(output)).toBe(normalizeCss(expected))
+        })
+    }
 })
 
 describe('a11y', () => {
@@ -553,6 +616,13 @@ describe('a11y', () => {
         // A4: 降低透明度
         ['.surface { @reduced-transparency { backdrop-filter: none; background: #ffffff; } }', '.surface { @media (prefers-reduced-transparency: reduce) { backdrop-filter: none; background: #ffffff; } }'],
     ]
+
+    for (const [input, expected] of mapping) {
+        it(input, () => {
+            const output = compileStateSheet({}, input)
+            expect(normalizeCss(output)).toBe(normalizeCss(expected))
+        })
+    }
 })
 
 describe('Intergration', () => {
@@ -660,4 +730,11 @@ describe('Intergration', () => {
             ],
         ],
     ]
+
+    for (const [input, expected] of mapping) {
+        it(input, () => {
+            const output = compileStateSheet(SizeDef, input, { registry: SizeTriggers })
+            expect(normalizeCss(output)).toBe(normalizeCss(expected))
+        })
+    }
 })

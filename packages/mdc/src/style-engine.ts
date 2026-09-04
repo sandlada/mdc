@@ -4,37 +4,20 @@
  * SPDX-License-Identifier: MIT
  *
  * @fileoverview
- * Next-Generation Styles & Token Engine for `@sandlada/mdc`.
+ * Node-safe pure style engine entry for tooling (e.g. `@sandlada/vscode-mdc`).
  *
- * Provides pure functional, curried, data-last utilities for state-aware CSS variable generation,
- * AST-driven state stylesheet compilation, child token forwarding, selector composition, and overrides.
- *
- * 新樣式系統僅包含兩種 at-rule：`@anchor(target)`（狀態錨點，掛載點即 target）
- * 與 `@variant(name, ...)`（變體名單，精確匹配，不支援通配符）。其餘舊 at-rule
- *（`@when`、`@slot`、`@slotted`、`@size`、`@elevation`、舊 `@anchor <sel>` 形）皆已棄用。
- *
- * @example
- * ```typescript
- * import {
- *     defineSchema,
- *     createStyleDefinition,
- *     forwardTokens,
- *     stringifyTokens,
- *     createStyleSheet,
- *     mapStateTriggers,
- *     hostTrigger,
- *     selfTrigger,
- *     overrideTokens,
- *     pipe
- * } from '@sandlada/mdc/utils'
- * ```
+ * Intentionally excludes DOM-bound modules (`create-style-sheet`,
+ * `define-variant-tokens`, `stringify-tokens`, `override-tokens`) which pull
+ * `lit` runtime (`unsafeCSS` -> `reactive-element` -> `HTMLElement`) and crash
+ * in a plain Node extension host. Everything re-exported here imports only
+ * types or pure logic and is safe to bundle into VS Code extensions and TS
+ * server plugins.
  */
 
-// 1. Schema & Token Definition Layer
 export {
     defineSchema,
     type StateSchema
-} from './define-schema'
+} from './utils/styles/define-schema'
 
 export {
     createStyleDefinition,
@@ -45,27 +28,14 @@ export {
     type TokenValue,
     type ForwardedTokenMeta,
     type ResolvedStyleDefinition
-} from './create-style-definition'
+} from './utils/styles/create-style-definition'
 
 export {
     forwardTokens,
     type ForwardTokenKey,
     type ForwardTokensOptions,
     type ForwardedTokensResult
-} from './forward-tokens'
-
-// 2. Stringification & State Mapping Layer
-export {
-    stringifyTokens,
-    type StringifyTokensOptions,
-    type StringifyPrefixOrOptions
-} from './stringify-tokens'
-
-export {
-    defineVariantTokens,
-    type DefineVariantTokensOptions,
-    type DefineVariantTokensOptionsOrPrefix
-} from './define-variant-tokens'
+} from './utils/styles/forward-tokens'
 
 export {
     hostTrigger,
@@ -73,30 +43,30 @@ export {
     type TriggerContext,
     type ResolvedTrigger,
     type StateTrigger
-} from './host-trigger'
+} from './utils/styles/host-trigger'
 
 export {
     selfTrigger
-} from './self-trigger'
+} from './utils/styles/self-trigger'
 
 export {
     mapStateTriggers,
     StateTriggerRegistry
-} from './map-state-triggers'
+} from './utils/styles/map-state-triggers'
 
-export {
-    overrideTokens,
-    type OverrideTokensOptions
-} from './override-tokens'
-
-// 3. Compiler & ATRules Engine
 export {
     pipe
-} from './pipe'
+} from './utils/styles/pipe'
 
 export {
     compileStateSheet,
     extractStateTokenMetadata,
+    canonicalizeState,
+    splitSelectorByComma,
+    extractHostAndDescendant,
+    appendToHostSelector,
+    composeStateSelector,
+    matchVariants,
     type ASTNode,
     type DeclarationNode,
     type StyleRuleNode,
@@ -104,20 +74,10 @@ export {
     type KeyframeStepNode,
     type KeyframesNode,
     type CompileStateSheetOptions,
-    type StateTokenMetadata
-} from './state-sheet-compiler'
+    type StateTokenMetadata,
+    type ComposeSelectorOptions
+} from './utils/styles/state-sheet-compiler'
 
-export {
-    createStyleSheet,
-    type StyleSheetCallback,
-    type TaggedTemplateFn,
-    type StyleSheetCurriedWithDef,
-    type StyleSheetCurriedWithOptions,
-    type CreateStyleSheetFn
-} from './create-style-sheet'
-export { Color } from './color'
-
-// 4. Functional Token Transformers Layer
 export {
     expandShape,
     type CSSVariableProvider,
@@ -131,7 +91,7 @@ export {
     type ShapeTokenKey,
     type ExpandShapeValueType,
     type ExpandedShapeResult
-} from './expand-shape'
+} from './utils/styles/expand-shape'
 
 export {
     expandPadding,
@@ -149,7 +109,7 @@ export {
     type ExtractSinglePaddingValue,
     type ExtractPaddingEdgeValue,
     type ExpandedPaddingResult
-} from './expand-padding'
+} from './utils/styles/expand-padding'
 
 export {
     expandTypescale,
@@ -170,8 +130,4 @@ export {
     type ExtractSize,
     type ExtractTracking,
     type ExtractWeight
-} from './expand-typescale'
-
-export type CreateStyleSheetOptions = import('./state-sheet-compiler').CompileStateSheetOptions
-
-
+} from './utils/styles/expand-typescale'

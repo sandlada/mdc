@@ -7,6 +7,8 @@
 import { StateTriggerRegistry } from './map-state-triggers'
 import { type StateTrigger, type TriggerContext } from './host-trigger'
 import type { StateSchema } from './define-schema'
+import { compileAtRulesSheet, isAtRulesStylesheet, hasDefiniteAtRules } from './at-rules-compiler'
+export { compileAtRulesSheet, isAtRulesStylesheet, hasDefiniteAtRules } from './at-rules-compiler'
 
 export type ASTNode =
     | StyleRuleNode
@@ -88,7 +90,7 @@ export interface StateTokenMetadata {
     intersectionTokens: ReadonlySet<string>
 }
 
-function canonicalizeState(state: string): string {
+export function canonicalizeState(state: string): string {
     if (state === 'hovered') return 'hover'
     if (state === 'pressed') return 'active'
     if (state === 'focused') return 'focus'
@@ -763,6 +765,52 @@ export function splitSelectorByComma(selector: string): string[] {
 }
 
 /**
+ * Splits a selector into its leading host component and any trailing descendant/combinator part.
+ * e.g. ':host(:not(.hidden)) .elevation::before' -> { hostPart: ':host(:not(.hidden))', descendantPart: '.elevation::before' }
+ */
+export function extractHostAndDescendant(selector: string): { hostPart: string; descendantPart: string } {
+    const trimmed = selector.trim()
+    if (!trimmed.startsWith(':host')) {
+        return { hostPart: '', descendantPart: trimmed }
+    }
+
+    let i = 5
+    const len = trimmed.length
+
+    if (i < len && trimmed[i] === '(') {
+        let depth = 0
+        while (i < len) {
+            if (trimmed[i] === '(') depth++
+            else if (trimmed[i] === ')') {
+                depth--
+                if (depth === 0) {
+                    i++
+                    break
+                }
+            }
+            i++
+        }
+    }
+
+    while (i < len) {
+        if (trimmed[i] === ':' || trimmed[i] === '[' || trimmed[i] === '.') {
+            const nextMatch = trimmed.slice(i).match(/^(:[a-zA-Z0-9_-]+(\([^)]*\))?|\[[^\]]*\]|\.[a-zA-Z0-9_-]+)/)
+            if (nextMatch) {
+                i += nextMatch[0].length
+            } else {
+                break
+            }
+        } else {
+            break
+        }
+    }
+
+    const hostPart = trimmed.slice(0, i).trim()
+    const descendantPart = trimmed.slice(i).trim()
+    return { hostPart, descendantPart }
+}
+
+/**
  * Appends a modifier to a :host selector, respecting depth-balanced parentheses and comma-separated selectors.
  */
 export function appendToHostSelector(hostSelector: string, modifier: string): string {
@@ -803,59 +851,82 @@ export function appendToHostSelector(hostSelector: string, modifier: string): st
         if (trimmedMod.startsWith(':where(') || trimmedMod.startsWith(':is(')) {
             return trimmedMod
         }
-        if (trimmedMod.startsWith(':host(') && trimmedMod.endsWith(')')) {
+        if (trimmedMod.startsWith(':host')) {
+            if (trimmedMod.startsWith(':host[') || trimmedMod.startsWith(':host.')) {
+                const rest = trimmedMod.slice(5)
+                const nextMatch = rest.match(/^[.\[][^\s>+~]*/)
+                if (nextMatch) {
+                    const hostInner = nextMatch[0]
+                    const after = rest.slice(hostInner.length)
+                    return `:host(${hostInner})${after}`
+                }
+            }
             return trimmedMod
         }
-        if (trimmedMod.startsWith(':host:')) {
-            return trimmedMod
+        if (trimmedMod.startsWith('(') && trimmedMod.endsWith(')')) {
+            return `:host${trimmedMod}`
         }
-        if (trimmedMod.startsWith(':host[') || trimmedMod.startsWith(':host.')) {
-            return `:host(${trimmedMod.slice(5)})`
+        if (trimmedMod.startsWith('[') || trimmedMod.startsWith(':') || trimmedMod.startsWith('.')) {
+            return `:host(${trimmedMod})`
         }
-        const cleanMod = trimmedMod.startsWith('(') && trimmedMod.endsWith(')')
-            ? trimmedMod
-            : `(${trimmedMod})`
-        return `:host${cleanMod}`
+        return `:host(${trimmedMod})`
     }
 
+    // When trimmedHost is not plain ':host' (e.g. :host([variant="filled"]))
     let modToAppend = trimmedMod
-    if (trimmedMod.startsWith(':host(') && trimmedMod.endsWith(')')) {
-        modToAppend = trimmedMod.slice(6, -1)
-    } else if (trimmedMod.startsWith(':host')) {
-        modToAppend = trimmedMod.slice(5)
+    let modDescendant = ''
+
+    if (trimmedMod.startsWith(':host')) {
+        const { hostPart, descendantPart } = extractHostAndDescendant(trimmedMod)
+        modDescendant = descendantPart
+        if (hostPart.startsWith(':host(') && hostPart.endsWith(')')) {
+            modToAppend = hostPart.slice(6, -1)
+        } else if (hostPart.startsWith(':host')) {
+            modToAppend = hostPart.slice(5)
+        } else {
+            modToAppend = hostPart
+        }
     } else if (trimmedMod.startsWith('(') && trimmedMod.endsWith(')')) {
         modToAppend = trimmedMod.slice(1, -1)
     }
 
-    if (!modToAppend) return trimmedHost
+    if (!modToAppend && !modDescendant) return trimmedHost
 
-    if (trimmedHost.startsWith(':host(')) {
-        let depth = 0
-        let closeIdx = -1
+    let resultHost = trimmedHost
 
-        for (let i = 5; i < trimmedHost.length; i++) {
-            if (trimmedHost[i] === '(') depth++
-            else if (trimmedHost[i] === ')') {
-                depth--
-                if (depth === 0) {
-                    closeIdx = i
-                    break
+    if (modToAppend) {
+        if (trimmedHost.startsWith(':host(')) {
+            let depth = 0
+            let closeIdx = -1
+
+            for (let i = 5; i < trimmedHost.length; i++) {
+                if (trimmedHost[i] === '(') depth++
+                else if (trimmedHost[i] === ')') {
+                    depth--
+                    if (depth === 0) {
+                        closeIdx = i
+                        break
+                    }
                 }
             }
-        }
 
-        if (closeIdx !== -1) {
-            const inner = trimmedHost.slice(6, closeIdx)
-            const after = trimmedHost.slice(closeIdx + 1)
-            return `:host(${inner}${modToAppend})${after}`
+            if (closeIdx !== -1) {
+                const inner = trimmedHost.slice(6, closeIdx)
+                const after = trimmedHost.slice(closeIdx + 1)
+                resultHost = `:host(${inner}${modToAppend})${after}`
+            }
+        } else if (trimmedHost.startsWith(':host:')) {
+            resultHost = `:host(${modToAppend})${trimmedHost.slice(5)}`
+        } else {
+            resultHost = `${trimmedHost}${modToAppend}`
         }
     }
 
-    if (trimmedHost.startsWith(':host:')) {
-        return `:host(${modToAppend})${trimmedHost.slice(5)}`
+    if (modDescendant) {
+        return `${resultHost} ${modDescendant}`.replace(/\s+/g, ' ')
     }
 
-    return `${trimmedHost}${trimmedMod}`
+    return resultHost
 }
 
 export interface ComposeSelectorOptions {
@@ -1032,7 +1103,7 @@ export function composeStateSelector(options: ComposeSelectorOptions): string {
     if (isHostAnchor) {
         fullBase = composedHost || ':host'
     } else if (composedHost) {
-        fullBase = `${composedHost} ${composedAnchor}`
+        fullBase = composedAnchor ? `${composedHost} ${composedAnchor}` : composedHost
     } else {
         fullBase = composedAnchor
     }
@@ -1046,7 +1117,11 @@ export function composeStateSelector(options: ComposeSelectorOptions): string {
         return fullBase
     }
 
-    return `${fullBase} ${targetSelector}`
+    if (targetSelector.startsWith(':host')) {
+        return targetSelector
+    }
+
+    return fullBase ? `${fullBase} ${targetSelector}` : targetSelector
 }
 
 function isWrapperAtRule(header: string): boolean {
@@ -1522,6 +1597,26 @@ function parseCssRecursive(
             continue
         }
 
+        const headerParts = splitSelectorByComma(header)
+        if (headerParts.length > 1) {
+            for (const part of headerParts) {
+                const partRules = parseCssRecursive(
+                    `${part} { ${body} }`,
+                    meta,
+                    options,
+                    currentAnchor,
+                    currentTarget,
+                    currentHostCondition,
+                    currentWhen,
+                    isExplicitAnchor,
+                    currentScopeVariants,
+                    currentHostModifiers
+                )
+                nodes.push(...partRules)
+            }
+            continue
+        }
+
         // Host selector refinement
         let childAnchor = currentAnchor
         let childHostCond = currentHostCondition
@@ -1529,37 +1624,16 @@ function parseCssRecursive(
         let composedTarget = header
 
         if (!isExplicitAnchor && header.startsWith(':host')) {
-            if (header === ':host') {
+            const { hostPart, descendantPart } = extractHostAndDescendant(header)
+            if (descendantPart) {
+                childAnchor = ''
+                childHostCond = undefined
+                composedTarget = header
+            } else if (header === ':host') {
                 childAnchor = currentHostCondition || ':host'
                 childHostCond = currentHostCondition || ':host'
                 composedTarget = ''
             } else {
-                // Split comma-separated :host selectors (e.g. `:host([a]), :host([b])`)
-                // so every branch keeps a single-host anchor/hostCondition. Without this,
-                // the whole list flows into composeStateSelector, whose single-`:host(...)`
-                // string surgery (`anchor.slice(6, -1)`) corrupts it into fragments like
-                // `:host([a][a]))` or `:host([a]([b])`.
-                const headerParts = splitSelectorByComma(header)
-                if (headerParts.length > 1 && headerParts.every((part) => part.startsWith(':host'))) {
-                    for (const part of headerParts) {
-                        const partMods = [...currentHostModifiers, part]
-                        const partHostCond = composeHostCondition(currentScopeVariants, partMods, options) || part
-                        const partRules = parseCssRecursive(
-                            body,
-                            meta,
-                            options,
-                            partHostCond,
-                            '',
-                            partHostCond,
-                            currentWhen,
-                            isExplicitAnchor,
-                            currentScopeVariants,
-                            partMods
-                        )
-                        nodes.push(...partRules)
-                    }
-                    continue
-                }
                 childHostMods = [...currentHostModifiers, header]
                 childHostCond = composeHostCondition(currentScopeVariants, childHostMods, options) || header
                 childAnchor = childHostCond
@@ -1567,19 +1641,19 @@ function parseCssRecursive(
             }
         } else if (currentTarget) {
             const parentParts = splitSelectorByComma(currentTarget)
-            const headerParts = splitSelectorByComma(header)
             const combined: string[] = []
 
             for (const p of parentParts) {
-                for (const h of headerParts) {
-                    if (h.startsWith('&')) {
-                        combined.push(h.replace(/^&/, p))
-                    } else {
-                        combined.push(`${p} ${h}`)
-                    }
+                if (header.startsWith('&')) {
+                    combined.push(header.replace(/^&/, p))
+                } else {
+                    combined.push(`${p} ${header}`)
                 }
             }
             composedTarget = combined.join(', ')
+        } else if (!isExplicitAnchor) {
+            composedTarget = header
+            childAnchor = currentAnchor === ':host' ? '' : currentAnchor
         }
 
         const childRules = parseCssRecursive(
@@ -1862,6 +1936,13 @@ export function compileStateSheet(
 ): string {
     if (!cssText || typeof cssText !== 'string' || cssText.trim().length === 0) {
         return ''
+    }
+
+    if (
+        hasDefiniteAtRules(cssText) ||
+        (!cssText.includes('@anchor') && !options?.onWarn && isAtRulesStylesheet(cssText))
+    ) {
+        return compileAtRulesSheet(definition, cssText, options)
     }
 
     const registry = options?.registry
