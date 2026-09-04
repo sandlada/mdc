@@ -4,46 +4,53 @@
  * SPDX-License-Identifier: MIT
  */
 
-import type { StateTrigger, TriggerContext, ResolvedTrigger } from './host-trigger'
-import { hostTrigger } from './host-trigger'
-import { selfTrigger } from './self-trigger'
+export type TriggerTarget = 'host' | 'self'
 
-function createDefaultTriggers(): Map<string, StateTrigger> {
-    const defaults = new Map<string, StateTrigger>()
+export interface TriggerContext {
+    readonly anchor?: string
+    readonly isHostAnchor?: boolean
+    readonly whenCondition?: string
+}
 
-    defaults.set('enabled', Object.freeze({
-        name: 'enabled',
-        target: 'self',
-        modifier: '',
-        resolve: () => Object.freeze({ target: 'self', modifier: '' })
-    }))
+export interface ResolvedTrigger {
+    readonly target: TriggerTarget
+    readonly modifier: string
+}
 
-    defaults.set('hover', selfTrigger(':hover', 'hover'))
-    defaults.set('hovered', selfTrigger(':hover', 'hovered'))
+export interface StateTrigger {
+    readonly name?: string
+    readonly modifier: string
+    readonly target?: TriggerTarget
+    readonly resolve?: (context?: TriggerContext) => ResolvedTrigger
+}
 
-    defaults.set('focus', selfTrigger(':focus-visible', 'focus'))
-    defaults.set('focused', selfTrigger(':focus-visible', 'focused'))
-    defaults.set('focus-visible', selfTrigger(':focus-visible', 'focus-visible'))
+function createDefaultTriggers(): Map<string, string> {
+    const defaults = new Map<string, string>()
 
-    defaults.set('active', selfTrigger(':active', 'active'))
-    defaults.set('pressed', selfTrigger(':active', 'pressed'))
-
-    defaults.set('checked', hostTrigger('[checked]', 'checked'))
-    defaults.set('indeterminate', hostTrigger('[indeterminate]', 'indeterminate'))
-    defaults.set('selected', hostTrigger('[selected]', 'selected'))
-    defaults.set('disabled', hostTrigger('[disabled]', 'disabled'))
+    defaults.set('enabled', '')
+    defaults.set('hover', ':hover')
+    defaults.set('hovered', ':hover')
+    defaults.set('focus', ':focus-visible')
+    defaults.set('focused', ':focus-visible')
+    defaults.set('focus-visible', ':focus-visible')
+    defaults.set('active', ':active')
+    defaults.set('pressed', ':active')
+    defaults.set('checked', '[checked]')
+    defaults.set('indeterminate', '[indeterminate]')
+    defaults.set('selected', '[selected]')
+    defaults.set('disabled', '[disabled]')
 
     return defaults
 }
 
 /**
- * Registry holding mappings from state names to state triggers with automatic heuristics.
+ * Registry holding mappings from state names to CSS modifier strings with automatic heuristics.
  */
 export class StateTriggerRegistry {
-    private readonly triggers: Map<string, StateTrigger>
+    private readonly triggers: Map<string, string>
 
     public constructor(
-        initial?: Record<string, StateTrigger | string> | (StateTrigger | Record<string, StateTrigger | string>)[]
+        initial?: Record<string, string | StateTrigger> | (Record<string, string | StateTrigger> | StateTrigger)[]
     ) {
         this.triggers = createDefaultTriggers()
         if (initial) {
@@ -52,20 +59,27 @@ export class StateTriggerRegistry {
     }
 
     /**
-     * Registers a single state trigger.
+     * Registers a single state trigger modifier string or trigger object.
      */
-    public register(trigger: StateTrigger): this {
-        if (trigger && typeof trigger === 'object' && typeof trigger.name === 'string') {
-            this.triggers.set(trigger.name, trigger)
+    public register(nameOrMapping: string | StateTrigger | Record<string, string | StateTrigger>, modifier?: string): this {
+        if (typeof nameOrMapping === 'string') {
+            this.triggers.set(nameOrMapping, modifier ?? '')
+        } else if (nameOrMapping && typeof nameOrMapping === 'object') {
+            if ('name' in nameOrMapping && typeof (nameOrMapping as StateTrigger).name === 'string') {
+                const trigger = nameOrMapping as StateTrigger
+                this.triggers.set(trigger.name!, trigger.modifier ?? '')
+            } else {
+                this.registerAll(nameOrMapping as Record<string, string | StateTrigger>)
+            }
         }
         return this
     }
 
     /**
-     * Registers a batch of state triggers or string shorthand mappings.
+     * Registers a batch of state triggers or modifier strings.
      */
     public registerAll(
-        triggers: Record<string, StateTrigger | string> | (StateTrigger | Record<string, StateTrigger | string>)[]
+        triggers: Record<string, string | StateTrigger> | (Record<string, string | StateTrigger> | StateTrigger)[]
     ): this {
         if (!triggers) {
             return this
@@ -79,7 +93,7 @@ export class StateTriggerRegistry {
                 if ('name' in item && typeof (item as StateTrigger).name === 'string') {
                     this.register(item as StateTrigger)
                 } else if (typeof item === 'object') {
-                    this.registerAll(item as Record<string, StateTrigger | string>)
+                    this.registerAll(item as Record<string, string | StateTrigger>)
                 }
             }
             return this
@@ -90,27 +104,13 @@ export class StateTriggerRegistry {
                 continue
             }
 
-            if (typeof triggerOrModifier === 'object' && 'name' in triggerOrModifier) {
-                this.triggers.set(stateName, triggerOrModifier)
-                if (triggerOrModifier.name && triggerOrModifier.name !== stateName) {
-                    this.triggers.set(triggerOrModifier.name, triggerOrModifier)
-                }
-                continue
-            }
-
             if (typeof triggerOrModifier === 'string') {
-                const trimmed = triggerOrModifier.trim()
-                if (trimmed.length === 0 || stateName === 'enabled') {
-                    this.triggers.set(stateName, Object.freeze({
-                        name: stateName,
-                        target: 'self',
-                        modifier: trimmed,
-                        resolve: () => Object.freeze({ target: 'self', modifier: trimmed })
-                    }))
-                } else if (trimmed.startsWith('[')) {
-                    this.triggers.set(stateName, hostTrigger(trimmed, stateName))
-                } else {
-                    this.triggers.set(stateName, selfTrigger(trimmed, stateName))
+                this.triggers.set(stateName, triggerOrModifier.trim())
+            } else if (typeof triggerOrModifier === 'object') {
+                const mod = 'modifier' in triggerOrModifier ? triggerOrModifier.modifier : ''
+                this.triggers.set(stateName, mod)
+                if ('name' in triggerOrModifier && triggerOrModifier.name && triggerOrModifier.name !== stateName) {
+                    this.triggers.set(triggerOrModifier.name, mod)
                 }
             }
         }
@@ -119,21 +119,21 @@ export class StateTriggerRegistry {
     }
 
     /**
-     * Retrieves a registered trigger by state name.
+     * Retrieves a registered modifier string by state name.
      */
-    public get(name: string): StateTrigger | undefined {
+    public get(name: string): string | undefined {
         return this.triggers.get(name)
     }
 
     /**
      * Alias for `get(name)`.
      */
-    public getTrigger(name: string): StateTrigger | undefined {
+    public getTrigger(name: string): string | undefined {
         return this.get(name)
     }
 
     /**
-     * Checks if a trigger exists for the given state name.
+     * Checks if a trigger modifier exists for the given state name.
      */
     public has(name: string): boolean {
         return this.triggers.has(name)
@@ -141,25 +141,28 @@ export class StateTriggerRegistry {
 
     /**
      * Resolves a state name to a target and selector modifier in the current context.
-     *
-     * If the state name is not explicitly registered, applies heuristic fallback resolution:
-     * - `name === 'enabled' | ''` -> `{ target: 'self', modifier: '' }`
-     * - `name.startsWith('[')` -> `{ target: 'host', modifier: name }`
-     * - `name.startsWith(':')` -> `{ target: context.isHostAnchor ? 'host' : 'self', modifier: name }`
-     * - `name.startsWith('.')` -> `{ target: 'self', modifier: name }`
-     * - Identifier without prefix:
-     *   - Host anchor -> `{ target: 'host', modifier: `[${name}]` }`
-     *   - Container anchor -> `{ target: 'self', modifier: `.${name}` }`
      */
-    public resolve(name: string, context: TriggerContext): ResolvedTrigger {
+    public resolve(name: string, context?: TriggerContext): ResolvedTrigger {
+        const isHostAnchor = context?.isHostAnchor ?? false
         const registered = this.triggers.get(name)
-        if (registered) {
-            if (typeof registered.resolve === 'function') {
-                return registered.resolve(context)
+
+        if (registered !== undefined) {
+            const modifier = registered
+            if (!modifier || name === 'enabled') {
+                return Object.freeze({ target: 'self', modifier: '' })
+            }
+            if (modifier.startsWith('[')) {
+                return Object.freeze({ target: 'host', modifier })
+            }
+            if (modifier.startsWith(':') || modifier.startsWith('.')) {
+                return Object.freeze({
+                    target: isHostAnchor ? 'host' : 'self',
+                    modifier
+                })
             }
             return Object.freeze({
-                target: registered.target ?? (context?.isHostAnchor ? 'host' : 'self'),
-                modifier: registered.modifier ?? ''
+                target: isHostAnchor ? 'host' : 'self',
+                modifier
             })
         }
 
@@ -174,7 +177,7 @@ export class StateTriggerRegistry {
 
         if (name.startsWith(':')) {
             return Object.freeze({
-                target: context?.isHostAnchor ? 'host' : 'self',
+                target: isHostAnchor ? 'host' : 'self',
                 modifier: name
             })
         }
@@ -183,7 +186,7 @@ export class StateTriggerRegistry {
             return Object.freeze({ target: 'self', modifier: name })
         }
 
-        if (context?.isHostAnchor) {
+        if (isHostAnchor) {
             return Object.freeze({
                 target: 'host',
                 modifier: `[${name}]`
@@ -199,7 +202,7 @@ export class StateTriggerRegistry {
     /**
      * Alias for `resolve(name, context)`.
      */
-    public resolveTrigger(name: string, context: TriggerContext): ResolvedTrigger {
+    public resolveTrigger(name: string, context?: TriggerContext): ResolvedTrigger {
         return this.resolve(name, context)
     }
 
@@ -216,27 +219,25 @@ export class StateTriggerRegistry {
 }
 
 /**
- * Constructs an immutable registry mapping schema state names to concrete CSS selector triggers.
+ * Constructs an immutable registry mapping schema state names to concrete CSS selector modifier strings.
  *
- * @param mapping - Key-value map of state names to `StateTrigger` objects or selector modifier strings.
+ * @param mapping - Key-value map of state names to selector modifier strings.
  * @returns An immutable `StateTriggerRegistry` instance used by the stylesheet compiler.
  *
  * @example
  * ```typescript
  * import { mapStateTriggers } from '@sandlada/mdc/utils/styles/map-state-triggers'
- * import { hostTrigger } from '@sandlada/mdc/utils/styles/host-trigger'
- * import { selfTrigger } from '@sandlada/mdc/utils/styles/self-trigger'
  *
  * export const ButtonTriggers = mapStateTriggers({
  *     'enabled': '',
- *     'selected': hostTrigger('[selected]'),
- *     'hovered': selfTrigger(':hover'),
- *     'disabled': hostTrigger('[disabled]')
+ *     'selected': '[selected]',
+ *     'hovered': ':hover',
+ *     'disabled': '[disabled]'
  * })
  * ```
  */
 export function mapStateTriggers(
-    mapping: Record<string, StateTrigger | string> = {}
+    mapping: Record<string, string> = {}
 ): StateTriggerRegistry {
     return new StateTriggerRegistry(mapping)
 }

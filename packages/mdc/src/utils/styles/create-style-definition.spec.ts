@@ -302,4 +302,19 @@ describe('createStyleDefinition', () => {
         expect(def.tokens).toEqual({})
         expect(def.flatTokenKeys).toEqual([])
     })
+
+    it('supports direct token object definition using 5-state default schema', () => {
+        const def = createStyleDefinition({
+            'container-color': '#6750a4',
+            'container-height': '40px'
+        })
+
+        expect(def.__brand).toBe('ResolvedStyleDefinition')
+        expect(def.schema.states).toEqual(['enabled', 'hovered', 'focused', 'pressed', 'disabled'])
+        expect(def.tokens['container-color']).toBe('#6750a4')
+        expect(def.tokens['container-height']).toBe('40px')
+        expect(def.flatTokenKeys).toEqual(['container-color', 'container-height'])
+        expect(Object.isFrozen(def)).toBe(true)
+    })
 })
+

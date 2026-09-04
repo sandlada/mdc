@@ -18,11 +18,10 @@
  * ```typescript
  * import { pipe } from '@sandlada/mdc/utils/styles/pipe'
  * import { mapStateTriggers } from '@sandlada/mdc/utils/styles/map-state-triggers'
- * import { hostTrigger } from '@sandlada/mdc/utils/styles/host-trigger'
  * import { createStyleSheet } from '@sandlada/mdc/utils/styles/create-style-sheet'
  *
  * const compileWithTriggers = pipe(
- *     mapStateTriggers({ 'selected': hostTrigger('[selected]') }),
+ *     mapStateTriggers({ 'selected': '[selected]' }),
  *     createStyleSheet
  * )
  * ```

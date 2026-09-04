@@ -7,8 +7,6 @@
 import { describe, it, expect } from 'vitest'
 import { defineSchema } from './define-schema'
 import { createStyleDefinition } from './create-style-definition'
-import { hostTrigger } from './host-trigger'
-import { selfTrigger } from './self-trigger'
 import { mapStateTriggers } from './map-state-triggers'
 import { compileStateSheet, stripComments, composeStateSelector, appendToHostSelector, splitSelectorByComma } from './state-sheet-compiler'
 
@@ -54,7 +52,7 @@ describe('state-sheet-compiler', () => {
 
         it('composes state selector with pseudo-elements attaching modifier before pseudo-element', () => {
             const triggers = mapStateTriggers({
-                'hovered': selfTrigger(':hover')
+                'hovered': ':hover'
             })
             const sel = composeStateSelector({
                 anchor: '.container::after',
@@ -67,7 +65,7 @@ describe('state-sheet-compiler', () => {
 
         it('composes state selector with host trigger on container anchor', () => {
             const triggers = mapStateTriggers({
-                'selected': hostTrigger('[selected]')
+                'selected': '[selected]'
             })
             const sel = composeStateSelector({
                 anchor: '.container',
@@ -154,9 +152,9 @@ describe('state-sheet-compiler', () => {
 
         const triggers = mapStateTriggers({
             'enabled': '',
-            'hovered': selfTrigger(':hover'),
-            'pressed': selfTrigger(':active'),
-            'disabled': hostTrigger('[disabled]')
+            'hovered': ':hover',
+            'pressed': ':active',
+            'disabled': '[disabled]'
         })
 
         it('emits Base Rule with invariant tokens and enabled state private variables', () => {
@@ -317,8 +315,8 @@ describe('state-sheet-compiler', () => {
         it('expands @elevation(...) and merges transitions', () => {
             const triggers = mapStateTriggers({
                 'enabled': '',
-                'hovered': selfTrigger(':hover'),
-                'disabled': hostTrigger('[disabled]')
+                'hovered': ':hover',
+                'disabled': '[disabled]'
             })
             const css = `
                 @anchor .container {
@@ -346,7 +344,7 @@ describe('state-sheet-compiler', () => {
 
         const triggers = mapStateTriggers({
             'enabled': '',
-            'hovered': selfTrigger(':hover')
+            'hovered': ':hover'
         })
 
         it('decomposes border shorthand into minimal border-color in delta rules', () => {
@@ -401,7 +399,7 @@ describe('state-sheet-compiler', () => {
 
         const triggers = mapStateTriggers({
             'enabled': '',
-            'hovered': selfTrigger(':hover')
+            'hovered': ':hover'
         })
 
         it('preserves wrapper at-rules like @layer, @media, @supports, @container, @starting-style', () => {
@@ -456,10 +454,10 @@ describe('state-sheet-compiler', () => {
 
             const triggers = mapStateTriggers({
                 'enabled': '',
-                'hovered': selfTrigger(':hover'),
-                'pressed': selfTrigger(':active'),
-                'focused': selfTrigger(':focus-visible'),
-                'disabled': hostTrigger('[disabled]')
+                'hovered': ':hover',
+                'pressed': ':active',
+                'focused': ':focus-visible',
+                'disabled': '[disabled]'
             })
 
             const css = `
@@ -513,8 +511,8 @@ describe('state-sheet-compiler', () => {
 
             const triggers = mapStateTriggers({
                 'enabled': '',
-                'checked': hostTrigger('[checked]'),
-                'indeterminate': hostTrigger('[indeterminate]')
+                'checked': '[checked]',
+                'indeterminate': '[indeterminate]'
             })
 
             const css = `

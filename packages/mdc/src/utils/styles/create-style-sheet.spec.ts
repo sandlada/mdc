@@ -8,8 +8,6 @@ import { describe, it, expect } from 'vitest'
 import { css, CSSResult } from 'lit'
 import { defineSchema } from './define-schema'
 import { createStyleDefinition } from './create-style-definition'
-import { hostTrigger } from './host-trigger'
-import { selfTrigger } from './self-trigger'
 import { mapStateTriggers } from './map-state-triggers'
 import { pipe } from './pipe'
 import { createStyleSheet } from './create-style-sheet'
@@ -24,8 +22,8 @@ describe('createStyleSheet', () => {
 
     const triggers = mapStateTriggers({
         'enabled': '',
-        'hovered': selfTrigger(':hover'),
-        'disabled': hostTrigger('[disabled]')
+        'hovered': ':hover',
+        'disabled': '[disabled]'
     })
 
     it('compiles via tagged template literal: createStyleSheet(def)`...`', () => {

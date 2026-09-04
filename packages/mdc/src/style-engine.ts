@@ -38,20 +38,12 @@ export {
 } from './utils/styles/forward-tokens'
 
 export {
-    hostTrigger,
+    mapStateTriggers,
+    StateTriggerRegistry,
     type TriggerTarget,
     type TriggerContext,
     type ResolvedTrigger,
     type StateTrigger
-} from './utils/styles/host-trigger'
-
-export {
-    selfTrigger
-} from './utils/styles/self-trigger'
-
-export {
-    mapStateTriggers,
-    StateTriggerRegistry
 } from './utils/styles/map-state-triggers'
 
 export {

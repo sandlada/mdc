@@ -10,8 +10,6 @@ import { createStyleSheet } from './create-style-sheet'
 import { defineSchema } from './define-schema'
 import { createStyleDefinition } from './create-style-definition'
 import { mapStateTriggers } from './map-state-triggers'
-import { selfTrigger } from './self-trigger'
-import { hostTrigger } from './host-trigger'
 
 const Schema = defineSchema(['enabled', 'hovered', 'disabled'] as const)
 
@@ -149,8 +147,8 @@ describe('Multi-Variant @variant Compiler', () => {
     it('correctly composes state triggers with @variant rules', () => {
         const triggers = mapStateTriggers({
             'enabled': '',
-            'hovered': selfTrigger(':hover'),
-            'disabled': hostTrigger('[disabled]')
+            'hovered': ':hover',
+            'disabled': '[disabled]'
         })
 
         const css = `
@@ -201,8 +199,8 @@ describe('Multi-Variant @variant Compiler', () => {
     it('synthesizes complex custom variantSelector with @when and state triggers', () => {
         const triggers = mapStateTriggers({
             'enabled': '',
-            'hovered': selfTrigger(':hover'),
-            'disabled': hostTrigger('[disabled]')
+            'hovered': ':hover',
+            'disabled': '[disabled]'
         })
         const customSelector = (v: string) => `:where(:host([variant="${v}"]), :host(:has(.${v})))`
         const css = `

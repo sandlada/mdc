@@ -4,8 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { StateTriggerRegistry } from './map-state-triggers'
-import { type StateTrigger, type TriggerContext } from './host-trigger'
+import { StateTriggerRegistry, type StateTrigger, type TriggerContext } from './map-state-triggers'
 import type { StateSchema } from './define-schema'
 import { compileAtRulesSheet, isAtRulesStylesheet, hasDefiniteAtRules } from './at-rules-compiler'
 export { compileAtRulesSheet, isAtRulesStylesheet, hasDefiniteAtRules } from './at-rules-compiler'
@@ -1913,12 +1912,11 @@ function compileAstNodes(
  * ```typescript
  * import { compileStateSheet } from '@sandlada/mdc/utils/styles/state-sheet-compiler'
  * import { mapStateTriggers } from '@sandlada/mdc/utils/styles/map-state-triggers'
- * import { hostTrigger } from '@sandlada/mdc/utils/styles/host-trigger'
  * import { ButtonDefinition } from './button.definition'
  *
  * const triggers = mapStateTriggers({
  *     'enabled': '',
- *     'selected': hostTrigger('[selected]')
+ *     'selected': '[selected]'
  * })
  *
  * const compiled = compileStateSheet(ButtonDefinition, `

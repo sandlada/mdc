@@ -129,7 +129,6 @@ function compileTemplate(
  * ```typescript
  * import { createStyleSheet } from '@sandlada/mdc/utils/styles/create-style-sheet'
  * import { mapStateTriggers } from '@sandlada/mdc/utils/styles/map-state-triggers'
- * import { hostTrigger } from '@sandlada/mdc/utils/styles/host-trigger'
  * import { ButtonDefinition } from './button.definition'
  *
  * // 1. Direct tagged template literal:

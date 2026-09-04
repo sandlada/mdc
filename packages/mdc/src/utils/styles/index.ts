@@ -22,8 +22,6 @@
  *     stringifyTokens,
  *     createStyleSheet,
  *     mapStateTriggers,
- *     hostTrigger,
- *     selfTrigger,
  *     overrideTokens,
  *     pipe
  * } from '@sandlada/mdc/utils'
@@ -38,7 +36,9 @@ export {
 
 export {
     createStyleDefinition,
+    DEFAULT_STYLE_SCHEMA,
     FORWARDED_TOKEN_META,
+    type DefaultStyleSchema,
     type PrimitiveTokenValue,
     type StateTuple,
     type StateRecord,
@@ -68,20 +68,12 @@ export {
 } from './define-variant-tokens'
 
 export {
-    hostTrigger,
+    mapStateTriggers,
+    StateTriggerRegistry,
     type TriggerTarget,
     type TriggerContext,
     type ResolvedTrigger,
     type StateTrigger
-} from './host-trigger'
-
-export {
-    selfTrigger
-} from './self-trigger'
-
-export {
-    mapStateTriggers,
-    StateTriggerRegistry
 } from './map-state-triggers'
 
 export {

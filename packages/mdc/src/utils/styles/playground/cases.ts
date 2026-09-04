@@ -17,8 +17,6 @@ import { stringifyTokens } from '../stringify-tokens'
 import { compileStateSheet } from '../state-sheet-compiler'
 import { createStyleSheet } from '../create-style-sheet'
 import { mapStateTriggers } from '../map-state-triggers'
-import { hostTrigger } from '../host-trigger'
-import { selfTrigger } from '../self-trigger'
 import { defineVariantTokens } from '../define-variant-tokens'
 import { overrideTokens } from '../override-tokens'
 import { forwardTokens } from '../forward-tokens'
@@ -117,8 +115,8 @@ const sheetBaseDeltaCase: PlaygroundCase = {
 
 const triggersCase: PlaygroundCase = {
     name: 'triggers',
-    about: 'mapStateTriggers 自定義映射：hovered→:hover（self），disabled→[disabled]（host）',
-    input: `mapStateTriggers({ enabled: '', hovered: selfTrigger(':hover'), disabled: hostTrigger('[disabled]') })`,
+    about: 'mapStateTriggers 自定義映射：hovered→:hover，disabled→[disabled]',
+    input: `mapStateTriggers({ enabled: '', hovered: ':hover', disabled: '[disabled]' })`,
     build: () => {
         const Schema = defineSchema(['enabled', 'hovered', 'disabled'] as const)
         const Def = createStyleDefinition(Schema)({
@@ -126,8 +124,8 @@ const triggersCase: PlaygroundCase = {
         })
         const triggers = mapStateTriggers({
             'enabled': '',
-            'hovered': selfTrigger(':hover'),
-            'disabled': hostTrigger('[disabled]')
+            'hovered': ':hover',
+            'disabled': '[disabled]'
         })
         return cssTextOf(createStyleSheet({ registry: triggers })(Def)`
             @anchor .btn {

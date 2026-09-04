@@ -6,8 +6,6 @@
 
 import { describe, it, expect } from 'vitest'
 import { mapStateTriggers, StateTriggerRegistry } from './map-state-triggers'
-import { hostTrigger } from './host-trigger'
-import { selfTrigger } from './self-trigger'
 
 describe('mapStateTriggers & StateTriggerRegistry', () => {
     it('initializes with built-in default interaction triggers', () => {
@@ -44,9 +42,9 @@ describe('mapStateTriggers & StateTriggerRegistry', () => {
         expect(registry.resolve('enabled', containerCtx)).toEqual({ target: 'self', modifier: '' })
     })
 
-    it('overrides defaults and registers explicit hostTrigger and selfTrigger instances', () => {
-        const customSelected = hostTrigger('[aria-selected="true"]', 'selected')
-        const customHover = selfTrigger('.is-hovered', 'hovered')
+    it('overrides defaults and registers explicit string modifier mappings', () => {
+        const customSelected = '[aria-selected="true"]'
+        const customHover = '.is-hovered'
 
         const registry = mapStateTriggers({
             selected: customSelected,
@@ -103,7 +101,7 @@ describe('mapStateTriggers & StateTriggerRegistry', () => {
 
     it('supports cloning to create independent registry instances', () => {
         const original = mapStateTriggers({
-            custom: hostTrigger('[custom]')
+            custom: '[custom]'
         })
 
         const cloned = original.clone()
@@ -111,14 +109,14 @@ describe('mapStateTriggers & StateTriggerRegistry', () => {
         expect(cloned.has('custom')).toBe(true)
 
         // Mutating cloned registry should not affect original
-        cloned.register(hostTrigger('[new-state]', 'newState'))
+        cloned.register('newState', '[new-state]')
         expect(cloned.has('newState')).toBe(true)
         expect(original.has('newState')).toBe(false)
     })
 
     it('supports array inputs in registerAll and constructor', () => {
         const registry = new StateTriggerRegistry([
-            hostTrigger('[state-a]', 'stateA'),
+            { stateA: '[state-a]' },
             { stateB: ':hover' }
         ])
 
