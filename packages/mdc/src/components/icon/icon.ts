@@ -9,7 +9,8 @@ import { styleMap } from 'lit/directives/style-map.js'
 import { mixinDelegatesAria } from '../../utils/aria/delegate'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import { styles } from './icon.style'
-import type { IIcon } from './icon.interface'
+import type { IMDCIcon } from './icon.interface'
+
 
 declare global {
     interface HTMLElementTagNameMap {
@@ -47,7 +48,7 @@ declare global {
 @customElement('mdc-icon')
 export class MDCIcon extends composeMixin(
     mixinDelegatesAria
-)(LitElement) implements IIcon {
+)(LitElement) implements IMDCIcon {
 
     static override styles = styles
 

@@ -46,7 +46,7 @@ export class DocsPage extends LitElement {
         .demo-frame {
             padding: 24px;
             border-radius: 12px;
-            background: var(--md-sys-color-surface-container-low);
+            background: transparent;
             border: 1px solid var(--md-sys-color-outline-variant);
             overflow-x: auto;
         }
@@ -97,6 +97,46 @@ export class DocsPage extends LitElement {
                 <slot></slot>
             </mdc-docs-shell>
         `
+    }
+
+    protected override firstUpdated() {
+        const root = this.shadowRoot ?? this
+        const scriptTags = root.querySelectorAll('script')
+        scriptTags.forEach((s) => {
+            if (s.dataset.executed) return
+            s.dataset.executed = 'true'
+            try {
+                const scriptBody = s.textContent || ''
+                if (!scriptBody.trim()) return
+
+                const runner = new Function('root', 'document', `
+                    const customDocument = new Proxy(document, {
+                        get(target, prop) {
+                            if (prop === 'getElementById') {
+                                return (id) => root.querySelector('#' + id) || target.getElementById(id);
+                            }
+                            if (prop === 'querySelector') {
+                                return (sel) => root.querySelector(sel) || target.querySelector(sel);
+                            }
+                            if (prop === 'querySelectorAll') {
+                                return (sel) => {
+                                    const inRoot = root.querySelectorAll(sel);
+                                    return inRoot.length > 0 ? inRoot : target.querySelectorAll(sel);
+                                };
+                            }
+                            const val = target[prop];
+                            return typeof val === 'function' ? val.bind(target) : val;
+                        }
+                    });
+                    (function(document) {
+                        ${scriptBody}
+                    })(customDocument);
+                `)
+                runner(root, document)
+            } catch (err) {
+                console.error('Error executing demo script:', err)
+            }
+        })
     }
 }
 

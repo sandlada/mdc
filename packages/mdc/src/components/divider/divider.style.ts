@@ -1,29 +1,21 @@
 /**
  * @license
- * Copyright 2025 Kai-Orion & Sandlada
+ * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { css, unsafeCSS } from 'lit'
+import { css } from 'lit'
 import { DividerDefinition } from '../../component-definitions/divider.definition'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+import { createStyleSheet, stringifyTokens } from '../../utils/styles'
 
-const tokenRecord = defineTokenRefsRecord(DividerDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-divider'
-})
-const tokenString = unsafeCSS(defineVars(tokenRecord, true).join(''))
+const tokens = stringifyTokens('--mdc-divider')(DividerDefinition)
 
-export const DividerStyles = css`
-    @layer mdc.divider.variant {
-        :host { ${tokenString}; }
-    }
+const stylePart = createStyleSheet(DividerDefinition)(() => css`
     @layer mdc.divider.base {
         :host {
             box-sizing: border-box;
-            color: var(--_enabled-color);
+            color: var(--_color);
             display: flex;
-            height: var(--_enabled-thickness);
+            height: var(--_thickness);
             width: 100%;
         }
 
@@ -46,8 +38,13 @@ export const DividerStyles = css`
 
         @media (forced-colors: active) {
             :host::before {
-            background: CanvasText;
+                background: CanvasText;
             }
         }
     }
-`
+`)
+
+export const DividerStyles = [
+    css`@layer mdc.divider.variant {:host {${tokens};}}`,
+    stylePart,
+]

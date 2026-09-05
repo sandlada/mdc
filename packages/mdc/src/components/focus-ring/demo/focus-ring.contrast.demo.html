@@ -1,0 +1,72 @@
+<style>
+    .fr-demo-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        align-items: center;
+    }
+
+    .fr-btn {
+        box-sizing: border-box;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        padding-inline: 16px;
+        padding-block: 8px;
+        position: relative;
+        background: #e8def8;
+        color: #1d192b;
+        outline: none;
+        border: none;
+        vertical-align: top;
+        border-radius: 16px;
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+    }
+
+    .contrast-standard {
+        --mdc-focus-ring-color: var(--md-sys-color-secondary, #625b71);
+    }
+
+    .contrast-high {
+        --mdc-focus-ring-color: var(--md-sys-color-on-surface, #1d1b20);
+        --mdc-focus-ring-width: 4px;
+    }
+
+    .contrast-less {
+        --mdc-focus-ring-color: var(--mdc-focus-ring-color-reduced-contrast, #79747e);
+        --mdc-focus-ring-width: 2px;
+    }
+
+    .contrast-forced-colors {
+        --mdc-focus-ring-color: Highlight;
+        background: Canvas;
+        color: CanvasText;
+        border: 1px solid CanvasText;
+    }
+</style>
+
+<div class="fr-demo-container">
+    <button class="fr-btn contrast-standard">
+        <span>Standard Contrast</span>
+        <mdc-focus-ring persistent></mdc-focus-ring>
+    </button>
+
+    <button class="fr-btn contrast-high">
+        <span>High Contrast (More)</span>
+        <mdc-focus-ring persistent></mdc-focus-ring>
+    </button>
+
+    <button class="fr-btn contrast-less">
+        <span>Reduced Contrast (Less)</span>
+        <mdc-focus-ring persistent></mdc-focus-ring>
+    </button>
+
+    <button class="fr-btn contrast-forced-colors">
+        <span>Forced Colors (Highlight)</span>
+        <mdc-focus-ring persistent></mdc-focus-ring>
+    </button>
+</div>

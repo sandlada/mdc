@@ -1,0 +1,81 @@
+{
+    "MDC Stylesheet Scaffold": {
+        "prefix": "mdc-style",
+        "body": [
+            "import { css } from 'lit'",
+            "import { createStyleSheet, defineComponentTokenRefs } from '@sandlada/mdc/utils'",
+            "import { ${1:Component}Definition } from './${2:component}.definition'",
+            "",
+            "const tokens = defineComponentTokenRefs(${1:Component}Definition, { prefix: '--mdc-${2:component}' })",
+            "",
+            "export const ${1:Component}Styles = [",
+            "    css`:host { \\${tokens} }`,",
+            "    createStyleSheet(${1:Component}Definition, () => css`",
+            "        :host {",
+            "            display: inline-flex;",
+            "        }",
+            "",
+            "        @anchor .container {",
+            "            height: var(--_container-height);",
+            "            background-color: var(--_container-color);",
+            "            border-radius: var(--_container-shape-start-start);",
+            "            padding-inline: var(--_container-padding-inline-start) var(--_container-padding-inline-end);",
+            "        }",
+            "    `),",
+            "]"
+        ],
+        "description": "Scaffold a complete MDC Component Stylesheet with createStyleSheet and token injection."
+    },
+    "MDC Anchor State Block": {
+        "prefix": "mdc-anchor",
+        "body": [
+            "@anchor .container {",
+            "    /* Enabled */",
+            "    background-color: var(--_container-color);",
+            "",
+            "    &:hover {",
+            "        background-color: var(--_hovered-container-color, var(--_container-color));",
+            "    }",
+            "",
+            "    &:active {",
+            "        background-color: var(--_pressed-container-color, var(--_container-color));",
+            "    }",
+            "",
+            "    &:focus-visible {",
+            "        background-color: var(--_focused-container-color, var(--_container-color));",
+            "    }",
+            "}"
+        ],
+        "description": "Scaffold an MD3 Expressive state anchor block."
+    },
+    "MDC Forward Tokens Block": {
+        "prefix": "mdc-forward",
+        "body": [
+            "...forwardTokens(${1:Target}Definition, {",
+            "    targetPrefix: '--mdc-${2:target}',",
+            "    name: '${2:target}',",
+            "    tokens: {",
+            "        '${3:color}': [${4:Color.Primary}, ${5:Color.PrimaryHover}, ${6:Color.PrimaryActive}, ${7:Color.PrimaryFocus}, ${8:Color.Disabled}],",
+            "    },",
+            "}),"
+        ],
+        "description": "Scaffold a forwardTokens block in createStyleDefinition."
+    },
+    "MDC Style Definition Scaffold": {
+        "prefix": "mdc-def",
+        "body": [
+            "import { Color, Space } from '@sandlada/mdk'",
+            "import { createStyleDefinition, forwardTokens } from '@sandlada/mdc/utils'",
+            "",
+            "export const ${1:Component}Definition = createStyleDefinition({",
+            "    'container-color': [Color.SurfaceContainer, Color.SurfaceContainerHigh, Color.SurfaceContainerHighest, Color.SurfaceContainer, Color.SurfaceDim],",
+            "    'container-height': '40px',",
+            "    'container-shape-start-start': '20px',",
+            "    'container-shape-start-end': '20px',",
+            "    'container-shape-end-start': '20px',",
+            "    'container-shape-end-end': '20px',",
+            "})"
+        ],
+        "description": "Scaffold an MDC Component Style Definition with createStyleDefinition."
+    }
+}

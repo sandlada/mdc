@@ -2,15 +2,22 @@
  * @license
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
+ *
+ * @version
+ * 1.0.0
  */
 import { Duration, Shape } from '@sandlada/mdk'
 import { Color } from '../utils/tokens/theme'
-import { createStyleDefinition } from '../utils/tokens/create-style-definition'
+import { createStyleDefinition, defineSchema } from '../utils/styles'
 
-export const FocusRingDefinition = createStyleDefinition({
+export const FocusRingSchema = defineSchema([
+    'enabled'
+] as const)
+
+export const FocusRingDefinition = createStyleDefinition(FocusRingSchema)({
     'active-width'          : `8px`,
-    'enabled-color'         : Color.Secondary,
-    'enabled-color-reduced-contrast': Color.Outline,
+    'color'                 : Color.Secondary,
+    'color-reduced-contrast': Color.Outline,
     'duration'              : Duration.Long4,
     'inward-offset'         : `0px`,
     'outward-offset'        : `2px`,

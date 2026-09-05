@@ -1,13 +1,45 @@
-<mdc-navigation-rail style="height: 320px;">
-    <mdc-navigation-tab name="ec1" value="/" checked label="Collapsed" variant="rail-horizontal">
-        <mdc-icon slot="inactive-icon">home</mdc-icon>
-        <mdc-icon slot="active-icon" filled>home</mdc-icon>
-    </mdc-navigation-tab>
-</mdc-navigation-rail>
+<div style="display: flex; flex-direction: column; gap: 16px;">
+    <div>
+        <mdc-button onclick="this.getRootNode().querySelector('#demo-rail-interactive').toggle()">
+            <span>Toggle (Expand / Collapse)</span>
+        </mdc-button>
+    </div>
 
-<mdc-navigation-rail expanded style="height: 320px;">
-    <mdc-navigation-tab name="ec2" value="/" checked label="Expanded" variant="rail-horizontal">
-        <mdc-icon slot="inactive-icon">home</mdc-icon>
-        <mdc-icon slot="active-icon" filled>home</mdc-icon>
-    </mdc-navigation-tab>
-</mdc-navigation-rail>
+    <div style="display: flex; gap: 32px; align-items: flex-start;">
+        <mdc-navigation-rail id="demo-rail-interactive" style="height: 380px;">
+            <mdc-icon-button slot="menu" onclick="this.closest('mdc-navigation-rail').toggle()">
+                <mdc-icon>menu</mdc-icon>
+            </mdc-icon-button>
+            <mdc-navigation-tab name="rail-exp-1" value="/home" label="Home" checked>
+                <mdc-icon slot="inactive-icon">home</mdc-icon>
+                <mdc-icon slot="active-icon" filled>home</mdc-icon>
+            </mdc-navigation-tab>
+            <mdc-navigation-tab name="rail-exp-1" value="/search" label="Search">
+                <mdc-icon slot="inactive-icon">search</mdc-icon>
+                <mdc-icon slot="active-icon" filled>search</mdc-icon>
+            </mdc-navigation-tab>
+            <mdc-navigation-tab name="rail-exp-1" value="/settings" label="Settings">
+                <mdc-icon slot="inactive-icon">settings</mdc-icon>
+                <mdc-icon slot="active-icon" filled>settings</mdc-icon>
+            </mdc-navigation-tab>
+        </mdc-navigation-rail>
+
+        <mdc-navigation-rail expanded style="height: 380px;">
+            <mdc-icon-button slot="menu" onclick="this.closest('mdc-navigation-rail').toggle()">
+                <mdc-icon>menu_open</mdc-icon>
+            </mdc-icon-button>
+            <mdc-navigation-tab name="rail-exp-2" value="/home" label="Home" checked>
+                <mdc-icon slot="inactive-icon">home</mdc-icon>
+                <mdc-icon slot="active-icon" filled>home</mdc-icon>
+            </mdc-navigation-tab>
+            <mdc-navigation-tab name="rail-exp-2" value="/search" label="Search">
+                <mdc-icon slot="inactive-icon">search</mdc-icon>
+                <mdc-icon slot="active-icon" filled>search</mdc-icon>
+            </mdc-navigation-tab>
+            <mdc-navigation-tab name="rail-exp-2" value="/settings" label="Settings">
+                <mdc-icon slot="inactive-icon">settings</mdc-icon>
+                <mdc-icon slot="active-icon" filled>settings</mdc-icon>
+            </mdc-navigation-tab>
+        </mdc-navigation-rail>
+    </div>
+</div>

@@ -42,8 +42,10 @@ export const baseFieldStyles = css`
             align-items: center;
             box-sizing: border-box;
             height: var(--_container-height);
-            padding-inline-start: var(--_container-inline-leading-padding-space);
-            padding-inline-end: var(--_container-inline-trailing-padding-space);
+            padding-inline-start: var(--_container-padding-inline-start);
+            padding-inline-end: var(--_container-padding-inline-end);
+            padding-block-start: var(--_container-padding-block-start);
+            padding-block-end: var(--_container-padding-block-end);
             border-start-start-radius: var(--_container-shape-start-start);
             border-start-end-radius: var(--_container-shape-start-end);
             border-end-start-radius: var(--_container-shape-end-start);
@@ -394,12 +396,12 @@ export const baseFieldStyles = css`
             transition: opacity 150ms cubic-bezier(0.2, 0, 0, 1);
         }
         .prefix {
-            padding-inline-start: var(--_prefix-inline-leading-padding-space);
-            padding-inline-end: var(--_prefix-inline-trailing-padding-space);
+            padding-inline-start: var(--_prefix-padding-inline-start);
+            padding-inline-end: var(--_prefix-padding-inline-end);
         }
         .suffix {
-            padding-inline-start: var(--_suffix-inline-leading-padding-space);
-            padding-inline-end: var(--_suffix-inline-trailing-padding-space);
+            padding-inline-start: var(--_suffix-padding-inline-start);
+            padding-inline-end: var(--_suffix-padding-inline-end);
         }
         .container:not(.has-prefix) .prefix { display: none; }
         .container:not(.has-suffix) .suffix { display: none; }
@@ -414,7 +416,7 @@ export const baseFieldStyles = css`
         /* ---------- Floating label & Smooth Expanding Animation ---------- */
         .label {
             position: absolute;
-            inset-inline-start: var(--_container-inline-leading-padding-space);
+            inset-inline-start: var(--_container-padding-inline-start);
             top: 50%;
             transform: translateY(-50%);
             transform-origin: top start;
@@ -444,7 +446,7 @@ export const baseFieldStyles = css`
         /* When there is a leading icon and label is resting, offset label start to match input column */
         .container.has-leading-icon.resting-label .label,
         .container.has-leading-icon:not(.floating-label) .label {
-            inset-inline-start: calc(var(--_container-inline-leading-padding-space) + var(--_leading-icon-size) + 12px);
+            inset-inline-start: calc(var(--_container-padding-inline-start) + var(--_leading-icon-size) + 12px);
         }
 
         /* Filled variant floating label */
@@ -453,7 +455,7 @@ export const baseFieldStyles = css`
         :host([variant="filled"][floating-label-behavior="always"]) .label {
             top: 8px;
             transform: translateY(0);
-            inset-inline-start: var(--_container-inline-leading-padding-space);
+            inset-inline-start: var(--_container-padding-inline-start);
             font-family: var(--_floating-label-font);
             font-size: var(--_floating-label-size);
             font-weight: var(--_floating-label-weight);
@@ -520,8 +522,8 @@ export const baseFieldStyles = css`
             align-items: flex-start;
             gap: 16px;
             box-sizing: border-box;
-            padding-inline-start: var(--_container-inline-leading-padding-space);
-            padding-inline-end: var(--_container-inline-trailing-padding-space);
+            padding-inline-start: var(--_container-padding-inline-start);
+            padding-inline-end: var(--_container-padding-inline-end);
             padding-block-start: 4px;
             min-height: 16px;
             font-family: var(--_supporting-text-font);

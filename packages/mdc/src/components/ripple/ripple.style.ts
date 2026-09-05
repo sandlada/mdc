@@ -55,7 +55,8 @@ export const styles = css`
 
     .hover-state-layer,
     .focus-state-layer,
-    .press-state-layer {
+    .press-state-layer,
+    .disable-state-layer {
         position: absolute;
         opacity: 0;
         border-radius: inherit;
@@ -66,35 +67,31 @@ export const styles = css`
 
     .hover-state-layer {
         inset: 0;
-        background-color: var(--_enabled-hovered-color);
-        transition: opacity 15ms linear, background-color 15ms linear;
+        background-color: var(--_hovered-color);
+        transition: opacity 200ms cubic-bezier(0.2, 0, 0, 1), background-color 200ms cubic-bezier(0.2, 0, 0, 1);
     }
-
     .focus-state-layer {
         inset: 0;
-        background-color: var(--_enabled-focused-color);
-        transition: opacity 50ms linear, background-color 15ms linear;
+        background-color: var(--_focused-color);
+        transition: opacity 150ms cubic-bezier(0.2, 0, 0, 1), background-color 150ms cubic-bezier(0.2, 0, 0, 1);
     }
-
     .press-state-layer {
         inset: 0;
-        background: radial-gradient(closest-side, var(--_enabled-pressed-color) max(calc(100% - 70px), 65%), transparent 100%);
+        background: radial-gradient(closest-side, var(--_pressed-color) max(calc(100% - 70px), 65%), transparent 100%);
         transform-origin: center center;
-        transition: opacity 375ms linear;
+        transition: opacity 375ms cubic-bezier(0.2, 0, 0, 1);
     }
 
     :host([hovered]:not([disable-hover-state-layer])) .hover-state-layer {
-        background-color: var(--_enabled-hovered-color);
-        opacity: var(--_enabled-hovered-opacity);
+        opacity: var(--_hovered-opacity);
+        transition-duration: 75ms;
     }
-
     :host([focused]:not([disable-focus-state-layer])) .focus-state-layer {
-        background-color: var(--_enabled-focused-color);
-        opacity: var(--_enabled-focused-opacity);
+        opacity: var(--_focused-opacity);
+        transition-duration: 75ms;
     }
-
     :host([pressed]:not([disable-press-state-layer])) .press-state-layer {
-        opacity: var(--_enabled-pressed-opacity);
+        opacity: var(--_pressed-opacity);
         transition-duration: 105ms;
     }
 `

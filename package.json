@@ -11,6 +11,12 @@
         "build:dts": "npm run build:dts -w @sandlada/mdc",
         "dev": "npm run dev -w @sandlada/mdc-dev",
         "build:dev": "npm run build -w @sandlada/mdc-dev",
-        "preview:dev": "npm run preview -w @sandlada/mdc-dev"
+        "preview:dev": "npm run preview -w @sandlada/mdc-dev",
+        "test": "npm run test -w @sandlada/mdc",
+        "test:vscode": "npm run test -w @sandlada/vscode-mdc",
+        "build:vscode": "npm run build -w @sandlada/vscode-mdc"
+    },
+    "devDependencies": {
+        "typescript": "~7.0.2"
     }
 }

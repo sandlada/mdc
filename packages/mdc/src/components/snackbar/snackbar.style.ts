@@ -134,8 +134,10 @@ const base = css`
             display: flex;
             align-items: center;
             min-height: var(--_container-min-height);
-            padding-block: var(--_container-padding-block);
-            padding-inline: var(--_container-padding-inline);
+            padding-block-start: var(--_container-padding-block-start);
+            padding-block-end: var(--_container-padding-block-end);
+            padding-inline-start: var(--_container-padding-inline-start);
+            padding-inline-end: var(--_container-padding-inline-end);
             border-start-start-radius: var(--_container-shape-start-start);
             border-start-end-radius: var(--_container-shape-start-end);
             border-end-start-radius: var(--_container-shape-end-start);
@@ -167,7 +169,10 @@ const base = css`
             letter-spacing: var(--_label-tracking);
             line-height: var(--_label-line-height);
             color: var(--_enabled-label-color);
-            padding-inline: var(--_label-padding-inline);
+            padding-inline-start: var(--_label-padding-inline-start);
+            padding-inline-end: var(--_label-padding-inline-end);
+            padding-block-start: var(--_label-padding-block-start);
+            padding-block-end: var(--_label-padding-block-end);
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -199,7 +204,10 @@ const base = css`
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            padding: var(--_action-padding-block) var(--_action-padding-inline);
+            padding-inline-start: var(--_action-padding-inline-start);
+            padding-inline-end: var(--_action-padding-inline-end);
+            padding-block-start: var(--_action-padding-block-start);
+            padding-block-end: var(--_action-padding-block-end);
             border: none;
             background: transparent;
             color: var(--_enabled-action-text-color);
@@ -254,7 +262,10 @@ const base = css`
             flex-shrink: 0;
             width: var(--_close-icon-size);
             height: var(--_close-icon-size);
-            padding: var(--_close-icon-padding);
+            padding-inline-start: var(--_close-icon-padding-inline-start);
+            padding-inline-end: var(--_close-icon-padding-inline-end);
+            padding-block-start: var(--_close-icon-padding-block-start);
+            padding-block-end: var(--_close-icon-padding-block-end);
             box-sizing: border-box;
             border: none;
             background: transparent;

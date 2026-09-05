@@ -18,13 +18,13 @@ import { Color } from '../utils/tokens/theme'
 import { createStyleDefinition } from '../utils/tokens/create-style-definition'
 
 export const MDCDockedToolbarStyleDefinition = createStyleDefinition({
-    'container-height'                       : '64px',
-    'container-padding-inline-leading-space' : '16px',
-    'container-padding-inline-trailing-space': '16px',
-    'container-padding-block-leading-space'  : '12px',
-    'container-padding-block-trailing-space' : '12px',
-    'max-space-between-actions'              : '32px',
-    'min-space-between-actions'              : '4px',
+    'container-height'              : '64px',
+    'container-padding-inline-start': '16px',
+    'container-padding-inline-end'  : '16px',
+    'container-padding-block-start' : '12px',
+    'container-padding-block-end'   : '12px',
+    'max-space-between-actions'     : '32px',
+    'min-space-between-actions'     : '4px',
 })
 
 export const MDCStandardDockedToolbarStyleDefinition = createStyleDefinition({

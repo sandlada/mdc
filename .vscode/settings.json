@@ -15,6 +15,9 @@
         },
         "editor.formatOnSave": true
     },
+    "[markdown]": {
+        "editor.fontFamily": "Noto Sans Mono CJK TC"
+    },
     "explorer.fileNesting.expand": true,
     "explorer.fileNesting.patterns": {
         "*.ts": "$(capture).interface.ts, $(capture).style.ts, $(capture).base.ts, $(capture).mixin.ts, $(capture)-options.mixin.ts, $(capture).js, $(capture).d.ts, $(capture).js.map, $(capture).spec.ts, $(capture).test.ts, $(capture).animation.ts",
@@ -57,7 +60,7 @@
     "js/ts.format.semicolons": "remove",
     "js/ts.preferences.importModuleSpecifier": "non-relative",
     "js/ts.preferences.quoteStyle": "single",
-    "js/ts.experimental.useTsgo": false,
+    "js/ts.experimental.useTsgo": true,
     "terminal.integrated.smoothScrolling": true,
-    "workbench.list.smoothScrolling": true
+    "workbench.list.smoothScrolling": true,
 }

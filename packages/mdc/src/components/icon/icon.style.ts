@@ -3,90 +3,71 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { css, unsafeCSS } from 'lit'
+import { css } from 'lit'
 import { IconDefinition } from '../../component-definitions/icon.definition'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+import { createStyleSheet, pipe, stringifyTokens } from '../../utils/styles'
 
-const tokenRecord = defineTokenRefsRecord(IconDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-icon'
-})
-const tokenString = unsafeCSS(defineVars(tokenRecord, true).join(''))
+const tokens = stringifyTokens('--mdc-icon')(IconDefinition)
 
-export const styles = css`
-    @layer mdc.icon {
+const iconStyles = pipe(
+    createStyleSheet
+)(IconDefinition)(() => css`
+:host {
+    font-size: var(--_size);
+    width: var(--_size);
+    height: var(--_size);
+    font-family: var(--_font);
+}
+`)
 
-        @layer variable {
-            :host {
-                ${tokenString}
-            }
-        }
+export const styles = [
+    css`:host{${tokens};}`,
+    iconStyles,
+    css`
+:host {
+    color: inherit;
+    font-variation-settings: inherit;
+    font-weight: 400;
+    display: inline-flex;
+    font-style: normal;
+    place-items: center;
+    place-content: center;
+    line-height: 1;
+    overflow: hidden;
+    letter-spacing: normal;
+    text-transform: none;
+    user-select: none;
+    white-space: nowrap;
+    word-wrap: normal;
+    flex-shrink: 0;
 
-        @layer base {
-            :host {
-                font-size: var(--_enabled-size);
-                width: var(--_enabled-size);
-                height: var(--_enabled-size);
-                color: inherit;
-                font-variation-settings: inherit;
-                font-weight: 400;
-                font-family: var(--_enabled-font);
-                display: inline-flex;
-                font-style: normal;
-                place-items: center;
-                place-content: center;
-                line-height: 1;
-                overflow: hidden;
-                letter-spacing: normal;
-                text-transform: none;
-                user-select: none;
-                white-space: nowrap;
-                word-wrap: normal;
-                flex-shrink: 0;
+    /* Support for all WebKit browsers. */
+    -webkit-font-smoothing: antialiased;
+    /* Support for Safari and Chrome. */
+    text-rendering: optimizeLegibility;
+    /* Support for Firefox. */
+    -moz-osx-font-smoothing: grayscale;
+}
 
-                /* Support for all WebKit browsers. */
-                -webkit-font-smoothing: antialiased;
-                /* Support for Safari and Chrome. */
-                text-rendering: optimizeLegibility;
-                /* Support for Firefox. */
-                -moz-osx-font-smoothing: grayscale;
-            }
+.icon-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+}
 
-            .icon-container {
-                font-family: var(--_enabled-font);
-                font-weight: normal;
-                font-style: normal;
-                line-height: 1;
-                letter-spacing: normal;
-                text-transform: none;
-                display: inline-block;
-                white-space: nowrap;
-                word-wrap: normal;
-                direction: ltr;
-                -webkit-font-feature-settings: 'liga';
-                -webkit-font-smoothing: antialiased;
+::slotted(svg) {
+    fill: currentColor;
+}
 
-                width: 100%;
-                height: 100%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                overflow: hidden;
-
-                font-variation-settings: inherit;
-            }
-
-            ::slotted(svg) {
-                fill: currentColor;
-            }
-
-            ::slotted(*) {
-                display: block;
-                height: 100%;
-                width: 100%;
-            }
-
-        }
-    }
+::slotted(*) {
+    display: block;
+    height: 100%;
+    width: 100%;
+}
 `
+]

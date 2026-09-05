@@ -40,10 +40,10 @@ export const OnThisPageItemStyles = css`
         box-sizing: border-box;
         min-height: var(--_enabled-container-height);
         height: auto;
-        padding-inline-start: var(--_enabled-container-inline-leading-padding-space);
-        padding-inline-end: var(--_enabled-container-inline-trailing-padding-space);
-        padding-block-start: var(--_enabled-container-block-leading-padding-space);
-        padding-block-end: var(--_enabled-container-block-trailing-padding-space);
+        padding-inline-start: var(--_enabled-container-padding-inline-start);
+        padding-inline-end: var(--_enabled-container-padding-inline-end);
+        padding-block-start: var(--_enabled-container-padding-block-start);
+        padding-block-end: var(--_enabled-container-padding-block-end);
         border-top-left-radius: var(--_enabled-container-shape-start-start);
         border-top-right-radius: var(--_enabled-container-shape-start-end);
         border-bottom-left-radius: var(--_enabled-container-shape-end-start);
@@ -62,15 +62,15 @@ export const OnThisPageItemStyles = css`
     }
 
     .item.level-2 {
-        padding-inline-start: calc(var(--_enabled-container-inline-leading-padding-space) + 12px);
+        padding-inline-start: calc(var(--_enabled-container-padding-inline-start) + 12px);
     }
 
     .item.level-3 {
-        padding-inline-start: calc(var(--_enabled-container-inline-leading-padding-space) + 24px);
+        padding-inline-start: calc(var(--_enabled-container-padding-inline-start) + 24px);
     }
 
     .item.level-4 {
-        padding-inline-start: calc(var(--_enabled-container-inline-leading-padding-space) + 36px);
+        padding-inline-start: calc(var(--_enabled-container-padding-inline-start) + 36px);
     }
 
     .label {

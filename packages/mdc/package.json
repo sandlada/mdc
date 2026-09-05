@@ -31,7 +31,11 @@
     "scripts": {
         "build": "rolldown -c rolldown.config.js",
         "build:dts": "tsc --project tsconfig.json --emitDeclarationOnly --outDir build --skipLibCheck",
-        "smoke": "node .smoke/run.mjs"
+        "smoke": "node .smoke/run.mjs",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "playground": "vitest run src/utils/styles/playground --disable-console-intercept",
+        "playground:watch": "vitest src/utils/styles/playground --disable-console-intercept"
     },
     "dependencies": {
         "@floating-ui/dom": "^1.8.0",
@@ -41,11 +45,13 @@
         "lit": "^3.3.3"
     },
     "devDependencies": {
+        "@sandlada/vscode-mdc": "*",
         "rolldown": "^1.2.4",
         "rollup-plugin-html-literals": "^2.0.1",
         "tslib": "^2.8.1",
         "type-fest": "^5.8.0",
-        "typescript": "~7.0.2"
+        "typescript": "~7.0.2",
+        "vitest": "^4.1.11"
     },
     "files": [
         "build/**/*",

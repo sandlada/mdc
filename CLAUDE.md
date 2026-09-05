@@ -16,6 +16,7 @@
 - **目標**：MD3 / MD3E 規範下的 Web Components 元件庫，無框架鎖定
 - **核心技術**：Lit 3 + `@lit/context` + Web Animations API + Web Components
 - **建構系統**：`rolldown`（當前主動）+ `rollup`（過渡期殘留），詳見「構建說明」
+- **目標環境基線**：**Chrome 150+** / **CSS Baseline 2026** / **ECMA Next**（面向未來版本，零相容性負擔）
 - **當前活躍元件**：`src/all.ts` 中未註解的 22 個項目（其餘為 WIP）
 - **當前正式打包元件**：`ripple`、`focus-ring` 兩者（`rolldown.config.js` 唯一 entry 集合）
 
@@ -40,6 +41,15 @@
 ---
 
 ## Agent 行為規則
+
+### 技術選型與標準優先原則（面向未來）
+
+- **最新標準優先，零兼容托底**：當遇到技術選型（Web API、CSS 特性、JavaScript 語法）時，**一律優先採用最新標準與規範，絕不考慮向後相容或版本托底**（Zero Legacy / No Backward Compatibility）。
+- **面向未來版本開發**：本專案在架構與開發設計時始終面向未來版本。現在所謂的「未來技術」在將來也會成為普遍標準；反之，為了相容過時系統或舊版瀏覽器編寫降級、polyfill 或 fallback 邏輯，只會引入龐大的技術債務與冗餘代碼，隨著時間推移將使專案難以閱讀、難以維護。
+- **目標執行環境與標準基線**：
+  - **瀏覽器標準**：**Chrome 150+**
+  - **CSS 規範**：**CSS Baseline 2026**（優先使用最新 CSS 特性，嚴禁編寫降級 fallback 或相容性 hack）
+  - **JavaScript / TypeScript 規範**：**ECMA Next**（使用最新 ECMAScript 特性與現代語法）
 
 ### 閱讀優先級
 
@@ -338,6 +348,27 @@ public shape: 'round' | 'square' = 'round'
  */
 ```
 
+### 8. 技術選型零托底原則（Zero Legacy & Modern Standards First）
+
+在編寫組件邏輯、DOM 操作、事件處理、樣式或建構設定時：
+- **禁止為了相容舊環境編寫降級邏輯**：嚴禁加入針對舊版瀏覽器的 feature detection fallback、vendor prefix、polyfill 或降級替代路徑。
+- **直接使用標準 Web API 與現代語法**：以 Chrome 150+、CSS Baseline 2026、ECMA Next 為唯一標竿，保持代碼極致精簡、清晰與現代化。
+
+### 9. UI 設計無障礙規範（Accessibility / a11y）
+
+所有元件之 UI 設計與樣式實作必須原生滿足現代 Web 無障礙標準（WCAG 2.2+），支援各項系統級使用者偏好：
+
+1. **強制色彩模式 (`forced-colors: active`)**：
+   - 針對 Windows 高對比模式與系統強制色彩環境，必須採用標準原生系統色彩關鍵字（如 `Highlight`、`HighlightText`、`Canvas`、`CanvasText`、`ButtonText`、`GrayText`、`LinkText` 等）。
+   - 必要時搭配 `forced-color-adjust: none` 維持元件自訂結構，並顯式定義原生系統色背景、文字與對比外框（如 `outline: 1px solid CanvasText` / `HighlightText`），確保所有互動狀態（hover, focus, active, disabled）在強制色彩下清晰可辨。
+2. **對比度偏好適配 (`prefers-contrast`)**：
+   - **`@media (prefers-contrast: more)`**：在高對比度偏好下，增強文字與容器邊界（如加入 `CanvasText` 外框、提升對比度或加粗邊框），提升弱視與視覺障礙使用者的識別度。
+   - **`@media (prefers-contrast: less)`**：在低對比度偏好下，適度降低視覺刺眼度（如微調透明度或柔化邊框）。
+3. **減少動態效果 (`prefers-reduced-motion: reduce`)**：
+   - 在使用者偏好減少動態時，應關閉或簡化過度動態過渡與動畫（例如 `animation: none;`、`transition: none;` 或瞬時切換），防止引發前庭神經不適或動態眩暈。
+4. **降低透明度 (`prefers-reduced-transparency: reduce`)**：
+   - 在使用者偏好降低透明度時，應移除或替換半透明效果（如 `backdrop-filter`、`opacity < 1`、半透明遮罩等），改用 100% 不透明的純色背景與實體邊框，以確保文字與主要內容之最大易讀性。
+
 ---
 
 ## 元件定義（`component-definitions/`）模式
@@ -387,9 +418,16 @@ render 內部最外層非 host 元素（通常作為 container 角色），其�
 `*-shape-end-start` / `*-shape-end-end`
 
 **規則 5 — padding / margin 格式**：
-必須使用 `{inline|block}-{leading|trailing}-{padding|margin}-space`：
-`enabled-container-inline-leading-padding-space`（= `padding-inline-start`）
-`enabled-container-block-trailing-margin-space`（= `margin-block-end`）
+必須使用 `[state-]?[size-]?[element-]{padding|margin}-{inline|block}-{start|end}` 格式。
+即使 4 個方向數值均相等，也必須拆分為 4 個獨立欄位，禁止使用 `padding-block` 或 `padding-inline` 縮寫，必須搭配 `start` 與 `end`：
+- `enabled-container-padding-inline-start`（= `padding-inline-start`）
+- `enabled-container-padding-inline-end`（= `padding-inline-end`）
+- `enabled-container-padding-block-start`（= `padding-block-start`）
+- `enabled-container-padding-block-end`（= `padding-block-end`）
+- `enabled-container-margin-inline-start`（= `margin-inline-start`）
+- `enabled-container-margin-inline-end`（= `margin-inline-end`）
+- `enabled-container-margin-block-start`（= `margin-block-start`）
+- `enabled-container-margin-block-end`（= `margin-block-end`）
 
 **規則 6 — 字體完整性**：
 label 等文字元素必須包含全部 6 項字體 token：
@@ -419,6 +457,31 @@ label 等文字元素必須包含全部 6 項字體 token：
 <mdc-button variant="outlined">Outlined</mdc-button>
 <mdc-button variant="text">Text</mdc-button>
 ```
+
+---
+
+## 測試約定與 TDD 紀律
+
+本專案採用嚴格的測試驅動開發（TDD）流程：
+
+### 1. 測試框架與執行
+- 測試統一採用 **`vitest`**。
+- 指令：`npm run test`（在各 workspace 執行 `vitest`）。
+
+### 2. 測試檔案同源共置（Co-location）
+- 測試檔案與被測原始碼檔案**位於同一個目錄下**（同 `src/`）。
+- 命名規範：`{name}.spec.ts` 與 `{name}.ts` 一一對應。
+  - 例如：`src/utils/tokens/create-style-sheet.ts` 對應 `src/utils/tokens/create-style-sheet.spec.ts`
+  - 例如：`src/components/badge/badge.ts` 對應 `src/components/badge/badge.spec.ts`
+
+### 3. TDD 鐵律（先寫測試，再寫實作）
+- **紅燈 -> 綠燈 -> 重構**：在編寫功能實現代碼之前，**必須先編寫測試檔案**。
+- 測試用例必須全覆蓋各種邊界與分支：
+  - 基礎 / 預設情境
+  - 邊界條件與空值 / 例外處理
+  - 互動狀態（`enabled`, `hovered`, `focused`, `pressed`, `disabled`）
+  - 多維度修飾與二態組合（如 `selected`, `unselected`, `error`）
+- **任何功能的實現必須 100% 通過測試**，方可視為完成。
 
 ---
 

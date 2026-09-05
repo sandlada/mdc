@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch MDC Extension (F5)",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode-mdc",
+                "${workspaceFolder}"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/packages/vscode-mdc/dist/**/*.cjs"
+            ],
+            "preLaunchTask": "npm: build:vscode"
+        }
+    ]
+}
