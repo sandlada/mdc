@@ -9,9 +9,16 @@
  * Provides pure functional, curried, data-last utilities for state-aware CSS variable generation,
  * AST-driven state stylesheet compilation, child token forwarding, selector composition, and overrides.
  *
- * 新樣式系統僅包含兩種 at-rule：`@anchor(target)`（狀態錨點，掛載點即 target）
- * 與 `@variant(name, ...)`（變體名單，精確匹配，不支援通配符）。其餘舊 at-rule
- *（`@when`、`@slot`、`@slotted`、`@size`、`@elevation`、舊 `@anchor <sel>` 形）皆已棄用。
+ * 新樣式系統（語義 Oracle 見 `at-rules.spec.ts`）包含 `@state(target)`（狀態錨點，
+ * 原 `@anchor` 已更名以對齊 StateSchema 並避免與 CSS Anchor Positioning 衝突）、
+ * `@variant(name, ...)`（變體名單，精確匹配，不支援通配符與否定）、
+ * `@when(:host(...))`（宿主條件，須顯式包含 `:host`，深層巢狀提升為頂層外殼），
+ * 以及屬性展開巨集（`shape` / `padding` / `margin` / `typescale`）與無障礙巨集
+ *（`@reduced-motion` / `@forced-colors` / `@contrast` / `@reduced-transparency`）。
+ *
+ * 相容路徑：含 `@anchor <sel>` / `@size` 的樣式表仍由舊 token 差分引擎處理，
+ * 該路徑另支援 `@slot` / `@slotted` / `@size` / `@elevation` 與萬用字 `@variant`
+ *（`*` / `!`），由 `compileStateSheet` 按語法偵測自動分流（見 `state-sheet-compiler`）。
  *
  * @example
  * ```typescript

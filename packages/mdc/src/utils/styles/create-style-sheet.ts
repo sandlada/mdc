@@ -116,14 +116,17 @@ function compileTemplate(
 /**
  * Primary tagged template and HOF entrypoint for authoring state-aware, differential component stylesheets.
  *
- * Compiles ATRules (`@anchor`, `@when`, `@variant`, `@slot`, `@slotted`, `@size`, `@elevation`) and multi-state tokens
- * into a single Base Rule and minimal Delta Rules, wrapped inside a Lit `CSSResult`.
+ * Compiles new-system ATRules (`@state`, `@variant`, `@when`, property expanders,
+ * a11y macros) and legacy ATRules (`@anchor <sel>`, `@variant`, `@slot`, `@slotted`,
+ * `@size`, `@elevation`) with multi-state tokens into standard CSS,
+ * wrapped inside a Lit `CSSResult`. Routing between the two engines is automatic
+ * (see `compileStateSheet`; semantics Oracle: `at-rules.spec.ts`).
  *
  * Supports:
  * 1. Options or trigger registry: `createStyleSheet(triggers)(ButtonDefinition)\`...\``
  * 2. Point-free functional pipelines: `pipe(triggers, createStyleSheet)(ButtonDefinition)\`...\``
- * 3. Direct tagged template literals: `createStyleSheet(ButtonDefinition)\`@anchor .container { ... }\``
- * 4. Curried definition-first: `createStyleSheet(ButtonDefinition)(\`@anchor .container { ... }\`)`
+ * 3. Direct tagged template literals: `createStyleSheet(ButtonDefinition)\`@state(button) button { ... }\``
+ * 4. Curried definition-first: `createStyleSheet(ButtonDefinition)(\`@state(button) button { ... }\`)`
  *
  * @example
  * ```typescript
@@ -131,9 +134,9 @@ function compileTemplate(
  * import { mapStateTriggers } from '@sandlada/mdc/utils/styles/map-state-triggers'
  * import { ButtonDefinition } from './button.definition'
  *
- * // 1. Direct tagged template literal:
- * export const ButtonStyles = createStyleSheet(ButtonDefinition)`
- *     @anchor .container {
+ * // 1. Direct tagged template literal (new @state system):
+ * export const ButtonStyles = createStyleSheet({ registry: triggers })(ButtonDefinition)`
+ *     @state(button) button {
  *         border-radius: var(--_container-shape);
  *         background-color: var(--_container-color);
  *         .label { color: var(--_label-color); }

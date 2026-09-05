@@ -10,7 +10,9 @@ import {
     appendToHostSelector,
     extractHostAndDescendant,
     stripComments,
-    type CompileStateSheetOptions
+    extractStateTokenMetadata,
+    type CompileStateSheetOptions,
+    type StateTokenMetadata
 } from './state-sheet-compiler'
 import type { StateSchema } from './define-schema'
 
@@ -565,12 +567,39 @@ export interface StateDimensionItem {
     readonly target: 'self' | 'host'
 }
 
+export const rewriteStateVariables = (
+    cssText: string,
+    currentStates: readonly string[],
+    meta: StateTokenMetadata
+): string => {
+    return cssText.replace(
+        /var\(\s*(--_[a-zA-Z0-9_-]+)(\s*,[\s\S]*?)?\)/g,
+        (fullMatch, varName: string, fallback: string = '') => {
+            const tokenName = varName.replace(/^--_/, '')
+            if (!meta.isStateToken(tokenName)) {
+                return fullMatch
+            }
+
+            for (const state of currentStates) {
+                if (meta.hasStateToken(tokenName, state)) {
+                    const stateVar = meta.resolveStateVarName(tokenName, state)
+                    return `var(--_${stateVar}${fallback})`
+                }
+            }
+
+            return fullMatch
+        }
+    )
+}
+
 export interface AtRulesCompilerContext {
     readonly states: readonly StateDimensionItem[] | readonly (readonly StateDimensionItem[])[]
     readonly isCombo: boolean
     readonly registry: StateTriggerRegistry
     readonly options?: CompileStateSheetOptions
+    readonly meta?: StateTokenMetadata
     readonly ancestorPath: readonly string[]
+    readonly currentStates?: readonly string[]
     readonly variantSelector?: string
     readonly isolationContainer?: string
     readonly stateNestingDepth?: number
@@ -772,7 +801,10 @@ function transformStatements(
 
     for (const stmt of statements) {
         if (stmt.type === 'decl') {
-            const expanded = expandDeclaration(stmt.property!, stmt.value!)
+            let expanded = expandDeclaration(stmt.property!, stmt.value!)
+            if (ctx.currentStates && ctx.currentStates.length > 0 && ctx.meta) {
+                expanded = rewriteStateVariables(expanded, ctx.currentStates, ctx.meta)
+            }
             baseParts.push(expanded)
             continue
         }
@@ -1012,7 +1044,8 @@ function transformStatements(
                         const stateRes = transformStatements(nonWhenStmts, {
                             ...ctx,
                             ancestorPath: [...ctx.ancestorPath, sel],
-                            stateNestingDepth: currentDepth + 1
+                            stateNestingDepth: currentDepth + 1,
+                            currentStates: combo.map((item) => item.name)
                         })
                         expandedRules.push(formatRule(sel, stateRes.baseRules.join(' ')))
                     }
@@ -1036,7 +1069,8 @@ function transformStatements(
                             const stateRes = transformStatements(nonWhenStmts, {
                                 ...ctx,
                                 ancestorPath: ctx.ancestorPath.slice(1).concat(innerSel),
-                                stateNestingDepth: currentDepth + 1
+                                stateNestingDepth: currentDepth + 1,
+                                currentStates: [s.name]
                             })
                             const content = formatRule(innerSel, stateRes.baseRules.join(' '))
 
@@ -1051,7 +1085,8 @@ function transformStatements(
                             const stateRes = transformStatements(nonWhenStmts, {
                                 ...ctx,
                                 ancestorPath: [...ctx.ancestorPath, sel],
-                                stateNestingDepth: currentDepth + 1
+                                stateNestingDepth: currentDepth + 1,
+                                currentStates: [s.name]
                             })
                             baseRulesForStates.push(formatRule(sel, stateRes.baseRules.join(' ')))
                         }
@@ -1093,7 +1128,8 @@ function transformStatements(
                             const sel = replaced.result
                             const wsRes = transformStatements(innerWhenStmts, {
                                 ...ctx,
-                                ancestorPath: []
+                                ancestorPath: [],
+                                currentStates: combo.map((item) => item.name)
                             })
                             whenExpandedRules.push(formatRule(sel, wsRes.baseRules.join(' ')))
                         }
@@ -1104,7 +1140,8 @@ function transformStatements(
                             const sel = replaced.result
                             const wsRes = transformStatements(innerWhenStmts, {
                                 ...ctx,
-                                ancestorPath: []
+                                ancestorPath: [],
+                                currentStates: [s.name]
                             })
                             whenExpandedRules.push(formatRule(sel, wsRes.baseRules.join(' ')))
                         }
@@ -1234,11 +1271,16 @@ export const compileAtRulesSheet = (
         }
     }
 
+    const meta = definition && typeof definition === 'object'
+        ? extractStateTokenMetadata(definition)
+        : undefined
+
     const rootCtx: AtRulesCompilerContext = {
         states,
         isCombo,
         registry,
         options,
+        meta,
         ancestorPath: []
     }
 

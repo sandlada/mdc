@@ -1904,7 +1904,12 @@ function compileAstNodes(
  * Compiles an MDC CSS template string with ATRules and state awareness into standard CSS with minimal differential rules.
  *
  * @param definition - Component style definition containing StateSchema and token mappings.
- * @param cssText - Raw stylesheet template string containing ATRules (@anchor, @when, @variant, @slot, @size, @elevation).
+ * @param cssText - Raw stylesheet template string. New-system ATRules (`@state`,
+ * `@variant` exact names, `@when(:host(...))`, property expanders, a11y macros;
+ * semantics Oracle: `at-rules.spec.ts`) route to the At-Rules compiler; stylesheets
+ * containing `@anchor <sel>` / `@size` route to the legacy token-differential engine
+ * (which additionally lowers `@slot` / `@slotted` / `@size` / `@elevation` and
+ * wildcard `@variant`).
  * @param options - Compilation options including StateTriggerRegistry.
  * @returns Formatted standard CSS string.
  *
@@ -1919,7 +1924,16 @@ function compileAstNodes(
  *     'selected': '[selected]'
  * })
  *
+ * // New @state system:
  * const compiled = compileStateSheet(ButtonDefinition, `
+ *     @state(button) button {
+ *         background-color: var(--_container-color);
+ *         .label { color: var(--_label-color); }
+ *     }
+ * `, { registry: triggers })
+ *
+ * // Legacy token-differential system (routes via `@anchor <sel>`):
+ * const legacy = compileStateSheet(ButtonDefinition, `
  *     @anchor .container {
  *         background-color: var(--_container-color);
  *         .label { color: var(--_label-color); }

@@ -257,6 +257,45 @@ const realWorldCase: PlaygroundCase = {
     ]
 }
 
+const stateAtRuleCase: PlaygroundCase = {
+    name: 'state-at-rule',
+    about: '新範式 @state 展開多狀態選擇器，並將 multi-state token 變數改寫為對應狀態前綴',
+    input: `@state(.container) .container { height: var(--_container-size); padding-block-start: var(--_container-padding-block-start); }`,
+    build: () => {
+        const Schema = defineSchema(['small', 'large'] as const)
+        const Def = createStyleDefinition(Schema)({
+            'container-size': ['6px', '16px'],
+            'container-padding-block-start': ['2px', '4px'],
+            'container-color': '#b3261e'
+        })
+        const triggers = mapStateTriggers({
+            'small': '.small',
+            'large': '.large'
+        })
+        return cssTextOf(createStyleSheet({ registry: triggers })(Def)`
+            @state(.container) .container {
+                height: var(--_container-size);
+                padding-block-start: var(--_container-padding-block-start);
+                background-color: var(--_container-color);
+            }
+        `)
+    },
+    mustContain: [
+        '.container.small {',
+        'height: var(--_small-container-size);',
+        'padding-block-start: var(--_small-container-padding-block-start);',
+        '.container.large {',
+        'height: var(--_large-container-size);',
+        'padding-block-start: var(--_large-container-padding-block-start);',
+        'background-color: var(--_container-color);'
+    ],
+    mustNotContain: [
+        'height: var(--_container-size);',
+        'padding-block-start: var(--_container-padding-block-start);',
+        '--_small-container-color'
+    ]
+}
+
 export const cases: readonly PlaygroundCase[] = [
     schemaTopologyCase,
     scalarVsTupleCase,
@@ -264,5 +303,7 @@ export const cases: readonly PlaygroundCase[] = [
     triggersCase,
     variantsCase,
     bridgesCase,
-    realWorldCase
+    realWorldCase,
+    stateAtRuleCase
 ]
+

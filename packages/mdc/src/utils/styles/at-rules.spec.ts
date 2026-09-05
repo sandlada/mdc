@@ -10,7 +10,7 @@ import { describe, it, expect } from 'vitest'
 import { createStyleDefinition } from './create-style-definition'
 import { defineSchema } from './define-schema'
 import { mapStateTriggers } from './map-state-triggers'
-import { compileStateSheet } from './compile-state-sheet'
+import { compileStateSheet } from './state-sheet-compiler'
 
 function normalizeCss(css: string | string[]): string {
     const text = Array.isArray(css) ? css.join(' ') : css

@@ -2,6 +2,19 @@
  * @license
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
+ *
+ * @fileoverview
+ * Scope: legacy routing branch of `compileStateSheet` — wildcard (`*`) and
+ * negation (`!`) `@variant` patterns, `matchVariants`, custom `variantSelector`,
+ * and `@variant` × `@slot` / `@size` compositions below only apply when the
+ * stylesheet routes to the legacy engine (e.g. contains `@anchor` / `@size` /
+ * wildcard `@variant`). On the new path (oracled in `at-rules.spec.ts`,
+ * V-spec) variant names must be exact dictionary keys; `*` / `!name` emit
+ * `invalid-variant-name` instead of filtering.
+ *
+ * Mapping-format suite: compiler outputs use
+ * `[label, css, mustContain, mustNotContain?, opts?]`; unit helpers use
+ * `[[args], expected]` rows; diagnostics use `[label, css, checks]` rows.
  */
 
 import { describe, it, expect, vi } from 'vitest'
@@ -48,494 +61,303 @@ const MultiVariants = {
     'drawer': DrawerDef
 } as const
 
+const allVariants = ['bar-vertical', 'bar-horizontal', 'rail-vertical', 'rail-horizontal', 'drawer', 'drawer-horizontal']
+
+const triggers = mapStateTriggers({
+    'enabled': '',
+    'hovered': ':hover',
+    'disabled': '[disabled]'
+})
+
+const customSelector = (v: string): string => `:where(:host([variant="${v}"]), :host(:has(.${v})))`
+
+interface ContainsOpts {
+    readonly selector?: 'custom'
+    readonly triggers?: boolean
+    readonly via?: 'hof'
+}
+
+type ContainsRow = readonly [
+    label: string,
+    css: string,
+    mustContain: readonly string[],
+    mustNotContain?: readonly string[],
+    opts?: ContainsOpts
+]
+
+function runContainsRow([label, css, mustContain, mustNotContain = [], opts]: ContainsRow): void {
+    let compiled: string
+    if (opts?.via === 'hof') {
+        const sheet = createStyleSheet({ variantSelector: customSelector })(MultiVariants)(css)
+        compiled = sheet.cssText
+    } else {
+        compiled = compileStateSheet(MultiVariants, css, {
+            registry: opts?.triggers === true ? triggers : undefined,
+            variantSelector: opts?.selector === 'custom' ? customSelector : undefined
+        })
+    }
+    for (const snippet of mustContain) {
+        expect(compiled).toContain(snippet)
+    }
+    for (const snippet of mustNotContain) {
+        expect(compiled).not.toContain(snippet)
+    }
+}
+
 describe('matchVariants helper', () => {
-    const allVariants = ['bar-vertical', 'bar-horizontal', 'rail-vertical', 'rail-horizontal', 'drawer', 'drawer-horizontal']
+    const mapping: Array<[[readonly string[], readonly string[]], readonly string[]]> = [
+        [[['bar-vertical', 'drawer'], allVariants], ['bar-vertical', 'drawer']],
+        [[['*-vertical'], allVariants], ['bar-vertical', 'rail-vertical']],
+        [[['bar-*', 'rail-*'], allVariants], ['bar-vertical', 'bar-horizontal', 'rail-vertical', 'rail-horizontal']],
+        [[['!drawer*'], allVariants], ['bar-vertical', 'bar-horizontal', 'rail-vertical', 'rail-horizontal']],
+        [[['bar-*', '!*-horizontal'], allVariants], ['bar-vertical']],
+    ]
 
-    it('matches exact variant names', () => {
-        expect(matchVariants(['bar-vertical', 'drawer'], allVariants)).toEqual(['bar-vertical', 'drawer'])
-    })
-
-    it('matches wildcard patterns (*-vertical)', () => {
-        expect(matchVariants(['*-vertical'], allVariants)).toEqual(['bar-vertical', 'rail-vertical'])
-    })
-
-    it('matches multiple wildcard patterns', () => {
-        expect(matchVariants(['bar-*', 'rail-*'], allVariants)).toEqual([
-            'bar-vertical',
-            'bar-horizontal',
-            'rail-vertical',
-            'rail-horizontal'
-        ])
-    })
-
-    it('matches negation patterns (!drawer*)', () => {
-        expect(matchVariants(['!drawer*'], allVariants)).toEqual([
-            'bar-vertical',
-            'bar-horizontal',
-            'rail-vertical',
-            'rail-horizontal'
-        ])
-    })
-
-    it('combines positive patterns and negation patterns', () => {
-        expect(matchVariants(['bar-*', '!*-horizontal'], allVariants)).toEqual(['bar-vertical'])
-    })
+    for (const [[patterns, names], expected] of mapping) {
+        it(`match ${patterns.join(' ')}`, () => {
+            expect(matchVariants(patterns, names)).toEqual(expected)
+        })
+    }
 })
 
 describe('Multi-Variant @variant Compiler', () => {
-    it('compiles single and comma-separated @variant rules with default selector', () => {
-        const css = `
-            @variant(bar-vertical, rail-vertical) {
-                .container {
-                    width: 100%;
-                }
-            }
-        `
-        const compiled = compileStateSheet(MultiVariants, css)
-        expect(compiled).toContain(':host([variant="bar-vertical"]) .container, :host([variant="rail-vertical"]) .container {')
-        expect(compiled).toContain('width: 100%;')
-    })
+    const mapping: ContainsRow[] = [
+        ['single and comma-separated @variant with default selector',
+            '@variant(bar-vertical, rail-vertical) { .container { width: 100%; } }',
+            [':host([variant="bar-vertical"]) .container, :host([variant="rail-vertical"]) .container {', 'width: 100%;']],
+        ['wildcard pattern matching (*-vertical)',
+            '@variant(*-vertical) { .indicator { display: block; } }',
+            [':host([variant="bar-vertical"]) .indicator, :host([variant="rail-vertical"]) .indicator {']],
+        ['negation pattern matching (!drawer)',
+            '@variant(!drawer) { .indicator { border-radius: 8px; } }',
+            [':host([variant="bar-vertical"]) .indicator, :host([variant="bar-horizontal"]) .indicator, :host([variant="rail-vertical"]) .indicator {'],
+            ['variant="drawer"']],
+        ['custom variantSelector option in compileStateSheet',
+            '@variant(bar-vertical) { .container { height: 56px; } }',
+            [':where(:host([variant="bar-vertical"]), :host(:has(.bar-vertical))) .container {'],
+            [],
+            { selector: 'custom' }],
+        ['custom variantSelector in createStyleSheet HOF',
+            '@variant(drawer) { .container { max-width: 336px; } }',
+            [':where(:host([variant="drawer"]), :host(:has(.drawer))) .container {'],
+            [],
+            { via: 'hof' }],
+        ['state triggers composed with @variant rules',
+            '@variant(bar-vertical) { @anchor .container { background-color: var(--_common-color); } }',
+            [':host([variant="bar-vertical"]) .container {\n    background-color: var(--_enabled-common-color);\n}',
+                ':host([variant="bar-vertical"]) .container:hover {\n    background-color: var(--_hovered-common-color);\n}',
+                ':host([variant="bar-vertical"][disabled]) .container {\n    background-color: var(--_disabled-common-color);\n}'],
+            [],
+            { triggers: true }],
+        ['bidirectional nesting: @variant inside @anchor and @anchor inside @variant',
+            '@anchor .container { @variant(bar-vertical) { padding: 8px; } } @variant(drawer) { @anchor .label { font-size: 14px; } }',
+            [':host([variant="bar-vertical"]) .container {\n    padding: 8px;\n}',
+                ':host([variant="drawer"]) .label {\n    font-size: 14px;\n}']],
+        ['nested @variant blocks',
+            '@variant(*-vertical) { @variant(!bar-*) { .indicator { width: 56px; } } }',
+            [':host([variant="rail-vertical"]) .indicator {\n    width: 56px;\n}'],
+            ['variant="bar-vertical"']],
+        ['complex custom variantSelector with @when and state triggers',
+            '@variant(bar-vertical) { @anchor .container { background-color: var(--_common-color); @when(:host([checked])) { border-color: #f00; } } }',
+            [':where(:host([variant="bar-vertical"]), :host(:has(.bar-vertical))) .container {\n    background-color: var(--_enabled-common-color);\n}',
+                ':where(:host([variant="bar-vertical"]), :host(:has(.bar-vertical))) .container:hover {\n    background-color: var(--_hovered-common-color);\n}',
+                ':where(:host([variant="bar-vertical"][disabled]), :host(:has(.bar-vertical)[disabled])) .container {\n    background-color: var(--_disabled-common-color);\n}',
+                ':where(:host([variant="bar-vertical"][checked]), :host(:has(.bar-vertical)[checked])) .container {\n    border-color: #f00;\n}'],
+            [],
+            { selector: 'custom', triggers: true }],
+        ['@variant nested with @slot and @slotted',
+            '@variant(bar-vertical) { @slot(icon) { .slot-container { display: flex; } } @slotted(icon) { color: red; } }',
+            [':host([variant="bar-vertical"]:has([slot="icon"])) .slot-container {', '::slotted([slot="icon"]) {']],
+        ['outer host modifiers preserved in deeply nested @when, @size, and @variant blocks',
+            '@when(:host([checked])) { @size(large) { @variant(*-vertical) { @variant(!bar-*) { .indicator { width: 56px; } } } } }',
+            [':host([variant="rail-vertical"][checked][size="large"]) .indicator {\n    width: 56px;\n}'],
+            ['variant="bar-vertical"']],
+        [':host and :host(...) selector headers inside @variant blocks',
+            '@variant(bar-vertical) { :host { width: 104px; } :host([checked]) { opacity: 1; } }',
+            [':where(:host([variant="bar-vertical"]), :host(:has(.bar-vertical))) {\n    width: 104px;\n}',
+                ':where(:host([variant="bar-vertical"][checked]), :host(:has(.bar-vertical)[checked])) {\n    opacity: 1;\n}'],
+            [],
+            { selector: 'custom' }],
+        ['unparenthesized :host:hover and :host[disabled] inside @variant blocks',
+            '@variant(bar-vertical) { :host:hover { opacity: 0.8; } :host[disabled] { cursor: not-allowed; } }',
+            [':where(:host([variant="bar-vertical"]:hover), :host(:has(.bar-vertical):hover)) {\n    opacity: 0.8;\n}',
+                ':where(:host([variant="bar-vertical"][disabled]), :host(:has(.bar-vertical)[disabled])) {\n    cursor: not-allowed;\n}'],
+            [':host:host'],
+            { selector: 'custom' }],
+        ['dead rules pruned when nested @variant filters match empty set',
+            '@variant(*-vertical) { @variant(drawer) { .indicator { width: 999px; } } }',
+            [],
+            ['999px', 'drawer']],
+    ]
 
-    it('supports wildcard pattern matching (*-vertical)', () => {
-        const css = `
-            @variant(*-vertical) {
-                .indicator {
-                    display: block;
-                }
-            }
-        `
-        const compiled = compileStateSheet(MultiVariants, css)
-        expect(compiled).toContain(':host([variant="bar-vertical"]) .indicator, :host([variant="rail-vertical"]) .indicator {')
-    })
-
-    it('supports negation pattern matching (!drawer)', () => {
-        const css = `
-            @variant(!drawer) {
-                .indicator {
-                    border-radius: 8px;
-                }
-            }
-        `
-        const compiled = compileStateSheet(MultiVariants, css)
-        expect(compiled).toContain(':host([variant="bar-vertical"]) .indicator, :host([variant="bar-horizontal"]) .indicator, :host([variant="rail-vertical"]) .indicator {')
-        expect(compiled).not.toContain('variant="drawer"')
-    })
-
-    it('supports custom variantSelector option in compileStateSheet', () => {
-        const customSelector = (v: string) => `:where(:host([variant="${v}"]), :host(:has(.${v})))`
-        const css = `
-            @variant(bar-vertical) {
-                .container { height: 56px; }
-            }
-        `
-        const compiled = compileStateSheet(MultiVariants, css, { variantSelector: customSelector })
-        expect(compiled).toContain(':where(:host([variant="bar-vertical"]), :host(:has(.bar-vertical))) .container {')
-    })
-
-    it('supports custom variantSelector in createStyleSheet HOF', () => {
-        const customSelector = (v: string) => `:where(:host([variant="${v}"]), :host(:has(.${v})))`
-        const sheet = createStyleSheet({
-            variantSelector: customSelector
-        })(MultiVariants)`
-            @variant(drawer) {
-                .container { max-width: 336px; }
-            }
-        `
-        expect(sheet.cssText).toContain(':where(:host([variant="drawer"]), :host(:has(.drawer))) .container {')
-    })
-
-    it('correctly composes state triggers with @variant rules', () => {
-        const triggers = mapStateTriggers({
-            'enabled': '',
-            'hovered': ':hover',
-            'disabled': '[disabled]'
+    for (const row of mapping) {
+        it(row[0], () => {
+            runContainsRow(row)
         })
-
-        const css = `
-            @variant(bar-vertical) {
-                @anchor .container {
-                    background-color: var(--_common-color);
-                }
-            }
-        `
-        const compiled = compileStateSheet(MultiVariants, css, { registry: triggers })
-        expect(compiled).toContain(':host([variant="bar-vertical"]) .container {\n    background-color: var(--_enabled-common-color);\n}')
-        expect(compiled).toContain(':host([variant="bar-vertical"]) .container:hover {\n    background-color: var(--_hovered-common-color);\n}')
-        expect(compiled).toContain(':host([variant="bar-vertical"][disabled]) .container {\n    background-color: var(--_disabled-common-color);\n}')
-    })
-
-    it('supports bidirectional nesting: @variant inside @anchor and @anchor inside @variant', () => {
-        const css = `
-            @anchor .container {
-                @variant(bar-vertical) {
-                    padding: 8px;
-                }
-            }
-
-            @variant(drawer) {
-                @anchor .label {
-                    font-size: 14px;
-                }
-            }
-        `
-        const compiled = compileStateSheet(MultiVariants, css)
-        expect(compiled).toContain(':host([variant="bar-vertical"]) .container {\n    padding: 8px;\n}')
-        expect(compiled).toContain(':host([variant="drawer"]) .label {\n    font-size: 14px;\n}')
-    })
-
-    it('supports nested @variant blocks', () => {
-        const css = `
-            @variant(*-vertical) {
-                @variant(!bar-*) {
-                    .indicator { width: 56px; }
-                }
-            }
-        `
-        const compiled = compileStateSheet(MultiVariants, css)
-        expect(compiled).toContain(':host([variant="rail-vertical"]) .indicator {\n    width: 56px;\n}')
-        expect(compiled).not.toContain('variant="bar-vertical"')
-    })
-
-    it('synthesizes complex custom variantSelector with @when and state triggers', () => {
-        const triggers = mapStateTriggers({
-            'enabled': '',
-            'hovered': ':hover',
-            'disabled': '[disabled]'
-        })
-        const customSelector = (v: string) => `:where(:host([variant="${v}"]), :host(:has(.${v})))`
-        const css = `
-            @variant(bar-vertical) {
-                @anchor .container {
-                    background-color: var(--_common-color);
-                    @when(:host([checked])) {
-                        border-color: #f00;
-                    }
-                }
-            }
-        `
-        const compiled = compileStateSheet(MultiVariants, css, {
-            registry: triggers,
-            variantSelector: customSelector
-        })
-        expect(compiled).toContain(':where(:host([variant="bar-vertical"]), :host(:has(.bar-vertical))) .container {\n    background-color: var(--_enabled-common-color);\n}')
-        expect(compiled).toContain(':where(:host([variant="bar-vertical"]), :host(:has(.bar-vertical))) .container:hover {\n    background-color: var(--_hovered-common-color);\n}')
-        expect(compiled).toContain(':where(:host([variant="bar-vertical"][disabled]), :host(:has(.bar-vertical)[disabled])) .container {\n    background-color: var(--_disabled-common-color);\n}')
-        expect(compiled).toContain(':where(:host([variant="bar-vertical"][checked]), :host(:has(.bar-vertical)[checked])) .container {\n    border-color: #f00;\n}')
-    })
-
-    it('supports @variant nested with @slot and @slotted', () => {
-        const css = `
-            @variant(bar-vertical) {
-                @slot(icon) {
-                    .slot-container { display: flex; }
-                }
-                @slotted(icon) {
-                    color: red;
-                }
-            }
-        `
-        const compiled = compileStateSheet(MultiVariants, css)
-        expect(compiled).toContain(':host([variant="bar-vertical"]:has([slot="icon"])) .slot-container {')
-        expect(compiled).toContain('::slotted([slot="icon"]) {')
-    })
-
-    it('correctly preserves outer host modifiers in deeply nested @when, @size, and @variant blocks', () => {
-        const css = `
-            @when(:host([checked])) {
-                @size(large) {
-                    @variant(*-vertical) {
-                        @variant(!bar-*) {
-                            .indicator { width: 56px; }
-                        }
-                    }
-                }
-            }
-        `
-        const compiled = compileStateSheet(MultiVariants, css)
-        expect(compiled).toContain(':host([variant="rail-vertical"][checked][size="large"]) .indicator {\n    width: 56px;\n}')
-        expect(compiled).not.toContain('variant="bar-vertical"')
-    })
-
-    it('correctly handles :host and :host(...) selector headers inside @variant blocks', () => {
-        const customSelector = (v: string) => `:where(:host([variant="${v}"]), :host(:has(.${v})))`
-        const css = `
-            @variant(bar-vertical) {
-                :host {
-                    width: 104px;
-                }
-                :host([checked]) {
-                    opacity: 1;
-                }
-            }
-        `
-        const compiled = compileStateSheet(MultiVariants, css, { variantSelector: customSelector })
-        expect(compiled).toContain(':where(:host([variant="bar-vertical"]), :host(:has(.bar-vertical))) {\n    width: 104px;\n}')
-        expect(compiled).toContain(':where(:host([variant="bar-vertical"][checked]), :host(:has(.bar-vertical)[checked])) {\n    opacity: 1;\n}')
-    })
-
-    it('correctly handles unparenthesized :host:hover and :host[disabled] inside @variant blocks', () => {
-        const customSelector = (v: string) => `:where(:host([variant="${v}"]), :host(:has(.${v})))`
-        const css = `
-            @variant(bar-vertical) {
-                :host:hover {
-                    opacity: 0.8;
-                }
-                :host[disabled] {
-                    cursor: not-allowed;
-                }
-            }
-        `
-        const compiled = compileStateSheet(MultiVariants, css, { variantSelector: customSelector })
-        expect(compiled).toContain(':where(:host([variant="bar-vertical"]:hover), :host(:has(.bar-vertical):hover)) {\n    opacity: 0.8;\n}')
-        expect(compiled).toContain(':where(:host([variant="bar-vertical"][disabled]), :host(:has(.bar-vertical)[disabled])) {\n    cursor: not-allowed;\n}')
-        expect(compiled).not.toContain(':host:host')
-    })
-
-    it('prunes dead rules when nested @variant filters result in an empty match set', () => {
-        const css = `
-            @variant(*-vertical) {
-                @variant(drawer) {
-                    .indicator { width: 999px; }
-                }
-            }
-        `
-        const compiled = compileStateSheet(MultiVariants, css)
-        expect(compiled).not.toContain('999px')
-        expect(compiled).not.toContain('drawer')
-    })
+    }
 })
 
 describe('appendToHostSelector unit tests', () => {
-    it('appends attributes, classes, and pseudo-classes to :host', () => {
-        expect(appendToHostSelector(':host', '[disabled]')).toBe(':host([disabled])')
-        expect(appendToHostSelector(':host', ':hover')).toBe(':host(:hover)')
-        expect(appendToHostSelector(':host', '.active')).toBe(':host(.active)')
-        expect(appendToHostSelector(':host', ':host([disabled])')).toBe(':host([disabled])')
-        expect(appendToHostSelector(':host', ':host[disabled]')).toBe(':host([disabled])')
-        expect(appendToHostSelector(':host', ':host:hover')).toBe(':host:hover')
-        expect(appendToHostSelector(':host', ':host.active')).toBe(':host(.active)')
-    })
+    const mapping: Array<[[string, string], string]> = [
+        [[ ':host', '[disabled]' ], ':host([disabled])'],
+        [[ ':host', ':hover' ], ':host(:hover)'],
+        [[ ':host', '.active' ], ':host(.active)'],
+        [[ ':host', ':host([disabled])' ], ':host([disabled])'],
+        [[ ':host', ':host[disabled]' ], ':host([disabled])'],
+        [[ ':host', ':host:hover' ], ':host:hover'],
+        [[ ':host', ':host.active' ], ':host(.active)'],
+        [[ ':host', ':where(:host([a]), :host([b]))' ], ':where(:host([a]), :host([b]))'],
+        [[ ':where(:host([a]), :host([b]))', ':host:hover' ], ':where(:host([a]:hover), :host([b]:hover))'],
+        [[ ':where(:host([a]), :host([b]))', ':host[disabled]' ], ':where(:host([a][disabled]), :host([b][disabled]))'],
+        [[ ':host([variant="bar"])', ':host[disabled]' ], ':host([variant="bar"][disabled])'],
+        [[ ':host([variant="bar"])', ':host:hover' ], ':host([variant="bar"]:hover)'],
+        [[ ':host([variant="bar"])', ':host.foo' ], ':host([variant="bar"].foo)'],
+        [[ ':host([variant="bar"])', ':host([checked])' ], ':host([variant="bar"][checked])'],
+        [[ ':host([variant="bar"])', '[checked]' ], ':host([variant="bar"][checked])'],
+        [[ ':host:hover', '[disabled]' ], ':host([disabled]):hover'],
+        [[ ':host:hover', ':host[disabled]' ], ':host([disabled]):hover'],
+    ]
 
-    it('preserves :where and :is host wrapper selectors', () => {
-        expect(appendToHostSelector(':host', ':where(:host([a]), :host([b]))')).toBe(':where(:host([a]), :host([b]))')
-        expect(appendToHostSelector(':where(:host([a]), :host([b]))', ':host:hover')).toBe(':where(:host([a]:hover), :host([b]:hover))')
-        expect(appendToHostSelector(':where(:host([a]), :host([b]))', ':host[disabled]')).toBe(':where(:host([a][disabled]), :host([b][disabled]))')
-    })
-
-    it('appends cleanly to :host(...) without generating :host(:host(...))', () => {
-        expect(appendToHostSelector(':host([variant="bar"])', ':host[disabled]')).toBe(':host([variant="bar"][disabled])')
-        expect(appendToHostSelector(':host([variant="bar"])', ':host:hover')).toBe(':host([variant="bar"]:hover)')
-        expect(appendToHostSelector(':host([variant="bar"])', ':host.foo')).toBe(':host([variant="bar"].foo)')
-        expect(appendToHostSelector(':host([variant="bar"])', ':host([checked])')).toBe(':host([variant="bar"][checked])')
-        expect(appendToHostSelector(':host([variant="bar"])', '[checked]')).toBe(':host([variant="bar"][checked])')
-    })
-
-    it('handles pseudo-state base :host:hover', () => {
-        expect(appendToHostSelector(':host:hover', '[disabled]')).toBe(':host([disabled]):hover')
-        expect(appendToHostSelector(':host:hover', ':host[disabled]')).toBe(':host([disabled]):hover')
-    })
+    for (const [[base, modifier], expected] of mapping) {
+        it(`append ${modifier} to ${base}`, () => {
+            expect(appendToHostSelector(base, modifier)).toBe(expected)
+        })
+    }
 })
 
-describe('AST Diagnostic Warnings for Token Scopes', () => {
-    it('warns when top-level shared scope references a token missing from some variants', () => {
-        const warnings: StyleDiagnosticWarning[] = []
-        const onWarn = (w: StyleDiagnosticWarning) => warnings.push(w)
+interface WarnChecks {
+    readonly type?: string
+    readonly token?: string
+    readonly variant?: string
+    readonly variants?: readonly string[]
+    readonly variantsEqual?: readonly string[]
+    readonly missingVariants?: readonly string[]
+    readonly tokens?: readonly string[]
+    readonly sequence?: readonly string[]
+    readonly count?: number
+    readonly min?: number
+}
 
-        const css = `
-            .container {
-                color: var(--_vertical-only-token);
-            }
-        `
-        compileStateSheet(MultiVariants, css, { onWarn })
+type WarnRow = readonly [label: string, css: string, checks: WarnChecks]
 
-        expect(warnings.length).toBeGreaterThan(0)
-        const warn = warnings.find((w) => w.type === 'missing-token-in-shared-scope' && w.token === 'vertical-only-token')
-        expect(warn).toBeDefined()
-        expect(warn?.variants).toContain('bar-vertical')
-        expect(warn?.variants).toContain('rail-vertical')
-        expect(warn?.missingVariants).toContain('bar-horizontal')
-        expect(warn?.missingVariants).toContain('drawer')
-    })
+function runWarnRow([, css, checks]: WarnRow): void {
+    const warnings: StyleDiagnosticWarning[] = []
+    const onWarn = (w: StyleDiagnosticWarning): void => {
+        warnings.push(w)
+    }
+    compileStateSheet(MultiVariants, css, { onWarn })
 
-    it('warns when @variant scope references a token missing from that variant', () => {
-        const warnings: StyleDiagnosticWarning[] = []
-        const onWarn = (w: StyleDiagnosticWarning) => warnings.push(w)
-
-        const css = `
-            @variant(bar-horizontal) {
-                .container {
-                    color: var(--_vertical-only-token);
-                }
-            }
-        `
-        compileStateSheet(MultiVariants, css, { onWarn })
-
-        expect(warnings.length).toBeGreaterThan(0)
-        const warn = warnings.find((w) => w.type === 'missing-token-in-variant-scope' && w.token === 'vertical-only-token')
-        expect(warn).toBeDefined()
-        expect(warn?.variant).toBe('bar-horizontal')
-    })
-
-    it('warns when unknown variant name is specified in @variant', () => {
-        const warnings: StyleDiagnosticWarning[] = []
-        const onWarn = (w: StyleDiagnosticWarning) => warnings.push(w)
-
-        const css = `
-            @variant(nonexistent-variant) {
-                .container { color: red; }
-            }
-        `
-        compileStateSheet(MultiVariants, css, { onWarn })
-
-        expect(warnings.length).toBeGreaterThan(0)
-        const warn = warnings.find((w) => w.type === 'unknown-variant' && w.variant === 'nonexistent-variant')
-        expect(warn).toBeDefined()
-        expect(warn?.variants).toEqual(['bar-vertical', 'bar-horizontal', 'rail-vertical', 'drawer'])
-    })
-
-    it('does not warn when token is present across all variants or in target variant', () => {
-        const warnings: StyleDiagnosticWarning[] = []
-        const onWarn = (w: StyleDiagnosticWarning) => warnings.push(w)
-
-        const css = `
-            .container {
-                background: var(--_common-color);
-            }
-            @variant(bar-vertical) {
-                .icon {
-                    color: var(--_vertical-only-token);
-                }
-            }
-        `
-        compileStateSheet(MultiVariants, css, { onWarn })
-        expect(warnings).toEqual([])
-    })
-
-    it('does not falsely warn when token is referenced with an explicit state prefix', () => {
-        const warnings: StyleDiagnosticWarning[] = []
-        const onWarn = (w: StyleDiagnosticWarning) => warnings.push(w)
-
-        const css = `
-            .container {
-                background: var(--_enabled-common-color);
-            }
-            @variant(bar-vertical) {
-                .icon {
-                    color: var(--_enabled-vertical-only-token);
-                }
-            }
-        `
-        compileStateSheet(MultiVariants, css, { onWarn })
-        expect(warnings).toEqual([])
-    })
-
-    it('calls console.warn when onWarn is not provided and warning is emitted', () => {
-        const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-        const css = `
-            .container {
-                color: var(--_vertical-only-token);
-            }
-        `
-        compileStateSheet(MultiVariants, css)
-        expect(spy).toHaveBeenCalled()
-        expect(spy.mock.calls[0][0]).toContain('[MDC Style Warning]')
-        spy.mockRestore()
-    })
-
-    it('warns for multiple unknown variants in a single @variant declaration', () => {
-        const warnings: StyleDiagnosticWarning[] = []
-        const onWarn = (w: StyleDiagnosticWarning) => warnings.push(w)
-
-        const css = `
-            @variant(unknown-1, unknown-2) {
-                .container { color: blue; }
-            }
-        `
-        compileStateSheet(MultiVariants, css, { onWarn })
-        expect(warnings.length).toBe(2)
-        expect(warnings[0].variant).toBe('unknown-1')
-        expect(warnings[1].variant).toBe('unknown-2')
-    })
-
-    it('correctly checks diagnostics when multiple tokens exist in a single declaration value', () => {
-        const warnings: StyleDiagnosticWarning[] = []
-        const onWarn = (w: StyleDiagnosticWarning) => warnings.push(w)
-
-        const css = `
-            .container {
-                box-shadow: 0 0 4px var(--_vertical-only-token), 0 0 8px var(--_drawer-only-token);
-            }
-        `
-        compileStateSheet(MultiVariants, css, { onWarn })
-        expect(warnings.length).toBe(2)
+    if (checks.count !== undefined) {
+        expect(warnings.length).toBe(checks.count)
+    }
+    if (checks.min !== undefined) {
+        expect(warnings.length).toBeGreaterThanOrEqual(checks.min)
+    }
+    if (checks.sequence !== undefined) {
+        expect(warnings.map((w) => w.variant)).toEqual(checks.sequence)
+    }
+    if (checks.tokens !== undefined) {
         const tokens = warnings.map((w) => w.token)
-        expect(tokens).toContain('vertical-only-token')
-        expect(tokens).toContain('drawer-only-token')
-    })
+        for (const token of checks.tokens) {
+            expect(tokens).toContain(token)
+        }
+    }
+    const candidate = warnings.find((w) =>
+        (checks.type === undefined || w.type === checks.type) &&
+        (checks.token === undefined || w.token === checks.token) &&
+        (checks.variant === undefined || w.variant === checks.variant))
+    if (checks.type !== undefined || checks.token !== undefined || checks.variant !== undefined) {
+        expect(candidate).toBeDefined()
+    }
+    if (checks.variants !== undefined) {
+        for (const name of checks.variants) {
+            expect(candidate?.variants).toContain(name)
+        }
+    }
+    if (checks.variantsEqual !== undefined) {
+        expect(candidate?.variants).toEqual(checks.variantsEqual)
+    }
+    if (checks.missingVariants !== undefined) {
+        for (const name of checks.missingVariants) {
+            expect(candidate?.missingVariants).toContain(name)
+        }
+    }
+}
+
+describe('AST Diagnostic Warnings for Token Scopes', () => {
+    const mapping: WarnRow[] = [
+        ['top-level shared scope references a token missing from some variants',
+            '.container { color: var(--_vertical-only-token); }',
+            { type: 'missing-token-in-shared-scope', token: 'vertical-only-token', variants: ['bar-vertical', 'rail-vertical'], missingVariants: ['bar-horizontal', 'drawer'], min: 1 }],
+        ['@variant scope references a token missing from that variant',
+            '@variant(bar-horizontal) { .container { color: var(--_vertical-only-token); } }',
+            { type: 'missing-token-in-variant-scope', token: 'vertical-only-token', variant: 'bar-horizontal' }],
+        ['unknown variant name specified in @variant',
+            '@variant(nonexistent-variant) { .container { color: red; } }',
+            { type: 'unknown-variant', variant: 'nonexistent-variant', variantsEqual: ['bar-vertical', 'bar-horizontal', 'rail-vertical', 'drawer'], min: 1 }],
+        ['no warning when token is present across all variants or in target variant',
+            '.container { background: var(--_common-color); } @variant(bar-vertical) { .icon { color: var(--_vertical-only-token); } }',
+            { count: 0 }],
+        ['no false warning with explicit state-prefixed token references',
+            '.container { background: var(--_enabled-common-color); } @variant(bar-vertical) { .icon { color: var(--_enabled-vertical-only-token); } }',
+            { count: 0 }],
+        ['multiple unknown variants in a single @variant declaration',
+            '@variant(unknown-1, unknown-2) { .container { color: blue; } }',
+            { count: 2, sequence: ['unknown-1', 'unknown-2'] }],
+        ['multiple tokens in a single declaration value each warn',
+            '.container { box-shadow: 0 0 4px var(--_vertical-only-token), 0 0 8px var(--_drawer-only-token); }',
+            { count: 2, tokens: ['vertical-only-token', 'drawer-only-token'] }],
+    ]
+
+    for (const row of mapping) {
+        it(row[0], () => {
+            runWarnRow(row)
+        })
+    }
+
+    const consoleWarnInputs: string[] = [
+        '.container { color: var(--_vertical-only-token); }',
+    ]
+
+    for (const css of consoleWarnInputs) {
+        it(`console.warn fallback: ${css}`, () => {
+            const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+            try {
+                compileStateSheet(MultiVariants, css)
+                expect(spy).toHaveBeenCalled()
+                expect(spy.mock.calls[0][0]).toContain('[MDC Style Warning]')
+            } finally {
+                spy.mockRestore()
+            }
+        })
+    }
 })
 
 describe('Advanced Edge Cases & At-Rule Compositions', () => {
-    it('supports multiple negative patterns in @variant', () => {
-        const css = `
-            @variant(!drawer, !*-horizontal) {
-                .indicator { height: 32px; }
-            }
-        `
-        const compiled = compileStateSheet(MultiVariants, css)
-        expect(compiled).toContain(':host([variant="bar-vertical"]) .indicator, :host([variant="rail-vertical"]) .indicator {')
-        expect(compiled).not.toContain('variant="drawer"')
-        expect(compiled).not.toContain('variant="bar-horizontal"')
-    })
+    const mapping: ContainsRow[] = [
+        ['multiple negative patterns in @variant',
+            '@variant(!drawer, !*-horizontal) { .indicator { height: 32px; } }',
+            [':host([variant="bar-vertical"]) .indicator, :host([variant="rail-vertical"]) .indicator {'],
+            ['variant="drawer"', 'variant="bar-horizontal"']],
+        ['positive wildcard combined with specific negative patterns',
+            '@variant(bar-*, !bar-horizontal) { .container { display: grid; } }',
+            [':host([variant="bar-vertical"]) .container {\n    display: grid;\n}'],
+            ['variant="bar-horizontal"']],
+        ['extra whitespace and trailing commas in @variant parameter',
+            '@variant(  bar-vertical ,  drawer  , ) { .badge { display: flex; } }',
+            [':host([variant="bar-vertical"]) .badge, :host([variant="drawer"]) .badge {']],
+        ['@variant nested inside @layer and @media wrapper at-rules',
+            '@layer components { @variant(bar-vertical) { .container { width: 104px; } } } @media (min-width: 600px) { @variant(drawer) { .container { max-width: 400px; } } }',
+            ['@layer components {\n:host([variant="bar-vertical"]) .container {\n    width: 104px;\n}\n}',
+                '@media (min-width: 600px) {\n:host([variant="drawer"]) .container {\n    max-width: 400px;\n}\n}']],
+        ['@variant nested inside @starting-style',
+            '@starting-style { @variant(drawer) { .indicator { opacity: 0; } } }',
+            ['@starting-style {\n:host([variant="drawer"]) .indicator {\n    opacity: 0;\n}\n}']],
+    ]
 
-    it('supports positive wildcard combined with specific negative patterns', () => {
-        const css = `
-            @variant(bar-*, !bar-horizontal) {
-                .container { display: grid; }
-            }
-        `
-        const compiled = compileStateSheet(MultiVariants, css)
-        expect(compiled).toContain(':host([variant="bar-vertical"]) .container {\n    display: grid;\n}')
-        expect(compiled).not.toContain('variant="bar-horizontal"')
-    })
-
-    it('handles extra whitespace and trailing commas in @variant parameter', () => {
-        const css = `
-            @variant(  bar-vertical ,  drawer  , ) {
-                .badge { display: flex; }
-            }
-        `
-        const compiled = compileStateSheet(MultiVariants, css)
-        expect(compiled).toContain(':host([variant="bar-vertical"]) .badge, :host([variant="drawer"]) .badge {')
-    })
-
-    it('supports @variant nested inside @layer and @media wrapper at-rules', () => {
-        const css = `
-            @layer components {
-                @variant(bar-vertical) {
-                    .container { width: 104px; }
-                }
-            }
-            @media (min-width: 600px) {
-                @variant(drawer) {
-                    .container { max-width: 400px; }
-                }
-            }
-        `
-        const compiled = compileStateSheet(MultiVariants, css)
-        expect(compiled).toContain('@layer components {\n:host([variant="bar-vertical"]) .container {\n    width: 104px;\n}\n}')
-        expect(compiled).toContain('@media (min-width: 600px) {\n:host([variant="drawer"]) .container {\n    max-width: 400px;\n}\n}')
-    })
-
-    it('supports @variant nested inside @starting-style', () => {
-        const css = `
-            @starting-style {
-                @variant(drawer) {
-                    .indicator { opacity: 0; }
-                }
-            }
-        `
-        const compiled = compileStateSheet(MultiVariants, css)
-        expect(compiled).toContain('@starting-style {\n:host([variant="drawer"]) .indicator {\n    opacity: 0;\n}\n}')
-    })
+    for (const row of mapping) {
+        it(row[0], () => {
+            runContainsRow(row)
+        })
+    }
 })
-
