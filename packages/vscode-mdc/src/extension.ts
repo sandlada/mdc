@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 import * as vscode from 'vscode'
-import { analyzeDefinitionSource } from './core/definition-analyzer'
+import { analyzeDefinitionFile } from './core/definition-analyzer'
 import { MDCCodeLensProvider } from './providers/codelens-provider'
 import { MDCCompletionProvider } from './providers/completion-provider'
 import { MDCHoverProvider } from './providers/hover-provider'
@@ -12,7 +12,14 @@ import { MDCDefinitionProvider } from './providers/definition-provider'
 import { MDCDiagnosticProvider } from './providers/diagnostic-provider'
 import { MDCCodeActionProvider } from './providers/code-action-provider'
 import { MDCRenameProvider } from './providers/rename-provider'
-import { MDCTreeViewProvider } from './providers/treeview-provider'
+import {
+    MDCTreeViewProvider,
+    MDCSchemaTreeProvider,
+    MDCSelectorMappingTreeProvider,
+    MDCComponentTokensTreeProvider,
+    MDCForwardedTokensTreeProvider,
+    MDCUnusedTokensTreeProvider,
+} from './providers/treeview-provider'
 import { MDCCompiledCssProvider } from './providers/compiled-css-provider'
 import type { DefinitionMeta, StylesheetAnalysis } from './core/types'
 
@@ -22,10 +29,10 @@ const DEBOUNCE_DELAY_MS = 500
 
 function isStylesheetDocument(doc: vscode.TextDocument): boolean {
     const path = doc.fileName
-    if (path.endsWith('.style.ts') || path.endsWith('.styles.ts')) return true
+    if (path.endsWith('.style.ts') || path.endsWith('.styles.ts') || path.endsWith('.definition.ts')) return true
     if (doc.languageId === 'typescript' || doc.languageId === 'javascript') {
         const text = doc.getText()
-        return text.includes('createStyleSheet') || text.includes('Styles')
+        return text.includes('createStyleSheet') || text.includes('createStyleDefinition') || text.includes('Styles')
     }
     return false
 }
@@ -51,17 +58,50 @@ export function activate(context: vscode.ExtensionContext) {
     const diagnosticProvider = new MDCDiagnosticProvider(diagnosticCollection, definitionMetaMap)
     const codeActionProvider = new MDCCodeActionProvider(diagnosticProvider)
 
+    const schemaTreeProvider = new MDCSchemaTreeProvider(definitionMetaMap)
+    const selectorTreeProvider = new MDCSelectorMappingTreeProvider(definitionMetaMap)
+    const componentTokensTreeProvider = new MDCComponentTokensTreeProvider(definitionMetaMap)
+    const forwardedTokensTreeProvider = new MDCForwardedTokensTreeProvider(definitionMetaMap)
+    const unusedTokensTreeProvider = new MDCUnusedTokensTreeProvider(definitionMetaMap)
     const treeViewProvider = new MDCTreeViewProvider(definitionMetaMap)
 
-    // 3. Register Tree View, Document Content Provider, Diagnostics & Language Features immediately (Synchronous)
+    const updateAllTreeProviders = (doc: vscode.TextDocument | undefined) => {
+        schemaTreeProvider.setActiveDocument(doc)
+        selectorTreeProvider.setActiveDocument(doc)
+        componentTokensTreeProvider.setActiveDocument(doc)
+        forwardedTokensTreeProvider.setActiveDocument(doc)
+        unusedTokensTreeProvider.setActiveDocument(doc)
+        treeViewProvider.setActiveDocument(doc)
+    }
+
+    const clearAllTreeProviders = () => {
+        schemaTreeProvider.clear()
+        selectorTreeProvider.clear()
+        componentTokensTreeProvider.clear()
+        forwardedTokensTreeProvider.clear()
+        unusedTokensTreeProvider.clear()
+        treeViewProvider.clear()
+    }
+
+    // 3. Register Tree Views, Document Content Provider, Diagnostics & Language Features immediately (Synchronous)
     context.subscriptions.push(
         diagnosticCollection,
         compiledCssProvider,
+        schemaTreeProvider,
+        selectorTreeProvider,
+        componentTokensTreeProvider,
+        forwardedTokensTreeProvider,
+        unusedTokensTreeProvider,
         treeViewProvider,
         vscode.workspace.registerTextDocumentContentProvider(
             MDCCompiledCssProvider.scheme,
             compiledCssProvider
         ),
+        vscode.window.registerTreeDataProvider('mdcSchema', schemaTreeProvider),
+        vscode.window.registerTreeDataProvider('mdcSelectorMapping', selectorTreeProvider),
+        vscode.window.registerTreeDataProvider('mdcComponentTokens', componentTokensTreeProvider),
+        vscode.window.registerTreeDataProvider('mdcForwardedTokens', forwardedTokensTreeProvider),
+        vscode.window.registerTreeDataProvider('mdcUnusedTokens', unusedTokensTreeProvider),
         vscode.window.registerTreeDataProvider('mdcExplorer', treeViewProvider),
         vscode.languages.registerCodeLensProvider(selector, codeLensProvider),
         vscode.languages.registerCompletionItemProvider(
@@ -93,19 +133,19 @@ export function activate(context: vscode.ExtensionContext) {
     })
     context.subscriptions.push(watcher)
 
-    // 5. Hook Document Events for Diagnostics, TreeView & Live Preview
+    // 5. Hook Document Events for Diagnostics, TreeViews & Live Preview
     if (vscode.window.activeTextEditor && isStylesheetDocument(vscode.window.activeTextEditor.document)) {
         diagnosticProvider.validateDocument(vscode.window.activeTextEditor.document)
-        treeViewProvider.setActiveDocument(vscode.window.activeTextEditor.document)
+        updateAllTreeProviders(vscode.window.activeTextEditor.document)
     }
 
     context.subscriptions.push(
         vscode.window.onDidChangeActiveTextEditor((editor) => {
             if (editor && isStylesheetDocument(editor.document)) {
                 diagnosticProvider.validateDocument(editor.document)
-                treeViewProvider.setActiveDocument(editor.document)
+                updateAllTreeProviders(editor.document)
             } else {
-                treeViewProvider.setActiveDocument(undefined)
+                updateAllTreeProviders(undefined)
             }
         }),
         vscode.workspace.onDidChangeTextDocument((e) => {
@@ -124,7 +164,7 @@ export function activate(context: vscode.ExtensionContext) {
                 debounceTimers.delete(key)
                 diagnosticProvider.validateDocument(doc)
                 if (vscode.window.activeTextEditor?.document === doc) {
-                    treeViewProvider.setActiveDocument(doc)
+                    updateAllTreeProviders(doc)
                 }
                 compiledCssProvider.refresh(MDCCompiledCssProvider.getPreviewUri(doc.uri))
             }, DEBOUNCE_DELAY_MS)
@@ -141,7 +181,7 @@ export function activate(context: vscode.ExtensionContext) {
             diagnosticProvider.clear(doc.uri)
             compiledCssProvider.clear(doc.uri)
             if (vscode.window.activeTextEditor?.document === doc) {
-                treeViewProvider.clear()
+                clearAllTreeProviders()
             }
         })
     )
@@ -213,6 +253,14 @@ export function activate(context: vscode.ExtensionContext) {
                 editor.revealRange(new vscode.Range(pos, pos), vscode.TextEditorRevealType.InCenter)
             }
         }),
+        vscode.commands.registerCommand('mdc.jumpToSchema', async (line: number, col: number) => {
+            const editor = vscode.window.activeTextEditor
+            if (editor) {
+                const pos = new vscode.Position(line, col)
+                editor.selection = new vscode.Selection(pos, pos)
+                editor.revealRange(new vscode.Range(pos, pos), vscode.TextEditorRevealType.InCenter)
+            }
+        }),
         vscode.commands.registerCommand('mdc.showCompiledCss', async (targetUri?: vscode.Uri) => {
             const uriToPreview = targetUri || vscode.window.activeTextEditor?.document.uri
             if (!uriToPreview) {
@@ -241,6 +289,11 @@ export function activate(context: vscode.ExtensionContext) {
         definitionProvider.updateDefinitions(definitionMetaMap)
         diagnosticProvider.updateDefinitions(definitionMetaMap)
         renameProvider.updateDefinitions(definitionMetaMap)
+        schemaTreeProvider.updateDefinitions(definitionMetaMap)
+        selectorTreeProvider.updateDefinitions(definitionMetaMap)
+        componentTokensTreeProvider.updateDefinitions(definitionMetaMap)
+        forwardedTokensTreeProvider.updateDefinitions(definitionMetaMap)
+        unusedTokensTreeProvider.updateDefinitions(definitionMetaMap)
         treeViewProvider.updateDefinitions(definitionMetaMap)
         compiledCssProvider.updateDefinitions(definitionMetaMap)
 
@@ -253,9 +306,11 @@ export function activate(context: vscode.ExtensionContext) {
         try {
             const doc = await vscode.workspace.openTextDocument(uri)
             const text = doc.getText()
-            const meta = analyzeDefinitionSource(text, uri.fsPath)
-            if (meta) {
-                definitionMetaMap.set(meta.name, meta)
+            const file = analyzeDefinitionFile(text, uri.fsPath)
+            if (file.definitions.size > 0) {
+                for (const meta of file.definitions.values()) {
+                    definitionMetaMap.set(meta.name, meta)
+                }
                 notifyProviders()
             }
         } catch {
@@ -269,8 +324,8 @@ export function activate(context: vscode.ExtensionContext) {
             for (const file of files) {
                 const doc = await vscode.workspace.openTextDocument(file)
                 const text = doc.getText()
-                const meta = analyzeDefinitionSource(text, file.fsPath)
-                if (meta) {
+                const analysis = analyzeDefinitionFile(text, file.fsPath)
+                for (const meta of analysis.definitions.values()) {
                     definitionMetaMap.set(meta.name, meta)
                 }
             }

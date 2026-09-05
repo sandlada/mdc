@@ -47,7 +47,7 @@ import { MDCCodeLensProvider } from '../src/providers/codelens-provider'
 import { analyzeDefinitionSource } from '../src/core/definition-analyzer'
 import type { DefinitionMeta } from '../src/core/types'
 
-describe('MDC Multi-Line CodeLens Provider', () => {
+describe('MDC Multi-Line CodeLens Provider (Tiers 1-4)', () => {
     const sampleDefinitionSource = `
         import { Color } from '@sandlada/mdk'
         import { createStyleDefinition, forwardTokens } from '@sandlada/mdc/utils'
@@ -92,67 +92,140 @@ export const ButtonStyles = [
 ]
 `
 
-    it('distributes CodeLens items across multiple distinct lines instead of grouping on a single line', async () => {
-        const defMeta = analyzeDefinitionSource(sampleDefinitionSource, 'button.definition.ts')!
-        const metaMap = new Map<string, DefinitionMeta>([[defMeta.name, defMeta]])
-        const provider = new MDCCodeLensProvider(metaMap)
+    // -------------------------------------------------------------------------
+    // Tier 1: Feature Coverage (Feature 17)
+    // -------------------------------------------------------------------------
+    describe('Tier 1: Feature Coverage', () => {
+        it('F17: distributes CodeLens items across multiple distinct lines instead of grouping on a single line', async () => {
+            const defMeta = analyzeDefinitionSource(sampleDefinitionSource, 'button.definition.ts')!
+            const metaMap = new Map<string, DefinitionMeta>([[defMeta.name, defMeta]])
+            const provider = new MDCCodeLensProvider(metaMap)
 
-        const mockDoc = {
-            getText: () => sampleStylesheetSource,
-            fileName: 'button.style.ts',
-            uri: vscode.Uri.parse('file:///button.style.ts'),
-            lineCount: 20,
-        } as unknown as vscode.TextDocument
+            const mockDoc = {
+                getText: () => sampleStylesheetSource,
+                fileName: 'button.style.ts',
+                uri: vscode.Uri.parse('file:///button.style.ts'),
+                lineCount: 20,
+            } as unknown as vscode.TextDocument
 
-        const lenses = await provider.provideCodeLenses(mockDoc, {} as any)
+            const lenses = await provider.provideCodeLenses(mockDoc, {} as any)
+            expect(lenses.length).toBeGreaterThanOrEqual(4)
 
-        expect(lenses.length).toBeGreaterThanOrEqual(4)
+            const distinctLines = Array.from(new Set(lenses.map((l) => l.range.startLine)))
+            expect(distinctLines.length).toBeGreaterThanOrEqual(2)
 
-        // Gather lines where CodeLenses are placed
-        const distinctLines = Array.from(new Set(lenses.map((l) => l.range.startLine)))
+            // Export line lenses
+            const exportLenses = lenses.filter((l) => l.range.startLine === 7)
+            expect(exportLenses.some((l) => l.command?.title.includes('references'))).toBe(true)
+            expect(exportLenses.some((l) => l.command?.title.includes('View Compiled CSS'))).toBe(true)
 
-        // Must be on multiple distinct lines!
-        expect(distinctLines.length).toBeGreaterThanOrEqual(2)
+            // createStyleSheet line lenses
+            const sheetLenses = lenses.filter((l) => l.range.startLine === 9)
+            expect(sheetLenses.some((l) => l.command?.title.includes('ButtonDefinition'))).toBe(true)
+            expect(sheetLenses.some((l) => l.command?.title.includes('Private Tokens'))).toBe(true)
 
-        // 1. Export Declaration line (line 7: export const ButtonStyles = [)
-        const exportLenses = lenses.filter((l) => l.range.startLine === 7)
-        expect(exportLenses.some((l) => l.command?.title.includes('references'))).toBe(true)
-        expect(exportLenses.some((l) => l.command?.title.includes('View Compiled CSS'))).toBe(true)
+            // Token Record line
+            const recordLenses = lenses.filter((l) => l.range.startLine === 5)
+            expect(recordLenses.some((l) => l.command?.title.includes('Token Record: ButtonDefinition'))).toBe(true)
 
-        // 2. createStyleSheet line (line 9: createStyleSheet(ButtonDefinition, ...))
-        const sheetLenses = lenses.filter((l) => l.range.startLine === 9)
-        expect(sheetLenses.some((l) => l.command?.title.includes('ButtonDefinition'))).toBe(true)
-        expect(sheetLenses.some((l) => l.command?.title.includes('Private Tokens'))).toBe(true)
+            // Override line
+            const overrideLenses = lenses.filter((l) => l.range.startLine === 11)
+            expect(overrideLenses.some((l) => l.command?.title.includes('Override: IconDefinition'))).toBe(true)
+        })
 
-        // 3. Token Record line (line 5: const tokenRecord = defineTokenRefsRecord(...))
-        const recordLenses = lenses.filter((l) => l.range.startLine === 5)
-        expect(recordLenses.some((l) => l.command?.title.includes('Token Record: ButtonDefinition'))).toBe(true)
+        it('F17: provides CodeLenses on definition declarations in *.definition.ts files', async () => {
+            const defMeta = analyzeDefinitionSource(sampleDefinitionSource, 'button.definition.ts')!
+            const metaMap = new Map<string, DefinitionMeta>([[defMeta.name, defMeta]])
+            const provider = new MDCCodeLensProvider(metaMap)
 
-        // 4. Override line (line 11: overrideStyleSheet(IconDefinition, ...))
-        const overrideLenses = lenses.filter((l) => l.range.startLine === 11)
-        expect(overrideLenses.some((l) => l.command?.title.includes('Override: IconDefinition'))).toBe(true)
+            const mockDoc = {
+                getText: () => sampleDefinitionSource,
+                fileName: 'button.definition.ts',
+                uri: vscode.Uri.parse('file:///button.definition.ts'),
+                lineCount: 25,
+            } as unknown as vscode.TextDocument
+
+            const lenses = await provider.provideCodeLenses(mockDoc, {} as any)
+            expect(lenses.length).toBeGreaterThanOrEqual(2)
+
+            const defLens = lenses.find((l) => l.command?.title.includes('ButtonDefinition'))
+            expect(defLens).toBeDefined()
+            expect(defLens?.command?.title).toContain('Tokens')
+
+            const refLens = lenses.find((l) => l.command?.title.includes('references'))
+            expect(refLens).toBeDefined()
+        })
     })
 
-    it('provides CodeLenses on definition declarations in *.definition.ts files', async () => {
-        const defMeta = analyzeDefinitionSource(sampleDefinitionSource, 'button.definition.ts')!
-        const metaMap = new Map<string, DefinitionMeta>([[defMeta.name, defMeta]])
-        const provider = new MDCCodeLensProvider(metaMap)
+    // -------------------------------------------------------------------------
+    // Tier 2: Boundary & Corner Cases
+    // -------------------------------------------------------------------------
+    describe('Tier 2: Boundary & Corner Cases', () => {
+        it('returns empty array when document is not a stylesheet or definition', async () => {
+            const provider = new MDCCodeLensProvider(new Map())
+            const mockDoc = {
+                getText: () => 'export const helper = 42',
+                fileName: 'helper.ts',
+                uri: vscode.Uri.parse('file:///helper.ts'),
+                lineCount: 1,
+            } as unknown as vscode.TextDocument
 
-        const mockDoc = {
-            getText: () => sampleDefinitionSource,
-            fileName: 'button.definition.ts',
-            uri: vscode.Uri.parse('file:///button.definition.ts'),
-            lineCount: 25,
-        } as unknown as vscode.TextDocument
+            const lenses = await provider.provideCodeLenses(mockDoc, {} as any)
+            expect(lenses.length).toBe(0)
+        })
+    })
 
-        const lenses = await provider.provideCodeLenses(mockDoc, {} as any)
-        expect(lenses.length).toBeGreaterThanOrEqual(2)
+    // -------------------------------------------------------------------------
+    // Tier 3: Cross-Feature Interactions & Pairwise Matrix
+    // -------------------------------------------------------------------------
+    describe('Tier 3: Cross-Feature Interactions', () => {
+        it('dynamically updates CodeLens titles when definition map is updated', async () => {
+            const provider = new MDCCodeLensProvider(new Map())
+            const defMeta = analyzeDefinitionSource(sampleDefinitionSource, 'button.definition.ts')!
 
-        const defLens = lenses.find((l) => l.command?.title.includes('ButtonDefinition'))
-        expect(defLens).toBeDefined()
-        expect(defLens?.command?.title).toContain('Tokens')
+            provider.updateDefinitions(new Map([[defMeta.name, defMeta]]))
 
-        const refLens = lenses.find((l) => l.command?.title.includes('references'))
-        expect(refLens).toBeDefined()
+            const mockDoc = {
+                getText: () => sampleStylesheetSource,
+                fileName: 'button.style.ts',
+                uri: vscode.Uri.parse('file:///button.style.ts'),
+                lineCount: 20,
+            } as unknown as vscode.TextDocument
+
+            const lenses = await provider.provideCodeLenses(mockDoc, {} as any)
+            expect(lenses.some((l) => l.command?.title.includes('ButtonDefinition'))).toBe(true)
+        })
+    })
+
+    // -------------------------------------------------------------------------
+    // Tier 4: Real-World Workloads
+    // -------------------------------------------------------------------------
+    describe('Tier 4: Real-World Workloads', () => {
+        it('generates accurate CodeLenses for real Badge definition and style', async () => {
+            const badgeDef = analyzeDefinitionSource(`
+                export const BadgeDefinition = createStyleDefinition({
+                    'container-color': '#ba1a1a',
+                    'container-size': ['6px', '16px'],
+                })
+            `, 'badge.definition.ts')!
+
+            const metaMap = new Map([[badgeDef.name, badgeDef]])
+            const provider = new MDCCodeLensProvider(metaMap)
+
+            const badgeDoc = {
+                getText: () => `
+export const BadgeStyles = createStyleSheet(BadgeDefinition, () => css\`
+    .container { height: var(--_container-size); }
+\`)
+                `,
+                fileName: 'badge.style.ts',
+                uri: vscode.Uri.parse('file:///badge.style.ts'),
+                lineCount: 5,
+            } as unknown as vscode.TextDocument
+
+            const lenses = await provider.provideCodeLenses(badgeDoc, {} as any)
+            expect(lenses.length).toBeGreaterThan(0)
+            expect(lenses.some((l) => l.command?.title.includes('BadgeDefinition'))).toBe(true)
+        })
     })
 })

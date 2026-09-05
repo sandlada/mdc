@@ -2,6 +2,13 @@
  * @license
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
+ *
+ * SSOT note: pure selector/string/state helpers (`splitSelectorByComma`,
+ * `appendToHostSelector`, `matchVariants`, `canonicalizeState`,
+ * `StateTriggerRegistry` + triggers) come from `@sandlada/mdc/style-engine`
+ * (Node-safe, DOM-free). Do NOT fork them here.
+ * What stays local is intentional IDE-layer only: `DefinitionMeta`-based static
+ * metadata, layered preview formatting, and the rolldown+VM genuine-CSS path.
  */
 import type { DefinitionMeta, TokenValueMeta } from './types'
 import { rolldown } from 'rolldown'
@@ -9,21 +16,96 @@ import * as lit from 'lit'
 import * as vm from 'vm'
 import * as path from 'path'
 import { createRequire } from 'module'
+import {
+    splitSelectorByComma,
+    appendToHostSelector,
+    matchVariants,
+    compileStateSheet,
+    extractStateTokenMetadata,
+    defineSchema,
+    createStyleDefinition,
+    forwardTokens,
+    expandShape,
+    expandPadding,
+    expandTypescale,
+    StateTriggerRegistry,
+    mapStateTriggers,
+    pipe,
+    canonicalizeState
+} from '@sandlada/mdc/style-engine'
+export {
+    splitSelectorByComma,
+    appendToHostSelector,
+    matchVariants,
+    compileStateSheet,
+    extractStateTokenMetadata,
+    defineSchema,
+    createStyleDefinition,
+    forwardTokens,
+    expandShape,
+    expandPadding,
+    expandTypescale,
+    StateTriggerRegistry,
+    mapStateTriggers,
+    pipe,
+    canonicalizeState
+}
 
-export type StateName = 'enabled' | 'hovered' | 'focused' | 'pressed' | 'disabled'
-export const STATE_NAMES: readonly StateName[] = ['enabled', 'hovered', 'focused', 'pressed', 'disabled'] as const
-export type StateDeltaName = 'hovered' | 'focused' | 'pressed' | 'disabled'
-export const STATE_DELTA_NAMES: readonly StateDeltaName[] = ['hovered', 'focused', 'pressed', 'disabled'] as const
+export type StateName = string
+export const DEFAULT_STATE_NAMES: readonly string[] = ['enabled', 'hovered', 'focused', 'pressed', 'disabled'] as const
+export const STATE_NAMES: readonly string[] = DEFAULT_STATE_NAMES
+export type StateDeltaName = string
+export const STATE_DELTA_NAMES: readonly string[] = ['hovered', 'focused', 'pressed', 'disabled'] as const
+
+export interface TriggerTarget {
+    readonly target: 'host' | 'self'
+    readonly modifier: string
+}
+
+export type CustomTriggerMap = Map<string, { target: 'host' | 'self'; modifier: string }>
+
+/**
+ * Resolves a state name to a target + selector modifier by delegating to
+ * `StateTriggerRegistry` (SSOT). Custom entries override registry defaults;
+ * unregistered names fall back to the registry heuristics. `anchor` is unused
+ * (kept empty) because only `isHostAnchor` affects resolution.
+ */
+export function resolveTrigger(
+    stateName: string,
+    isHostAnchor: boolean,
+    customTriggers?: CustomTriggerMap
+): TriggerTarget {
+    const registry = new StateTriggerRegistry()
+    if (customTriggers) {
+        for (const [name, custom] of customTriggers) {
+            registry.register(name, custom.modifier)
+        }
+    }
+    const resolved = registry.resolve(stateName, { anchor: '', isHostAnchor })
+    return { target: resolved.target, modifier: resolved.modifier }
+}
+
+export interface CompilerOptions {
+    readonly triggers?: CustomTriggerMap
+    readonly variantSelector?: (variantName: string) => string
+}
 
 export interface StateTokenMetadata {
     isStateToken(name: string): boolean
-    hasStateToken(name: string, state: StateName): boolean
+    hasStateToken(name: string, state: string): boolean
+    hasToken(name: string): boolean
+    hasStateDelta(tokenName: string, state: string): boolean
+    resolveStateVarName(name: string, state: string): string
     allStateTokens: ReadonlySet<string>
+    allTokens: ReadonlySet<string>
+    statesList: readonly string[]
+    baseState: string
 }
 
 export interface Declaration {
     property: string
     value: string
+    referencedTokens: string[]
     isStateful: boolean
     stateTokens: string[]
 }
@@ -49,14 +131,17 @@ export interface StyleRuleNode {
     type: 'style-rule'
     selector: string
     anchor: string
+    hostCondition?: string
     whenCondition?: string
     declarations: Declaration[]
+    elevationLevel?: number
 }
 
 export type AstNode = WrapperAtRuleNode | KeyframesNode | StyleRuleNode
 
-export interface CompiledChunks extends Record<StateDeltaName, string[]> {
+export interface CompiledChunks {
     base: string[]
+    deltas: Map<string, string[]>
     atRules: string[]
 }
 
@@ -70,6 +155,7 @@ export interface CompilationResult {
         focusRules: number
         pressRules: number
         disabledRules: number
+        otherRules: number
         atRules: number
     }
     compiledCss: string
@@ -82,42 +168,315 @@ export interface CompilationResult {
 
 /**
  * Builds state token metadata from a set of DefinitionMeta objects.
+ * Mirrors the main package `extractStateTokenMetadata`: states come from each
+ * definition's schema (`states[0]` is the base state), records count as state
+ * tokens, and deltas are computed by comparing values against the base value.
  */
 export function extractStateTokenMetadataFromMeta(definitions: (DefinitionMeta | undefined)[]): StateTokenMetadata {
-    const stateTokens = new Set<string>()
-    const definedStatesPerToken = new Map<string, Set<StateName>>()
+    const statesList: string[] = []
+    const pushState = (s: string) => {
+        if (s && !statesList.includes(s)) statesList.push(s)
+    }
 
     for (const def of definitions) {
         if (!def) continue
-        for (const [key, token] of def.ownTokens) {
-            const cleanKey = key.replace(/^--_/, '').replace(/^--/, '')
-            if (token.isTuple) {
-                stateTokens.add(cleanKey)
-                const states = new Set<StateName>()
-                const activeStates = token.states || ['enabled', 'hovered', 'focused', 'pressed', 'disabled']
-                for (const st of activeStates) {
-                    if (STATE_NAMES.includes(st as StateName)) {
-                        states.add(st as StateName)
+        const schemaStates: string[] | undefined = (def.schema as { states?: string[] } | undefined)?.states
+        if (schemaStates && schemaStates.length > 0) {
+            for (const s of schemaStates) pushState(s)
+        }
+    }
+    if (statesList.length === 0) {
+        for (const s of DEFAULT_STATE_NAMES) pushState(s)
+    }
+    const baseState = statesList[0] ?? 'enabled'
+
+    const allTokens = new Set<string>()
+    const allStateTokens = new Set<string>()
+    const definedStatesPerToken = new Map<string, Set<string>>()
+    const deltaStatesPerToken = new Map<string, Set<string>>()
+    const stateVarMap = new Map<string, string>()
+
+    const ensureTokenStates = (key: string): Set<string> => {
+        let set = definedStatesPerToken.get(key)
+        if (!set) {
+            set = new Set<string>()
+            definedStatesPerToken.set(key, set)
+        }
+        return set
+    }
+    const ensureDeltaStates = (key: string): Set<string> => {
+        let set = deltaStatesPerToken.get(key)
+        if (!set) {
+            set = new Set<string>()
+            deltaStatesPerToken.set(key, set)
+        }
+        return set
+    }
+    const registerStateName = (tokenStates: Set<string>, key: string, sName: string) => {
+        tokenStates.add(sName)
+        stateVarMap.set(`${key}:${sName}`, `${sName}-${key}`)
+        const canonical = canonicalizeState(sName)
+        if (canonical !== sName) {
+            tokenStates.add(canonical)
+            stateVarMap.set(`${key}:${canonical}`, `${sName}-${key}`)
+        }
+    }
+
+    for (const def of definitions) {
+        if (!def) continue
+        for (const [rawKey, token] of def.ownTokens) {
+            const key = rawKey.replace(/^--_/, '').replace(/^--/, '')
+            if (!key) continue
+            allTokens.add(key)
+
+            if (token.isTuple || token.isRecord) {
+                allStateTokens.add(key)
+                const tokenStates = ensureTokenStates(key)
+                const deltaStates = ensureDeltaStates(key)
+                const stateMap: Record<string, string> = token.stateMap ?? {}
+
+                const baseValRaw = stateMap[baseState] ?? stateMap['enabled'] ?? Object.values(stateMap)[0]
+                const baseValStr = baseValRaw === null || baseValRaw === undefined ? '' : String(baseValRaw)
+
+                stateVarMap.set(`${key}:${baseState}`, `${baseState}-${key}`)
+                stateVarMap.set(`${key}:enabled`, `${baseState}-${key}`)
+                stateVarMap.set(`${key}:base`, `${baseState}-${key}`)
+
+                for (const sName of Object.keys(stateMap)) {
+                    const sVal = stateMap[sName]
+                    if (sVal === null || sVal === undefined) continue
+                    const sValStr = String(sVal)
+                    registerStateName(tokenStates, key, sName)
+                    if (sName !== baseState && sName !== 'enabled' && sValStr !== baseValStr) {
+                        deltaStates.add(sName)
+                        const canonical = canonicalizeState(sName)
+                        if (canonical !== sName) deltaStates.add(canonical)
                     }
                 }
-                definedStatesPerToken.set(cleanKey, states)
+                continue
             }
+
+            stateVarMap.set(`${key}:${baseState}`, key)
+            stateVarMap.set(`${key}:enabled`, key)
+            stateVarMap.set(`${key}:base`, key)
         }
+    }
+
+    const resolveStateVarName = (name: string, state: string): string => {
+        const clean = name.replace(/^--_?/, '')
+        const canonical = canonicalizeState(state)
+        const exact = stateVarMap.get(`${clean}:${state}`) ?? stateVarMap.get(`${clean}:${canonical}`)
+        if (exact) return exact
+        if (state === 'base' || state === 'enabled' || state === baseState) {
+            const baseVar = stateVarMap.get(`${clean}:${baseState}`)
+                ?? stateVarMap.get(`${clean}:enabled`)
+                ?? stateVarMap.get(`${clean}:base`)
+            if (baseVar) return baseVar
+            return clean
+        }
+        return `${state}-${clean}`
     }
 
     return {
         isStateToken(name: string) {
-            return stateTokens.has(name)
+            const clean = name.replace(/^--_?/, '')
+            return allStateTokens.has(clean)
         },
-        hasStateToken(name: string, state: StateName) {
-            return definedStatesPerToken.get(name)?.has(state) ?? false
+        hasStateToken(name: string, state: string) {
+            const clean = name.replace(/^--_?/, '')
+            const states = definedStatesPerToken.get(clean)
+            if (!states) return false
+            const canonical = canonicalizeState(state)
+            return states.has(state) || states.has(canonical)
         },
-        allStateTokens: stateTokens,
+        hasToken(name: string) {
+            const clean = name.replace(/^--_?/, '')
+            return allTokens.has(clean) || stateVarMap.has(`${clean}:${baseState}`)
+        },
+        hasStateDelta(tokenName: string, state: string) {
+            const clean = tokenName.replace(/^--_?/, '')
+            const deltas = deltaStatesPerToken.get(clean)
+            if (!deltas) return false
+            const canonical = canonicalizeState(state)
+            return deltas.has(state) || deltas.has(canonical)
+        },
+        resolveStateVarName,
+        allStateTokens,
+        allTokens,
+        statesList,
+        baseState
     }
 }
 
+/**
+ * Strips comments while preserving quoted strings (mirrors the main package scanner).
+ */
 function stripComments(css: string): string {
-    return css.replace(/\/\*[\s\S]*?\*\//g, '')
+    let result = ''
+    let inSingleQuote = false
+    let inDoubleQuote = false
+    let inBlockComment = false
+    let inLineComment = false
+    let isEscaped = false
+
+    for (let i = 0; i < css.length; i++) {
+        const ch = css[i]
+        const next = i + 1 < css.length ? css[i + 1] : ''
+
+        if (inBlockComment) {
+            if (ch === '*' && next === '/') {
+                inBlockComment = false
+                i++
+            }
+            continue
+        }
+
+        if (inLineComment) {
+            if (ch === '\n') {
+                inLineComment = false
+                result += ch
+            }
+            continue
+        }
+
+        if (inSingleQuote || inDoubleQuote) {
+            result += ch
+            if (isEscaped) {
+                isEscaped = false
+            } else if (ch === '\\') {
+                isEscaped = true
+            } else if ((inSingleQuote && ch === "'") || (inDoubleQuote && ch === '"')) {
+                inSingleQuote = false
+                inDoubleQuote = false
+            }
+            continue
+        }
+
+        if (ch === '/' && next === '*') {
+            inBlockComment = true
+            i++
+            continue
+        }
+
+        if (ch === '/' && next === '/') {
+            inLineComment = true
+            i++
+            continue
+        }
+
+        if (ch === "'") {
+            inSingleQuote = true
+            result += ch
+            continue
+        }
+
+        if (ch === '"') {
+            inDoubleQuote = true
+            result += ch
+            continue
+        }
+
+        result += ch
+    }
+
+    return result
+}
+
+function findNextDelimiter(css: string, start: number): { type: ';' | '{'; index: number } | null {
+    let inSingleQuote = false
+    let inDoubleQuote = false
+    let isEscaped = false
+    let parenDepth = 0
+    let bracketDepth = 0
+
+    for (let i = start; i < css.length; i++) {
+        const ch = css[i]
+
+        if (inSingleQuote || inDoubleQuote) {
+            if (isEscaped) {
+                isEscaped = false
+            } else if (ch === '\\') {
+                isEscaped = true
+            } else if ((inSingleQuote && ch === "'") || (inDoubleQuote && ch === '"')) {
+                inSingleQuote = false
+                inDoubleQuote = false
+            }
+            continue
+        }
+
+        if (ch === "'") {
+            inSingleQuote = true
+            continue
+        }
+        if (ch === '"') {
+            inDoubleQuote = true
+            continue
+        }
+        if (ch === '(') {
+            parenDepth++
+            continue
+        }
+        if (ch === ')') {
+            if (parenDepth > 0) parenDepth--
+            continue
+        }
+        if (ch === '[') {
+            bracketDepth++
+            continue
+        }
+        if (ch === ']') {
+            if (bracketDepth > 0) bracketDepth--
+            continue
+        }
+        if (parenDepth !== 0 || bracketDepth !== 0) continue
+
+        if (ch === ';') return { type: ';', index: i }
+        if (ch === '{') return { type: '{', index: i }
+    }
+
+    return null
+}
+
+function findMatchingClosingBrace(css: string, openBraceIndex: number): number {
+    let depth = 0
+    let inSingleQuote = false
+    let inDoubleQuote = false
+    let isEscaped = false
+
+    for (let i = openBraceIndex; i < css.length; i++) {
+        const ch = css[i]
+
+        if (inSingleQuote || inDoubleQuote) {
+            if (isEscaped) {
+                isEscaped = false
+            } else if (ch === '\\') {
+                isEscaped = true
+            } else if ((inSingleQuote && ch === "'") || (inDoubleQuote && ch === '"')) {
+                inSingleQuote = false
+                inDoubleQuote = false
+            }
+            continue
+        }
+
+        if (ch === "'") {
+            inSingleQuote = true
+            continue
+        }
+        if (ch === '"') {
+            inDoubleQuote = true
+            continue
+        }
+        if (ch === '{') {
+            depth++
+            continue
+        }
+        if (ch === '}') {
+            depth--
+            if (depth === 0) return i
+        }
+    }
+
+    return css.length - 1
 }
 
 function parseDeclarationString(raw: string, meta: StateTokenMetadata): Declaration | null {
@@ -128,20 +487,26 @@ function parseDeclarationString(raw: string, meta: StateTokenMetadata): Declarat
     const value = raw.slice(colonIdx + 1).trim()
     if (!property || !value) return null
 
+    const referencedTokens: string[] = []
     const stateTokens: string[] = []
-    const varMatches = value.matchAll(/var\(--_([a-zA-Z0-9_-]+)\)/g)
+
+    const varMatches = value.matchAll(/var\(--_([a-zA-Z0-9_:-]+)\)/g)
     for (const match of varMatches) {
         const tokenName = match[1]
-        if (meta.isStateToken(tokenName)) {
-            stateTokens.push(tokenName)
+        referencedTokens.push(tokenName)
+        if (meta.isStateToken(tokenName) || meta.hasToken(tokenName)) {
+            if (meta.isStateToken(tokenName)) {
+                stateTokens.push(tokenName)
+            }
         }
     }
 
     return {
         property,
         value,
+        referencedTokens,
         isStateful: stateTokens.length > 0,
-        stateTokens,
+        stateTokens
     }
 }
 
@@ -154,29 +519,30 @@ function parseKeyframeSteps(body: string, meta: StateTokenMetadata): KeyframeSte
         while (i < len && /\s/.test(body[i])) i++
         if (i >= len) break
 
-        const openBrace = body.indexOf('{', i)
-        if (openBrace === -1) break
+        const delim = findNextDelimiter(body, i)
+        if (!delim || delim.type !== '{') break
 
+        const openBrace = delim.index
         const selector = body.slice(i, openBrace).trim()
-        let depth = 1
-        let j = openBrace + 1
+        const closeBrace = findMatchingClosingBrace(body, openBrace)
 
-        while (j < len && depth > 0) {
-            if (body[j] === '{') depth++
-            else if (body[j] === '}') depth--
-            j++
-        }
+        const stepContent = body.slice(openBrace + 1, closeBrace).trim()
+        i = closeBrace + 1
 
-        const stepContent = body.slice(openBrace + 1, j - 1).trim()
-        i = j
-
-        const declStrings = stepContent.split(';')
         const declarations: Declaration[] = []
-        for (const raw of declStrings) {
-            const trimmed = raw.trim()
-            if (!trimmed) continue
-            const decl = parseDeclarationString(trimmed, meta)
-            if (decl) declarations.push(decl)
+        let k = 0
+        while (k < stepContent.length) {
+            while (k < stepContent.length && /\s/.test(stepContent[k])) k++
+            if (k >= stepContent.length) break
+            const nextDelim = findNextDelimiter(stepContent, k)
+            const chunk = nextDelim
+                ? stepContent.slice(k, nextDelim.index).trim()
+                : stepContent.slice(k).trim()
+            k = nextDelim ? nextDelim.index + 1 : stepContent.length
+            if (chunk) {
+                const decl = parseDeclarationString(chunk, meta)
+                if (decl) declarations.push(decl)
+            }
         }
 
         if (selector) {
@@ -195,19 +561,85 @@ function isKeyframesAtRule(header: string): boolean {
     return /^@(-webkit-)?keyframes(\s|$)/i.test(header)
 }
 
+function defaultVariantSelector(variantName: string): string {
+    return `:host([variant="${variantName}"])`
+}
+
+function composeHostCondition(
+    variants: readonly string[] | null,
+    modifiers: readonly string[],
+    options?: CompilerOptions
+): string | undefined {
+    const selectorFn = options?.variantSelector ?? defaultVariantSelector
+
+    let baseHosts: string[] = []
+    if (variants && variants.length > 0) {
+        baseHosts = variants.map((v) => selectorFn(v))
+    }
+
+    if (baseHosts.length > 0) {
+        return baseHosts.map((base) => {
+            let res = base
+            for (const mod of modifiers) {
+                res = appendToHostSelector(res, mod)
+            }
+            return res
+        }).join(', ')
+    }
+
+    if (modifiers.length > 0) {
+        let res = ':host'
+        for (const mod of modifiers) {
+            res = appendToHostSelector(res, mod)
+        }
+        return res
+    }
+
+    return undefined
+}
+
+function extractAtRuleParam(header: string): string {
+    const openIdx = header.indexOf('(')
+    if (openIdx === -1) return ''
+
+    let depth = 0
+    let closeIdx = -1
+    for (let k = openIdx; k < header.length; k++) {
+        if (header[k] === '(') depth++
+        else if (header[k] === ')') {
+            depth--
+            if (depth === 0) {
+                closeIdx = k
+                break
+            }
+        }
+    }
+
+    if (closeIdx !== -1) {
+        return header.slice(openIdx + 1, closeIdx).trim()
+    }
+    return ''
+}
+
 /**
- * Recursive CSS parser supporting @anchor, @when, @keyframes, nested selectors, and wrapper at-rules.
+ * Recursive CSS parser supporting @anchor, @when, @variant, @size, @slot,
+ * @slotted, @elevation, @keyframes, nested selectors, and wrapper at-rules.
  */
 function parseCssRecursive(
     css: string,
     meta: StateTokenMetadata,
     currentAnchor: string = ':host',
     currentTarget: string = '',
+    currentHostCondition?: string,
     currentWhen?: string,
-    isExplicitAnchor: boolean = false
+    isExplicitAnchor: boolean = false,
+    currentScopeVariants: readonly string[] | null = null,
+    currentHostModifiers: readonly string[] = [],
+    options?: CompilerOptions
 ): AstNode[] {
     const nodes: AstNode[] = []
     const currentDeclarations: Declaration[] = []
+    let currentElevation: number | undefined
 
     let i = 0
     const len = css.length
@@ -216,55 +648,145 @@ function parseCssRecursive(
         while (i < len && /\s/.test(css[i])) i++
         if (i >= len) break
 
-        const nextSemicolon = css.indexOf(';', i)
-        const nextOpenBrace = css.indexOf('{', i)
-
-        if (nextSemicolon === -1 && nextOpenBrace === -1) {
+        const delim = findNextDelimiter(css, i)
+        if (!delim) {
+            const trailing = css.slice(i).trim()
+            if (trailing) {
+                if (trailing.startsWith('@elevation')) {
+                    const elevMatch = trailing.match(/@elevation\((\d+)\)/)
+                    if (elevMatch) {
+                        currentElevation = parseInt(elevMatch[1], 10)
+                    }
+                } else {
+                    const decl = parseDeclarationString(trailing, meta)
+                    if (decl) currentDeclarations.push(decl)
+                }
+            }
             break
         }
 
-        // Case 1: Declaration before any nested block '{'
-        if (nextSemicolon !== -1 && (nextOpenBrace === -1 || nextSemicolon < nextOpenBrace)) {
-            const declChunk = css.slice(i, nextSemicolon).trim()
+        // Case 1: Declaration or Statement ';'
+        if (delim.type === ';') {
+            const declChunk = css.slice(i, delim.index).trim()
             if (declChunk) {
-                const decl = parseDeclarationString(declChunk, meta)
-                if (decl) {
-                    currentDeclarations.push(decl)
+                if (declChunk.startsWith('@elevation')) {
+                    const elevMatch = declChunk.match(/@elevation\((\d+)\)/)
+                    if (elevMatch) {
+                        currentElevation = parseInt(elevMatch[1], 10)
+                    }
+                } else {
+                    const decl = parseDeclarationString(declChunk, meta)
+                    if (decl) currentDeclarations.push(decl)
                 }
             }
-            i = nextSemicolon + 1
+            i = delim.index + 1
             continue
         }
 
-        // Case 2: Nested block encountered
-        const header = css.slice(i, nextOpenBrace).trim()
-        let depth = 1
-        let j = nextOpenBrace + 1
-
-        while (j < len && depth > 0) {
-            if (css[j] === '{') depth++
-            else if (css[j] === '}') depth--
-            j++
-        }
-
-        const body = css.slice(nextOpenBrace + 1, j - 1).trim()
-        i = j
+        // Case 2: Block '{'
+        const header = css.slice(i, delim.index).trim()
+        const openBrace = delim.index
+        const closeBrace = findMatchingClosingBrace(css, openBrace)
+        const body = css.slice(openBrace + 1, closeBrace).trim()
+        i = closeBrace + 1
 
         if (!header) continue
 
-        // Handle @anchor
+        // ATRule: @anchor <sel> (comma-separated anchors supported)
         if (header.startsWith('@anchor')) {
             const anchorSelector = header.replace(/^@anchor\s+/, '').trim()
-            const childRules = parseCssRecursive(body, meta, anchorSelector, anchorSelector, currentWhen, true)
+            const anchorParts = splitSelectorByComma(anchorSelector)
+            for (const anc of anchorParts) {
+                const childRules = parseCssRecursive(
+                    body, meta, anc, anc, currentHostCondition, currentWhen,
+                    true, currentScopeVariants, currentHostModifiers, options
+                )
+                nodes.push(...childRules)
+            }
+            continue
+        }
+
+        // ATRule: @when(...)
+        if (header.startsWith('@when')) {
+            const whenConditionRaw = extractAtRuleParam(header)
+            if (whenConditionRaw.startsWith(':host')) {
+                const nextHostMods = [...currentHostModifiers, whenConditionRaw]
+                const childHostCond = composeHostCondition(currentScopeVariants, nextHostMods, options)
+                const childRules = parseCssRecursive(
+                    body, meta, currentAnchor, currentTarget, childHostCond,
+                    currentWhen, isExplicitAnchor, currentScopeVariants, nextHostMods, options
+                )
+                nodes.push(...childRules)
+            } else {
+                const formattedWhen = whenConditionRaw.startsWith('.') || whenConditionRaw.startsWith('[') || whenConditionRaw.startsWith(':')
+                    ? whenConditionRaw
+                    : `.${whenConditionRaw}`
+                const combinedWhen = currentWhen ? `${currentWhen}${formattedWhen}` : formattedWhen
+                const childRules = parseCssRecursive(
+                    body, meta, currentAnchor, currentTarget, currentHostCondition,
+                    combinedWhen, isExplicitAnchor, currentScopeVariants, currentHostModifiers, options
+                )
+                nodes.push(...childRules)
+            }
+            continue
+        }
+
+        // ATRule: @variant(...) — scopes children to matching variants
+        if (header.startsWith('@variant')) {
+            const variantParam = extractAtRuleParam(header)
+            const patterns = variantParam ? variantParam.split(',').map((v) => v.trim()).filter(Boolean) : []
+            const selectorFn = options?.variantSelector ?? defaultVariantSelector
+            const childHostCond = patterns.filter((p) => !p.startsWith('!')).map((v) => selectorFn(v)).join(', ') || undefined
+            const childRules = parseCssRecursive(
+                body, meta, currentAnchor, currentTarget,
+                childHostCond ?? currentHostCondition,
+                currentWhen, isExplicitAnchor, currentScopeVariants, currentHostModifiers, options
+            )
             nodes.push(...childRules)
             continue
         }
 
-        // Handle @when(...)
-        if (header.startsWith('@when')) {
-            const whenMatch = header.match(/^@when\((.*?)\)/)
-            const whenCondition = whenMatch ? whenMatch[1].trim() : ''
-            const childRules = parseCssRecursive(body, meta, currentAnchor, currentTarget, whenCondition, isExplicitAnchor)
+        // ATRule: @size(...) — lowers to :host([size="..."]) modifiers
+        if (header.startsWith('@size')) {
+            const sizeParam = extractAtRuleParam(header)
+            const sizesRaw = sizeParam ? sizeParam.split(',').map((s) => s.trim()).filter(Boolean) : []
+            const combinedSizeHost = sizesRaw.map((s) => `:host([size="${s}"])`).join(', ')
+            const nextHostMods = [...currentHostModifiers, combinedSizeHost]
+            const childHostCond = composeHostCondition(currentScopeVariants, nextHostMods, options)
+            const childRules = parseCssRecursive(
+                body, meta, currentAnchor, currentTarget, childHostCond,
+                currentWhen, isExplicitAnchor, currentScopeVariants, nextHostMods, options
+            )
+            nodes.push(...childRules)
+            continue
+        }
+
+        // ATRule: @slotted(...) — must be checked before @slot
+        if (header.startsWith('@slotted')) {
+            const slotName = extractAtRuleParam(header)
+            const slottedSelector = (slotName === 'default' || slotName === '')
+                ? '::slotted(:not([slot]))'
+                : `::slotted([slot="${slotName}"])`
+            const childRules = parseCssRecursive(
+                body, meta, slottedSelector, slottedSelector, undefined, undefined,
+                true, currentScopeVariants, [], options
+            )
+            nodes.push(...childRules)
+            continue
+        }
+
+        // ATRule: @slot(...)
+        if (header.startsWith('@slot')) {
+            const slotName = extractAtRuleParam(header)
+            const slotQuery = (slotName === 'default' || slotName === '')
+                ? ':host(:has(:not([slot])))'
+                : `:host(:has([slot="${slotName}"]))`
+            const nextHostMods = [...currentHostModifiers, slotQuery]
+            const childHostCond = composeHostCondition(currentScopeVariants, nextHostMods, options)
+            const childRules = parseCssRecursive(
+                body, meta, currentAnchor, currentTarget, childHostCond,
+                currentWhen, isExplicitAnchor, currentScopeVariants, nextHostMods, options
+            )
             nodes.push(...childRules)
             continue
         }
@@ -275,199 +797,442 @@ function parseCssRecursive(
             nodes.push({
                 type: 'keyframes',
                 header,
-                steps,
+                steps
             })
             continue
         }
 
         // Handle wrapper at-rules
         if (isWrapperAtRule(header)) {
-            const children = parseCssRecursive(body, meta, currentAnchor, currentTarget, currentWhen, isExplicitAnchor)
+            const children = parseCssRecursive(
+                body, meta, currentAnchor, currentTarget, currentHostCondition,
+                currentWhen, isExplicitAnchor, currentScopeVariants, currentHostModifiers, options
+            )
             nodes.push({
                 type: 'wrapper-at-rule',
                 atRuleHeader: header,
-                children,
+                children
             })
             continue
         }
 
-        // Host selector refinement
+        // Host selector refinement (comma-separated :host lists split per branch)
         let childAnchor = currentAnchor
-        if (!isExplicitAnchor && header.startsWith(':host')) {
-            childAnchor = header
-        }
-
-        // Nested selector composition
+        let childHostCond = currentHostCondition
+        let childHostMods = currentHostModifiers
         let composedTarget = header
-        if (currentTarget) {
-            if (header.startsWith('&')) {
-                composedTarget = header.replace(/^&/, currentTarget)
-            } else if (currentTarget !== childAnchor) {
-                composedTarget = `${currentTarget} ${header}`
+
+        if (!isExplicitAnchor && header.startsWith(':host')) {
+            if (header === ':host') {
+                childAnchor = currentHostCondition || ':host'
+                childHostCond = currentHostCondition || ':host'
+                composedTarget = ''
             } else {
-                composedTarget = `${childAnchor} ${header}`
+                const headerParts = splitSelectorByComma(header)
+                if (headerParts.length > 1 && headerParts.every((part) => part.startsWith(':host'))) {
+                    for (const part of headerParts) {
+                        const partMods = [...currentHostModifiers, part]
+                        const partHostCond = composeHostCondition(currentScopeVariants, partMods, options) || part
+                        const partRules = parseCssRecursive(
+                            body, meta, partHostCond, '', partHostCond,
+                            currentWhen, isExplicitAnchor, currentScopeVariants, partMods, options
+                        )
+                        nodes.push(...partRules)
+                    }
+                    continue
+                }
+                childHostMods = [...currentHostModifiers, header]
+                childHostCond = composeHostCondition(currentScopeVariants, childHostMods, options) || header
+                childAnchor = childHostCond
+                composedTarget = ''
             }
+        } else if (currentTarget) {
+            const parentParts = splitSelectorByComma(currentTarget)
+            const headerParts = splitSelectorByComma(header)
+            const combined: string[] = []
+
+            for (const p of parentParts) {
+                for (const h of headerParts) {
+                    if (h.startsWith('&')) {
+                        combined.push(h.replace(/^&/, p))
+                    } else {
+                        combined.push(`${p} ${h}`)
+                    }
+                }
+            }
+            composedTarget = combined.join(', ')
         }
 
-        const childRules = parseCssRecursive(body, meta, childAnchor, composedTarget, currentWhen, isExplicitAnchor)
+        const childRules = parseCssRecursive(
+            body, meta, childAnchor, composedTarget, childHostCond,
+            currentWhen, isExplicitAnchor, currentScopeVariants, childHostMods, options
+        )
         nodes.push(...childRules)
     }
 
-    if (currentDeclarations.length > 0) {
+    if (currentDeclarations.length > 0 || currentElevation !== undefined) {
+        const finalDecls = [...currentDeclarations]
+        if (currentElevation !== undefined) {
+            finalDecls.push({
+                property: 'box-shadow',
+                value: `var(--mdc-elevation-level-${currentElevation})`,
+                referencedTokens: [],
+                stateTokens: [],
+                isStateful: false
+            })
+
+            const shadowTransition = 'box-shadow 200ms cubic-bezier(0.2, 0, 0, 1)'
+            const existingTransIdx = finalDecls.findIndex((d) => d.property === 'transition')
+
+            if (existingTransIdx !== -1) {
+                const existing = finalDecls[existingTransIdx]
+                if (!existing.value.includes('box-shadow')) {
+                    finalDecls[existingTransIdx] = {
+                        ...existing,
+                        value: `${existing.value}, ${shadowTransition}`
+                    }
+                }
+            } else {
+                finalDecls.push({
+                    property: 'transition',
+                    value: shadowTransition,
+                    referencedTokens: [],
+                    stateTokens: [],
+                    isStateful: false
+                })
+            }
+        }
+
         nodes.unshift({
             type: 'style-rule',
             selector: currentTarget || currentAnchor,
             anchor: currentAnchor,
+            hostCondition: currentHostCondition,
             whenCondition: currentWhen,
-            declarations: currentDeclarations,
+            declarations: finalDecls,
+            elevationLevel: currentElevation
         })
     }
 
     return nodes
 }
 
-function resolveStateValue(decl: Declaration, state: StateName, meta: StateTokenMetadata): string {
+function resolveStateValue(decl: Declaration, state: string, meta: StateTokenMetadata): string {
     let result = decl.value
-    for (const token of decl.stateTokens) {
-        if (meta.hasStateToken(token, state)) {
-            const stateTokenVar = `--_${state}-${token}`
-            result = result.replaceAll(`var(--_${token})`, `var(${stateTokenVar})`)
+    for (const token of decl.referencedTokens) {
+        if (state === 'enabled' || state === 'base' || state === meta.baseState) {
+            const baseVarName = meta.resolveStateVarName(token, meta.baseState)
+            result = result.replaceAll(`var(--_${token})`, `var(--_${baseVarName})`)
+        } else if (meta.hasStateDelta(token, state) || meta.hasStateToken(token, state)) {
+            const stateVarName = meta.resolveStateVarName(token, state)
+            result = result.replaceAll(`var(--_${token})`, `var(--_${stateVarName})`)
         } else {
-            const fallbackTokenVar = `--_enabled-${token}`
-            result = result.replaceAll(`var(--_${token})`, `var(${fallbackTokenVar})`)
+            const fallbackVarName = meta.resolveStateVarName(token, meta.baseState)
+            result = result.replaceAll(`var(--_${token})`, `var(--_${fallbackVarName})`)
         }
     }
     return result
 }
 
-function declHasStateDelta(decl: Declaration, state: StateDeltaName, meta: StateTokenMetadata): boolean {
-    if (!decl.isStateful) return false
-    return decl.stateTokens.some((token) => meta.hasStateToken(token, state))
+/**
+ * Decomposes compound shorthand properties (border, outline, background) for delta rules.
+ */
+function decomposeDeclarationForDelta(
+    decl: Declaration,
+    state: string,
+    meta: StateTokenMetadata
+): { property: string; value: string } | null {
+    if (!decl.isStateful) return null
+    if (!decl.stateTokens.some((t) => meta.hasStateDelta(t, state))) return null
+
+    const resolvedVal = resolveStateValue(decl, state, meta)
+
+    if (decl.property === 'border') {
+        const varMatch = resolvedVal.match(/var\(--_[a-zA-Z0-9_:-]+\)/)
+        if (varMatch) {
+            return {
+                property: 'border-color',
+                value: varMatch[0]
+            }
+        }
+        const colorMatch = resolvedVal.match(/(#[0-9a-fA-F]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\)|transparent|currentColor|[a-zA-Z]+)$/)
+        return {
+            property: 'border-color',
+            value: colorMatch ? colorMatch[0] : resolvedVal
+        }
+    }
+
+    if (decl.property === 'outline') {
+        const varMatch = resolvedVal.match(/var\(--_[a-zA-Z0-9_:-]+\)/)
+        if (varMatch) {
+            return {
+                property: 'outline-color',
+                value: varMatch[0]
+            }
+        }
+        const colorMatch = resolvedVal.match(/(#[0-9a-fA-F]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\)|transparent|currentColor|[a-zA-Z]+)$/)
+        return {
+            property: 'outline-color',
+            value: colorMatch ? colorMatch[0] : resolvedVal
+        }
+    }
+
+    if (decl.property === 'background') {
+        return {
+            property: 'background-color',
+            value: resolvedVal
+        }
+    }
+
+    return {
+        property: decl.property,
+        value: resolvedVal
+    }
 }
 
-function appendToHostSelector(hostSelector: string, modifier: string): string {
-    if (!modifier) return hostSelector
-    if (hostSelector === ':host') return `:host(${modifier})`
+export interface ComposeSelectorOptions {
+    readonly anchor: string
+    readonly targetSelector: string
+    readonly hostCondition?: string
+    readonly whenCondition?: string
+    readonly states?: readonly string[]
+    readonly triggers?: CustomTriggerMap
+}
 
-    if (hostSelector.startsWith(':host(')) {
-        let depth = 0
-        let closeIdx = -1
-        for (let i = 5; i < hostSelector.length; i++) {
-            if (hostSelector[i] === '(') depth++
-            else if (hostSelector[i] === ')') {
-                depth--
-                if (depth === 0) {
-                    closeIdx = i
-                    break
+/**
+ * Composes a full CSS selector across host triggers, anchor triggers, @when
+ * conditions, and pseudo-element attachments (mirrors the main package).
+ */
+export function composeStateSelector(options: ComposeSelectorOptions): string {
+    const {
+        anchor,
+        targetSelector,
+        hostCondition,
+        whenCondition,
+        states = [],
+        triggers
+    } = options
+
+    if (hostCondition) {
+        const hostParts = splitSelectorByComma(hostCondition)
+        if (hostParts.length > 1) {
+            return hostParts.map((hPart) => composeStateSelector({
+                ...options,
+                hostCondition: hPart
+            })).join(', ')
+        }
+    }
+
+    if (targetSelector) {
+        const targetParts = splitSelectorByComma(targetSelector)
+        if (targetParts.length > 1) {
+            return targetParts.map((part) => composeStateSelector({
+                ...options,
+                targetSelector: part
+            })).join(', ')
+        }
+    }
+
+    if (targetSelector && targetSelector.startsWith('::slotted')) {
+        return targetSelector
+    }
+
+    const isHostAnchor = anchor.startsWith(':host') || anchor.startsWith(':where(') || anchor.startsWith(':is(')
+    const hostModifiers: string[] = []
+    const selfClassModifiers: string[] = []
+    const selfPseudoModifiers: string[] = []
+
+    for (const stateName of states) {
+        if (!stateName || stateName === 'enabled' || stateName === 'base') continue
+        const resolved = resolveTrigger(stateName, isHostAnchor, triggers)
+        if (resolved.target === 'host' || isHostAnchor) {
+            if (resolved.modifier && !hostModifiers.includes(resolved.modifier)) {
+                hostModifiers.push(resolved.modifier)
+            }
+        } else {
+            if (resolved.modifier) {
+                if (resolved.modifier.startsWith('.')) {
+                    if (!selfClassModifiers.includes(resolved.modifier)) {
+                        selfClassModifiers.push(resolved.modifier)
+                    }
+                } else {
+                    if (!selfPseudoModifiers.includes(resolved.modifier)) {
+                        selfPseudoModifiers.push(resolved.modifier)
+                    }
                 }
             }
         }
-        if (closeIdx !== -1) {
-            const inner = hostSelector.slice(6, closeIdx)
-            const after = hostSelector.slice(closeIdx + 1)
-            return `:host(${inner}${modifier})${after}`
-        }
     }
-    return `${hostSelector}${modifier}`
-}
 
-function buildStateSelector(
-    anchor: string,
-    targetSelector: string,
-    whenCondition: string | undefined,
-    stateIndex: number
-): string {
-    const isHostAnchor = anchor === ':host' || anchor.startsWith(':host(')
-    const stateName = STATE_NAMES[stateIndex]
+    let anchorBase = anchor
+    let anchorPseudo = ''
+    const pseudoIndex = anchor.indexOf('::')
+    if (pseudoIndex !== -1) {
+        anchorBase = anchor.slice(0, pseudoIndex)
+        anchorPseudo = anchor.slice(pseudoIndex)
+    }
 
-    let stateMod = ''
-    if (stateName === 'hovered') stateMod = ':hover'
-    else if (stateName === 'focused') stateMod = ':focus-within'
-    else if (stateName === 'pressed') stateMod = ':active'
-    else if (stateName === 'disabled') stateMod = isHostAnchor ? '[disabled]' : '.disabled'
+    let anchorCompoundMod = ''
+    let descendantSelector = ''
 
-    let composedAnchor = anchor
-    if (whenCondition) {
-        if (isHostAnchor) {
-            composedAnchor = appendToHostSelector(composedAnchor, whenCondition)
-        } else {
-            if (whenCondition.startsWith('.') || whenCondition.startsWith('[') || whenCondition.startsWith(':')) {
-                composedAnchor = `${anchor}${whenCondition}`
+    if (targetSelector && targetSelector !== anchor && targetSelector.startsWith(anchorBase)) {
+        const after = targetSelector.slice(anchorBase.length)
+        if (after.startsWith(' ') || after.startsWith('>') || after.startsWith('+') || after.startsWith('~')) {
+            descendantSelector = after
+        } else if (after.startsWith('::')) {
+            anchorPseudo = after
+        } else if (after.startsWith('.') || after.startsWith('[') || after.startsWith(':')) {
+            const combinatorMatch = after.match(/[\s>+~]|::/)
+            if (combinatorMatch && combinatorMatch.index !== undefined) {
+                anchorCompoundMod = after.slice(0, combinatorMatch.index)
+                descendantSelector = after.slice(combinatorMatch.index)
             } else {
-                composedAnchor = `${anchor}.${whenCondition}`
+                anchorCompoundMod = after
             }
         }
     }
 
-    if (stateMod) {
-        if (isHostAnchor) {
-            composedAnchor = appendToHostSelector(composedAnchor, stateMod)
+    let composedHost = ''
+    if (isHostAnchor) {
+        if (hostCondition) {
+            composedHost = (anchor === ':host' || anchor === hostCondition)
+                ? hostCondition
+                : appendToHostSelector(hostCondition, anchor.startsWith(':host(') ? anchor.slice(6, -1) : anchor)
         } else {
-            if (stateName === 'disabled') {
-                composedAnchor = whenCondition ? `${anchor}.disabled${whenCondition}` : `${anchor}.disabled`
+            composedHost = anchor
+        }
+    } else if (hostCondition) {
+        composedHost = hostCondition.startsWith(':host') || hostCondition.startsWith(':where(') || hostCondition.startsWith(':is(')
+            ? hostCondition
+            : `:host(${hostCondition})`
+    } else if (hostModifiers.length > 0) {
+        composedHost = ':host'
+    }
+
+    if (anchorCompoundMod && isHostAnchor) {
+        composedHost = appendToHostSelector(composedHost, anchorCompoundMod)
+    }
+
+    for (const mod of hostModifiers) {
+        composedHost = appendToHostSelector(composedHost || ':host', mod)
+    }
+
+    let composedAnchor = isHostAnchor ? '' : anchorBase
+    if (!isHostAnchor) {
+        if (anchorCompoundMod) {
+            composedAnchor = `${composedAnchor}${anchorCompoundMod}`
+        }
+
+        for (const mod of selfClassModifiers) {
+            composedAnchor = `${composedAnchor}${mod}`
+        }
+
+        if (whenCondition) {
+            if (whenCondition.startsWith(':host')) {
+                composedHost = composedHost
+                    ? appendToHostSelector(composedHost, whenCondition.replace(/^:host\(?/, '').replace(/\)$/, ''))
+                    : whenCondition
+            } else if (whenCondition.startsWith('.') || whenCondition.startsWith('[') || whenCondition.startsWith(':')) {
+                composedAnchor = `${composedAnchor}${whenCondition}`
             } else {
-                composedAnchor = `${composedAnchor}${stateMod}`
+                composedAnchor = `${composedAnchor}.${whenCondition}`
             }
+        }
+
+        for (const mod of selfPseudoModifiers) {
+            composedAnchor = `${composedAnchor}${mod}`
+        }
+
+        if (anchorPseudo) {
+            composedAnchor = `${composedAnchor}${anchorPseudo}`
         }
     }
 
-    if (!targetSelector || targetSelector === anchor) {
-        return composedAnchor
+    let fullBase = ''
+    if (isHostAnchor) {
+        fullBase = composedHost || ':host'
+    } else if (composedHost) {
+        fullBase = `${composedHost} ${composedAnchor}`
+    } else {
+        fullBase = composedAnchor
     }
 
-    if (targetSelector.startsWith(anchor)) {
-        const remaining = targetSelector.slice(anchor.length).trim()
-        return remaining ? `${composedAnchor} ${remaining}` : composedAnchor
+    if (descendantSelector) {
+        return `${fullBase}${descendantSelector}`
     }
 
-    return `${composedAnchor} ${targetSelector}`
+    if (!targetSelector || targetSelector === anchor || targetSelector === anchorBase || anchorCompoundMod) {
+        return fullBase
+    }
+
+    return `${fullBase} ${targetSelector}`
 }
 
-function compileAstNodes(nodes: AstNode[], meta: StateTokenMetadata): CompiledChunks {
+function compileAstNodes(
+    nodes: AstNode[],
+    meta: StateTokenMetadata,
+    options?: CompilerOptions
+): CompiledChunks {
     const chunks: CompiledChunks = {
         base: [],
-        hovered: [],
-        focused: [],
-        pressed: [],
-        disabled: [],
-        atRules: [],
+        deltas: new Map<string, string[]>(),
+        atRules: []
+    }
+
+    const triggers = options?.triggers
+    const nonBaseStates = meta.statesList.filter((s) => s !== meta.baseState && s !== 'enabled')
+    for (const state of nonBaseStates) {
+        chunks.deltas.set(state, [])
     }
 
     for (const node of nodes) {
         if (node.type === 'style-rule') {
-            const { anchor, selector, whenCondition, declarations } = node
+            const { anchor, selector, hostCondition, whenCondition, declarations, elevationLevel } = node
 
-            // 1. Base rule
+            // 1. Base Rule (base state, elevation already synthesized at parse time)
             const baseDecls: string[] = []
             for (const decl of declarations) {
-                if (decl.isStateful) {
-                    const resolvedVal = resolveStateValue(decl, 'enabled', meta)
-                    baseDecls.push(`${decl.property}: ${resolvedVal};`)
-                } else {
-                    baseDecls.push(`${decl.property}: ${decl.value};`)
-                }
+                const resolvedVal = resolveStateValue(decl, meta.baseState, meta)
+                baseDecls.push(`${decl.property}: ${resolvedVal};`)
             }
 
             if (baseDecls.length > 0) {
-                const baseSel = buildStateSelector(anchor, selector, whenCondition, 0)
+                const baseSel = composeStateSelector({
+                    anchor,
+                    targetSelector: selector,
+                    hostCondition,
+                    whenCondition,
+                    states: [],
+                    triggers
+                })
                 chunks.base.push(`${baseSel} {\n    ${baseDecls.join('\n    ')}\n}`)
             }
 
-            // 2. State delta rules
-            for (let i = 0; i < STATE_DELTA_NAMES.length; i++) {
-                const state = STATE_DELTA_NAMES[i]
+            // 2. Differential Delta Rules (only where values actually differ)
+            for (const state of nonBaseStates) {
                 const stateDecls: string[] = []
 
                 for (const decl of declarations) {
-                    if (declHasStateDelta(decl, state, meta)) {
-                        const resolvedVal = resolveStateValue(decl, state, meta)
-                        stateDecls.push(`${decl.property}: ${resolvedVal};`)
+                    const deltaDecl = decomposeDeclarationForDelta(decl, state, meta)
+                    if (deltaDecl) {
+                        stateDecls.push(`${deltaDecl.property}: ${deltaDecl.value};`)
                     }
                 }
 
+                if (elevationLevel !== undefined && state === 'disabled') {
+                    stateDecls.push('box-shadow: none;')
+                }
+
                 if (stateDecls.length > 0) {
-                    const stateSel = buildStateSelector(anchor, selector, whenCondition, i + 1)
-                    chunks[state].push(`${stateSel} {\n    ${stateDecls.join('\n    ')}\n}`)
+                    const stateSel = composeStateSelector({
+                        anchor,
+                        targetSelector: selector,
+                        hostCondition,
+                        whenCondition,
+                        states: [state],
+                        triggers
+                    })
+                    chunks.deltas.get(state)!.push(`${stateSel} {\n    ${stateDecls.join('\n    ')}\n}`)
                 }
             }
         } else if (node.type === 'keyframes') {
@@ -475,29 +1240,32 @@ function compileAstNodes(nodes: AstNode[], meta: StateTokenMetadata): CompiledCh
             for (const step of node.steps) {
                 const declStrings: string[] = []
                 for (const decl of step.declarations) {
-                    if (decl.isStateful) {
-                        const resolvedVal = resolveStateValue(decl, 'enabled', meta)
-                        declStrings.push(`${decl.property}: ${resolvedVal};`)
-                    } else {
-                        declStrings.push(`${decl.property}: ${decl.value};`)
-                    }
+                    const resolvedVal = resolveStateValue(decl, meta.baseState, meta)
+                    declStrings.push(`${decl.property}: ${resolvedVal};`)
                 }
                 stepStrings.push(`    ${step.selector} {\n        ${declStrings.join('\n        ')}\n    }`)
             }
-            chunks.atRules.push(`${node.header} {\n${stepStrings.join('\n\n')}\n}`)
+            chunks.base.push(`${node.header} {\n${stepStrings.join('\n\n')}\n}`)
         } else if (node.type === 'wrapper-at-rule') {
-            const inner = compileAstNodes(node.children, meta)
-            const allInner: string[] = []
-            if (inner.base.length > 0) allInner.push(inner.base.join('\n\n'))
-            if (inner.hovered.length > 0) allInner.push(inner.hovered.join('\n\n'))
-            if (inner.focused.length > 0) allInner.push(inner.focused.join('\n\n'))
-            if (inner.pressed.length > 0) allInner.push(inner.pressed.join('\n\n'))
-            if (inner.disabled.length > 0) allInner.push(inner.disabled.join('\n\n'))
-            if (inner.atRules.length > 0) allInner.push(inner.atRules.join('\n\n'))
+            const inner = compileAstNodes(node.children, meta, options)
 
-            if (allInner.length > 0) {
-                const indented = allInner.join('\n\n').split('\n').map((l) => (l ? `    ${l}` : '')).join('\n')
-                chunks.atRules.push(`${node.atRuleHeader} {\n${indented}\n}`)
+            if (inner.base.length > 0) {
+                chunks.atRules.push(`${node.atRuleHeader} {\n${inner.base.join('\n\n')}\n}`)
+            }
+
+            for (const [state, stateRules] of inner.deltas) {
+                if (stateRules.length > 0) {
+                    const target = chunks.deltas.get(state)
+                    if (target) {
+                        target.push(`${node.atRuleHeader} {\n${stateRules.join('\n\n')}\n}`)
+                    } else {
+                        chunks.deltas.set(state, [`${node.atRuleHeader} {\n${stateRules.join('\n\n')}\n}`])
+                    }
+                }
+            }
+
+            if (inner.atRules.length > 0) {
+                chunks.atRules.push(...inner.atRules)
             }
         }
     }
@@ -640,6 +1408,53 @@ export function countCssRules(cssText: string): number {
 }
 
 /**
+ * Adapts static `DefinitionMeta` objects (regex-extracted, range-annotated) to
+ * the runtime definition shape consumed by `@sandlada/mdc/style-engine`
+ * (`{ schema: { states }, tokens }`). Enables parity checks and one-off
+ * delegation (e.g. `compileStateSheet(synthetic, css)`) without forking
+ * semantics. Returns a single merged definition; callers with multiple
+ * definitions should pass them all at once.
+ */
+export function definitionMetasToStyleDefinition(
+    definitions: (DefinitionMeta | undefined)[]
+): Record<string, any> {
+    const statesList: string[] = []
+    const pushState = (s: string) => {
+        if (s && !statesList.includes(s)) statesList.push(s)
+    }
+    for (const def of definitions) {
+        if (!def) continue
+        const schemaStates: string[] | undefined = (def.schema as { states?: string[] } | undefined)?.states
+            ?? (def.schema as { flatStates?: string[] } | undefined)?.flatStates
+        if (schemaStates && schemaStates.length > 0) {
+            for (const s of schemaStates) pushState(s)
+        }
+    }
+    if (statesList.length === 0) {
+        for (const s of DEFAULT_STATE_NAMES) pushState(s)
+    }
+
+    const tokens: Record<string, any> = {}
+    for (const def of definitions) {
+        if (!def) continue
+        for (const [rawKey, token] of def.ownTokens) {
+            const key = rawKey.replace(/^--_/, '').replace(/^--/, '')
+            if (!key || key in tokens) continue
+            const stateMap: Record<string, string> = (token as TokenValueMeta).stateMap ?? {}
+            if ((token as TokenValueMeta).isTuple) {
+                tokens[key] = statesList.map((s) => stateMap[s] ?? stateMap['enabled'] ?? null)
+            } else if ((token as TokenValueMeta).isRecord) {
+                tokens[key] = { ...stateMap }
+            } else {
+                tokens[key] = (token as TokenValueMeta).rawValue ?? ''
+            }
+        }
+    }
+
+    return { schema: { states: statesList }, tokens }
+}
+
+/**
  * Extracts and compiles the entire exported CSSResult / CSSResult[] from a *.style.ts file
  * via static AST differential analysis.
  */
@@ -665,24 +1480,66 @@ export function compileExportedStylesToCssSync(
             defNames.push(dMatch[2].trim())
         }
     }
+    // Curried definition-second application: createStyleSheet(..)(Def) / pipe(..)(Def)
+    const curriedDefRegex = /\)\s*\(\s*([a-zA-Z0-9_$]+)\s*\)\s*(?:=>|`)/g
+    while ((dMatch = curriedDefRegex.exec(sourceText)) !== null) {
+        defNames.push(dMatch[1].trim())
+    }
     const uniqueDefNames = Array.from(new Set(defNames))
 
-    // 3. Build state token metadata
+    // 3. Build state token metadata + compiler options (custom triggers from analyzed definitions)
     const defMetas = definitionMetaMap
         ? uniqueDefNames.map((n) => definitionMetaMap.get(n)).filter(Boolean)
         : []
     const stateMeta = extractStateTokenMetadataFromMeta(defMetas)
 
-    // 4. Extract Token declarations (:host variable block if present)
+    const customTriggers: CustomTriggerMap = new Map()
+    for (const meta of defMetas) {
+        if (!meta || !meta.stateTriggers) continue
+        for (const [stateName, trigger] of meta.stateTriggers) {
+            if (!stateName || customTriggers.has(stateName)) continue
+            const modifier = trigger.modifier ?? trigger.selector ?? ''
+            if (trigger.target === 'host' || trigger.target === 'self') {
+                customTriggers.set(stateName, { target: trigger.target, modifier })
+            }
+        }
+    }
+    const compilerOptions: CompilerOptions = customTriggers.size > 0 ? { triggers: customTriggers } : {}
+
+    // 4. Extract Token declarations mirroring stringifyTokens shape (names only, no runtime values)
+    const tokenPrefixes = new Map<string, string>()
+    const stringifyCallRegex = /stringifyTokens\s*\(\s*(?:\{\s*prefix\s*:\s*['"`]([^'"`]+)['"`][\s\S]*?\}|['"`]([^'"`]+)['"`])\s*\)\s*\(\s*([a-zA-Z0-9_$]+)\s*\)/g
+    let sMatch: RegExpExecArray | null
+    while ((sMatch = stringifyCallRegex.exec(sourceText)) !== null) {
+        const prefix = (sMatch[1] ?? sMatch[2] ?? '').trim()
+        const defName = (sMatch[3] ?? '').trim()
+        if (prefix && defName && !tokenPrefixes.has(defName)) {
+            tokenPrefixes.set(defName, prefix.startsWith('--') ? prefix : `--${prefix}`)
+        }
+    }
+    const legacyRecordRegex = /defineTokenRefsRecord\s*\(\s*([a-zA-Z0-9_$]+)\s*,[\s\S]*?prefix\s*:\s*['"`]([^'"`]+)['"`]/g
+    while ((sMatch = legacyRecordRegex.exec(sourceText)) !== null) {
+        const defName = (sMatch[1] ?? '').trim()
+        const prefix = (sMatch[2] ?? '').trim()
+        if (prefix && defName && !tokenPrefixes.has(defName)) {
+            tokenPrefixes.set(defName, prefix.startsWith('--') ? prefix : `--${prefix}`)
+        }
+    }
+
     let tokenLayer = ''
-    const tokenRecordMatch = /defineTokenRefsRecord\s*\(\s*([a-zA-Z0-9_$]+)/.exec(sourceText)
-    if (tokenRecordMatch && defMetas.length > 0) {
+    if (defMetas.length > 0) {
         const lines: string[] = [':host {']
         for (const meta of defMetas) {
             if (!meta) continue
+            const prefix = tokenPrefixes.get(meta.name) ?? '--mdc-component'
             for (const [key, token] of meta.ownTokens) {
-                if (token.isTuple && token.rawStates) {
-                    lines.push(`    --_${key}: var(--_enabled-${key});`)
+                if (token.isTuple || token.isRecord) {
+                    const states = token.states && token.states.length > 0 ? token.states : [stateMeta.baseState]
+                    for (const sName of states) {
+                        lines.push(`    --_${sName}-${key}: var(${prefix}-${sName}-${key});`)
+                    }
+                } else {
+                    lines.push(`    --_${key}: var(${prefix}-${key});`)
                 }
             }
         }
@@ -701,8 +1558,8 @@ export function compileExportedStylesToCssSync(
         const rawTemplate = cMatch[1]
         const cleanTemplate = cleanTemplateInterpolations(rawTemplate)
         const stripped = stripComments(cleanTemplate)
-        const nodes = parseCssRecursive(stripped, stateMeta)
-        const chunks = compileAstNodes(nodes, stateMeta)
+        const nodes = parseCssRecursive(stripped, stateMeta, ':host', '', undefined, undefined, false, null, [], compilerOptions)
+        const chunks = compileAstNodes(nodes, stateMeta, compilerOptions)
         stateRulesList.push(chunks)
     }
 
@@ -712,49 +1569,77 @@ export function compileExportedStylesToCssSync(
             const rawTemplate = cMatch[1]
             const cleanTemplate = cleanTemplateInterpolations(rawTemplate)
             const stripped = stripComments(cleanTemplate)
-            const nodes = parseCssRecursive(stripped, stateMeta)
-            const chunks = compileAstNodes(nodes, stateMeta)
+            const nodes = parseCssRecursive(stripped, stateMeta, ':host', '', undefined, undefined, false, null, [], compilerOptions)
+            const chunks = compileAstNodes(nodes, stateMeta, compilerOptions)
             stateRulesList.push(chunks)
         }
     }
 
     // 6. Aggregate Chunks & Statistics
     const baseChunks: string[] = []
-    const hoverChunks: string[] = []
-    const focusChunks: string[] = []
-    const pressChunks: string[] = []
-    const disabledChunks: string[] = []
+    const mergedDeltas = new Map<string, string[]>()
     const atRuleChunks: string[] = []
 
     for (const chunk of stateRulesList) {
         if (chunk.base.length > 0) baseChunks.push(...chunk.base)
-        if (chunk.hovered.length > 0) hoverChunks.push(...chunk.hovered)
-        if (chunk.focused.length > 0) focusChunks.push(...chunk.focused)
-        if (chunk.pressed.length > 0) pressChunks.push(...chunk.pressed)
-        if (chunk.disabled.length > 0) disabledChunks.push(...chunk.disabled)
+        for (const [state, rules] of chunk.deltas) {
+            if (rules.length === 0) continue
+            const target = mergedDeltas.get(state)
+            if (target) target.push(...rules)
+            else mergedDeltas.set(state, [...rules])
+        }
         if (chunk.atRules.length > 0) atRuleChunks.push(...chunk.atRules)
+    }
+
+    const deltaBucketOf = (state: string): 'hover' | 'focus' | 'press' | 'disabled' | 'other' => {
+        const canonical = canonicalizeState(state)
+        if (canonical === 'hover' || state === 'hovered') return 'hover'
+        if (canonical === 'focus' || state === 'focused') return 'focus'
+        if (canonical === 'active' || state === 'pressed') return 'press'
+        if (state === 'disabled') return 'disabled'
+        return 'other'
     }
 
     const stats = {
         baseRules: baseChunks.length,
-        hoverRules: hoverChunks.length,
-        focusRules: focusChunks.length,
-        pressRules: pressChunks.length,
-        disabledRules: disabledChunks.length,
-        atRules: atRuleChunks.length,
+        hoverRules: 0,
+        focusRules: 0,
+        pressRules: 0,
+        disabledRules: 0,
+        otherRules: 0,
+        atRules: atRuleChunks.length
     }
-    const totalRules = stats.baseRules + stats.hoverRules + stats.focusRules + stats.pressRules + stats.disabledRules + stats.atRules
+    const deltaSections: Array<{ state: string; rules: string[] }> = []
+    for (const [state, rules] of mergedDeltas) {
+        if (rules.length === 0) continue
+        deltaSections.push({ state, rules })
+        const bucket = deltaBucketOf(state)
+        if (bucket === 'hover') stats.hoverRules += rules.length
+        else if (bucket === 'focus') stats.focusRules += rules.length
+        else if (bucket === 'press') stats.pressRules += rules.length
+        else if (bucket === 'disabled') stats.disabledRules += rules.length
+        else stats.otherRules += rules.length
+    }
+    const totalRules = stats.baseRules + stats.hoverRules + stats.focusRules + stats.pressRules + stats.disabledRules + stats.otherRules + stats.atRules
+
+    const deltaLayerTitles: Record<string, string> = {
+        hover: '[Layer 2.1] Hovered State Deltas (:hover)',
+        focus: '[Layer 2.2] Focused State Deltas (:focus-visible)',
+        press: '[Layer 2.3] Pressed / Active State Deltas (:active)',
+        disabled: '[Layer 2.4] Disabled State Deltas ([disabled])'
+    }
 
     // 7. Format Output Document
     const sections: string[] = []
     const cleanFileName = filePath.split(/[/\\]/).pop() || filePath
+    const otherCount = stats.otherRules > 0 ? `, Other: ${stats.otherRules}` : ''
     sections.push(`/**
  * ====================================================================
  * MDC Compiled Stylesheet Preview (Live)
  * Source: ${cleanFileName}
  * Export: ${exportName} (CSSResult / CSSResult[])
  * Definitions: ${uniqueDefNames.length > 0 ? uniqueDefNames.join(', ') : 'None'}
- * Rules Generated: ${totalRules} (Base: ${stats.baseRules}, Hover: ${stats.hoverRules}, Focus: ${stats.focusRules}, Press: ${stats.pressRules}, Disabled: ${stats.disabledRules}, AtRules: ${stats.atRules})
+ * Rules Generated: ${totalRules} (Base: ${stats.baseRules}, Hover: ${stats.hoverRules}, Focus: ${stats.focusRules}, Press: ${stats.pressRules}, Disabled: ${stats.disabledRules}${otherCount}, AtRules: ${stats.atRules})
  * ====================================================================
  */`)
 
@@ -772,33 +1657,14 @@ ${tokenLayer}`)
 ${baseChunks.join('\n\n')}`)
     }
 
-    if (hoverChunks.length > 0) {
+    deltaSections.forEach(({ state, rules }, index) => {
+        const bucket = deltaBucketOf(state)
+        const title = deltaLayerTitles[bucket] ?? `[Layer 2.${5 + index}] ${state} State Deltas`
         sections.push(`/* --------------------------------------------------------------------
- * [Layer 2.1] Hovered State Deltas (:hover)
+ * ${title}
  * -------------------------------------------------------------------- */
-${hoverChunks.join('\n\n')}`)
-    }
-
-    if (focusChunks.length > 0) {
-        sections.push(`/* --------------------------------------------------------------------
- * [Layer 2.2] Focused State Deltas (:focus-within)
- * -------------------------------------------------------------------- */
-${focusChunks.join('\n\n')}`)
-    }
-
-    if (pressChunks.length > 0) {
-        sections.push(`/* --------------------------------------------------------------------
- * [Layer 2.3] Pressed / Active State Deltas (:active)
- * -------------------------------------------------------------------- */
-${pressChunks.join('\n\n')}`)
-    }
-
-    if (disabledChunks.length > 0) {
-        sections.push(`/* --------------------------------------------------------------------
- * [Layer 2.4] Disabled State Deltas ([disabled] / .disabled)
- * -------------------------------------------------------------------- */
-${disabledChunks.join('\n\n')}`)
-    }
+${rules.join('\n\n')}`)
+    })
 
     if (atRuleChunks.length > 0) {
         sections.push(`/* --------------------------------------------------------------------
@@ -809,6 +1675,9 @@ ${atRuleChunks.join('\n\n')}`)
 
     const compiledCss = sections.join('\n\n')
 
+    const allDeltaRules: string[] = []
+    for (const { rules } of deltaSections) allDeltaRules.push(...rules)
+
     return {
         exportName,
         definitionNames: uniqueDefNames,
@@ -817,7 +1686,7 @@ ${atRuleChunks.join('\n\n')}`)
         compiledCss,
         layers: {
             tokenLayer,
-            stateSheetLayer: baseChunks.concat(hoverChunks, focusChunks, pressChunks, disabledChunks).join('\n\n'),
+            stateSheetLayer: baseChunks.concat(allDeltaRules).join('\n\n'),
             staticLayer: atRuleChunks.join('\n\n'),
         },
     }
@@ -939,6 +1808,7 @@ ${formatted}`
                 focusRules: 0,
                 pressRules: 0,
                 disabledRules: 0,
+                otherRules: 0,
                 atRules: 0,
             },
             compiledCss,

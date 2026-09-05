@@ -120,6 +120,7 @@ export function init(modules: { typescript: any }) {
 
 export default init
 export * from './core/types'
+export * from './core/source-text'
 export * from './core/definition-analyzer'
 export * from './core/stylesheet-analyzer'
 export * from './core/codelens-formatter'

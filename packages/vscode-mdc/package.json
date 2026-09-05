@@ -18,9 +18,15 @@
         }
     },
     "activationEvents": [
+        "onView:mdcSchema",
+        "onView:mdcSelectorMapping",
+        "onView:mdcComponentTokens",
+        "onView:mdcForwardedTokens",
+        "onView:mdcUnusedTokens",
         "onView:mdcExplorer",
         "onCommand:mdc.inspectTokens",
         "onCommand:mdc.jumpToToken",
+        "onCommand:mdc.jumpToSchema",
         "onCommand:mdc.showCompiledCss",
         "onLanguage:typescript",
         "onLanguage:javascript",
@@ -40,8 +46,28 @@
         "views": {
             "mdc-sidebar": [
                 {
-                    "id": "mdcExplorer",
+                    "id": "mdcSchema",
+                    "name": "Schema"
+                },
+                {
+                    "id": "mdcSelectorMapping",
+                    "name": "Selector Mapping"
+                },
+                {
+                    "id": "mdcComponentTokens",
                     "name": "Component Tokens"
+                },
+                {
+                    "id": "mdcForwardedTokens",
+                    "name": "Forwarded Tokens"
+                },
+                {
+                    "id": "mdcUnusedTokens",
+                    "name": "Unused Tokens"
+                },
+                {
+                    "id": "mdcExplorer",
+                    "name": "MDC Explorer"
                 }
             ]
         },
@@ -69,6 +95,10 @@
             {
                 "command": "mdc.jumpToToken",
                 "title": "MDC: Jump to Token in Editor"
+            },
+            {
+                "command": "mdc.jumpToSchema",
+                "title": "MDC: Jump to Schema in Editor"
             },
             {
                 "command": "mdc.showCompiledCss",
@@ -115,6 +145,7 @@
     },
     "dependencies": {
         "@sandlada/jss": "^0.0.1-20260626.a",
+        "@sandlada/mdc": "*",
         "@sandlada/mdk": "^3.0.0-20260624.c",
         "lit": "^3.3.3",
         "rolldown": "^1.2.4",

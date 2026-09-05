@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 import type { StylesheetAnalysis, DefinitionMeta, DiagnosticIssue } from './types'
+import { splitChildBridgeSuffix } from './stylesheet-analyzer'
 
 /**
  * Analyzes a stylesheet and returns all MDC diagnostic issues (MDC001, MDC002, MDC003).
@@ -45,32 +46,30 @@ export function getStylesheetDiagnostics(
             }
         }
 
-        // Rule MDC003: Invalid child state assignment check
+        // Rule MDC003: Invalid child state assignment check.
+        // Static (state-invariant) child tokens have no state infix: the only
+        // valid override is `${prefix}-${key}`. A state infix on a static token
+        // (e.g. `--mdc-icon-hovered-size`) is always wrong.
         if (usage.token.startsWith('--mdc-') && defMeta) {
             for (const [targetName, fwd] of defMeta.forwarded) {
                 if (usage.token.startsWith(fwd.targetPrefix)) {
                     const suffix = usage.token.replace(fwd.targetPrefix + '-', '')
-                    // Suffix is like `hovered-color` or `enabled-color`
-                    const stateMatch = /^(enabled|hovered|pressed|focused|disabled)-(.*)$/.exec(suffix)
-                    if (stateMatch) {
-                        const state = stateMatch[1]
-                        const tokenKey = stateMatch[2]
-                        const fwdMeta = fwd.tokens[tokenKey]
+                    const split = splitChildBridgeSuffix(suffix, fwd.tokens)
+                    const fwdMeta = fwd.tokens[split.key]
 
-                        if (fwdMeta && !fwdMeta.isTuple && state !== 'enabled') {
-                            issues.push({
-                                code: 'MDC003',
-                                message: `[MDC003] Target component "${targetName}" only defines "enabled" state for "${tokenKey}". Override "${fwd.targetPrefix}-enabled-${tokenKey}" inside a state pseudo-class (:hover, :active) instead.`,
-                                severity: 'warning',
+                    if (fwdMeta && split.state && split.state !== 'enabled' && split.state !== 'base' && !fwdMeta.isTuple && !fwdMeta.isRecord) {
+                        issues.push({
+                            code: 'MDC003',
+                            message: `[MDC003] Target component "${targetName}" defines "${split.key}" as a static token. Use "${fwd.targetPrefix}-${split.key}" (no state infix) instead of "${usage.token}".`,
+                            severity: 'warning',
+                            range: usage.range,
+                            token: usage.token,
+                            quickFix: {
+                                title: `Change to "${fwd.targetPrefix}-${split.key}"`,
+                                replacement: `${fwd.targetPrefix}-${split.key}`,
                                 range: usage.range,
-                                token: usage.token,
-                                quickFix: {
-                                    title: `Change to "${fwd.targetPrefix}-enabled-${tokenKey}"`,
-                                    replacement: `${fwd.targetPrefix}-enabled-${tokenKey}`,
-                                    range: usage.range,
-                                },
-                            })
-                        }
+                            },
+                        })
                     }
                 }
             }

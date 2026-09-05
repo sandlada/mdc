@@ -34,9 +34,10 @@ export function getContextScopedCompletions(
             const varName = `--_${key}`
             const fullVarExpr = `var(${varName})`
 
-            const stateInfo = meta.isTuple
-                ? `5-state tuple: ${meta.states?.join(', ') || 'all'}`
-                : `1-state static: ${meta.rawValue || ''}`
+            const tokenStates = Array.isArray(meta.states) ? meta.states : []
+            const stateInfo = meta.isTuple || meta.isRecord
+                ? `${tokenStates.length}-state tuple: ${tokenStates.join(', ') || 'all'}`
+                : `static: ${meta.rawValue || ''}`
 
             items.push({
                 label: varName,
@@ -52,10 +53,13 @@ export function getContextScopedCompletions(
     if (wantsChild || (!wantsPrivate && prefix === '')) {
         for (const [targetName, fwd] of definitionMeta.forwarded) {
             for (const [tokenKey, tokenMeta] of Object.entries(fwd.tokens)) {
-                // If token is 5-state in target
+                // If token is stateful in target
                 const cleanKey = tokenKey.replace(/^--/, '')
-                if (tokenMeta.isTuple) {
-                    for (const state of tokenMeta.states || ['enabled']) {
+                if (tokenMeta.isTuple || tokenMeta.isRecord) {
+                    const childStates = Array.isArray(tokenMeta.states) && tokenMeta.states.length > 0
+                        ? tokenMeta.states
+                        : ['enabled']
+                    for (const state of childStates) {
                         const targetVar = `${fwd.targetPrefix}-${state}-${cleanKey}`
                         items.push({
                             label: targetVar,
@@ -66,7 +70,7 @@ export function getContextScopedCompletions(
                         })
                     }
                 } else {
-                    const targetVar = `${fwd.targetPrefix}-enabled-${cleanKey}`
+                    const targetVar = `${fwd.targetPrefix}-${cleanKey}`
                     items.push({
                         label: targetVar,
                         insertText: targetVar,
