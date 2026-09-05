@@ -111,6 +111,72 @@ export const splitCssValues = (val: string): string[] => {
 }
 
 /**
+ * Filters combo list so that inactive dimensions (dimensions where no referenced token
+ * defines any state other than the base state) only participate in their base state.
+ */
+function filterRelevantCombos(
+    comboList: readonly StateDimensionItem[][],
+    schema: StateSchema<any> | undefined,
+    meta: StateTokenMetadata | undefined,
+    stmts: readonly ParsedStatement[]
+): { combos: StateDimensionItem[][]; activeDimensions: Set<number> | null } {
+    if (!schema?.dimensions || schema.dimensions.length <= 1 || !meta) {
+        return { combos: comboList as StateDimensionItem[][], activeDimensions: null }
+    }
+
+    // 1. Collect all referenced tokens (expanding shorthand macro properties)
+    const referencedTokens = new Set<string>()
+    for (const stmt of stmts) {
+        if (stmt.type === 'decl' && stmt.property && stmt.value) {
+            const expanded = expandDeclaration(stmt.property, stmt.value)
+            for (const m of expanded.matchAll(/var\(\s*--_([a-zA-Z0-9_-]+)/g)) {
+                referencedTokens.add(m[1])
+            }
+        }
+    }
+
+    if (referencedTokens.size === 0) {
+        return { combos: comboList as StateDimensionItem[][], activeDimensions: null }
+    }
+
+    // 2. Determine which dimensions are active for the referenced tokens
+    const activeDimensions = new Set<number>()
+    schema.dimensions.forEach((dim, dimIdx) => {
+        const baseStateOfDim = dim[0]
+        for (const token of referencedTokens) {
+            const definedStates = meta.getDefinedStates(token)
+            for (const s of definedStates) {
+                if (dim.includes(s) && s !== baseStateOfDim && s !== 'enabled' && s !== 'base') {
+                    activeDimensions.add(dimIdx)
+                    break
+                }
+            }
+            if (activeDimensions.has(dimIdx)) break
+        }
+    })
+
+    // If all dimensions are active, no pruning needed
+    if (activeDimensions.size === schema.dimensions.length) {
+        return { combos: comboList as StateDimensionItem[][], activeDimensions: null }
+    }
+
+    // 3. Prune combos where inactive dimensions take non-base states
+    const filtered = comboList.filter((combo) => {
+        return combo.every((item, dimIdx) => {
+            if (activeDimensions.has(dimIdx)) return true
+            const dim = schema.dimensions[dimIdx]
+            const baseStateOfDim = dim ? dim[0] : 'enabled'
+            return item.name === baseStateOfDim || item.name === 'enabled' || item.name === 'base'
+        })
+    })
+
+    return {
+        combos: filtered.length > 0 ? filtered : (comboList as StateDimensionItem[][]),
+        activeDimensions
+    }
+}
+
+/**
  * Expands property macros (shape:, padding:, margin:, typescale:).
  */
 export const expandDeclaration = (prop: string, val: string): string => {
@@ -603,6 +669,7 @@ export interface AtRulesCompilerContext {
     readonly variantSelector?: string
     readonly isolationContainer?: string
     readonly stateNestingDepth?: number
+    readonly schema?: StateSchema<any>
 }
 
 interface TransformResult {
@@ -731,7 +798,7 @@ export const mergeHoistedRules = (rules: readonly string[]): string[] => {
 function resolveStateModifiers(
     definition: any,
     registry: StateTriggerRegistry
-): { states: StateDimensionItem[] | StateDimensionItem[][]; isCombo: boolean } {
+): { states: StateDimensionItem[] | StateDimensionItem[][]; isCombo: boolean; schema?: StateSchema<any> } {
     let schema: StateSchema<any> | undefined = definition?.schema
     if (!schema && Array.isArray(definition)) {
         for (const item of definition) {
@@ -767,7 +834,7 @@ function resolveStateModifiers(
             }
             comboItems.push(items)
         }
-        return { states: comboItems, isCombo: true }
+        return { states: comboItems, isCombo: true, schema }
     }
 
     const stateNames: string[] = schema?.states ? [...schema.states] : []
@@ -776,7 +843,8 @@ function resolveStateModifiers(
             states: [
                 { name: 'enabled', modifier: '', target: 'self' }
             ],
-            isCombo: false
+            isCombo: false,
+            schema
         }
     }
 
@@ -789,7 +857,7 @@ function resolveStateModifiers(
         }
     })
 
-    return { states: singleItems, isCombo: false }
+    return { states: singleItems, isCombo: false, schema }
 }
 
 function transformStatements(
@@ -801,9 +869,31 @@ function transformStatements(
 
     for (const stmt of statements) {
         if (stmt.type === 'decl') {
-            let expanded = expandDeclaration(stmt.property!, stmt.value!)
+            const expanded = expandDeclaration(stmt.property!, stmt.value!)
             if (ctx.currentStates && ctx.currentStates.length > 0 && ctx.meta) {
-                expanded = rewriteStateVariables(expanded, ctx.currentStates, ctx.meta)
+                const rawDecls = expanded.split(';').map(d => d.trim()).filter(Boolean)
+                const validDecls: string[] = []
+                for (const singleDecl of rawDecls) {
+                    const varMatches = [...singleDecl.matchAll(/var\(\s*--_([a-zA-Z0-9_-]+)/g)]
+                    let isMissingStateToken = false
+                    for (const m of varMatches) {
+                        const tokenName = m[1]
+                        if (ctx.meta.isStateToken(tokenName)) {
+                            const hasInAnyState = ctx.currentStates.some(s => ctx.meta!.hasStateToken(tokenName, s))
+                            if (!hasInAnyState) {
+                                isMissingStateToken = true
+                                break
+                            }
+                        }
+                    }
+                    if (!isMissingStateToken) {
+                        validDecls.push(rewriteStateVariables(singleDecl, ctx.currentStates, ctx.meta) + ';')
+                    }
+                }
+                if (validDecls.length > 0) {
+                    baseParts.push(validDecls.join(' '))
+                }
+                continue
             }
             baseParts.push(expanded)
             continue
@@ -1033,11 +1123,15 @@ function transformStatements(
 
                 // Expand states
                 if (ctx.isCombo) {
-                    const comboList = ctx.states as StateDimensionItem[][]
+                    const fullComboList = ctx.states as StateDimensionItem[][]
+                    const { combos: comboList, activeDimensions } = filterRelevantCombos(fullComboList, ctx.schema, ctx.meta, nonWhenStmts)
                     const expandedRules: string[] = []
+                    const seenRules = new Set<string>()
 
                     for (const combo of comboList) {
-                        const comboMod = combo.map((item) => item.modifier).join('')
+                        const comboMod = combo
+                            .map((item, dimIdx) => (activeDimensions && !activeDimensions.has(dimIdx) ? '' : item.modifier))
+                            .join('')
                         const replaced = replaceTargetInSelector(targetSelector, target, comboMod)
                         const sel = replaced.result
 
@@ -1047,7 +1141,12 @@ function transformStatements(
                             stateNestingDepth: currentDepth + 1,
                             currentStates: combo.map((item) => item.name)
                         })
-                        expandedRules.push(formatRule(sel, stateRes.baseRules.join(' ')))
+                        const ruleBody = stateRes.baseRules.join(' ')
+                        const ruleText = formatRule(sel, ruleBody)
+                        if (!seenRules.has(ruleText)) {
+                            seenRules.add(ruleText)
+                            expandedRules.push(ruleText)
+                        }
                     }
 
                     baseParts.push(expandedRules.join(' '))
@@ -1121,9 +1220,13 @@ function transformStatements(
                     // Expand state inside when
                     const whenExpandedRules: string[] = []
                     if (ctx.isCombo) {
-                        const comboList = ctx.states as StateDimensionItem[][]
+                        const fullComboList = ctx.states as StateDimensionItem[][]
+                        const { combos: comboList, activeDimensions } = filterRelevantCombos(fullComboList, ctx.schema, ctx.meta, innerWhenStmts)
+                        const seenRules = new Set<string>()
                         for (const combo of comboList) {
-                            const comboMod = combo.map((item) => item.modifier).join('')
+                            const comboMod = combo
+                                .map((item, dimIdx) => (activeDimensions && !activeDimensions.has(dimIdx) ? '' : item.modifier))
+                                .join('')
                             const replaced = replaceTargetInSelector(targetSelector, target, comboMod)
                             const sel = replaced.result
                             const wsRes = transformStatements(innerWhenStmts, {
@@ -1131,7 +1234,12 @@ function transformStatements(
                                 ancestorPath: [],
                                 currentStates: combo.map((item) => item.name)
                             })
-                            whenExpandedRules.push(formatRule(sel, wsRes.baseRules.join(' ')))
+                            const ruleBody = wsRes.baseRules.join(' ')
+                            const ruleText = formatRule(sel, ruleBody)
+                            if (!seenRules.has(ruleText)) {
+                                seenRules.add(ruleText)
+                                whenExpandedRules.push(ruleText)
+                            }
                         }
                     } else {
                         const stateList = ctx.states as StateDimensionItem[]
@@ -1259,7 +1367,7 @@ export const compileAtRulesSheet = (
         registry.registerAll(options.triggers)
     }
 
-    const { states, isCombo } = resolveStateModifiers(definition, registry)
+    const { states, isCombo, schema } = resolveStateModifiers(definition, registry)
 
     if (isCombo) {
         const comboList = states as StateDimensionItem[][]
@@ -1281,6 +1389,7 @@ export const compileAtRulesSheet = (
         registry,
         options,
         meta,
+        schema,
         ancestorPath: []
     }
 

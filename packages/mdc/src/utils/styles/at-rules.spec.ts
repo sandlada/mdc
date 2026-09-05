@@ -6,7 +6,7 @@
  * @fileoverview
  */
 
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { createStyleDefinition } from './create-style-definition'
 import { defineSchema } from './define-schema'
 import { mapStateTriggers } from './map-state-triggers'
@@ -29,6 +29,12 @@ describe('button', () => {
     const SizeSchema = defineSchema(['small', 'medium', 'large'] as const)
     const SizeDef = createStyleDefinition(SizeSchema)({
         'size': [12, 14, 16],
+        'color': [null, 'red', 'blue'],
+        'width': {
+            small: `120px`,
+            medium: `130px`,
+            large: `140px`,
+        }
     })
     const SizeTriggers = mapStateTriggers({
         'small': '.small',
@@ -232,7 +238,9 @@ describe('button', () => {
         ['.wrapper { @state(button) button~button {} }', '.wrapper { button.small~button.small {} button.medium~button.medium {} button.large~button.large {} }'],
         ['.wrapper { @state(button) button~ button {} }', '.wrapper { button.small~ button.small {} button.medium~ button.medium {} button.large~ button.large {} }'],
         ['.wrapper { @state(button) button ~button {} }', '.wrapper { button.small ~button.small {} button.medium ~button.medium {} button.large ~button.large {} }'],
-
+        ['@state(button) button { color: var(--_color); }', ['button.small {}', 'button.medium { color: var(--_medium-color); }', 'button.large { color: var(--_large-color); }']],
+        ['@state(button) button { width: var(--_width); }', ['button.small { width: var(--_small-width); }', 'button.medium { width: var(--_medium-width); }', 'button.large { width: var(--_large-width); }']],
+        ['@state(button) button { color: var(--_color); width: var(--_width); }', ['button.small { width: var(--_small-width); }', 'button.medium { color: var(--_medium-color); width: var(--_medium-width); }', 'button.large { color: var(--_large-color); width: var(--_large-width); }']],
     ]
 
     for (const [input, expected] of mapping) {
@@ -737,4 +745,64 @@ describe('Intergration', () => {
             expect(normalizeCss(output)).toBe(normalizeCss(expected))
         })
     }
+})
+
+describe('orthogonal-combo-isolation', () => {
+    const CardSchema = defineSchema([
+        ['enabled', 'hovered'],
+        ['round', 'square'],
+    ] as const)
+
+    const CardDef = createStyleDefinition(CardSchema)({
+        'container-shape-start-start': {
+            round: `12px`,
+            square: `0px`,
+        },
+        'container-color': {
+            enabled: `white`,
+            hovered: `gray`,
+        },
+        'container-height': {
+            enabled: `100px`,
+            hovered: `120px`,
+            round: `110px`,
+            square: `90px`,
+        },
+    })
+
+    const CardTriggers = mapStateTriggers({
+        'enabled': '',
+        'hovered': ':hover',
+        'round': '.round',
+        'square': '.square',
+    })
+
+    it('prunes inactive dimension 0 for tokens only varying on dimension 1', () => {
+        const input = '@state(.container) .container { border-start-start-radius: var(--_container-shape-start-start); }'
+        const output = compileStateSheet(CardDef, input, { registry: CardTriggers })
+        expect(normalizeCss(output)).toBe(normalizeCss([
+            '.container.round { border-start-start-radius: var(--_round-container-shape-start-start); }',
+            '.container.square { border-start-start-radius: var(--_square-container-shape-start-start); }',
+        ]))
+    })
+
+    it('prunes inactive dimension 1 for tokens only varying on dimension 0', () => {
+        const input = '@state(.container) .container { background-color: var(--_container-color); }'
+        const output = compileStateSheet(CardDef, input, { registry: CardTriggers })
+        expect(normalizeCss(output)).toBe(normalizeCss([
+            '.container { background-color: var(--_enabled-container-color); }',
+            '.container:hover { background-color: var(--_hovered-container-color); }',
+        ]))
+    })
+
+    it('expands all combinations when tokens vary on both dimensions', () => {
+        const input = '@state(.container) .container { background-color: var(--_container-color); border-start-start-radius: var(--_container-shape-start-start); }'
+        const output = compileStateSheet(CardDef, input, { registry: CardTriggers })
+        expect(normalizeCss(output)).toBe(normalizeCss([
+            '.container.round { background-color: var(--_enabled-container-color); border-start-start-radius: var(--_round-container-shape-start-start); }',
+            '.container.square { background-color: var(--_enabled-container-color); border-start-start-radius: var(--_square-container-shape-start-start); }',
+            '.container:hover.round { background-color: var(--_hovered-container-color); border-start-start-radius: var(--_round-container-shape-start-start); }',
+            '.container:hover.square { background-color: var(--_hovered-container-color); border-start-start-radius: var(--_square-container-shape-start-start); }',
+        ]))
+    })
 })

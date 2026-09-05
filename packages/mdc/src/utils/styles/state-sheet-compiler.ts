@@ -309,8 +309,12 @@ export function extractStateTokenMetadata(definition: any): StateTokenMetadata {
                 stateVarMap.set(`${key}:base`, `${baseState}-${key}`)
 
                 for (let i = 0; i < statesList.length && i < rawVal.length; i++) {
+                    const rawItem = rawVal[i]
+                    if (rawItem === null || rawItem === undefined) {
+                        continue
+                    }
                     const sName = statesList[i]
-                    const sValStr = formatValueString(rawVal[i])
+                    const sValStr = formatValueString(rawItem)
 
                     tokenStates.add(sName)
                     allDefinedStates.add(sName)
