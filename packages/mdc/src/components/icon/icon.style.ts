@@ -81,7 +81,7 @@ export const styles = [
         }
     }
 
-    @layer mdc.elevation.motion {
+    @layer mdc.icon.motion {
         @media (prefers-reduced-motion: reduce) {
             :host,
             :host * {
@@ -90,7 +90,7 @@ export const styles = [
             }
         }
     }
-    @layer mdc.elevation.hcm {
+    @layer mdc.icon.hcm {
         @media (forced-colors: active) {
             :host,
             ::slotted(*),
@@ -99,7 +99,7 @@ export const styles = [
             }
         }
     }
-    @layer mdc.elevation.contrast {
+    @layer mdc.icon.contrast {
         @media (prefers-contrast: more) {
             :host {
                 color: CanvasText;
@@ -112,7 +112,7 @@ export const styles = [
             }
         }
     }
-    @layer mdc.elevation.transparncy {
+    @layer mdc.icon.transparncy {
         @media (prefers-reduced-transparency: reduce) {
 
         }
