@@ -11,7 +11,7 @@
  * - `${prefix}-padding-inline-end`
  */
 
-import type { CSSResult } from 'lit'
+import type { CSSLike } from '../css-like'
 import {
     isPaddingObject,
     isPrimitiveValue,
@@ -21,7 +21,7 @@ import {
 /**
  * Supported primitive padding value types.
  */
-export type PrimitivePaddingValue = string | number | CSSResult | { ToCSSVariable: () => string }
+export type PrimitivePaddingValue = string | number | CSSLike | { ToCSSVariable: () => string }
 
 /**
  * 2-axis tuple representing `[block, inline]` padding.

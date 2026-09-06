@@ -4,7 +4,8 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { unsafeCSS, type CSSResult } from 'lit'
+import { MDCStyleSheet } from '../../css-like'
+import type { CSSLike } from '../../css-like'
 import { compileStateSheet, type CompileStateSheetOptions } from '../compile-state-sheet'
 
 export function interpolateTemplate(strings: TemplateStringsArray | string | readonly string[], values: readonly any[]): string {
@@ -50,20 +51,20 @@ export function compileTemplate(
     templateOrStrings: any,
     options?: CompileStateSheetOptions,
     values: any[] = []
-): CSSResult {
+): MDCStyleSheet {
     let rawCss = ''
 
     if (isTemplateStringsArray(templateOrStrings)) {
         rawCss = interpolateTemplate(templateOrStrings, values)
     } else if (typeof templateOrStrings === 'function') {
         const res = templateOrStrings(definition)
-        rawCss = typeof res === 'string' ? res : (res as CSSResult)?.cssText || String(res ?? '')
+        rawCss = typeof res === 'string' ? res : (res as CSSLike)?.cssText || String(res ?? '')
     } else if (templateOrStrings !== undefined) {
         rawCss = typeof templateOrStrings === 'string'
             ? templateOrStrings
-            : (templateOrStrings as CSSResult)?.cssText || String(templateOrStrings ?? '')
+            : (templateOrStrings as CSSLike)?.cssText || String(templateOrStrings ?? '')
     }
 
     const compiled = compileStateSheet(definition, rawCss, options)
-    return unsafeCSS(compiled)
+    return new MDCStyleSheet(compiled)
 }

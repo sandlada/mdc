@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { unsafeCSS, type CSSResult } from 'lit'
+import { MDCStyleSheet } from '../css-like'
 import type { StateSchema } from '../define-schema'
 import type { ResolvedStyleDefinition, TokenValue, PrimitiveTokenValue } from '../create-style-definition'
 import {
@@ -42,11 +42,11 @@ export type StringifyPrefixOrOptions = string | StringifyTokensOptions
  * static token properties (`--_<key>: var(<prefix>-<key>, <value>);`), and child component bridges.
  *
  * @param prefixOrOptions - Public CSS variable prefix string (e.g. `'--mdc-button'`) or configuration options.
- * @returns A curried function accepting a style definition and returning a Lit `CSSResult`.
+ * @returns A curried function accepting a style definition and returning an `MDCStyleSheet`.
  *
  * @example
  * ```typescript
- * import { css } from 'lit'
+ * import { css, unsafeCSS } from 'lit'
  * import { stringifyTokens } from '@sandlada/mdc/utils/styles/stringify-tokens'
  * import { ButtonDefinition } from './button.definition'
  *
@@ -54,7 +54,7 @@ export type StringifyPrefixOrOptions = string | StringifyTokensOptions
  *
  * export const ButtonHostStyles = css`
  *     :host {
- *         ${buttonTokens}
+ *         ${unsafeCSS(buttonTokens.cssText)}
  *     }
  * `
  * ```
@@ -69,9 +69,9 @@ export function stringifyTokens(
         const TTokens extends Record<string, TokenValue<TStates, PrimitiveTokenValue>> = Record<string, TokenValue<TStates, PrimitiveTokenValue>>
     >(
         definition: ResolvedStyleDefinition<StateSchema<TStates>, TTokens> | Record<string, any>
-    ): CSSResult => {
+    ): MDCStyleSheet => {
         if (!definition || typeof definition !== 'object') {
-            return unsafeCSS('')
+            return new MDCStyleSheet('')
         }
 
         const schema = (definition as any).schema
@@ -162,14 +162,14 @@ export function stringifyTokens(
         }
 
         if (declarations.length === 0) {
-            return unsafeCSS('')
+            return new MDCStyleSheet('')
         }
 
         if (options.selector && options.selector.trim().length > 0) {
             const indented = declarations.map((d) => `    ${d}`).join('\n')
-            return unsafeCSS(`${options.selector} {\n${indented}\n}`)
+            return new MDCStyleSheet(`${options.selector} {\n${indented}\n}`)
         }
 
-        return unsafeCSS(declarations.join('\n'))
+        return new MDCStyleSheet(declarations.join('\n'))
     }
 }

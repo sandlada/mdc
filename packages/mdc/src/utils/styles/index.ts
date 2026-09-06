@@ -22,20 +22,29 @@
  *
  * @example
  * ```typescript
- * import {
- *     defineSchema,
- *     createStyleDefinition,
- *     forwardTokens,
- *     stringifyTokens,
- *     createStyleSheet,
- *     mapStateTriggers,
- *     overrideTokens,
- *     pipe
- * } from '@sandlada/mdc/utils'
+ * import { defineSchema } from '@sandlada/mdc/utils/styles/define-schema'
+ * import { createStyleDefinition } from '@sandlada/mdc/utils/styles/create-style-definition'
+ * import { forwardTokens } from '@sandlada/mdc/utils/styles/forward-tokens'
+ * import { stringifyTokens } from '@sandlada/mdc/utils/styles/stringify-tokens'
+ * import { createStyleSheet } from '@sandlada/mdc/utils/styles/compiler'
+ * import { mapStateTriggers } from '@sandlada/mdc/utils/styles/map-state-triggers'
+ * import { overrideTokens } from '@sandlada/mdc/utils/styles/override-tokens'
+ * import { pipe } from '@sandlada/mdc/utils/styles/pipe'
  * ```
  */
 
 // 1. Schema & Token Definition Layer
+export {
+    MDCStyleSheet,
+    isCSSLike,
+    cssTextOf,
+    sheetOf,
+    emptySheet,
+    type CSSLike,
+    type ToCSSVariableLike,
+    type StyleTemplateValue
+} from './css-like'
+
 export {
     defineSchema,
     type StateSchema

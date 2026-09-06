@@ -10,7 +10,8 @@
  * Mission HUMAN = `about` + `input` + `build()` printed output (reading material, never asserted).
  */
 
-import type { CSSResult } from 'lit'
+import type { CSSLike } from '../css-like'
+import { cssTextOf } from '../css-like'
 import { defineSchema } from '../define-schema'
 import { createStyleDefinition } from '../create-style-definition'
 import { stringifyTokens } from '../stringify-tokens'
@@ -31,9 +32,6 @@ export interface PlaygroundCase {
     readonly mustContain: readonly string[]
     readonly mustNotContain: readonly string[]
 }
-
-const cssTextOf = (value: CSSResult | string): string =>
-    typeof value === 'string' ? value : (value.cssText ?? '')
 
 const schemaTopologyCase: PlaygroundCase = {
     name: 'schema-topology',
@@ -226,7 +224,7 @@ const realWorldCase: PlaygroundCase = {
     build: () => {
         const injected = cssTextOf(stringifyTokens('--mdc-focus-ring')(FocusRingDefinition))
         const fullStyle = FocusRingStyle
-            .map((entry) => cssTextOf(entry as CSSResult))
+            .map((entry) => cssTextOf(entry as CSSLike))
             .join('\n')
         const fabTokenCounts = Object.entries(FabVariants)
             .map(([variant, def]) => `${variant}=${Object.keys(def.tokens).length}`)

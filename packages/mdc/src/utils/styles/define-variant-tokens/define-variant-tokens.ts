@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { unsafeCSS, type CSSResult } from 'lit'
+import { MDCStyleSheet } from '../css-like'
 import { stringifyTokens } from '../stringify-tokens'
 import type { ResolvedStyleDefinition } from '../create-style-definition'
 
@@ -33,7 +33,7 @@ export type DefineVariantTokensOptionsOrPrefix = string | DefineVariantTokensOpt
  * Pure functional, data-last curried factory for batch generating multi-variant token injection CSS blocks.
  *
  * @param optionsOrPrefix - Configuration options or public CSS prefix string.
- * @returns Curried function accepting a dictionary of variant definitions and returning a Lit CSSResult.
+ * @returns Curried function accepting a dictionary of variant definitions and returning an `MDCStyleSheet`.
  *
  * @example
  * ```typescript
@@ -64,9 +64,9 @@ export function defineVariantTokens(optionsOrPrefix: DefineVariantTokensOptionsO
 
     return <TVariants extends Record<string, ResolvedStyleDefinition<any, any> | Record<string, any>>>(
         variants: TVariants
-    ): CSSResult => {
+    ): MDCStyleSheet => {
         if (!variants || typeof variants !== 'object') {
-            return unsafeCSS('')
+            return new MDCStyleSheet('')
         }
 
         const blocks: string[] = []
@@ -91,9 +91,9 @@ export function defineVariantTokens(optionsOrPrefix: DefineVariantTokensOptionsO
         }
 
         if (blocks.length === 0) {
-            return unsafeCSS('')
+            return new MDCStyleSheet('')
         }
 
-        return unsafeCSS(blocks.join('\n\n'))
+        return new MDCStyleSheet(blocks.join('\n\n'))
     }
 }

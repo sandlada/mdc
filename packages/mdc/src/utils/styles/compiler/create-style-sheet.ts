@@ -4,22 +4,23 @@
  * SPDX-License-Identifier: MIT
  */
 
-import type { CSSResult } from 'lit'
+import type { CSSLike } from '../css-like'
+import { MDCStyleSheet } from '../css-like'
 import { StateTriggerRegistry } from '../map-state-triggers'
 import type { ResolvedStyleDefinition } from '../create-style-definition'
 import type { CompileStateSheetOptions } from './compile-state-sheet'
 import { compileTemplate } from './internal/template-helpers'
 
-export type StyleSheetCallback = (tokens?: any) => CSSResult | string
+export type StyleSheetCallback = (tokens?: any) => CSSLike | string
 
 export type TaggedTemplateFn = (
     strings: TemplateStringsArray,
     ...values: any[]
-) => CSSResult
+) => MDCStyleSheet
 
 export type StyleSheetCurriedWithDef = {
-    (template: StyleSheetCallback | CSSResult | string): CSSResult
-    (strings: TemplateStringsArray, ...values: any[]): CSSResult
+    (template: StyleSheetCallback | CSSLike | string): MDCStyleSheet
+    (strings: TemplateStringsArray, ...values: any[]): MDCStyleSheet
 }
 
 export type StyleSheetCurriedWithOptions = {
@@ -41,14 +42,14 @@ export interface CreateStyleSheetFn {
 
     <TDef extends Record<string, any>>(
         definition: TDef,
-        cssOrFn: StyleSheetCallback | CSSResult | string
-    ): CSSResult
+        cssOrFn: StyleSheetCallback | CSSLike | string
+    ): MDCStyleSheet
 
     <TDef extends Record<string, any>>(
         definition: TDef,
         strings: TemplateStringsArray,
         ...values: any[]
-    ): CSSResult
+    ): MDCStyleSheet
 
     (): (optionsOrDef?: any) => any
 }
@@ -61,8 +62,13 @@ export type CreateStyleSheetOptions = CompileStateSheetOptions
  * Compiles new-system ATRules (`@state`, `@variant`, `@when`, property expanders,
  * a11y macros) and legacy ATRules (`@anchor <sel>`, `@variant`, `@slot`, `@slotted`,
  * `@size`, `@elevation`) with multi-state tokens into standard CSS,
- * wrapped inside a Lit `CSSResult`. Routing between the two engines is automatic
+ * wrapped inside a framework-agnostic `MDCStyleSheet`. Routing between the two engines is automatic
  * (see `compileStateSheet`; semantics Oracle: `at-rules.spec.ts`).
+ *
+ * Accepts Lit `css` results (or any `{ cssText }` holder) as input via
+ * structural typing without importing `lit`. Convert the returned sheet to a
+ * Lit `CSSResult` with `toLit()` from `utils/styles/lit` when assigning to
+ * `static styles`.
  *
  * Supports:
  * 1. Options or trigger registry: `createStyleSheet(triggers)(ButtonDefinition)\`...\``
@@ -107,7 +113,7 @@ export const createStyleSheet: CreateStyleSheetFn = function (arg1?: any, arg2?:
             : arg1
 
         const curriedWithOptions: StyleSheetCurriedWithOptions = (definition: any): StyleSheetCurriedWithDef => {
-            const curriedWithDef: StyleSheetCurriedWithDef = ((templateOrStrings: any, ...values: any[]): CSSResult => {
+            const curriedWithDef: StyleSheetCurriedWithDef = ((templateOrStrings: any, ...values: any[]): MDCStyleSheet => {
                 return compileTemplate(definition, templateOrStrings, compileOptions, values)
             }) as StyleSheetCurriedWithDef
             return curriedWithDef
@@ -117,7 +123,7 @@ export const createStyleSheet: CreateStyleSheetFn = function (arg1?: any, arg2?:
 
     // 3. Definition passed first: createStyleSheet(definition) -> (template)
     const definition = arg1
-    const curriedWithDef: StyleSheetCurriedWithDef = ((templateOrStrings: any, ...values: any[]): CSSResult => {
+    const curriedWithDef: StyleSheetCurriedWithDef = ((templateOrStrings: any, ...values: any[]): MDCStyleSheet => {
         return compileTemplate(definition, templateOrStrings, undefined, values)
     }) as StyleSheetCurriedWithDef
     return curriedWithDef

@@ -11,7 +11,7 @@
  * - `${prefix}-margin-inline-end`
  */
 
-import type { CSSResult } from 'lit'
+import type { CSSLike } from '../css-like'
 import {
     isMarginObject,
     isPrimitiveValue,
@@ -21,7 +21,7 @@ import {
 /**
  * Supported primitive margin value types.
  */
-export type PrimitiveMarginValue = string | number | CSSResult | { ToCSSVariable: () => string }
+export type PrimitiveMarginValue = string | number | CSSLike | { ToCSSVariable: () => string }
 
 /**
  * 2-axis tuple representing `[block, inline]` margin.

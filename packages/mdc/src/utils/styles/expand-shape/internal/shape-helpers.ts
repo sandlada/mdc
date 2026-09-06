@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-import type { CSSResult } from 'lit'
+import type { CSSLike } from '../../css-like'
 import type { CSSVariableProvider } from '../expand-shape'
 
 export const CORNER_KEYS = ['start-start', 'start-end', 'end-start', 'end-end'] as const
@@ -31,7 +31,7 @@ export function isCSSVariableProvider(value: unknown): value is CSSVariableProvi
     return typeof value === 'object' && value !== null && typeof (value as any)['ToCSSVariable'] === 'function'
 }
 
-export function isCSSResult(value: unknown): value is CSSResult {
+export function isCSSResult(value: unknown): value is CSSLike {
     return typeof value === 'object' && value !== null && ('_$cssResult$' in (value as object) || 'cssText' in (value as object))
 }
 

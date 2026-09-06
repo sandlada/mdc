@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-import type { CSSResult } from 'lit'
+import type { CSSLike } from '../css-like'
 import {
     CORNER_KEYS,
     CORNER_PROP_MAP,
@@ -25,7 +25,7 @@ export interface CSSVariableProvider {
 /**
  * Supported scalar shape token values.
  */
-export type ShapeScalarValue = string | number | CSSResult | CSSVariableProvider
+export type ShapeScalarValue = string | number | CSSLike | CSSVariableProvider
 
 /**
  * 4 logical corners object supporting both camelCase and kebab-case keys.
@@ -181,7 +181,7 @@ export function expandShape<const TPrefix extends string>(prefix: TPrefix) {
             }) as unknown as ExpandedShapeResult<TPrefix, TValue>
         }
 
-        // 2. CSSVariableProvider (e.g. Shape.Full) or Lit CSSResult
+        // 2. CSSVariableProvider (e.g. Shape.Full) or CSS disclosure (any `{ cssText }` holder)
         if (isCSSVariableProvider(shapeValue) || isCSSResult(shapeValue)) {
             return Object.freeze({
                 [`${baseKey}-start-start`]: shapeValue,

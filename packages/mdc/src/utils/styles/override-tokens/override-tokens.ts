@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { unsafeCSS, type CSSResult } from 'lit'
+import { MDCStyleSheet } from '../css-like'
 import { normalizeOptions, formatOverrideValue } from './internal/format-override-value'
 
 export interface OverrideTokensOptions {
@@ -25,7 +25,7 @@ export interface OverrideTokensOptions {
  * @template TDef - The component style definition type.
  *
  * @param prefixOrOptions - Public CSS variable prefix or options with custom selector wrapper.
- * @returns Curried function chain accepting override tokens and returning a Lit `CSSResult`.
+ * @returns Curried function chain accepting override tokens and returning an `MDCStyleSheet`.
  *
  * @example
  * ```typescript
@@ -57,9 +57,9 @@ export function overrideTokens<TDef extends Record<string, any> = Record<string,
         tokens: Partial<Record<keyof TDef | string, any>>
     ) => (
         _definition?: TDef
-    ): CSSResult => {
+    ): MDCStyleSheet => {
         if (!tokens || typeof tokens !== 'object') {
-            return unsafeCSS('')
+            return new MDCStyleSheet('')
         }
 
         const declarations: string[] = []
@@ -78,15 +78,15 @@ export function overrideTokens<TDef extends Record<string, any> = Record<string,
         }
 
         if (declarations.length === 0) {
-            return unsafeCSS('')
+            return new MDCStyleSheet('')
         }
 
         if (options.selector && options.selector.trim().length > 0) {
             const indented = declarations.map((d) => `    ${d}`).join('\n')
-            return unsafeCSS(`${options.selector} {\n${indented}\n}`)
+            return new MDCStyleSheet(`${options.selector} {\n${indented}\n}`)
         }
 
-        return unsafeCSS(declarations.join('\n'))
+        return new MDCStyleSheet(declarations.join('\n'))
     }
 }
 
@@ -96,7 +96,7 @@ export function overrideTokens<TDef extends Record<string, any> = Record<string,
 export function overrideComponentTokens<T = any>(
     prefix: string,
     tokens: Partial<Record<string, any>>
-): CSSResult {
+): MDCStyleSheet {
     return overrideTokens(prefix)(tokens)()
 }
 

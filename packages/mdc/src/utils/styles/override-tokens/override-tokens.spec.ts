@@ -6,6 +6,7 @@
 
 import { describe, it, expect } from 'vitest'
 import { css, CSSResult } from 'lit'
+import { MDCStyleSheet } from '../css-like'
 import { defineSchema } from '../define-schema'
 import { createStyleDefinition } from '../create-style-definition'
 import { overrideTokens } from './override-tokens'
@@ -17,7 +18,7 @@ describe('overrideTokens', () => {
             'container-shape': '16px'
         })()
 
-        expect(result).toBeInstanceOf(CSSResult)
+        expect(result).toBeInstanceOf(MDCStyleSheet)
         expect(result.cssText).toContain('--mdc-button-container-color: #b3261e;')
         expect(result.cssText).toContain('--mdc-button-container-shape: 16px;')
     })
@@ -67,7 +68,7 @@ describe('overrideTokens', () => {
 
         const result = overrideFn(ButtonDefinition)
 
-        expect(result).toBeInstanceOf(CSSResult)
+        expect(result).toBeInstanceOf(MDCStyleSheet)
         expect(result.cssText).toContain('--mdc-button-container-color: #006a6a;')
         expect(result.cssText).toContain('--mdc-button-container-shape: 12px;')
     })

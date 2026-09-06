@@ -5,14 +5,15 @@
  *
  * @fileoverview
  * Mapping-format suite: each row is `[label, styles, mustContain]` where the
- * `CSSResult` is produced up front by one invocation form of `createStyleSheet`
+ * `MDCStyleSheet` is produced up front by one invocation form of `createStyleSheet`
  * (tagged / curried / options-first / callback / pipe / zero-arg). The runner
  * only asserts the instance type and the content expectations, so the table
  * stays declarative while the form variety remains visible per row.
  */
 
 import { describe, it, expect } from 'vitest'
-import { css, CSSResult } from 'lit'
+import { css } from 'lit'
+import { MDCStyleSheet } from '../css-like'
 import { defineSchema } from '../define-schema'
 import { createStyleDefinition } from '../create-style-definition'
 import { mapStateTriggers } from '../map-state-triggers'
@@ -92,7 +93,7 @@ describe('createStyleSheet', () => {
         'large': '.large'
     })
 
-    const mapping: Array<[string, CSSResult, readonly string[], (readonly string[])?]> = [
+    const mapping: Array<[string, MDCStyleSheet, readonly string[], (readonly string[])?]> = [
         // Invocation forms over the legacy @anchor branch
         ['tagged template literal: createStyleSheet(def)`...`',
             createStyleSheet(ButtonDefinition)`
@@ -141,7 +142,7 @@ describe('createStyleSheet', () => {
         ['point-free pipeline: 0-arg createStyleSheet in pipeline',
             compileZero(ButtonDefinition)(legacyBackground),
             ['.container {']],
-        ['empty template string returns empty CSSResult',
+        ['empty template string returns empty MDCStyleSheet',
             createStyleSheet(ButtonDefinition)``,
             []],
         // New @state system (oracled in at-rules.spec.ts) via the HOF entrypoint
@@ -284,7 +285,7 @@ describe('createStyleSheet', () => {
 
     for (const [label, styles, mustContain, mustNotContain = []] of mapping) {
         it(label, () => {
-            expect(styles).toBeInstanceOf(CSSResult)
+            expect(styles).toBeInstanceOf(MDCStyleSheet)
             if (mustContain.length === 0 && mustNotContain.length === 0) {
                 expect(styles.cssText).toBe('')
                 return

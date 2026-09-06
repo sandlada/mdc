@@ -6,10 +6,10 @@
 
 import { describe, it, expect } from 'vitest'
 import { defineVariantTokens } from './define-variant-tokens'
+import { MDCStyleSheet } from '../css-like'
 import { defineSchema } from '../define-schema'
 import { createStyleDefinition } from '../create-style-definition'
 import { pipe } from '../pipe'
-import { CSSResult } from 'lit'
 
 const TestSchema = defineSchema(['enabled', 'hovered', 'disabled'] as const)
 
@@ -37,7 +37,7 @@ const ButtonVariants = {
 describe('defineVariantTokens', () => {
     it('returns a CSSResult when invoked with prefix string', () => {
         const result = defineVariantTokens('--mdc-test-button')(ButtonVariants)
-        expect(result).toBeInstanceOf(CSSResult)
+        expect(result).toBeInstanceOf(MDCStyleSheet)
 
         const css = result.cssText
         expect(css).toContain(':host([variant="filled"]) {')
@@ -78,19 +78,19 @@ describe('defineVariantTokens', () => {
             defineVariantTokens('--mdc-pipe-btn')
         )
         const result = getStyles(ButtonVariants)
-        expect(result).toBeInstanceOf(CSSResult)
+        expect(result).toBeInstanceOf(MDCStyleSheet)
         expect(result.cssText).toContain(':host([variant="filled"])')
     })
 
     it('handles empty variants dictionary gracefully', () => {
         const result = defineVariantTokens('--mdc-empty')({})
-        expect(result).toBeInstanceOf(CSSResult)
+        expect(result).toBeInstanceOf(MDCStyleSheet)
         expect(result.cssText).toBe('')
     })
 
     it('handles null / undefined dictionary gracefully', () => {
         const result = defineVariantTokens('--mdc-null')(null as any)
-        expect(result).toBeInstanceOf(CSSResult)
+        expect(result).toBeInstanceOf(MDCStyleSheet)
         expect(result.cssText).toBe('')
     })
 })

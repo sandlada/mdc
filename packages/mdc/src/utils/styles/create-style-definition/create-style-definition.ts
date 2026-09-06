@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-import type { CSSResult } from 'lit'
+import type { CSSLike } from '../css-like'
 import { defineSchema, type StateSchema } from '../define-schema'
 import { buildResolvedStyleDefinition } from './internal/build-resolved-style-definition'
 
@@ -13,7 +13,7 @@ export const FORWARDED_TOKEN_META = Symbol.for('mdc.styles.forwarded_token_meta'
 export const DEFAULT_STYLE_SCHEMA = defineSchema(['enabled', 'hovered', 'focused', 'pressed', 'disabled'] as const)
 export type DefaultStyleSchema = typeof DEFAULT_STYLE_SCHEMA
 
-export type PrimitiveTokenValue = string | number | null | undefined | CSSResult | { ToCSSVariable: () => string }
+export type PrimitiveTokenValue = string | number | null | undefined | CSSLike | { ToCSSVariable: () => string }
 
 export type StateTuple<TStates extends readonly string[], TValue = PrimitiveTokenValue> = {
     readonly [K in keyof TStates]: TValue

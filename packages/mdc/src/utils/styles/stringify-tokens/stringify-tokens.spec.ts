@@ -5,7 +5,8 @@
  */
 
 import { describe, it, expect } from 'vitest'
-import { css, CSSResult } from 'lit'
+import { css, CSSResult, unsafeCSS } from 'lit'
+import { MDCStyleSheet } from '../css-like'
 import { defineSchema } from '../define-schema'
 import { createStyleDefinition } from '../create-style-definition'
 import { forwardTokens } from '../forward-tokens'
@@ -21,7 +22,7 @@ describe('stringifyTokens', () => {
 
         const result = stringifyTokens('--mdc-button')(def)
 
-        expect(result).toBeInstanceOf(CSSResult)
+        expect(result).toBeInstanceOf(MDCStyleSheet)
         expect(result.cssText).toContain('--_container-shape: var(--mdc-button-container-shape, 8px);')
         expect(result.cssText).toContain('--_container-height: var(--mdc-button-container-height, 40);')
     })
@@ -170,7 +171,7 @@ describe('stringifyTokens', () => {
         const tokenCss = stringifyTokens('--mdc-button')(def)
         const componentStyles = css`
             :host {
-                ${tokenCss}
+                ${unsafeCSS(tokenCss.cssText)}
             }
         `
 
