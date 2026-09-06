@@ -1,0 +1,69 @@
+/**
+ * @license
+ * Copyright 2026 Kai-Orion & Sandlada
+ * SPDX-License-Identifier: MIT
+ */
+
+import { unsafeCSS, type CSSResult } from 'lit'
+import { compileStateSheet, type CompileStateSheetOptions } from '../compile-state-sheet'
+
+export function interpolateTemplate(strings: TemplateStringsArray | string | readonly string[], values: readonly any[]): string {
+    if (typeof strings === 'string') return strings
+    if (!Array.isArray(strings)) return ''
+
+    let result = ''
+    for (let i = 0; i < strings.length; i++) {
+        result += strings[i]
+        if (i < values.length) {
+            const val = values[i]
+            if (val === null || val === undefined) {
+                continue
+            }
+            if (typeof val === 'object' && val !== null) {
+                if (typeof (val as any).ToCSSVariable === 'function') {
+                    result += (val as any).ToCSSVariable()
+                } else if ('cssText' in val && typeof (val as any).cssText === 'string') {
+                    result += (val as any).cssText
+                } else if (Array.isArray(val)) {
+                    result += val.map((v) => {
+                        if (v && typeof v === 'object' && 'cssText' in v) return (v as any).cssText
+                        if (v && typeof v === 'object' && typeof (v as any).ToCSSVariable === 'function') return (v as any).ToCSSVariable()
+                        return String(v ?? '')
+                    }).join(' ')
+                } else {
+                    result += String(val)
+                }
+            } else {
+                result += String(val)
+            }
+        }
+    }
+    return result
+}
+
+export function isTemplateStringsArray(val: unknown): val is TemplateStringsArray {
+    return Array.isArray(val) && 'raw' in val && Array.isArray((val as any).raw)
+}
+
+export function compileTemplate(
+    definition: any,
+    templateOrStrings: any,
+    options?: CompileStateSheetOptions,
+    values: any[] = []
+): CSSResult {
+    let rawCss = ''
+
+    if (isTemplateStringsArray(templateOrStrings)) {
+        rawCss = interpolateTemplate(templateOrStrings, values)
+    } else if (typeof templateOrStrings === 'function') {
+        const res = templateOrStrings(definition)
+        rawCss = typeof res === 'string' ? res : (res as CSSResult)?.cssText || String(res ?? '')
+    } else if (templateOrStrings !== undefined) {
+        rawCss = typeof templateOrStrings === 'string'
+            ? templateOrStrings
+            : (templateOrStrings as CSSResult)?.cssText || String(templateOrStrings ?? '')
+    }
+
+    const compiled = compileStateSheet(definition, rawCss, options)
+    return unsafeCSS(compiled)
+}

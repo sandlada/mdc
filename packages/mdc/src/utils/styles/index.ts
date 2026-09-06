@@ -85,6 +85,8 @@ export {
 
 export {
     overrideTokens,
+    overrideComponentTokens,
+    stringTokens,
     type OverrideTokensOptions
 } from './override-tokens'
 
@@ -94,26 +96,93 @@ export {
 } from './pipe'
 
 export {
+    createStyleSheet,
+    type StyleSheetCallback,
+    type TaggedTemplateFn,
+    type StyleSheetCurriedWithDef,
+    type StyleSheetCurriedWithOptions,
+    type CreateStyleSheetFn,
+    type CreateStyleSheetOptions
+} from './compiler'
+
+export {
     compileStateSheet,
-    extractStateTokenMetadata,
     type ASTNode,
     type DeclarationNode,
     type StyleRuleNode,
     type WrapperAtRuleNode,
     type KeyframeStepNode,
     type KeyframesNode,
-    type CompileStateSheetOptions,
-    type StateTokenMetadata
-} from './state-sheet-compiler'
+    type StyleDiagnosticWarning,
+    type CompileStateSheetOptions
+} from './compiler'
 
 export {
-    createStyleSheet,
-    type StyleSheetCallback,
-    type TaggedTemplateFn,
-    type StyleSheetCurriedWithDef,
-    type StyleSheetCurriedWithOptions,
-    type CreateStyleSheetFn
-} from './create-style-sheet'
+    extractStateTokenMetadata,
+    type StateTokenMetadata
+} from './compiler'
+
+export {
+    compileAtRulesSheet,
+    type AtRulesCompilerContext
+} from './compiler'
+
+export {
+    isAtRulesStylesheet,
+    hasDefiniteAtRules
+} from './compiler'
+
+export {
+    composeStateSelector,
+    appendToHostSelector,
+    extractHostAndDescendant,
+    splitSelectorByComma,
+    canonicalizeState,
+    type ComposeSelectorOptions
+} from './compiler'
+
+export {
+    matchVariants
+} from './compiler'
+
+export {
+    stripComments
+} from './compiler'
+
+export {
+    expandA11yPresets
+} from './compiler'
+
+export {
+    splitCssValues
+} from './compiler'
+
+export {
+    expandDeclaration
+} from './compiler'
+
+export {
+    replaceTargetInBranch,
+    replaceTargetInSelector
+} from './compiler'
+
+export {
+    rewriteStateVariables,
+    type StateDimensionItem
+} from './compiler'
+
+export {
+    removeAmpersandForHostSubtree
+} from './compiler'
+
+export {
+    extractAtRuleParams
+} from './compiler'
+
+export {
+    mergeHoistedRules
+} from './compiler'
+
 export { Color } from './color'
 
 // 4. Functional Token Transformers Layer
@@ -151,6 +220,24 @@ export {
 } from './expand-padding'
 
 export {
+    expandMargin,
+    type PrimitiveMarginValue,
+    type MarginAxisTuple,
+    type MarginEdgeTuple,
+    type MarginObject,
+    type SingleMarginValue,
+    type MultiStateMarginTuple,
+    type MultiStateMarginRecord,
+    type ExpandMarginInput,
+    type NormalizeMarginPrefix,
+    type MarginEdgeSuffix,
+    type MarginTokenKey,
+    type ExtractSingleMarginValue,
+    type ExtractMarginEdgeValue,
+    type ExpandedMarginResult
+} from './expand-margin'
+
+export {
     expandTypescale,
     type MDKTypescaleLike,
     type TypographyObject,
@@ -170,7 +257,3 @@ export {
     type ExtractTracking,
     type ExtractWeight
 } from './expand-typescale'
-
-export type CreateStyleSheetOptions = import('./state-sheet-compiler').CompileStateSheetOptions
-
-
