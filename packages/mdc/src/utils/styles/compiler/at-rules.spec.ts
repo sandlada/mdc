@@ -4,6 +4,10 @@
  * SPDX-License-Identifier: MIT
  *
  * @fileoverview
+ * at-rules 選擇器規格（Selector-focused）：
+ *   本文件只測選擇器 / 殼分裂 / 提升，不測聲明內容（變量重寫 / 屬性展開 / a11y 宏）。
+ *   綠隊（greenMapping）= 合法輸入應展開；紅隊（redMapping）= 非法輸入應透傳/不展開。
+ *   雙隊皆為精確相等（最小 canonicalization：換行統一 + trim），不看 warn，結果不對即失敗。
  */
 
 import { describe, expect, it } from 'vitest'
@@ -12,20 +16,16 @@ import { defineSchema } from '../define-schema'
 import { mapStateTriggers } from '../map-state-triggers'
 import { compileStateSheet } from './compile-state-sheet'
 
-function normalizeCss(css: string | string[]): string {
-    const text = Array.isArray(css) ? css.join(' ') : css
-    return text
-        .replace(/\r\n/g, ' ')
-        .replace(/\n/g, ' ')
-        .replace(/\s+/g, ' ')
-        .replace(/\{\s+/g, '{ ')
-        .replace(/\s+\}/g, ' }')
-        .replace(/\{\s*\}/g, '{}')
-        .replace(/;\s*\}/g, '; }')
-        .trim()
+type MappingRow = ReadonlyArray<readonly [input: string, expected: string | readonly string[]]>
+
+function canonical(css: string | readonly string[]): string {
+    // 數組以單空格連接：對應編譯器 `join(' ')` 的殼分隔語義；換行僅統一 \r\n，不折疊中間空白。
+    // `button~.label` vs `button ~ .label` 仍判為不同。
+    const text = typeof css === 'string' ? css : css.join(' ')
+    return text.replace(/\r\n/g, '\n').trim()
 }
 
-describe('button', () => {
+describe('@state', () => {
     const SizeSchema = defineSchema(['small', 'medium', 'large'] as const)
     const SizeDef = createStyleDefinition(SizeSchema)({
         'size': [12, 14, 16],
@@ -59,7 +59,7 @@ describe('button', () => {
      * Rule R7: 嵌套內僅帶空格的 "& button" 後代形式正規化為 "button"；單獨的 "&" 不主動反解為外層標籤
      * Rule R8: selector 未字面包含 target 者屬無效用法（原樣透傳 + onWarn），典型如 button { @state(button) & {} }
      */
-    const mapping: Array<[string, string | string[]]> = [
+    const greenMapping: MappingRow = [
         // Single Target
         ['@state(button) button {}', ['button.small {}', 'button.medium {}', 'button.large {}']],
         ['@state(button) button .label {}', ['button.small .label {}', 'button.medium .label {}', 'button.large .label {}']],
@@ -243,10 +243,30 @@ describe('button', () => {
         ['@state(button) button { color: var(--_color); width: var(--_width); }', ['button.small { width: var(--_small-width); }', 'button.medium { color: var(--_medium-color); width: var(--_medium-width); }', 'button.large { color: var(--_large-color); width: var(--_large-width); }']],
     ]
 
-    for (const [input, expected] of mapping) {
-        it(input, () => {
+    /**
+     * 紅隊（redMapping）：只收非法/邊界輸入。每行 [input, expected]，expected 為「不做魔法」時的輸出（原樣透傳）。
+     *   結果不對即失敗，不看 warn。你需要填寫：
+     *   - R1 缺 selector/缺 target：'@state(button)' / '@state() button {}' / '@state(button) {}'
+     *   - R8 target 未字面出現在 selector：'@state(button) .card { color: red; }' -> 原樣透傳
+     *   - R3 函數參數/屬性值內子字串永不匹配：button:has(button) 括號內 button 不注入
+     *   - R4 連字前綴：'.button-label button' 中的 .button-label 不算匹配
+     *   - R5 部分分支無 target：'@state(button) button, .label {}' 中 .label 分支原樣保留
+     *   - R7 單獨 '&'：'button { @state(button) & {} }' -> 'button { & {} }'（見綠隊末行，保持一致）
+     *   例：['@state(button) .card { color: red; }', '.card { color: red; }']
+     */
+    const redMapping: MappingRow = []
+
+    for (const [input, expected] of greenMapping) {
+        it(`green: ${input}`, () => {
             const output = compileStateSheet(SizeDef, input, { registry: SizeTriggers })
-            expect(normalizeCss(output)).toBe(normalizeCss(expected))
+            expect(canonical(output)).toBe(canonical(expected))
+        })
+    }
+
+    for (const [input, expected] of redMapping) {
+        it(`red: ${input}`, () => {
+            const output = compileStateSheet(SizeDef, input, { registry: SizeTriggers })
+            expect(canonical(output)).toBe(canonical(expected))
         })
     }
 })
@@ -272,7 +292,7 @@ describe(':host', () => {
      * H3 修飾合併：appendToHostSelector 語義，一律括號內合併（:host(.a:hover)／:host([d][disabled])，Lit 要求偽類包在括號內）
      * H4 :is／:where 包裹 :host 視為 host-target，修飾按分支逐一合併（:where(:host([a][disabled]), …)）
      */
-    const mapping: Array<[string, string | string[]]> = [
+    const greenMapping: MappingRow = [
         // target = :host 基礎
         ['@state(:host) :host {}', [':host {}', ':host(:hover) {}', ':host([disabled]) {}']],
         ['@state(:host) :host .label {}', [':host .label {}', ':host(:hover) .label {}', ':host([disabled]) .label {}']],
@@ -324,10 +344,26 @@ describe(':host', () => {
 
     ]
 
-    for (const [input, expected] of mapping) {
-        it(input, () => {
+    /**
+     * 紅隊（redMapping）：:host 非法/邊界。expected 為透傳輸出，結果不對即失敗，不看 warn。你需要填寫：
+     *   - H2 零 &：提升後的 :host 子樹禁止輸出 &（應正規化為相對形式，而非保留 &）
+     *   - W1 非 host 條件：'@when(.dense)' 類純內部選擇器應原樣保留、不提升
+     *   - R8：'@state(:host) .label {}'（selector 不含 target）應透傳
+     *   - 空條件 '@when() {}' 應透傳（不展開為空殼）
+     */
+    const redMapping: MappingRow = []
+
+    for (const [input, expected] of greenMapping) {
+        it(`green: ${input}`, () => {
             const output = compileStateSheet(SizeDef, input, { registry: SizeTriggers })
-            expect(normalizeCss(output)).toBe(normalizeCss(expected))
+            expect(canonical(output)).toBe(canonical(expected))
+        })
+    }
+
+    for (const [input, expected] of redMapping) {
+        it(`red: ${input}`, () => {
+            const output = compileStateSheet(SizeDef, input, { registry: SizeTriggers })
+            expect(canonical(output)).toBe(canonical(expected))
         })
     }
 })
@@ -356,7 +392,7 @@ describe('combo', () => {
      * 展開順序＝笛卡爾積：[medium,enabled] → [medium,disabled] → [large,enabled] → [large,disabled]
      * Nested B1：4 組合同殼並列，無殼分裂
      */
-    const mapping: Array<[string, string | string[]]> = [
+    const greenMapping: MappingRow = [
         // 基礎矩陣（笛卡爾積 4 展開，狀態掛錨點）
         ['@state(button) button {}', ['button.medium {}', 'button.medium[disabled] {}', 'button.large {}', 'button.large[disabled] {}']],
         ['@state(button) button .label {}', ['button.medium .label {}', 'button.medium[disabled] .label {}', 'button.large .label {}', 'button.large[disabled] .label {}']],
@@ -393,10 +429,25 @@ describe('combo', () => {
 
     ]
 
-    for (const [input, expected] of mapping) {
-        it(input, () => {
+    /**
+     * 紅隊（redMapping）：combo 維度非法/邊界。expected 為透傳輸出，結果不對即失敗，不看 warn。你需要填寫：
+     *   - R1/R8 同 button 塊（target 缺失 / 未字面出現即透傳）
+     *   - 未知維度名或空 @state(target) 應透傳，不靜默展開為 4 組合
+     *   - 逗號分支部分無 target 的分支原樣保留
+     */
+    const redMapping: MappingRow = []
+
+    for (const [input, expected] of greenMapping) {
+        it(`green: ${input}`, () => {
             const output = compileStateSheet(ComboDef, input, { registry: ComboTriggers })
-            expect(normalizeCss(output)).toBe(normalizeCss(expected))
+            expect(canonical(output)).toBe(canonical(expected))
+        })
+    }
+
+    for (const [input, expected] of redMapping) {
+        it(`red: ${input}`, () => {
+            const output = compileStateSheet(ComboDef, input, { registry: ComboTriggers })
+            expect(canonical(output)).toBe(canonical(expected))
         })
     }
 })
@@ -427,7 +478,7 @@ describe('variant', () => {
      * V3 B1 保留嵌套：body 原樣嵌於殼內；@state 可內嵌，注入照 R2 在內層執行
      * 本 describe 用單態 schema（enabled），聚焦名單格式；狀態×變體交織留待實現期按 Red 補
      */
-    const mapping: Array<[string, string | string[]]> = [
+    const greenMapping: MappingRow = [
         // V1：單名單殼
         ['@variant(filled) { button {} }', ':host([variant="filled"]) { button {} }'],
         ['@variant(tonal) { button .label {} }', ':host([variant="tonal"]) { button .label {} }'],
@@ -444,10 +495,25 @@ describe('variant', () => {
 
     ]
 
-    for (const [input, expected] of mapping) {
-        it(input, () => {
+    /**
+     * 紅隊（redMapping）：@variant 名單非法形狀。expected 為透傳輸出，結果不對即失敗，不看 warn。你需要填寫：
+     *   - 空名單 '@variant() { ... }'、通配符 '@variant(*) { ... }'、否定 '!name' 屬無效用法
+     *   - 未知變體名 '@variant(nonexistent) { ... }' 應透傳（與實現約定一致後填期望）
+     *   - 缺右括號等截斷輸入應不拋異常且原樣透傳
+     */
+    const redMapping: MappingRow = []
+
+    for (const [input, expected] of greenMapping) {
+        it(`green: ${input}`, () => {
             const output = compileStateSheet(VariantDefs, input, { registry: StateTriggers })
-            expect(normalizeCss(output)).toBe(normalizeCss(expected))
+            expect(canonical(output)).toBe(canonical(expected))
+        })
+    }
+
+    for (const [input, expected] of redMapping) {
+        it(`red: ${input}`, () => {
+            const output = compileStateSheet(VariantDefs, input, { registry: StateTriggers })
+            expect(canonical(output)).toBe(canonical(expected))
         })
     }
 })
@@ -463,7 +529,7 @@ describe('when', () => {
      * W3 零 & 原則（H2）：提升後的頂層 :host 外殼子樹內禁止輸出 &
      * W4 逗號多條件並列：多條件展開為並列頂層外殼（如 :host([a]), :host([b]) { … }）
      */
-    const mapping: Array<[string, string | string[]]> = [
+    const greenMapping: MappingRow = [
         // 基礎頂層 @when
         ['@when(:host([checked])) { button {} }', ':host([checked]) { button {} }'],
         ['@when(:host([dense])) { button .label {} }', ':host([dense]) { button .label {} }'],
@@ -490,77 +556,25 @@ describe('when', () => {
         ],
     ]
 
-    for (const [input, expected] of mapping) {
-        it(input, () => {
+    /**
+     * 紅隊（redMapping）：@when 非法條件。expected 為透傳輸出，結果不對即失敗，不看 warn。你需要填寫：
+     *   - W1 非 host 選擇器：'.card { @when(.dense) { padding: 4px; } }' 應保留嵌套、不提升
+     *   - 空條件 '@when() { ... }' / '@when(   ) { ... }' 應透傳
+     *   - 未閉合 '@when(:host([checked] { ... }' 應不拋異常且透傳
+     */
+    const redMapping: MappingRow = []
+
+    for (const [input, expected] of greenMapping) {
+        it(`green: ${input}`, () => {
             const output = compileStateSheet({}, input)
-            expect(normalizeCss(output)).toBe(normalizeCss(expected))
+            expect(canonical(output)).toBe(canonical(expected))
         })
     }
-})
 
-describe('property-expanders', () => {
-    /**
-     * 屬性級展開巨集（Property Expanders）：
-     *   P1 shape: 展開為四角（start-start, start-end, end-end, end-start）
-     *   P2 padding: / margin: 展開為四方向邏輯邊距（inline-start, inline-end, block-start, block-end）
-     *   P3 typescale: 展開為字體 5 要素（font-family, font-size, line-height, font-weight, letter-spacing；無 opacity，line-height 對應 leading，letter-spacing 對應 tracking）
-     *   規則：若給定單一變數前綴（如 var(--_shape)），自動拼接後綴欄位；若給定靜態純值或簡寫值，則解構轉譯為 4 邏輯值
-     */
-    const mapping: Array<[string, string | string[]]> = [
-        // P1: shape 變數前綴展開
-        [
-            'button { shape: var(--_shape); }',
-            'button { border-start-start-radius: var(--_shape-start-start); border-start-end-radius: var(--_shape-start-end); border-end-end-radius: var(--_shape-end-end); border-end-start-radius: var(--_shape-end-start); }',
-        ],
-        [
-            'button { shape: var(--_container-shape); }',
-            'button { border-start-start-radius: var(--_container-shape-start-start); border-start-end-radius: var(--_container-shape-start-end); border-end-end-radius: var(--_container-shape-end-end); border-end-start-radius: var(--_container-shape-end-start); }',
-        ],
-        // P1: shape 靜態純值均勻展開為 4 邏輯角
-        [
-            'button { shape: 8px; }',
-            'button { border-start-start-radius: 8px; border-start-end-radius: 8px; border-end-end-radius: 8px; border-end-start-radius: 8px; }',
-        ],
-        [
-            'button { shape: 8px 16px; }',
-            'button { border-start-start-radius: 8px; border-start-end-radius: 16px; border-end-end-radius: 8px; border-end-start-radius: 16px; }',
-        ],
-        [
-            'button { shape: 4px 8px 12px 16px; }',
-            'button { border-start-start-radius: 4px; border-start-end-radius: 8px; border-end-end-radius: 12px; border-end-start-radius: 16px; }'
-        ],
-        // P2: padding 變數前綴展開
-        [
-            'button { padding: var(--_padding); }',
-            'button { padding-inline-start: var(--_padding-inline-start); padding-inline-end: var(--_padding-inline-end); padding-block-start: var(--_padding-block-start); padding-block-end: var(--_padding-block-end); }',
-        ],
-        // P2: padding 靜態簡寫解構為 4 邏輯邊距
-        [
-            'button { padding: 8px 16px; }',
-            'button { padding-inline-start: 16px; padding-inline-end: 16px; padding-block-start: 8px; padding-block-end: 8px; }',
-        ],
-        // P2: margin 變數前綴展開
-        [
-            'button { margin: var(--_margin); }',
-            'button { margin-inline-start: var(--_margin-inline-start); margin-inline-end: var(--_margin-inline-end); margin-block-start: var(--_margin-block-start); margin-block-end: var(--_margin-block-end); }',
-        ],
-        // P2: margin 靜態簡寫解構為 4 邏輯邊距
-        [
-            'button { margin: 4px 8px; }',
-            'button { margin-inline-start: 8px; margin-inline-end: 8px; margin-block-start: 4px; margin-block-end: 4px; }',
-        ],
-        // P3: typescale 5 要素展開（無 opacity，line-height -> leading，letter-spacing -> tracking）
-        [
-            'button { typescale: var(--_label-text); }',
-            'button { font-family: var(--_label-text-font); font-size: var(--_label-text-size); line-height: var(--_label-text-leading); font-weight: var(--_label-text-weight); letter-spacing: var(--_label-text-tracking); }',
-        ],
-
-    ]
-
-    for (const [input, expected] of mapping) {
-        it(input, () => {
+    for (const [input, expected] of redMapping) {
+        it(`red: ${input}`, () => {
             const output = compileStateSheet({}, input)
-            expect(normalizeCss(output)).toBe(normalizeCss(expected))
+            expect(canonical(output)).toBe(canonical(expected))
         })
     }
 })
@@ -582,7 +596,7 @@ describe('custom-state', () => {
      *   S2 宿主目標：掛載於 :host 時自動括號內合併（:host(:state(checked))，符合 H3）
      *   S3 與 @when 協同：支援 @when(:host(:state(...)))，深層就近宣告時提升為頂層獨立外殼
      */
-    const mapping: Array<[string, string | string[]]> = [
+    const greenMapping: MappingRow = [
         // S1: 元素目標掛載
         ['@state(button) button {}', ['button {}', 'button:state(checked) {}', 'button:state(disabled) {}']],
         ['@state(button) button .label {}', ['button .label {}', 'button:state(checked) .label {}', 'button:state(disabled) .label {}']],
@@ -594,41 +608,25 @@ describe('custom-state', () => {
         ['.container { button { @when(:host(:state(checked))) { color: red; } } }', '.container { button {} } :host(:state(checked)) { .container { button { color: red; } } }'],
     ]
 
-    for (const [input, expected] of mapping) {
-        it(input, () => {
+    /**
+     * 紅隊（redMapping）：:state() 掛載點非法/邊界。expected 為透傳輸出，結果不對即失敗，不看 warn。你需要填寫：
+     *   - selector 未字面包含 target 即透傳（同 R8）
+     *   - '@when(.dense)' 類非 host 條件不提升（同 W1）
+     *   - 未知 :state 名在無 registry 時的行為：以實現約定為準填期望（透傳，不靜默修復）
+     */
+    const redMapping: MappingRow = []
+
+    for (const [input, expected] of greenMapping) {
+        it(`green: ${input}`, () => {
             const output = compileStateSheet(StateDef, input, { registry: StateTriggers })
-            expect(normalizeCss(output)).toBe(normalizeCss(expected))
+            expect(canonical(output)).toBe(canonical(expected))
         })
     }
-})
 
-describe('a11y', () => {
-    /**
-     * 無障礙與使用者偏好巨集（A11y Presets）：
-     *   A1 @reduced-motion: 展開為 @media (prefers-reduced-motion: reduce)
-     *   A2 @forced-colors: 展開為 @media (forced-colors: active)
-     *   A3 @contrast(more|less): 展開為 @media (prefers-contrast: more|less)
-     *   A4 @reduced-transparency: 展開為 @media (prefers-reduced-transparency: reduce)
-     *   所有規則均保持 CSS 原生巢狀（CSS Nesting Baseline 2026）
-     */
-    const mapping: Array<[string, string | string[]]> = [
-        // A1: 減少動態
-        ['@reduced-motion { button { transition: none; } }', '@media (prefers-reduced-motion: reduce) { button { transition: none; } }'],
-        ['button { @reduced-motion { transition: none; } }', 'button { @media (prefers-reduced-motion: reduce) { transition: none; } }'],
-        // A2: 強制色彩（高對比模式）
-        ['@forced-colors { button { outline: 1px solid CanvasText; } }', '@media (forced-colors: active) { button { outline: 1px solid CanvasText; } }'],
-        ['button { @forced-colors { outline: 1px solid CanvasText; } }', 'button { @media (forced-colors: active) { outline: 1px solid CanvasText; } }'],
-        // A3: 對比度偏好
-        ['button { @contrast(more) { outline: 2px solid black; } }', 'button { @media (prefers-contrast: more) { outline: 2px solid black; } }'],
-        ['button { @contrast(less) { border: none; } }', 'button { @media (prefers-contrast: less) { border: none; } }'],
-        // A4: 降低透明度
-        ['.surface { @reduced-transparency { backdrop-filter: none; background: #ffffff; } }', '.surface { @media (prefers-reduced-transparency: reduce) { backdrop-filter: none; background: #ffffff; } }'],
-    ]
-
-    for (const [input, expected] of mapping) {
-        it(input, () => {
-            const output = compileStateSheet({}, input)
-            expect(normalizeCss(output)).toBe(normalizeCss(expected))
+    for (const [input, expected] of redMapping) {
+        it(`red: ${input}`, () => {
+            const output = compileStateSheet(StateDef, input, { registry: StateTriggers })
+            expect(canonical(output)).toBe(canonical(expected))
         })
     }
 })
@@ -675,7 +673,7 @@ describe('Intergration', () => {
      * I7: @state + Property Expanders (shape / padding)
      *   - 狀態展開與屬性巨集展開正交協同
      */
-    const mapping: Array<[string, string | string[]]> = [
+    const greenMapping: MappingRow = [
         // I1: @variant + @state
         ['@variant(filled) { @state(button) button {} }', ':host([variant="filled"]) { button.small {} button.medium {} button.large {} }'],
         ['@variant(tonal, outlined) { @state(button) button .label {} }', ':host([variant="tonal"]), :host([variant="outlined"]) { button.small .label {} button.medium .label {} button.large .label {} }'],
@@ -739,70 +737,26 @@ describe('Intergration', () => {
         ],
     ]
 
-    for (const [input, expected] of mapping) {
-        it(input, () => {
+    /**
+     * 紅隊（redMapping）：跨 at-rule 交織的非法組合。expected 為透傳輸出，結果不對即失敗，不看 warn。你需要填寫：
+     *   - 內層 @state 的 target 未出現在 selector 即整條透傳（R8 在變體殼內同樣生效）
+     *   - @variant 非法名單包裹 @state：外殼不生成，內層按無殼處理（以實現約定為準）
+     *   - @when 非 host 條件在 @variant/@state 內：不提升、原樣保留嵌套
+     *   註：本塊只測殼交織；聲明內容（var 重寫/expanders/a11y）已移出，不在此填。
+     */
+    const redMapping: MappingRow = []
+
+    for (const [input, expected] of greenMapping) {
+        it(`green: ${input}`, () => {
             const output = compileStateSheet(SizeDef, input, { registry: SizeTriggers })
-            expect(normalizeCss(output)).toBe(normalizeCss(expected))
+            expect(canonical(output)).toBe(canonical(expected))
         })
     }
-})
 
-describe('orthogonal-combo-isolation', () => {
-    const CardSchema = defineSchema([
-        ['enabled', 'hovered'],
-        ['round', 'square'],
-    ] as const)
-
-    const CardDef = createStyleDefinition(CardSchema)({
-        'container-shape-start-start': {
-            round: `12px`,
-            square: `0px`,
-        },
-        'container-color': {
-            enabled: `white`,
-            hovered: `gray`,
-        },
-        'container-height': {
-            enabled: `100px`,
-            hovered: `120px`,
-            round: `110px`,
-            square: `90px`,
-        },
-    })
-
-    const CardTriggers = mapStateTriggers({
-        'enabled': '',
-        'hovered': ':hover',
-        'round': '.round',
-        'square': '.square',
-    })
-
-    it('prunes inactive dimension 0 for tokens only varying on dimension 1', () => {
-        const input = '@state(.container) .container { border-start-start-radius: var(--_container-shape-start-start); }'
-        const output = compileStateSheet(CardDef, input, { registry: CardTriggers })
-        expect(normalizeCss(output)).toBe(normalizeCss([
-            '.container.round { border-start-start-radius: var(--_round-container-shape-start-start); }',
-            '.container.square { border-start-start-radius: var(--_square-container-shape-start-start); }',
-        ]))
-    })
-
-    it('prunes inactive dimension 1 for tokens only varying on dimension 0', () => {
-        const input = '@state(.container) .container { background-color: var(--_container-color); }'
-        const output = compileStateSheet(CardDef, input, { registry: CardTriggers })
-        expect(normalizeCss(output)).toBe(normalizeCss([
-            '.container { background-color: var(--_enabled-container-color); }',
-            '.container:hover { background-color: var(--_hovered-container-color); }',
-        ]))
-    })
-
-    it('expands all combinations when tokens vary on both dimensions', () => {
-        const input = '@state(.container) .container { background-color: var(--_container-color); border-start-start-radius: var(--_container-shape-start-start); }'
-        const output = compileStateSheet(CardDef, input, { registry: CardTriggers })
-        expect(normalizeCss(output)).toBe(normalizeCss([
-            '.container.round { background-color: var(--_enabled-container-color); border-start-start-radius: var(--_round-container-shape-start-start); }',
-            '.container.square { background-color: var(--_enabled-container-color); border-start-start-radius: var(--_square-container-shape-start-start); }',
-            '.container:hover.round { background-color: var(--_hovered-container-color); border-start-start-radius: var(--_round-container-shape-start-start); }',
-            '.container:hover.square { background-color: var(--_hovered-container-color); border-start-start-radius: var(--_square-container-shape-start-start); }',
-        ]))
-    })
+    for (const [input, expected] of redMapping) {
+        it(`red: ${input}`, () => {
+            const output = compileStateSheet(SizeDef, input, { registry: SizeTriggers })
+            expect(canonical(output)).toBe(canonical(expected))
+        })
+    }
 })
