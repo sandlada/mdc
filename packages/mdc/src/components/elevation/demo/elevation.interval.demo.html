@@ -1,0 +1,45 @@
+<style>
+    .elevation-interval-demo {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    .status-indicator {
+        font-size: 14px;
+        font-weight: 500;
+        color: #6750a4;
+    }
+</style>
+
+<div class="elevation-interval-demo">
+    <div class="status-indicator">
+        disabled: <span id="elevation-interval-val">false</span> (toggling every 800ms)
+    </div>
+
+    <div
+        style="position: relative; height: 48px; width: 56px; box-sizing: border-box; border: 1px solid black; margin: 4px; transition-duration: 200ms;"
+        tabindex="0"
+    >
+        <mdc-elevation
+            id="interval-elevation"
+            style="--mdc-elevation-level: 3;transition-duration: 200ms;"
+        ></mdc-elevation>
+    </div>
+</div>
+
+<script>
+    (() => {
+        const elevation = document.getElementById('interval-elevation')
+        const valDisplay = document.getElementById('elevation-interval-val')
+
+        setInterval(() => {
+            if (!elevation) return
+
+            const next = !elevation.disabled
+            elevation.disabled = next
+            if (valDisplay) valDisplay.textContent = String(next)
+        }, 800)
+    })()
+</script>

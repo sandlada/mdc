@@ -6,7 +6,8 @@
 import { html, LitElement, type PropertyValues } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { ContextConsumer } from '@lit/context'
-import { GlobalMDCContext, type GlobalMDCContextElevationConfig } from '../../context-provider'
+import type { IMDCElevation } from './elevation.interface'
+import { GlobalMDCContext, type GlobalMDCContextElevationConfig } from '../../utils/context-provider'
 import { styles } from './elevation.style'
 
 declare global {
@@ -14,6 +15,8 @@ declare global {
         "mdc-elevation": Elevation
     }
 }
+
+export * from './elevation.interface'
 
 /**
  * Elevation is not a concept that is explicitly categorized as a component.
@@ -46,7 +49,7 @@ declare global {
  * https://m3.material.io/styles/elevation/overview
  */
 @customElement('mdc-elevation')
-export class Elevation extends LitElement {
+export class Elevation extends LitElement implements IMDCElevation {
 
     static override styles = styles
 
