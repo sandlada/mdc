@@ -3,128 +3,37 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { css, unsafeCSS } from 'lit'
+import { css } from 'lit'
 import {
+    CardDefinitionVariants,
     ElevatedCardDefinition,
     FilledCardDefinition,
-    OutlinedCardDefinition,
+    OutlinedCardDefinition
 } from '../../component-definitions/card.definition'
 import type { ElevationDefinition } from '../../component-definitions/elevation.definition'
 import type { RippleDefinition } from '../../component-definitions/ripple.definition'
-import { overrideComponentTokens, stringTokens } from '../../utils/tokens'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+import { mapStateTriggers, pipe } from '../../utils/styles'
+import { createStyleSheet, overrideTokens, stringifyTokens } from '../../utils/styles/lit'
 
-const filledTokens = defineVars(defineTokenRefsRecord(FilledCardDefinition, {
-    expandShapes: true,
-    useBaseFallback: true,
-    prefix: '--mdc-card',
-}), true).join('')
+const stringify = stringifyTokens('--mdc-card')
+const filled = stringify(FilledCardDefinition)
+const outlined = stringify(OutlinedCardDefinition)
+const elevated = stringify(ElevatedCardDefinition)
 
-const elevatedTokens = defineVars(defineTokenRefsRecord(ElevatedCardDefinition, {
-    expandShapes: true,
-    useBaseFallback: true,
-    prefix: '--mdc-card',
-}), true).join('')
-
-const outlinedTokens = defineVars(defineTokenRefsRecord(OutlinedCardDefinition, {
-    expandShapes: true,
-    useBaseFallback: true,
-    prefix: '--mdc-card',
-}), true).join('')
-
-const rippleStyles = stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', {
-    'enabled-hovered-color': `var(--_hovered-state-layer-color)`,
-    'enabled-focused-color': `var(--_focused-state-layer-color)`,
-    'enabled-pressed-color': `var(--_pressed-state-layer-color)`,
-    'enabled-hovered-opacity': `var(--_hovered-state-layer-opacity)`,
-    'enabled-focused-opacity': `var(--_focused-state-layer-opacity)`,
-    'enabled-pressed-opacity': `var(--_pressed-state-layer-opacity)`,
-}))
-
-const elevationStyles = stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
-    'enabled-level': `var(--_enabled-container-elevation)`,
-    'enabled-shadow-color': `var(--_enabled-container-shadow-color)`,
-}))
-
-const hoveredElevationStyles = stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
-    'enabled-level': `var(--_hovered-container-elevation)`,
-}))
-
-const focusedElevationStyles = stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
-    'enabled-level': `var(--_focused-container-elevation)`,
-}))
-
-const pressedElevationStyles = stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
-    'enabled-level': `var(--_pressed-container-elevation)`,
-}))
-
-const disabledElevationStyles = stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
-    'enabled-level': `var(--_disabled-container-elevation)`,
-}))
-
-export const cardStyles = css`
-    @layer mdc.card.variable {
-        :host {
-            ${unsafeCSS(filledTokens)};
-        }
-        :host([variant="filled"]) {
-            ${unsafeCSS(filledTokens)};
-        }
-        :host([variant="elevated"]) {
-            ${unsafeCSS(elevatedTokens)};
-        }
-        :host([variant="outlined"]) {
-            ${unsafeCSS(outlinedTokens)};
-        }
-        .container.filled {
-            ${unsafeCSS(filledTokens)};
-        }
-        .container.elevated {
-            ${unsafeCSS(elevatedTokens)};
-        }
-        .container.outlined {
-            ${unsafeCSS(outlinedTokens)};
-        }
-    }
-
-    @layer mdc.card.composite.ripple {
-        .container mdc-ripple {
-            border-radius: inherit;
-            z-index: 1;
-            ${unsafeCSS(rippleStyles)};
-        }
-    }
-
-    @layer mdc.card.composite.focus-ring {
-        .container mdc-focus-ring {
-            border-radius: inherit;
-            z-index: 2;
-        }
-    }
-
-    @layer mdc.card.composite.elevation {
-        .container mdc-elevation {
-            border-radius: inherit;
-            z-index: 0;
-            transition-duration: 200ms;
-            ${unsafeCSS(elevationStyles)};
-        }
-        .container.interactive:hover mdc-elevation {
-            ${unsafeCSS(hoveredElevationStyles)};
-        }
-        .container.interactive:focus-visible mdc-elevation {
-            ${unsafeCSS(focusedElevationStyles)};
-        }
-        .container.interactive:active mdc-elevation {
-            ${unsafeCSS(pressedElevationStyles)};
-        }
-        .container.disabled mdc-elevation {
-            transition: none;
-            ${unsafeCSS(disabledElevationStyles)};
-        }
-    }
-
-    @layer mdc.card.base {
+const stylePart = pipe(
+    mapStateTriggers({
+        'enabled': '',
+        'hovered': ':hover',
+        'focused': ':focus-within',
+        'pressed': ':active',
+        // 'dragged': ':drag',
+        'disabled': '.disabled',
+        'round': '.round',
+        'square': '.square',
+    }),
+    createStyleSheet
+)(CardDefinitionVariants)(() => css`
+    @layer mdc.card.component {
         :host {
             display: inline-flex;
             box-sizing: border-box;
@@ -146,15 +55,19 @@ export const cardStyles = css`
             height: 100%;
             outline: none;
             border: none;
-            border-start-start-radius: var(--_container-shape-start-start);
-            border-start-end-radius: var(--_container-shape-start-end);
-            border-end-start-radius: var(--_container-shape-end-start);
-            border-end-end-radius: var(--_container-shape-end-end);
+            transition: background-color 200ms ease, border-color 200ms ease, opacity 200ms ease;
+        }
+        @state(.container) .container {
             padding-inline-start: var(--_container-padding-inline-start);
             padding-inline-end: var(--_container-padding-inline-end);
             padding-block-start: var(--_container-padding-block-start);
             padding-block-end: var(--_container-padding-block-end);
-            transition: background-color 200ms ease, border-color 200ms ease, opacity 200ms ease;
+        }
+        @state(.container) .container {
+            border-start-start-radius: var(--_container-shape-start-start);
+            border-start-end-radius: var(--_container-shape-start-end);
+            border-end-start-radius: var(--_container-shape-end-start);
+            border-end-end-radius: var(--_container-shape-end-end);
         }
 
         .container.stacked {
@@ -165,13 +78,6 @@ export const cardStyles = css`
             flex-direction: row;
         }
 
-        .container.square {
-            border-start-start-radius: var(--_container-shape-square-start-start);
-            border-start-end-radius: var(--_container-shape-square-start-end);
-            border-end-start-radius: var(--_container-shape-square-end-start);
-            border-end-end-radius: var(--_container-shape-square-end-end);
-        }
-
         .container.interactive {
             cursor: pointer;
             user-select: none;
@@ -179,8 +85,10 @@ export const cardStyles = css`
 
         .container.disabled {
             cursor: default;
+            user-select: none;
             pointer-events: none;
             opacity: var(--_disabled-container-opacity);
+            cursor: not-allowed;
         }
 
         .container > .background {
@@ -240,8 +148,9 @@ export const cardStyles = css`
 
     @media (prefers-reduced-motion: reduce) {
         .container,
-        .container > .outline {
+        .container * {
             transition: none;
+            animation: none;
         }
         .container mdc-elevation {
             transition: none;
@@ -253,11 +162,113 @@ export const cardStyles = css`
             border: 1px solid CanvasText;
         }
         .container.disabled {
-            opacity: 1;
             border-color: GrayText;
         }
         .container > .outline {
             border-color: CanvasText;
         }
     }
+
+    @media (prefers-contrast: more) {
+        .container > .outline {
+            border-color: CanvasText;
+            border-width: 2px;
+        }
+        .content {
+            color: CanvasText;
+        }
+        .background {
+            background: Canvas;
+        }
+    }
+    @media (prefers-contrast: less) {
+        .container > .outline {
+            border-color: GrayText;
+            opacity: 0.2;
+        }
+        .content {
+            color: ButtonText;
+        }
+        .background {
+            background: ButtonFace;
+        }
+    }
+`)
+
+const rippleStyles = overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
+    'hovered-color': `var(--_hovered-state-layer-color)`,
+    'focused-color': `var(--_focused-state-layer-color)`,
+    'pressed-color': `var(--_pressed-state-layer-color)`,
+    'hovered-opacity': `var(--_hovered-state-layer-opacity)`,
+    'focused-opacity': `var(--_focused-state-layer-opacity)`,
+    'pressed-opacity': `var(--_pressed-state-layer-opacity)`,
+})()
+
+const elevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
+    'level': `var(--_enabled-container-elevation)`,
+    'shadow-color': `var(--_enabled-container-shadow-color)`,
+})()
+
+const hoveredElevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
+    'level': `var(--_hovered-container-elevation)`,
+})()
+
+const focusedElevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
+    'level': `var(--_focused-container-elevation)`,
+})()
+
+const pressedElevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
+    'level': `var(--_pressed-container-elevation)`,
+})()
+
+const disabledElevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
+    'level': `var(--_disabled-container-elevation)`,
+})()
+console.log(pressedElevationStyles.cssText)
+
+export const cardStyles = [
+    stylePart,
+    css`
+    @layer mdc.card.variable {
+        :host([variant="filled"]){${filled};}
+        :host([variant="outlined"]){${outlined};}
+        :host([variant="elevated"]){${elevated};}
+    }
+
+    @layer mdc.card.composite.ripple {
+        .container mdc-ripple {
+            border-radius: inherit;
+            z-index: 1;
+            ${rippleStyles};
+        }
+    }
+
+    @layer mdc.card.composite.focus-ring {
+        .container mdc-focus-ring {
+            border-radius: inherit;
+            z-index: 2;
+        }
+    }
+
+    @layer mdc.card.composite.elevation {
+        .container mdc-elevation {
+            border-radius: inherit;
+            z-index: 0;
+            transition-duration: 200ms;
+            ${elevationStyles};
+        }
+        .container.interactive:hover mdc-elevation {
+            ${hoveredElevationStyles};
+        }
+        .container.interactive:focus-visible mdc-elevation {
+            ${focusedElevationStyles};
+        }
+        .container.interactive:active mdc-elevation {
+            ${pressedElevationStyles};
+        }
+        .container.disabled mdc-elevation {
+            ${disabledElevationStyles};
+        }
+    }
 `
+]

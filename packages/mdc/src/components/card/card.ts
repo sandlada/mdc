@@ -15,7 +15,7 @@ import { mixinRippleOptions } from '../ripple/ripple-options.mixin'
 import {
     type CardShape,
     type CardVariant,
-    type ICard,
+    type IMDCCard,
 } from './card.interface'
 import { cardStyles } from './card.style'
 
@@ -68,7 +68,7 @@ export class MDCCard extends composeMixin(
     mixinRippleOptions,
     mixinElevationOptions,
     mixinFocusRingOptions
-)(LitElement) implements ICard {
+)(LitElement) implements IMDCCard {
 
     static override styles = cardStyles
 
