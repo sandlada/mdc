@@ -6,11 +6,11 @@
 import { html, LitElement, type PropertyValues } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
 import { ContextConsumer } from '@lit/context'
-import { GlobalMDCContext, type GlobalMDCContextRippleConfig } from '../../context-provider'
+import { GlobalMDCContext, type GlobalMDCContextRippleConfig } from '../../utils/context-provider'
 import { AttachableController } from '../../utils/controller/attachable-controller'
 import { RippleAction } from './ripple-action'
 import { styles } from './ripple.style'
-import type { IRipple } from './ripple.interface'
+import type { IMDCRipple } from './ripple.interface'
 
 declare global {
     interface HTMLElementTagNameMap {
@@ -31,7 +31,7 @@ declare global {
  * Material Design 3
  */
 @customElement('mdc-ripple')
-export class MDCRipple extends LitElement implements IRipple {
+export class MDCRipple extends LitElement implements IMDCRipple {
 
     static override styles = styles
 

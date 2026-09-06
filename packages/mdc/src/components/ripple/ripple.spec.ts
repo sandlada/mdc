@@ -6,7 +6,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { MDCRipple } from './ripple'
 import { RippleAction } from './ripple-action'
-import type { IRipple } from './ripple.interface'
+import type { IMDCRipple } from './ripple.interface'
 
 describe('MDCRipple', () => {
     it('has default configuration and state properties', () => {
@@ -78,7 +78,7 @@ describe('RippleAction', () => {
         currentTime: number
     }
     let mockPressLayer: HTMLElement
-    let mockHost: IRipple
+    let mockHost: IMDCRipple
     let action: RippleAction
 
     beforeEach(() => {
@@ -119,7 +119,7 @@ describe('RippleAction', () => {
                 ;(mockHost as unknown as Record<string, boolean>)[attr] = val
                 return val
             },
-        } as unknown as IRipple
+        } as unknown as IMDCRipple
 
         // Mock window and PointerEvent properties if running in node env
         if (typeof window === 'undefined') {

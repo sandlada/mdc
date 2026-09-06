@@ -7,10 +7,11 @@
  * 1.0.0
  */
 import { State } from '@sandlada/mdk'
-import { Color } from '../utils/tokens/theme'
-import { createStyleDefinition } from '../utils/tokens/create-style-definition'
+import { Color, createStyleDefinition, defineSchema } from '../utils/styles'
 
-export const RippleDefinition = createStyleDefinition({
-    'color'  : [`transparent`, Color.OnSurface, Color.OnSurface, Color.OnSurface, null],
+export const RippleSchema = defineSchema(['enabled', 'hovered', 'focused', 'pressed', 'disabled'] as const)
+
+export const RippleDefinition = createStyleDefinition(RippleSchema)({
+    'color': [`transparent`, Color.OnSurface, Color.OnSurface, Color.OnSurface, null],
     'opacity': [`0`, State.HoveredStateLayerOpacity, State.FocusedStateLayerOpacity, State.PressedStateLayerOpacity, null],
 })

@@ -10,7 +10,7 @@
 
 import { Easing } from '@sandlada/mdk'
 import { isServer } from 'lit'
-import type { IRipple } from './ripple.interface'
+import type { IMDCRipple } from './ripple.interface'
 
 const RippleState = {
     /**
@@ -77,7 +77,7 @@ const Events = [
  * Used to manage the `hovered`, `focused` and `pressed` states of ripple components.
  */
 export class RippleAction {
-    private readonly host: IRipple
+    private readonly host: IMDCRipple
     private state = RippleState.Inactive
     private startEvent: null | PointerEvent = null
     private checkBoundsAfterContextMenu = false
@@ -86,7 +86,7 @@ export class RippleAction {
     private rippleSize = ''
     private growAnimation: null | Animation = null
 
-    constructor(host: IRipple) {
+    constructor(host: IMDCRipple) {
         this.host = host
     }
 
