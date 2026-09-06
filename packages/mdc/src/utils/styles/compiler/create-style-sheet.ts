@@ -63,7 +63,7 @@ export type CreateStyleSheetOptions = CompileStateSheetOptions
  * a11y macros) and legacy ATRules (`@anchor <sel>`, `@variant`, `@slot`, `@slotted`,
  * `@size`, `@elevation`) with multi-state tokens into standard CSS,
  * wrapped inside a framework-agnostic `MDCStyleSheet`. Routing between the two engines is automatic
- * (see `compileStateSheet`; semantics Oracle: `at-rules.spec.ts`).
+ * (see `compileStateSheet`; semantics Oracle: `at-rules/` specs).
  *
  * Accepts Lit `css` results (or any `{ cssText }` holder) as input via
  * structural typing without importing `lit`. Convert the returned sheet to a

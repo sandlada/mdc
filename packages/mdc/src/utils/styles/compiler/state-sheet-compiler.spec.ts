@@ -8,7 +8,7 @@
  * `@anchor <sel>` / `@size`; token-differential Base + Delta rules, legacy
  * `@when` / `@slot` / `@slotted` / `@size` / `@elevation` lowering).
  * New-system semantics (`@state` / exact `@variant` / `@when(:host(...))`) are
- * oracled in `at-rules.spec.ts` and must not be conflated with the legacy
+ * oracled in `at-rules/` (transform-state/-variant/-when specs) and must not be conflated with the legacy
  * expectations below (e.g. `@when(.dense)` lowers here, but is
  * `invalid-when-condition` on the new path per W1).
  *

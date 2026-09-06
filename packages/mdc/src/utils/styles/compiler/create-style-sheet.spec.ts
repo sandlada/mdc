@@ -145,7 +145,7 @@ describe('createStyleSheet', () => {
         ['empty template string returns empty MDCStyleSheet',
             createStyleSheet(ButtonDefinition)``,
             []],
-        // New @state system (oracled in at-rules.spec.ts) via the HOF entrypoint
+        // New @state system (oracled in at-rules/transform-state.spec.ts) via the HOF entrypoint
         ['new @state rules via tagged template literal',
             createStyleSheet({ registry: SizeTriggers })(SizeDef)`
                 @state(button) button {

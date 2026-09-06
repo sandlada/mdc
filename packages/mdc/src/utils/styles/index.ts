@@ -9,7 +9,7 @@
  * Provides pure functional, curried, data-last utilities for state-aware CSS variable generation,
  * AST-driven state stylesheet compilation, child token forwarding, selector composition, and overrides.
  *
- * 新樣式系統（語義 Oracle 見 `at-rules.spec.ts`）包含 `@state(target)`（狀態錨點，
+ * 新樣式系統（語義 Oracle 見 `compiler/at-rules/` 各專屬 spec）包含 `@state(target)`（狀態錨點，
  * 原 `@anchor` 已更名以對齊 StateSchema 並避免與 CSS Anchor Positioning 衝突）、
  * `@variant(name, ...)`（變體名單，精確匹配，不支援通配符與否定）、
  * `@when(:host(...))`（宿主條件，須顯式包含 `:host`，深層巢狀提升為頂層外殼），

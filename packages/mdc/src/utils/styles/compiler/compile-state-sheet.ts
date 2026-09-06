@@ -79,7 +79,7 @@ export interface CompileStateSheetOptions {
  * @param definition - Component style definition containing StateSchema and token mappings.
  * @param cssText - Raw stylesheet template string. New-system ATRules (`@state`,
  * `@variant` exact names, `@when(:host(...))`, property expanders, a11y macros;
- * semantics Oracle: `at-rules.spec.ts`) route to the At-Rules compiler; stylesheets
+ * semantics Oracle: `at-rules/` specs) route to the At-Rules compiler; stylesheets
  * containing `@anchor <sel>` / `@size` route to the legacy token-differential engine
  * (which additionally lowers `@slot` / `@slotted` / `@size` / `@elevation` and
  * wildcard `@variant`).

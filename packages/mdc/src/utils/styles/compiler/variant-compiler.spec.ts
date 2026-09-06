@@ -8,7 +8,7 @@
  * negation (`!`) `@variant` patterns, `matchVariants`, custom `variantSelector`,
  * and `@variant` × `@slot` / `@size` compositions below only apply when the
  * stylesheet routes to the legacy engine (e.g. contains `@anchor` / `@size` /
- * wildcard `@variant`). On the new path (oracled in `at-rules.spec.ts`,
+ * wildcard `@variant`). On the new path (oracled in `at-rules/transform-variant.spec.ts`,
  * V-spec) variant names must be exact dictionary keys; `*` / `!name` emit
  * `invalid-variant-name` instead of filtering.
  *
