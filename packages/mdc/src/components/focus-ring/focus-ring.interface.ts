@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 import type { LitElement } from 'lit'
-import type { IAttachable } from '../../utils'
+import type { IAttachable } from '../../utils/controller'
 
 export interface IFocusRing extends LitElement, IAttachable {
     focused     : boolean

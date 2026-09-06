@@ -6,13 +6,18 @@
 import { Easing } from '@sandlada/mdk'
 import { css, unsafeCSS } from 'lit'
 import { FocusRingDefinition } from '../../component-definitions/focus-ring.definition'
-import { createStyleSheet, stringifyTokens } from '../../utils/styles'
+import { mapStateTriggers, pipe } from '../../utils/styles'
+import { createStyleSheet, stringifyTokens } from '../../utils/styles/lit'
 
 const tokens = stringifyTokens('--mdc-focus-ring')(FocusRingDefinition)
 
-const stylePart = createStyleSheet(FocusRingDefinition)(() => css`
-    @layer mdc {
-
+const stylePart = pipe(
+    mapStateTriggers({
+        enabled: '',
+    }),
+    createStyleSheet
+)(FocusRingDefinition)(() => css`
+    @layer mdc.focus-ring.component {
         :host {
             border-style: solid;
             border-width: 0px;
@@ -33,6 +38,8 @@ const stylePart = createStyleSheet(FocusRingDefinition)(() => css`
             opacity: 0;
             pointer-events: none;
             position: absolute;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
 
         :host([focused]),
@@ -41,7 +48,6 @@ const stylePart = createStyleSheet(FocusRingDefinition)(() => css`
             opacity: 1;
             transition-duration: calc(var(--_duration) * 0.15);
         }
-
         @starting-style {
             :host([focused]),
             :host([persistent]) {
@@ -49,12 +55,10 @@ const stylePart = createStyleSheet(FocusRingDefinition)(() => css`
             }
         }
 
-
         :host([disabled]) {
             display: none;
             opacity: 0;
         }
-
         :host([animation-disabled]) {
             animation: none;
             transition: none;
@@ -76,13 +80,8 @@ const stylePart = createStyleSheet(FocusRingDefinition)(() => css`
             animation-name: inward-grow, inward-shrink;
         }
 
-
-
         :host([shape-inherit]) {
-            border-end-end-radius: inherit;
-            border-end-start-radius: inherit;
-            border-start-end-radius: inherit;
-            border-start-start-radius: inherit;
+            shape: inherit;
         }
 
         /* NOTE: these two branches are written as flat selectors on purpose.
@@ -134,13 +133,17 @@ const stylePart = createStyleSheet(FocusRingDefinition)(() => css`
             }
         }
 
+    }
+
+    @layer mdc.focus-ring.motion {
         @media (prefers-reduced-motion: reduce) {
             :host {
                 animation: none;
                 transition: none;
             }
         }
-
+    }
+    @layer mdc.focus-ring.hcm {
         @media (forced-colors: active) {
             :host {
                 border-color: Highlight;
@@ -148,8 +151,8 @@ const stylePart = createStyleSheet(FocusRingDefinition)(() => css`
                 color: Highlight;
             }
         }
-
-
+    }
+    @layer mdc.focus-ring.contrast {
         @media (prefers-contrast: more) {
             :host {
                 color: CanvasText;
@@ -165,6 +168,11 @@ const stylePart = createStyleSheet(FocusRingDefinition)(() => css`
 `)
 
 export const FocusRingStyle = [
-    css`@layer mdc {:host {${tokens};}}`,
+    css`
+        @layer mdc.focus-ring {
+            @layer variable, component, hcm, contrast, motion;
+        }
+    `,
+    css`@layer mdc.focus-ring.variable {:host {${tokens};}}`,
     stylePart,
 ]

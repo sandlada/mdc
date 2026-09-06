@@ -1,14 +1,12 @@
 /**
  * @license
- * Copyright 2021 Google LLC
- * SPDX-License-Identifier: Apache-2.0
- *
- * [Modified by Kai-Orion & Sandlada]
+ * Copyright 2026 Kai-Orion & Sandlada
+ * SPDX-License-Identifier: MIT
  */
+import { ContextConsumer } from '@lit/context'
 import { isServer, LitElement, type PropertyValues } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { ContextConsumer } from '@lit/context'
-import { GlobalMDCContext, type GlobalMDCContextFocusRingConfig } from '../../context-provider'
+import { GlobalMDCContext, type GlobalMDCContextFocusRingConfig } from '../../utils/context-provider'
 import { AttachableController } from '../../utils/controller/attachable-controller'
 import type { IFocusRing } from './focus-ring.interface'
 import { FocusRingStyle } from './focus-ring.style'
@@ -155,9 +153,9 @@ export class MDCFocusRing extends LitElement implements IFocusRing {
                 typeof CSSAnimation !== 'undefined' &&
                 anim instanceof CSSAnimation &&
                 (anim.animationName === 'outward-grow' ||
-                 anim.animationName === 'outward-shrink' ||
-                 anim.animationName === 'inward-grow' ||
-                 anim.animationName === 'inward-shrink')
+                    anim.animationName === 'outward-shrink' ||
+                    anim.animationName === 'inward-grow' ||
+                    anim.animationName === 'inward-shrink')
             ) {
                 anim.currentTime = 0
                 anim.play()
@@ -284,9 +282,6 @@ export class MDCFocusRing extends LitElement implements IFocusRing {
     public close(): void {
         this.focused = false
     }
-
-
-
 
     protected override updated(_changedProperties: PropertyValues<this>): void {
         super.updated(_changedProperties)
