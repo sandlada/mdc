@@ -55,6 +55,7 @@ dist
 .copilot
 .gemini
 .jules
+.agents
 .superpower
 docs/superpower
 docs/.superpower
@@ -62,3 +63,12 @@ docs/superpowers
 docs/.superpowers
 .superpower
 .superpowers
+*.md
+!README.md
+!AGENTS.md
+!CLAUDE.md
+!CODE_OF_CONDUCT.md
+!CONTRIBUTING.md
+!SECURITY.md
+!docs/*.md
+*.py
