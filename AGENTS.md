@@ -320,7 +320,7 @@ Token 命名嚴格遵循：**`[狀態-]?[尺寸-]?[元素-][屬性][-selected|-c
   R8 全部分支零匹配即 `[D]`（含頂層 scope 包裝；嵌套收斂為空外層殼，接受）。
 - `:host`：H1 殼分裂；H2 零 `&`；H3 括號內合併；H4 `:is/:where` 包裹視為 host-target。
 - `:state()`：S1 掛元素；S2 掛 `:host` 括號內合併；S3 與 `@when` 協同提升。
-- `@variant`：V1 單名單殼；V2 多名逗號並殼；V3 B1 保留嵌套。通配 `*` / 否定 `!name` 不收錄於 mapping。
+- `@variant`：V1 單名單殼；V2 多名逗號並殼；V3 殼內並列。通配 `*` / 否定 `!name` 不收錄於 mapping。
 - `@when`：W1 須顯含 `:host`（否則保留嵌套、不提升）；W2 提升為最近隔離容器頂層外殼；
   W3 零 `&`；W4 多條件並列單外殼。
 - combo 笛卡爾積順序固定 `[medium,enabled] → [medium,disabled] → [large,enabled] → [large,disabled]`，
@@ -331,8 +331,8 @@ Token 命名嚴格遵循：**`[狀態-]?[尺寸-]?[元素-][屬性][-selected|-c
 
 規格變更例外程序：
 
-- 只修代碼原則之唯一例外是規格本身變更：須同步修正期望，並在 spec 註解載明原因，
-  同步 `packages/mdc/src/utils/styles/README.md §5`。既有例外：R1 包回→丟棄、R8 透傳→丟棄、
+- 只修代碼原則之唯一例外是規格本身變更：須同步修正期望，並在 spec 註解載明原因。
+  既有例外：R1 包回→丟棄、R8 透傳→丟棄、
   綠表頂層 scope 零匹配移入紅表。
 
 已知基線（2026-09-07）：
@@ -340,7 +340,7 @@ Token 命名嚴格遵循：**`[狀態-]?[尺寸-]?[元素-][屬性][-selected|-c
 - at-rules 實現 backlog 10 項（9 綠隊殼分裂形狀漂移 + 1 `:hostx` 前綴誤匹配真衝突）。
 - 另 3 組件舊賬（divider / elevation / playground，經 stash 隔離驗證與本系列改動無關）。
 - 待定行為：未知維度名、未知變體名、截斷輸入、非法名單包 `@state`、無 registry 未知 `:state` 名
-  （見各 spec `待定` 註解與 README §5）。
+  （見各 spec `待定` 註解）。
 
 新增用例三步：先判綠/紅 → 再選形狀 → 命名自動。執行
 `npm test -- transform-state transform-variant transform-when hoist-helpers at-rules-integration at-rules-compiler`，
