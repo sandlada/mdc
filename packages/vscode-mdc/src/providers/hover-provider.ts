@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 import * as vscode from 'vscode'
-import { getHoverInfoForToken } from '../core/hover-engine'
+import { getHoverInfoForToken, getHoverInfoForAtRule } from '../core/hover-engine'
 import { analyzeStylesheetSource } from '../core/stylesheet-analyzer'
 import { formatFullInspectionReport } from '../core/codelens-formatter'
 import type { DefinitionMeta } from '../core/types'
@@ -52,6 +52,16 @@ export class MDCHoverProvider implements vscode.HoverProvider {
 
             if (hoverMarkdown) {
                 return new vscode.Hover(new vscode.MarkdownString(hoverMarkdown), tokenRange)
+            }
+        }
+
+        // 3. Check if hovering over an MDC at-rule (e.g. @state, @when, @variant, @anchor)
+        const atRuleRange = document.getWordRangeAtPosition(position, /@[a-zA-Z0-9_-]+/)
+        if (atRuleRange) {
+            const word = document.getText(atRuleRange)
+            const atRuleMarkdown = getHoverInfoForAtRule(word)
+            if (atRuleMarkdown) {
+                return new vscode.Hover(new vscode.MarkdownString(atRuleMarkdown), atRuleRange)
             }
         }
 

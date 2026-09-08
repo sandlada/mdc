@@ -18,7 +18,7 @@ import type {
 } from './types'
 
 import { getSourceRange, extractBalancedBlock, extractObjectProperties } from './source-text'
-import { canonicalizeState as canonicalizeStateName } from '@sandlada/mdc/style-engine'
+import { canonicalizeState as canonicalizeStateName } from '@sandlada/styles/compiler'
 
 const VAR_PRIVATE_REGEX = /var\(\s*(--_([a-zA-Z0-9_:-]+))(?:\s*,\s*([^)]+))?\s*\)/g
 const CUSTOM_PROP_REGEX = /((?:--mdc|--md)-[a-zA-Z0-9_-]+)\s*:/g
@@ -124,6 +124,8 @@ export function extractStringifyTokenCalls(sourceText: string): StringifyTokensC
         })
     }
 
+    // Compat detection: legacy token-record helpers still surface as
+    // stringifyTokens calls so diagnostics can nudge migration.
     const legacyRecRegex = /(?:const|let|var)\s+([a-zA-Z0-9_$]+)\s*=\s*(?:defineTokenRefsRecord|defineComponentTokenRefs)\s*\(\s*([a-zA-Z0-9_$]+)(?:,\s*\{[\s\S]*?prefix:\s*['"`]([^'"`]+)['"`])?/g
     let lMatch: RegExpExecArray | null
     while ((lMatch = legacyRecRegex.exec(sourceText)) !== null) {
@@ -218,6 +220,8 @@ export function extractOverrideTokensCalls(sourceText: string): OverrideDeclarat
         })
     }
 
+    // Compat detection: legacy override helpers still surface as
+    // overrideTokens calls so diagnostics can nudge migration.
     const legacyOvRegex = /(?:overrideStyleSheet|overrideComponentTokens)\s*(?:<[^>]+>)?\s*\(\s*(?:([a-zA-Z0-9_$]+)\s*,\s*)?['"`](--[a-zA-Z0-9_-]+)['"`]/g
     let loMatch: RegExpExecArray | null
     while ((loMatch = legacyOvRegex.exec(sourceText)) !== null) {
@@ -236,25 +240,221 @@ export function extractOverrideTokensCalls(sourceText: string): OverrideDeclarat
     return overrides
 }
 
+/**
+ * Masks comments with whitespace while preserving exact string length and line breaks.
+ * This prevents false at-rule matches inside block comments or line comments without
+ * disturbing source ranges and line numbers.
+ */
+export function maskCommentsPreservingSpans(text: string): string {
+    let result = ''
+    let inBlockComment = false
+    let inLineComment = false
+    let inString: string | null = null
+    let isEscaped = false
+
+    for (let i = 0; i < text.length; i++) {
+        const ch = text[i]
+        const next = i + 1 < text.length ? text[i + 1] : ''
+
+        if (isEscaped) {
+            isEscaped = false
+            result += inBlockComment || inLineComment ? ' ' : ch
+            continue
+        }
+
+        if (ch === '\\') {
+            isEscaped = true
+            result += inBlockComment || inLineComment ? ' ' : ch
+            continue
+        }
+
+        if (inBlockComment) {
+            if (ch === '*' && next === '/') {
+                inBlockComment = false
+                result += '  '
+                i++
+            } else {
+                result += ch === '\n' ? '\n' : (ch === '\r' ? '\r' : ' ')
+            }
+            continue
+        }
+
+        if (inLineComment) {
+            if (ch === '\n' || ch === '\r') {
+                inLineComment = false
+                result += ch
+            } else {
+                result += ' '
+            }
+            continue
+        }
+
+        if (inString) {
+            if (ch === inString) {
+                inString = null
+            }
+            result += ch
+            continue
+        }
+
+        if (ch === '/' && next === '*') {
+            inBlockComment = true
+            result += '  '
+            i++
+            continue
+        }
+
+        if (ch === '/' && next === '/') {
+            inLineComment = true
+            result += '  '
+            i++
+            continue
+        }
+
+        if (ch === '"' || ch === "'") {
+            inString = ch
+            result += ch
+            continue
+        }
+
+        result += ch
+    }
+
+    return result
+}
+
 export function extractATRules(cssText: string, globalOffset: number, sourceText: string): ATRuleUsageMeta[] {
     const atRules: ATRuleUsageMeta[] = []
-    const atRuleRegex = /@(anchor|when|variant|size|slotted|slot|elevation|layer|media|supports|container|keyframes)(?:\s*\(([^)]*)\)|\s+([^{\n;]+))?/g
+    const masked = maskCommentsPreservingSpans(cssText)
+    const atRuleNameRegex = /@(state|anchor|when|variant|size|slotted|slot|elevation|layer|media|supports|container|keyframes|reduced-motion|forced-colors|contrast|reduced-transparency|starting-style)(?![a-zA-Z0-9_-])/g
     let match: RegExpExecArray | null
 
-    while ((match = atRuleRegex.exec(cssText)) !== null) {
+    const stack: { meta: ATRuleUsageMeta; endIndex: number }[] = []
+
+    while ((match = atRuleNameRegex.exec(masked)) !== null) {
         const type = match[1]
         const name = `@${type}` as ATRuleUsageMeta['name']
-        const argument = (match[2] || match[3] || '').trim()
-        const range = getSourceRange(sourceText, globalOffset + match.index, match[0].length)
+        const matchStart = match.index
+        let pos = matchStart + match[0].length
 
-        atRules.push({
+        // Skip whitespace between keyword and param / header
+        while (pos < masked.length && (masked[pos] === ' ' || masked[pos] === '\t' || masked[pos] === '\r' || masked[pos] === '\n')) {
+            pos++
+        }
+
+        let rawParam = ''
+        let rawRest = ''
+
+        if (pos < masked.length && masked[pos] === '(') {
+            // Extract balanced parentheses
+            const parenStart = pos + 1
+            let depth = 1
+            let inSingleQuote = false
+            let inDoubleQuote = false
+            let isEscaped = false
+            let parenEnd = -1
+
+            for (let i = parenStart; i < masked.length; i++) {
+                const ch = masked[i]
+                if (isEscaped) {
+                    isEscaped = false
+                    continue
+                }
+                if (ch === '\\') {
+                    isEscaped = true
+                    continue
+                }
+                if (ch === "'" && !inDoubleQuote) {
+                    inSingleQuote = !inSingleQuote
+                    continue
+                }
+                if (ch === '"' && !inSingleQuote) {
+                    inDoubleQuote = !inDoubleQuote
+                    continue
+                }
+                if (inSingleQuote || inDoubleQuote) continue
+
+                if (ch === '(') {
+                    depth++
+                } else if (ch === ')') {
+                    depth--
+                    if (depth === 0) {
+                        parenEnd = i
+                        break
+                    }
+                }
+            }
+
+            if (parenEnd !== -1) {
+                rawParam = masked.slice(parenStart, parenEnd).trim()
+                pos = parenEnd + 1
+            }
+        }
+
+        // Rest of header up to '{' or ';'
+        const restStart = pos
+        let headerEnd = pos
+        while (headerEnd < masked.length && masked[headerEnd] !== '{' && masked[headerEnd] !== ';') {
+            headerEnd++
+        }
+        rawRest = masked.slice(restStart, headerEnd).trim()
+
+        let argument = ''
+        let param = rawParam
+        let selector: string | undefined
+
+        if (type === 'state') {
+            param = rawParam
+            selector = rawRest
+            argument = param && selector ? `(${param}) ${selector}` : (param || selector || '')
+        } else {
+            argument = (rawParam || rawRest || '').trim()
+            if (!param && rawRest) {
+                param = rawRest
+            }
+        }
+
+        const matchLength = headerEnd - matchStart
+        const range = getSourceRange(sourceText, globalOffset + matchStart, matchLength)
+
+        // Find associated block content if present
+        let content: string | undefined
+        let blockEndIndex = -1
+
+        if (headerEnd < masked.length && masked[headerEnd] === '{') {
+            const block = extractBalancedBlock(cssText, headerEnd)
+            if (block) {
+                content = block.content
+                blockEndIndex = block.endIndex
+            }
+        }
+
+        // Pop completed blocks from the stack
+        while (stack.length > 0 && stack[stack.length - 1].endIndex <= matchStart) {
+            stack.pop()
+        }
+
+        const isNested = stack.some((s) => s.meta.type === type)
+        const parentAtRule = stack.length > 0 ? stack[stack.length - 1].meta : undefined
+
+        const meta: ATRuleUsageMeta = {
             type,
             name,
             argument,
-            header: match[0].trim(),
-            param: argument,
+            header: cssText.slice(matchStart, headerEnd).trim(),
+            param,
+            selector,
             range,
-        })
+            content,
+            isNested,
+            parentAtRule,
+        }
+
+        if (blockEndIndex !== -1) {
+            stack.push({ meta, endIndex: blockEndIndex })
+        }
+
+        atRules.push(meta)
     }
 
     return atRules

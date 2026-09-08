@@ -5,7 +5,7 @@
  */
 import type { DefinitionMeta, SourceRange } from './types'
 import { normalizePrivateToken } from './stylesheet-analyzer'
-import { canonicalizeState as canonicalizeStateName } from '@sandlada/mdc/style-engine'
+import { canonicalizeState as canonicalizeStateName } from '@sandlada/styles/compiler'
 
 export interface FileEditEntry {
     filePath: string

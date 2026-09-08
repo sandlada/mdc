@@ -107,7 +107,7 @@ export class MDCCodeLensProvider implements vscode.CodeLensProvider {
                     }
                 }
 
-                // Line 3+: Token Record Declarations (`defineTokenRefsRecord` / `defineComponentTokenRefs`)
+                // Line 3+: Token Record Declarations (`stringifyTokens`)
                 if (analysis.tokenRecords) {
                     for (const rec of analysis.tokenRecords) {
                         if (rec.line !== analysis.declarationLine && rec.line !== sheetLine) {
@@ -124,7 +124,7 @@ export class MDCCodeLensProvider implements vscode.CodeLensProvider {
                     }
                 }
 
-                // Line 4+: Override Declarations (`overrideStyleSheet` / `overrideComponentTokens`)
+                // Line 4+: Override Declarations (`overrideTokens`)
                 if (analysis.overrides) {
                     for (const ov of analysis.overrides) {
                         if (ov.line !== analysis.declarationLine && ov.line !== sheetLine) {

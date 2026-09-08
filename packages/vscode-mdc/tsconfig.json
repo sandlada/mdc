@@ -16,5 +16,5 @@
             "@sandlada/mdc": ["../mdc/src"]
         }
     },
-    "include": ["src/**/*", "tests/**/*"]
+    "include": ["src/**/*"]
 }

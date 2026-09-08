@@ -5,9 +5,10 @@
  */
 import type { StylesheetAnalysis, DefinitionMeta, DiagnosticIssue } from './types'
 import { splitChildBridgeSuffix } from './stylesheet-analyzer'
+import { isHostMountedSelector, replaceTargetInSelector } from '@sandlada/styles/compiler'
 
 /**
- * Analyzes a stylesheet and returns all MDC diagnostic issues (MDC001, MDC002, MDC003).
+ * Analyzes a stylesheet and returns all MDC diagnostic issues (MDC001 - MDC007).
  */
 export function getStylesheetDiagnostics(
     analysis: StylesheetAnalysis,
@@ -69,6 +70,88 @@ export function getStylesheetDiagnostics(
                                 replacement: `${fwd.targetPrefix}-${split.key}`,
                                 range: usage.range,
                             },
+                        })
+                    }
+                }
+            }
+        }
+    }
+
+    // At-Rules Diagnostics (MDC004, MDC005, MDC006, MDC007)
+    if (analysis.atRules) {
+        for (const atRule of analysis.atRules) {
+            // Rule MDC004: Nested @variant check (Rule V4) or empty variant list
+            if (atRule.type === 'variant') {
+                if (atRule.isNested) {
+                    issues.push({
+                        code: 'MDC004',
+                        message: `[MDC004] Nested @variant at-rules are not supported (Rule V4). The nested block is rejected and discarded.`,
+                        severity: 'warning',
+                        range: atRule.range,
+                        token: atRule.header || '@variant',
+                    })
+                } else if (!atRule.param || atRule.param.trim().length === 0) {
+                    issues.push({
+                        code: 'MDC004',
+                        message: `[MDC004] Invalid @variant syntax: "${atRule.header}". Variant name list is required (Rule V1). The block is rejected and discarded.`,
+                        severity: 'warning',
+                        range: atRule.range,
+                        token: atRule.header || '@variant',
+                    })
+                }
+            }
+
+            // Rule MDC005: Nested @when check (Rule W5)
+            if (atRule.type === 'when' && atRule.isNested) {
+                issues.push({
+                    code: 'MDC005',
+                    message: `[MDC005] Nested @when at-rules are not supported (Rule W5). The nested block is rejected and discarded.`,
+                    severity: 'warning',
+                    range: atRule.range,
+                    token: atRule.header || '@when',
+                })
+            }
+
+            // Rule MDC006: Non-host condition in @when check (Rule W1)
+            if (atRule.type === 'when' && !atRule.isNested) {
+                if (!atRule.param || atRule.param.trim().length === 0) {
+                    issues.push({
+                        code: 'MDC006',
+                        message: `[MDC006] Invalid @when syntax: condition is required and must be mounted on :host (Rule W1). The condition is rejected and discarded.`,
+                        severity: 'warning',
+                        range: atRule.range,
+                        token: atRule.header || '@when',
+                    })
+                } else if (!isHostMountedSelector(atRule.param)) {
+                    issues.push({
+                        code: 'MDC006',
+                        message: `[MDC006] @when condition "${atRule.param}" must be mounted on :host (Rule W1). The condition is rejected and discarded.`,
+                        severity: 'warning',
+                        range: atRule.range,
+                        token: atRule.header || '@when',
+                    })
+                }
+            }
+
+            // Rule MDC007: Invalid @state target / syntax check (Rules R1, R8)
+            if (atRule.type === 'state') {
+                if (!atRule.param || !atRule.selector) {
+                    issues.push({
+                        code: 'MDC007',
+                        message: `[MDC007] Invalid @state syntax: "${atRule.header}". Target and selector are both required (Rule R1).`,
+                        severity: 'error',
+                        range: atRule.range,
+                        token: atRule.header || '@state',
+                    })
+                } else {
+                    const check = replaceTargetInSelector(atRule.selector, atRule.param, '')
+                    if (!check.matched) {
+                        issues.push({
+                            code: 'MDC007',
+                            message: `[MDC007] Selector "${atRule.selector}" does not contain target "${atRule.param}" (Rule R8). The block is rejected and discarded.`,
+                            severity: 'warning',
+                            range: atRule.range,
+                            token: atRule.header || '@state',
                         })
                     }
                 }

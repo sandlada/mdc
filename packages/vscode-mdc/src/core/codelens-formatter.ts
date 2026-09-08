@@ -112,7 +112,7 @@ export function formatCreateStyleSheetCodeLens(
 }
 
 /**
- * Formats a CodeLens item for defineTokenRefsRecord / defineComponentTokenRefs lines.
+ * Formats a CodeLens item for stringifyTokens lines.
  */
 export function formatTokenRecordCodeLens(
     definitionName: string,
@@ -131,7 +131,7 @@ export function formatTokenRecordCodeLens(
 }
 
 /**
- * Formats a CodeLens item for overrideStyleSheet / overrideComponentTokens lines.
+ * Formats a CodeLens item for overrideTokens lines.
  */
 export function formatOverrideCodeLens(
     targetName: string,

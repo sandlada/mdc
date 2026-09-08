@@ -360,7 +360,7 @@ export class MDCComponentTokensTreeProvider extends BaseMDCTreeProvider {
             let children: MDCTreeItem[] | undefined
 
             if (t.isTuple) {
-                stateDetails = `${t.states.length} states`
+                stateDetails = `${(t.states ?? []).length} states`
                 if (t.stateMap) {
                     children = Object.entries(t.stateMap).map(
                         ([st, val]) =>

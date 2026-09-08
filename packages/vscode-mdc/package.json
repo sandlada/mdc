@@ -139,21 +139,19 @@
         "Snippets"
     ],
     "scripts": {
-        "build": "rolldown -c rolldown.config.js",
-        "test": "vitest run",
-        "test:watch": "vitest"
+        "build": "rolldown -c rolldown.config.js"
     },
     "dependencies": {
         "@sandlada/jss": "^0.0.1-20260626.a",
         "@sandlada/mdc": "*",
         "@sandlada/mdk": "^3.0.0-20260624.c",
+        "@sandlada/styles": "*",
         "lit": "^3.3.3",
         "rolldown": "^1.2.4",
         "typescript": "~7.0.2"
     },
     "devDependencies": {
         "@types/node": "^22.13.0",
-        "@types/vscode": "^1.90.0",
-        "vitest": "^4.1.11"
+        "@types/vscode": "^1.90.0"
     }
 }

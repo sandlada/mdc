@@ -3,10 +3,11 @@
         "prefix": "mdc-style",
         "body": [
             "import { css } from 'lit'",
-            "import { createStyleSheet, defineComponentTokenRefs } from '@sandlada/mdc/utils'",
+            "import { createStyleSheet } from '@sandlada/styles/compiler'",
+            "import { stringifyTokens } from '@sandlada/styles/tokens'",
             "import { ${1:Component}Definition } from './${2:component}.definition'",
             "",
-            "const tokens = defineComponentTokenRefs(${1:Component}Definition, { prefix: '--mdc-${2:component}' })",
+            "const tokens = stringifyTokens({ prefix: '--mdc-${2:component}' })(${1:Component}Definition)",
             "",
             "export const ${1:Component}Styles = [",
             "    css`:host { \\${tokens} }`,",
@@ -15,7 +16,7 @@
             "            display: inline-flex;",
             "        }",
             "",
-            "        @anchor .container {",
+            "        @state(${3:container}) .container {",
             "            height: var(--_container-height);",
             "            background-color: var(--_container-color);",
             "            border-radius: var(--_container-shape-start-start);",
@@ -26,6 +27,33 @@
         ],
         "description": "Scaffold a complete MDC Component Stylesheet with createStyleSheet and token injection."
     },
+    "MDC State Block": {
+        "prefix": "mdc-state",
+        "body": [
+            "@state(${1:target}) ${2:selector} {",
+            "    ${0}",
+            "}"
+        ],
+        "description": "Scaffold an MD3 Expressive @state(target) matrix expansion block."
+    },
+    "MDC When Host Block": {
+        "prefix": "mdc-when",
+        "body": [
+            "@when(:host([${1:condition}])) {",
+            "    ${0}",
+            "}"
+        ],
+        "description": "Scaffold an MD3 Expressive @when(:host(...)) condition block."
+    },
+    "MDC Variant Block": {
+        "prefix": "mdc-variant",
+        "body": [
+            "@variant(${1:variantName}) {",
+            "    ${0}",
+            "}"
+        ],
+        "description": "Scaffold an MD3 Expressive @variant block."
+    },
     "MDC Anchor State Block": {
         "prefix": "mdc-anchor",
         "body": [
@@ -34,15 +62,15 @@
             "    background-color: var(--_container-color);",
             "",
             "    &:hover {",
-            "        background-color: var(--_hovered-container-color, var(--_container-color));",
+            "        background-color: var(--_hovered-container-color);",
             "    }",
             "",
             "    &:active {",
-            "        background-color: var(--_pressed-container-color, var(--_container-color));",
+            "        background-color: var(--_pressed-container-color);",
             "    }",
             "",
             "    &:focus-visible {",
-            "        background-color: var(--_focused-container-color, var(--_container-color));",
+            "        background-color: var(--_focused-container-color);",
             "    }",
             "}"
         ],
@@ -65,7 +93,8 @@
         "prefix": "mdc-def",
         "body": [
             "import { Color, Space } from '@sandlada/mdk'",
-            "import { createStyleDefinition, forwardTokens } from '@sandlada/mdc/utils'",
+            "import { createStyleDefinition } from '@sandlada/styles/create-style-definition'",
+            "import { forwardTokens } from '@sandlada/styles/tokens'",
             "",
             "export const ${1:Component}Definition = createStyleDefinition({",
             "    'container-color': [Color.SurfaceContainer, Color.SurfaceContainerHigh, Color.SurfaceContainerHighest, Color.SurfaceContainer, Color.SurfaceDim],",

@@ -70,3 +70,83 @@ export function getHoverInfoForToken(
 
     return null
 }
+
+/**
+ * Generates rich hover documentation for MDC at-rules.
+ */
+export function getHoverInfoForAtRule(atRuleName: string): string | null {
+    const cleanName = atRuleName.startsWith('@') ? atRuleName : `@${atRuleName}`
+
+    switch (cleanName) {
+        case '@state':
+            return [
+                `### 📐 MDC At-Rule: \`@state(target) selector\``,
+                `---`,
+                `Scopes and expands interactive component state matrices over target elements.`,
+                ``,
+                `- **Rule R1**: Requires explicit \`target\` and \`selector\` parameters.`,
+                `- **Rule R7**: Retains \`&\` prefix combinators (e.g. \`& button\` ➔ \`& button.small\`).`,
+                `- **Rule R8**: Target must match within selector.`,
+                `- **Cartesian Combinations**: Generates multi-dimensional state product rules.`,
+            ].join('\n')
+
+        case '@when':
+            return [
+                `### 📐 MDC At-Rule: \`@when(condition)\``,
+                `---`,
+                `Conditional state rule hoisted to the nearest host container boundary.`,
+                ``,
+                `- **Rule W1**: Condition must be mounted on \`:host\` (e.g. \`@when(:host([checked]))\`).`,
+                `- **Rule W3**: Retains relative \`&\` combinators in ancestor paths (e.g. \`& .inner\`).`,
+                `- **Rule W5**: Nested \`@when\` blocks are illegal and discarded.`,
+            ].join('\n')
+
+        case '@variant':
+            return [
+                `### 📐 MDC At-Rule: \`@variant(name)\``,
+                `---`,
+                `Scopes styling declarations to specific component visual variants.`,
+                ``,
+                `- **Rules V1–V3**: Exact variant dictionary key match.`,
+                `- **Rule V4**: Nested \`@variant\` blocks are illegal and discarded.`,
+            ].join('\n')
+
+        case '@anchor':
+            return [
+                `### 📐 MDC At-Rule: \`@anchor <selector>\``,
+                `---`,
+                `Defines a component container anchor element for state-differential styling in legacy stylesheets.`,
+            ].join('\n')
+
+        case '@size':
+            return [
+                `### 📐 MDC At-Rule: \`@size(sizeNames)\``,
+                `---`,
+                `Lowers to \`:host([size="..."])\` container modifier rules.`,
+            ].join('\n')
+
+        case '@slot':
+            return [
+                `### 📐 MDC At-Rule: \`@slot(slotName)\``,
+                `---`,
+                `Lowers to slot-presence query \`:host(:has([slot="..."]))\`.`,
+            ].join('\n')
+
+        case '@slotted':
+            return [
+                `### 📐 MDC At-Rule: \`@slotted(slotName)\``,
+                `---`,
+                `Lowers to slot content selector \`::slotted([slot="..."])\`.`,
+            ].join('\n')
+
+        case '@elevation':
+            return [
+                `### 📐 MDC At-Rule: \`@elevation(level)\``,
+                `---`,
+                `Injects elevation box-shadow tokens for MD3 elevation levels (0–5).`,
+            ].join('\n')
+
+        default:
+            return null
+    }
+}

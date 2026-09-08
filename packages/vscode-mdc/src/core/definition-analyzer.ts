@@ -411,6 +411,124 @@ function parsePaddingExpander(
     return tokens
 }
 
+function parseMarginExpander(
+    expanderSource: string,
+    prefixArg: string,
+    valueArg: string,
+    sourceRange: SourceRange,
+    _schemaStates: string[]
+): TokenValueMeta[] {
+    const clean = cleanKey(prefixArg)
+    const baseKey = clean === 'margin' || clean.endsWith('-margin') ? clean : `${clean}-margin`
+    const edges = [
+        `${baseKey}-block-start`,
+        `${baseKey}-block-end`,
+        `${baseKey}-inline-start`,
+        `${baseKey}-inline-end`
+    ]
+
+    const tokens: TokenValueMeta[] = []
+    const valTrim = valueArg.trim()
+
+    if (valTrim.startsWith('{')) {
+        const propRegex = /['"`]?([a-zA-Z0-9_-]+)['"`]?\s*:\s*(\[[^\]]*\]|[^,\n}]+)/g
+        const stateObj: Record<string, string> = {}
+        let m: RegExpExecArray | null
+        while ((m = propRegex.exec(valTrim)) !== null) {
+            stateObj[cleanKey(m[1])] = m[2].trim()
+        }
+
+        const stateKeys = Object.keys(stateObj)
+        const edgeStateMaps: [Record<string, string>, Record<string, string>, Record<string, string>, Record<string, string>] = [
+            {}, {}, {}, {}
+        ]
+
+        for (const [st, val] of Object.entries(stateObj)) {
+            if (val.startsWith('[')) {
+                const subElements = val.slice(1, -1).split(',').map(s => s.trim()).filter(Boolean)
+                if (subElements.length === 2) {
+                    edgeStateMaps[0][st] = subElements[0]
+                    edgeStateMaps[1][st] = subElements[0]
+                    edgeStateMaps[2][st] = subElements[1]
+                    edgeStateMaps[3][st] = subElements[1]
+                } else if (subElements.length === 4) {
+                    edgeStateMaps[0][st] = subElements[0]
+                    edgeStateMaps[1][st] = subElements[1]
+                    edgeStateMaps[2][st] = subElements[2]
+                    edgeStateMaps[3][st] = subElements[3]
+                } else {
+                    for (let e = 0; e < 4; e++) edgeStateMaps[e][st] = subElements[0] || '0px'
+                }
+            } else {
+                for (let e = 0; e < 4; e++) edgeStateMaps[e][st] = val
+            }
+        }
+
+        edges.forEach((edgeKey, i) => {
+            const sm = edgeStateMaps[i]
+            tokens.push({
+                key: edgeKey,
+                name: edgeKey,
+                isTuple: false,
+                isRecord: true,
+                isExpanded: true,
+                expanderType: 'margin',
+                expanderSource,
+                states: stateKeys,
+                stateNames: stateKeys,
+                stateMap: sm,
+                recordValues: sm,
+                rawValue: valTrim,
+                range: sourceRange
+            })
+        })
+    } else if (valTrim.startsWith('[')) {
+        const elements = valTrim.slice(1, -1).split(',').map(s => s.trim()).filter(Boolean)
+        let edgeVals: [string, string, string, string]
+        if (elements.length === 2) {
+            edgeVals = [elements[0], elements[0], elements[1], elements[1]]
+        } else if (elements.length === 4) {
+            edgeVals = [elements[0], elements[1], elements[2], elements[3]]
+        } else {
+            edgeVals = [elements[0] || '0px', elements[0] || '0px', elements[0] || '0px', elements[0] || '0px']
+        }
+
+        edges.forEach((edgeKey, i) => {
+            tokens.push({
+                key: edgeKey,
+                name: edgeKey,
+                isTuple: false,
+                isExpanded: true,
+                expanderType: 'margin',
+                expanderSource,
+                states: ['enabled'],
+                stateNames: ['enabled'],
+                stateMap: { enabled: edgeVals[i] },
+                rawValue: edgeVals[i],
+                range: sourceRange
+            })
+        })
+    } else {
+        edges.forEach(edgeKey => {
+            tokens.push({
+                key: edgeKey,
+                name: edgeKey,
+                isTuple: false,
+                isExpanded: true,
+                expanderType: 'margin',
+                expanderSource,
+                states: ['enabled'],
+                stateNames: ['enabled'],
+                stateMap: { enabled: valTrim },
+                rawValue: valTrim,
+                range: sourceRange
+            })
+        })
+    }
+
+    return tokens
+}
+
 function parseTypescaleExpander(
     expanderSource: string,
     prefixArg: string,
@@ -556,7 +674,7 @@ function inlineIdentifierSpreads(
         const callStart = cm.index
         const fnName = cm[1]
 
-        if (fnName === 'expandShape' || fnName === 'expandPadding' || fnName === 'expandTypescale' || fnName === 'forwardTokens') {
+        if (fnName === 'expandShape' || fnName === 'expandMargin' || fnName === 'expandPadding' || fnName === 'expandTypescale' || fnName === 'forwardTokens') {
             const openParen = callStart + cm[0].length - 1
             const parenBlock = extractBalancedBlock(cleaned, openParen, '(', ')')
             if (parenBlock) {
@@ -975,11 +1093,11 @@ function parseSingleDefinition(
         }
     }
 
-    // 2. Parse token expanders: ...expandShape, ...expandPadding, ...expandTypescale
-    const expKeywordRegex = /\.\.\.(expandShape|expandPadding|expandTypescale)/g
+    // 2. Parse token expanders: ...expandShape, ...expandMargin, ...expandPadding, ...expandTypescale
+    const expKeywordRegex = /\.\.\.(expandShape|expandMargin|expandPadding|expandTypescale)/g
     let expKwMatch: RegExpExecArray | null
     while ((expKwMatch = expKeywordRegex.exec(bodyText)) !== null) {
-        const type = expKwMatch[1] as 'expandShape' | 'expandPadding' | 'expandTypescale'
+        const type = expKwMatch[1] as 'expandShape' | 'expandMargin' | 'expandPadding' | 'expandTypescale'
         const firstOpen = bodyText.indexOf('(', expKwMatch.index)
         if (firstOpen === -1) continue
         const firstBlock = extractBalancedBlock(bodyText, firstOpen, '(', ')')
@@ -998,6 +1116,8 @@ function parseSingleDefinition(
         let expandedTokens: TokenValueMeta[] = []
         if (type === 'expandShape') {
             expandedTokens = parseShapeExpander(bodyText.substring(expKwMatch.index, secondBlock.endIndex + 1), prefixArg, valueArg, expRange, schemaStates)
+        } else if (type === 'expandMargin') {
+            expandedTokens = parseMarginExpander(bodyText.substring(expKwMatch.index, secondBlock.endIndex + 1), prefixArg, valueArg, expRange, schemaStates)
         } else if (type === 'expandPadding') {
             expandedTokens = parsePaddingExpander(bodyText.substring(expKwMatch.index, secondBlock.endIndex + 1), prefixArg, valueArg, expRange, schemaStates)
         } else if (type === 'expandTypescale') {
@@ -1025,7 +1145,7 @@ function parseSingleDefinition(
     }
 
     let expCleanPos = 0
-    while ((expCleanPos = strippedBody.search(/\.\.\.(expandShape|expandPadding|expandTypescale)/)) !== -1) {
+    while ((expCleanPos = strippedBody.search(/\.\.\.(expandShape|expandMargin|expandPadding|expandTypescale)/)) !== -1) {
         const after = strippedBody.substring(expCleanPos)
         const firstP = after.indexOf('(')
         if (firstP !== -1) {
