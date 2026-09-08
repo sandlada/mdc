@@ -1,4 +1,5 @@
 /**
+ * @version 2026.9.8
  * @license
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
@@ -13,6 +14,7 @@ import { describe, it, expect } from 'vitest'
 import { defineSchema } from '../define-schema'
 import { createStyleDefinition } from '../create-style-definition'
 import { mapStateTriggers } from '../map-state-triggers'
+import { mapVariantTriggers } from '../map-variant-triggers'
 import {
     compileAtRulesSheet,
     expandDeclaration,
@@ -78,7 +80,7 @@ const LargeComboDef = createStyleDefinition(LargeComboSchema)({
 type WarnExpect = string | { type: string; count?: number; min?: number }
 
 interface SheetOpts {
-    readonly fixture?: 'combo' | 'size' | 'two-state' | 'large-combo'
+    readonly fixture?: 'combo' | 'size' | 'size-variant' | 'two-state' | 'large-combo'
     readonly entry?: 'atrules'
     readonly warn?: WarnExpect
     readonly absent?: string | readonly string[]
@@ -87,9 +89,16 @@ interface SheetOpts {
 
 type SheetRow = readonly [input: string, expected: string | readonly string[] | null, opts?: SheetOpts]
 
+const VariantTriggers = mapVariantTriggers({
+    'filled': ':host([variant="filled"])',
+    'tonal': ':host([variant="tonal"])',
+    'outlined': ':host([variant="outlined"])'
+})
+
 const fixtures = {
     'combo': { def: ComboDef, registry: ComboTriggers },
     'size': { def: SizeDef, registry: SizeTriggers },
+    'size-variant': { def: SizeDef, registry: SizeTriggers, variantRegistry: VariantTriggers },
     'two-state': { def: TwoStateDef, registry: TwoStateTriggers },
     'large-combo': { def: LargeComboDef, registry: undefined }
 } as const
@@ -102,7 +111,7 @@ function runSheetRow([input, expected, opts]: SheetRow): void {
     const fixture = opts?.fixture !== undefined ? fixtures[opts.fixture] : undefined
     const def = fixture?.def ?? {}
     const options = fixture?.registry !== undefined
-        ? { registry: fixture.registry, onWarn }
+        ? { registry: fixture.registry, variantRegistry: opts?.fixture === 'size-variant' ? VariantTriggers : undefined, onWarn }
         : { onWarn }
     const output = opts?.entry === 'atrules'
         ? compileAtRulesSheet(def, input, options)
@@ -146,18 +155,23 @@ describe('at-rules-compiler — Adversarial Reviewer Verification Suite', () => 
         // Issue 2: Combo state matrix in nested @when inside @state
         ['@state(button) button { @when(:host([dense])) { height: 32px; } }', 'button.medium {} button.medium[disabled] {} button.large {} button.large[disabled] {} :host([dense]) { button.medium { height: 32px; } button.medium[disabled] { height: 32px; } button.large { height: 32px; } button.large[disabled] { height: 32px; } }', { fixture: 'combo' }],
         [':host([variant="filled"]) { @state(button) button { @when(:host([checked])) { color: red; } } }', ':host([variant="filled"]) { button.medium {} button.medium[disabled] {} button.large {} button.large[disabled] {} } :host([variant="filled"][checked]) { button.medium { color: red; } button.medium[disabled] { color: red; } button.large { color: red; } button.large[disabled] { color: red; } }', { fixture: 'combo' }],
-        // Issue 3: Rule R8 failure when target does not match non-& selector (no per-state duplication + warning)
-        ['@state(button) .card { color: red; }', '.card { color: red; }', { fixture: 'size', entry: 'atrules', warn: { type: 'invalid-state-target', count: 1 } }],
-        // Issue 3: R7 — normalize & only when followed by whitespace and an element
-        ['.wrapper { @state(button) & button {} }', '.wrapper { button.small {} button.medium {} button.large {} }', { fixture: 'size' }],
-        // Issue 5: Non-host conditions in @when (Rule W1) — warning, no hoisting
-        ['.card { @when(.dense) { padding: 4px; } }', '.card { .dense { padding: 4px; } }', { entry: 'atrules', warn: { type: 'invalid-when-condition', count: 1 }, absent: '.dense { .card' }],
+        // Issue 3: Rule R8 failure when target does not match non-& selector (drop + warning).
+        // 規格變更注記：R8 由透傳改為丟棄（零匹配即丟棄整塊），故期望由 '.card { color: red; }' 同步修正為 ''（只修代碼原則之例外）。
+        ['@state(button) .card { color: red; }', '', { fixture: 'size', entry: 'atrules', warn: { type: 'invalid-state-target', count: 1 } }],
+        // Issue 3: R7 — retain & when followed by whitespace and an element
+        ['.wrapper { @state(button) & button {} }', '.wrapper { & button.small {} & button.medium {} & button.large {} }', { fixture: 'size' }],
+        // Issue 5: Non-host conditions in @when (Rule W1) — warning, discarded.
+        // 規格變更注記：W1 由保留嵌套（[P]）改為丟棄整塊（[D]，非 host 掛載一律 ''），故期望由
+        // '.card { .dense { padding: 4px; } }' 同步修正為 '.card {}'（只修代碼原則之例外）。
+        ['.card { @when(.dense) { padding: 4px; } }', '.card {}', { entry: 'atrules', warn: { type: 'invalid-when-condition', count: 1 }, absent: '.dense { padding' }],
         // Issue 6: empty/malformed @variant — warning, no empty-shell output
         ['@variant() { button { color: blue; } }', null, { entry: 'atrules', warn: { type: 'invalid-variant', min: 1 }, absent: ' {}' }],
         // Issue 6: wildcards and negations in @variant
         ['@variant(*, !tonal) { button { color: red; } }', null, { entry: 'atrules', warn: 'invalid-variant-name' }],
-        // Issue 7: Zero-& enforcement in hoisted :host subtrees (Rule H2 & W3)
-        ['.wrapper { & .inner { @when(:host([checked])) { color: red; } } }', null, { absent: ':host([checked]) { .wrapper { & .inner', present: ':host([checked]) { .wrapper { .inner { color: red; } } }' }],
+        // Issue 6: nested @variant is illegal (Rule V4) — discard [D] with warning
+        ['@variant(filled) { @variant(tonal) { button { color: red; } } }', '', { entry: 'atrules', fixture: 'size-variant', warn: 'nested-variant' }],
+        // Issue 7: Retain relative & in hoisted :host subtrees (Rule H2 & W3)
+        ['.wrapper { & .inner { @when(:host([checked])) { color: red; } } }', '.wrapper { & .inner {} } :host([checked]) { .wrapper { & .inner { color: red; } } }'],
         // Issue 10: isolation containers preserve outer ancestor context during hoisting
         ['.card { @reduced-motion { @when(:host([dense])) { padding: 4px; } } }', '.card { @media (prefers-reduced-motion: reduce) { :host([dense]) { .card { padding: 4px; } } } }'],
         // Issue 11: invalid @contrast arguments
@@ -171,15 +185,18 @@ describe('at-rules-compiler — Adversarial Reviewer Verification Suite', () => 
         ['button { shape: 8px 16px; }', 'button { border-start-start-radius: 8px; border-start-end-radius: 16px; border-end-end-radius: 8px; border-end-start-radius: 16px; }'],
         ['button { @reduced-motion { transition: none; } }', 'button { @media (prefers-reduced-motion: reduce) { transition: none; } }'],
         // Issue 13: invalid-when-condition warning through compileStateSheet entrypoint
-        ['.card { @when(.dense) { padding: 4px; } }', '.card { .dense { padding: 4px; } }', { warn: { type: 'invalid-when-condition', count: 1 } }],
+        // 規格變更注記：同 Issue 5，W1 改為 [D]，期望同步修正為 '.card {}'。
+        ['.card { @when(.dense) { padding: 4px; } }', '.card {}', { warn: { type: 'invalid-when-condition', count: 1 } }],
         // Issue 15: empty @when() condition list validation
         ['@when() { button { color: blue; } }', null, { entry: 'atrules', warn: { type: 'invalid-when', count: 1 }, absent: ['{} {', ' {}'] }],
         ['@when(   ) { button { color: blue; } }', null, { entry: 'atrules', warn: { type: 'invalid-when', count: 1 } }],
+        // Issue 15: nested @when is illegal (Rule W5) — discard [D] with warning
+        ['@when(:host([checked])) { @when(:host([dense])) { button { color: red; } } }', '', { entry: 'atrules', warn: 'nested-when' }],
         // Issue 16: malformed @state syntax validation (Rule R1)
         ['@state(button) { color: red; }', null, { entry: 'atrules', warn: 'invalid-state-syntax' }],
         ['@state() button { color: red; }', null, { entry: 'atrules', warn: 'invalid-state-syntax' }],
         // Issue 17: deep multi-rule integration composing @variant, @state, @when, and property expanders
-        ['@variant(filled) { @state(button) button { shape: 8px 16px; @when(:host([checked])) { color: red; } } }', ':host([variant="filled"]) { button.small { border-start-start-radius: 8px; border-start-end-radius: 16px; border-end-end-radius: 8px; border-end-start-radius: 16px; } button.medium { border-start-start-radius: 8px; border-start-end-radius: 16px; border-end-end-radius: 8px; border-end-start-radius: 16px; } button.large { border-start-start-radius: 8px; border-start-end-radius: 16px; border-end-end-radius: 8px; border-end-start-radius: 16px; } } :host([variant="filled"][checked]) { button.small { color: red; } button.medium { color: red; } button.large { color: red; } }', { fixture: 'size' }],
+        ['@variant(filled) { @state(button) button { shape: 8px 16px; @when(:host([checked])) { color: red; } } }', ':host([variant="filled"]) { button.small { border-start-start-radius: 8px; border-start-end-radius: 16px; border-end-end-radius: 8px; border-end-start-radius: 16px; } button.medium { border-start-start-radius: 8px; border-start-end-radius: 16px; border-end-end-radius: 8px; border-end-start-radius: 16px; } button.large { border-start-start-radius: 8px; border-start-end-radius: 16px; border-end-end-radius: 8px; border-end-start-radius: 16px; } } :host([variant="filled"][checked]) { button.small { color: red; } button.medium { color: red; } button.large { color: red; } }', { fixture: 'size-variant' }],
         // Issue 18: state variable rewriting in @state blocks for multi-state tokens
         ['@state(button) button { height: var(--_size); }', 'button.small { height: var(--_small-size); } button.medium { height: var(--_medium-size); } button.large { height: var(--_large-size); }', { fixture: 'size' }],
         ['@state(button) button { height: var(--_size, 16px); }', 'button.small { height: var(--_small-size, 16px); } button.medium { height: var(--_medium-size, 16px); } button.large { height: var(--_large-size, 16px); }', { fixture: 'size' }],
@@ -231,8 +248,8 @@ describe('at-rules-compiler — Adversarial Reviewer Verification Suite', () => 
 
     // Issue 7: removeAmpersandForHostSubtree — rows are [input, expected]
     const ampRows: Array<[string, string]> = [
-        ['& .inner', '.inner'],
-        ['& > .inner', '> .inner'],
+        ['& .inner', '& .inner'],
+        ['& > .inner', '& > .inner'],
         ['&', ''],
         ['.card', '.card'],
     ]
@@ -333,4 +350,3 @@ describe('at-rules-compiler — Adversarial Reviewer Verification Suite', () => 
         })
     })
 })
-

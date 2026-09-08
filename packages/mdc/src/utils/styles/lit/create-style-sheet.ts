@@ -61,7 +61,7 @@ export interface LitCreateStyleSheetFn {
 
 function isOptionsLike(arg: any): boolean {
     return arg instanceof StateTriggerRegistry ||
-        (arg && typeof arg === 'object' && ('registry' in arg || 'triggers' in arg || 'variantSelector' in arg || 'onWarn' in arg))
+        (arg && typeof arg === 'object' && ('registry' in arg || 'triggers' in arg || 'variantRegistry' in arg || 'variantTriggers' in arg || 'variantSelector' in arg || 'onWarn' in arg))
 }
 
 /**

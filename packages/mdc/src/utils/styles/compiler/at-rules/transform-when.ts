@@ -9,9 +9,24 @@
 import type { AtRulesCompilerContext } from '../compile-at-rules-sheet'
 import { splitSelectorByComma } from '../compose-state-selector'
 import { extractAtRuleParams } from '../extract-at-rule-params'
-import { formatRule, parseStatements } from '../internal/at-rules-transformer'
+import { formatRule, parseStatements, type ParsedStatement } from '../internal/at-rules-transformer'
 import type { AtRuleHandlerResult, Recurse } from './at-rule-handler'
-import { hoistCondition } from './hoist-helpers'
+import { hoistCondition, isHostMountedSelector } from './hoist-helpers'
+
+export const hasNestedWhen = (stmts: readonly ParsedStatement[]): boolean => {
+    for (const stmt of stmts) {
+        if (stmt.type === 'block' && stmt.header) {
+            const trimmed = stmt.header.trim()
+            if (/^@when(?![a-zA-Z0-9_-])/.test(trimmed)) {
+                return true
+            }
+            if (stmt.body && hasNestedWhen(parseStatements(stmt.body))) {
+                return true
+            }
+        }
+    }
+    return false
+}
 
 export function handleWhenBlock(
     header: string,
@@ -27,7 +42,8 @@ export function handleWhenBlock(
                 message: `Invalid @when syntax: "${header}".`
             })
         }
-        return { base: formatRule(header, body) }
+        // [D] 截斷 / 無參數表頭屬無效 DSL：丟棄整塊，不外洩 @when 包裝。
+        return {}
     }
 
     const rawParam = extracted.param
@@ -42,32 +58,38 @@ export function handleWhenBlock(
                 message: `Empty @when condition list: "${header}".`
             })
         }
-        return { base: formatRule(header, body) }
+        // [D] 空條件屬無效 DSL：丟棄整塊，不展開為空殼。
+        return {}
     }
-
-    const hasHost = whenConditions.some(
-        (c) =>
-            c.startsWith(':host') ||
-            c.startsWith(':where(:host') ||
-            c.startsWith(':is(:host')
-    )
 
     const whenConditionSelector = whenConditions.join(', ')
     const innerStmts = parseStatements(body)
+    if (hasNestedWhen(innerStmts)) {
+        if (ctx.options?.onWarn) {
+            ctx.options.onWarn({
+                type: 'nested-when',
+                message: 'Nested @when at-rules are not supported.'
+            })
+        }
+        // [D] 嵌套 @when 非法丟棄整塊
+        return {}
+    }
+
     const innerRes = recurse(innerStmts, {
         ...ctx,
         ancestorPath: []
     })
     const whenContent = innerRes.baseRules.join(' ')
 
-    if (!hasHost) {
+    if (!whenConditions.every(isHostMountedSelector)) {
         if (ctx.options?.onWarn) {
             ctx.options.onWarn({
                 type: 'invalid-when-condition',
-                message: `@when condition "${rawParam}" must explicitly contain :host.`
+                message: `@when condition "${rawParam}" must be mounted on :host.`
             })
         }
-        return { base: formatRule(whenConditionSelector, whenContent) }
+        // [D] 非 host 掛載一律丟棄整塊，不外洩 @when 包裝。
+        return {}
     }
 
     if (ctx.ancestorPath.length === 0) {

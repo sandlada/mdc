@@ -18,7 +18,8 @@ import { formatRule, parseStatements, type ParsedStatement } from '../internal/a
 import { replaceTargetInSelector } from '../replace-target'
 import type { StateDimensionItem } from '../rewrite-state-variables'
 import type { AtRuleHandlerResult, Recurse } from './at-rule-handler'
-import { hoistCondition, wrapWithAncestorPath } from './hoist-helpers'
+import { hoistCondition, isHostMountedSelector, isHostRootSelector, wrapWithAncestorPath } from './hoist-helpers'
+import { hasNestedWhen } from './transform-when'
 
 export function filterRelevantCombos(
     comboList: readonly StateDimensionItem[][],
@@ -82,6 +83,78 @@ export function filterRelevantCombos(
     }
 }
 
+/**
+ * Transpiler emission rule (not an optimizer pass): a state with no definition
+ * in `def` (null / missing) never emits its shell when there is nothing to write.
+ * A rule with a non-empty body always emits; an empty body emits only when the
+ * state owns at least one state token. Pure-static definitions (no state tokens
+ * at all) and missing metadata are exempt and always emit.
+ */
+const hasAnyStateToken = (
+    meta: StateTokenMetadata | undefined,
+    stateName: string
+): boolean => {
+    if (!meta || meta.allStateTokens.size === 0) {
+        return true
+    }
+    for (const token of meta.allStateTokens) {
+        if (meta.hasStateToken(token, stateName)) {
+            return true
+        }
+    }
+    return false
+}
+
+const isBaseLikeState = (
+    meta: StateTokenMetadata | undefined,
+    stateName: string
+): boolean => {
+    return stateName === 'enabled' || stateName === 'base' || (meta !== undefined && stateName === meta.baseState)
+}
+
+/**
+ * Single-state emission: a rule with content always emits. An empty result
+ * emits only when the input was also empty AND the state owns at least one
+ * state token in `def`. A non-empty input filtered down to nothing (all
+ * declarations dropped as unresolvable for this state) never emits.
+ * Base states are not exempt (e.g. schema [s, m, l] with size [null, ...]
+ * never emits `.btn.s`).
+ */
+const shouldEmitSingleStateRule = (
+    meta: StateTokenMetadata | undefined,
+    stateName: string,
+    ruleBody: string,
+    hadStatements: boolean
+): boolean => {
+    if (ruleBody.trim().length > 0) {
+        return true
+    }
+    if (hadStatements) {
+        return false
+    }
+    return hasAnyStateToken(meta, stateName)
+}
+
+/**
+ * Combo emission: same contract over a combination. An empty result from an
+ * empty input emits only when every non-base member owns a token. Base
+ * members (dimension base / enabled / base) never block emission on their own.
+ */
+const shouldEmitComboRule = (
+    meta: StateTokenMetadata | undefined,
+    stateNames: readonly string[],
+    ruleBody: string,
+    hadStatements: boolean
+): boolean => {
+    if (ruleBody.trim().length > 0) {
+        return true
+    }
+    if (hadStatements) {
+        return false
+    }
+    return stateNames.every((name) => isBaseLikeState(meta, name) || hasAnyStateToken(meta, name))
+}
+
 export function handleStateBlock(
     header: string,
     body: string,
@@ -96,16 +169,12 @@ export function handleStateBlock(
                 message: `Invalid @state syntax: "${header}". Target and selector are both required.`
             })
         }
-        return { base: formatRule(header, body) }
+        // [D] 缺 selector / 缺 target 屬無效 DSL：丟棄整塊，不外洩 @state 包裝（R8 的合法 CSS 透傳不在此列）。
+        return {}
     }
 
     const target = extracted.param
-    let targetSelector = extracted.rest
-
-    // Rule R7: & button -> button
-    if (/^&\s+([a-zA-Z0-9_.#*\[])/.test(targetSelector)) {
-        targetSelector = targetSelector.replace(/^&\s+/, '')
-    }
+    const targetSelector = extracted.rest
 
     // Rule R8: check if selector contains target
     const check = replaceTargetInSelector(targetSelector, target, '')
@@ -117,7 +186,8 @@ export function handleStateBlock(
                 ruleSelector: targetSelector
             })
         }
-        return { base: formatRule(targetSelector, body) }
+        // [D] 全部分支零匹配：丟棄整塊。R5 部分分支保留走展開路徑，不受此分支影響。
+        return {}
     }
 
     const currentDepth = ctx.stateNestingDepth ?? 0
@@ -130,8 +200,8 @@ export function handleStateBlock(
 
     // Check for @when inside body of @state
     const innerStmts = parseStatements(body)
-    const whenStmts = innerStmts.filter((s) => s.type === 'block' && s.header!.startsWith('@when'))
-    const nonWhenStmts = innerStmts.filter((s) => !(s.type === 'block' && s.header!.startsWith('@when')))
+    const whenStmts = innerStmts.filter((s) => s.type === 'block' && /^@when(?![a-zA-Z0-9_-])/.test(s.header!))
+    const nonWhenStmts = innerStmts.filter((s) => !(s.type === 'block' && /^@when(?![a-zA-Z0-9_-])/.test(s.header!)))
 
     const bases: string[] = []
     const hoisted: string[] = []
@@ -157,6 +227,9 @@ export function handleStateBlock(
                 currentStates: combo.map((item) => item.name)
             })
             const ruleBody = stateRes.baseRules.join(' ')
+            if (!shouldEmitComboRule(ctx.meta, combo.map((item) => item.name), ruleBody, nonWhenStmts.length > 0)) {
+                continue
+            }
             const ruleText = formatRule(sel, ruleBody)
             if (!seenRules.has(ruleText)) {
                 seenRules.add(ruleText)
@@ -167,7 +240,7 @@ export function handleStateBlock(
         bases.push(expandedRules.join(' '))
     } else {
         const stateList = ctx.states as StateDimensionItem[]
-        const outerHost = ctx.ancestorPath.length > 0 && (ctx.ancestorPath[0] === ':host' || ctx.ancestorPath[0].startsWith(':host') || ctx.ancestorPath[0].startsWith(':where(:host'))
+        const outerHost = ctx.ancestorPath.length > 0 && isHostRootSelector(ctx.ancestorPath[0])
             ? ctx.ancestorPath[0]
             : null
 
@@ -186,7 +259,11 @@ export function handleStateBlock(
                     stateNestingDepth: currentDepth + 1,
                     currentStates: [s.name]
                 })
-                const content = formatRule(innerSel, stateRes.baseRules.join(' '))
+                const splitBody = stateRes.baseRules.join(' ')
+                if (!shouldEmitSingleStateRule(ctx.meta, s.name, splitBody, nonWhenStmts.length > 0)) {
+                    continue
+                }
+                const content = formatRule(innerSel, splitBody)
 
                 if (!splitShellRules.has(splitHost)) {
                     splitShellRules.set(splitHost, [])
@@ -202,7 +279,11 @@ export function handleStateBlock(
                     stateNestingDepth: currentDepth + 1,
                     currentStates: [s.name]
                 })
-                baseRulesForStates.push(formatRule(sel, stateRes.baseRules.join(' ')))
+                const singleBody = stateRes.baseRules.join(' ')
+                if (!shouldEmitSingleStateRule(ctx.meta, s.name, singleBody, nonWhenStmts.length > 0)) {
+                    continue
+                }
+                baseRulesForStates.push(formatRule(sel, singleBody))
             }
         }
 
@@ -218,13 +299,49 @@ export function handleStateBlock(
     for (const ws of whenStmts) {
         const extractedWhen = extractAtRuleParams(ws.header!, '@when')
         if (!extractedWhen || !extractedWhen.param) {
+            if (ctx.options?.onWarn) {
+                ctx.options.onWarn({
+                    type: 'invalid-when',
+                    message: !extractedWhen
+                        ? `Invalid @when syntax: "${ws.header!}".`
+                        : `Empty @when condition list: "${ws.header!}".`
+                })
+            }
             continue
         }
         const rawParam = extractedWhen.param
         const whenConditions = splitSelectorByComma(rawParam).map((c) => c.trim()).filter(Boolean)
+        if (whenConditions.length === 0) {
+            if (ctx.options?.onWarn) {
+                ctx.options.onWarn({
+                    type: 'invalid-when',
+                    message: `Empty @when condition list: "${ws.header!}".`
+                })
+            }
+            continue
+        }
+        if (!whenConditions.every(isHostMountedSelector)) {
+            if (ctx.options?.onWarn) {
+                ctx.options.onWarn({
+                    type: 'invalid-when-condition',
+                    message: `@when condition "${rawParam}" must be mounted on :host.`
+                })
+            }
+            // [D] 非 host 掛載只跳過該 @when，保留 @state 展開。
+            continue
+        }
         const whenConditionSelector = whenConditions.join(', ')
 
         const innerWhenStmts = parseStatements(ws.body!)
+        if (hasNestedWhen(innerWhenStmts)) {
+            if (ctx.options?.onWarn) {
+                ctx.options.onWarn({
+                    type: 'nested-when',
+                    message: 'Nested @when at-rules are not supported.'
+                })
+            }
+            continue
+        }
 
         // Expand state inside when
         const whenExpandedRules: string[] = []
@@ -244,6 +361,9 @@ export function handleStateBlock(
                     currentStates: combo.map((item) => item.name)
                 })
                 const ruleBody = wsRes.baseRules.join(' ')
+                if (!shouldEmitComboRule(ctx.meta, combo.map((item) => item.name), ruleBody, innerWhenStmts.length > 0)) {
+                    continue
+                }
                 const ruleText = formatRule(sel, ruleBody)
                 if (!seenRules.has(ruleText)) {
                     seenRules.add(ruleText)
@@ -260,7 +380,11 @@ export function handleStateBlock(
                     ancestorPath: [],
                     currentStates: [s.name]
                 })
-                whenExpandedRules.push(formatRule(sel, wsRes.baseRules.join(' ')))
+                const whenBody = wsRes.baseRules.join(' ')
+                if (!shouldEmitSingleStateRule(ctx.meta, s.name, whenBody, innerWhenStmts.length > 0)) {
+                    continue
+                }
+                whenExpandedRules.push(formatRule(sel, whenBody))
             }
         }
 

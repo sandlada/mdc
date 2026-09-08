@@ -17,6 +17,7 @@ import { MDCStyleSheet } from '../css-like'
 import { defineSchema } from '../define-schema'
 import { createStyleDefinition } from '../create-style-definition'
 import { mapStateTriggers } from '../map-state-triggers'
+import { mapVariantTriggers } from '../map-variant-triggers'
 import { pipe } from '../pipe'
 import { createStyleSheet } from './create-style-sheet'
 
@@ -65,6 +66,10 @@ describe('createStyleSheet', () => {
         'filled': createStyleDefinition(VariantSchema)({ 'color': '#6750a4' }),
         'tonal': createStyleDefinition(VariantSchema)({ 'color': '#e8def8' })
     } as const
+    const VariantTriggers = mapVariantTriggers({
+        'filled': ':host([variant="filled"])',
+        'tonal': ':host([variant="tonal"])'
+    })
 
     const ComboSchema = defineSchema([['small', 'large'], ['enabled', 'disabled']] as const)
     const ComboDef = createStyleDefinition(ComboSchema)({
@@ -154,12 +159,12 @@ describe('createStyleSheet', () => {
             `,
             ['button.small {', 'button.medium {', 'button.large {']],
         ['new exact @variant names wrap in :host variant shells',
-            createStyleSheet(VariantDefs)`
+            createStyleSheet({ variantRegistry: VariantTriggers })(VariantDefs)`
                 @variant(filled, tonal) { button {} }
             `,
             [':host([variant="filled"]), :host([variant="tonal"]) {']],
         ['new @variant shells compose with inner @state expansion',
-            createStyleSheet({ registry: SizeTriggers })(SizeDef)`
+            createStyleSheet({ registry: SizeTriggers, variantRegistry: VariantTriggers })(SizeDef)`
                 @variant(filled) { @state(button) button {} }
             `,
             [':host([variant="filled"]) {', 'button.small {', 'button.medium {', 'button.large {']],
@@ -248,7 +253,7 @@ describe('createStyleSheet', () => {
                 '--_disabled-color'
             ]],
         ['@variant enclosing @state rewrites multi-state variables inside variant wrapper',
-            createStyleSheet({ registry: SizeTriggers })(SizeDef)`
+            createStyleSheet({ registry: SizeTriggers, variantRegistry: VariantTriggers })(SizeDef)`
                 @variant(filled) {
                     @state(button) button {
                         height: var(--_size);

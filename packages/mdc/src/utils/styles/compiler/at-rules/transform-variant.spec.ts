@@ -1,92 +1,133 @@
 /**
+ * @version 2026.9.8
  * @license
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  *
  * @fileoverview
- * @variant 名單規格（handleVariantBlock，Selector-focused）：
- *   綠隊 = 合法名單應生成變體殼；紅隊 = 非法名單（空 / 通配 / 否定 / 未知名）應透傳。
- *   精確相等（最小 canonicalization），不看 warn，結果不對即失敗。
+ * @variant 名单规格（handler 单元层）：直调 handleVariantBlock，只测名单 / 外壳，
+ * 不测声明内容，不依赖 compileStateSheet 与真实 registry 实现。
+ * 挂载选择器由 ctx.options.variantRegistry 给出（fill→容器后代、tonal→host 类、
+ * outlined→host 属性）；名单合法 = 变体字典确切 key（大小写敏感）且 registry
+ * 有映射，任一缺失即非法。字典成员来自 ctx.meta.allVariantNames。
+ * 绿队 = 合法名单必须生成外壳；红队 = 非法名单必须安全失败（[D] 输出空串）。
+ * 跨 handler 组装与 token 发射归 at-rules-integration.spec.ts。
  */
 
 import { describe, expect, it } from 'vitest'
-import { createStyleDefinition } from '../../create-style-definition'
-import { defineSchema } from '../../define-schema'
-import { mapStateTriggers } from '../../map-state-triggers'
-import { compileStateSheet } from '../compile-state-sheet'
-
-type MappingRow = ReadonlyArray<readonly [input: string, expected: string | readonly string[]]>
-
-function canonical(css: string | readonly string[]): string {
-    // 數組以單空格連接：對應編譯器 `join(' ')` 的殼分隔語義；換行僅統一 \r\n，不折疊中間空白。
-    // `button~.label` vs `button ~ .label` 仍判為不同。
-    const text = typeof css === 'string' ? css : css.join(' ')
-    return text.replace(/\r\n/g, '\n').trim()
-}
+import type { AtRulesCompilerContext } from '../compile-at-rules-sheet'
+import {
+    canonicalHandlerResult,
+    echoRecurse,
+    fakeBaseCtx,
+    fakeMeta,
+    fakeVariantRegistry,
+    type HandlerMapping
+} from './spec-fakes'
+import { handleVariantBlock } from './transform-variant'
 
 describe('variant', () => {
-    const VariantSchema = defineSchema(['enabled'] as const)
-    const FilledDef = createStyleDefinition(VariantSchema)({
-        'color': '#6750a4',
-    })
-    const TonalDef = createStyleDefinition(VariantSchema)({
-        'color': '#e8def8',
-    })
-    const OutlinedDef = createStyleDefinition(VariantSchema)({
-        'color': '#ffffff',
-    })
-    const VariantDefs = { 'filled': FilledDef, 'tonal': TonalDef, 'outlined': OutlinedDef } as const
-    const StateTriggers = mapStateTriggers({
-        'enabled': '',
+    const variantCtx: AtRulesCompilerContext = fakeBaseCtx({
+        meta: fakeMeta(['fill', 'tonal', 'outlined']),
+        options: {
+            variantRegistry: fakeVariantRegistry({
+                'fill': '.container.fill',
+                'tonal': ':host(.tonal)',
+                'outlined': ':host([variant="outlined"])'
+            })
+        }
     })
 
     /**
-     * Variant 名單格式（本 describe 專用，沿用 button 的 R1–R8）：
-     *   variant-rule := "@variant" "(" name ("," name)* ","? ")" "{" body "}"
-     *   name         := 變體字典中的確切 key（大小寫敏感，不可省略，不可為空）
-     *   不支援通配符與否定：`*`、`!name` 屬無效用法（warn），不收錄於 mapping，另行斷言
-     * V1 單名 → 單殼（:host([variant="filled"]) { … }）
-     * V2 多名 → 逗號並殼（:host([variant="a"]), :host([variant="b"]) { … }，單規則單字串）
-     * V3 B1 保留嵌套：body 原樣嵌於殼內；@state 可內嵌，注入照 R2 在內層執行
-     * 本 describe 用單態 schema（enabled），聚焦名單格式；狀態×變體交織留待實現期按 Red 補
+     * @variant(name, ...) { body }：name 须同时为变体字典确切 key 与 registry 已映射名，大小写敏感。
+     * V1 单名单壳；V2 多名逗号并壳；V3 body 透传回声，@state 可内嵌原文；V4 嵌套 @variant 非法丢弃 [D]。`*` / `!name` 非法，不收录。
+     * 壳形状由 registry 决定，不回退 `:host([variant])` 默认。
      */
-    const greenMapping: MappingRow = [
-        // V1：單名單殼
-        ['@variant(filled) { button {} }', ':host([variant="filled"]) { button {} }'],
-        ['@variant(tonal) { button .label {} }', ':host([variant="tonal"]) { button .label {} }'],
-        ['@variant(outlined) { button:has(.label) {} }', ':host([variant="outlined"]) { button:has(.label) {} }'],
-        // V2：多名逗號並殼
-        ['@variant(filled, tonal) { button {} }', ':host([variant="filled"]), :host([variant="tonal"]) { button {} }'],
-        ['@variant(filled, tonal, outlined) { button {} }', ':host([variant="filled"]), :host([variant="tonal"]), :host([variant="outlined"]) { button {} }'],
-        ['@variant(tonal, outlined) { button .label {} }', ':host([variant="tonal"]), :host([variant="outlined"]) { button .label {} }'],
-        ['@variant(filled, outlined) { button[type="submit"] {} }', ':host([variant="filled"]), :host([variant="outlined"]) { button[type="submit"] {} }'],
-        ['@variant(outlined) { button::before {} }', ':host([variant="outlined"]) { button::before {} }'],
-        // 名單格式寬容（空白／尾逗號）
-        ['@variant(  filled ,  tonal  ) { button {} }', ':host([variant="filled"]), :host([variant="tonal"]) { button {} }'],
-        ['@variant(filled, tonal,) { button {} }', ':host([variant="filled"]), :host([variant="tonal"]) { button {} }'],
-
+    const greenMapping: HandlerMapping = [
+        // V1 单名：三类挂载
+        ['@variant(fill)', 'color: red;', '.container.fill { color: red }'],
+        ['@variant(tonal)', 'button .label { color: red; }', ':host(.tonal) { button .label { color: red; } }'],
+        ['@variant(outlined)', 'button:has(.label) { color: red; }', ':host([variant="outlined"]) { button:has(.label) { color: red; } }'],
+        // V2 多名：混合壳并列
+        ['@variant(fill, tonal)', 'color: red;', '.container.fill, :host(.tonal) { color: red }'],
+        ['@variant(fill, tonal, outlined)', 'color: red;', '.container.fill, :host(.tonal), :host([variant="outlined"]) { color: red }'],
+        ['@variant(tonal, outlined)', 'button .label { color: red; }', ':host(.tonal), :host([variant="outlined"]) { button .label { color: red; } }'],
+        ['@variant(fill, outlined)', 'button[type="submit"] { color: red; }', '.container.fill, :host([variant="outlined"]) { button[type="submit"] { color: red; } }'],
+        ['@variant(outlined)', 'button::before { color: red; }', ':host([variant="outlined"]) { button::before { color: red; } }'],
+        // 名单宽容空白与尾逗号
+        ['@variant(  fill ,  tonal  )', 'color: red;', '.container.fill, :host(.tonal) { color: red }'],
+        ['@variant(fill, tonal,)', 'color: red;', '.container.fill, :host(.tonal) { color: red }'],
+        // 空 body 恒发射空壳
+        ['@variant(tonal)', '', ':host(.tonal) {}'],
     ]
 
     /**
-     * 紅隊（redMapping）：@variant 名單非法形狀。expected 為透傳輸出，結果不對即失敗，不看 warn。你需要填寫：
-     *   - 空名單 '@variant() { ... }'、通配符 '@variant(*) { ... }'、否定 '!name' 屬無效用法
-     *   - 未知變體名 '@variant(nonexistent) { ... }' 應透傳（與實現約定一致後填期望）
-     *   - 缺右括號等截斷輸入應不拋異常且原樣透傳
-     */
-    const redMapping: MappingRow = []
+     * [D]：语法非法、字典缺 key、registry 无映射（任一缺失即整块丢弃）。
+    */
+    const redMapping: HandlerMapping = [
+        ['@variant()', 'color: red;', ''],
+        ['@variant', 'color: red;', ''],
+        ['@variant fill', 'color: red;', ''],
+        ['@variant [fill]', 'color: red;', ''],
+        ['@variant[fill]', 'color: red;', ''],
+        ['@variant(unknown)', 'color: red;', ''],
+        ['@variant(invalid-variant)', 'color: red;', ''],
+        ['@variant(:host)', 'color: red;', ''],
+        ['@variant(filled)', 'color: red;', ''],
+        ['@variant(Fill)', 'color: red;', ''],
+        ['@variant(fill)', '@variant(tonal) { color: red; }', ''],
+    ]
 
-    for (const [input, expected] of greenMapping) {
-        it(`green: ${input}`, () => {
-            const output = compileStateSheet(VariantDefs, input, { registry: StateTriggers })
-            expect(canonical(output)).toBe(canonical(expected))
+    for (const [header, body, expected] of greenMapping) {
+        it(`green: ${header} { ${body} }`, () => {
+            const output = handleVariantBlock(header, body, variantCtx, echoRecurse)
+            expect(canonicalHandlerResult(output)).toBe(expected)
         })
     }
 
-    for (const [input, expected] of redMapping) {
-        it(`red: ${input}`, () => {
-            const output = compileStateSheet(VariantDefs, input, { registry: StateTriggers })
-            expect(canonical(output)).toBe(canonical(expected))
+    for (const [header, body, expected] of redMapping) {
+        it(`red: ${header} { ${body} }`, () => {
+            const output = handleVariantBlock(header, body, variantCtx, echoRecurse)
+            expect(canonicalHandlerResult(output)).toBe(expected)
         })
     }
+
+    it('red: Defs 有但 registry 无映射 → [D]', () => {
+        const partialCtx = fakeBaseCtx({
+            meta: fakeMeta(['fill', 'tonal', 'outlined']),
+            options: { variantRegistry: fakeVariantRegistry({ 'fill': '.container.fill' }) }
+        })
+        const output = handleVariantBlock('@variant(tonal)', 'color: red;', partialCtx, echoRecurse)
+        expect(canonicalHandlerResult(output)).toBe('')
+    })
+
+    it('red: registry 有但 Defs 无 key → [D]', () => {
+        const extraCtx = fakeBaseCtx({
+            meta: fakeMeta(['fill', 'tonal', 'outlined']),
+            options: {
+                variantRegistry: fakeVariantRegistry({
+                    'fill': '.container.fill',
+                    'tonal': ':host(.tonal)',
+                    'outlined': ':host([variant="outlined"])',
+                    'unknown': '.container.unknown'
+                })
+            }
+        })
+        const output = handleVariantBlock('@variant(unknown)', 'color: red;', extraCtx, echoRecurse)
+        expect(canonicalHandlerResult(output)).toBe('')
+    })
+
+    it('red: 缺 variantRegistry 视同无处挂载 → [D]', () => {
+        const bareCtx = fakeBaseCtx({ meta: fakeMeta(['fill', 'tonal', 'outlined']) })
+        const output = handleVariantBlock('@variant(fill)', 'color: red;', bareCtx, echoRecurse)
+        expect(canonicalHandlerResult(output)).toBe('')
+    })
+
+    it('green: 缺 meta 时跳过字典校验 → 正常发射', () => {
+        const noMetaCtx = fakeBaseCtx({
+            options: { variantRegistry: fakeVariantRegistry({ 'fill': '.container.fill' }) }
+        })
+        const output = handleVariantBlock('@variant(fill)', 'color: red;', noMetaCtx, echoRecurse)
+        expect(canonicalHandlerResult(output)).toBe('.container.fill { color: red }')
+    })
 })
-

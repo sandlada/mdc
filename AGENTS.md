@@ -294,13 +294,22 @@ Token 命名嚴格遵循：**`[狀態-]?[尺寸-]?[元素-][屬性][-selected|-c
 
 測試骨架：
 
-- 每份 `transform-*.spec.ts` 遵循同一骨架：`MappingRow = [input, expected: string | string[]]`，
-  `canonical` 只做 `\r\n` 統一 + 首尾 `trim`（空白敏感），`greenMapping` / `redMapping` 雙迴圈，
-  `it` 標題自動生成（`green: ...` / `red: ...`），無需手寫。
+- `transform-variant.spec.ts` 用 `HandlerMapping = [header, body, expected: string]`
+ （`spec-fakes.ts` 的 `HandlerRow`）；`transform-state.spec.ts` / `transform-when.spec.ts`
+  用四元組 `[header, body, ancestors, expected: string]`（本地 `StateRow` / `WhenRow`，
+  `ancestors` 經 `fakeBaseCtx({ ancestorPath })` 傳入，對應 handler 的外層路徑參數）。
+  輸入拆成 handler 實參，直調 `handle*Block(header, body, ctx, echoRecurse)`，不走 `compileStateSheet`。
+- `canonical` 指 `canonicalHandlerResult`：`base` 在前、`hoisted` 按發射順序以單空格拼接；
+  每段只做 `\r\n` 統一 + 首尾 `trim`（空白敏感，不排序——combo 笛卡爾積順序本身是語義）。
+  `greenMapping` / `redMapping` 雙迴圈，`it` 標題自動生成（`green: ...` / `red: ...`），無需手寫。
 - 雙隊斷言相同（精確相等），**不看 `warn`**：警告計數與 `absent` / `present` 歸
   `at-rules-compiler.spec.ts` Adversarial Suite（該表 `expected: null` 表示跳過輸出斷言，只斷 warn/包含）。
-- 期望形狀：一個頂層殼用 `string`，多個頂層殼用 `string[]`；嵌套尊重外層殼用單字串
- （`:host([disabled])` 觸發 H1 殼分裂時用陣列；選錯形狀測試必紅）。
+- 期望形狀（handler 層）：恆為單 `string`；多頂層殼以單空格拼接為一個字串
+ （`state` spec 以 `joinExpected` 構造，`variant` / `when` 手寫字面量，語義等同）。
+  `string | string[]` 形狀只存在於 sheet 層（`at-rules-integration.spec.ts` 的 `MappingRow`、
+  `at-rules-compiler.spec.ts` 的 `SheetRow = [input, expected, opts?]`，陣列以單空格連接）。
+  嵌套尊重外層殼用單字串（`:host([disabled])` 觸發 H1 殼分裂時，分裂外殼經 `hoisted` 返回，
+  由 `canonicalHandlerResult` 拼入同一字串）。
 
 紅綠定義：
 
@@ -316,18 +325,18 @@ Token 命名嚴格遵循：**`[狀態-]?[尺寸-]?[元素-][屬性][-selected|-c
 
 - `@state`：R1 target/selector 皆必填（缺一即 `[D]`）；R2 全量替換、尾部追加（偽元素之前）；
   R3 函數參數與屬性值內子字串永不匹配；R4 連字前綴不算；R5 逗號分支獨立注入
-  （無 target 分支原樣保留，走展開路徑）；R6 保留嵌套；R7 `& button` 正規化、單獨 `&` 不反解；
+  （無 target 分支原樣保留，走展開路徑）；R6 保留嵌套；R7 保留 `&` 前綴選擇器（`& button` → `& button.modifier`、`&.active` → `&.active.modifier`；單獨 `&` 本體丟棄 `[D]`）；
   R8 全部分支零匹配即 `[D]`（含頂層 scope 包裝；嵌套收斂為空外層殼，接受）。
-- `:host`：H1 殼分裂；H2 零 `&`；H3 括號內合併；H4 `:is/:where` 包裹視為 host-target。
+- `:host`：H1 殼分裂；H2 祖先包裹保留相對 `&`（如 `& .inner`、`& > .inner` 保留，單獨 `&` 本體丟棄）；H3 括號內合併；H4 `:is/:where` 包裹視為 host-target。
 - `:state()`：S1 掛元素；S2 掛 `:host` 括號內合併；S3 與 `@when` 協同提升。
-- `@variant`：V1 單名單殼；V2 多名逗號並殼；V3 殼內並列。通配 `*` / 否定 `!name` 不收錄於 mapping。
-- `@when`：W1 須顯含 `:host`（否則保留嵌套、不提升）；W2 提升為最近隔離容器頂層外殼；
-  W3 零 `&`；W4 多條件並列單外殼。
+- `@variant`：V1 單名單殼；V2 多名逗號並殼；V3 殼內並列；V4 嵌套 `@variant` 非法丟棄 `[D]`。通配 `*` / 否定 `!name` 不收錄於 mapping。
+- `@when`：W1 須顯含 `:host`（否則丟棄 `[D]`，不外洩包裝）；W2 提升為最近隔離容器頂層外殼；
+  W3 祖先包裹保留相對 `&`（如 `& .inner`、`& > .inner` 保留，單獨 `&` 本體丟棄）；W4 多條件並列單外殼；W5 嵌套 `@when` 非法丟棄 `[D]`。
 - combo 笛卡爾積順序固定 `[medium,enabled] → [medium,disabled] → [large,enabled] → [large,disabled]`，
   狀態掛 `@state(target)` 的 target 上。
 - 發射規則：空 body 且該 state 無定義（null / 缺失）者該殼不發射；有內容恆發射；純靜態 def 全量發射。
 - hoist 三分支：variant 優先合併 → ancestorPath[0] host 根合併 → 原樣；
-  `wrapWithAncestorPath` 中 `path[0]` 為最外層，`& .inner` → `.inner`，`&` 本體 / 空段丟棄該層。
+  `wrapWithAncestorPath` 中 `path[0]` 為最外層，相對 `&` 開頭（`& .inner`、`& > .inner`）予以保留，單獨 `&` 本體 / 空段丟棄該層。
 
 規格變更例外程序：
 
@@ -342,7 +351,7 @@ Token 命名嚴格遵循：**`[狀態-]?[尺寸-]?[元素-][屬性][-selected|-c
 - 待定行為：未知維度名、未知變體名、截斷輸入、非法名單包 `@state`、無 registry 未知 `:state` 名
   （見各 spec `待定` 註解）。
 
-新增用例三步：先判綠/紅 → 再選形狀 → 命名自動。執行
+新增用例三步：先判綠/紅 → 再選輸入元組（handler 層：`variant` 三元組、`state` / `when` 四元組；sheet 層才選 `string` / `string[]` 形狀）→ 命名自動。執行
 `npm test -- transform-state transform-variant transform-when hoist-helpers at-rules-integration at-rules-compiler`，
 全量回歸 `npm test`（`packages/mdc`）與 `npm test`（`packages/vscode-mdc`）。
 
@@ -365,6 +374,7 @@ Token 命名嚴格遵循：**`[狀態-]?[尺寸-]?[元素-][屬性][-selected|-c
   （匹配 / 漂移），存在漂移則 exit code 非零。
 - 配對表（1:1，嚴格執行）：`transform-state.spec.ts` ↔ `transform-state.ts`、
   `transform-variant.spec.ts` ↔ `transform-variant.ts`、
+  `map-variant-triggers.spec.ts` ↔ `map-variant-triggers.ts`（`variant-trigger-registry.ts` 為其內部實現，隨同配對）、
   `transform-when.spec.ts` ↔ `transform-when.ts`、
   `hoist-helpers.spec.ts` ↔ `hoist-helpers.ts`。
 - 豁免清單（將來實現落戳階段不參與配對比對，現階段無影響）：共享實現（`replace-target.ts`、dispatcher、

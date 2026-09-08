@@ -11,7 +11,6 @@ export const removeAmpersandForHostSubtree = (selector: string): string => {
     return branches.map((b) => {
         const trimmed = b.trim()
         if (trimmed === '&') return ''
-        if (/^&\s+/.test(trimmed)) return trimmed.replace(/^&\s+/, '')
         return trimmed
     }).filter(Boolean).join(', ')
 }

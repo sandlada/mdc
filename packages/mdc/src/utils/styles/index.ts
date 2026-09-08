@@ -93,6 +93,12 @@ export {
 } from './map-state-triggers'
 
 export {
+    mapVariantTriggers,
+    VariantTriggerRegistry,
+    type VariantTrigger
+} from './map-variant-triggers'
+
+export {
     overrideTokens,
     overrideComponentTokens,
     stringTokens,

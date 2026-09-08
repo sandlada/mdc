@@ -12,10 +12,7 @@ import { formatRule, parseStatements } from '../internal/at-rules-transformer'
 import type { AtRuleHandlerResult, Recurse } from './at-rule-handler'
 
 export function isIsolationHeader(header: string): boolean {
-    return header.startsWith('@layer')
-        || header.startsWith('@media')
-        || header.startsWith('@supports')
-        || header.startsWith('@scope')
+    return /^@(layer|media|supports|scope|container)(?![a-zA-Z0-9_-])/.test(header)
 }
 
 export function handleIsolationBlock(

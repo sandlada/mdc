@@ -9,8 +9,23 @@
 import type { AtRulesCompilerContext } from '../compile-at-rules-sheet'
 import { splitSelectorByComma } from '../compose-state-selector'
 import { extractAtRuleParams } from '../extract-at-rule-params'
-import { formatRule, parseStatements } from '../internal/at-rules-transformer'
+import { formatRule, parseStatements, type ParsedStatement } from '../internal/at-rules-transformer'
 import type { AtRuleHandlerResult, Recurse } from './at-rule-handler'
+
+export const hasNestedVariant = (stmts: readonly ParsedStatement[]): boolean => {
+    for (const stmt of stmts) {
+        if (stmt.type === 'block' && stmt.header) {
+            const trimmed = stmt.header.trim()
+            if (/^@variant(?![a-zA-Z0-9_-])/.test(trimmed)) {
+                return true
+            }
+            if (stmt.body && hasNestedVariant(parseStatements(stmt.body))) {
+                return true
+            }
+        }
+    }
+    return false
+}
 
 export function handleVariantBlock(
     header: string,
@@ -18,6 +33,15 @@ export function handleVariantBlock(
     ctx: AtRulesCompilerContext,
     recurse: Recurse
 ): AtRuleHandlerResult {
+    if (ctx.variantSelector !== undefined) {
+        if (ctx.options?.onWarn) {
+            ctx.options.onWarn({
+                type: 'nested-variant',
+                message: 'Nested @variant at-rules are not supported.'
+            })
+        }
+        return {}
+    }
     const extracted = extractAtRuleParams(header, '@variant')
     if (!extracted || !extracted.param) {
         if (ctx.options?.onWarn) {
@@ -26,7 +50,8 @@ export function handleVariantBlock(
                 message: `Invalid @variant syntax: "${header}".`
             })
         }
-        return { base: formatRule(header, body) }
+        // [D] 截斷 / 無參數表頭屬無效 DSL：丟棄整塊，不外洩 @variant 包裝。
+        return {}
     }
 
     const rawParam = extracted.param
@@ -41,7 +66,8 @@ export function handleVariantBlock(
                 message: `Empty @variant name list: "${header}".`
             })
         }
-        return { base: formatRule(header, body) }
+        // [D] 空名單屬無效 DSL：丟棄整塊，不輸出空殼。
+        return {}
     }
 
     if (variantNames.some((v) => v === '*' || v.startsWith('!'))) {
@@ -53,10 +79,58 @@ export function handleVariantBlock(
         }
     }
 
-    const selectorFn = ctx.options?.variantSelector ?? ((v: string) => `:host([variant="${v}"])`)
-    const variantShell = variantNames.map((v) => selectorFn(v)).join(', ')
+    const variantRegistry = ctx.options?.variantRegistry
+    if (!variantRegistry) {
+        if (ctx.options?.onWarn) {
+            ctx.options.onWarn({
+                type: 'invalid-variant',
+                message: `Missing variant registry for @variant: "${rawParam}".`
+            })
+        }
+        // [D] 无 registry 视同无处挂载：丢弃整块。
+        return {}
+    }
+
+    const knownVariants = ctx.meta?.allVariantNames
+    const variantShells: string[] = []
+    for (const v of variantNames) {
+        if (knownVariants && knownVariants.length > 0 && !knownVariants.includes(v)) {
+            if (ctx.options?.onWarn) {
+                ctx.options.onWarn({
+                    type: 'unknown-variant',
+                    message: `Unknown variant "${v}" in @variant: "${rawParam}".`
+                })
+            }
+            // [D] 字典缺 key：丢弃整块。
+            return {}
+        }
+        const selector = variantRegistry.resolve(v)
+        if (!selector) {
+            if (ctx.options?.onWarn) {
+                ctx.options.onWarn({
+                    type: 'unknown-variant',
+                    message: `Unmapped variant "${v}" in @variant: "${rawParam}".`
+                })
+            }
+            // [D] registry 无映射：丢弃整块，不回退默认。
+            return {}
+        }
+        variantShells.push(selector)
+    }
+    const variantShell = variantShells.join(', ')
 
     const innerStmts = parseStatements(body)
+    if (hasNestedVariant(innerStmts)) {
+        if (ctx.options?.onWarn) {
+            ctx.options.onWarn({
+                type: 'nested-variant',
+                message: 'Nested @variant at-rules are not supported.'
+            })
+        }
+        // [D] 嵌套 @variant 非法丟棄整塊
+        return {}
+    }
+
     const innerCtx: AtRulesCompilerContext = {
         ...ctx,
         ancestorPath: [variantShell],

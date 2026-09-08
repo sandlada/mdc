@@ -12,7 +12,7 @@ const tokens = stringifyTokens('--mdc-elevation')(ElevationDefinition)
 export const styles = [
     css`
         @layer mdc.elevation {
-            @layer variable, component, hcm, contrast, motion;
+            @layer variable, component, motion, hcm, contrast, transparency;
         }
     `,
     css`@layer mdc.elevation.variable {:host {${tokens};}}`,
@@ -127,7 +127,7 @@ export const styles = [
                 }
             }
         }
-        @layer mdc.elevation.contrast {
+        @layer mdc.elevation.transparency {
             @media (prefers-reduced-transparency: reduce) {
                 .elevation::before,
                 .elevation::after {
@@ -137,3 +137,5 @@ export const styles = [
         }
     `)
 ]
+
+export const ElevationStyles = styles

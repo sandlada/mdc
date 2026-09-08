@@ -10,7 +10,7 @@ import { createStyleSheet, stringifyTokens } from '../../utils/styles/lit'
 const tokens = stringifyTokens('--mdc-divider')(DividerDefinition)
 
 const stylePart = createStyleSheet(DividerDefinition)(() => css`
-    @layer mdc.divider.base {
+    @layer mdc.divider.component {
         :host {
             box-sizing: border-box;
             display: flex;
@@ -37,7 +37,7 @@ const stylePart = createStyleSheet(DividerDefinition)(() => css`
         }
     }
 
-    @layer mdc.icon.motion {
+    @layer mdc.divider.motion {
         @media (prefers-reduced-motion: reduce) {
             :host,
             :host * {
@@ -46,7 +46,7 @@ const stylePart = createStyleSheet(DividerDefinition)(() => css`
             }
         }
     }
-    @layer mdc.icon.hcm {
+    @layer mdc.divider.hcm {
         @media (forced-colors: active) {
             :host::before {
                 background: CanvasText;
@@ -54,7 +54,7 @@ const stylePart = createStyleSheet(DividerDefinition)(() => css`
             }
         }
     }
-    @layer mdc.icon.contrast {
+    @layer mdc.divider.contrast {
         @media (prefers-contrast: more) {
             :host::before {
                 color: CanvasText;
@@ -67,8 +67,11 @@ const stylePart = createStyleSheet(DividerDefinition)(() => css`
             }
         }
     }
-    @layer mdc.icon.contrast {
+    @layer mdc.divider.transparency {
         @media (prefers-reduced-transparency: reduce) {
+            :host::before {
+                opacity: 1;
+            }
         }
     }
 `)
@@ -79,6 +82,6 @@ export const DividerStyles = [
             @layer variable, component, motion, hcm, contrast, transparency;
         }
     `,
-    css`@layer mdc.divider.variant {:host {${tokens};}}`,
+    css`@layer mdc.divider.variable {:host {${tokens};}}`,
     stylePart,
 ]

@@ -5,6 +5,7 @@
  */
 
 import { StateTriggerRegistry, type StateTrigger } from '../map-state-triggers'
+import type { VariantTriggerRegistry } from '../map-variant-triggers'
 import { extractStateTokenMetadata } from './extract-state-token-metadata'
 import { stripComments } from './strip-comments'
 import { isAtRulesStylesheet, hasDefiniteAtRules } from './is-at-rules-stylesheet'
@@ -69,6 +70,7 @@ export interface StyleDiagnosticWarning {
 export interface CompileStateSheetOptions {
     readonly registry?: StateTriggerRegistry
     readonly triggers?: Record<string, StateTrigger | string> | (StateTrigger | Record<string, StateTrigger | string>)[]
+    readonly variantRegistry?: VariantTriggerRegistry
     readonly variantSelector?: (variantName: string) => string
     readonly onWarn?: (warning: StyleDiagnosticWarning) => void
 }

@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: MIT
  */
 
+import { stripComments } from './strip-comments'
+
 /**
  * Extracts balanced parentheses parameter for an at-rule header.
  * e.g. "@when(:host([checked]))" -> { param: ":host([checked])", rest: "" }
@@ -13,7 +15,8 @@ export const extractAtRuleParams = (
     header: string,
     keyword: string
 ): { param: string; rest: string } | null => {
-    const trimmed = header.trim()
+    const clean = header.includes('/*') || header.includes('//') ? stripComments(header) : header
+    const trimmed = clean.trim()
     const prefixRegex = new RegExp(`^${keyword}\\s*\\(`)
     const match = trimmed.match(prefixRegex)
     if (!match) return null

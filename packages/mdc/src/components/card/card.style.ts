@@ -224,7 +224,6 @@ const pressedElevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc
 const disabledElevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
     'level': `var(--_disabled-container-elevation)`,
 })()
-console.log(pressedElevationStyles.cssText)
 
 export const cardStyles = [
     stylePart,

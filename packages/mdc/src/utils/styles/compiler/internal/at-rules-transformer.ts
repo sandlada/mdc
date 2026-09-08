@@ -15,6 +15,7 @@ import { handleVariantBlock } from '../at-rules/transform-variant'
 import { handleWhenBlock } from '../at-rules/transform-when'
 import { handleStateBlock } from '../at-rules/transform-state'
 import { handleDeclaration, handleStandardRule } from '../at-rules/transform-rule'
+import { stripComments } from '../strip-comments'
 
 export interface ParsedStatement {
     readonly type: 'decl' | 'block'
@@ -65,12 +66,13 @@ export function findMatchingBrace(css: string, openBraceIndex: number): number {
 }
 
 export function parseStatements(css: string): ParsedStatement[] {
+    const source = css.includes('/*') || css.includes('//') ? stripComments(css) : css
     const statements: ParsedStatement[] = []
     let i = 0
-    const len = css.length
+    const len = source.length
 
     while (i < len) {
-        while (i < len && /\s/.test(css[i])) i++
+        while (i < len && /\s/.test(source[i])) i++
         if (i >= len) break
 
         let parenDepth = 0
@@ -82,7 +84,7 @@ export function parseStatements(css: string): ParsedStatement[] {
         let delimIdx = -1
 
         for (let j = i; j < len; j++) {
-            const ch = css[j]
+            const ch = source[j]
             if (isEscaped) {
                 isEscaped = false
                 continue
@@ -124,7 +126,7 @@ export function parseStatements(css: string): ParsedStatement[] {
         }
 
         if (!delimType) {
-            const chunk = css.slice(i).trim()
+            const chunk = source.slice(i).trim()
             if (chunk) {
                 const colonIdx = chunk.indexOf(':')
                 if (colonIdx !== -1) {
@@ -139,7 +141,7 @@ export function parseStatements(css: string): ParsedStatement[] {
         }
 
         if (delimType === ';') {
-            const chunk = css.slice(i, delimIdx).trim()
+            const chunk = source.slice(i, delimIdx).trim()
             if (chunk) {
                 const colonIdx = chunk.indexOf(':')
                 if (colonIdx !== -1) {
@@ -155,9 +157,9 @@ export function parseStatements(css: string): ParsedStatement[] {
         }
 
         if (delimType === '{') {
-            const header = css.slice(i, delimIdx).trim()
-            const closeIdx = findMatchingBrace(css, delimIdx)
-            const body = css.slice(delimIdx + 1, closeIdx).trim()
+            const header = source.slice(i, delimIdx).trim()
+            const closeIdx = findMatchingBrace(source, delimIdx)
+            const body = source.slice(delimIdx + 1, closeIdx).trim()
             statements.push({
                 type: 'block',
                 header,
@@ -267,11 +269,11 @@ export function transformStatements(
             let result: AtRuleHandlerResult
             if (isIsolationHeader(header)) {
                 result = handleIsolationBlock(header, body, ctx, transformStatements)
-            } else if (header.startsWith('@variant')) {
+            } else if (/^@variant(?![a-zA-Z0-9_-])/.test(header)) {
                 result = handleVariantBlock(header, body, ctx, transformStatements)
-            } else if (header.startsWith('@when')) {
+            } else if (/^@when(?![a-zA-Z0-9_-])/.test(header)) {
                 result = handleWhenBlock(header, body, ctx, transformStatements)
-            } else if (header.startsWith('@state')) {
+            } else if (/^@state(?![a-zA-Z0-9_-])/.test(header)) {
                 result = handleStateBlock(header, body, ctx, transformStatements)
             } else {
                 result = handleStandardRule(header, body, ctx, transformStatements)

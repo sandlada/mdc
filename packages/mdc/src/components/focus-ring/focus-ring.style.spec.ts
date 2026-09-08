@@ -40,7 +40,6 @@ describe('FocusRingStyle', () => {
         expect(fullCss).toContain('calc(var(--_duration) * 0.4)')
         expect(fullCss).toContain('calc(var(--_duration) * 0.15)')
 
-
         // Must contain @media queries and forced-colors Highlight
         expect(fullCss).toContain('@media (prefers-reduced-motion: reduce)')
         expect(fullCss).toContain('@media (forced-colors: active)')
@@ -54,6 +53,3 @@ describe('FocusRingStyle', () => {
         expect(fullCss).not.toContain('@layer mdc @keyframes')
     })
 })
-
-
-
