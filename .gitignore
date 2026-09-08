@@ -19,6 +19,7 @@ node_modules
 dist
 dist-ssr
 build
+**/demo/output/
 !docs
 *.local
 test-report

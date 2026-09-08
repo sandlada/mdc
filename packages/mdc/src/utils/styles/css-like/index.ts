@@ -2,15 +2,8 @@
  * @license
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
+ *
+ * @deprecated 轉發墊片（一版期限）：請改從 `@sandlada/styles/css-like` 取用，下版移除。
  */
 
-export {
-    MDCStyleSheet,
-    isCSSLike,
-    cssTextOf,
-    sheetOf,
-    emptySheet,
-    type CSSLike,
-    type ToCSSVariableLike,
-    type StyleTemplateValue
-} from './css-like'
+export * from '@sandlada/styles/css-like'

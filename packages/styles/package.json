@@ -1,0 +1,54 @@
+{
+    "name": "@sandlada/styles",
+    "version": "0.1.0",
+    "author": "Kai-Orion & Sandlada",
+    "description": "Framework-agnostic Material Design 3 style & token engine (schemas, state-compiler, at-rules, expanders) with a Lit adapter and a rolldown pre-build plugin.",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/sandlada/mdc.git",
+        "directory": "packages/styles"
+    },
+    "type": "module",
+    "sideEffects": false,
+    "publishConfig": {
+        "access": "public"
+    },
+    "scripts": {
+        "build": "rolldown -c rolldown.config.js",
+        "build:dts": "tsc --project tsconfig.build.json --emitDeclarationOnly --outDir build --skipLibCheck",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "check:spec-versions": "node scripts/check-spec-versions.mjs",
+        "demo": "npm run build && node demo/run.ts"
+    },
+    "peerDependencies": {
+        "lit": ">=3"
+    },
+    "devDependencies": {
+        "@sandlada/mdk": "^3.0.0-20260624.c",
+        "@types/node": "^22.13.0",
+        "lit": "^3.3.3",
+        "rolldown": "^1.2.4",
+        "typescript": "~7.0.2",
+        "vitest": "^4.1.11"
+    },
+    "files": [
+        "build/**/*",
+        "LICENSE",
+        "README.md"
+    ],
+    "exports": {
+        ".": {
+            "types": "./build/index.d.ts",
+            "import": "./build/index.js",
+            "default": "./build/index.js"
+        },
+        "./package.json": "./package.json",
+        "./*": {
+            "types": "./build/*/index.d.ts",
+            "import": "./build/*/index.js",
+            "default": "./build/*/index.js"
+        }
+    }
+}

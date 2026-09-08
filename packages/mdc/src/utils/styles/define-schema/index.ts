@@ -2,6 +2,8 @@
  * @license
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
+ *
+ * @deprecated 轉發墊片（一版期限）：請改從 `@sandlada/styles/define-schema` 取用，下版移除。
  */
 
-export * from './define-schema'
+export * from '@sandlada/styles/define-schema'
