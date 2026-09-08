@@ -16,8 +16,7 @@ import { stringifyTokens as coreStringifyTokens } from '../tokens'
 import { overrideTokens as coreOverrideTokens } from '../tokens'
 import { defineVariantTokens as coreDefineVariantTokens } from '../tokens'
 import { createStyleSheet as coreCreateStyleSheet } from '../compiler/create-style-sheet'
-import { mapStateTriggers } from '../triggers'
-import { pipe } from '../pipe'
+import { emptyTables, withState } from '../triggers'
 import { stringifyTokens } from './stringify-tokens'
 import { overrideTokens } from './override-tokens'
 import { defineVariantTokens } from './define-variant-tokens'
@@ -29,11 +28,11 @@ const ButtonDefinition = createStyleDefinition(ButtonSchema)({
     'container-shape': '8px'
 })
 
-const triggers = mapStateTriggers({
+const tables = withState({
     'enabled': '',
     'hovered': ':hover',
     'disabled': '[disabled]'
-})
+})(emptyTables)
 
 describe('lit-bound twins', () => {
     it('stringifyTokens returns a real CSSResult with core-identical cssText', () => {
@@ -72,13 +71,13 @@ describe('lit-bound twins', () => {
                 }
             `],
             ['curried', createStyleSheet(ButtonDefinition)(template)],
-            ['options-first', createStyleSheet(triggers)(ButtonDefinition)(template)],
+            ['options-first', createStyleSheet(tables)(ButtonDefinition)(template)],
             ['uncurried-callback', createStyleSheet(ButtonDefinition, () => css`
                 @anchor .container {
                     background-color: var(--_container-color);
                 }
             `)],
-            ['pipe', pipe(triggers, createStyleSheet)(ButtonDefinition)(template)]
+            ['tables-first', createStyleSheet({ tables })(ButtonDefinition)(template)]
         ]
         for (const [label, result] of forms) {
             expect(result, label).toBeInstanceOf(CSSResult)

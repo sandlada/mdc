@@ -7,8 +7,8 @@
  * at-rules 系单元 spec 共用测试替身（非 spec 文件，vitest 不直接执行）。
  *
  * 设计原则：handler 直测只依赖本模块的手写最小 fake，不导入
- * `compileStateSheet`、`mapStateTriggers`、`mapVariantTriggers`、
- * `defineSchema`、`createStyleDefinition` 任一真实实现。
+ * `compileStateSheet`、`withState`、`withVariant`、`defineSchema`、
+ * `createStyleDefinition` 任一真实实现（tables 是纯数据，字面量即 fake）。
  * 上游任一变更变红时，只有直接依赖它的 spec 变红。
  * 类型层面允许 `import type` 真实类型（编译期擦除，无运行时耦合）。
  */
@@ -16,8 +16,7 @@
 import type { AtRulesCompilerContext } from '../compile-at-rules-sheet'
 import type { StateTokenMetadata } from '../extract-state-token-metadata'
 import type { ParsedStatement, TransformResult } from '../internal/at-rules-transformer'
-import type { StateTriggerRegistry } from '../../triggers'
-import type { VariantTriggerRegistry } from '../../triggers'
+import type { TriggerTables } from '../../triggers/tables'
 import type { AtRuleHandlerResult, Recurse } from './at-rule-handler'
 
 /**
@@ -95,26 +94,17 @@ export function captureRecurse() {
 }
 
 /**
- * 最小 state registry 替身：只实现 handler 消费的 `resolve(name)`。
- * 返回类型标为真实 registry（`import type` 运行时擦除，不引入运行时依赖）。
+ * 最小 trigger tables 替身：冻结字面量即数据，无需任何真实实现。
+ * 未映射的变体名解析为 `undefined`（严格丢弃，无默认回退）。
  */
-export function fakeStateRegistry(
-    table: Record<string, { readonly modifier: string; readonly target: 'self' | 'host' }>
-): StateTriggerRegistry {
-    return {
-        resolve: (name: string) => table[name] ?? { modifier: `.${name}`, target: 'self' as const }
-    } as unknown as StateTriggerRegistry
-}
-
-/**
- * 最小 variant registry 替身：只实现 handler 消费的 `has(name)` / `resolve(name)`。
- * 未映射返回 `undefined`（严格丢弃，无默认回退）。
- */
-export function fakeVariantRegistry(table: Record<string, string>): VariantTriggerRegistry {
-    return {
-        has: (name: string): boolean => name in table,
-        resolve: (name: string): string | undefined => table[name]
-    } as unknown as VariantTriggerRegistry
+export function fakeTables(
+    states: Record<string, string> = {},
+    variants: Record<string, string> = {}
+): TriggerTables {
+    return Object.freeze({
+        states: Object.freeze({ ...states }),
+        variants: Object.freeze({ ...variants })
+    })
 }
 
 /**
@@ -150,7 +140,7 @@ export function fakeBaseCtx(
     return {
         states: [],
         isCombo: false,
-        registry: fakeStateRegistry({}),
+        tables: fakeTables(),
         options: {},
         meta: undefined,
         schema: undefined,

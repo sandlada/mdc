@@ -20,7 +20,7 @@
 import { describe, it, expect } from 'vitest'
 import { defineSchema } from '../define-schema'
 import { createStyleDefinition } from '../create-style-definition'
-import { mapStateTriggers } from '../triggers'
+import { emptyTables, withState, type TriggerTables } from '../triggers'
 import { compileStateSheet, stripComments, composeStateSelector, appendToHostSelector, splitSelectorByComma } from './index'
 
 const commaSchema = defineSchema(['enabled'] as const)
@@ -35,23 +35,23 @@ const baseDef = createStyleDefinition(baseSchema)({
     'container-color': ['#6750a4', '#7f67be', '#4f378b', '#e0e0e0'],
     'label-color': ['#ffffff', '#ffffff', '#ffffff', '#9e9e9e']
 })
-const baseTriggers = mapStateTriggers({
+const baseTriggers = withState({
     'enabled': '',
     'hovered': ':hover',
     'pressed': ':active',
     'disabled': '[disabled]'
-})
+})(emptyTables)
 
 const loweringSchema = defineSchema(['enabled', 'hovered', 'disabled'] as const)
 const loweringDef = createStyleDefinition(loweringSchema)({
     'container-color': ['#6750a4', '#7f67be', '#e0e0e0'],
     'label-color': ['#ffffff', '#ffffff', '#9e9e9e']
 })
-const loweringTriggers = mapStateTriggers({
+const loweringTriggers = withState({
     'enabled': '',
     'hovered': ':hover',
     'disabled': '[disabled]'
-})
+})(emptyTables)
 
 const shorthandSchema = defineSchema(['enabled', 'hovered'] as const)
 const shorthandDef = createStyleDefinition(shorthandSchema)({
@@ -59,19 +59,19 @@ const shorthandDef = createStyleDefinition(shorthandSchema)({
     'label-color': ['#49454f', '#1d192b'],
     'container-color': ['transparent', '#e8def8']
 })
-const shorthandTriggers = mapStateTriggers({
+const shorthandTriggers = withState({
     'enabled': '',
     'hovered': ':hover'
-})
+})(emptyTables)
 
 const wrapperSchema = defineSchema(['enabled', 'hovered'] as const)
 const wrapperDef = createStyleDefinition(wrapperSchema)({
     'container-color': ['#6750a4', '#7f67be']
 })
-const wrapperTriggers = mapStateTriggers({
+const wrapperTriggers = withState({
     'enabled': '',
     'hovered': ':hover'
-})
+})(emptyTables)
 
 const taskButtonSchema = defineSchema(['enabled', 'hovered', 'pressed', 'focused', 'disabled'] as const)
 const taskButtonDef = createStyleDefinition(taskButtonSchema)({
@@ -80,13 +80,13 @@ const taskButtonDef = createStyleDefinition(taskButtonSchema)({
     'container-color': ['#6750a4', '#7f67be', '#4f378b', '#6750a4', '#e0e0e0'],
     'label-color': ['#ffffff', '#ffffff', '#ffffff', '#ffffff', '#9e9e9e']
 })
-const taskButtonTriggers = mapStateTriggers({
+const taskButtonTriggers = withState({
     'enabled': '',
     'hovered': ':hover',
     'pressed': ':active',
     'focused': ':focus-visible',
     'disabled': '[disabled]'
-})
+})(emptyTables)
 
 const checkboxSchema = defineSchema(['enabled', 'checked', 'indeterminate'] as const)
 const checkboxDef = createStyleDefinition(checkboxSchema)({
@@ -96,11 +96,11 @@ const checkboxDef = createStyleDefinition(checkboxSchema)({
     'outline-color': ['#79747e', 'transparent', 'transparent'],
     'icon-color': ['transparent', '#ffffff', '#ffffff']
 })
-const checkboxTriggers = mapStateTriggers({
+const checkboxTriggers = withState({
     'enabled': '',
     'checked': '[checked]',
     'indeterminate': '[indeterminate]'
-})
+})(emptyTables)
 
 const badgeSchema = defineSchema(['small', 'large'] as const)
 const badgeDef = createStyleDefinition(badgeSchema)({
@@ -116,16 +116,16 @@ const loadingDef = createStyleDefinition(loadingSchema)({
 })
 
 const fixtures = {
-    'comma': { def: commaDef, registry: undefined },
-    'base': { def: baseDef, registry: baseTriggers },
-    'lowering': { def: loweringDef, registry: undefined },
-    'lowering-triggers': { def: loweringDef, registry: loweringTriggers },
-    'shorthand': { def: shorthandDef, registry: shorthandTriggers },
-    'wrapper': { def: wrapperDef, registry: wrapperTriggers },
-    'task-button': { def: taskButtonDef, registry: taskButtonTriggers },
-    'checkbox': { def: checkboxDef, registry: checkboxTriggers },
-    'badge': { def: badgeDef, registry: undefined },
-    'loading': { def: loadingDef, registry: undefined }
+    'comma': { def: commaDef, tables: undefined },
+    'base': { def: baseDef, tables: baseTriggers },
+    'lowering': { def: loweringDef, tables: undefined },
+    'lowering-triggers': { def: loweringDef, tables: loweringTriggers },
+    'shorthand': { def: shorthandDef, tables: shorthandTriggers },
+    'wrapper': { def: wrapperDef, tables: wrapperTriggers },
+    'task-button': { def: taskButtonDef, tables: taskButtonTriggers },
+    'checkbox': { def: checkboxDef, tables: checkboxTriggers },
+    'badge': { def: badgeDef, tables: undefined },
+    'loading': { def: loadingDef, tables: undefined }
 } as const
 
 type ContainsRow = readonly [
@@ -137,7 +137,7 @@ type ContainsRow = readonly [
 ]
 
 function runContainsRow([, css, mustContain, mustNotContain = [], fixture = 'comma']: ContainsRow): void {
-    const compiled = compileStateSheet(fixtures[fixture].def, css, { registry: fixtures[fixture].registry })
+    const compiled = compileStateSheet(fixtures[fixture].def, css, { tables: fixtures[fixture].tables })
     for (const snippet of mustContain) {
         expect(compiled).toContain(snippet)
     }
@@ -190,10 +190,10 @@ describe('state-sheet-compiler', () => {
     })
 
     describe('composeStateSelector', () => {
-        const hoveredTriggers = mapStateTriggers({ 'hovered': ':hover' })
-        const selectedTriggers = mapStateTriggers({ 'selected': '[selected]' })
+        const hoveredTriggers = withState({ 'hovered': ':hover' })(emptyTables)
+        const selectedTriggers = withState({ 'selected': '[selected]' })(emptyTables)
 
-        const mapping: Array<[string, { anchor: string; targetSelector: string; states: string[] }, string, ReturnType<typeof mapStateTriggers>]> = [
+        const mapping: Array<[string, { anchor: string; targetSelector: string; states: string[] }, string, TriggerTables]> = [
             ['pseudo-element modifier attaches before pseudo-element',
                 { anchor: '.container::after', targetSelector: '.container::after', states: ['hovered'] },
                 '.container:hover::after', hoveredTriggers],
@@ -202,9 +202,9 @@ describe('state-sheet-compiler', () => {
                 ':host([selected]) .container .label', selectedTriggers],
         ]
 
-        for (const [label, args, expected, registry] of mapping) {
+        for (const [label, args, expected, tables] of mapping) {
             it(label, () => {
-                expect(composeStateSelector({ ...args, registry })).toBe(expected)
+                expect(composeStateSelector({ ...args, tables })).toBe(expected)
             })
         }
     })

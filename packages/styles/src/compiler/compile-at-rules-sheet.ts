@@ -4,8 +4,9 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { StateTriggerRegistry } from '../triggers'
 import type { StateSchema } from '../define-schema'
+import { emptyTables } from '../triggers/tables'
+import type { TriggerTables } from '../triggers/tables'
 import type { CompileStateSheetOptions } from './compile-state-sheet'
 import {
     extractStateTokenMetadata,
@@ -26,7 +27,7 @@ export type { StateDimensionItem }
 export interface AtRulesCompilerContext {
     readonly states: readonly StateDimensionItem[] | readonly (readonly StateDimensionItem[])[]
     readonly isCombo: boolean
-    readonly registry: StateTriggerRegistry
+    readonly tables: TriggerTables
     readonly options?: CompileStateSheetOptions
     readonly meta?: StateTokenMetadata
     readonly ancestorPath: readonly string[]
@@ -52,6 +53,8 @@ export const compileAtRulesSheet = (
     const cleanCss = stripComments(cssText)
     const a11yExpanded = expandA11yPresets(cleanCss)
 
+    const tables = options?.tables ?? emptyTables
+
     if (/@contrast\b(?!\s*\(\s*(more|less)\s*\))/.test(a11yExpanded) && options?.onWarn) {
         options.onWarn({
             type: 'invalid-a11y-macro',
@@ -59,15 +62,7 @@ export const compileAtRulesSheet = (
         })
     }
 
-    const registry = options?.registry
-        ? options.registry.clone()
-        : new StateTriggerRegistry(options?.triggers)
-
-    if (options?.triggers && options.registry) {
-        registry.registerAll(options.triggers)
-    }
-
-    const { states, isCombo, schema } = resolveStateModifiers(definition, registry)
+    const { states, isCombo, schema } = resolveStateModifiers(definition, tables)
 
     if (isCombo) {
         const comboList = states as StateDimensionItem[][]
@@ -86,7 +81,7 @@ export const compileAtRulesSheet = (
     const rootCtx: AtRulesCompilerContext = {
         states,
         isCombo,
-        registry,
+        tables,
         options,
         meta,
         schema,

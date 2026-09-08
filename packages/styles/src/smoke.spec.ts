@@ -15,11 +15,10 @@ import {
     compileStateSheet,
     createStyleDefinition,
     defineSchema,
-    pipe,
+    flow,
 } from './index'
 import { expandShape } from './expand'
-import { mapStateTriggers, StateTriggerRegistry } from './triggers'
-import { mapVariantTriggers } from './triggers'
+import { emptyTables, withState, withVariant } from './triggers'
 import { forwardTokens, stringifyTokens } from './tokens'
 import { createStyleSheet as createLitStyleSheet, toLit } from './lit'
 import { mdcStyles } from './rolldown'
@@ -42,13 +41,14 @@ describe('package smoke', () => {
     })
 
     it('exposes functional utilities from subpath barrels', () => {
-        expect(typeof pipe).toBe('function')
-        expect(typeof mapStateTriggers).toBe('function')
-        expect(typeof mapVariantTriggers).toBe('function')
+        expect(typeof flow).toBe('function')
+        expect(typeof withState).toBe('function')
+        expect(typeof withVariant).toBe('function')
         expect(typeof forwardTokens).toBe('function')
         expect(typeof stringifyTokens).toBe('function')
         expect(typeof expandShape).toBe('function')
-        expect(StateTriggerRegistry).toBeDefined()
+        expect(emptyTables.states).toEqual({})
+        expect(emptyTables.variants).toEqual({})
     })
 
     it('converts sheets through the lit adapter', () => {

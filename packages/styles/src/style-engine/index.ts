@@ -53,18 +53,16 @@ export {
 } from '../tokens'
 
 export {
-    mapStateTriggers,
-    StateTriggerRegistry,
-    type TriggerTarget,
-    type TriggerContext,
+    emptyTables,
+    isTriggerTables,
+    resolveState,
+    resolveVariant,
+    withState,
+    withVariant,
     type ResolvedTrigger,
-    type StateTrigger
-} from '../triggers'
-
-export {
-    mapVariantTriggers,
-    VariantTriggerRegistry,
-    type VariantTrigger
+    type TriggerContext,
+    type TriggerTables,
+    type TriggerTarget
 } from '../triggers'
 
 export {
@@ -97,7 +95,7 @@ export {
 } from '../compiler/create-style-sheet'
 
 export {
-    pipe
+    flow
 } from '../pipe'
 
 export {

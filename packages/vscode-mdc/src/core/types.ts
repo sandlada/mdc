@@ -116,7 +116,7 @@ export interface ForwardedChildMeta {
 }
 
 /**
- * Metadata for a state trigger declared via mapStateTriggers(...) or defaults.
+ * Metadata for a state trigger declared via withState(...) or defaults.
  */
 export interface StateTriggerMeta {
     /** State identifier name (e.g. 'selected', 'hovered', 'small') */
@@ -128,10 +128,10 @@ export interface StateTriggerMeta {
     /** Selector modifier alias */
     modifier?: string
     /** Source origin */
-    source?: 'mapStateTriggers' | 'heuristic' | string
+    source?: 'withState' | 'heuristic' | string
     /** Raw trigger expression */
     rawExpression?: string
-    /** True if explicitly mapped in mapStateTriggers, false if inferred via default heuristics */
+    /** True if explicitly mapped in withState, false if inferred via default heuristics */
     isCustom?: boolean
     /** Source code location range */
     range?: SourceRange

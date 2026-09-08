@@ -10,7 +10,7 @@ import { Shape } from '@sandlada/mdk'
 import { expandShape } from './expand-shape'
 import { defineSchema } from '../define-schema'
 import { createStyleDefinition } from '../create-style-definition'
-import { pipe } from '../pipe'
+import { flow } from '../pipe'
 
 describe('expandShape', () => {
     describe('Functional & Currying Behavior', () => {
@@ -29,11 +29,8 @@ describe('expandShape', () => {
             expect(res1).not.toBe(res2)
         })
 
-        it('composes cleanly with pipe', () => {
-            const transform = (val: string) => pipe(
-                val,
-                expandShape('container')
-            )
+        it('composes cleanly with flow', () => {
+            const transform = flow(expandShape('container'))
             const res = transform('12px')
             expect(res).toEqual({
                 'container-shape-start-start': '12px',

@@ -37,7 +37,9 @@ const resolveVitestBin = (startDir) => {
 const vitestBin = resolveVitestBin(packageRoot)
 
 const SPECS = [
-    'src/triggers/map-variant-triggers.spec.ts',
+    'src/triggers/tables.spec.ts',
+    'src/pipe/flow.spec.ts',
+    'src/compiler/create-style-sheet-tables.spec.ts',
     'src/compiler/at-rules/transform-state.spec.ts',
     'src/compiler/at-rules/transform-variant.spec.ts',
     'src/compiler/at-rules/transform-when.spec.ts',

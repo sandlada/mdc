@@ -7,8 +7,8 @@
  * @fileoverview
  * 跨 at-rule 殼交織規格（@variant × @state × @when，Selector-focused，fake 層）：
  *   只測殼交織；聲明內容（var 重寫 / expanders / a11y）不在此測（歸 at-rules-sheet.spec.ts）。
- *   直調 transformStatements + fake ctx（fakeBaseCtx / fakeMeta / fakeVariantRegistry），
- *   不依賴 compileStateSheet 與真實 defineSchema / createStyleDefinition / map*Triggers 實現。
+ *   直調 transformStatements + fake ctx（fakeBaseCtx / fakeMeta / fakeTables），
+ *   不依賴 compileStateSheet 與真實 defineSchema / createStyleDefinition / with* 實現。
  *   上游真實實現變更時，只有 at-rules-sheet.spec.ts 變紅。
  *   綠隊 = 合法交織必須正確嵌套展開，展開不對即失敗；紅隊 = 非法一律 [D] 丟棄為空
  *   （@when 非 host 掛載不透傳；@state 體內非法 @when 只跳過該條，保留 @state 展開）。
@@ -21,8 +21,7 @@ import { parseStatements, transformStatements } from '../internal/at-rules-trans
 import {
     fakeBaseCtx,
     fakeMeta,
-    fakeStateRegistry,
-    fakeVariantRegistry
+    fakeTables
 } from './spec-fakes'
 
 type MappingRow = ReadonlyArray<readonly [input: string, expected: string]>
@@ -40,15 +39,12 @@ const sizeStates: readonly StateDimensionItem[] = [
 const fakeCtx = () => fakeBaseCtx({
     states: sizeStates,
     isCombo: false,
-    registry: fakeStateRegistry({}),
+    tables: fakeTables({}, {
+        'filled': ':host([variant="filled"])',
+        'tonal': ':host([variant="tonal"])',
+        'outlined': ':host([variant="outlined"])'
+    }),
     meta: fakeMeta(['filled', 'tonal', 'outlined']),
-    options: {
-        variantRegistry: fakeVariantRegistry({
-            'filled': ':host([variant="filled"])',
-            'tonal': ':host([variant="tonal"])',
-            'outlined': ':host([variant="outlined"])'
-        })
-    },
     ancestorPath: []
 })
 

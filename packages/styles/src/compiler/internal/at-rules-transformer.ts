@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { StateTriggerRegistry } from '../../triggers'
+import { resolveState, type TriggerTables } from '../../triggers/tables'
 import type { StateSchema } from '../../define-schema'
 import type { StateDimensionItem } from '../rewrite-state-variables'
 import { mergeHoistedRules } from '../merge-hoisted-rules'
@@ -183,7 +183,7 @@ export function formatRule(selector: string, content: string): string {
 
 export function resolveStateModifiers(
     definition: any,
-    registry: StateTriggerRegistry
+    tables: TriggerTables
 ): { states: StateDimensionItem[] | StateDimensionItem[][]; isCombo: boolean; schema?: StateSchema<any> } {
     let schema: StateSchema<any> | undefined = definition?.schema
     if (!schema && Array.isArray(definition)) {
@@ -211,7 +211,7 @@ export function resolveStateModifiers(
         for (const combo of combos) {
             const items: StateDimensionItem[] = []
             for (const sName of combo) {
-                const resolved = registry.resolve(sName, { anchor: '', isHostAnchor: false })
+                const resolved = resolveState(sName, { anchor: '', isHostAnchor: false })(tables)
                 items.push({
                     name: sName,
                     modifier: resolved.modifier,
@@ -235,7 +235,7 @@ export function resolveStateModifiers(
     }
 
     const singleItems: StateDimensionItem[] = stateNames.map((sName) => {
-        const resolved = registry.resolve(sName, { anchor: '', isHostAnchor: false })
+        const resolved = resolveState(sName, { anchor: '', isHostAnchor: false })(tables)
         return {
             name: sName,
             modifier: resolved.modifier,

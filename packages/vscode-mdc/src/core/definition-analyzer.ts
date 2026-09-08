@@ -131,7 +131,7 @@ export function extractStateTriggersFromSource(sourceText: string): Map<string, 
         })
     }
 
-    const mapRegex = /(?:export\s+)?const\s+([a-zA-Z0-9_$]+)\s*=\s*mapStateTriggers/g
+    const mapRegex = /(?:export\s+)?const\s+([a-zA-Z0-9_$]+)\s*=\s*(?:flow\s*\([\s\S]*?)?(withState)/g
     let match: RegExpExecArray | null
 
     while ((match = mapRegex.exec(sourceText)) !== null) {
@@ -157,7 +157,7 @@ export function extractStateTriggersFromSource(sourceText: string): Map<string, 
                 target,
                 selector: cleanVal,
                 modifier: cleanVal,
-                source: 'mapStateTriggers',
+                source: match[2],
                 rawExpression: rawVal,
                 isCustom: true,
                 range: entryRange,

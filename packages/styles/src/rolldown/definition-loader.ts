@@ -9,7 +9,7 @@
  * and evaluates it in a `node:vm` sandbox, returning the live definition
  * object. This mirrors the `rolldown` + VM genuine-CSS path proven in
  * `@sandlada/vscode-mdc` (`compiler-engine.ts`), so `${...}` interpolations,
- * `pipe(...)` registries and token helpers resolve exactly as they do at
+ * `flow(...)` tables and token helpers resolve exactly as they do at
  * runtime instead of via fragile static analysis.
  *
  * This module must never be imported from browser code: it pulls `rolldown`

@@ -46,6 +46,8 @@ export function isTemplateStringsArray(val: unknown): val is TemplateStringsArra
     return Array.isArray(val) && 'raw' in val && Array.isArray((val as any).raw)
 }
 
+const STATE_AWARE_RE = /@state\s*\(|@variant\s*\(|@when\s*\(|@anchor\b|@slot\b|@slotted\b|@size\b|@elevation\b|var\(\s*--_/
+
 export function compileTemplate(
     definition: any,
     templateOrStrings: any,
@@ -63,6 +65,10 @@ export function compileTemplate(
         rawCss = typeof templateOrStrings === 'string'
             ? templateOrStrings
             : (templateOrStrings as CSSLike)?.cssText || String(templateOrStrings ?? '')
+    }
+
+    if ((definition === undefined || definition === null) && STATE_AWARE_RE.test(rawCss)) {
+        throw new Error('[mdc-styles] createStyleSheet requires a style definition for state-aware templates; received empty definition.')
     }
 
     const compiled = compileStateSheet(definition, rawCss, options)

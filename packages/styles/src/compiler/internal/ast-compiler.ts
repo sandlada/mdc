@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { StateTriggerRegistry } from '../../triggers'
+import type { TriggerTables } from '../../triggers/tables'
 import type { StateTokenMetadata } from '../extract-state-token-metadata'
 import {
     splitSelectorByComma,
@@ -867,7 +867,7 @@ export interface CompiledChunks {
 export function compileAstNodes(
     nodes: readonly ASTNode[],
     meta: StateTokenMetadata,
-    registry: StateTriggerRegistry
+    tables: TriggerTables
 ): CompiledChunks {
     const chunks: CompiledChunks = {
         base: [],
@@ -897,7 +897,7 @@ export function compileAstNodes(
                     hostCondition,
                     whenCondition,
                     states: [],
-                    registry
+                    tables
                 })
                 chunks.base.push(`${baseSel} {\n    ${baseDecls.join('\n    ')}\n}`)
             }
@@ -924,7 +924,7 @@ export function compileAstNodes(
                         hostCondition,
                         whenCondition,
                         states: [state],
-                        registry
+                        tables
                     })
                     chunks.deltas.get(state)!.push(`${stateSel} {\n    ${stateDecls.join('\n    ')}\n}`)
                 }
@@ -941,7 +941,7 @@ export function compileAstNodes(
             }
             chunks.base.push(`${node.header} {\n${stepStrings.join('\n\n')}\n}`)
         } else if (node.type === 'wrapper-at-rule') {
-            const inner = compileAstNodes(node.children, meta, registry)
+            const inner = compileAstNodes(node.children, meta, tables)
 
             if (inner.base.length > 0) {
                 chunks.base.push(`${node.atRuleHeader} {\n${inner.base.join('\n\n')}\n}`)

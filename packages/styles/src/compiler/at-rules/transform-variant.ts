@@ -7,6 +7,7 @@
  */
 
 import type { AtRulesCompilerContext } from '../compile-at-rules-sheet'
+import { emptyTables, resolveVariant } from '../../triggers/tables'
 import { splitSelectorByComma } from '../compose-state-selector'
 import { extractAtRuleParams } from '../extract-at-rule-params'
 import { formatRule, parseStatements, type ParsedStatement } from '../internal/at-rules-transformer'
@@ -79,17 +80,7 @@ export function handleVariantBlock(
         }
     }
 
-    const variantRegistry = ctx.options?.variantRegistry
-    if (!variantRegistry) {
-        if (ctx.options?.onWarn) {
-            ctx.options.onWarn({
-                type: 'invalid-variant',
-                message: `Missing variant registry for @variant: "${rawParam}".`
-            })
-        }
-        // [D] 无 registry 视同无处挂载：丢弃整块。
-        return {}
-    }
+    const tables = ctx.tables ?? emptyTables
 
     const knownVariants = ctx.meta?.allVariantNames
     const variantShells: string[] = []
@@ -104,7 +95,7 @@ export function handleVariantBlock(
             // [D] 字典缺 key：丢弃整块。
             return {}
         }
-        const selector = variantRegistry.resolve(v)
+        const selector = resolveVariant(v)(tables)
         if (!selector) {
             if (ctx.options?.onWarn) {
                 ctx.options.onWarn({

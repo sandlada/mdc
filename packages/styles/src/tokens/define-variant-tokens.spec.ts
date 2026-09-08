@@ -9,7 +9,7 @@ import { defineVariantTokens } from './define-variant-tokens'
 import { MDCStyleSheet } from '../css-like'
 import { defineSchema } from '../define-schema'
 import { createStyleDefinition } from '../create-style-definition'
-import { pipe } from '../pipe'
+import { flow } from '../pipe'
 
 const TestSchema = defineSchema(['enabled', 'hovered', 'disabled'] as const)
 
@@ -73,8 +73,8 @@ describe('defineVariantTokens', () => {
         expect(css).not.toContain('var(--mdc-btn-enabled-container-color')
     })
 
-    it('works cleanly in pipe(...) functional pipeline', () => {
-        const getStyles = pipe(
+    it('works cleanly in flow(...) functional pipeline', () => {
+        const getStyles = flow(
             defineVariantTokens('--mdc-pipe-btn')
         )
         const result = getStyles(ButtonVariants)

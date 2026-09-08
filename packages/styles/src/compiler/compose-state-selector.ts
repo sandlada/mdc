@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { StateTriggerRegistry, type TriggerContext } from '../triggers'
+import { emptyTables, resolveState, type TriggerContext, type TriggerTables } from '../triggers/tables'
 
 export function canonicalizeState(state: string): string {
     if (state === 'hovered') return 'hover'
@@ -268,7 +268,7 @@ export interface ComposeSelectorOptions {
     readonly hostCondition?: string
     readonly whenCondition?: string
     readonly states?: readonly string[]
-    readonly registry?: StateTriggerRegistry
+    readonly tables?: TriggerTables
 }
 
 /**
@@ -282,7 +282,7 @@ export function composeStateSelector(options: ComposeSelectorOptions): string {
         hostCondition,
         whenCondition,
         states = [],
-        registry = new StateTriggerRegistry()
+        tables = emptyTables
     } = options
 
     // If hostCondition has commas (e.g. :host([variant="filled"]), :host([variant="tonal"]))
@@ -324,7 +324,7 @@ export function composeStateSelector(options: ComposeSelectorOptions): string {
 
     for (const stateName of states) {
         if (!stateName || stateName === 'enabled' || stateName === 'base') continue
-        const resolved = registry.resolve(stateName, triggerContext)
+        const resolved = resolveState(stateName, triggerContext)(tables)
         if (resolved.target === 'host' || isHostAnchor) {
             if (resolved.modifier && !hostModifiers.includes(resolved.modifier)) {
                 hostModifiers.push(resolved.modifier)

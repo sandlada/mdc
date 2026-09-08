@@ -6,7 +6,7 @@
  * @fileoverview
  * Mapping-format suite: each row is `[label, styles, mustContain]` where the
  * `MDCStyleSheet` is produced up front by one invocation form of `createStyleSheet`
- * (tagged / curried / options-first / callback / pipe / zero-arg). The runner
+ * (tagged / curried / tables-first / options-first / callback / zero-arg). The runner
  * only asserts the instance type and the content expectations, so the table
  * stays declarative while the form variety remains visible per row.
  */
@@ -16,9 +16,8 @@ import { css } from 'lit'
 import { MDCStyleSheet } from '../css-like'
 import { defineSchema } from '../define-schema'
 import { createStyleDefinition } from '../create-style-definition'
-import { mapStateTriggers } from '../triggers'
-import { mapVariantTriggers } from '../triggers'
-import { pipe } from '../pipe'
+import { emptyTables, withState, withVariant, type TriggerTables } from '../triggers'
+import { flow } from '../pipe'
 import { createStyleSheet } from './create-style-sheet'
 
 describe('createStyleSheet', () => {
@@ -29,11 +28,11 @@ describe('createStyleSheet', () => {
         'container-shape': '8px'
     })
 
-    const triggers = mapStateTriggers({
+    const tables = withState({
         'enabled': '',
         'hovered': ':hover',
         'disabled': '[disabled]'
-    })
+    })(emptyTables)
 
     const legacyBackground = `
         @anchor .container {
@@ -47,29 +46,35 @@ describe('createStyleSheet', () => {
     const embeddedRule = css`margin: 0;`
     const multiValues = [css`padding: 4px;`, 'display: inline-flex;']
 
-    const compileWithTriggers = pipe(triggers, createStyleSheet)
-    const compileDef = pipe(ButtonDefinition, createStyleSheet)
-    const compileZero = pipe(createStyleSheet)
+    const compileWithTables = createStyleSheet(tables)
+    const compileZeroThenDef = createStyleSheet()
+    const compileZeroThenTables = createStyleSheet()
 
     const SizeSchema = defineSchema(['small', 'medium', 'large'] as const)
     const SizeDef = createStyleDefinition(SizeSchema)({
         'size': [12, 14, 16]
     })
-    const SizeTriggers = mapStateTriggers({
+    const sizeStates = {
         'small': '.small',
         'medium': '.medium',
         'large': '.large'
-    })
+    }
+    const SizeTriggers = withState(sizeStates)(emptyTables)
 
     const VariantSchema = defineSchema(['enabled'] as const)
     const VariantDefs = {
         'filled': createStyleDefinition(VariantSchema)({ 'color': '#6750a4' }),
         'tonal': createStyleDefinition(VariantSchema)({ 'color': '#e8def8' })
     } as const
-    const VariantTriggers = mapVariantTriggers({
+    const buttonVariants = {
         'filled': ':host([variant="filled"])',
         'tonal': ':host([variant="tonal"])'
-    })
+    }
+    const VariantTables = withVariant(buttonVariants)(emptyTables)
+    const SizeVariantTables: TriggerTables = flow(
+        withState(sizeStates),
+        withVariant(buttonVariants)
+    )(emptyTables)
 
     const ComboSchema = defineSchema([['small', 'large'], ['enabled', 'disabled']] as const)
     const ComboDef = createStyleDefinition(ComboSchema)({
@@ -77,12 +82,12 @@ describe('createStyleSheet', () => {
         'opacity': { 'enabled': '1', 'disabled': '0.38' },
         'color': '#6750a4'
     })
-    const ComboTriggers = mapStateTriggers({
+    const ComboTriggers = withState({
         'small': '.small',
         'large': '.large',
         'enabled': '',
         'disabled': '[disabled]'
-    })
+    })(emptyTables)
 
     const BadgeLikeSchema = defineSchema(['small', 'large'] as const)
     const BadgeLikeDef = createStyleDefinition(BadgeLikeSchema)({
@@ -93,10 +98,10 @@ describe('createStyleSheet', () => {
         'container-padding-inline-end': ['4px', '8px'],
         'container-color': '#b3261e'
     })
-    const BadgeLikeTriggers = mapStateTriggers({
+    const BadgeLikeTriggers = withState({
         'small': '.small',
         'large': '.large'
-    })
+    })(emptyTables)
 
     const mapping: Array<[string, MDCStyleSheet, readonly string[], (readonly string[])?]> = [
         // Invocation forms over the legacy @anchor branch
@@ -125,11 +130,11 @@ describe('createStyleSheet', () => {
         ['curried definition-first invocation: createStyleSheet(def)(template)',
             createStyleSheet(ButtonDefinition)(legacyBackground),
             ['.container {', 'background-color: var(--_enabled-container-color);']],
-        ['options/registry-first invocation: createStyleSheet(triggers)(def)`...`',
-            createStyleSheet(triggers)(ButtonDefinition)(legacyBackground),
+        ['tables-first invocation: createStyleSheet(tables)(def)`...`',
+            createStyleSheet(tables)(ButtonDefinition)(legacyBackground),
             ['.container:hover {', 'background-color: var(--_hovered-container-color);']],
-        ['options object: createStyleSheet({ registry })',
-            createStyleSheet({ registry: triggers })(ButtonDefinition)(legacyBackground),
+        ['options object: createStyleSheet({ tables })',
+            createStyleSheet({ tables })(ButtonDefinition)(legacyBackground),
             ['.container:hover {']],
         ['uncurried callback: createStyleSheet(def, () => css`...`)',
             createStyleSheet(ButtonDefinition, () => css`
@@ -138,33 +143,33 @@ describe('createStyleSheet', () => {
                 }
             `),
             ['.container {', 'background-color: var(--_enabled-container-color);']],
-        ['point-free pipeline: pipe(triggers, createStyleSheet)',
-            compileWithTriggers(ButtonDefinition)(legacyBackground),
+        ['tables-first bound: createStyleSheet(tables)(def)',
+            compileWithTables(ButtonDefinition)(legacyBackground),
             ['.container:hover {']],
-        ['point-free pipeline: pipe(ButtonDefinition, createStyleSheet)',
-            compileDef(legacyBackground),
+        ['zero-arg then definition: createStyleSheet()(def)',
+            compileZeroThenDef(ButtonDefinition)(legacyBackground),
             ['.container {']],
-        ['point-free pipeline: 0-arg createStyleSheet in pipeline',
-            compileZero(ButtonDefinition)(legacyBackground),
-            ['.container {']],
+        ['zero-arg then tables: createStyleSheet()(tables)(def)',
+            compileZeroThenTables(tables)(ButtonDefinition)(legacyBackground),
+            ['.container:hover {']],
         ['empty template string returns empty MDCStyleSheet',
             createStyleSheet(ButtonDefinition)``,
             []],
         // New @state system (oracled in at-rules/transform-state.spec.ts) via the HOF entrypoint
         ['new @state rules via tagged template literal',
-            createStyleSheet({ registry: SizeTriggers })(SizeDef)`
+            createStyleSheet({ tables: SizeTriggers })(SizeDef)`
                 @state(button) button {
                     color: red;
                 }
             `,
             ['button.small {', 'button.medium {', 'button.large {']],
         ['new exact @variant names wrap in :host variant shells',
-            createStyleSheet({ variantRegistry: VariantTriggers })(VariantDefs)`
+            createStyleSheet({ tables: VariantTables })(VariantDefs)`
                 @variant(filled, tonal) { button {} }
             `,
             [':host([variant="filled"]), :host([variant="tonal"]) {']],
         ['new @variant shells compose with inner @state expansion',
-            createStyleSheet({ registry: SizeTriggers, variantRegistry: VariantTriggers })(SizeDef)`
+            createStyleSheet({ tables: SizeVariantTables })(SizeDef)`
                 @variant(filled) { @state(button) button {} }
             `,
             [':host([variant="filled"]) {', 'button.small {', 'button.medium {', 'button.large {']],
@@ -181,7 +186,7 @@ describe('createStyleSheet', () => {
 
         // Real-world production scenarios: multi-state variable rewriting under @state
         ['@state rewrites multi-state variables into state-specific variables',
-            createStyleSheet({ registry: SizeTriggers })(SizeDef)`
+            createStyleSheet({ tables: SizeTriggers })(SizeDef)`
                 @state(button) button {
                     height: var(--_size);
                 }
@@ -197,7 +202,7 @@ describe('createStyleSheet', () => {
                 'button.large { height: var(--_size);'
             ]],
         ['@state preserves invariant tokens while rewriting state tokens',
-            createStyleSheet({ registry: BadgeLikeTriggers })(BadgeLikeDef)`
+            createStyleSheet({ tables: BadgeLikeTriggers })(BadgeLikeDef)`
                 @state(.container) .container {
                     height: var(--_container-size);
                     background-color: var(--_container-color);
@@ -220,10 +225,7 @@ describe('createStyleSheet', () => {
                 '--_large-container-color'
             ]],
         ['@state curried pipeline with Cartesian combo dimensions rewrites all orthogonal tokens',
-            pipe(
-                ComboTriggers,
-                createStyleSheet
-            )(ComboDef)(() => css`
+            createStyleSheet(ComboTriggers)(ComboDef)(() => css`
                 @state(button) button {
                     height: var(--_size);
                     opacity: var(--_opacity);
@@ -253,7 +255,7 @@ describe('createStyleSheet', () => {
                 '--_disabled-color'
             ]],
         ['@variant enclosing @state rewrites multi-state variables inside variant wrapper',
-            createStyleSheet({ registry: SizeTriggers, variantRegistry: VariantTriggers })(SizeDef)`
+            createStyleSheet({ tables: SizeVariantTables })(SizeDef)`
                 @variant(filled) {
                     @state(button) button {
                         height: var(--_size);
@@ -270,7 +272,7 @@ describe('createStyleSheet', () => {
                 'height: var(--_size);'
             ]],
         ['nested @when inside @state hoists selector and rewrites multi-state variables',
-            createStyleSheet({ registry: SizeTriggers })(SizeDef)`
+            createStyleSheet({ tables: SizeTriggers })(SizeDef)`
                 @state(button) button {
                     @when(:host([checked])) {
                         height: var(--_size);

@@ -4,8 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { StateTriggerRegistry, type StateTrigger } from '../triggers'
-import type { VariantTriggerRegistry } from '../triggers'
+import { emptyTables, type TriggerTables } from '../triggers/tables'
 import { extractStateTokenMetadata } from './extract-state-token-metadata'
 import { stripComments } from './strip-comments'
 import { isAtRulesStylesheet, hasDefiniteAtRules } from './is-at-rules-stylesheet'
@@ -68,9 +67,7 @@ export interface StyleDiagnosticWarning {
 }
 
 export interface CompileStateSheetOptions {
-    readonly registry?: StateTriggerRegistry
-    readonly triggers?: Record<string, StateTrigger | string> | (StateTrigger | Record<string, StateTrigger | string>)[]
-    readonly variantRegistry?: VariantTriggerRegistry
+    readonly tables?: TriggerTables
     readonly variantSelector?: (variantName: string) => string
     readonly onWarn?: (warning: StyleDiagnosticWarning) => void
 }
@@ -85,19 +82,18 @@ export interface CompileStateSheetOptions {
  * containing `@anchor <sel>` / `@size` route to the legacy token-differential engine
  * (which additionally lowers `@slot` / `@slotted` / `@size` / `@elevation` and
  * wildcard `@variant`).
- * @param options - Compilation options including StateTriggerRegistry.
+ * @param options - Compilation options including TriggerTables.
  * @returns Formatted standard CSS string.
  *
  * @example
  * ```typescript
  * import { compileStateSheet } from '@sandlada/styles/compiler'
- * import { mapStateTriggers } from '@sandlada/styles/triggers'
+ * import { emptyTables, flow, withState } from '@sandlada/styles/triggers'
  * import { ButtonDefinition } from './button.definition'
  *
- * const triggers = mapStateTriggers({
- *     'enabled': '',
- *     'selected': '[selected]'
- * })
+ * const tables = flow(
+ *     withState({ 'enabled': '', 'selected': '[selected]' })
+ * )(emptyTables)
  *
  * // New @state system:
  * const compiled = compileStateSheet(ButtonDefinition, `
@@ -105,7 +101,7 @@ export interface CompileStateSheetOptions {
  *         background-color: var(--_container-color);
  *         .label { color: var(--_label-color); }
  *     }
- * `, { registry: triggers })
+ * `, { tables })
  * ```
  */
 export function compileStateSheet(
@@ -117,6 +113,8 @@ export function compileStateSheet(
         return ''
     }
 
+    const tables = options?.tables ?? emptyTables
+
     if (
         hasDefiniteAtRules(cssText) ||
         (!cssText.includes('@anchor') && !options?.onWarn && isAtRulesStylesheet(cssText))
@@ -124,18 +122,10 @@ export function compileStateSheet(
         return compileAtRulesSheet(definition, cssText, options)
     }
 
-    const registry = options?.registry
-        ? options.registry.clone()
-        : new StateTriggerRegistry(options?.triggers)
-
-    if (options?.triggers && options.registry) {
-        registry.registerAll(options.triggers)
-    }
-
     const meta = extractStateTokenMetadata(definition)
     const cleanCss = stripComments(cssText)
     const nodes = parseCssRecursive(cleanCss, meta, options)
-    const chunks = compileAstNodes(nodes, meta, registry)
+    const chunks = compileAstNodes(nodes, meta, tables)
 
     const output: string[] = []
     if (chunks.base.length > 0) {

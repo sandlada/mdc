@@ -27,9 +27,9 @@
  * import { forwardTokens } from '@sandlada/styles/tokens'
  * import { stringifyTokens } from '@sandlada/styles/tokens'
  * import { createStyleSheet } from '@sandlada/styles/compiler'
- * import { mapStateTriggers } from '@sandlada/styles/triggers'
+ * import { emptyTables, withState } from '@sandlada/styles/triggers'
  * import { overrideTokens } from '@sandlada/styles/tokens'
- * import { pipe } from '@sandlada/styles/pipe'
+ * import { flow } from '@sandlada/styles/pipe'
  * ```
  */
 
@@ -84,18 +84,16 @@ export {
 } from './tokens'
 
 export {
-    mapStateTriggers,
-    StateTriggerRegistry,
-    type TriggerTarget,
-    type TriggerContext,
+    emptyTables,
+    isTriggerTables,
+    resolveState,
+    resolveVariant,
+    withState,
+    withVariant,
     type ResolvedTrigger,
-    type StateTrigger
-} from './triggers'
-
-export {
-    mapVariantTriggers,
-    VariantTriggerRegistry,
-    type VariantTrigger
+    type TriggerContext,
+    type TriggerTables,
+    type TriggerTarget
 } from './triggers'
 
 export {
@@ -107,7 +105,7 @@ export {
 
 // 3. Compiler & ATRules Engine
 export {
-    pipe
+    flow
 } from './pipe'
 
 export {

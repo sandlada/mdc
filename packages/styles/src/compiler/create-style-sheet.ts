@@ -6,7 +6,7 @@
 
 import type { CSSLike } from '../css-like'
 import { MDCStyleSheet } from '../css-like'
-import { StateTriggerRegistry } from '../triggers'
+import { isTriggerTables, type TriggerTables } from '../triggers/tables'
 import type { ResolvedStyleDefinition } from '../create-style-definition'
 import type { CompileStateSheetOptions } from './compile-state-sheet'
 import { compileTemplate } from './internal/template-helpers'
@@ -29,7 +29,7 @@ export type StyleSheetCurriedWithOptions = {
 
 export interface CreateStyleSheetFn {
     (
-        options: StateTriggerRegistry | CompileStateSheetOptions
+        options: TriggerTables | CompileStateSheetOptions
     ): StyleSheetCurriedWithOptions
 
     <TDef extends ResolvedStyleDefinition<any, any>>(
@@ -71,19 +71,25 @@ export type CreateStyleSheetOptions = CompileStateSheetOptions
  * `static styles`.
  *
  * Supports:
- * 1. Options or trigger registry: `createStyleSheet(triggers)(ButtonDefinition)\`...\``
- * 2. Point-free functional pipelines: `pipe(triggers, createStyleSheet)(ButtonDefinition)\`...\``
- * 3. Direct tagged template literals: `createStyleSheet(ButtonDefinition)\`@state(button) button { ... }\``
- * 4. Curried definition-first: `createStyleSheet(ButtonDefinition)(\`@state(button) button { ... }\`)`
+ * 1. Options or trigger tables: `createStyleSheet(tables)(ButtonDefinition)`...``
+ * 2. Composed tables: `flow(withState({...}), withVariant({...}))(emptyTables)`
+ * 3. Direct tagged template literals: `createStyleSheet(ButtonDefinition)`@state(button) button { ... }``
+ * 4. Curried definition-first: `createStyleSheet(ButtonDefinition)(`@state(button) button { ... }`)`
+ *
+ * A missing definition with a state-aware template (`@state` / `@variant` /
+ * `@when` / `@anchor` / `var(--_*)`) throws fail-fast instead of silently
+ * degrading to a single `enabled` shell.
  *
  * @example
  * ```typescript
  * import { createStyleSheet } from '@sandlada/styles/compiler'
- * import { mapStateTriggers } from '@sandlada/styles/triggers'
+ * import { emptyTables, flow, withState } from '@sandlada/styles/triggers'
  * import { ButtonDefinition } from './button.definition'
  *
+ * const tables = flow(withState({ 'selected': '[selected]' }))(emptyTables)
+ *
  * // 1. Direct tagged template literal (new @state system):
- * export const ButtonStyles = createStyleSheet({ registry: triggers })(ButtonDefinition)`
+ * export const ButtonStyles = createStyleSheet({ tables })(ButtonDefinition)`
  *     @state(button) button {
  *         border-radius: var(--_container-shape);
  *         background-color: var(--_container-color);
@@ -93,9 +99,9 @@ export type CreateStyleSheetOptions = CompileStateSheetOptions
  * ```
  */
 export const createStyleSheet: CreateStyleSheetFn = function (arg1?: any, arg2?: any, ...rest: any[]): any {
-    // 0. Zero arguments form in pipelines: createStyleSheet() -> (optionsOrDef) => createStyleSheet(optionsOrDef)
+    // 0. Zero arguments form: createStyleSheet() -> (tablesOrDef) => createStyleSheet(tablesOrDef)
     if (arg1 === undefined) {
-        return (optOrDef?: any) => (optOrDef === undefined ? createStyleSheet : createStyleSheet(optOrDef))
+        return (tablesOrDef?: any) => (tablesOrDef === undefined ? createStyleSheet : createStyleSheet(tablesOrDef))
     }
 
     // 1. Direct uncurried form: createStyleSheet(definition, cssOrFn, ...values)
@@ -103,13 +109,13 @@ export const createStyleSheet: CreateStyleSheetFn = function (arg1?: any, arg2?:
         return compileTemplate(arg1, arg2, undefined, rest)
     }
 
-    // 2. Options or StateTriggerRegistry passed first: createStyleSheet(options) -> (definition) -> (template)
+    // 2. Options or TriggerTables first: createStyleSheet(options) -> (definition) -> (template)
     if (
-        arg1 instanceof StateTriggerRegistry ||
-        (arg1 && typeof arg1 === 'object' && ('registry' in arg1 || 'triggers' in arg1 || 'variantRegistry' in arg1 || 'variantTriggers' in arg1 || 'variantSelector' in arg1 || 'onWarn' in arg1))
+        isTriggerTables(arg1) ||
+        (arg1 && typeof arg1 === 'object' && ('tables' in arg1 || 'variantSelector' in arg1 || 'onWarn' in arg1))
     ) {
-        const compileOptions: CompileStateSheetOptions = arg1 instanceof StateTriggerRegistry
-            ? { registry: arg1 }
+        const compileOptions: CompileStateSheetOptions = isTriggerTables(arg1)
+            ? { tables: arg1 }
             : arg1
 
         const curriedWithOptions: StyleSheetCurriedWithOptions = (definition: any): StyleSheetCurriedWithDef => {

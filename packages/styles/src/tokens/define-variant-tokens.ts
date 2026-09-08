@@ -38,7 +38,7 @@ export type DefineVariantTokensOptionsOrPrefix = string | DefineVariantTokensOpt
  * @example
  * ```typescript
  * import { defineVariantTokens } from '@sandlada/styles'
- * import { pipe } from '@sandlada/styles/pipe'
+ * import { flow } from '@sandlada/styles/pipe'
  * import { NavigationTabVariants } from './navigation-tab.definition'
  *
  * // Direct curried invocation:
@@ -48,10 +48,9 @@ export type DefineVariantTokensOptionsOrPrefix = string | DefineVariantTokensOpt
  * })(NavigationTabVariants)
  *
  * // Pipeline composition:
- * export const pipedTokens = pipe(
- *     NavigationTabVariants,
+ * export const pipedTokens = flow(
  *     defineVariantTokens({ prefix: '--mdc-navigation-tab' })
- * )
+ * )(NavigationTabVariants)
  * ```
  */
 export function defineVariantTokens(optionsOrPrefix: DefineVariantTokensOptionsOrPrefix) {

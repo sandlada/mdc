@@ -151,7 +151,7 @@ export function extractStringifyTokenCalls(sourceText: string): StringifyTokensC
 
 export function extractStateTriggers(sourceText: string): StateTriggerMeta[] {
     const triggers: StateTriggerMeta[] = []
-    const mapRegex = /mapStateTriggers\s*(?:<[^>]+>)?\s*\(([\s\S]*?)\)/g
+    const mapRegex = /(mapStateTriggers|withState)\s*(?:<[^>]+>)?\s*\(([\s\S]*?)\)/g
     let match: RegExpExecArray | null
 
     while ((match = mapRegex.exec(sourceText)) !== null) {
@@ -172,7 +172,7 @@ export function extractStateTriggers(sourceText: string): StateTriggerMeta[] {
                         target,
                         selector: cleanVal,
                         modifier: cleanVal,
-                        source: 'mapStateTriggers',
+                        source: match[1],
                         range: entryRange,
                     })
                 }

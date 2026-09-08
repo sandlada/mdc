@@ -13,8 +13,8 @@
 import { describe, it, expect } from 'vitest'
 import { defineSchema } from '../define-schema'
 import { createStyleDefinition } from '../create-style-definition'
-import { mapStateTriggers } from '../triggers'
-import { mapVariantTriggers } from '../triggers'
+import { emptyTables, withState, withVariant } from '../triggers/tables'
+import { flow } from '../pipe'
 import {
     compileAtRulesSheet,
     expandDeclaration,
@@ -47,24 +47,24 @@ const ComboDef = createStyleDefinition(ComboSchema)({
     'size': { 'medium': '12px', 'large': '16px' },
     'opacity': { 'enabled': '1', 'disabled': '0.38' }
 })
-const ComboTriggers = mapStateTriggers({
+const ComboTriggers = withState({
     'medium': '.medium',
     'large': '.large',
     'enabled': '',
     'disabled': '[disabled]'
-})
+})(emptyTables)
 
 const SizeSchema = defineSchema(['small', 'medium', 'large'] as const)
 const SizeDef = createStyleDefinition(SizeSchema)({ 'size': [12, 14, 16] })
-const SizeTriggers = mapStateTriggers({
+const SizeTriggers = withState({
     'small': '.small',
     'medium': '.medium',
     'large': '.large'
-})
+})(emptyTables)
 
 const TwoStateSchema = defineSchema(['small', 'medium'] as const)
 const TwoStateDef = createStyleDefinition(TwoStateSchema)({ 'size': [12, 14] })
-const TwoStateTriggers = mapStateTriggers({ 'small': '.small', 'medium': '.medium' })
+const TwoStateTriggers = withState({ 'small': '.small', 'medium': '.medium' })(emptyTables)
 
 const LargeComboSchema = defineSchema([
     ['d1a', 'd1b', 'd1c'],
@@ -89,18 +89,25 @@ interface SheetOpts {
 
 type SheetRow = readonly [input: string, expected: string | readonly string[] | null, opts?: SheetOpts]
 
-const VariantTriggers = mapVariantTriggers({
-    'filled': ':host([variant="filled"])',
-    'tonal': ':host([variant="tonal"])',
-    'outlined': ':host([variant="outlined"])'
-})
+const SizeVariantTables = flow(
+    withState({
+        'small': '.small',
+        'medium': '.medium',
+        'large': '.large'
+    }),
+    withVariant({
+        'filled': ':host([variant="filled"])',
+        'tonal': ':host([variant="tonal"])',
+        'outlined': ':host([variant="outlined"])'
+    })
+)(emptyTables)
 
 const fixtures = {
-    'combo': { def: ComboDef, registry: ComboTriggers },
-    'size': { def: SizeDef, registry: SizeTriggers },
-    'size-variant': { def: SizeDef, registry: SizeTriggers, variantRegistry: VariantTriggers },
-    'two-state': { def: TwoStateDef, registry: TwoStateTriggers },
-    'large-combo': { def: LargeComboDef, registry: undefined }
+    'combo': { def: ComboDef, tables: ComboTriggers },
+    'size': { def: SizeDef, tables: SizeTriggers },
+    'size-variant': { def: SizeDef, tables: SizeVariantTables },
+    'two-state': { def: TwoStateDef, tables: TwoStateTriggers },
+    'large-combo': { def: LargeComboDef, tables: emptyTables }
 } as const
 
 function runSheetRow([input, expected, opts]: SheetRow): void {
@@ -110,9 +117,7 @@ function runSheetRow([input, expected, opts]: SheetRow): void {
     }
     const fixture = opts?.fixture !== undefined ? fixtures[opts.fixture] : undefined
     const def = fixture?.def ?? {}
-    const options = fixture?.registry !== undefined
-        ? { registry: fixture.registry, variantRegistry: opts?.fixture === 'size-variant' ? VariantTriggers : undefined, onWarn }
-        : { onWarn }
+    const options = { tables: fixture?.tables ?? emptyTables, onWarn }
     const output = opts?.entry === 'atrules'
         ? compileAtRulesSheet(def, input, options)
         : compileStateSheet(def, input, options)

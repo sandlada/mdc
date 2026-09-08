@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: MIT
  *
  * @fileoverview
- * 真實 sheet 層規格（compileStateSheet + 真實 definition / registry）：
+ * 真實 sheet 層規格（compileStateSheet + 真實 definition / tables）：
  *   覆蓋聲明內容層（var 重寫 / expanders / a11y 巨集 / 發射規則），與
  *   at-rules-integration.spec.ts（fake 殼交織層）互補。上游真實實現變更時，
  *   只有本檔變紅。雙隊斷言相同：精確相等（數組以單空格連接），不看 warn。
@@ -14,8 +14,8 @@
 import { describe, expect, it } from 'vitest'
 import { createStyleDefinition } from '../../create-style-definition'
 import { defineSchema } from '../../define-schema'
-import { mapStateTriggers } from '../../triggers'
-import { mapVariantTriggers } from '../../triggers'
+import { emptyTables, withState, withVariant } from '../../triggers'
+import { flow } from '../../pipe'
 import { compileStateSheet } from '../compile-state-sheet'
 
 type MappingRow = ReadonlyArray<readonly [input: string, expected: string | readonly string[]]>
@@ -31,16 +31,18 @@ describe('sheet: a11y + expanders', () => {
     const SizeDef = createStyleDefinition(SizeSchema)({
         'size': [12, 14, 16],
     })
-    const SizeTriggers = mapStateTriggers({
-        'small': '.small',
-        'medium': '.medium',
-        'large': '.large',
-    })
-    const VariantTriggers = mapVariantTriggers({
-        'filled': ':host([variant="filled"])',
-        'tonal': ':host([variant="tonal"])',
-        'outlined': ':host([variant="outlined"])'
-    })
+    const SizeVariantTables = flow(
+        withState({
+            'small': '.small',
+            'medium': '.medium',
+            'large': '.large'
+        }),
+        withVariant({
+            'filled': ':host([variant="filled"])',
+            'tonal': ':host([variant="tonal"])',
+            'outlined': ':host([variant="outlined"])'
+        })
+    )(emptyTables)
 
     /**
      * I5: @state + A11y 巨集
@@ -94,7 +96,7 @@ describe('sheet: a11y + expanders', () => {
 
     for (const [input, expected] of greenMapping) {
         it(`green: ${input}`, () => {
-            const output = compileStateSheet(SizeDef, input, { registry: SizeTriggers, variantRegistry: VariantTriggers })
+            const output = compileStateSheet(SizeDef, input, { tables: SizeVariantTables })
             expect(canonical(output)).toBe(canonical(expected))
         })
     }
@@ -111,11 +113,11 @@ describe('token-rewrite', () => {
             large: `140px`
         }
     })
-    const SizeTriggers = mapStateTriggers({
+    const SizeTriggers = withState({
         'small': '.small',
         'medium': '.medium',
         'large': '.large'
-    })
+    })(emptyTables)
 
     /**
      * @state 体内的 `var(--_…)` 声明按状态重写（需真实 meta，归集成层）。
@@ -139,7 +141,7 @@ describe('token-rewrite', () => {
 
     for (const [input, expected] of greenMapping) {
         it(`green: ${input}`, () => {
-            const output = compileStateSheet(SizeDef, input, { registry: SizeTriggers })
+            const output = compileStateSheet(SizeDef, input, { tables: SizeTriggers })
             expect(canonical(output)).toBe(canonical(expected))
         })
     }
@@ -150,11 +152,11 @@ describe('empty-emission', () => {
     const NullBaseDef = createStyleDefinition(SmlSchema)({
         'size': [null, '12px', '14px']
     })
-    const NullBaseTriggers = mapStateTriggers({
+    const NullBaseTriggers = withState({
         's': '.s',
         'm': '.m',
         'l': '.l'
-    })
+    })(emptyTables)
     const StaticDef = createStyleDefinition(SmlSchema)({
         'color': '#6750a4'
     })
@@ -170,22 +172,22 @@ describe('empty-emission', () => {
     ]
 
     it('green: empty body + null base emits only defined states', () => {
-        const output = compileStateSheet(NullBaseDef, '@state(.btn) .btn {}', { registry: NullBaseTriggers })
+        const output = compileStateSheet(NullBaseDef, '@state(.btn) .btn {}', { tables: NullBaseTriggers })
         expect(canonical(output)).toBe(canonical(['.btn.m {}', '.btn.l {}']))
     })
 
     it('green: nested empty body respects outer shell', () => {
-        const output = compileStateSheet(NullBaseDef, '.container { @state(.btn) .btn {} }', { registry: NullBaseTriggers })
+        const output = compileStateSheet(NullBaseDef, '.container { @state(.btn) .btn {} }', { tables: NullBaseTriggers })
         expect(canonical(output)).toBe(canonical('.container { .btn.m {} .btn.l {} }'))
     })
 
     it('green: filtered-empty body is not emitted', () => {
-        const output = compileStateSheet(NullBaseDef, '@state(.btn) .btn { width: var(--_size); }', { registry: NullBaseTriggers })
+        const output = compileStateSheet(NullBaseDef, '@state(.btn) .btn { width: var(--_size); }', { tables: NullBaseTriggers })
         expect(canonical(output)).toBe(canonical(['.btn.m { width: var(--_m-size); }', '.btn.l { width: var(--_l-size); }']))
     })
 
     it('green: static-only def still emits all shells', () => {
-        const output = compileStateSheet(StaticDef, '@state(.btn) .btn {}', { registry: NullBaseTriggers })
+        const output = compileStateSheet(StaticDef, '@state(.btn) .btn {}', { tables: NullBaseTriggers })
         expect(canonical(output)).toBe(canonical(['.btn.s {}', '.btn.m {}', '.btn.l {}']))
     })
 
@@ -195,13 +197,13 @@ describe('empty-emission', () => {
             'size': { 'm': '12px' },
             'opacity': { 'enabled': '1', 'disabled': '0.38' }
         })
-        const ComboNullTriggers = mapStateTriggers({
+        const ComboNullTriggers = withState({
             'm': '.m',
             'l': '.l',
             'enabled': '',
             'disabled': '[disabled]'
-        })
-        const output = compileStateSheet(ComboNullDef, '@state(.btn) .btn {}', { registry: ComboNullTriggers })
+        })(emptyTables)
+        const output = compileStateSheet(ComboNullDef, '@state(.btn) .btn {}', { tables: ComboNullTriggers })
         expect(canonical(output)).toBe(canonical(['.btn.m {}', '.btn.m[disabled] {}']))
     })
 
@@ -210,17 +212,17 @@ describe('empty-emission', () => {
         const HostNullDef = createStyleDefinition(HostNullSchema)({
             'opacity': ['1', null]
         })
-        const HostNullTriggers = mapStateTriggers({
+        const HostNullTriggers = withState({
             'enabled': '',
             'disabled': '[disabled]'
-        })
-        const output = compileStateSheet(HostNullDef, ':host { @state(button) button {} }', { registry: HostNullTriggers })
+        })(emptyTables)
+        const output = compileStateSheet(HostNullDef, ':host { @state(button) button {} }', { tables: HostNullTriggers })
         expect(canonical(output)).toBe(canonical(':host { button {} }'))
     })
 
     for (const [input, expected] of greenMapping) {
         it(`green-table: ${input}`, () => {
-            const output = compileStateSheet(NullBaseDef, input, { registry: NullBaseTriggers })
+            const output = compileStateSheet(NullBaseDef, input, { tables: NullBaseTriggers })
             expect(canonical(output)).toBe(canonical(expected))
         })
     }

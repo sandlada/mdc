@@ -72,14 +72,22 @@ export default defineConfig([
         external: ['lit', /^lit\/.*/, /^@lit\//],
     },
     {
+        // NOTE: preserveModules MUST stay off here. The node entries share
+        // modules (compiler, triggers, ...) with the browser bundle above and
+        // write into the same `build/` dir: per-module files from this bundle
+        // would overwrite the browser chunks with treeshaken variants missing
+        // exports (e.g. `triggers/tables.js` lost `withState`). Bundling
+        // shared code into hashed chunks keeps entry paths (`rolldown/*.js`)
+        // stable without collisions.
         input: nodeInput,
         output: {
             dir: 'build',
             format: 'esm',
             entryFileNames: '[name].js',
+            chunkFileNames: 'rolldown/chunk-[hash].js',
             minify: false,
             sourcemap: true,
-            preserveModules: true,
+            preserveModules: false,
         },
         platform: 'node',
         tsconfig: './tsconfig.json',

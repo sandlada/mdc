@@ -12,20 +12,21 @@
  * no `lit` import, runnable under plain Node.
  */
 
-import { createStyleSheet, mapStateTriggers, mapVariantTriggers } from '@sandlada/styles'
+import { createStyleSheet, emptyTables, flow, withState, withVariant } from '@sandlada/styles'
 import { DemoDefinition } from './definition.ts'
 
-const triggers = mapStateTriggers({
-    'small': '.small',
-    'large': '.large',
-})
+const tables = flow(
+    withState({
+        'small': '.small',
+        'large': '.large'
+    }),
+    withVariant({
+        'filled': ':host([variant="filled"])',
+        'outlined': ':host([variant="outlined"])'
+    })
+)(emptyTables)
 
-const variants = mapVariantTriggers({
-    'filled': ':host([variant="filled"])',
-    'outlined': ':host([variant="outlined"])',
-})
-
-export const DemoStyles = createStyleSheet({ registry: triggers, variantRegistry: variants })(DemoDefinition)(`
+export const DemoStyles = createStyleSheet(tables)(DemoDefinition)(`
     @state(demo) demo {
         background: var(--_demo-color);
         shape: var(--_demo-shape);

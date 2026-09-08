@@ -5,7 +5,7 @@
  *
  * SSOT note: pure selector/string/state helpers (`splitSelectorByComma`,
  * `appendToHostSelector`, `matchVariants`, `canonicalizeState`,
- * `composeStateSelector`, `StateTriggerRegistry` + triggers) come from
+ * `composeStateSelector`, `TriggerTables` + triggers) come from
  * fine-grained `@sandlada/styles/*` folder barrels (Node-safe, DOM-free).
  * This module is a thin IDE-layer adapter: it re-exports those helpers
  * (same reference, no fork), adapts static `DefinitionMeta` objects to the
@@ -23,8 +23,8 @@ import { createRequire } from 'module'
 import { defineSchema } from '@sandlada/styles/define-schema'
 import { createStyleDefinition } from '@sandlada/styles/create-style-definition'
 import { forwardTokens, overrideTokens, stringifyTokens } from '@sandlada/styles/tokens'
-import { StateTriggerRegistry, mapStateTriggers, mapVariantTriggers, VariantTriggerRegistry } from '@sandlada/styles/triggers'
-import { pipe } from '@sandlada/styles/pipe'
+import { emptyTables, resolveState, withState, withVariant, resolveVariant, type TriggerTables } from '@sandlada/styles/triggers'
+import { flow } from '@sandlada/styles/pipe'
 import {
     splitSelectorByComma,
     appendToHostSelector,
@@ -72,11 +72,13 @@ export {
     expandMargin,
     expandPadding,
     expandTypescale,
-    StateTriggerRegistry,
-    VariantTriggerRegistry,
-    mapStateTriggers,
-    mapVariantTriggers,
-    pipe,
+    emptyTables,
+    withState,
+    withVariant,
+    resolveState,
+    resolveVariant,
+    flow,
+    type TriggerTables,
     canonicalizeState,
     stripComments,
     replaceTargetInSelector,
@@ -110,22 +112,24 @@ export type CustomTriggerMap = Map<string, { target: 'host' | 'self'; modifier: 
 
 /**
  * Resolves a state name to a target + selector modifier by delegating to
- * `StateTriggerRegistry` (SSOT). Custom entries override registry defaults;
- * unregistered names fall back to the registry heuristics. `anchor` is unused
- * (kept empty) because only `isHostAnchor` affects resolution.
+ * `resolveState` over `TriggerTables` (SSOT). Custom entries override table
+ * defaults; unregistered names fall back to the tables heuristics. `anchor`
+ * is unused (kept empty) because only `isHostAnchor` affects resolution.
  */
 export function resolveTrigger(
     stateName: string,
     isHostAnchor: boolean,
     customTriggers?: CustomTriggerMap
 ): TriggerTarget {
-    const registry = new StateTriggerRegistry()
+    let tables: TriggerTables = emptyTables
     if (customTriggers) {
+        const mapping: Record<string, string> = {}
         for (const [name, custom] of customTriggers) {
-            registry.register(name, custom.modifier)
+            mapping[name] = custom.modifier
         }
+        tables = withState(mapping)(tables)
     }
-    const resolved = registry.resolve(stateName, { anchor: '', isHostAnchor })
+    const resolved = resolveState(stateName, { anchor: '', isHostAnchor })(tables)
     return { target: resolved.target, modifier: resolved.modifier }
 }
 
@@ -526,24 +530,20 @@ export function definitionMetasToStyleDefinition(
 }
 
 /**
- * Builds a `StateTriggerRegistry` (SSOT) from analyzed definition triggers.
+ * Builds `TriggerTables` (SSOT) from analyzed definition triggers.
  */
-function buildRegistryFromMetas(defMetas: (DefinitionMeta | undefined)[]): StateTriggerRegistry {
-    const registry = new StateTriggerRegistry()
+function buildTablesFromMetas(defMetas: (DefinitionMeta | undefined)[]): TriggerTables {
+    const mapping: Record<string, string> = {}
     for (const meta of defMetas) {
         if (!meta || !meta.stateTriggers) continue
         for (const [stateName, trigger] of meta.stateTriggers) {
             if (!stateName) continue
             const modifier = trigger.modifier ?? trigger.selector ?? ''
             if (!modifier) continue
-            try {
-                registry.register(stateName, modifier)
-            } catch {
-                continue
-            }
+            mapping[stateName] = modifier
         }
     }
-    return registry
+    return withState(mapping)(emptyTables)
 }
 
 /**
@@ -573,18 +573,18 @@ export function compileExportedStylesToCssSync(
             defNames.push(dMatch[2].trim())
         }
     }
-    // Curried definition-second application: createStyleSheet(..)(Def) / pipe(..)(Def)
+    // Curried definition-second application: createStyleSheet(..)(Def) / flow(..)(tables)
     const curriedDefRegex = /\)\s*\(\s*([a-zA-Z0-9_$]+)\s*\)\s*(?:=>|`)/g
     while ((dMatch = curriedDefRegex.exec(sourceText)) !== null) {
         defNames.push(dMatch[1].trim())
     }
     const uniqueDefNames = Array.from(new Set(defNames))
 
-    // 3. Build registry from analyzed definitions (SSOT: StateTriggerRegistry)
+    // 3. Build tables from analyzed definitions (SSOT: TriggerTables)
     const defMetas = definitionMetaMap
         ? uniqueDefNames.map((n) => definitionMetaMap.get(n)).filter(Boolean)
         : []
-    const registry = buildRegistryFromMetas(defMetas as (DefinitionMeta | undefined)[])
+    const tables = buildTablesFromMetas(defMetas as (DefinitionMeta | undefined)[])
     const stateMeta = extractStateTokenMetadataFromMeta(defMetas as (DefinitionMeta | undefined)[])
 
     // 4. Extract Token declarations mirroring stringifyTokens shape (names only, no runtime values)
@@ -632,7 +632,7 @@ export function compileExportedStylesToCssSync(
         const cleanTemplate = cleanTemplateInterpolations(rawTemplate)
         const stripped = stripComments(cleanTemplate)
         if (!stripped.trim()) continue
-        const compiled = compileStateSheet(synthetic, stripped, { registry })
+        const compiled = compileStateSheet(synthetic, stripped, { tables })
         if (compiled) {
             for (const r of compiled.split(/\n\n+/).map((r) => r.trim()).filter(Boolean)) {
                 baseChunks.push(r)
@@ -647,7 +647,7 @@ export function compileExportedStylesToCssSync(
             const cleanTemplate = cleanTemplateInterpolations(rawTemplate)
             const stripped = stripComments(cleanTemplate)
             if (!stripped.trim()) continue
-            const compiled = compileStateSheet(synthetic, stripped, { registry })
+            const compiled = compileStateSheet(synthetic, stripped, { tables })
             if (compiled) {
                 for (const r of compiled.split(/\n\n+/).map((r) => r.trim()).filter(Boolean)) {
                     baseChunks.push(r)

@@ -7,8 +7,8 @@
  * Contract spec for the `@sandlada/styles/rolldown` pre-build plugin.
  *
  * Scope: marker protocol (comment marker, never a bare at-rule), literal
- * scanning with `${...}` awareness, call-shape gating (direct + pipe with
- * inline triggers only), fail-fast rejections, compiled-marker idempotency,
+ * scanning with `${...}` awareness, call-shape gating (direct + flow tables
+ * with inline mappings only), fail-fast rejections, compiled-marker idempotency,
  * and plugin hook passthrough. The VM definition loader is intentionally
  * NOT covered here (needs built outputs); it is exercised by the manual
  * marker rollout on real `*.style.ts` files.
@@ -24,7 +24,7 @@ import {
     mdcStyles,
     STYLE_MARKER,
 } from './index'
-import { evaluateTriggers, extractBalancedBody, extractTriggersSource, findDefinitionImport } from './compile-marked'
+import { evaluateTablesMapping, extractBalancedBody, extractTablesSource, findDefinitionImport } from './compile-marked'
 
 const marked = (body: string): string =>
     `import { BadgeDefinition } from '../../component-definitions/badge.definition'\n` +
@@ -85,10 +85,13 @@ describe('shape helpers', () => {
         expect(findDefinitionImport('Missing')(code)).toBe(null)
     })
 
-    it('extracts balanced trigger objects', () => {
-        const code = `pipe(mapStateTriggers({ 'small': '.small', 'large': { target: 'self' } }), createStyleSheet)`
-        expect(extractTriggersSource(code)).toBe(`{ 'small': '.small', 'large': { target: 'self' } }`)
-        expect(extractTriggersSource('createStyleSheet(Def)')).toBe(null)
+    it('extracts balanced tables mapping objects', () => {
+        const code = `flow(withState({ 'small': '.small' }), withVariant({ 'filled': ':host' }), createStyleSheet)`
+        expect(extractTablesSource(code)).toEqual({
+            states: `{ 'small': '.small' }`,
+            variants: `{ 'filled': ':host' }`
+        })
+        expect(extractTablesSource('createStyleSheet(Def)')).toEqual({ states: null, variants: null })
     })
 
     it('extractBalancedBody respects strings and nesting', () => {
@@ -98,10 +101,21 @@ describe('shape helpers', () => {
         expect(extractBalancedBody('{ unterminated', 0)).toBe(null)
     })
 
-    it('evaluates inline trigger objects and rejects the rest', () => {
-        expect(evaluateTriggers(`{ 'small': '.small' }`)('f.ts')).toEqual({ small: '.small' })
-        expect(() => evaluateTriggers('[1, 2]')('f.ts')).toThrowError(/plain object/)
-        expect(() => evaluateTriggers('{ a: }')('f.ts')).toThrowError(/statically evaluable/)
+    it('evaluates inline tables mappings and rejects the rest', () => {
+        expect(evaluateTablesMapping(`{ 'small': '.small' }`)('f.ts')).toEqual({ small: '.small' })
+        expect(() => evaluateTablesMapping('[1, 2]')('f.ts')).toThrowError(/plain object/)
+        expect(() => evaluateTablesMapping('{ a: }')('f.ts')).toThrowError(/statically evaluable/)
+        expect(() => evaluateTablesMapping(`{ 'small': 42 }`)('f.ts')).toThrowError(/must be a string selector/)
+    })
+
+    it('extracts flow(withState/withVariant) table bodies', () => {
+        const code = `const tables = flow(\n    withState({ 'small': '.small' }),\n    withVariant({ 'filled': ':host([variant="filled"])' })\n)(emptyTables)`
+        expect(extractTablesSource(code)).toEqual({
+            states: `{ 'small': '.small' }`,
+            variants: `{ 'filled': ':host([variant="filled"])' }`
+        })
+        expect(extractTablesSource('createStyleSheet(Def)')).toEqual({ states: null, variants: null })
+        expect(extractTablesSource(`flow(withState({ 'a': '.a' }))(emptyTables)`).variants).toBe(null)
     })
 })
 
@@ -129,15 +143,28 @@ describe('compileMarkedFile', () => {
         expect(stubLoad).toHaveBeenCalledWith('BadgeDefinition')
     })
 
-    it('supports the pipe shape with inline triggers', async () => {
+    it('rejects the removed pipe(mapStateTriggers) shape fail-fast', async () => {
         const code =
             `import { BadgeDefinition } from './badge.definition'\n` +
             `const s = pipe(mapStateTriggers({ 'small': '.small' }), createStyleSheet)(BadgeDefinition)(() => css\`\n/* ${STYLE_MARKER} */\n.a{}\n\`)`
         const localCompile = vi.fn(() => 'COMPILED')
         const local = compileMarkedFile({ load: stubLoad, compile: localCompile as never })
+        await expect(local({ id: 'b.style.ts', code, marker: STYLE_MARKER })).rejects.toThrowError(/unsupported shape/)
+        expect(localCompile).not.toHaveBeenCalled()
+    })
+
+    it('supports the flow shape with composed tables', async () => {
+        const code =
+            `import { BadgeDefinition } from './badge.definition'\n` +
+            `const tables = flow(\n    withState({ 'small': '.small' }),\n    withVariant({ 'filled': ':host([variant="filled"])' })\n)(emptyTables)\n` +
+            `const s = createStyleSheet(tables)(BadgeDefinition)(() => css\`\n/* ${STYLE_MARKER} */\n.a{}\n\`)`
+        const localCompile = vi.fn(() => 'COMPILED')
+        const local = compileMarkedFile({ load: stubLoad, compile: localCompile as never })
         const result = await local({ id: 'b.style.ts', code, marker: STYLE_MARKER })
         expect(result.changed).toBe(true)
-        expect(localCompile).toHaveBeenCalledWith({ tokens: {} }, expect.any(String), { triggers: { small: '.small' } })
+        expect(localCompile).toHaveBeenCalledWith({ tokens: {} }, expect.any(String), {
+            tables: { states: { small: '.small' }, variants: { filled: ':host([variant="filled"])' } }
+        })
     })
 
     it('is idempotent: compiled output carries no marker', async () => {

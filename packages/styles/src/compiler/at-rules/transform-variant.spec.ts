@@ -6,9 +6,9 @@
  *
  * @fileoverview
  * @variant 名单规格（handler 单元层）：直调 handleVariantBlock，只测名单 / 外壳，
- * 不测声明内容，不依赖 compileStateSheet 与真实 registry 实现。
- * 挂载选择器由 ctx.options.variantRegistry 给出（fill→容器后代、tonal→host 类、
- * outlined→host 属性）；名单合法 = 变体字典确切 key（大小写敏感）且 registry
+ * 不测声明内容，不依赖 compileStateSheet 与真实 tables 实现。
+ * 挂载选择器由 ctx.tables.variants 给出（fill→容器后代、tonal→host 类、
+ * outlined→host 属性）；名单合法 = 变体字典确切 key（大小写敏感）且 tables
  * 有映射，任一缺失即非法。字典成员来自 ctx.meta.allVariantNames。
  * 绿队 = 合法名单必须生成外壳；红队 = 非法名单必须安全失败（[D] 输出空串）。
  * 跨 handler 组装与 token 发射归 at-rules-integration.spec.ts。
@@ -21,7 +21,7 @@ import {
     echoRecurse,
     fakeBaseCtx,
     fakeMeta,
-    fakeVariantRegistry,
+    fakeTables,
     type HandlerMapping
 } from './spec-fakes'
 import { handleVariantBlock } from './transform-variant'
@@ -29,17 +29,15 @@ import { handleVariantBlock } from './transform-variant'
 describe('variant', () => {
     const variantCtx: AtRulesCompilerContext = fakeBaseCtx({
         meta: fakeMeta(['fill', 'tonal', 'outlined']),
-        options: {
-            variantRegistry: fakeVariantRegistry({
-                'fill': '.container.fill',
-                'tonal': ':host(.tonal)',
-                'outlined': ':host([variant="outlined"])'
-            })
-        }
+        tables: fakeTables({}, {
+            'fill': '.container.fill',
+            'tonal': ':host(.tonal)',
+            'outlined': ':host([variant="outlined"])'
+        })
     })
 
     /**
-     * @variant(name, ...) { body }：name 须同时为变体字典确切 key 与 registry 已映射名，大小写敏感。
+     * @variant(name, ...) { body }：name 须同时为变体字典确切 key 与 tables 已映射名，大小写敏感。
      * V1 单名单壳；V2 多名逗号并壳；V3 body 透传回声，@state 可内嵌原文；V4 嵌套 @variant 非法丢弃 [D]。`*` / `!name` 非法，不收录。
      * 壳形状由 registry 决定，不回退 `:host([variant])` 默认。
      */
@@ -92,32 +90,30 @@ describe('variant', () => {
         })
     }
 
-    it('red: Defs 有但 registry 无映射 → [D]', () => {
+    it('red: Defs 有但 tables 无映射 → [D]', () => {
         const partialCtx = fakeBaseCtx({
             meta: fakeMeta(['fill', 'tonal', 'outlined']),
-            options: { variantRegistry: fakeVariantRegistry({ 'fill': '.container.fill' }) }
+            tables: fakeTables({}, { 'fill': '.container.fill' })
         })
         const output = handleVariantBlock('@variant(tonal)', 'color: red;', partialCtx, echoRecurse)
         expect(canonicalHandlerResult(output)).toBe('')
     })
 
-    it('red: registry 有但 Defs 无 key → [D]', () => {
+    it('red: tables 有但 Defs 无 key → [D]', () => {
         const extraCtx = fakeBaseCtx({
             meta: fakeMeta(['fill', 'tonal', 'outlined']),
-            options: {
-                variantRegistry: fakeVariantRegistry({
-                    'fill': '.container.fill',
-                    'tonal': ':host(.tonal)',
-                    'outlined': ':host([variant="outlined"])',
-                    'unknown': '.container.unknown'
-                })
-            }
+            tables: fakeTables({}, {
+                'fill': '.container.fill',
+                'tonal': ':host(.tonal)',
+                'outlined': ':host([variant="outlined"])',
+                'unknown': '.container.unknown'
+            })
         })
         const output = handleVariantBlock('@variant(unknown)', 'color: red;', extraCtx, echoRecurse)
         expect(canonicalHandlerResult(output)).toBe('')
     })
 
-    it('red: 缺 variantRegistry 视同无处挂载 → [D]', () => {
+    it('red: 缺 tables 映射视同无处挂载 → [D]', () => {
         const bareCtx = fakeBaseCtx({ meta: fakeMeta(['fill', 'tonal', 'outlined']) })
         const output = handleVariantBlock('@variant(fill)', 'color: red;', bareCtx, echoRecurse)
         expect(canonicalHandlerResult(output)).toBe('')
@@ -125,7 +121,7 @@ describe('variant', () => {
 
     it('green: 缺 meta 时跳过字典校验 → 正常发射', () => {
         const noMetaCtx = fakeBaseCtx({
-            options: { variantRegistry: fakeVariantRegistry({ 'fill': '.container.fill' }) }
+            tables: fakeTables({}, { 'fill': '.container.fill' })
         })
         const output = handleVariantBlock('@variant(fill)', 'color: red;', noMetaCtx, echoRecurse)
         expect(canonicalHandlerResult(output)).toBe('.container.fill { color: red }')

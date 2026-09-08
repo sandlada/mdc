@@ -27,7 +27,7 @@ import {
 } from './index'
 import { defineSchema } from '../define-schema'
 import { createStyleDefinition } from '../create-style-definition'
-import { mapStateTriggers } from '../triggers'
+import { emptyTables, withState } from '../triggers'
 
 const Schema = defineSchema(['enabled', 'hovered', 'disabled'] as const)
 
@@ -68,11 +68,11 @@ const MultiVariants = {
 
 const allVariants = ['bar-vertical', 'bar-horizontal', 'rail-vertical', 'rail-horizontal', 'drawer', 'drawer-horizontal']
 
-const triggers = mapStateTriggers({
+const triggers = withState({
     'enabled': '',
     'hovered': ':hover',
     'disabled': '[disabled]'
-})
+})(emptyTables)
 
 const customSelector = (v: string): string => `:where(:host([variant="${v}"]), :host(:has(.${v})))`
 
@@ -97,7 +97,7 @@ function runContainsRow([label, css, mustContain, mustNotContain = [], opts]: Co
         compiled = sheet.cssText
     } else {
         compiled = compileStateSheet(MultiVariants, css, {
-            registry: opts?.triggers === true ? triggers : undefined,
+            tables: opts?.triggers === true ? triggers : undefined,
             variantSelector: opts?.selector === 'custom' ? customSelector : undefined
         })
     }

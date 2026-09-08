@@ -8,7 +8,8 @@
  * file containing exactly one `css` literal with the style marker:
  *
  *   1. Detect the call shape — direct `createStyleSheet(Def)(() => css`…`)`
- *      or `pipe(mapStateTriggers({...}), createStyleSheet)(Def)(() => css`…`)`.
+ *      or composed tables `flow(withState({...}), withVariant({...}))(emptyTables)`
+ *      with `createStyleSheet(tables)(Def)(() => css`…`)`.
  *   2. Resolve the definition import (relative paths only in MVP) and load
  *      the live definition object via the VM loader.
  *   3. Compile the literal body with `compileStateSheet` and splice the
@@ -45,9 +46,11 @@ const defaultDeps: CompileMarkedDeps = { load: loadDefinition, compile: compileS
 
 const DIRECT_RE = /createStyleSheet\s*\(\s*([A-Za-z0-9_$]+)\s*\)\s*\(\s*\(\s*\)\s*=>\s*css`/
 
-const PIPE_DEF_RE = /\)\s*\(\s*([A-Za-z0-9_$]+)\s*\)\s*\(\s*\(\s*\)\s*=>\s*css`/
+const TABLES_DEF_RE = /\)\s*\(\s*([A-Za-z0-9_$]+)\s*\)\s*\(\s*\(\s*\)\s*=>\s*css`/
 
-const PIPE_RE = /pipe\s*\([\s\S]*?mapStateTriggers\s*\(\s*\{/
+const FLOW_STATE_RE = /withState\s*\(\s*\{/
+
+const FLOW_VARIANT_RE = /withVariant\s*\(\s*\{/
 
 const IMPORT_RE = (defName: string) =>
     new RegExp(`import\\s*\\{[^}]*\\b${defName}\\b[^}]*\\}\\s*from\\s*['"]([^'"]+)['"]`)
@@ -91,25 +94,45 @@ const skipString = (code: string, from: number): number => {
     return i
 }
 
-export const extractTriggersSource = (code: string): string | null => {
-    const match = PIPE_RE.exec(code)
+export interface FlowTablesSource {
+    readonly states: string | null
+    readonly variants: string | null
+}
+
+const extractFlowMapping = (pattern: RegExp) => (code: string): string | null => {
+    const match = pattern.exec(code)
     if (!match) return null
     const openIndex = code.indexOf('{', match.index + match[0].length - 1)
     if (openIndex === -1) return null
     return extractBalancedBody(code, openIndex)
 }
 
-export const evaluateTriggers = (source: string) => (id: string): Record<string, unknown> => {
+/**
+ * Extracts inline `withState({...})` / `withVariant({...})` bodies from a
+ * `flow(...)` composed-tables file. Either side may be absent (null).
+ */
+export const extractTablesSource = (code: string): FlowTablesSource => ({
+    states: extractFlowMapping(FLOW_STATE_RE)(code),
+    variants: extractFlowMapping(FLOW_VARIANT_RE)(code)
+})
+
+export const evaluateTablesMapping = (source: string) => (id: string): Record<string, string> => {
     let value: unknown
     try {
         value = new Function(`return (${source})`)()
     } catch (error) {
-        throw new Error(`[mdc-styles] ${id}: triggers object is not statically evaluable: ${String(error)}`)
+        throw new Error(`[mdc-styles] ${id}: tables mapping is not statically evaluable: ${String(error)}`)
     }
     if (!value || typeof value !== 'object' || Array.isArray(value)) {
-        throw new Error(`[mdc-styles] ${id}: triggers must be a plain object literal`)
+        throw new Error(`[mdc-styles] ${id}: tables mapping must be a plain object literal`)
     }
-    return value as Record<string, unknown>
+    for (const [key, val] of Object.entries(value)) {
+        if (val === null || val === undefined) continue
+        if (typeof val !== 'string') {
+            throw new Error(`[mdc-styles] ${id}: tables mapping key '${key}' must be a string selector`)
+        }
+    }
+    return value as Record<string, string>
 }
 
 export const compileMarkedFile = (deps: CompileMarkedDeps = defaultDeps) => async (input: MarkedFileInput): Promise<MarkedFileOutput> => {
@@ -122,11 +145,12 @@ export const compileMarkedFile = (deps: CompileMarkedDeps = defaultDeps) => asyn
     const literal = literals[0]
 
     const direct = DIRECT_RE.exec(code)
-    const piped = direct ? null : PIPE_DEF_RE.exec(code)
-    const triggersSource = extractTriggersSource(code)
-    const defName = direct ? direct[1] : piped ? piped[1] : null
-    if (!defName || (!direct && !triggersSource)) {
-        throw new Error(`[mdc-styles] ${id}: unsupported shape; expected createStyleSheet(Def)(() => css\`...\`) or pipe(mapStateTriggers({...}), createStyleSheet)(Def)(() => css\`...\`)`)
+    const viaTables = direct ? null : TABLES_DEF_RE.exec(code)
+    const tablesSource = extractTablesSource(code)
+    const hasTables = tablesSource.states !== null || tablesSource.variants !== null
+    const defName = direct ? direct[1] : viaTables ? viaTables[1] : null
+    if (!defName || (!direct && !hasTables)) {
+        throw new Error(`[mdc-styles] ${id}: unsupported shape; expected createStyleSheet(Def)(() => css\`...\`) or flow(withState({...}), withVariant({...}))(emptyTables) with createStyleSheet(tables)(Def)(() => css\`...\`)`)
     }
 
     const specifier = findDefinitionImport(defName)(code)
@@ -140,8 +164,13 @@ export const compileMarkedFile = (deps: CompileMarkedDeps = defaultDeps) => asyn
 
     const { definition } = await deps.load(defName)(defPath)
     const body = literal.body.split(marker).join('')
-    const compiled = triggersSource
-        ? deps.compile(definition, body, { triggers: evaluateTriggers(triggersSource)(id) as never })
+    const compiled = hasTables
+        ? deps.compile(definition, body, {
+            tables: {
+                states: tablesSource.states ? evaluateTablesMapping(tablesSource.states)(id) : {},
+                variants: tablesSource.variants ? evaluateTablesMapping(tablesSource.variants)(id) : {}
+            }
+        })
         : deps.compile(definition, body)
 
     const replacement = `\n/* ${COMPILED_MARKER} */\n${compiled}\n`

@@ -13,7 +13,7 @@
  */
 
 import { type CSSResult } from 'lit'
-import { StateTriggerRegistry } from '../triggers'
+import { isTriggerTables, type TriggerTables } from '../triggers/tables'
 import type { ResolvedStyleDefinition } from '../create-style-definition'
 import type { CompileStateSheetOptions } from '../compiler/compile-state-sheet'
 import {
@@ -34,7 +34,7 @@ export type LitStyleSheetCurriedWithOptions = {
 
 export interface LitCreateStyleSheetFn {
     (
-        options: StateTriggerRegistry | CompileStateSheetOptions
+        options: TriggerTables | CompileStateSheetOptions
     ): LitStyleSheetCurriedWithOptions
 
     <TDef extends ResolvedStyleDefinition<any, any>>(
@@ -60,8 +60,8 @@ export interface LitCreateStyleSheetFn {
 }
 
 function isOptionsLike(arg: any): boolean {
-    return arg instanceof StateTriggerRegistry ||
-        (arg && typeof arg === 'object' && ('registry' in arg || 'triggers' in arg || 'variantRegistry' in arg || 'variantTriggers' in arg || 'variantSelector' in arg || 'onWarn' in arg))
+    return isTriggerTables(arg) ||
+        (arg && typeof arg === 'object' && ('tables' in arg || 'variantSelector' in arg || 'onWarn' in arg))
 }
 
 /**
@@ -90,7 +90,7 @@ export const createStyleSheet: LitCreateStyleSheetFn = function (arg1?: any, arg
         return toLit((coreCreateStyleSheet as any)(arg1, arg2, ...rest))
     }
 
-    // 2. Options or StateTriggerRegistry passed first
+    // 2. Options or TriggerTables passed first
     if (isOptionsLike(arg1)) {
         return (definition: any) => (templateOrStrings: any, ...values: any[]): CSSResult =>
             toLit((coreCreateStyleSheet as any)(arg1)(definition)(templateOrStrings, ...values))
