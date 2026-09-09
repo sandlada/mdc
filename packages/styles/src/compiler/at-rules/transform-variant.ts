@@ -78,6 +78,9 @@ export function handleVariantBlock(
                 message: `Wildcards and negations are not supported in @variant: "${rawParam}".`
             })
         }
+        // [D] 通配 / 否定屬非法名單：丟棄整塊並直接返回，避免再落入字典
+        // 查找二次 warn（BUG-05：`unknown-variant` 不應重複觸發）。
+        return {}
     }
 
     const tables = ctx.tables ?? emptyTables

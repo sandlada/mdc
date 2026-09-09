@@ -1,5 +1,5 @@
 /**
- * @version 2026.9.8
+ * @version 2026.9.9
  * @license
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
@@ -170,7 +170,9 @@ describe('at-rules-compiler — Adversarial Reviewer Verification Suite', () => 
         // Issue 6: empty/malformed @variant — warning, no empty-shell output
         ['@variant() { button { color: blue; } }', null, { entry: 'atrules', warn: { type: 'invalid-variant', min: 1 }, absent: ' {}' }],
         // Issue 6: wildcards and negations in @variant
-        ['@variant(*, !tonal) { button { color: red; } }', null, { entry: 'atrules', warn: 'invalid-variant-name' }],
+        // 規格變更注記（BUG-05）：通配 / 否定 warn 收斂為單一 `invalid-variant-name`
+        //（實現直接返回，不再落入字典查找二次 warn），故斷言由存在性收緊為 `count: 1`。
+        ['@variant(*, !tonal) { button { color: red; } }', null, { entry: 'atrules', warn: { type: 'invalid-variant-name', count: 1 } }],
         // Issue 6: nested @variant is illegal (Rule V4) — discard [D] with warning
         ['@variant(filled) { @variant(tonal) { button { color: red; } } }', '', { entry: 'atrules', fixture: 'size-variant', warn: 'nested-variant' }],
         // Issue 7: Retain relative & in hoisted :host subtrees (Rule H2 & W3)
