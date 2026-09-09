@@ -76,9 +76,9 @@ describe('computeHoistedShell', () => {
     /**
      * 綠隊：每行 [[variantSelector, ancestorPath, condition], [shell, remainingPath]]。
      *   規則（H1 / H3 / W2，三選一，按順序）：
-     *   1. variantSelector 非空 → shell = variantSelector 與 condition 括號內合併
-     *     （如 ':host([variant="filled"])' + ':host([checked])' → ':host([variant="filled"][checked])'），
-     *      remainingPath = ancestorPath 去首元素。
+     *   1. variantSelector 非空 → shell = variantSelector 本體，condition 與前導 host 根轉 `&` 相對層
+     *     （如 ':host([variant="filled"])' + ':host([checked])' → 殼 ':host([variant="filled"])' + 層 '&[checked]'），
+     *      remainingPath = [condition 層, ...轉換後前導 host 層, ...首個非 host 起原樣保留]。
      *   2. 無 variant 且 ancestorPath[0] 為 host 根 → shell = 該根與 condition 合併，
      *      remainingPath = 去首元素。
      *   3. 否則 shell = condition 原樣，remainingPath = 全保留。
@@ -92,9 +92,11 @@ describe('computeHoistedShell', () => {
     type Expected = readonly [shell: string, remainingPath: readonly string[]]
 
     const greenMapping: Array<readonly [args: Args, expected: Expected]> = [
-        // 分支 1：variantSelector 非空 → 與 condition 括號內合併，remaining 去首元素
-        [[':host([variant="filled"])', ['.wrapper'], ':host([checked])'], [':host([variant="filled"][checked])', []]],
-        [[':host([variant="filled"])', [':where(:host)', '.card'], ':host([checked])'], [':host([variant="filled"][checked])', ['.card']]],
+        // 分支 1：variantSelector 非空 → 殼保持純 variant，condition 與前導 host 根轉 `&` 相對層
+        [[':host([variant="filled"])', [':host([variant="filled"])', '.wrapper'], ':host([checked])'], [':host([variant="filled"])', ['&[checked]', '.wrapper']]],
+        [[':host([variant="filled"])', [':host([variant="filled"])', ':where(:host)', '.card'], ':host([checked])'], [':host([variant="filled"])', ['&[checked]', '.card']]],
+        // 分支 1：BUG-12 variant + 含修飾 host 祖先 → 全轉 `&` 層，消滅嵌套 `:host`
+        [[':host([variant="filled"])', [':host([variant="filled"])', ':host([dense])'], ':host([checked])'], [':host([variant="filled"])', ['&[checked]', '&[dense]']]],
         // 分支 2：無 variant 且 ancestorPath[0] 為 host 根 → 該根與 condition 合併
         [[undefined, [':where(:host)', '.card'], ':host([checked])'], [':where(:host([checked]))', ['.card']]],
         [[undefined, [':host([dense])'], ':host([checked])'], [':host([dense][checked])', []]],
@@ -195,13 +197,17 @@ describe('hoistCondition', () => {
         // 對照 transform-when.spec.ts 綠隊 '.wrapper { & .inner { @when(:host([checked])) { button {} } } }' 行（保留 & .inner）
         [[undefined, ['.wrapper', '& .inner'], ':host([checked])', 'button {}'], ':host([checked]) { .wrapper { & .inner { button {} } } }'],
         [[undefined, ['.wrapper', '& > .inner'], ':host([checked])', 'button {}'], ':host([checked]) { .wrapper { & > .inner { button {} } } }'],
+        // 對照 I2 variant 行：variant 殼保持純粹，condition 轉 `&` 層
+        [[':host([variant="filled"])', [':host([variant="filled"])', '.wrapper'], ':host([checked])', 'button {}'], ':host([variant="filled"]) { &[checked] { .wrapper { button {} } } }'],
+        // BUG-12：variant + 含修飾 host 祖先 → 全轉 `&` 層，消滅嵌套 `:host`
+        [[':host([variant="filled"])', [':host([variant="filled"])', ':host([dense])'], ':host([checked])', 'button {}'], ':host([variant="filled"]) { &[checked] { &[dense] { button {} } } }'],
     ]
 
     const redMapping: Array<readonly [args: Args, expected: string]> = [
         // [P] 空 path：shell 原樣，內容直掛殼下
         [[undefined, [], ':host([checked])', 'button {}'], ':host([checked]) { button {} }'],
-        // [P] 空 path + 帶 variant：括號內合併後直掛
-        [[':host([variant="filled"])', [], ':host([checked])', 'button {}'], ':host([variant="filled"][checked]) { button {} }'],
+        // [P] 空 path + 帶 variant：condition 轉 `&` 層後直掛
+        [[':host([variant="filled"])', [], ':host([checked])', 'button {}'], ':host([variant="filled"]) { &[checked] { button {} } }'],
     ]
 
     for (const [args, expected] of greenMapping) {

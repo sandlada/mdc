@@ -12,6 +12,7 @@ import { expandDeclaration } from '../expand-declaration'
 import { formatRule, parseStatements, type ParsedStatement } from '../internal/at-rules-transformer'
 import { rewriteStateVariables } from '../rewrite-state-variables'
 import type { AtRuleHandlerResult, Recurse } from './at-rule-handler'
+import { isHostRootSelector, toAmpersandRelative } from './hoist-helpers'
 
 export function handleDeclaration(
     statement: ParsedStatement,
@@ -60,5 +61,14 @@ export function handleStandardRule(
     const innerRes = recurse(innerStmts, innerCtx)
 
     const baseContent = innerRes.baseRules.join(' ')
+    if (ctx.variantSelector !== undefined && ctx.ancestorPath.length === 1 && isHostRootSelector(header)) {
+        const relative = toAmpersandRelative(header)
+        if (relative !== null) {
+            if (!relative) {
+                return { base: baseContent, hoisted: innerRes.hoistedRules }
+            }
+            return { base: formatRule(relative, baseContent), hoisted: innerRes.hoistedRules }
+        }
+    }
     return { base: formatRule(header, baseContent), hoisted: innerRes.hoistedRules }
 }

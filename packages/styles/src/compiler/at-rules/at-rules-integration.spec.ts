@@ -63,11 +63,11 @@ describe('Intergration', () => {
      * I1: @variant + @state
      *   - 變體外殼包裹狀態目標，狀態按 R2 在內層展開；多態時笛卡爾展開
      * I2: @variant + @when
-     *   - 變體外殼結合宿主條件提升，依 H3/W4 在括號內合併屬性（:host([variant="..."][...])）
+     *   - 變體外殼保持純粹，宿主條件轉 `&` 相對層向內嵌套（BUG-12：剩餘 host 祖先同轉 `&` 層，消滅嵌套 `:host`）
      * I3: @when + @state
      *   - 雙向協同：外層 @when 包裹 @state，或 @state 內就近定義 @when 提升至頂層，狀態展開均保持一致
      * I4: @variant + @state + @when (三者交織)
-     *   - 頂層外殼合併變體與 when 條件，內層元素精確注入 state 狀態
+     *   - 頂層外殼為純變體，when 條件轉 `&` 層，內層元素精確注入 state 狀態
      */
     const greenMapping: MappingRow = [
         // I1: @variant + @state
@@ -77,10 +77,12 @@ describe('Intergration', () => {
         ['@variant(tonal, outlined) { @state(button.show[selected]) button.show[selected].foo {} }', ':host([variant="tonal"]), :host([variant="outlined"]) { button.show[selected].small.foo {} button.show[selected].medium.foo {} button.show[selected].large.foo {} }'],
 
         // I2: @variant + @when
-        ['@variant(filled) { @when(:host([checked])) { button {} } }', ':host([variant="filled"]) {} :host([variant="filled"][checked]) { button {} }'],
-        ['@variant(filled) { .container { @when(:host([checked])) { button {} } } }', ':host([variant="filled"]) { .container {} } :host([variant="filled"][checked]) { .container { button {} } }'],
-        ['@variant(filled, tonal) { @when(:host([checked])) { button {} } }', ':host([variant="filled"]), :host([variant="tonal"]) {} :host([variant="filled"][checked]), :host([variant="tonal"][checked]) { button {} }'],
-        ['@variant(filled) { @when(:host(:state(checked))) { button {} } }', ':host([variant="filled"]) {} :host([variant="filled"]:state(checked)) { button {} }'],
+        ['@variant(filled) { @when(:host([checked])) { button {} } }', ':host([variant="filled"]) {} :host([variant="filled"]) { &[checked] { button {} } }'],
+        ['@variant(filled) { .container { @when(:host([checked])) { button {} } } }', ':host([variant="filled"]) { .container {} } :host([variant="filled"]) { &[checked] { .container { button {} } } }'],
+        ['@variant(filled, tonal) { @when(:host([checked])) { button {} } }', ':host([variant="filled"]), :host([variant="tonal"]) {} :host([variant="filled"]), :host([variant="tonal"]) { &[checked] { button {} } }'],
+        ['@variant(filled) { @when(:host(:state(checked))) { button {} } }', ':host([variant="filled"]) {} :host([variant="filled"]) { &:state(checked) { button {} } }'],
+        // I2 BUG-12：@variant 內 host 規則 + @when → 剩餘 host 祖先轉 `&` 層
+        ['@variant(filled) { :host([dense]) { @when(:host([checked])) { button {} } } }', ':host([variant="filled"]) { &[dense] {} } :host([variant="filled"]) { &[checked] { &[dense] { button {} } } }'],
 
         // I3: @when + @state
         ['@when(:host([checked])) { @state(button) button {} }', ':host([checked]) { button.small {} button.medium {} button.large {} }'],
@@ -89,12 +91,12 @@ describe('Intergration', () => {
         ['.wrapper { @state(button) button { @when(:host([dense])) { height: 32px; } } }', '.wrapper { button.small {} button.medium {} button.large {} } :host([dense]) { .wrapper { button.small { height: 32px; } button.medium { height: 32px; } button.large { height: 32px; } } }'],
 
         // I4: @variant + @state + @when (三者交織)
-        ['@variant(filled) { @state(button) button { @when(:host([checked])) { color: red; } } }', ':host([variant="filled"]) { button.small {} button.medium {} button.large {} } :host([variant="filled"][checked]) { button.small { color: red; } button.medium { color: red; } button.large { color: red; } }'],
-        ['@variant(filled, tonal) { @state(button) button { @when(:host([checked])) { color: red; } } }', ':host([variant="filled"]), :host([variant="tonal"]) { button.small {} button.medium {} button.large {} } :host([variant="filled"][checked]), :host([variant="tonal"][checked]) { button.small { color: red; } button.medium { color: red; } button.large { color: red; } }'],
+        ['@variant(filled) { @state(button) button { @when(:host([checked])) { color: red; } } }', ':host([variant="filled"]) { button.small {} button.medium {} button.large {} } :host([variant="filled"]) { &[checked] { button.small { color: red; } button.medium { color: red; } button.large { color: red; } } }'],
+        ['@variant(filled, tonal) { @state(button) button { @when(:host([checked])) { color: red; } } }', ':host([variant="filled"]), :host([variant="tonal"]) { button.small {} button.medium {} button.large {} } :host([variant="filled"]), :host([variant="tonal"]) { &[checked] { button.small { color: red; } button.medium { color: red; } button.large { color: red; } } }'],
 
         // 帶 & 前綴 / 祖先包裹保留
         ['@variant(filled) { .wrapper { @state(button) & button {} } }', ':host([variant="filled"]) { .wrapper { & button.small {} & button.medium {} & button.large {} } }'],
-        ['@variant(filled) { .wrapper { & .inner { @when(:host([checked])) { button {} } } } }', ':host([variant="filled"]) { .wrapper { & .inner {} } } :host([variant="filled"][checked]) { .wrapper { & .inner { button {} } } }'],
+        ['@variant(filled) { .wrapper { & .inner { @when(:host([checked])) { button {} } } } }', ':host([variant="filled"]) { .wrapper { & .inner {} } } :host([variant="filled"]) { &[checked] { .wrapper { & .inner { button {} } } } }'],
     ]
 
     /**
