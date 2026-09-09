@@ -135,9 +135,10 @@ export const replaceTargetInBranch = (
 
             const updatedHost = appendToHostSelector(hostPart, modifier)
             if (descendantPart) {
-                const sep = descendantPart.startsWith('>') || descendantPart.startsWith('+') || descendantPart.startsWith('~') || descendantPart.startsWith('||')
-                    ? ' '
-                    : ' '
+                // BUG-10: combinator-glued descendants (`>button`) keep the
+                // author's spacing (no injected space); spaced (`> button`)
+                // and plain descendants keep `' '` (green rows pin this shape).
+                const sep = /^[>+~|][^\s]/.test(descendantPart) ? '' : ' '
                 return { result: `${updatedHost}${sep}${descendantPart}`, matched: true }
             }
             return { result: updatedHost, matched: true }

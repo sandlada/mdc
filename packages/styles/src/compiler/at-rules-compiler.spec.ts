@@ -244,8 +244,14 @@ describe('at-rules-compiler — Adversarial Reviewer Verification Suite', () => 
         [['padding', 'calc(10px + 2px) 16px'], 'padding-inline-start: 16px; padding-inline-end: 16px; padding-block-start: calc(10px + 2px); padding-block-end: calc(10px + 2px);'],
         [['margin', '8px calc(12px - 4px)'], 'margin-inline-start: calc(12px - 4px); margin-inline-end: calc(12px - 4px); margin-block-start: 8px; margin-block-end: 8px;'],
         [['padding', '8px;'], 'padding: 8px;'],
+        // BUG-09: 純字面 4 值正常展開；動態 5 token 豁免 arity、底部透傳（throw 案例見 expand-declaration.spec.ts）
+        [['padding', '1px 2px 3px 4px'], 'padding-inline-start: 4px; padding-inline-end: 2px; padding-block-start: 1px; padding-block-end: 3px;'],
+        [['padding', 'var(--x) 2px 3px 4px 5px'], 'padding: var(--x) 2px 3px 4px 5px;'],
         [['shape', '8px /* top */ 16px;'], 'border-start-start-radius: 8px; border-start-end-radius: 16px; border-end-end-radius: 8px; border-end-start-radius: 16px;'],
         [['typescale', 'var(--mdc-body /* comment */)'], 'font-family: var(--mdc-body-font); font-size: var(--mdc-body-size); line-height: var(--mdc-body-leading); font-weight: var(--mdc-body-weight); letter-spacing: var(--mdc-body-tracking);'],
+        // BUG-09: 4-value px control expands; dynamic 5-token strings are exempt (passthrough)
+        [['padding', '1px 2px 3px 4px'], 'padding-inline-start: 4px; padding-inline-end: 2px; padding-block-start: 1px; padding-block-end: 3px;'],
+        [['padding', 'var(--x) 2px 3px 4px 5px'], 'padding: var(--x) 2px 3px 4px 5px;'],
     ]
 
     for (const [[prop, value], expected] of declRows) {
@@ -299,6 +305,10 @@ describe('at-rules-compiler — Adversarial Reviewer Verification Suite', () => 
         [[':where(:host) .label', ':where(:host)', ':hover'], ':where(:host(:hover)) .label', true],
         [[':is(:host([a]), :host([b]))', ':is(:host([a]), :host([b]))', ':hover'], ':is(:host([a]:hover), :host([b]:hover))', true],
         [[':host .label', ':host', ':hover'], ':host(:hover) .label', true],
+        // BUG-10: 組合子緊貼後代不注入空格；帶空格後代保持原形
+        [[':host>button', ':host', ':hover'], ':host(:hover)>button', true],
+        [[':host+button', ':host', ':hover'], ':host(:hover)+button', true],
+        [[':host > button', ':host', ':hover'], ':host(:hover) > button', true],
     ]
 
     for (const [[branch, target, modifier], expected, expectedMatched = true] of replaceRows) {
