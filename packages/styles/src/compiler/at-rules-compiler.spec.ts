@@ -161,18 +161,28 @@ describe('at-rules-compiler — Adversarial Reviewer Verification Suite', () => 
         // Issue 3: Rule R8 failure when target does not match non-& selector (drop + warning).
         // 規格變更注記：R8 由透傳改為丟棄（零匹配即丟棄整塊），故期望由 '.card { color: red; }' 同步修正為 ''（只修代碼原則之例外）。
         ['@state(button) .card { color: red; }', '', { fixture: 'size', entry: 'atrules', warn: { type: 'invalid-state-target', count: 1 } }],
+        // BUG-01 A4: `:hostx` 前綴誤匹配 → R8 零匹配丟棄 + 單一 warn（host-like 短路，不誤展）。
+        ['@state(:hostx) :hostx { color: red; }', '', { entry: 'atrules', warn: { type: 'invalid-state-target', count: 1 } }],
+        // BUG-02 B3: `//` 在表頭不再是註解 → target 變髒字串觸發 R8（修復前會被剝成 `button` 而誤展）。
+        ['@state(button // x) button { color: red; }', '', { entry: 'atrules', warn: { type: 'invalid-state-target', count: 1 } }],
         // Issue 3: R7 — retain & when followed by whitespace and an element
         ['.wrapper { @state(button) & button {} }', '.wrapper { & button.small {} & button.medium {} & button.large {} }', { fixture: 'size' }],
         // Issue 5: Non-host conditions in @when (Rule W1) — warning, discarded.
         // 規格變更注記：W1 由保留嵌套（[P]）改為丟棄整塊（[D]，非 host 掛載一律 ''），故期望由
         // '.card { .dense { padding: 4px; } }' 同步修正為 '.card {}'（只修代碼原則之例外）。
         ['.card { @when(.dense) { padding: 4px; } }', '.card {}', { entry: 'atrules', warn: { type: 'invalid-when-condition', count: 1 }, absent: '.dense { padding' }],
+        // BUG-06 D1: 非 host 條件 + 嵌套 @when 並存 → host 先驗，報 `invalid-when-condition`（不再被 `nested-when` 搶先）。
+        ['.card { @when(.dense) { @when(:host([checked])) { button { color: red; } } } }', '.card {}', { entry: 'atrules', warn: { type: 'invalid-when-condition', count: 1 } }],
+        // BUG-06 D2: @state 內嵌同形輸入與 transform-when 一致（跨 handler 一致性）。
+        ['@state(button) button { @when(.dense) { @when(:host([checked])) { height: 10px; } } }', 'button.small {} button.medium {} button.large {}', { fixture: 'size', entry: 'atrules', warn: { type: 'invalid-when-condition', count: 1 } }],
         // Issue 6: empty/malformed @variant — warning, no empty-shell output
         ['@variant() { button { color: blue; } }', null, { entry: 'atrules', warn: { type: 'invalid-variant', min: 1 }, absent: ' {}' }],
         // Issue 6: wildcards and negations in @variant
         // 規格變更注記（BUG-05）：通配 / 否定 warn 收斂為單一 `invalid-variant-name`
         //（實現直接返回，不再落入字典查找二次 warn），故斷言由存在性收緊為 `count: 1`。
         ['@variant(*, !tonal) { button { color: red; } }', null, { entry: 'atrules', warn: { type: 'invalid-variant-name', count: 1 } }],
+        // BUG-05 C3: `!` 單獨成案同樣單一 warn。
+        ['@variant(!tonal) { button { color: red; } }', null, { entry: 'atrules', warn: { type: 'invalid-variant-name', count: 1 } }],
         // Issue 6: nested @variant is illegal (Rule V4) — discard [D] with warning
         ['@variant(filled) { @variant(tonal) { button { color: red; } } }', '', { entry: 'atrules', fixture: 'size-variant', warn: 'nested-variant' }],
         // Issue 7: Retain relative & in hoisted :host subtrees (Rule H2 & W3)
@@ -188,12 +198,16 @@ describe('at-rules-compiler — Adversarial Reviewer Verification Suite', () => 
         // Issue 13: compileStateSheet routes to compileAtRulesSheet even with options.onWarn
         ['.card { @when(:host([dense])) { padding: 4px; } }', '.card {} :host([dense]) { .card { padding: 4px; } }'],
         ['button { shape: 8px 16px; }', 'button { border-start-start-radius: 8px; border-start-end-radius: 16px; border-end-end-radius: 8px; border-end-start-radius: 16px; }'],
+        // BUG-02 B1: `url(https://…)` 端到端原文保留（`//` 不再是行註解）。
+        ['button { background: url(https://example.com/x.css); }', 'button { background: url(https://example.com/x.css); }'],
         ['button { @reduced-motion { transition: none; } }', 'button { @media (prefers-reduced-motion: reduce) { transition: none; } }'],
         // Issue 13: invalid-when-condition warning through compileStateSheet entrypoint
         // 規格變更注記：同 Issue 5，W1 改為 [D]，期望同步修正為 '.card {}'。
         ['.card { @when(.dense) { padding: 4px; } }', '.card {}', { warn: { type: 'invalid-when-condition', count: 1 } }],
         // Issue 15: empty @when() condition list validation
         ['@when() { button { color: blue; } }', null, { entry: 'atrules', warn: { type: 'invalid-when', count: 1 }, absent: ['{} {', ' {}'] }],
+        // BUG-06 D3: 完整優先鏈 syntax > host > nesting——語法錯搶先於一切（本次調序未動此層）。
+        ['@when() { @when(:host([checked])) { button { color: red; } } }', null, { entry: 'atrules', warn: { type: 'invalid-when', count: 1 } }],
         ['@when(   ) { button { color: blue; } }', null, { entry: 'atrules', warn: { type: 'invalid-when', count: 1 } }],
         // Issue 15: nested @when is illegal (Rule W5) — discard [D] with warning
         ['@when(:host([checked])) { @when(:host([dense])) { button { color: red; } } }', '', { entry: 'atrules', warn: 'nested-when' }],
@@ -265,20 +279,32 @@ describe('at-rules-compiler — Adversarial Reviewer Verification Suite', () => 
         })
     }
 
-    // Issue 8 + Issue 14: replaceTargetInBranch — rows are [[branch, target, modifier], expectedResult]
-    const replaceRows: Array<[[string, string, string], string]> = [
+    // Issue 8 + Issue 14: replaceTargetInBranch — rows are [[branch, target, modifier], expectedResult, expectedMatched?]
+    // BUG-01 (A3/A6/A7)：host 邊界行以第四元組顯式斷言 `matched`（預設 true，與既有行相容）。
+    const replaceRows: Array<[[string, string, string], string, boolean?]> = [
         // Issue 8: tag-attached class / ID targets
         [['div.card', '.card', '.small'], 'div.card.small'],
         [['button#submit', '#submit', '.small'], 'button#submit.small'],
         // Issue 14: combinator variable whitespace in descendant targets
         [['.container   .card', '.container .card', '.active'], '.container   .card.active'],
         [['.container \t .card::before', '.container .card::before', '.active'], '.container \t .card.active::before'],
+        // BUG-01 A3: host-like 但邊界非法 → 短路 matched: false（R8 [D] 上游）
+        [[':hostx', ':hostx', ':hover'], ':hostx', false],
+        [[':hostx', ':host', ':hover'], ':hostx', false],
+        [[':where(:hostx)', ':where(:hostx)', ':hover'], ':where(:hostx)', false],
+        // BUG-01 A6: 大小寫敏感、前綴誤匹配 target
+        [[':HOST', ':host', ':hover'], ':HOST', false],
+        [[':host-foo', ':host-foo', ':hover'], ':host-foo', false],
+        // BUG-01 A7: 合法 host 包裝 + 後代對照組
+        [[':where(:host) .label', ':where(:host)', ':hover'], ':where(:host(:hover)) .label', true],
+        [[':is(:host([a]), :host([b]))', ':is(:host([a]), :host([b]))', ':hover'], ':is(:host([a]:hover), :host([b]:hover))', true],
+        [[':host .label', ':host', ':hover'], ':host(:hover) .label', true],
     ]
 
-    for (const [[branch, target, modifier], expected] of replaceRows) {
+    for (const [[branch, target, modifier], expected, expectedMatched = true] of replaceRows) {
         it(`replace ${target} in ${branch}`, () => {
             const res = replaceTargetInBranch(branch, target, modifier)
-            expect(res.matched).toBe(true)
+            expect(res.matched).toBe(expectedMatched)
             expect(res.result).toBe(expected)
         })
     }

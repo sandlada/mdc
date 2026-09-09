@@ -1,5 +1,5 @@
 /**
- * @version 2026.9.8
+ * @version 2026.9.9
  * @license
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
@@ -38,7 +38,9 @@ describe('variant', () => {
 
     /**
      * @variant(name, ...) { body }：name 须同时为变体字典确切 key 与 tables 已映射名，大小写敏感。
-     * V1 单名单壳；V2 多名逗号并壳；V3 body 透传回声，@state 可内嵌原文；V4 嵌套 @variant 非法丢弃 [D]。`*` / `!name` 非法，不收录。
+     * V1 单名单壳；V2 多名逗号并壳；V3 body 透传回声，@state 可内嵌原文；V4 嵌套 @variant 非法丢弃 [D]。
+     * `*` / `!name` 非法一律 [D]（BUG-05：通配 / 否定分支直接返回，单发 `invalid-variant-name`，warn 归 sheet 层断言）；
+     * `**` 非通配类，按字典缺 key 走 `unknown-variant`（釘住現狀，不擴大非法名判定）。
      * 壳形状由 registry 决定，不回退 `:host([variant])` 默认。
      */
     const greenMapping: HandlerMapping = [
@@ -61,6 +63,8 @@ describe('variant', () => {
 
     /**
      * [D]：语法非法、字典缺 key、registry 无映射（任一缺失即整块丢弃）。
+     * BUG-05 C2/C4：通配 / 否定（含混合顺序、孤感叹号）一律 [D]；`**` 非通配类，
+     * 同樣 [D]（warn 類型為 `unknown-variant`，見上註）。
     */
     const redMapping: HandlerMapping = [
         ['@variant()', 'color: red;', ''],
@@ -68,6 +72,12 @@ describe('variant', () => {
         ['@variant fill', 'color: red;', ''],
         ['@variant [fill]', 'color: red;', ''],
         ['@variant[fill]', 'color: red;', ''],
+        ['@variant(*)', 'color: red;', ''],
+        ['@variant(!tonal)', 'color: red;', ''],
+        ['@variant(!)', 'color: red;', ''],
+        ['@variant(*, fill)', 'color: red;', ''],
+        ['@variant(fill, *)', 'color: red;', ''],
+        ['@variant(**)', 'color: red;', ''],
         ['@variant(unknown)', 'color: red;', ''],
         ['@variant(invalid-variant)', 'color: red;', ''],
         ['@variant(:host)', 'color: red;', ''],

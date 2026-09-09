@@ -98,11 +98,12 @@ export function splitSelectorByComma(selector: string): string[] {
 }
 
 /**
- * Strict `:host` leading-edge check with boundary validation (BUG-01).
- * Rejects only identifier continuations (`:hostx`, `:host-foo`, `:host_bar`):
- * the char after `:host` must NOT be `[A-Za-z0-9_-]`. Compound (`(`/`[`/`.`/`#`/`:`),
- * descendant (` `, `>`, `+`, `~`, …) and end-of-input are all host.
- * Expects trimmed input (mirrors `isHostRootSelector` strictness).
+ * Strict `:host` leading-edge check with boundary validation (BUG-01, E0 safe-set).
+ * Allowlist-only: the char after `:host` must be end-of-input, a compound
+ * opener (`(`/`[`/`.`/`#`/`:`), whitespace, a combinator (`>`/`+`/`~`/`|`/`,`)
+ * or a universal descendant (`*`). Anything else — ASCII identifier
+ * continuations (`:hostx`, `:host-foo`) AND non-ASCII (`:hosté`), `/`, etc. —
+ * is not host. Expects trimmed input (mirrors `isHostRootSelector` strictness).
  */
 export function isHostLeading(selector: string): boolean {
     if (selector === ':host') {
@@ -112,7 +113,10 @@ export function isHostLeading(selector: string): boolean {
         return false
     }
     const next = selector[5]
-    return next === undefined || !/[A-Za-z0-9_-]/.test(next)
+    return next === undefined ||
+        next === '(' || next === '[' || next === '.' || next === '#' || next === ':' ||
+        next === ' ' || next === '\t' || next === '\n' || next === '\r' || next === '\f' ||
+        next === '>' || next === '+' || next === '~' || next === '|' || next === ',' || next === '*'
 }
 
 /**

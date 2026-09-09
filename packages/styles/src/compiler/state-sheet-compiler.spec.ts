@@ -23,7 +23,7 @@ import { describe, it, expect } from 'vitest'
 import { defineSchema } from '../define-schema'
 import { createStyleDefinition } from '../create-style-definition'
 import { emptyTables, withState, type TriggerTables } from '../triggers'
-import { compileStateSheet, stripComments, composeStateSelector, appendToHostSelector, splitSelectorByComma } from './index'
+import { compileStateSheet, stripComments, composeStateSelector, appendToHostSelector, splitSelectorByComma, isHostLeading, extractHostAndDescendant } from './index'
 
 const commaSchema = defineSchema(['enabled'] as const)
 const commaDef = createStyleDefinition(commaSchema)({
@@ -159,11 +159,71 @@ describe('state-sheet-compiler', () => {
             ['.container { content: "/* not a comment */"; url: "//test.png"; }', '.container { content: "/* not a comment */"; url: "//test.png"; }'],
             ['button { background: url(https://example.com/x.css); }', 'button { background: url(https://example.com/x.css); }'],
             ['button { background: url(//cdn.example.com/x.css); }', 'button { background: url(//cdn.example.com/x.css); }'],
+            // BUG-02 B2：特殊形——data URI 內 `//`、http 協議一律保留；
+            // 未閉合 `/*` 吞至結尾為既有錯誤恢復語義（非本次引入，順手釘住）。
+            ['button { background: url(http://example.com/x.css); }', 'button { background: url(http://example.com/x.css); }'],
+            ['button { background: url(data:text/plain,//x); }', 'button { background: url(data:text/plain,//x); }'],
+            ['/* 未閉合 .a { color: red; }', ''],
         ]
 
         for (const [input, expected] of mapping) {
             it(input, () => {
                 expect(stripComments(input).trim()).toBe(expected)
+            })
+        }
+    })
+
+    describe('isHostLeading', () => {
+        // BUG-01 / E0 安全集：僅結尾、复合 `([.#:`、空白、組合子 `>+~|,`、後代 `*` 為 host；
+        // 識別符延續（ASCII 與非 ASCII）、`/`、大小寫、前導空白一律非 host。
+        const greenMapping: Array<readonly [input: string, expected: boolean]> = [
+            [':host', true],
+            [':host([dense])', true],
+            [':host()', true],
+            [':host[]', true],
+            [':host:hover', true],
+            [':host::before', true],
+            [':host .label', true],
+            [':host>.a', true],
+            [':host + .a', true],
+        ]
+
+        const redMapping: Array<readonly [input: string, expected: boolean]> = [
+            [':hostx', false],
+            [':host-foo', false],
+            [':host_bar', false],
+            [':host2', false],
+            [':hosté', false],
+            [':host/foo', false],
+            [':HOST', false],
+            [' :host', false],
+            ['button', false],
+        ]
+
+        for (const [input, expected] of greenMapping) {
+            it(`green: ${input}`, () => {
+                expect(isHostLeading(input)).toBe(expected)
+            })
+        }
+
+        for (const [input, expected] of redMapping) {
+            it(`red: ${input}`, () => {
+                expect(isHostLeading(input)).toBe(expected)
+            })
+        }
+    })
+
+    describe('extractHostAndDescendant', () => {
+        // BUG-01：`:hostx` 不得拆解為 host + 後代。
+        const mapping: Array<[string, { hostPart: string; descendantPart: string }]> = [
+            [':hostx', { hostPart: '', descendantPart: ':hostx' }],
+            [':host .label', { hostPart: ':host', descendantPart: '.label' }],
+            [':host(:hover) .label', { hostPart: ':host(:hover)', descendantPart: '.label' }],
+        ]
+
+        for (const [input, expected] of mapping) {
+            it(input, () => {
+                expect(extractHostAndDescendant(input)).toEqual(expected)
             })
         }
     })
