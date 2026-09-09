@@ -98,12 +98,30 @@ export function splitSelectorByComma(selector: string): string[] {
 }
 
 /**
+ * Strict `:host` leading-edge check with boundary validation (BUG-01).
+ * Rejects only identifier continuations (`:hostx`, `:host-foo`, `:host_bar`):
+ * the char after `:host` must NOT be `[A-Za-z0-9_-]`. Compound (`(`/`[`/`.`/`#`/`:`),
+ * descendant (` `, `>`, `+`, `~`, …) and end-of-input are all host.
+ * Expects trimmed input (mirrors `isHostRootSelector` strictness).
+ */
+export function isHostLeading(selector: string): boolean {
+    if (selector === ':host') {
+        return true
+    }
+    if (!selector.startsWith(':host')) {
+        return false
+    }
+    const next = selector[5]
+    return next === undefined || !/[A-Za-z0-9_-]/.test(next)
+}
+
+/**
  * Splits a selector into its leading host component and any trailing descendant/combinator part.
  * e.g. ':host(:not(.hidden)) .elevation::before' -> { hostPart: ':host(:not(.hidden))', descendantPart: '.elevation::before' }
  */
 export function extractHostAndDescendant(selector: string): { hostPart: string; descendantPart: string } {
     const trimmed = selector.trim()
-    if (!trimmed.startsWith(':host')) {
+    if (!isHostLeading(trimmed)) {
         return { hostPart: '', descendantPart: trimmed }
     }
 
@@ -209,7 +227,7 @@ export function appendToHostSelector(hostSelector: string, modifier: string): st
     let modToAppend = trimmedMod
     let modDescendant = ''
 
-    if (trimmedMod.startsWith(':host')) {
+    if (isHostLeading(trimmedMod)) {
         const { hostPart, descendantPart } = extractHostAndDescendant(trimmedMod)
         modDescendant = descendantPart
         if (hostPart.startsWith(':host(') && hostPart.endsWith(')')) {
@@ -311,7 +329,7 @@ export function composeStateSelector(options: ComposeSelectorOptions): string {
         return targetSelector
     }
 
-    const isHostAnchor = anchor.startsWith(':host') || anchor.startsWith(':where(') || anchor.startsWith(':is(')
+    const isHostAnchor = isHostLeading(anchor) || anchor.startsWith(':where(') || anchor.startsWith(':is(')
     const triggerContext: TriggerContext = {
         anchor,
         isHostAnchor,
@@ -384,7 +402,7 @@ export function composeStateSelector(options: ComposeSelectorOptions): string {
             composedHost = anchor
         }
     } else if (hostCondition) {
-        composedHost = hostCondition.startsWith(':host') || hostCondition.startsWith(':where(') || hostCondition.startsWith(':is(')
+        composedHost = isHostLeading(hostCondition) || hostCondition.startsWith(':where(') || hostCondition.startsWith(':is(')
             ? hostCondition
             : `:host(${hostCondition})`
     } else if (hostModifiers.length > 0) {
@@ -411,7 +429,7 @@ export function composeStateSelector(options: ComposeSelectorOptions): string {
         }
 
         if (whenCondition) {
-            if (whenCondition.startsWith(':host')) {
+            if (isHostLeading(whenCondition)) {
                 composedHost = composedHost
                     ? appendToHostSelector(composedHost, whenCondition.replace(/^:host\(?/, '').replace(/\)$/, ''))
                     : whenCondition
@@ -450,7 +468,7 @@ export function composeStateSelector(options: ComposeSelectorOptions): string {
         return fullBase
     }
 
-    if (targetSelector.startsWith(':host')) {
+    if (isHostLeading(targetSelector)) {
         return targetSelector
     }
 

@@ -21,7 +21,7 @@ import { stripComments } from '../strip-comments'
  * descendant (e.g. `:host .container`, `:host([selected]) button`) is invalid.
  */
 export function isHostMountedSelector(selector: string): boolean {
-    const clean = selector.includes('/*') || selector.includes('//') ? stripComments(selector) : selector
+    const clean = selector.includes('/*') ? stripComments(selector) : selector
     const branches = splitSelectorByComma(clean)
         .map((s) => s.trim())
         .filter(Boolean)

@@ -15,7 +15,7 @@ export const extractAtRuleParams = (
     header: string,
     keyword: string
 ): { param: string; rest: string } | null => {
-    const clean = header.includes('/*') || header.includes('//') ? stripComments(header) : header
+    const clean = header.includes('/*') ? stripComments(header) : header
     const trimmed = clean.trim()
     const prefixRegex = new RegExp(`^${keyword}\\s*\\(`)
     const match = trimmed.match(prefixRegex)

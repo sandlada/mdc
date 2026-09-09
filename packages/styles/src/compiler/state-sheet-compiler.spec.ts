@@ -1,4 +1,5 @@
 /**
+ * @version 2026.9.9
  * @license
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
@@ -149,10 +150,15 @@ function runContainsRow([, css, mustContain, mustNotContain = [], fixture = 'com
 
 describe('state-sheet-compiler', () => {
     describe('stripComments', () => {
+        // 規格變更注記（BUG-02）：CSS 無 `//` 行註解，`stripComments` 只剝離
+        // `/* … */` 塊註解；`//`（含 `url(https://…)`）一律原文保留。
+        // 故 `// top comment` / `// trailing` 期望由剝離修正為保留。
         const mapping: Array<[string, string]> = [
             ['/* header comment */ .container { color: red; /* inline */ }', '.container { color: red;  }'],
-            ['// top comment\n.container {\n    color: red; // trailing\n}', '.container {\n    color: red; \n}'],
+            ['// top comment\n.container {\n    color: red; // trailing\n}', '// top comment\n.container {\n    color: red; // trailing\n}'],
             ['.container { content: "/* not a comment */"; url: "//test.png"; }', '.container { content: "/* not a comment */"; url: "//test.png"; }'],
+            ['button { background: url(https://example.com/x.css); }', 'button { background: url(https://example.com/x.css); }'],
+            ['button { background: url(//cdn.example.com/x.css); }', 'button { background: url(//cdn.example.com/x.css); }'],
         ]
 
         for (const [input, expected] of mapping) {

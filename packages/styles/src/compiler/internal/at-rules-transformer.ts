@@ -66,7 +66,7 @@ export function findMatchingBrace(css: string, openBraceIndex: number): number {
 }
 
 export function parseStatements(css: string): ParsedStatement[] {
-    const source = css.includes('/*') || css.includes('//') ? stripComments(css) : css
+    const source = css.includes('/*') ? stripComments(css) : css
     const statements: ParsedStatement[] = []
     let i = 0
     const len = source.length

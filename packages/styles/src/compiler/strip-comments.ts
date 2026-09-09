@@ -6,13 +6,15 @@
 
 /**
  * Strips comments from CSS string while preserving quoted strings.
+ * Only standard CSS block comments (`/* … *​/`) are stripped: CSS has no
+ * `//` line comments, so `//` sequences (e.g. `url(https://…)`) are
+ * preserved verbatim (BUG-02).
  */
 export function stripComments(css: string): string {
     let result = ''
     let inSingleQuote = false
     let inDoubleQuote = false
     let inBlockComment = false
-    let inLineComment = false
     let isEscaped = false
 
     for (let i = 0; i < css.length; i++) {
@@ -21,7 +23,7 @@ export function stripComments(css: string): string {
 
         if (isEscaped) {
             isEscaped = false
-            if (!inBlockComment && !inLineComment) {
+            if (!inBlockComment) {
                 result += ch
             }
             continue
@@ -29,7 +31,7 @@ export function stripComments(css: string): string {
 
         if (ch === '\\') {
             isEscaped = true
-            if (!inBlockComment && !inLineComment) {
+            if (!inBlockComment) {
                 result += ch
             }
             continue
@@ -39,14 +41,6 @@ export function stripComments(css: string): string {
             if (ch === '*' && next === '/') {
                 inBlockComment = false
                 i++ // skip '/'
-            }
-            continue
-        }
-
-        if (inLineComment) {
-            if (ch === '\n' || ch === '\r') {
-                inLineComment = false
-                result += ch
             }
             continue
         }
@@ -71,12 +65,6 @@ export function stripComments(css: string): string {
         if (ch === '/' && next === '*') {
             inBlockComment = true
             i++ // skip '*'
-            continue
-        }
-
-        if (ch === '/' && next === '/') {
-            inLineComment = true
-            i++ // skip '/'
             continue
         }
 

@@ -7,8 +7,74 @@
 import {
     extractHostAndDescendant,
     appendToHostSelector,
-    splitSelectorByComma
+    splitSelectorByComma,
+    isHostLeading
 } from './compose-state-selector'
+
+/**
+ * Host-like prefix sniff (deliberately loose): true for `:host…`,
+ * `:where(:host…` and `:is(:host…` including boundary-invalid `:hostx`.
+ * Used only to decide the R8 short-circuit below, never as a match signal.
+ */
+const looksHostLike = (selector: string): boolean =>
+    selector.startsWith(':host') ||
+    selector.startsWith(':where(:host') ||
+    selector.startsWith(':is(:host')
+
+/**
+ * Strict host-target check (BUG-01): `:host` with boundary validation,
+ * plus `:where(...)` / `:is(...)` wrappers whose every branch is host-leading.
+ * `:hostx` / `:where(:hostx)` → false.
+ */
+const isStrictHostTarget = (selector: string): boolean => {
+    if (isHostLeading(selector)) {
+        return true
+    }
+    if (selector.startsWith(':where(') || selector.startsWith(':is(')) {
+        if (!selector.endsWith(')')) {
+            return false
+        }
+        const inner = selector.startsWith(':where(') ? selector.slice(7, -1) : selector.slice(4, -1)
+        if (!inner.trim()) {
+            return false
+        }
+        return splitSelectorByComma(inner).every((part) => isStrictHostTarget(part.trim()))
+    }
+    return false
+}
+
+/**
+ * Host-branch check (BUG-01 follow-up): the branch's *leading component* is
+ * host, with an optional trailing descendant (`:host .label`,
+ * `:where(:host) .label`). Unlike `isStrictHostTarget` (whole-selector,
+ * used for targets), descendants are allowed here — the body below splits
+ * them off via `extractHostAndDescendant` / paren scan. `:hostx` → false.
+ */
+const isHostBranch = (branch: string): boolean => {
+    if (extractHostAndDescendant(branch).hostPart !== '') {
+        return true
+    }
+    if (branch.startsWith(':where(') || branch.startsWith(':is(')) {
+        const openIdx = branch.indexOf('(')
+        let depth = 0
+        let closeIdx = -1
+        for (let i = openIdx; i < branch.length; i++) {
+            if (branch[i] === '(') depth++
+            else if (branch[i] === ')') {
+                depth--
+                if (depth === 0) {
+                    closeIdx = i
+                    break
+                }
+            }
+        }
+        if (closeIdx === -1) {
+            return false
+        }
+        return isStrictHostTarget(branch.slice(0, closeIdx + 1).trim())
+    }
+    return false
+}
 
 /**
  * Replaces all matched occurrences of target in a complex selector branch with modifier.
@@ -26,17 +92,14 @@ export const replaceTargetInBranch = (
     const trimmedBranch = branch.trim()
 
     // 1. Host targets (:host, :where(:host), :is(:host), etc.)
-    if (
-        trimmedTarget === ':host' ||
-        trimmedTarget.startsWith(':host') ||
-        trimmedTarget.startsWith(':where(:host') ||
-        trimmedTarget.startsWith(':is(:host')
-    ) {
-        if (
-            trimmedBranch.startsWith(':host') ||
-            trimmedBranch.startsWith(':where(:host') ||
-            trimmedBranch.startsWith(':is(:host')
-        ) {
+    // BUG-01: host-like but boundary-invalid (`:hostx`) short-circuits to
+    // no-match (R8 [D] upstream) instead of falling into the element path,
+    // where it would literally match itself and wrongly report `matched: true`.
+    if (looksHostLike(trimmedTarget)) {
+        if (!isStrictHostTarget(trimmedTarget)) {
+            return { result: trimmedBranch, matched: false }
+        }
+        if (isHostBranch(trimmedBranch)) {
             if (!modifier) {
                 return { result: trimmedBranch, matched: true }
             }
