@@ -248,8 +248,10 @@ export function handleStateBlock(
         const splitShellRules = new Map<string, string[]>()
 
         for (const s of stateList) {
-            if (s.target === 'host' && outerHost && target !== ':host') {
-                // H1 Shell Splitting: host modifier splits outer host shell
+            if (s.target === 'host' && outerHost && !isHostMountedSelector(target)) {
+                // H1 Shell Splitting: host modifier splits outer host shell.
+                // Host-like targets (:host, :where/:is-wrapped :host) never split;
+                // they merge in place via replaceTarget (H4). @state never hoists.
                 const splitHost = appendToHostSelector(outerHost, s.modifier)
                 const innerSel = targetSelector
 

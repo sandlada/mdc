@@ -498,6 +498,10 @@ describe('@state: small, medium, .large', () => {
         ['@state(button) button ~button', '', ['.wrapper'], joinExpected([
             'button.small ~button.small {}', 'button.medium ~button.medium {}', 'button.large ~button.large {}'
         ])],
+        // 關於 :host：R2 尾部追加，修飾符併入 :host() 內尾端
+        ['@state(:host) :host(:where(.a))', '', [], joinExpected([
+            ':host(:where(.a).small) {}', ':host(:where(.a).medium) {}', ':host(:where(.a).large) {}'
+        ])],
     ]
 
     const redMapping: StateMapping = [
@@ -693,6 +697,17 @@ describe(':host', () => {
             'button {}',
             ':where(:host(:hover)) { button {} }',
             ':where(:host([disabled])) { button {} }'
+        ])],
+        // host-like target 不分裂外層 host：原地合併（H4），@state 不做提升
+        ['@state(:host) :host', '', [':host'], joinExpected([
+            ':host {}',
+            ':host(:hover) {}',
+            ':host([disabled]) {}'
+        ])],
+        ['@state(:where(:host)) :where(:host) .label', '', [':host'], joinExpected([
+            ':where(:host) .label {}',
+            ':where(:host(:hover)) .label {}',
+            ':where(:host([disabled])) .label {}'
         ])],
     ]
 
