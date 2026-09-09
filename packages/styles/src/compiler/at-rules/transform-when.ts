@@ -63,6 +63,20 @@ export function handleWhenBlock(
     }
 
     const whenConditionSelector = whenConditions.join(', ')
+
+    // BUG-06: host 先驗與 `transform-state` 內嵌 `@when` 一致（host 先於嵌套）。
+    // 非 host 掛載與嵌套並存時報 `invalid-when-condition`，不再被 `nested-when` 搶先。
+    if (!whenConditions.every(isHostMountedSelector)) {
+        if (ctx.options?.onWarn) {
+            ctx.options.onWarn({
+                type: 'invalid-when-condition',
+                message: `@when condition "${rawParam}" must be mounted on :host.`
+            })
+        }
+        // [D] 非 host 掛載一律丟棄整塊，不外洩 @when 包裝。
+        return {}
+    }
+
     const innerStmts = parseStatements(body)
     if (hasNestedWhen(innerStmts)) {
         if (ctx.options?.onWarn) {
@@ -80,17 +94,6 @@ export function handleWhenBlock(
         ancestorPath: []
     })
     const whenContent = innerRes.baseRules.join(' ')
-
-    if (!whenConditions.every(isHostMountedSelector)) {
-        if (ctx.options?.onWarn) {
-            ctx.options.onWarn({
-                type: 'invalid-when-condition',
-                message: `@when condition "${rawParam}" must be mounted on :host.`
-            })
-        }
-        // [D] 非 host 掛載一律丟棄整塊，不外洩 @when 包裝。
-        return {}
-    }
 
     if (ctx.ancestorPath.length === 0) {
         return { base: formatRule(whenConditionSelector, whenContent) }
