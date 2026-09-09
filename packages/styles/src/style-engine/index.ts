@@ -100,12 +100,6 @@ export {
 
 export {
     compileStateSheet,
-    type ASTNode,
-    type DeclarationNode,
-    type StyleRuleNode,
-    type WrapperAtRuleNode,
-    type KeyframeStepNode,
-    type KeyframesNode,
     type CompileStateSheetOptions,
     type StyleDiagnosticWarning
 } from '../compiler/compile-state-sheet'
@@ -123,10 +117,6 @@ export {
     composeStateSelector,
     type ComposeSelectorOptions
 } from '../compiler/compose-state-selector'
-
-export {
-    matchVariants
-} from '../compiler/match-variants'
 
 export {
     expandShape,

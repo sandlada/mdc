@@ -16,9 +16,9 @@
  * 以及屬性展開巨集（`shape` / `padding` / `margin` / `typescale`）與無障礙巨集
  *（`@reduced-motion` / `@forced-colors` / `@contrast` / `@reduced-transparency`）。
  *
- * 相容路徑：含 `@anchor <sel>` / `@size` 的樣式表仍由舊 token 差分引擎處理，
- * 該路徑另支援 `@slot` / `@slotted` / `@size` / `@elevation` 與萬用字 `@variant`
- *（`*` / `!`），由 `compileStateSheet` 按語法偵測自動分流（見 `state-sheet-compiler`）。
+ * 單引擎：所有樣式表皆由 At-Rules 編譯器處理，不做語法分流。已移除 DSL
+ *（`@anchor` / `@slot` / `@slotted` / `@size` / `@elevation`、萬用字 `@variant`
+ * `*` / `!`）一律拒收（`[D]` 丟棄 + 警告）。
  *
  * @example
  * ```typescript
@@ -120,12 +120,6 @@ export {
 
 export {
     compileStateSheet,
-    type ASTNode,
-    type DeclarationNode,
-    type StyleRuleNode,
-    type WrapperAtRuleNode,
-    type KeyframeStepNode,
-    type KeyframesNode,
     type StyleDiagnosticWarning,
     type CompileStateSheetOptions
 } from './compiler'
@@ -141,21 +135,12 @@ export {
 } from './compiler'
 
 export {
-    isAtRulesStylesheet,
-    hasDefiniteAtRules
-} from './compiler'
-
-export {
     composeStateSelector,
     appendToHostSelector,
     extractHostAndDescendant,
     splitSelectorByComma,
     canonicalizeState,
     type ComposeSelectorOptions
-} from './compiler'
-
-export {
-    matchVariants
 } from './compiler'
 
 export {

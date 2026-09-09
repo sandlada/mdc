@@ -60,20 +60,20 @@ describe('lit-bound twins', () => {
 
     it('createStyleSheet covers all invocation forms with real CSSResults', () => {
         const template = `
-            @anchor .container {
+            @state(.container) .container {
                 background-color: var(--_container-color);
             }
         `
         const forms: ReadonlyArray<[string, CSSResult]> = [
             ['tagged', createStyleSheet(ButtonDefinition)`
-                @anchor .container {
+                @state(.container) .container {
                     background-color: var(--_container-color);
                 }
             `],
             ['curried', createStyleSheet(ButtonDefinition)(template)],
             ['options-first', createStyleSheet(tables)(ButtonDefinition)(template)],
             ['uncurried-callback', createStyleSheet(ButtonDefinition, () => css`
-                @anchor .container {
+                @state(.container) .container {
                     background-color: var(--_container-color);
                 }
             `)],
@@ -88,7 +88,7 @@ describe('lit-bound twins', () => {
     it('DX proof: results interpolate in css and sit in styles arrays with zero wrappers', () => {
         const tokens = stringifyTokens('--mdc-button')(ButtonDefinition)
         const stylePart = createStyleSheet(ButtonDefinition)(() => css`
-            .container {
+            @state(.container) .container {
                 background-color: var(--_container-color);
             }
         `)

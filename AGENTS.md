@@ -46,7 +46,7 @@
   - 對外 API 嚴守標準 Web Components 契約（HTML 屬性、DOM 事件、Slots），禁止暴露框架專屬型別或生命週期勾點。
 - **非 Web Components（工具、算法、轉換器、Tokens 等）**：
   - 嚴格採用**純函數式（Functional）+ 高階函數（Higher-Order Functions）+ 參數/數據後置（Data-Last / Currying）**。
-  - 設計便於透過 `pipe(...)` 進行線性鏈式組合。
+  - 設計便於透過 `flow(...)` 進行線性鏈式組合（`flow(f, g)(x)` 點自由組合；值應用一律顯式呼叫，不另設 `pipe`）。
 - **Mixins（混入器）**：
   - 採用**接收基類並返回擴充類別的高階函數**模式，搭配 `composeMixin(...)` 組合多個 mixins。
 
@@ -55,11 +55,10 @@
 export const multiply = (factor: number) => (value: number): number => value * factor
 export const add = (offset: number) => (value: number): number => value + offset
 
-const computeResult = (input: number) => pipe(
-    input,
+const computeResult = (input: number) => flow(
     multiply(2),
     add(10)
-)
+)(input)
 
 // ✅ Web Components：Class + 顯式存取修飾詞 + composeMixin
 export abstract class BaseButton extends composeMixin(
@@ -243,7 +242,7 @@ export interface IMDCIcon extends LitElement, IMDCIconAttributes {
 
 ### 功能資料夾 Barrel 導出規範（`index.ts`）
 
-- 深層功能資料夾（例如 `utils/styles/`、`utils/aria/`）內部必須有 `index.ts`，
+- 深層功能資料夾（例如 `@sandlada/styles` 內各子目錄、`packages/mdc/src/utils/aria/`）內部必須有 `index.ts`，
   統一導出該資料夾的公共 APIs；外部只透過 barrel 取用，不直引內部檔案。
 - **禁止頂層大桶**：禁止 `utils/index.ts` 與 `components/index.ts`，
   保持子路徑精確載入（對應 `package.json` 的 `@sandlada/mdc/*` 子路徑導出），避免循環依賴與打包膨脹。
@@ -290,7 +289,7 @@ Token 命名嚴格遵循：**`[狀態-]?[尺寸-]?[元素-][屬性][-selected|-c
 4. **驗證（Loop）**：執行 `npm test`，目標 100% 全綠（Exit Code 0）；
    快速開發模式下包容已知基線清單內失敗，**清單外新增失敗必須清零**。
 
-### At-Rules 樣式編譯規格（`packages/mdc/src/utils/styles/compiler/at-rules/`）
+### At-Rules 樣式編譯規格（`packages/styles/src/compiler/at-rules/`）
 
 測試骨架：
 
@@ -348,12 +347,12 @@ Token 命名嚴格遵循：**`[狀態-]?[尺寸-]?[元素-][屬性][-selected|-c
 
 - at-rules 實現 backlog 10 項（9 綠隊殼分裂形狀漂移 + 1 `:hostx` 前綴誤匹配真衝突）。
 - 另 3 組件舊賬（divider / elevation / playground，經 stash 隔離驗證與本系列改動無關）。
-- 待定行為：未知維度名、未知變體名、截斷輸入、非法名單包 `@state`、無 registry 未知 `:state` 名
+- 待定行為：未知維度名、未知變體名、截斷輸入、非法名單包 `@state`、無 tables 映射未知 `:state` 名
   （見各 spec `待定` 註解）。
 
 新增用例三步：先判綠/紅 → 再選輸入元組（handler 層：`variant` 三元組、`state` / `when` 四元組；sheet 層才選 `string` / `string[]` 形狀）→ 命名自動。執行
-`npm test -- transform-state transform-variant transform-when hoist-helpers at-rules-integration at-rules-compiler`，
-全量回歸 `npm test`（`packages/mdc`）與 `npm test`（`packages/vscode-mdc`）。
+`npm run test -w @sandlada/styles -- transform-state transform-variant transform-when hoist-helpers at-rules-integration at-rules-compiler`，
+全量回歸 `npm test`（根指令，依序跑 `packages/styles` + `packages/mdc`）與 `npm test`（`packages/vscode-mdc`）。
 
 ### Spec 版本鎖定（`@version`）
 
@@ -369,12 +368,13 @@ Token 命名嚴格遵循：**`[狀態-]?[尺寸-]?[元素-][屬性][-selected|-c
 - spec bump 後：跑測試，全過即 `匹配`；掛紅即 `漂移`，修復 / 重構時實現優先跟進到 spec。
 - 禁止脫離 spec 修改實現：任何實現改動必須由某 spec 的紅燈驅動（只修代碼原則）。
   脫離 spec 的改動即使測試全過也視為違規漂移，以流程約束（非腳本）捕捉。
-- 腳本只檢查、不修改：`packages/mdc/scripts/check-spec-versions.mjs`，獨立指令
-  `npm run check:spec-versions`（不接入 `test` 入口）；輸出每份 spec 的版本 / 測試 / 結論
+- 腳本只檢查、不修改：`packages/styles/scripts/check-spec-versions.mjs`，獨立指令
+  `npm run check:spec-versions -w @sandlada/styles`（不接入 `test` 入口）；輸出每份 spec 的版本 / 測試 / 結論
   （匹配 / 漂移），存在漂移則 exit code 非零。
-- 配對表（1:1，嚴格執行）：`transform-state.spec.ts` ↔ `transform-state.ts`、
+- 配對表（1:1，嚴格執行，路徑均位於 `packages/styles/src/` 下）：`transform-state.spec.ts` ↔ `transform-state.ts`、
   `transform-variant.spec.ts` ↔ `transform-variant.ts`、
-  `map-variant-triggers.spec.ts` ↔ `map-variant-triggers.ts`（`variant-trigger-registry.ts` 為其內部實現，隨同配對）、
+  `tables.spec.ts` ↔ `triggers/tables.ts`、
+  `flow.spec.ts` ↔ `pipe/flow.ts`、
   `transform-when.spec.ts` ↔ `transform-when.ts`、
   `hoist-helpers.spec.ts` ↔ `hoist-helpers.ts`。
 - 豁免清單（將來實現落戳階段不參與配對比對，現階段無影響）：共享實現（`replace-target.ts`、dispatcher、
@@ -388,11 +388,11 @@ Token 命名嚴格遵循：**`[狀態-]?[尺寸-]?[元素-][屬性][-selected|-c
 
 ### 構建與工作區指令
 
-- **工作區路徑**：根目錄為 Monorepo，元件主要代碼位於 `packages/mdc/`。
-- **常用指令**：
-  - `npm run build` — 使用 `rolldown` 動態掃描並打包所有非 WIP 元件（輸出至 `build/`）。
-  - `npm run build:dts` — 產出 TypeScript `.d.ts` 宣告檔。
-  - `npm test` — 執行 `vitest` 單元測試套件。
+- **工作區路徑**：根目錄為 Monorepo，元件主要代碼位於 `packages/mdc/`，樣式引擎獨立為 `packages/styles/`（`@sandlada/styles`，含 `compiler`、`lit` 適配層與 `/rolldown` 預構建插件）。
+- **常用指令**（構建順序固定先 `styles` 後 `mdc`，因 `mdc` 的構建插件與墊片依賴 `styles` 產物）：
+  - `npm run build` — 依序使用 `rolldown` 打包 `@sandlada/styles` 與 `@sandlada/mdc`（各輸出至自家 `build/`）。
+  - `npm run build:dts` — 產出 TypeScript `.d.ts` 宣告檔（同上順序）。
+  - `npm test` — 依序執行 `vitest` 單元測試套件（`@sandlada/styles` + `@sandlada/mdc`）。
 
 ### 模組入口 (`package.json`)
 
@@ -400,6 +400,8 @@ Token 命名嚴格遵循：**`[狀態-]?[尺寸-]?[元素-][屬性][-selected|-c
 - `@sandlada/mdc/definitions` — Selective 手動註冊定義。
 - `@sandlada/mdc/utils` — 核心工具與 Tokens 計算函式庫。
 - `@sandlada/mdc/*` — 元件子路徑精確載入。
+- `@sandlada/styles` / `@sandlada/styles/<子目錄>`（`compiler`、`lit`、`style-engine`…）— 樣式引擎（DOM-free 核心）。
+- `@sandlada/styles/rolldown` — Node 專用預構建插件 `mdcStyles()`（`/* @mdc-style */` 標記觸發，必須排在 CSS 壓縮插件之前；禁從瀏覽器/`lit` 層引用）。
 
 ### 提交與分支規範
 

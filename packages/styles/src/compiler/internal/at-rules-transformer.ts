@@ -173,6 +173,17 @@ export function parseStatements(css: string): ParsedStatement[] {
     return statements
 }
 
+/**
+ * Removed legacy-engine DSL. Matches only at block-header position with a strict
+ * word boundary, mirroring the `@state` / `@variant` / `@when` dispatcher guards.
+ * `@slotted` is listed separately because the `@slot` boundary does not match it.
+ */
+const LEGACY_AT_RULE_RE = /^@(anchor|slot|slotted|size|elevation)(?![a-zA-Z0-9_-])/
+
+export function isLegacyHeader(header: string): boolean {
+    return LEGACY_AT_RULE_RE.test(header.trim())
+}
+
 export function formatRule(selector: string, content: string): string {
     const trimmedContent = content.trim()
     if (!trimmedContent) {
@@ -265,6 +276,17 @@ export function transformStatements(
         if (stmt.type === 'block') {
             const header = stmt.header!
             const body = stmt.body!
+
+            if (isLegacyHeader(header)) {
+                if (ctx.options?.onWarn) {
+                    ctx.options.onWarn({
+                        type: 'invalid-legacy-syntax',
+                        message: `Legacy at-rule "${header}" was removed with the legacy engine and is dropped.`
+                    })
+                }
+                // [D] 已移除 DSL：一律丟棄整塊，不透傳、不展開。
+                continue
+            }
 
             let result: AtRuleHandlerResult
             if (isIsolationHeader(header)) {

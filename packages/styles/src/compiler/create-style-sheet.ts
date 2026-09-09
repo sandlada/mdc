@@ -60,9 +60,8 @@ export type CreateStyleSheetOptions = CompileStateSheetOptions
  * Primary tagged template and HOF entrypoint for authoring state-aware, differential component stylesheets.
  *
  * Compiles new-system ATRules (`@state`, `@variant`, `@when`, property expanders,
- * a11y macros) and legacy ATRules (`@anchor <sel>`, `@variant`, `@slot`, `@slotted`,
- * `@size`, `@elevation`) with multi-state tokens into standard CSS,
- * wrapped inside a framework-agnostic `MDCStyleSheet`. Routing between the two engines is automatic
+ * a11y macros) with multi-state tokens into standard CSS,
+ * wrapped inside a framework-agnostic `MDCStyleSheet`. Single-engine compilation
  * (see `compileStateSheet`; semantics Oracle: `at-rules/` specs).
  *
  * Accepts Lit `css` results (or any `{ cssText }` holder) as input via

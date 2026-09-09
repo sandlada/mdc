@@ -21,8 +21,6 @@ import {
     splitCssValues,
     replaceTargetInBranch,
     removeAmpersandForHostSubtree,
-    isAtRulesStylesheet,
-    hasDefiniteAtRules,
     rewriteStateVariables,
     compileStateSheet,
     extractStateTokenMetadata,
@@ -280,27 +278,6 @@ describe('at-rules-compiler — Adversarial Reviewer Verification Suite', () => 
             const res = replaceTargetInBranch(branch, target, modifier)
             expect(res.matched).toBe(true)
             expect(res.result).toBe(expected)
-        })
-    }
-
-    // Issue 12: isAtRulesStylesheet / hasDefiniteAtRules — rows are [kind, input, expected]
-    const flagRows: Array<['is' | 'has', string, boolean]> = [
-        ['is', 'button { padding: 16px; }', false],
-        ['is', 'button { margin: 0; }', false],
-        ['is', 'button { padding: 8px 16px; }', true],
-        ['is', 'button { padding: var(--_padding); }', true],
-        ['is', 'button { shape: 8px; }', true],
-        ['is', 'button { typescale: var(--_label); }', true],
-        ['has', '.card { @when(:host([dense])) {} }', true],
-        ['has', 'button { shape: 8px; }', true],
-        ['has', 'button { @reduced-motion {} }', true],
-        ['has', 'div { color: red; }', false],
-    ]
-
-    for (const [kind, input, expected] of flagRows) {
-        it(`${kind}: ${input}`, () => {
-            const actual = kind === 'is' ? isAtRulesStylesheet(input) : hasDefiniteAtRules(input)
-            expect(actual).toBe(expected)
         })
     }
 

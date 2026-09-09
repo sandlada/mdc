@@ -4,13 +4,14 @@
  * SPDX-License-Identifier: MIT
  *
  * @fileoverview
- * Scope: legacy routing branch of `compileStateSheet` (stylesheets containing
- * `@anchor <sel>` / `@size`; token-differential Base + Delta rules, legacy
- * `@when` / `@slot` / `@slotted` / `@size` / `@elevation` lowering).
- * New-system semantics (`@state` / exact `@variant` / `@when(:host(...))`) are
- * oracled in `at-rules/` (transform-state/-variant/-when specs) and must not be conflated with the legacy
- * expectations below (e.g. `@when(.dense)` lowers here, but is
- * `invalid-when-condition` on the new path per W1).
+ * Scope: single-engine `compileStateSheet` — plain CSS and `@keyframes` pass
+ * through unchanged (state-variable rewriting only happens inside `@state`
+ * blocks, oracled in `at-rules/`), while removed-DSL stylesheets (`@anchor`,
+ * `@slot` / `@slotted`, `@size`, `@elevation`) drop to empty with an
+ * `invalid-legacy-syntax` warning. The compiler-output helpers
+ * (`stripComments`, `splitSelectorByComma`, `appendToHostSelector`,
+ * `composeStateSelector`) are covered below; `@state` / exact `@variant` /
+ * `@when(:host(...))` semantics live in `at-rules/`.
  *
  * Mapping-format suite: compiler outputs use
  * `[label, css, mustContain, mustNotContain?, fixture?]`; string helpers use
@@ -213,15 +214,15 @@ describe('state-sheet-compiler', () => {
         const mapping: ContainsRow[] = [
             ['one valid rule per :host branch instead of a corrupted combination',
                 ':host([focused]), :host([persistent]) { display: flex; opacity: 1; color: var(--_color); }',
-                [':host([focused]) {', ':host([persistent]) {', 'color: var(--_color);'],
-                ['[focused][', '])([', ':host([focused]), :host([persistent]) {'],
+                [':host([focused]), :host([persistent]) {', 'display: flex;', 'color: var(--_color);'],
+                ['[focused][', '])(['],
                 'comma'],
             ['comma :host branches valid inside @starting-style and @media wrappers',
                 '@starting-style { :host([focused]), :host([persistent]) { opacity: 0; } } @media (forced-colors: active) { :host([focused]), :host([persistent]) { color: Highlight; } }',
-                ['@starting-style', '@media (forced-colors: active)', ':host([focused]) {', ':host([persistent]) {'],
+                ['@starting-style', '@media (forced-colors: active)', ':host([focused]), :host([persistent]) {'],
                 ['[focused][', '])(['],
                 'comma'],
-            ['single :host selectors and :host with pseudo-classes stay on the legacy path',
+            ['single :host selectors and :host with pseudo-classes pass through unchanged',
                 ':host([focused]:not([inward])) { animation-name: outward-grow; } :host { display: none; }',
                 [':host([focused]:not([inward])) {', ':host {'],
                 [],
@@ -235,23 +236,18 @@ describe('state-sheet-compiler', () => {
         }
     })
 
-    describe('Base Rule & Differential Minimal Delta Rules', () => {
+    describe('Plain Rules Pass Through Without State Expansion', () => {
         const mapping: ContainsRow[] = [
-            ['Base Rule with invariant tokens and enabled state private variables',
-                '@anchor .container { border-radius: var(--_container-shape); background-color: var(--_container-color); .label { color: var(--_label-color); } }',
-                ['.container {', 'border-radius: var(--_container-shape);', 'background-color: var(--_enabled-container-color);', '.container .label {', 'color: var(--_enabled-label-color);'],
-                [],
-                'base'],
-            ['Delta Rules only for states where token values actually differ',
-                '@anchor .container { background-color: var(--_container-color); .label { color: var(--_label-color); } }',
-                ['.container:hover {', 'background-color: var(--_hovered-container-color);', '.container:active {', 'background-color: var(--_pressed-container-color);', ':host([disabled]) .container {', 'background-color: var(--_disabled-container-color);', ':host([disabled]) .container .label {', 'color: var(--_disabled-label-color);'],
-                ['.container:hover .label', '.container:active .label'],
-                'base'],
-            ['zero Delta Rules when all referenced tokens in a rule block are invariant',
-                '@anchor .container { border-radius: var(--_container-shape); display: flex; height: 40px; }',
+            ['invariant declarations and nested rules pass through as written',
+                '.container { border-radius: var(--_container-shape); display: flex; height: 40px; }',
                 ['.container {', 'border-radius: var(--_container-shape);', 'display: flex;', 'height: 40px;'],
                 [':hover', ':active', '[disabled]'],
                 'base'],
+            ['unprefixed state-token references pass through untouched outside @state',
+                '.container { background-color: var(--_container-color); } .container .label { color: var(--_label-color); }',
+                ['.container {', 'background-color: var(--_container-color);', 'color: var(--_label-color);'],
+                ['--_enabled-', '--_hovered-', '--_disabled-'],
+                'base'],
         ]
 
         for (const row of mapping) {
@@ -261,106 +257,54 @@ describe('state-sheet-compiler', () => {
         }
     })
 
-    describe('ATRules Lowering Grammar', () => {
-        const mapping: ContainsRow[] = [
-            ['lowers @when(...) conditions',
-                '@anchor .container { @when(.dense) { padding: 4px; } @when(:host([variant="elevated"])) { box-shadow: 0 2px 4px rgba(0,0,0,0.2); } }',
-                ['.container.dense {', 'padding: 4px;', ':host([variant="elevated"]) .container {', 'box-shadow: 0 2px 4px rgba(0,0,0,0.2);'],
-                [],
-                'lowering'],
-            ['lowers @variant(...) for single and comma-separated variants',
-                '@anchor .container { @variant(outlined) { border: 1px solid var(--_label-color); } @variant(filled, tonal) { background-color: var(--_container-color); } }',
-                [':host([variant="outlined"]) .container {', ':host([variant="filled"]) .container, :host([variant="tonal"]) .container {'],
-                [],
-                'lowering'],
-            ['lowers @slot(...) and @slotted(...)',
-                '@anchor .container { @slot(leading) { margin-inline-end: 8px; } @slot(default) { flex: 1; } @slotted(leading) { color: inherit; } @slotted(default) { font-weight: 500; } }',
-                [':host(:has([slot="leading"])) .container {', 'margin-inline-end: 8px;', ':host(:has(:not([slot]))) .container {', 'flex: 1;', '::slotted([slot="leading"]) {', '::slotted(:not([slot])) {'],
-                [],
-                'lowering'],
-            ['lowers @size(...) sugar',
-                '@anchor .container { @size(small) { height: 32px; } @size(large) { height: 48px; } }',
-                [':host([size="small"]) .container {', 'height: 32px;', ':host([size="large"]) .container {', 'height: 48px;'],
-                [],
-                'lowering'],
-            ['expands @elevation(...) and merges transitions',
-                '@anchor .container { background-color: var(--_container-color); transition: transform 200ms ease; @elevation(1) }',
-                ['box-shadow: var(--mdc-elevation-level-1);', 'transition: transform 200ms ease, box-shadow 200ms cubic-bezier(0.2, 0, 0, 1);', ':host([disabled]) .container {', 'box-shadow: none;'],
-                [],
-                'lowering-triggers'],
+    describe('Removed DSL Drops To Empty', () => {
+        const dropRows: Array<[label: string, css: string, fixture?: keyof typeof fixtures]> = [
+            ['@anchor base rule', '@anchor .container { border-radius: var(--_container-shape); background-color: var(--_container-color); .label { color: var(--_label-color); } }', 'base'],
+            ['@anchor with @when conditions', '@anchor .container { @when(.dense) { padding: 4px; } @when(:host([variant="elevated"])) { box-shadow: 0 2px 4px rgba(0,0,0,0.2); } }', 'lowering'],
+            ['@anchor with exact @variant names', '@anchor .container { @variant(outlined) { border: 1px solid var(--_label-color); } @variant(filled, tonal) { background-color: var(--_container-color); } }', 'lowering'],
+            ['@anchor with @slot and @slotted', '@anchor .container { @slot(leading) { margin-inline-end: 8px; } @slot(default) { flex: 1; } @slotted(leading) { color: inherit; } @slotted(default) { font-weight: 500; } }', 'lowering'],
+            ['@anchor with @size sugar', '@anchor .container { @size(small) { height: 32px; } @size(large) { height: 48px; } }', 'lowering'],
+            ['@anchor with @elevation', '@anchor .container { background-color: var(--_container-color); transition: transform 200ms ease; @elevation(1) }', 'lowering-triggers'],
+            ['@anchor with border shorthand', '@anchor .container { border: 1px solid var(--_label-color); }', 'shorthand'],
+            ['@anchor with outline shorthand', '@anchor .container { outline: 2px solid var(--_outline-color); }', 'shorthand'],
+            ['@anchor with background shorthand', '@anchor .container { background: var(--_container-color); }', 'shorthand'],
+            ['@anchor task-button scenario', '@anchor .container { display: inline-flex; align-items: center; justify-content: center; height: var(--_container-height); border-radius: var(--_container-shape); background-color: var(--_container-color); .label { color: var(--_label-color); font-family: Roboto, sans-serif; } @slot(leading) { margin-inline-end: 8px; } @variant(outlined) { background-color: transparent; border: 1px solid var(--_label-color); } @elevation(1) }', 'task-button'],
+            ['@anchor checkbox scenario', '@anchor .container { width: var(--_container-size); height: var(--_container-size); border-radius: var(--_container-shape); background-color: var(--_container-color); border: 2px solid var(--_outline-color); .mark { fill: var(--_icon-color); } }', 'checkbox'],
+            ['@anchor badge scenario with @size', '@anchor .container { background-color: var(--_container-color); color: var(--_label-color); border-radius: var(--_container-shape); width: var(--_container-size); height: var(--_container-size); @size(large) { padding-inline: 4px; } }', 'badge'],
+            ['@anchor with unmapped custom state', '@anchor .container { color: var(--_color); }', 'loading'],
         ]
 
-        for (const row of mapping) {
-            it(row[0], () => {
-                runContainsRow(row)
+        for (const [label, css, fixture = 'comma'] of dropRows) {
+            it(label, () => {
+                const warnings: Array<{ type: string }> = []
+                const compiled = compileStateSheet(fixtures[fixture].def, css, {
+                    tables: fixtures[fixture].tables,
+                    onWarn: (w) => warnings.push(w)
+                })
+                expect(compiled).toBe('')
+                expect(warnings.map((w) => w.type)).toContain('invalid-legacy-syntax')
             })
         }
-    })
 
-    describe('CSS Shorthand Decomposition', () => {
-        const mapping: ContainsRow[] = [
-            ['decomposes border shorthand into minimal border-color in delta rules',
-                '@anchor .container { border: 1px solid var(--_label-color); }',
-                ['.container {', 'border: 1px solid var(--_enabled-label-color);', '.container:hover {', 'border-color: var(--_hovered-label-color);'],
-                ['border: 1px solid var(--_hovered-label-color);'],
-                'shorthand'],
-            ['decomposes outline shorthand into outline-color in delta rules',
-                '@anchor .container { outline: 2px solid var(--_outline-color); }',
-                ['.container {', 'outline: 2px solid var(--_enabled-outline-color);', '.container:hover {', 'outline-color: var(--_hovered-outline-color);'],
-                [],
-                'shorthand'],
-            ['decomposes background shorthand into background-color in delta rules',
-                '@anchor .container { background: var(--_container-color); }',
-                ['.container:hover {', 'background-color: var(--_hovered-container-color);'],
-                [],
-                'shorthand'],
-        ]
-
-        for (const row of mapping) {
-            it(row[0], () => {
-                runContainsRow(row)
-            })
-        }
-    })
-
-    describe('Wrapper At-Rules & Keyframes Isolation', () => {
-        const mapping: ContainsRow[] = [
-            ['preserves wrapper at-rules like @layer, @media, @supports, @container, @starting-style',
+        it('@anchor inside @layer and @media wrappers drops content but keeps isolation shells', () => {
+            const warnings: Array<{ type: string }> = []
+            const compiled = compileStateSheet(
+                fixtures['wrapper'].def,
                 '@layer components { @media (min-width: 600px) { @anchor .container { background-color: var(--_container-color); } } }',
-                ['@layer components {', '@media (min-width: 600px) {', '.container {', 'background-color: var(--_enabled-container-color);', '.container:hover {', 'background-color: var(--_hovered-container-color);'],
-                [],
-                'wrapper'],
-            ['preserves @keyframes without proliferating state delta rules',
+                { tables: fixtures['wrapper'].tables, onWarn: (w) => warnings.push(w) }
+            )
+            expect(compiled).toBe('@layer components { @media (min-width: 600px) {} }')
+            expect(warnings.map((w) => w.type)).toContain('invalid-legacy-syntax')
+        })
+    })
+
+    describe('Wrapper At-Rules & Keyframes Pass Through', () => {
+        const mapping: ContainsRow[] = [
+            ['preserves @keyframes without state expansion',
                 '@keyframes pulse { 0% { background-color: var(--_container-color); } 100% { opacity: 0; } }',
-                ['@keyframes pulse {', 'background-color: var(--_enabled-container-color);'],
+                ['@keyframes pulse {', 'background-color: var(--_container-color);'],
                 ['@keyframes pulse:hover', 'var(--_hovered-container-color)'],
                 'wrapper'],
-        ]
-
-        for (const row of mapping) {
-            it(row[0], () => {
-                runContainsRow(row)
-            })
-        }
-    })
-
-    describe('End-to-End Scenarios from TASK.md', () => {
-        const mapping: ContainsRow[] = [
-            ['Scenario 1: Button Component with 5 states, variant, slot, and elevation',
-                '@anchor .container { display: inline-flex; align-items: center; justify-content: center; height: var(--_container-height); border-radius: var(--_container-shape); background-color: var(--_container-color); .label { color: var(--_label-color); font-family: Roboto, sans-serif; } @slot(leading) { margin-inline-end: 8px; } @variant(outlined) { background-color: transparent; border: 1px solid var(--_label-color); } @elevation(1) }',
-                ['.container {', 'background-color: var(--_enabled-container-color);', '.container .label {', ':host(:has([slot="leading"])) .container {', ':host([variant="outlined"]) .container {', '.container:hover {', '.container:active {', ':host([disabled]) .container {', 'box-shadow: none;'],
-                [],
-                'task-button'],
-            ['Scenario 2: Checkbox Component with Boolean States',
-                '@anchor .container { width: var(--_container-size); height: var(--_container-size); border-radius: var(--_container-shape); background-color: var(--_container-color); border: 2px solid var(--_outline-color); .mark { fill: var(--_icon-color); } }',
-                ['.container {', 'border: 2px solid var(--_enabled-outline-color);', ':host([checked]) .container {', 'background-color: var(--_checked-container-color);', 'border-color: var(--_checked-outline-color);', ':host([indeterminate]) .container {', 'background-color: var(--_indeterminate-container-color);', 'border-color: var(--_indeterminate-outline-color);'],
-                [],
-                'checkbox'],
-            ['Scenario 3: Badge Component with Size Schema & @size Sugar',
-                '@anchor .container { background-color: var(--_container-color); color: var(--_label-color); border-radius: var(--_container-shape); width: var(--_container-size); height: var(--_container-size); @size(large) { padding-inline: 4px; } }',
-                ['.container {', 'border-radius: var(--_small-container-shape);', 'width: var(--_small-container-size);', ':host([size="large"]) .container {', 'border-radius: var(--_large-container-shape);', 'width: var(--_large-container-size);', 'padding-inline: 4px;'],
-                [],
-                'badge'],
         ]
 
         for (const row of mapping) {
@@ -381,20 +325,5 @@ describe('state-sheet-compiler', () => {
                 expect(compileStateSheet({}, input)).toBe(expected)
             })
         }
-
-        const mapping: ContainsRow[] = [
-            ['unmapped custom state with automatic heuristic fallback',
-                '@anchor .container { color: var(--_color); }',
-                ['.container.loading {', 'color: var(--_loading-color);'],
-                [],
-                'loading'],
-        ]
-
-        for (const row of mapping) {
-            it(row[0], () => {
-                runContainsRow(row)
-            })
-        }
-
     })
 })

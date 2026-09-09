@@ -111,41 +111,6 @@ export function getHoverInfoForAtRule(atRuleName: string): string | null {
                 `- **Rule V4**: Nested \`@variant\` blocks are illegal and discarded.`,
             ].join('\n')
 
-        case '@anchor':
-            return [
-                `### 📐 MDC At-Rule: \`@anchor <selector>\``,
-                `---`,
-                `Defines a component container anchor element for state-differential styling in legacy stylesheets.`,
-            ].join('\n')
-
-        case '@size':
-            return [
-                `### 📐 MDC At-Rule: \`@size(sizeNames)\``,
-                `---`,
-                `Lowers to \`:host([size="..."])\` container modifier rules.`,
-            ].join('\n')
-
-        case '@slot':
-            return [
-                `### 📐 MDC At-Rule: \`@slot(slotName)\``,
-                `---`,
-                `Lowers to slot-presence query \`:host(:has([slot="..."]))\`.`,
-            ].join('\n')
-
-        case '@slotted':
-            return [
-                `### 📐 MDC At-Rule: \`@slotted(slotName)\``,
-                `---`,
-                `Lowers to slot content selector \`::slotted([slot="..."])\`.`,
-            ].join('\n')
-
-        case '@elevation':
-            return [
-                `### 📐 MDC At-Rule: \`@elevation(level)\``,
-                `---`,
-                `Injects elevation box-shadow tokens for MD3 elevation levels (0–5).`,
-            ].join('\n')
-
         default:
             return null
     }

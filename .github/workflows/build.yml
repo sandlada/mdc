@@ -30,7 +30,7 @@ jobs:
         run: npm i
 
       - name: Build package
-        run: npm run build
+        run: npm run build:all
 
       - name: Build TypeScript declarations
-        run: npm run build:dts
+        run: npm run build:dts:all

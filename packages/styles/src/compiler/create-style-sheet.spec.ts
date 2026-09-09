@@ -34,8 +34,8 @@ describe('createStyleSheet', () => {
         'disabled': '[disabled]'
     })(emptyTables)
 
-    const legacyBackground = `
-        @anchor .container {
+    const stateBackground = `
+        @state(.container) .container {
             background-color: var(--_container-color);
         }
     `
@@ -104,10 +104,10 @@ describe('createStyleSheet', () => {
     })(emptyTables)
 
     const mapping: Array<[string, MDCStyleSheet, readonly string[], (readonly string[])?]> = [
-        // Invocation forms over the legacy @anchor branch
+        // Invocation forms over the @state branch
         ['tagged template literal: createStyleSheet(def)`...`',
             createStyleSheet(ButtonDefinition)`
-                @anchor .container {
+                @state(.container) .container {
                     border-radius: var(--_container-shape);
                     background-color: var(--_container-color);
                     .label {
@@ -118,7 +118,7 @@ describe('createStyleSheet', () => {
             ['.container {', 'border-radius: var(--_container-shape);', 'background-color: var(--_enabled-container-color);', '.container:hover {', 'background-color: var(--_hovered-container-color);']],
         ['interpolated strings, numbers, ToCSSVariable objects, and nested CSSResults',
             createStyleSheet(ButtonDefinition)`
-                @anchor .container {
+                @state(.container) .container {
                     height: ${height};
                     z-index: ${zIndex};
                     border-color: ${colorObj};
@@ -128,29 +128,29 @@ describe('createStyleSheet', () => {
             `,
             ['height: 48px;', 'z-index: 10;', 'border-color: var(--mdc-color-primary);', 'margin: 0;', 'padding: 4px;', 'display: inline-flex;']],
         ['curried definition-first invocation: createStyleSheet(def)(template)',
-            createStyleSheet(ButtonDefinition)(legacyBackground),
+            createStyleSheet(ButtonDefinition)(stateBackground),
             ['.container {', 'background-color: var(--_enabled-container-color);']],
         ['tables-first invocation: createStyleSheet(tables)(def)`...`',
-            createStyleSheet(tables)(ButtonDefinition)(legacyBackground),
+            createStyleSheet(tables)(ButtonDefinition)(stateBackground),
             ['.container:hover {', 'background-color: var(--_hovered-container-color);']],
         ['options object: createStyleSheet({ tables })',
-            createStyleSheet({ tables })(ButtonDefinition)(legacyBackground),
+            createStyleSheet({ tables })(ButtonDefinition)(stateBackground),
             ['.container:hover {']],
         ['uncurried callback: createStyleSheet(def, () => css`...`)',
             createStyleSheet(ButtonDefinition, () => css`
-                @anchor .container {
+                @state(.container) .container {
                     background-color: var(--_container-color);
                 }
             `),
             ['.container {', 'background-color: var(--_enabled-container-color);']],
         ['tables-first bound: createStyleSheet(tables)(def)',
-            compileWithTables(ButtonDefinition)(legacyBackground),
+            compileWithTables(ButtonDefinition)(stateBackground),
             ['.container:hover {']],
         ['zero-arg then definition: createStyleSheet()(def)',
-            compileZeroThenDef(ButtonDefinition)(legacyBackground),
+            compileZeroThenDef(ButtonDefinition)(stateBackground),
             ['.container {']],
         ['zero-arg then tables: createStyleSheet()(tables)(def)',
-            compileZeroThenTables(tables)(ButtonDefinition)(legacyBackground),
+            compileZeroThenTables(tables)(ButtonDefinition)(stateBackground),
             ['.container:hover {']],
         ['empty template string returns empty MDCStyleSheet',
             createStyleSheet(ButtonDefinition)``,

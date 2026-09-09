@@ -250,9 +250,9 @@ export interface OverrideDeclaration {
  */
 export interface ATRuleUsageMeta {
     /** ATRule type */
-    type?: 'state' | 'anchor' | 'when' | 'variant' | 'size' | 'slot' | 'slotted' | 'elevation' | 'layer' | 'media' | 'supports' | 'container' | 'keyframes' | 'reduced-motion' | 'forced-colors' | 'contrast' | 'reduced-transparency' | 'starting-style' | string
+    type?: 'state' | 'when' | 'variant' | 'layer' | 'media' | 'supports' | 'container' | 'keyframes' | 'reduced-motion' | 'forced-colors' | 'contrast' | 'reduced-transparency' | 'starting-style' | string
     /** ATRule name */
-    name: '@state' | '@anchor' | '@when' | '@variant' | '@size' | '@slot' | '@slotted' | '@elevation' | string
+    name: '@state' | '@when' | '@variant' | string
     /** Header argument (e.g. '.container', 'selected', 'small', '(button) button') */
     argument: string
     /** Header string */

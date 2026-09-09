@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  *
  * SSOT note: pure selector/string/state helpers (`splitSelectorByComma`,
- * `appendToHostSelector`, `matchVariants`, `canonicalizeState`,
+ * `appendToHostSelector`, `canonicalizeState`,
  * `composeStateSelector`, `TriggerTables` + triggers) come from
  * fine-grained `@sandlada/styles/*` folder barrels (Node-safe, DOM-free).
  * This module is a thin IDE-layer adapter: it re-exports those helpers
@@ -28,11 +28,8 @@ import { flow } from '@sandlada/styles/pipe'
 import {
     splitSelectorByComma,
     appendToHostSelector,
-    matchVariants,
     compileStateSheet,
     compileAtRulesSheet,
-    isAtRulesStylesheet,
-    hasDefiniteAtRules,
     extractStateTokenMetadata,
     composeStateSelector,
     canonicalizeState,
@@ -56,11 +53,8 @@ import { expandShape, expandMargin, expandPadding, expandTypescale } from '@sand
 export {
     splitSelectorByComma,
     appendToHostSelector,
-    matchVariants,
     compileStateSheet,
     compileAtRulesSheet,
-    isAtRulesStylesheet,
-    hasDefiniteAtRules,
     extractStateTokenMetadata,
     composeStateSelector,
     defineSchema,
@@ -548,8 +542,7 @@ function buildTablesFromMetas(defMetas: (DefinitionMeta | undefined)[]): Trigger
 
 /**
  * Extracts and compiles the entire exported CSSResult / CSSResult[] from a *.style.ts file
- * via single-path delegation to `compileStateSheet` (which auto-routes
- * new-system At-Rules vs legacy `@anchor`/`@size` sheets).
+ * via single-engine delegation to `compileStateSheet`.
  */
 export function compileExportedStylesToCssSync(
     sourceText: string,

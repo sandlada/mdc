@@ -55,7 +55,7 @@ export class MDCHoverProvider implements vscode.HoverProvider {
             }
         }
 
-        // 3. Check if hovering over an MDC at-rule (e.g. @state, @when, @variant, @anchor)
+        // 3. Check if hovering over an MDC at-rule (e.g. @state, @when, @variant)
         const atRuleRange = document.getWordRangeAtPosition(position, /@[a-zA-Z0-9_-]+/)
         if (atRuleRange) {
             const word = document.getText(atRuleRange)

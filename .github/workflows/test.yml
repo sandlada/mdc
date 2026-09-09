@@ -30,4 +30,4 @@ jobs:
         run: npm i
 
       - name: Run tests
-        run: npm test
+        run: npm run test:all

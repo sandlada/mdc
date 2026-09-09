@@ -52,8 +52,3 @@ export function isVariantDictionary(definition: unknown): definition is Record<s
         val && typeof val === 'object' && !Array.isArray(val) && !('_$cssResult$' in val) && !('ToCSSVariable' in val)
     )
 }
-
-export function globToRegex(glob: string): RegExp {
-    const escaped = glob.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*')
-    return new RegExp(`^${escaped}$`)
-}
