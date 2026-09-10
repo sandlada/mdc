@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { MDCStyleSheet } from '../css-like'
-import type { StateSchema } from '../define-schema'
-import type { ResolvedStyleDefinition, TokenValue, PrimitiveTokenValue } from '../create-style-definition'
+import { MDCStyleSheet } from '../foundation'
+import type { StateSchema } from '../schema'
+import type { ResolvedStyleDefinition, TokenValue, PrimitiveTokenValue } from '../schema'
 import {
     normalizeOptions,
     formatTokenValue,

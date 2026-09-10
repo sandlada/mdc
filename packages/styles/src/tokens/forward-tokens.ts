@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { FORWARDED_TOKEN_META, type ForwardedTokenMeta } from '../create-style-definition'
+import { FORWARDED_TOKEN_META, type ForwardedTokenMeta } from '../schema'
 import { cleanNamespace, isPlainObject } from './internal/clean-namespace'
 
 type StripPrefix<K extends string> = K extends `--${infer Rest}` ? Rest : K

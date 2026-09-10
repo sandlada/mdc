@@ -37,15 +37,15 @@ const resolveVitestBin = (startDir) => {
 const vitestBin = resolveVitestBin(packageRoot)
 
 const SPECS = [
-    'src/triggers/tables.spec.ts',
-    'src/pipe/flow.spec.ts',
+    'src/schema/triggers.spec.ts',
+    'src/foundation/flow.spec.ts',
     'src/compiler/create-style-sheet-tables.spec.ts',
-    'src/compiler/at-rules/transform-state.spec.ts',
-    'src/compiler/at-rules/transform-variant.spec.ts',
-    'src/compiler/at-rules/transform-when.spec.ts',
-    'src/compiler/at-rules/hoist-helpers.spec.ts',
-    'src/compiler/at-rules/at-rules-integration.spec.ts',
-    'src/compiler/at-rules/at-rules-sheet.spec.ts',
+    'src/compiler/internal/transform-state.spec.ts',
+    'src/compiler/internal/transform-variant.spec.ts',
+    'src/compiler/internal/transform-when.spec.ts',
+    'src/compiler/internal/hoist-helpers.spec.ts',
+    'src/compiler/internal/at-rules-integration.spec.ts',
+    'src/compiler/internal/at-rules-sheet.spec.ts',
     'src/compiler/at-rules-compiler.spec.ts',
 ]
 

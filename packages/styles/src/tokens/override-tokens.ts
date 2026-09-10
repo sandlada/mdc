@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { MDCStyleSheet } from '../css-like'
+import { MDCStyleSheet } from '../foundation'
 import { normalizeOptions, formatOverrideValue } from './internal/format-override-value'
 
 export interface OverrideTokensOptions {

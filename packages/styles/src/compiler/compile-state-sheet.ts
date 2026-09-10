@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-import type { TriggerTables } from '../triggers/tables'
+import type { TriggerTables } from '../schema'
 import { compileAtRulesSheet } from './compile-at-rules-sheet'
 
 export interface StyleDiagnosticWarning {

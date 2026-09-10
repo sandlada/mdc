@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { emptyTables, resolveState, type TriggerContext, type TriggerTables } from '../triggers/tables'
+import { emptyTables, resolveState, type TriggerContext, type TriggerTables } from '../schema'
 
 export function canonicalizeState(state: string): string {
     if (state === 'hovered') return 'hover'

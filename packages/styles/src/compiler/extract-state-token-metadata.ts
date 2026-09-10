@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-import type { StateSchema } from '../define-schema'
+import type { StateSchema } from '../schema'
 import { canonicalizeState } from './compose-state-selector'
 import {
     formatValueString,

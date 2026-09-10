@@ -6,10 +6,10 @@
 
 import { describe, it, expect } from 'vitest'
 import { defineVariantTokens } from './define-variant-tokens'
-import { MDCStyleSheet } from '../css-like'
-import { defineSchema } from '../define-schema'
-import { createStyleDefinition } from '../create-style-definition'
-import { flow } from '../pipe'
+import { MDCStyleSheet } from '../foundation'
+import { defineSchema } from '../schema'
+import { createStyleDefinition } from '../schema'
+import { flow } from '../foundation'
 
 const TestSchema = defineSchema(['enabled', 'hovered', 'disabled'] as const)
 

@@ -39,16 +39,36 @@
         "README.md"
     ],
     "exports": {
-        ".": {
-            "types": "./build/index.d.ts",
-            "import": "./build/index.js",
-            "default": "./build/index.js"
-        },
         "./package.json": "./package.json",
-        "./*": {
-            "types": "./build/*/index.d.ts",
-            "import": "./build/*/index.js",
-            "default": "./build/*/index.js"
+        "./foundation": {
+            "types": "./build/foundation/index.d.ts",
+            "import": "./build/foundation/index.js",
+            "default": "./build/foundation/index.js"
+        },
+        "./schema": {
+            "types": "./build/schema/index.d.ts",
+            "import": "./build/schema/index.js",
+            "default": "./build/schema/index.js"
+        },
+        "./tokens": {
+            "types": "./build/tokens/index.d.ts",
+            "import": "./build/tokens/index.js",
+            "default": "./build/tokens/index.js"
+        },
+        "./compiler": {
+            "types": "./build/compiler/index.d.ts",
+            "import": "./build/compiler/index.js",
+            "default": "./build/compiler/index.js"
+        },
+        "./adapters/lit": {
+            "types": "./build/adapters/lit/index.d.ts",
+            "import": "./build/adapters/lit/index.js",
+            "default": "./build/adapters/lit/index.js"
+        },
+        "./adapters/rolldown": {
+            "types": "./build/adapters/rolldown/index.d.ts",
+            "import": "./build/adapters/rolldown/index.js",
+            "default": "./build/adapters/rolldown/index.js"
         }
     }
 }

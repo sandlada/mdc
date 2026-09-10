@@ -4,10 +4,10 @@
  * SPDX-License-Identifier: MIT
  */
 
-import type { CSSLike } from '../css-like'
-import { MDCStyleSheet } from '../css-like'
-import { isTriggerTables, type TriggerTables } from '../triggers/tables'
-import type { ResolvedStyleDefinition } from '../create-style-definition'
+import type { CSSLike } from '../foundation'
+import { MDCStyleSheet } from '../foundation'
+import { isTriggerTables, type TriggerTables } from '../schema'
+import type { ResolvedStyleDefinition } from '../schema'
 import type { CompileStateSheetOptions } from './compile-state-sheet'
 import { compileTemplate } from './internal/template-helpers'
 

@@ -6,9 +6,9 @@
 
 import { describe, it, expect } from 'vitest'
 import { css, CSSResult } from 'lit'
-import { MDCStyleSheet } from '../css-like'
-import { defineSchema } from '../define-schema'
-import { createStyleDefinition } from '../create-style-definition'
+import { MDCStyleSheet } from '../foundation'
+import { defineSchema } from '../schema'
+import { createStyleDefinition } from '../schema'
 import { overrideTokens } from './override-tokens'
 
 describe('overrideTokens', () => {

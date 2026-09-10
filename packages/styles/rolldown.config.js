@@ -46,7 +46,7 @@ function collectEntries(srcDir, excludeDirs = [], keyPrefix = '') {
 
 const srcDir = join(__dirname, 'src')
 const browserInput = collectEntries(srcDir, ['rolldown'])
-const nodeInput = collectEntries(join(srcDir, 'rolldown'), [], 'rolldown/')
+const nodeInput = collectEntries(join(srcDir, 'adapters', 'rolldown'), [], 'adapters/rolldown/')
 
 export default defineConfig([
     {
@@ -84,7 +84,7 @@ export default defineConfig([
             dir: 'build',
             format: 'esm',
             entryFileNames: '[name].js',
-            chunkFileNames: 'rolldown/chunk-[hash].js',
+            chunkFileNames: 'adapters/rolldown/chunk-[hash].js',
             minify: false,
             sourcemap: true,
             preserveModules: false,

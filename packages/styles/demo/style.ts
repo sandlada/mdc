@@ -12,7 +12,9 @@
  * no `lit` import, runnable under plain Node.
  */
 
-import { createStyleSheet, emptyTables, flow, withState, withVariant } from '@sandlada/styles'
+import { flow } from '@sandlada/styles/foundation'
+import { emptyTables, withState, withVariant } from '@sandlada/styles/schema'
+import { createStyleSheet } from '@sandlada/styles/compiler'
 import { DemoDefinition } from './definition.ts'
 
 const tables = flow(

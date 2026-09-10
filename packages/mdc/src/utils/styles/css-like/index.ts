@@ -3,7 +3,7 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  *
- * @deprecated 轉發墊片（一版期限）：請改從 `@sandlada/styles/css-like` 取用，下版移除。
+ * @deprecated 轉發墊片（一版期限）：請改從 `@sandlada/styles/foundation` 取用，下版移除。
  */
 
-export * from '@sandlada/styles/css-like'
+export * from '@sandlada/styles/foundation'

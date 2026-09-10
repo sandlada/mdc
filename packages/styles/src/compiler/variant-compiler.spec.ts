@@ -24,9 +24,9 @@ import {
     createStyleSheet,
     type StyleDiagnosticWarning
 } from './index'
-import { defineSchema } from '../define-schema'
-import { createStyleDefinition } from '../create-style-definition'
-import { emptyTables, withState, withVariant } from '../triggers'
+import { defineSchema } from '../schema'
+import { createStyleDefinition } from '../schema'
+import { emptyTables, withState, withVariant } from '../schema'
 
 const Schema = defineSchema(['enabled', 'hovered', 'disabled'] as const)
 

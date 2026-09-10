@@ -6,10 +6,10 @@
 
 import { describe, it, expect } from 'vitest'
 import { css, CSSResult, unsafeCSS } from 'lit'
-import { MDCStyleSheet } from '../css-like'
-import { defineSchema } from '../define-schema'
-import { createStyleDefinition } from '../create-style-definition'
-import { forwardTokens } from '../tokens'
+import { MDCStyleSheet } from '../foundation'
+import { defineSchema } from '../schema'
+import { createStyleDefinition } from '../schema'
+import { forwardTokens } from './forward-tokens'
 import { stringifyTokens } from './stringify-tokens'
 
 describe('stringifyTokens', () => {

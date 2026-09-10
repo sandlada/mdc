@@ -20,11 +20,11 @@ import * as lit from 'lit'
 import * as vm from 'vm'
 import * as path from 'path'
 import { createRequire } from 'module'
-import { defineSchema } from '@sandlada/styles/define-schema'
-import { createStyleDefinition } from '@sandlada/styles/create-style-definition'
+import { defineSchema } from '@sandlada/styles/schema'
+import { createStyleDefinition } from '@sandlada/styles/schema'
 import { forwardTokens, overrideTokens, stringifyTokens } from '@sandlada/styles/tokens'
-import { emptyTables, resolveState, withState, withVariant, resolveVariant, type TriggerTables } from '@sandlada/styles/triggers'
-import { flow } from '@sandlada/styles/pipe'
+import { emptyTables, resolveState, withState, withVariant, resolveVariant, type TriggerTables } from '@sandlada/styles/schema'
+import { flow } from '@sandlada/styles/foundation'
 import {
     splitSelectorByComma,
     appendToHostSelector,
@@ -49,7 +49,7 @@ import {
     handleStateBlock,
     extractAtRuleParams
 } from '@sandlada/styles/compiler'
-import { expandShape, expandMargin, expandPadding, expandTypescale } from '@sandlada/styles/expand'
+import { expandShape, expandMargin, expandPadding, expandTypescale } from '@sandlada/styles/tokens'
 export {
     splitSelectorByComma,
     appendToHostSelector,

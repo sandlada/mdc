@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: MIT
  */
 
-import type { StateSchema } from '../define-schema'
-import { emptyTables } from '../triggers/tables'
-import type { TriggerTables } from '../triggers/tables'
+import type { StateSchema } from '../schema'
+import { emptyTables } from '../schema'
+import type { TriggerTables } from '../schema'
 import type { CompileStateSheetOptions } from './compile-state-sheet'
 import {
     extractStateTokenMetadata,

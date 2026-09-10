@@ -93,7 +93,7 @@
         "prefix": "mdc-def",
         "body": [
             "import { Color, Space } from '@sandlada/mdk'",
-            "import { createStyleDefinition } from '@sandlada/styles/create-style-definition'",
+            "import { createStyleDefinition } from '@sandlada/styles/schema'",
             "import { forwardTokens } from '@sandlada/styles/tokens'",
             "",
             "export const ${1:Component}Definition = createStyleDefinition({",

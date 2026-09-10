@@ -13,11 +13,11 @@
 
 import { describe, it, expect } from 'vitest'
 import { css } from 'lit'
-import { MDCStyleSheet } from '../css-like'
-import { defineSchema } from '../define-schema'
-import { createStyleDefinition } from '../create-style-definition'
-import { emptyTables, withState, withVariant, type TriggerTables } from '../triggers'
-import { flow } from '../pipe'
+import { MDCStyleSheet } from '../foundation'
+import { defineSchema } from '../schema'
+import { createStyleDefinition } from '../schema'
+import { emptyTables, withState, withVariant, type TriggerTables } from '../schema'
+import { flow } from '../foundation'
 import { createStyleSheet } from './create-style-sheet'
 
 describe('createStyleSheet', () => {

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { MDCStyleSheet } from '../../css-like'
-import type { CSSLike } from '../../css-like'
+import { MDCStyleSheet } from '../../foundation'
+import type { CSSLike } from '../../foundation'
 import { compileStateSheet, type CompileStateSheetOptions } from '../compile-state-sheet'
 
 export function interpolateTemplate(strings: TemplateStringsArray | string | readonly string[], values: readonly any[]): string {

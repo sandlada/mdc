@@ -2,7 +2,7 @@ import { readdirSync, statSync } from 'node:fs'
 import { join, relative, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'rolldown'
-import { mdcStyles } from '@sandlada/styles/rolldown'
+import { mdcStyles } from '@sandlada/styles/adapters/rolldown'
 import template from 'rollup-plugin-html-literals'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))

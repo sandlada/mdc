@@ -7,7 +7,7 @@
  * Demo state schema (single size dimension, badge-proven shape).
  */
 
-import { defineSchema } from '@sandlada/styles/define-schema'
+import { defineSchema } from '@sandlada/styles/schema'
 
 export const DemoSchema = defineSchema([
     ['small', 'large'],

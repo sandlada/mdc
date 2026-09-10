@@ -8,7 +8,8 @@
  */
 
 import { Shape, Space, Typescale } from '@sandlada/mdk'
-import { createStyleDefinition, expandPadding, expandShape, expandTypescale } from '@sandlada/styles'
+import { createStyleDefinition } from '@sandlada/styles/schema'
+import { expandPadding, expandShape, expandTypescale } from '@sandlada/styles/tokens'
 import { DemoSchema } from './schema.ts'
 
 export const DemoDefinition = createStyleDefinition(DemoSchema)({

@@ -6,7 +6,7 @@
 
 import { css } from 'lit'
 import { describe, expect, it } from 'vitest'
-import { FORWARDED_TOKEN_META } from '../create-style-definition'
+import { FORWARDED_TOKEN_META } from '../schema'
 import { forwardTokens } from './forward-tokens'
 
 describe('forwardTokens', () => {

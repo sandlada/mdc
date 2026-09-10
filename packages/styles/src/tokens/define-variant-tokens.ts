@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { MDCStyleSheet } from '../css-like'
+import { MDCStyleSheet } from '../foundation'
 import { stringifyTokens } from './stringify-tokens'
-import type { ResolvedStyleDefinition } from '../create-style-definition'
+import type { ResolvedStyleDefinition } from '../schema'
 
 export interface DefineVariantTokensOptions {
     /**

@@ -20,9 +20,9 @@
  */
 
 import { describe, it, expect } from 'vitest'
-import { defineSchema } from '../define-schema'
-import { createStyleDefinition } from '../create-style-definition'
-import { emptyTables, withState, type TriggerTables } from '../triggers'
+import { defineSchema } from '../schema'
+import { createStyleDefinition } from '../schema'
+import { emptyTables, withState, type TriggerTables } from '../schema'
 import { compileStateSheet, stripComments, composeStateSelector, appendToHostSelector, splitSelectorByComma, isHostLeading, extractHostAndDescendant } from './index'
 
 const commaSchema = defineSchema(['enabled'] as const)

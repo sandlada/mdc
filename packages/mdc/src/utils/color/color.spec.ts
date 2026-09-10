@@ -6,8 +6,7 @@
 
 import { describe, it, expect } from 'vitest'
 import { Color } from './color'
-import { createStyleDefinition } from '@sandlada/styles/create-style-definition'
-import { defineSchema } from '@sandlada/styles/define-schema'
+import { createStyleDefinition, defineSchema } from '@sandlada/styles/schema'
 
 describe('Color', () => {
     it('provides MDK system color tokens', () => {

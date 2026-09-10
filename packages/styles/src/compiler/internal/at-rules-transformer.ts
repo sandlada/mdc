@@ -4,17 +4,17 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { resolveState, type TriggerTables } from '../../triggers/tables'
-import type { StateSchema } from '../../define-schema'
+import { resolveState, type TriggerTables } from '../../schema'
+import type { StateSchema } from '../../schema'
 import type { StateDimensionItem } from '../rewrite-state-variables'
 import { mergeHoistedRules } from '../merge-hoisted-rules'
 import type { AtRulesCompilerContext } from '../compile-at-rules-sheet'
-import type { AtRuleHandlerResult } from '../at-rules/at-rule-handler'
-import { handleIsolationBlock, isIsolationHeader } from '../at-rules/transform-isolation'
-import { handleVariantBlock } from '../at-rules/transform-variant'
-import { handleWhenBlock } from '../at-rules/transform-when'
-import { handleStateBlock } from '../at-rules/transform-state'
-import { handleDeclaration, handleStandardRule } from '../at-rules/transform-rule'
+import type { AtRuleHandlerResult } from './at-rule-handler'
+import { handleIsolationBlock, isIsolationHeader } from './transform-isolation'
+import { handleVariantBlock } from './transform-variant'
+import { handleWhenBlock } from './transform-when'
+import { handleStateBlock } from './transform-state'
+import { handleDeclaration, handleStandardRule } from './transform-rule'
 import { stripComments } from '../strip-comments'
 
 export interface ParsedStatement {

@@ -12,10 +12,10 @@
  */
 
 import { describe, it, expect } from 'vitest'
-import { defineSchema } from '../define-schema'
-import { createStyleDefinition } from '../create-style-definition'
-import { emptyTables, withState, withVariant } from '../triggers/tables'
-import { flow } from '../pipe/flow'
+import { defineSchema } from '../schema'
+import { createStyleDefinition } from '../schema'
+import { emptyTables, withState, withVariant } from '../schema'
+import { flow } from '../foundation'
 import { createStyleSheet } from './create-style-sheet'
 
 describe('createStyleSheet tables-first', () => {
