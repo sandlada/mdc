@@ -3,14 +3,16 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  *
- * `@state` handler (R1–R8, H1–H4): target/selector validation, state-matrix
- * expansion (single and Cartesian combo), host-shell splitting, and nested
+ * `@state` handler (R1–R8): target/selector validation, state-matrix
+ * expansion (single and Cartesian combo), in-place merging, and nested
  * `@when` hoisting (shell computation shared via hoist-helpers).
+ * Per SPEC-at-rules.md §0: `@state` only rewrites its given target and
+ * selector and never touches outer selectors (no outer-shell splitting).
  */
 
 import type { StateSchema } from '../../define-schema'
 import type { AtRulesCompilerContext } from '../compile-at-rules-sheet'
-import { appendToHostSelector, splitSelectorByComma } from '../compose-state-selector'
+import { splitSelectorByComma } from '../compose-state-selector'
 import { expandDeclaration } from '../expand-declaration'
 import { extractAtRuleParams } from '../extract-at-rule-params'
 import type { StateTokenMetadata } from '../extract-state-token-metadata'
@@ -18,7 +20,7 @@ import { formatRule, parseStatements, type ParsedStatement } from '../internal/a
 import { replaceTargetInSelector } from '../replace-target'
 import type { StateDimensionItem } from '../rewrite-state-variables'
 import type { AtRuleHandlerResult, Recurse } from './at-rule-handler'
-import { hoistCondition, isHostMountedSelector, isHostRootSelector, wrapWithAncestorPath } from './hoist-helpers'
+import { hoistCondition, isHostMountedSelector } from './hoist-helpers'
 import { hasNestedWhen } from './transform-when'
 
 export function filterRelevantCombos(
@@ -240,61 +242,26 @@ export function handleStateBlock(
         bases.push(expandedRules.join(' '))
     } else {
         const stateList = ctx.states as StateDimensionItem[]
-        const outerHost = ctx.ancestorPath.length > 0 && isHostRootSelector(ctx.ancestorPath[0])
-            ? ctx.ancestorPath[0]
-            : null
-
         const baseRulesForStates: string[] = []
-        const splitShellRules = new Map<string, string[]>()
 
         for (const s of stateList) {
-            if (s.target === 'host' && outerHost && !isHostMountedSelector(target)) {
-                // H1 Shell Splitting: host modifier splits outer host shell.
-                // Host-like targets (:host, :where/:is-wrapped :host) never split;
-                // they merge in place via replaceTarget (H4). @state never hoists.
-                const splitHost = appendToHostSelector(outerHost, s.modifier)
-                const innerSel = targetSelector
+            const replaced = replaceTargetInSelector(targetSelector, target, s.modifier)
+            const sel = replaced.result
 
-                const stateRes = recurse(nonWhenStmts, {
-                    ...ctx,
-                    ancestorPath: ctx.ancestorPath.slice(1).concat(innerSel),
-                    stateNestingDepth: currentDepth + 1,
-                    currentStates: [s.name]
-                })
-                const splitBody = stateRes.baseRules.join(' ')
-                if (!shouldEmitSingleStateRule(ctx.meta, s.name, splitBody, nonWhenStmts.length > 0)) {
-                    continue
-                }
-                const content = formatRule(innerSel, splitBody)
-
-                if (!splitShellRules.has(splitHost)) {
-                    splitShellRules.set(splitHost, [])
-                }
-                splitShellRules.get(splitHost)!.push(content)
-            } else {
-                const replaced = replaceTargetInSelector(targetSelector, target, s.modifier)
-                const sel = replaced.result
-
-                const stateRes = recurse(nonWhenStmts, {
-                    ...ctx,
-                    ancestorPath: [...ctx.ancestorPath, sel],
-                    stateNestingDepth: currentDepth + 1,
-                    currentStates: [s.name]
-                })
-                const singleBody = stateRes.baseRules.join(' ')
-                if (!shouldEmitSingleStateRule(ctx.meta, s.name, singleBody, nonWhenStmts.length > 0)) {
-                    continue
-                }
-                baseRulesForStates.push(formatRule(sel, singleBody))
+            const stateRes = recurse(nonWhenStmts, {
+                ...ctx,
+                ancestorPath: [...ctx.ancestorPath, sel],
+                stateNestingDepth: currentDepth + 1,
+                currentStates: [s.name]
+            })
+            const singleBody = stateRes.baseRules.join(' ')
+            if (!shouldEmitSingleStateRule(ctx.meta, s.name, singleBody, nonWhenStmts.length > 0)) {
+                continue
             }
+            baseRulesForStates.push(formatRule(sel, singleBody))
         }
 
         bases.push(baseRulesForStates.join(' '))
-
-        for (const [splitHost, innerRules] of splitShellRules.entries()) {
-            const wrapped = wrapWithAncestorPath(ctx.ancestorPath.slice(1), innerRules.join(' '))
-            hoisted.push(formatRule(splitHost, wrapped))
-        }
     }
 
     // Handle nested @when inside @state

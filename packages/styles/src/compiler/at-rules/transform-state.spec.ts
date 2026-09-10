@@ -1,5 +1,5 @@
 /**
- * @version 2026.9.8
+ * @version 2026.9.9
  * @license
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
@@ -557,8 +557,8 @@ describe(':host', () => {
 
     /**
      * :host（沿用 R1–R8）：enabled 原样；hovered 挂 :host（:host(:hover)）；disabled 另起 :host([...]) 壳。
-     * H1 壳分裂；H2 祖先包裹保留相對 &（如 & .inner、& > .inner 保留，單獨 & 本體丟棄）；H3 括号内合并；H4 :is/:where 包裹 :host 按分支合并。
-     * 分裂出的外壳经 hoisted 返回（合并归 dispatcher / mergeHoistedRules）。
+     * 全原地合併（R2）：host 祖先存在時亦不觸及外層（H1 已撤銷，見 SPEC-at-rules.md §0）；
+     * H2 祖先包裹保留相對 &（如 & .inner、& > .inner 保留，單獨 & 本體丟棄）；H3 括号内合并；H4 :is/:where 包裹 :host 按分支合并。
      */
     const greenMapping: StateMapping = [
         ['@state(:host) :host', '', [], joinExpected([':host {}', ':host(:hover) {}', ':host([disabled]) {}'])],
@@ -667,38 +667,38 @@ describe(':host', () => {
         ['@state(:host) :host(.active)', '.label {}', [], joinExpected([
             ':host(.active) { .label {} }', ':host(.active:hover) { .label {} }', ':host(.active[disabled]) { .label {} }'
         ])],
-        // H1 壳分裂（分裂外壳经 hoisted 返回）
+        // host 祖先 + host 態 + 非 host target：按契約原地合併（R2），永不觸及外層（H1 已撤銷，見 SPEC-at-rules.md §0）
         ['@state(button) button', '', [':host'], joinExpected([
             'button {}',
-            ':host(:hover) { button {} }',
-            ':host([disabled]) { button {} }'
+            'button:hover {}',
+            'button[disabled] {}'
         ])],
         ['@state(button) button .label', '', [':host([dense])'], joinExpected([
             'button .label {}',
-            ':host([dense]:hover) { button .label {} }',
-            ':host([dense][disabled]) { button .label {} }'
+            'button:hover .label {}',
+            'button[disabled] .label {}'
         ])],
         ['@state(button) button', '', [':host(:not(.a))'], joinExpected([
             'button {}',
-            ':host(:not(.a):hover) { button {} }',
-            ':host(:not(.a)[disabled]) { button {} }'
+            'button:hover {}',
+            'button[disabled] {}'
         ])],
         ['@state(button) button', '', [':host', '.wrapper'], joinExpected([
             'button {}',
-            ':host(:hover) { .wrapper { button {} } }',
-            ':host([disabled]) { .wrapper { button {} } }'
+            'button:hover {}',
+            'button[disabled] {}'
         ])],
         ['@state(button) button, button .label', '', [':host'], joinExpected([
             'button, button .label {}',
-            ':host(:hover) { button, button .label {} }',
-            ':host([disabled]) { button, button .label {} }'
+            'button:hover, button:hover .label {}',
+            'button[disabled], button[disabled] .label {}'
         ])],
         ['@state(button) button', '', [':where(:host)'], joinExpected([
             'button {}',
-            ':where(:host(:hover)) { button {} }',
-            ':where(:host([disabled])) { button {} }'
+            'button:hover {}',
+            'button[disabled] {}'
         ])],
-        // host-like target 不分裂外層 host：原地合併（H4），@state 不做提升
+        // host-like target：與所有 target 一視同仁，原地合併（H1 已撤銷，無需特殊豁免）
         ['@state(:host) :host', '', [':host'], joinExpected([
             ':host {}',
             ':host(:hover) {}',

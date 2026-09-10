@@ -3,7 +3,7 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  *
- * @version 2026.9.8
+ * @version 2026.9.9
  *
  * @fileoverview
  * tables-first 規格：`flow(withState, withVariant)(emptyTables)` 組裝的
@@ -72,11 +72,13 @@ describe('createStyleSheet tables-first', () => {
             withState({ 'small': `:host([circular-size='small'])` }),
             withVariant({ 'circular': `:host([variant='circular'])` })
         )(emptyTables)
+        // H1 已撤銷（見 SPEC-at-rules.md §0）：host 屬性態只在 host target 上生效；
+        // button target 配 host 修飾不再分裂 variant 外殼（舊期望已隨功能刪除）。
         const output = createStyleSheet(hostTables)(SizeDef)(`
-            @variant(circular) { @state(button) button {} }
+            @variant(circular) { @state(:host) :host {} }
         `).cssText
         expect(output).toContain(`:host([variant='circular'])`)
-        expect(output).toContain(`:host([variant='circular'][circular-size='small'])`)
+        expect(output).toContain(`:host([circular-size='small'])`)
     })
 
     it('missing definition with state-aware template throws fail-fast', () => {
