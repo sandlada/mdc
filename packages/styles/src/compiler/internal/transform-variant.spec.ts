@@ -1,17 +1,17 @@
 /**
- * @version 2026.9.9
+ * @version
+ * 2026.9.9
+ *
  * @license
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  *
  * @fileoverview
- * @variant 名单规格（handler 单元层）：直调 handleVariantBlock，只测名单 / 外壳，
- * 不测声明内容，不依赖 compileStateSheet 与真实 tables 实现。
- * 挂载选择器由 ctx.tables.variants 给出（fill→容器后代、tonal→host 类、
- * outlined→host 属性）；名单合法 = 变体字典确切 key（大小写敏感）且 tables
- * 有映射，任一缺失即非法。字典成员来自 ctx.meta.allVariantNames。
- * 绿队 = 合法名单必须生成外壳；红队 = 非法名单必须安全失败（[D] 输出空串）。
- * 跨 handler 组装与 token 发射归 at-rules-integration.spec.ts。
+ * `@variant(VARIANTNAME) { CSS BODY }`
+ * - `@variant` 總是提升到頂層作用域 (會考慮@layer層級, 如果存在@layer, 總是提升到最近的@layer級別).
+ * - `@variant` 遇到無效HOSTSELECTOR時總是輸出空白.
+ * - `@variant` 不會修改其它選擇器.
+ * - `@variant` 不會和其它選擇器合并.
  */
 
 import { describe, expect, it } from 'vitest'
@@ -36,19 +36,12 @@ describe('variant', () => {
         })
     })
 
-    /**
-     * @variant(name, ...) { body }：name 须同时为变体字典确切 key 与 tables 已映射名，大小写敏感。
-     * V1 单名单壳；V2 多名逗号并壳；V3 body 透传回声，@state 可内嵌原文；V4 嵌套 @variant 非法丢弃 [D]。
-     * `*` / `!name` 非法一律 [D]（BUG-05：通配 / 否定分支直接返回，单发 `invalid-variant-name`，warn 归 sheet 层断言）；
-     * `**` 非通配类，按字典缺 key 走 `unknown-variant`（釘住現狀，不擴大非法名判定）。
-     * 壳形状由 registry 决定，不回退 `:host([variant])` 默认。
-     */
     const greenMapping: HandlerMapping = [
-        // V1 单名：三类挂载
+        // 单名：三类挂载
         ['@variant(fill)', 'color: red;', '.container.fill { color: red }'],
         ['@variant(tonal)', 'button .label { color: red; }', ':host(.tonal) { button .label { color: red; } }'],
         ['@variant(outlined)', 'button:has(.label) { color: red; }', ':host([variant="outlined"]) { button:has(.label) { color: red; } }'],
-        // V2 多名：混合壳并列
+        // 多名：混合壳并列
         ['@variant(fill, tonal)', 'color: red;', '.container.fill, :host(.tonal) { color: red }'],
         ['@variant(fill, tonal, outlined)', 'color: red;', '.container.fill, :host(.tonal), :host([variant="outlined"]) { color: red }'],
         ['@variant(tonal, outlined)', 'button .label { color: red; }', ':host(.tonal), :host([variant="outlined"]) { button .label { color: red; } }'],
@@ -61,11 +54,6 @@ describe('variant', () => {
         ['@variant(tonal)', '', ':host(.tonal) {}'],
     ]
 
-    /**
-     * [D]：语法非法、字典缺 key、registry 无映射（任一缺失即整块丢弃）。
-     * BUG-05 C2/C4：通配 / 否定（含混合顺序、孤感叹号）一律 [D]；`**` 非通配类，
-     * 同樣 [D]（warn 類型為 `unknown-variant`，見上註）。
-    */
     const redMapping: HandlerMapping = [
         ['@variant()', 'color: red;', ''],
         ['@variant', 'color: red;', ''],
