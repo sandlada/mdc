@@ -1,8 +1,16 @@
 /**
- * @version 2026.9.9
+ * @version
+ * 2026.9.9
+ *
  * @license
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
+ *
+ * @fileoverview
+ * `@state(TARGET) SELECTOR { CSS BODY }`
+ * - `@state` 不修改自身SELECTOR以外的任何選擇器；不修改外部:host也不修改CSS BODY内部的選擇器。
+ * - `@state` 不提升作用域。
+ * - `@state` 不是修復器也不是優化器，錯誤的輸入意味著錯誤的輸出（通常情況下錯誤的輸出指的是空白輸出）。
  */
 
 import { describe, expect, it } from 'vitest'
@@ -435,7 +443,7 @@ describe('@state: small, medium, .large', () => {
             'button[selected].small {}', 'button[selected].medium {}', 'button[selected].large {}'
         ])],
         // 儅目標包含僞類時（長 target 保留緊貼 target-end 差異，不向尾部搬移）
-// 注意，button:hover.small 是尾插 canonical 形狀
+        // 注意，button:hover.small 是尾插 canonical 形狀
         ['@state(button:hover) button:hover .label', '', [], joinExpected([
             'button:hover.small .label {}', 'button:hover.medium .label {}', 'button:hover.large .label {}'
         ])],
