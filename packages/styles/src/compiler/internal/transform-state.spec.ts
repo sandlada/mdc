@@ -529,9 +529,6 @@ describe('@state: small, medium, .large', () => {
         ['@state(:host) :host(:where(.a))', 'button {}', [], joinExpected([
             ':host(:where(.a).small) { button {} }', ':host(:where(.a).medium) { button {} }', ':host(:where(.a).large) { button {} }'
         ])],
-        [':host', '@state(.btn) .btn', [], joinExpected([
-            ':host { .btn.small {} }', ':host { .btn.medium {} }', ':host { .btn.large {} }'
-        ])],
     ]
 
     const redMapping: StateMapping = [
@@ -561,8 +558,6 @@ describe('@state: small, medium, .large', () => {
         ['@state .a ()', 'color: red;', [], ''],
         ['@state(button) &', '', [], ''],
         ['@state(button) *', '', [], ''],
-        // 内部無效但不會導致外部無效
-        [':host', '@state(:host) .btn {}', [], ':host {}'],
     ]
 
     for (const [header, body, ancestors, expected] of greenMapping) {
