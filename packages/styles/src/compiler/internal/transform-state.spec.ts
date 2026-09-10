@@ -32,10 +32,8 @@ describe('@state: small, medium, .large', () => {
         ancestorPath: ancestors
     })
 
-    /**
-     * @state(target) selector { body }：target 与 selector 皆必填。
-     */
     const greenMapping: StateMapping = [
+        // 選擇器與目標完全命中
         ['@state(button) button', '', [], joinExpected(['button.small {}', 'button.medium {}', 'button.large {}'])],
         ['@state(button) button .label', '', [], joinExpected(['button.small .label {}', 'button.medium .label {}', 'button.large .label {}'])],
         ['@state(button) button :is(.icon, .label)', '', [], joinExpected([
@@ -43,6 +41,7 @@ describe('@state: small, medium, .large', () => {
             'button.medium :is(.icon, .label) {}',
             'button.large :is(.icon, .label) {}'
         ])],
+        // state不做額外魔法，保留結構
         ['@state(button) button', ':is(.icon, .label) {}', [], joinExpected([
             'button.small { :is(.icon, .label) {} }',
             'button.medium { :is(.icon, .label) {} }',
@@ -53,56 +52,63 @@ describe('@state: small, medium, .large', () => {
             'button.medium { &:is(.icon, .label) {} }',
             'button.large { &:is(.icon, .label) {} }'
         ])],
+        // 尾插 canonical：短 target 時 state 掛 compound-pre 尾（函數塊之後、:: 之前），如 button:is().small
         ['@state(button) button:is(.icon, .label)', '', [], joinExpected([
-            'button.small:is(.icon, .label) {}',
-            'button.medium:is(.icon, .label) {}',
-            'button.large:is(.icon, .label) {}'
+            'button:is(.icon, .label).small {}',
+            'button:is(.icon, .label).medium {}',
+            'button:is(.icon, .label).large {}'
         ])],
         ['@state(button) button:has(.label)', '', [], joinExpected([
-            'button.small:has(.label) {}',
-            'button.medium:has(.label) {}',
-            'button.large:has(.label) {}'
+            'button:has(.label).small {}',
+            'button:has(.label).medium {}',
+            'button:has(.label).large {}'
         ])],
+        // button匹配不到[type="button"]上。
+        ['@state(button) button[type="button"]', '', [], joinExpected([
+            'button[type="button"].small {}', 'button[type="button"].medium {}', 'button[type="button"].large {}'
+        ])],
+        // 目標并不是總在第一個
         ['@state(button) .container button:has(.label) .label', '', [], joinExpected([
-            '.container button.small:has(.label) .label {}',
-            '.container button.medium:has(.label) .label {}',
-            '.container button.large:has(.label) .label {}'
+            '.container button:has(.label).small .label {}',
+            '.container button:has(.label).medium .label {}',
+            '.container button:has(.label).large .label {}'
         ])],
         ['@state(button) &button:has(.label)', '.label {}', ['.container'], joinExpected([
-            '&button.small:has(.label) { .label {} }',
-            '&button.medium:has(.label) { .label {} }',
-            '&button.large:has(.label) { .label {} }'
+            '&button:has(.label).small { .label {} }',
+            '&button:has(.label).medium { .label {} }',
+            '&button:has(.label).large { .label {} }'
         ])],
         ['@state(button) .container>button:has(.label)>.label', '', [], joinExpected([
-            '.container>button.small:has(.label)>.label {}',
-            '.container>button.medium:has(.label)>.label {}',
-            '.container>button.large:has(.label)>.label {}'
+            '.container>button:has(.label).small>.label {}',
+            '.container>button:has(.label).medium>.label {}',
+            '.container>button:has(.label).large>.label {}'
         ])],
         ['@state(button) .container[show]>button:has(.label)>.label', '', [], joinExpected([
-            '.container[show]>button.small:has(.label)>.label {}',
-            '.container[show]>button.medium:has(.label)>.label {}',
-            '.container[show]>button.large:has(.label)>.label {}'
+            '.container[show]>button:has(.label).small>.label {}',
+            '.container[show]>button:has(.label).medium>.label {}',
+            '.container[show]>button:has(.label).large>.label {}'
         ])],
         ['@state(button) .container[show="true"]>button:has(.label)>.label', '', [], joinExpected([
-            '.container[show="true"]>button.small:has(.label)>.label {}',
-            '.container[show="true"]>button.medium:has(.label)>.label {}',
-            '.container[show="true"]>button.large:has(.label)>.label {}'
+            '.container[show="true"]>button:has(.label).small>.label {}',
+            '.container[show="true"]>button:has(.label).medium>.label {}',
+            '.container[show="true"]>button:has(.label).large>.label {}'
         ])],
         ['@state(button) .container[show="true"]+.wrapper>button:has(.label)>.label', '.text-bg:disabled {}', [], joinExpected([
-            '.container[show="true"]+.wrapper>button.small:has(.label)>.label { .text-bg:disabled {} }',
-            '.container[show="true"]+.wrapper>button.medium:has(.label)>.label { .text-bg:disabled {} }',
-            '.container[show="true"]+.wrapper>button.large:has(.label)>.label { .text-bg:disabled {} }'
+            '.container[show="true"]+.wrapper>button:has(.label).small>.label { .text-bg:disabled {} }',
+            '.container[show="true"]+.wrapper>button:has(.label).medium>.label { .text-bg:disabled {} }',
+            '.container[show="true"]+.wrapper>button:has(.label).large>.label { .text-bg:disabled {} }'
         ])],
         ['@state(button) .container[show="true"]+.wrapper>button:has(.label)>.label', '.text-bg[disabled] {}', [], joinExpected([
-            '.container[show="true"]+.wrapper>button.small:has(.label)>.label { .text-bg[disabled] {} }',
-            '.container[show="true"]+.wrapper>button.medium:has(.label)>.label { .text-bg[disabled] {} }',
-            '.container[show="true"]+.wrapper>button.large:has(.label)>.label { .text-bg[disabled] {} }'
+            '.container[show="true"]+.wrapper>button:has(.label).small>.label { .text-bg[disabled] {} }',
+            '.container[show="true"]+.wrapper>button:has(.label).medium>.label { .text-bg[disabled] {} }',
+            '.container[show="true"]+.wrapper>button:has(.label).large>.label { .text-bg[disabled] {} }'
         ])],
         ['@state(button) .container[show="true"]+.wrapper>button:has(.label)>.label', '.text-bg[disabled="true"] {}', [], joinExpected([
-            '.container[show="true"]+.wrapper>button.small:has(.label)>.label { .text-bg[disabled="true"] {} }',
-            '.container[show="true"]+.wrapper>button.medium:has(.label)>.label { .text-bg[disabled="true"] {} }',
-            '.container[show="true"]+.wrapper>button.large:has(.label)>.label { .text-bg[disabled="true"] {} }'
+            '.container[show="true"]+.wrapper>button:has(.label).small>.label { .text-bg[disabled="true"] {} }',
+            '.container[show="true"]+.wrapper>button:has(.label).medium>.label { .text-bg[disabled="true"] {} }',
+            '.container[show="true"]+.wrapper>button:has(.label).large>.label { .text-bg[disabled="true"] {} }'
         ])],
+        // 目標并不總是簡單選擇器
         ['@state(button.show) button.show.ahaha.hummm', '', [], joinExpected([
             'button.show.small.ahaha.hummm {}',
             'button.show.medium.ahaha.hummm {}',
@@ -158,15 +164,19 @@ describe('@state: small, medium, .large', () => {
             'button.show[selected][data-wow="yes"].medium:has(dialog[open]).ahaha.hummm button.label .show button {}',
             'button.show[selected][data-wow="yes"].large:has(dialog[open]).ahaha.hummm button.label .show button {}'
         ])],
+        // 目標還可以是ID選擇器
         ['@state(#submit) #submit', '', [], joinExpected(['#submit.small {}', '#submit.medium {}', '#submit.large {}'])],
         ['@state(#submit) #submit .label', '', [], joinExpected(['#submit.small .label {}', '#submit.medium .label {}', '#submit.large .label {}'])],
+        // 目標也可以是全選選擇器
+        // 不要把CSS的`*`視作Regex的`*`,CSS的`*`視作`匹配範圍内的所有元素`
         ['@state(*) *', '', [], joinExpected(['*.small {}', '*.medium {}', '*.large {}'])],
         ['@state(*) * .label', '', [], joinExpected(['*.small .label {}', '*.medium .label {}', '*.large .label {}'])],
+        ['@state(*) .wrap * .label', '', [], joinExpected(['.wrap *.small .label {}', '.wrap *.medium .label {}', '.wrap *.large .label {}'])],
         ['@state(button) button#submit', '', [], joinExpected([
-            'button.small#submit {}', 'button.medium#submit {}', 'button.large#submit {}'
+            'button#submit.small {}', 'button#submit.medium {}', 'button#submit.large {}'
         ])],
         ['@state(button) button#submit.primary', '', [], joinExpected([
-            'button.small#submit.primary {}', 'button.medium#submit.primary {}', 'button.large#submit.primary {}'
+            'button#submit.primary.small {}', 'button#submit.primary.medium {}', 'button#submit.primary.large {}'
         ])],
         ['@state(button#submit) button#submit.primary', '', [], joinExpected([
             'button#submit.small.primary {}', 'button#submit.medium.primary {}', 'button#submit.large.primary {}'
@@ -176,87 +186,87 @@ describe('@state: small, medium, .large', () => {
             '.container .label button.small {}', '.container .label button.medium {}', '.container .label button.large {}'
         ])],
         ['@state(button) button[type="submit"]', '', [], joinExpected([
-            'button.small[type="submit"] {}', 'button.medium[type="submit"] {}', 'button.large[type="submit"] {}'
+            'button[type="submit"].small {}', 'button[type="submit"].medium {}', 'button[type="submit"].large {}'
         ])],
         ['@state(button) button[type=\'submit\']', '', [], joinExpected([
-            'button.small[type=\'submit\'] {}', 'button.medium[type=\'submit\'] {}', 'button.large[type=\'submit\'] {}'
+            'button[type=\'submit\'].small {}', 'button[type=\'submit\'].medium {}', 'button[type=\'submit\'].large {}'
         ])],
         ['@state(button) button[title~="word"]', '', [], joinExpected([
-            'button.small[title~="word"] {}', 'button.medium[title~="word"] {}', 'button.large[title~="word"] {}'
+            'button[title~="word"].small {}', 'button[title~="word"].medium {}', 'button[title~="word"].large {}'
         ])],
         ['@state(button) button[lang|="en"]', '', [], joinExpected([
-            'button.small[lang|="en"] {}', 'button.medium[lang|="en"] {}', 'button.large[lang|="en"] {}'
+            'button[lang|="en"].small {}', 'button[lang|="en"].medium {}', 'button[lang|="en"].large {}'
         ])],
         ['@state(button) button[href^="https"]', '', [], joinExpected([
-            'button.small[href^="https"] {}', 'button.medium[href^="https"] {}', 'button.large[href^="https"] {}'
+            'button[href^="https"].small {}', 'button[href^="https"].medium {}', 'button[href^="https"].large {}'
         ])],
         ['@state(button) button[href$=".pdf"]', '', [], joinExpected([
-            'button.small[href$=".pdf"] {}', 'button.medium[href$=".pdf"] {}', 'button.large[href$=".pdf"] {}'
+            'button[href$=".pdf"].small {}', 'button[href$=".pdf"].medium {}', 'button[href$=".pdf"].large {}'
         ])],
         ['@state(button) button[class*="btn-"]', '', [], joinExpected([
-            'button.small[class*="btn-"] {}', 'button.medium[class*="btn-"] {}', 'button.large[class*="btn-"] {}'
+            'button[class*="btn-"].small {}', 'button[class*="btn-"].medium {}', 'button[class*="btn-"].large {}'
         ])],
         ['@state(button) button[data-wow="yes" i]', '', [], joinExpected([
-            'button.small[data-wow="yes" i] {}', 'button.medium[data-wow="yes" i] {}', 'button.large[data-wow="yes" i] {}'
+            'button[data-wow="yes" i].small {}', 'button[data-wow="yes" i].medium {}', 'button[data-wow="yes" i].large {}'
         ])],
         ['@state(button) button[data-label="button"]', '', [], joinExpected([
-            'button.small[data-label="button"] {}', 'button.medium[data-label="button"] {}', 'button.large[data-label="button"] {}'
+            'button[data-label="button"].small {}', 'button[data-label="button"].medium {}', 'button[data-label="button"].large {}'
         ])],
         ['@state(button) button:hover', '', [], joinExpected([
-            'button.small:hover {}', 'button.medium:hover {}', 'button.large:hover {}'
+            'button:hover.small {}', 'button:hover.medium {}', 'button:hover.large {}'
         ])],
         ['@state(button) button:focus-visible', '', [], joinExpected([
-            'button.small:focus-visible {}', 'button.medium:focus-visible {}', 'button.large:focus-visible {}'
+            'button:focus-visible.small {}', 'button:focus-visible.medium {}', 'button:focus-visible.large {}'
         ])],
         ['@state(button) button:active', '', [], joinExpected([
-            'button.small:active {}', 'button.medium:active {}', 'button.large:active {}'
+            'button:active.small {}', 'button:active.medium {}', 'button:active.large {}'
         ])],
         ['@state(button) button:hover:active', '', [], joinExpected([
-            'button.small:hover:active {}', 'button.medium:hover:active {}', 'button.large:hover:active {}'
+            'button:hover:active.small {}', 'button:hover:active.medium {}', 'button:hover:active.large {}'
         ])],
         ['@state(button) button:disabled', '', [], joinExpected([
-            'button.small:disabled {}', 'button.medium:disabled {}', 'button.large:disabled {}'
+            'button:disabled.small {}', 'button:disabled.medium {}', 'button:disabled.large {}'
         ])],
         ['@state(button) button:checked', '', [], joinExpected([
-            'button.small:checked {}', 'button.medium:checked {}', 'button.large:checked {}'
+            'button:checked.small {}', 'button:checked.medium {}', 'button:checked.large {}'
         ])],
         ['@state(button) button:hover:focus-visible', '', [], joinExpected([
-            'button.small:hover:focus-visible {}', 'button.medium:hover:focus-visible {}', 'button.large:hover:focus-visible {}'
+            'button:hover:focus-visible.small {}', 'button:hover:focus-visible.medium {}', 'button:hover:focus-visible.large {}'
         ])],
         ['@state(button) button:not(.disabled)', '', [], joinExpected([
-            'button.small:not(.disabled) {}', 'button.medium:not(.disabled) {}', 'button.large:not(.disabled) {}'
+            'button:not(.disabled).small {}', 'button:not(.disabled).medium {}', 'button:not(.disabled).large {}'
         ])],
         ['@state(button) button:not([disabled])', '', [], joinExpected([
-            'button.small:not([disabled]) {}', 'button.medium:not([disabled]) {}', 'button.large:not([disabled]) {}'
+            'button:not([disabled]).small {}', 'button:not([disabled]).medium {}', 'button:not([disabled]).large {}'
         ])],
         ['@state(button) button:not([disabled="true"])', '', [], joinExpected([
-            'button.small:not([disabled="true"]) {}', 'button.medium:not([disabled="true"]) {}', 'button.large:not([disabled="true"]) {}'
+            'button:not([disabled="true"]).small {}', 'button:not([disabled="true"]).medium {}', 'button:not([disabled="true"]).large {}'
         ])],
         ['@state(button) button:not([disabled="false"])', '', [], joinExpected([
-            'button.small:not([disabled="false"]) {}', 'button.medium:not([disabled="false"]) {}', 'button.large:not([disabled="false"]) {}'
+            'button:not([disabled="false"]).small {}', 'button:not([disabled="false"]).medium {}', 'button:not([disabled="false"]).large {}'
         ])],
         ['@state(button) button:not(.a):not([disabled])', '', [], joinExpected([
-            'button.small:not(.a):not([disabled]) {}', 'button.medium:not(.a):not([disabled]) {}', 'button.large:not(.a):not([disabled]) {}'
+            'button:not(.a):not([disabled]).small {}', 'button:not(.a):not([disabled]).medium {}', 'button:not(.a):not([disabled]).large {}'
         ])],
         ['@state(button) .wrap button:not(.a):not([disabled])', '', [], joinExpected([
-            '.wrap button.small:not(.a):not([disabled]) {}',
-            '.wrap button.medium:not(.a):not([disabled]) {}',
-            '.wrap button.large:not(.a):not([disabled]) {}'
+            '.wrap button:not(.a):not([disabled]).small {}',
+            '.wrap button:not(.a):not([disabled]).medium {}',
+            '.wrap button:not(.a):not([disabled]).large {}'
         ])],
         ['@state(button) button:not(.a):not([disabled])', '', ['.wrap'], joinExpected([
-            'button.small:not(.a):not([disabled]) {}',
-            'button.medium:not(.a):not([disabled]) {}',
-            'button.large:not(.a):not([disabled]) {}'
+            'button:not(.a):not([disabled]).small {}',
+            'button:not(.a):not([disabled]).medium {}',
+            'button:not(.a):not([disabled]).large {}'
         ])],
         ['@state(button) &button:not(.a):not([disabled])', '', ['.wrap'], joinExpected([
-            '&button.small:not(.a):not([disabled]) {}',
-            '&button.medium:not(.a):not([disabled]) {}',
-            '&button.large:not(.a):not([disabled]) {}'
+            '&button:not(.a):not([disabled]).small {}',
+            '&button:not(.a):not([disabled]).medium {}',
+            '&button:not(.a):not([disabled]).large {}'
         ])],
         ['@state(button) button:where(.icon, .label)', '', [], joinExpected([
-            'button.small:where(.icon, .label) {}',
-            'button.medium:where(.icon, .label) {}',
-            'button.large:where(.icon, .label) {}'
+            'button:where(.icon, .label).small {}',
+            'button:where(.icon, .label).medium {}',
+            'button:where(.icon, .label).large {}'
         ])],
         ['@state(button) button', ':where(.icon, .label) {}', [], joinExpected([
             'button.small { :where(.icon, .label) {} }',
@@ -269,27 +279,27 @@ describe('@state: small, medium, .large', () => {
             'button.large { &:where(.icon, .label) {} }'
         ])],
         ['@state(button) button:is(:hover, :focus-visible)', '', [], joinExpected([
-            'button.small:is(:hover, :focus-visible) {}',
-            'button.medium:is(:hover, :focus-visible) {}',
-            'button.large:is(:hover, :focus-visible) {}'
+            'button:is(:hover, :focus-visible).small {}',
+            'button:is(:hover, :focus-visible).medium {}',
+            'button:is(:hover, :focus-visible).large {}'
         ])],
         ['@state(button) button:first-child', '', [], joinExpected([
-            'button.small:first-child {}', 'button.medium:first-child {}', 'button.large:first-child {}'
+            'button:first-child.small {}', 'button:first-child.medium {}', 'button:first-child.large {}'
         ])],
         ['@state(button) button:last-child', '', [], joinExpected([
-            'button.small:last-child {}', 'button.medium:last-child {}', 'button.large:last-child {}'
+            'button:last-child.small {}', 'button:last-child.medium {}', 'button:last-child.large {}'
         ])],
         ['@state(button) button:only-child', '', [], joinExpected([
-            'button.small:only-child {}', 'button.medium:only-child {}', 'button.large:only-child {}'
+            'button:only-child.small {}', 'button:only-child.medium {}', 'button:only-child.large {}'
         ])],
         ['@state(button) button:nth-child(2n+1)', '', [], joinExpected([
-            'button.small:nth-child(2n+1) {}', 'button.medium:nth-child(2n+1) {}', 'button.large:nth-child(2n+1) {}'
+            'button:nth-child(2n+1).small {}', 'button:nth-child(2n+1).medium {}', 'button:nth-child(2n+1).large {}'
         ])],
         ['@state(button) button:nth-of-type(odd)', '', [], joinExpected([
-            'button.small:nth-of-type(odd) {}', 'button.medium:nth-of-type(odd) {}', 'button.large:nth-of-type(odd) {}'
+            'button:nth-of-type(odd).small {}', 'button:nth-of-type(odd).medium {}', 'button:nth-of-type(odd).large {}'
         ])],
         ['@state(button) button:empty', '', [], joinExpected([
-            'button.small:empty {}', 'button.medium:empty {}', 'button.large:empty {}'
+            'button:empty.small {}', 'button:empty.medium {}', 'button:empty.large {}'
         ])],
         ['@state(button) button::before', '', [], joinExpected([
             'button.small::before {}', 'button.medium::before {}', 'button.large::before {}'
@@ -298,7 +308,7 @@ describe('@state: small, medium, .large', () => {
             'button.small::after {}', 'button.medium::after {}', 'button.large::after {}'
         ])],
         ['@state(button) button:hover::before', '', [], joinExpected([
-            'button.small:hover::before {}', 'button.medium:hover::before {}', 'button.large:hover::before {}'
+            'button:hover.small::before {}', 'button:hover.medium::before {}', 'button:hover.large::before {}'
         ])],
         ['@state(button) button::marker', '', [], joinExpected([
             'button.small::marker {}', 'button.medium::marker {}', 'button.large::marker {}'
@@ -328,15 +338,27 @@ describe('@state: small, medium, .large', () => {
             'button.small+.label {}', 'button.medium+.label {}', 'button.large+.label {}'
         ])],
         ['@state(button) .container~button:has(.label)~.label', '', [], joinExpected([
-            '.container~button.small:has(.label)~.label {}',
-            '.container~button.medium:has(.label)~.label {}',
-            '.container~button.large:has(.label)~.label {}'
+            '.container~button:has(.label).small~.label {}',
+            '.container~button:has(.label).medium~.label {}',
+            '.container~button:has(.label).large~.label {}'
         ])],
-        // R3 函数参数内永不匹配：`:has(.label)` 内层原样，仅尾部展开
+        // 匹配到了就展開，并非只匹配一個，因爲匹配範圍就是SELECTOR。例如button.button#button:has(.button)可以匹配到兩個.button
         ['@state(.label) .container~button:has(.label)~.label', '', [], joinExpected([
-            '.container~button:has(.label)~.label.small {}',
-            '.container~button:has(.label)~.label.medium {}',
-            '.container~button:has(.label)~.label.large {}'
+            '.container~button:has(.label.small)~.label.small {}',
+            '.container~button:has(.label.medium)~.label.medium {}',
+            '.container~button:has(.label.large)~.label.large {}'
+        ])],
+        ['@state(button) button:has(button)', '', [], joinExpected([
+            'button:has(button.small).small {}', 'button:has(button.medium).medium {}', 'button:has(button.large).large {}'
+        ])],
+        ['@state(button) button:is(button, .label)', '', [], joinExpected([
+            'button:is(button.small, .label).small {}', 'button:is(button.medium, .label).medium {}', 'button:is(button.large, .label).large {}'
+        ])],
+        ['@state(button) button:where(button)', '', [], joinExpected([
+            'button:where(button.small).small {}', 'button:where(button.medium).medium {}', 'button:where(button.large).large {}'
+        ])],
+        ['@state(button) button:not(button)', '', [], joinExpected([
+            'button:not(button.small).small {}', 'button:not(button.medium).medium {}', 'button:not(button.large).large {}'
         ])],
         ['@state(button) button ~ button', '', [], joinExpected([
             'button.small ~ button.small {}', 'button.medium ~ button.medium {}', 'button.large ~ button.large {}'
@@ -344,13 +366,14 @@ describe('@state: small, medium, .large', () => {
         ['@state(button) button + button', '', [], joinExpected([
             'button.small + button.small {}', 'button.medium + button.medium {}', 'button.large + button.large {}'
         ])],
+        // 不對原始SELECTOR做過多修改，例如空格如何擺放。
+        // 需要在判斷時trim TARGET和SELECTOR。例如button+ button需要把空格trim掉。當然僅限在判斷時trim。
         ['@state(button+button) button+button', '', [], joinExpected([
             'button+button.small {}', 'button+button.medium {}', 'button+button.large {}'
         ])],
         ['@state(button+ button) button+ button', '', [], joinExpected([
             'button+ button.small {}', 'button+ button.medium {}', 'button+ button.large {}'
         ])],
-        // R2 空白敏感：字面全等才命中分支；此处 target 经空白归一化后仍命中（见实现），全量展开
         ['@state(button+button) button+ button', '', [], joinExpected([
             'button+ button.small {}', 'button+ button.medium {}', 'button+ button.large {}'
         ])],
@@ -363,12 +386,26 @@ describe('@state: small, medium, .large', () => {
         ['@state(button + button) button + button', '', [], joinExpected([
             'button + button.small {}', 'button + button.medium {}', 'button + button.large {}'
         ])],
+        ['@state(button) button ~ button', '', ['.wrapper'], joinExpected([
+            'button.small ~ button.small {}', 'button.medium ~ button.medium {}', 'button.large ~ button.large {}'
+        ])],
+        ['@state(button) button~button', '', ['.wrapper'], joinExpected([
+            'button.small~button.small {}', 'button.medium~button.medium {}', 'button.large~button.large {}'
+        ])],
+        ['@state(button) button~ button', '', ['.wrapper'], joinExpected([
+            'button.small~ button.small {}', 'button.medium~ button.medium {}', 'button.large~ button.large {}'
+        ])],
+        ['@state(button) button ~button', '', ['.wrapper'], joinExpected([
+            'button.small ~button.small {}', 'button.medium ~button.medium {}', 'button.large ~button.large {}'
+        ])],
+        // 只匹配SELECTOR，不匹配内部或其它的SELECTOR
         ['@state(button) button', '&+button {}', [], joinExpected([
             'button.small { &+button {} }', 'button.medium { &+button {} }', 'button.large { &+button {} }'
         ])],
         ['@state(td) col.selected || td', '', [], joinExpected([
             'col.selected || td.small {}', 'col.selected || td.medium {}', 'col.selected || td.large {}'
         ])],
+        // 通過逗號排列的多個選擇器都歸state管
         ['@state(button) button, button .label', '', [], joinExpected([
             'button.small, button.small .label {}',
             'button.medium, button.medium .label {}',
@@ -377,13 +414,14 @@ describe('@state: small, medium, .large', () => {
         ['@state(button) button, .label', '', [], joinExpected([
             'button.small, .label {}', 'button.medium, .label {}', 'button.large, .label {}'
         ])],
+        // 即使用戶編寫了:host button，匹配目標是button，不要擅自修改:host
         ['@state(button) :host button', '', [], joinExpected([
             ':host button.small {}', ':host button.medium {}', ':host button.large {}'
         ])],
         ['@state(button) :host([dense]) button:has(.label)', '', [], joinExpected([
-            ':host([dense]) button.small:has(.label) {}',
-            ':host([dense]) button.medium:has(.label) {}',
-            ':host([dense]) button.large:has(.label) {}'
+            ':host([dense]) button:has(.label).small {}',
+            ':host([dense]) button:has(.label).medium {}',
+            ':host([dense]) button:has(.label).large {}'
         ])],
         ['@state(button) slot::slotted(button)', '', [], joinExpected([
             'slot::slotted(button.small) {}', 'slot::slotted(button.medium) {}', 'slot::slotted(button.large) {}'
@@ -392,40 +430,31 @@ describe('@state: small, medium, .large', () => {
         ['@state(.card) .card .label', '', [], joinExpected([
             '.card.small .label {}', '.card.medium .label {}', '.card.large .label {}'
         ])],
+        // 儅目標是屬性選擇器時
         ['@state([selected]) button[selected]', '', [], joinExpected([
             'button[selected].small {}', 'button[selected].medium {}', 'button[selected].large {}'
         ])],
+        // 儅目標包含僞類時（長 target 保留緊貼 target-end 差異，不向尾部搬移）
+// 注意，button:hover.small 是尾插 canonical 形狀
         ['@state(button:hover) button:hover .label', '', [], joinExpected([
             'button:hover.small .label {}', 'button:hover.medium .label {}', 'button:hover.large .label {}'
         ])],
+        // ::before和::after比較特別，後面不能緊跟其它選擇器
         ['@state(button::before) button::before', '', [], joinExpected([
             'button.small::before {}', 'button.medium::before {}', 'button.large::before {}'
         ])],
         ['@state(button::after) button::after', '', [], joinExpected([
             'button.small::after {}', 'button.medium::after {}', 'button.large::after {}'
         ])],
-        // R3/R4 子串安全：函数参数、连字前缀、属性值内不匹配
-        ['@state(button) button:has(button)', '', [], joinExpected([
-            'button.small:has(button) {}', 'button.medium:has(button) {}', 'button.large:has(button) {}'
-        ])],
-        ['@state(button) button:is(button, .label)', '', [], joinExpected([
-            'button.small:is(button, .label) {}', 'button.medium:is(button, .label) {}', 'button.large:is(button, .label) {}'
-        ])],
-        ['@state(button) button:where(button)', '', [], joinExpected([
-            'button.small:where(button) {}', 'button.medium:where(button) {}', 'button.large:where(button) {}'
-        ])],
-        ['@state(button) button:not(button)', '', [], joinExpected([
-            'button.small:not(button) {}', 'button.medium:not(button) {}', 'button.large:not(button) {}'
-        ])],
         ['@state(button) .button-label button', '', [], joinExpected([
             '.button-label button.small {}', '.button-label button.medium {}', '.button-label button.large {}'
         ])],
         ['@state(button) .container button[data-wow="button"]>.label', '', [], joinExpected([
-            '.container button.small[data-wow="button"]>.label {}',
-            '.container button.medium[data-wow="button"]>.label {}',
-            '.container button.large[data-wow="button"]>.label {}'
+            '.container button[data-wow="button"].small>.label {}',
+            '.container button[data-wow="button"].medium>.label {}',
+            '.container button[data-wow="button"].large>.label {}'
         ])],
-        // R6 外层路径经 ancestors 传入（外壳包裹归 dispatcher）
+        // 外层路径经 ancestors 传入，state無權干涉外層選擇器
         ['@state(button) button', '', ['.wrapper'], joinExpected([
             'button.small {}', 'button.medium {}', 'button.large {}'
         ])],
@@ -433,10 +462,7 @@ describe('@state: small, medium, .large', () => {
             'button.small .label {}', 'button.medium .label {}', 'button.large .label {}'
         ])],
         ['@state(button) button:has(.label)', '', ['.wrapper'], joinExpected([
-            'button.small:has(.label) {}', 'button.medium:has(.label) {}', 'button.large:has(.label) {}'
-        ])],
-        ['@state(button) button:hover::before', '', ['.wrapper'], joinExpected([
-            'button.small:hover::before {}', 'button.medium:hover::before {}', 'button.large:hover::before {}'
+            'button:has(.label).small {}', 'button:has(.label).medium {}', 'button:has(.label).large {}'
         ])],
         ['@state(button) button', '', ['.wrapper[data-open]'], joinExpected([
             'button.small {}', 'button.medium {}', 'button.large {}'
@@ -451,17 +477,21 @@ describe('@state: small, medium, .large', () => {
             'button.small ~ .label {}', 'button.medium ~ .label {}', 'button.large ~ .label {}'
         ])],
         ['@state(button) button:has(.label)>.label', '', ['.wrapper:not(.hidden)'], joinExpected([
-            'button.small:has(.label)>.label {}',
-            'button.medium:has(.label)>.label {}',
-            'button.large:has(.label)>.label {}'
+            'button:has(.label).small>.label {}',
+            'button:has(.label).medium>.label {}',
+            'button:has(.label).large>.label {}'
         ])],
         ['@state(button) button', '', [':host'], joinExpected([
             'button.small {}', 'button.medium {}', 'button.large {}'
         ])],
         ['@state(button) button:has(.label)', '', [':host([dense])'], joinExpected([
-            'button.small:has(.label) {}', 'button.medium:has(.label) {}', 'button.large:has(.label) {}'
+            'button:has(.label).small {}', 'button:has(.label).medium {}', 'button:has(.label).large {}'
         ])],
-        // R7:保留 & 前綴選擇器；單獨 & 無 target 走 R8 [D]（見紅隊）；支持 &.active 前綴
+        // hover 等搭配 ::before 時固定為 author + states + ::before
+        ['@state(button) button:hover::before', '', ['.wrapper'], joinExpected([
+            'button:hover.small::before {}', 'button:hover.medium::before {}', 'button:hover.large::before {}'
+        ])],
+        // 保留 & 前綴選擇器，&也是CSS選擇器的一部分，不做魔法
         ['@state(button) &.active button', '', ['.wrapper'], joinExpected([
             '&.active button.small {}', '&.active button.medium {}', '&.active button.large {}'
         ])],
@@ -476,7 +506,6 @@ describe('@state: small, medium, .large', () => {
             'button.show[selected].medium.foo {}',
             'button.show[selected].large.foo {}'
         ])],
-        // R5 部分分支保留
         ['@state(button) button, button .label', '', ['.wrapper'], joinExpected([
             'button.small, button.small .label {}',
             'button.medium, button.medium .label {}',
@@ -485,47 +514,47 @@ describe('@state: small, medium, .large', () => {
         ['@state(button) button, .label', '', ['.wrapper'], joinExpected([
             'button.small, .label {}', 'button.medium, .label {}', 'button.large, .label {}'
         ])],
-        // R2 多处匹配全部替换
-        ['@state(button) button ~ button', '', ['.wrapper'], joinExpected([
-            'button.small ~ button.small {}', 'button.medium ~ button.medium {}', 'button.large ~ button.large {}'
-        ])],
-        ['@state(button) button~button', '', ['.wrapper'], joinExpected([
-            'button.small~button.small {}', 'button.medium~button.medium {}', 'button.large~button.large {}'
-        ])],
-        ['@state(button) button~ button', '', ['.wrapper'], joinExpected([
-            'button.small~ button.small {}', 'button.medium~ button.medium {}', 'button.large~ button.large {}'
-        ])],
-        ['@state(button) button ~button', '', ['.wrapper'], joinExpected([
-            'button.small ~button.small {}', 'button.medium ~button.medium {}', 'button.large ~button.large {}'
-        ])],
-        // 關於 :host：R2 尾部追加，修飾符併入 :host() 內尾端
+        // 儅目標是:host時。因爲Litjs的:host很特殊，很多時候需要使用:host()格式才能正常工作，所以需要采用:host(.other-selector)格式
         ['@state(:host) :host(:where(.a))', '', [], joinExpected([
             ':host(:where(.a).small) {}', ':host(:where(.a).medium) {}', ':host(:where(.a).large) {}'
+        ])],
+        ['@state(:host) :host(:where(.a))', 'button {}', [], joinExpected([
+            ':host(:where(.a).small) { button {} }', ':host(:where(.a).medium) { button {} }', ':host(:where(.a).large) { button {} }'
+        ])],
+        [':host', '@state(.btn) .btn', [], joinExpected([
+            ':host { .btn.small {} }', ':host { .btn.medium {} }', ':host { .btn.large {} }'
         ])],
     ]
 
     const redMapping: StateMapping = [
-        // R1 缺 selector/target
-        ['@state(button)', 'color: red;', [], ''],
-        ['@state()', 'color: red;', [], ''],
-        // R8 全零匹配
+        // 什麽也沒匹配時輸出空白結果（相當於不輸出結果）
         ['@state(button) .card', 'color: red;', [], ''],
-        ['@state() button', 'color: red;', [], ''],
-        ['@state[] .a', 'color: red;', [], ''],
-        ['@state', 'color: red;', [], ''],
-        ['@state .a', 'color: red;', [], ''],
-        ['@state ()', 'color: red;', [], ''],
-        ['@state .a (.a)', 'color: red;', [], ''],
-        ['@state .a ()', 'color: red;', [], ''],
-        // R8 嵌套外层零匹配
         ['@state(button) .container', 'button:has(.label) {}', [], ''],
         ['@state(button) .container', '&button:has(.label) {}', [], ''],
         ['@state(button) .container', 'button:has(.label) { .label {} }', [], ''],
         ['@state(button.show) .container', 'button.show.ahaha.hummm {}', [], ''],
         ['@state(button) .wrap', 'button:not(.a):not([disabled]) {}', [], ''],
         ['@state(button) .wrap', '&button:not(.a):not([disabled]) {}', [], ''],
-        // R7 单独 &：不含 target，R8 [D]（外层 `button {}` 包裹归 dispatcher）
+        // 缺少TARGET和SELECTOR時，或是@state語法錯誤時
+        ['@state(button)', 'color: red;', [], ''],
+        ['@state()', 'color: red;', [], ''],
+        ['@state ()', 'color: red;', [], ''],
+        ['@state() button', 'color: red;', [], ''],
+        ['@state[] .a', 'color: red;', [], ''],
+        ['@state', 'color: red;', [], ''],
+        ['@state .a', 'color: red;', [], ''],
+        ['state .a .a', 'color: red;', [], ''],
+        ['state (.a) .a', 'color: red;', [], ''],
+        ['#state (.a) .a', 'color: red;', [], ''],
+        ['AtState (.a) .a', 'color: red;', [], ''],
+        // 字母敏感，@State與@state不相同
+        ['@State(.a) .a', 'color: red;', [], ''],
+        ['@state .a (.a)', 'color: red;', [], ''],
+        ['@state .a ()', 'color: red;', [], ''],
         ['@state(button) &', '', [], ''],
+        ['@state(button) *', '', [], ''],
+        // 内部無效但不會導致外部無效
+        [':host', '@state(:host) .btn {}', [], ':host {}'],
     ]
 
     for (const [header, body, ancestors, expected] of greenMapping) {
@@ -543,194 +572,341 @@ describe('@state: small, medium, .large', () => {
     }
 })
 
-describe(':host', () => {
-    const hostStates: readonly StateDimensionItem[] = [
-        { name: 'enabled', modifier: '', target: 'self' },
-        { name: 'hovered', modifier: ':hover', target: 'host' },
-        { name: 'disabled', modifier: '[disabled]', target: 'host' }
+describe('@state: default, hover, disabled', () => {
+    /**
+     * Q: 爲什麽都挂載在'self'上？
+     * A:
+     *    1. `withState`不提供挂載選項
+     *    2. `@state`不提供語句提升或修改内外部的功能；`@state`永遠只負責自己的語句
+     */
+    const stateItems: readonly StateDimensionItem[] = [
+        { name: 'default', modifier: '', target: 'self' },
+        { name: 'hover', modifier: ':hover', target: 'self' },
+        { name: 'disabled', modifier: '[disabled]', target: 'self' }
     ]
-    const hostCtx = (ancestors: readonly string[] = []) => fakeBaseCtx({
-        states: hostStates,
+    const stateCtx = (ancestors: readonly string[] = []) => fakeBaseCtx({
+        states: stateItems,
         isCombo: false,
         ancestorPath: ancestors
     })
 
-    /**
-     * :host（沿用 R1–R8）：enabled 原样；hovered 挂 :host（:host(:hover)）；disabled 另起 :host([...]) 壳。
-     * 全原地合併（R2）：host 祖先存在時亦不觸及外層（H1 已撤銷，見 SPEC-at-rules.md §0）；
-     * H2 祖先包裹保留相對 &（如 & .inner、& > .inner 保留，單獨 & 本體丟棄）；H3 括号内合并；H4 :is/:where 包裹 :host 按分支合并。
-     */
-    const greenMapping: StateMapping = [
-        ['@state(:host) :host', '', [], joinExpected([':host {}', ':host(:hover) {}', ':host([disabled]) {}'])],
-        ['@state(:host) :host .label', '', [], joinExpected([
-            ':host .label {}', ':host(:hover) .label {}', ':host([disabled]) .label {}'
-        ])],
-        ['@state(:host) :host > .container', '', [], joinExpected([
-            ':host > .container {}', ':host(:hover) > .container {}', ':host([disabled]) > .container {}'
-        ])],
-        ['@state(:host) :host .a .b', '', [], joinExpected([
-            ':host .a .b {}', ':host(:hover) .a .b {}', ':host([disabled]) .a .b {}'
-        ])],
-        ['@state(:host) :host .a ~ .b', '', [], joinExpected([
-            ':host .a ~ .b {}', ':host(:hover) .a ~ .b {}', ':host([disabled]) .a ~ .b {}'
-        ])],
-        ['@state(:host) :host(.active)', '', [], joinExpected([
-            ':host(.active) {}', ':host(.active:hover) {}', ':host(.active[disabled]) {}'
-        ])],
-        ['@state(:host) :host([dense])', '', [], joinExpected([
-            ':host([dense]) {}', ':host([dense]:hover) {}', ':host([dense][disabled]) {}'
-        ])],
-        ['@state(:host) :host([variant="filled"])', '', [], joinExpected([
-            ':host([variant="filled"]) {}', ':host([variant="filled"]:hover) {}', ':host([variant="filled"][disabled]) {}'
-        ])],
-        ['@state(:host) :host(.a.b)', '', [], joinExpected([
-            ':host(.a.b) {}', ':host(.a.b:hover) {}', ':host(.a.b[disabled]) {}'
-        ])],
-        ['@state(:host) :host([a][b="c"])', '', [], joinExpected([
-            ':host([a][b="c"]) {}', ':host([a][b="c"]:hover) {}', ':host([a][b="c"][disabled]) {}'
-        ])],
-        ['@state(:host) :host([v="x" i])', '', [], joinExpected([
-            ':host([v="x" i]) {}', ':host([v="x" i]:hover) {}', ':host([v="x" i][disabled]) {}'
-        ])],
-        ['@state(:host) :host(.active) .label', '', [], joinExpected([
-            ':host(.active) .label {}', ':host(.active:hover) .label {}', ':host(.active[disabled]) .label {}'
-        ])],
-        ['@state(:host) :host([dense]) > .container', '', [], joinExpected([
-            ':host([dense]) > .container {}', ':host([dense]:hover) > .container {}', ':host([dense][disabled]) > .container {}'
-        ])],
-        ['@state(:host) :host(:not(.a))', '', [], joinExpected([
-            ':host(:not(.a)) {}', ':host(:not(.a):hover) {}', ':host(:not(.a)[disabled]) {}'
-        ])],
-        ['@state(:host) :host(:not(.a):not([b]))', '', [], joinExpected([
-            ':host(:not(.a):not([b])) {}', ':host(:not(.a):not([b]):hover) {}', ':host(:not(.a):not([b])[disabled]) {}'
-        ])],
-        ['@state(:host) :host(:is(.a,.b))', '', [], joinExpected([
-            ':host(:is(.a,.b)) {}', ':host(:is(.a,.b):hover) {}', ':host(:is(.a,.b)[disabled]) {}'
-        ])],
-        ['@state(:host) :host(:where(.a))', '', [], joinExpected([
-            ':host(:where(.a)) {}', ':host(:where(.a):hover) {}', ':host(:where(.a)[disabled]) {}'
-        ])],
-        ['@state(:host) :host(:has(.label))', '', [], joinExpected([
-            ':host(:has(.label)) {}', ':host(:has(.label):hover) {}', ':host(:has(.label)[disabled]) {}'
-        ])],
-        ['@state(:host) :host(:focus-visible)', '', [], joinExpected([
-            ':host(:focus-visible) {}', ':host(:focus-visible:hover) {}', ':host(:focus-visible[disabled]) {}'
-        ])],
-        ['@state(:host) :host(:first-child)', '', [], joinExpected([
-            ':host(:first-child) {}', ':host(:first-child:hover) {}', ':host(:first-child[disabled]) {}'
-        ])],
-        ['@state(:host) :host(:empty)', '', [], joinExpected([
-            ':host(:empty) {}', ':host(:empty:hover) {}', ':host(:empty[disabled]) {}'
-        ])],
-        // R3 属性值内不匹配
-        ['@state(:host) :host[data-label=":host"]', '', [], joinExpected([
-            ':host[data-label=":host"] {}',
-            ':host[data-label=":host"]:hover {}',
-            ':host[data-label=":host"][disabled] {}'
-        ])],
-        // R5
-        ['@state(:host) :host(.a), :host(.b)', '', [], joinExpected([
-            ':host(.a), :host(.b) {}', ':host(.a:hover), :host(.b:hover) {}', ':host(.a[disabled]), :host(.b[disabled]) {}'
-        ])],
-        ['@state(:host) :host, .label', '', [], joinExpected([
-            ':host, .label {}', ':host(:hover), .label {}', ':host([disabled]), .label {}'
-        ])],
-        // H4
-        ['@state(:where(:host)) :where(:host)', '', [], joinExpected([
-            ':where(:host) {}', ':where(:host(:hover)) {}', ':where(:host([disabled])) {}'
-        ])],
-        ['@state(:is(:host)) :is(:host)', '', [], joinExpected([
-            ':is(:host) {}', ':is(:host(:hover)) {}', ':is(:host([disabled])) {}'
-        ])],
-        ['@state(:where(:host([a]), :host([b]))) :where(:host([a]), :host([b]))', '', [], joinExpected([
-            ':where(:host([a]), :host([b])) {}',
-            ':where(:host([a]:hover), :host([b]:hover)) {}',
-            ':where(:host([a][disabled]), :host([b][disabled])) {}'
-        ])],
-        ['@state(:is(:host(.a), :host([b]))) :is(:host(.a), :host([b]))', '', [], joinExpected([
-            ':is(:host(.a), :host([b])) {}',
-            ':is(:host(.a:hover), :host([b]:hover)) {}',
-            ':is(:host(.a[disabled]), :host([b][disabled])) {}'
-        ])],
-        ['@state(:where(:host)) :where(:host) .label', '', [], joinExpected([
-            ':where(:host) .label {}', ':where(:host(:hover)) .label {}', ':where(:host([disabled])) .label {}'
-        ])],
-        ['@state(:where(:host([variant="x"]), :host(:has(.x)))) :where(:host([variant="x"]), :host(:has(.x)))', '', [], joinExpected([
-            ':where(:host([variant="x"]), :host(:has(.x))) {}',
-            ':where(:host([variant="x"]:hover), :host(:has(.x):hover)) {}',
-            ':where(:host([variant="x"][disabled]), :host(:has(.x)[disabled])) {}'
-        ])],
-        // R6 壳内并列
-        ['@state(:host) :host', '.label {}', [], joinExpected([
-            ':host { .label {} }', ':host(:hover) { .label {} }', ':host([disabled]) { .label {} }'
-        ])],
-        ['@state(:host) :host(.active)', '.label {}', [], joinExpected([
-            ':host(.active) { .label {} }', ':host(.active:hover) { .label {} }', ':host(.active[disabled]) { .label {} }'
-        ])],
-        // host 祖先 + host 態 + 非 host target：按契約原地合併（R2），永不觸及外層（H1 已撤銷，見 SPEC-at-rules.md §0）
-        ['@state(button) button', '', [':host'], joinExpected([
-            'button {}',
-            'button:hover {}',
-            'button[disabled] {}'
-        ])],
-        ['@state(button) button .label', '', [':host([dense])'], joinExpected([
-            'button .label {}',
-            'button:hover .label {}',
-            'button[disabled] .label {}'
-        ])],
-        ['@state(button) button', '', [':host(:not(.a))'], joinExpected([
-            'button {}',
-            'button:hover {}',
-            'button[disabled] {}'
-        ])],
-        ['@state(button) button', '', [':host', '.wrapper'], joinExpected([
-            'button {}',
-            'button:hover {}',
-            'button[disabled] {}'
-        ])],
-        ['@state(button) button, button .label', '', [':host'], joinExpected([
-            'button, button .label {}',
-            'button:hover, button:hover .label {}',
-            'button[disabled], button[disabled] .label {}'
-        ])],
-        ['@state(button) button', '', [':where(:host)'], joinExpected([
-            'button {}',
-            'button:hover {}',
-            'button[disabled] {}'
-        ])],
-        // host-like target：與所有 target 一視同仁，原地合併（H1 已撤銷，無需特殊豁免）
-        ['@state(:host) :host', '', [':host'], joinExpected([
-            ':host {}',
-            ':host(:hover) {}',
-            ':host([disabled]) {}'
-        ])],
-        ['@state(:where(:host)) :where(:host) .label', '', [':host'], joinExpected([
-            ':where(:host) .label {}',
-            ':where(:host(:hover)) .label {}',
-            ':where(:host([disabled])) .label {}'
-        ])],
-    ]
+    describe('element targets', () => {
+        const greenMapping: StateMapping = [
+            // 基礎標籤選擇器
+            ['@state(button) button', '', [], joinExpected([
+                'button {}', 'button:hover {}', 'button[disabled] {}'
+            ])],
+            ['@state(button) button .label', '', [], joinExpected([
+                'button .label {}', 'button:hover .label {}', 'button[disabled] .label {}'
+            ])],
+            ['@state(button) button > .icon', '', [], joinExpected([
+                'button > .icon {}', 'button:hover > .icon {}', 'button[disabled] > .icon {}'
+            ])],
+            ['@state(button) button + .badge', '', [], joinExpected([
+                'button + .badge {}', 'button:hover + .badge {}', 'button[disabled] + .badge {}'
+            ])],
+            ['@state(button) button ~ .sibling', '', [], joinExpected([
+                'button ~ .sibling {}', 'button:hover ~ .sibling {}', 'button[disabled] ~ .sibling {}'
+            ])],
+            // 屬性與類別修飾
+            ['@state(button) button.primary', '', [], joinExpected([
+                'button.primary {}', 'button.primary:hover {}', 'button.primary[disabled] {}'
+            ])],
+            ['@state(button.primary) button.primary', '', [], joinExpected([
+                'button.primary {}', 'button.primary:hover {}', 'button.primary[disabled] {}'
+            ])],
+            ['@state(button) button[type="button"]', '', [], joinExpected([
+                'button[type="button"] {}', 'button[type="button"]:hover {}', 'button[type="button"][disabled] {}'
+            ])],
+            ['@state(button[type="button"]) button[type="button"]', '', [], joinExpected([
+                'button[type="button"] {}', 'button[type="button"]:hover {}', 'button[type="button"][disabled] {}'
+            ])],
+            ['@state(button) button[dense="true"]', '', [], joinExpected([
+                'button[dense="true"] {}', 'button[dense="true"]:hover {}', 'button[dense="true"][disabled] {}'
+            ])],
+            // 偽類與偽元素，偽元素置於尾部
+            ['@state(button) button:focus', '', [], joinExpected([
+                'button:focus {}', 'button:focus:hover {}', 'button:focus[disabled] {}'
+            ])],
+            ['@state(button:focus) button:focus', '', [], joinExpected([
+                'button:focus {}', 'button:focus:hover {}', 'button:focus[disabled] {}'
+            ])],
+            ['@state(button) button:focus-visible', '', [], joinExpected([
+                'button:focus-visible {}', 'button:focus-visible:hover {}', 'button:focus-visible[disabled] {}'
+            ])],
+            ['@state(button) button::before', '', [], joinExpected([
+                'button::before {}', 'button:hover::before {}', 'button[disabled]::before {}'
+            ])],
+            ['@state(button::before) button::before', '', [], joinExpected([
+                'button::before {}', 'button:hover::before {}', 'button[disabled]::before {}'
+            ])],
+            ['@state(button) button::after', '', [], joinExpected([
+                'button::after {}', 'button:hover::after {}', 'button[disabled]::after {}'
+            ])],
+            ['@state(button) button:hover::before', '', [], joinExpected([
+                'button:hover::before {}', 'button:hover:hover::before {}', 'button:hover[disabled]::before {}'
+            ])],
+            // 偽類函數
+            ['@state(button) button:is(.icon, .label)', '', [], joinExpected([
+                'button:is(.icon, .label) {}', 'button:is(.icon, .label):hover {}', 'button:is(.icon, .label)[disabled] {}'
+            ])],
+            ['@state(button) button:has(.label)', '', [], joinExpected([
+                'button:has(.label) {}', 'button:has(.label):hover {}', 'button:has(.label)[disabled] {}'
+            ])],
+            ['@state(button) button:not(.active)', '', [], joinExpected([
+                'button:not(.active) {}', 'button:not(.active):hover {}', 'button:not(.active)[disabled] {}'
+            ])],
+            // 目標在中間或尾端
+            ['@state(button) .container button .label', '', [], joinExpected([
+                '.container button .label {}', '.container button:hover .label {}', '.container button[disabled] .label {}'
+            ])],
+            ['@state(button) .container > button', '', [], joinExpected([
+                '.container > button {}', '.container > button:hover {}', '.container > button[disabled] {}'
+            ])],
+            ['@state(button) .container button:has(.label) .label', '', [], joinExpected([
+                '.container button:has(.label) .label {}',
+                '.container button:has(.label):hover .label {}',
+                '.container button:has(.label)[disabled] .label {}'
+            ])],
+            // 多處匹配全部替換
+            ['@state(button) button ~ button', '', [], joinExpected([
+                'button ~ button {}', 'button:hover ~ button:hover {}', 'button[disabled] ~ button[disabled] {}'
+            ])],
+            ['@state(button) button + button', '', [], joinExpected([
+                'button + button {}', 'button:hover + button:hover {}', 'button[disabled] + button[disabled] {}'
+            ])],
+            // 逗號多分支
+            ['@state(button) button, button .label', '', [], joinExpected([
+                'button, button .label {}',
+                'button:hover, button:hover .label {}',
+                'button[disabled], button[disabled] .label {}'
+            ])],
+            ['@state(button) button, .other', '', [], joinExpected([
+                'button, .other {}', 'button:hover, .other {}', 'button[disabled], .other {}'
+            ])],
+            // 相對 & 前綴
+            ['@state(button) &.active button', '', [], joinExpected([
+                '&.active button {}', '&.active button:hover {}', '&.active button[disabled] {}'
+            ])],
+            // 類別作為 target
+            ['@state(.btn) .btn', '', [], joinExpected([
+                '.btn {}', '.btn:hover {}', '.btn[disabled] {}'
+            ])],
+            ['@state(.btn) .btn .label', '', [], joinExpected([
+                '.btn .label {}', '.btn:hover .label {}', '.btn[disabled] .label {}'
+            ])],
+            ['@state(.btn) .container > .btn', '', [], joinExpected([
+                '.container > .btn {}', '.container > .btn:hover {}', '.container > .btn[disabled] {}'
+            ])],
+            // 帶有內部規則體
+            ['@state(button) button', '.label {}', [], joinExpected([
+                'button { .label {} }', 'button:hover { .label {} }', 'button[disabled] { .label {} }'
+            ])],
+            ['@state(button) button', ':is(.icon, .label) {}', [], joinExpected([
+                'button { :is(.icon, .label) {} }',
+                'button:hover { :is(.icon, .label) {} }',
+                'button[disabled] { :is(.icon, .label) {} }'
+            ])],
+            // 帶祖先路徑
+            ['@state(button) button', '', ['.wrapper'], joinExpected([
+                'button {}', 'button:hover {}', 'button[disabled] {}'
+            ])],
+            ['@state(button) button .label', '', ['.card'], joinExpected([
+                'button .label {}', 'button:hover .label {}', 'button[disabled] .label {}'
+            ])],
+        ]
 
-    /**
-     * 红队：R8 [D]。
-     */
-    const redMapping: StateMapping = [
-        ['@state(:host) .label', '', [], ''],
-    ]
+        const redMapping: StateMapping = [
+            ['@state(button) .card', '', [], ''],
+            ['@state(button) .container', 'button {}', [], ''],
+            ['@state(button)', 'color: red;', [], ''],
+            ['@state()', '', [], ''],
+            ['@state(button) &', '', [], ''],
+        ]
 
-    for (const [header, body, ancestors, expected] of greenMapping) {
-        it(`green: ${header} { ${body} }`, () => {
-            const output = handleStateBlock(header, body, hostCtx(ancestors), echoRecurse)
-            expect(canonicalHandlerResult(output)).toBe(expected)
-        })
-    }
+        for (const [header, body, ancestors, expected] of greenMapping) {
+            it(`green: ${header} { ${body} }`, () => {
+                const output = handleStateBlock(header, body, stateCtx(ancestors), echoRecurse)
+                expect(canonicalHandlerResult(output)).toBe(expected)
+            })
+        }
 
-    for (const [header, body, ancestors, expected] of redMapping) {
-        it(`red: ${header} { ${body} }`, () => {
-            const output = handleStateBlock(header, body, hostCtx(ancestors), echoRecurse)
-            expect(canonicalHandlerResult(output)).toBe(expected)
-        })
-    }
+        for (const [header, body, ancestors, expected] of redMapping) {
+            it(`red: ${header} { ${body} }`, () => {
+                const output = handleStateBlock(header, body, stateCtx(ancestors), echoRecurse)
+                expect(canonicalHandlerResult(output)).toBe(expected)
+            })
+        }
+    })
+
+    describe(':host targets', () => {
+        const greenMapping: StateMapping = [
+            ['@state(:host) :host', '', [], joinExpected([':host {}', ':host(:hover) {}', ':host([disabled]) {}'])],
+            ['@state(:host) :host .label', '', [], joinExpected([
+                ':host .label {}', ':host(:hover) .label {}', ':host([disabled]) .label {}'
+            ])],
+            ['@state(:host) :host > .container', '', [], joinExpected([
+                ':host > .container {}', ':host(:hover) > .container {}', ':host([disabled]) > .container {}'
+            ])],
+            ['@state(:host) :host .a .b', '', [], joinExpected([
+                ':host .a .b {}', ':host(:hover) .a .b {}', ':host([disabled]) .a .b {}'
+            ])],
+            ['@state(:host) :host .a ~ .b', '', [], joinExpected([
+                ':host .a ~ .b {}', ':host(:hover) .a ~ .b {}', ':host([disabled]) .a ~ .b {}'
+            ])],
+            ['@state(:host) :host(.active)', '', [], joinExpected([
+                ':host(.active) {}', ':host(.active:hover) {}', ':host(.active[disabled]) {}'
+            ])],
+            ['@state(:host) :host([dense])', '', [], joinExpected([
+                ':host([dense]) {}', ':host([dense]:hover) {}', ':host([dense][disabled]) {}'
+            ])],
+            ['@state(:host) :host([variant="filled"])', '', [], joinExpected([
+                ':host([variant="filled"]) {}', ':host([variant="filled"]:hover) {}', ':host([variant="filled"][disabled]) {}'
+            ])],
+            ['@state(:host) :host(.a.b)', '', [], joinExpected([
+                ':host(.a.b) {}', ':host(.a.b:hover) {}', ':host(.a.b[disabled]) {}'
+            ])],
+            ['@state(:host) :host([a][b="c"])', '', [], joinExpected([
+                ':host([a][b="c"]) {}', ':host([a][b="c"]:hover) {}', ':host([a][b="c"][disabled]) {}'
+            ])],
+            ['@state(:host) :host([v="x" i])', '', [], joinExpected([
+                ':host([v="x" i]) {}', ':host([v="x" i]:hover) {}', ':host([v="x" i][disabled]) {}'
+            ])],
+            ['@state(:host) :host(.active) .label', '', [], joinExpected([
+                ':host(.active) .label {}', ':host(.active:hover) .label {}', ':host(.active[disabled]) .label {}'
+            ])],
+            ['@state(:host) :host([dense]) > .container', '', [], joinExpected([
+                ':host([dense]) > .container {}', ':host([dense]:hover) > .container {}', ':host([dense][disabled]) > .container {}'
+            ])],
+            ['@state(:host) :host(:not(.a))', '', [], joinExpected([
+                ':host(:not(.a)) {}', ':host(:not(.a):hover) {}', ':host(:not(.a)[disabled]) {}'
+            ])],
+            ['@state(:host) :host(:not(.a):not([b]))', '', [], joinExpected([
+                ':host(:not(.a):not([b])) {}', ':host(:not(.a):not([b]):hover) {}', ':host(:not(.a):not([b])[disabled]) {}'
+            ])],
+            ['@state(:host) :host(:is(.a,.b))', '', [], joinExpected([
+                ':host(:is(.a,.b)) {}', ':host(:is(.a,.b):hover) {}', ':host(:is(.a,.b)[disabled]) {}'
+            ])],
+            ['@state(:host) :host(:where(.a))', '', [], joinExpected([
+                ':host(:where(.a)) {}', ':host(:where(.a):hover) {}', ':host(:where(.a)[disabled]) {}'
+            ])],
+            ['@state(:host) :host(:has(.label))', '', [], joinExpected([
+                ':host(:has(.label)) {}', ':host(:has(.label):hover) {}', ':host(:has(.label)[disabled]) {}'
+            ])],
+            ['@state(:host) :host(:focus-visible)', '', [], joinExpected([
+                ':host(:focus-visible) {}', ':host(:focus-visible:hover) {}', ':host(:focus-visible[disabled]) {}'
+            ])],
+            ['@state(:host) :host(:first-child)', '', [], joinExpected([
+                ':host(:first-child) {}', ':host(:first-child:hover) {}', ':host(:first-child[disabled]) {}'
+            ])],
+            ['@state(:host) :host(:empty)', '', [], joinExpected([
+                ':host(:empty) {}', ':host(:empty:hover) {}', ':host(:empty[disabled]) {}'
+            ])],
+            // 属性值内不匹配
+            ['@state(:host) :host[data-label=":host"]', '', [], joinExpected([
+                ':host[data-label=":host"] {}',
+                ':host[data-label=":host"]:hover {}',
+                ':host[data-label=":host"][disabled] {}'
+            ])],
+            ['@state(:host) :host(.a), :host(.b)', '', [], joinExpected([
+                ':host(.a), :host(.b) {}', ':host(.a:hover), :host(.b:hover) {}', ':host(.a[disabled]), :host(.b[disabled]) {}'
+            ])],
+            ['@state(:host) :host, .label', '', [], joinExpected([
+                ':host, .label {}', ':host(:hover), .label {}', ':host([disabled]), .label {}'
+            ])],
+            ['@state(:where(:host)) :where(:host)', '', [], joinExpected([
+                ':where(:host) {}', ':where(:host):hover {}', ':where(:host)[disabled] {}'
+            ])],
+            ['@state(:is(:host)) :is(:host)', '', [], joinExpected([
+                ':is(:host) {}', ':is(:host):hover {}', ':is(:host)[disabled] {}'
+            ])],
+            ['@state(:where(:host([a]), :host([b]))) :where(:host([a]), :host([b]))', '', [], joinExpected([
+                ':where(:host([a]), :host([b])) {}',
+                ':where(:host([a]), :host([b])):hover {}',
+                ':where(:host([a]), :host([b]))[disabled] {}'
+            ])],
+            ['@state(:is(:host(.a), :host([b]))) :is(:host(.a), :host([b]))', '', [], joinExpected([
+                ':is(:host(.a), :host([b])) {}',
+                ':is(:host(.a), :host([b])):hover {}',
+                ':is(:host(.a), :host([b]))[disabled] {}'
+            ])],
+            ['@state(:where(:host)) :where(:host) .label', '', [], joinExpected([
+                ':where(:host) .label {}', ':where(:host):hover .label {}', ':where(:host)[disabled] .label {}'
+            ])],
+            ['@state(:where(:host([variant="x"]), :host(:has(.x)))) :where(:host([variant="x"]), :host(:has(.x)))', '', [], joinExpected([
+                ':where(:host([variant="x"]), :host(:has(.x))) {}',
+                ':where(:host([variant="x"]), :host(:has(.x))):hover {}',
+                ':where(:host([variant="x"]), :host(:has(.x)))[disabled] {}'
+            ])],
+            // 壳内并列
+            ['@state(:host) :host', '.label {}', [], joinExpected([
+                ':host { .label {} }', ':host(:hover) { .label {} }', ':host([disabled]) { .label {} }'
+            ])],
+            ['@state(:host) :host(.active)', '.label {}', [], joinExpected([
+                ':host(.active) { .label {} }', ':host(.active:hover) { .label {} }', ':host(.active[disabled]) { .label {} }'
+            ])],
+            // host 祖先 + 非 host target：無魔法，不觸及外層，不長臂管轄
+            ['@state(button) button', '', [':host'], joinExpected([
+                'button {}',
+                'button:hover {}',
+                'button[disabled] {}'
+            ])],
+            ['@state(button) button .label', '', [':host([dense])'], joinExpected([
+                'button .label {}',
+                'button:hover .label {}',
+                'button[disabled] .label {}'
+            ])],
+            ['@state(button) button', '', [':host(:not(.a))'], joinExpected([
+                'button {}',
+                'button:hover {}',
+                'button[disabled] {}'
+            ])],
+            ['@state(button) button', '', [':host', '.wrapper'], joinExpected([
+                'button {}',
+                'button:hover {}',
+                'button[disabled] {}'
+            ])],
+            ['@state(button) button, button .label', '', [':host'], joinExpected([
+                'button, button .label {}',
+                'button:hover, button:hover .label {}',
+                'button[disabled], button[disabled] .label {}'
+            ])],
+            ['@state(button) button', '', [':where(:host)'], joinExpected([
+                'button {}',
+                'button:hover {}',
+                'button[disabled] {}'
+            ])],
+            // host-like target：與所有 target 一視同仁，原地合併（H1 已撤銷，無需特殊豁免）
+            ['@state(:host) :host', '', [':host'], joinExpected([
+                ':host {}',
+                ':host(:hover) {}',
+                ':host([disabled]) {}'
+            ])],
+            ['@state(:where(:host)) :where(:host) .label', '', [':host'], joinExpected([
+                ':where(:host) .label {}',
+                ':where(:host):hover .label {}',
+                ':where(:host)[disabled] .label {}'
+            ])],
+        ]
+
+        const redMapping: StateMapping = [
+            ['@state(:host) .label', '', [], ''],
+        ]
+
+        for (const [header, body, ancestors, expected] of greenMapping) {
+            it(`green: ${header} { ${body} }`, () => {
+                const output = handleStateBlock(header, body, stateCtx(ancestors), echoRecurse)
+                expect(canonicalHandlerResult(output)).toBe(expected)
+            })
+        }
+
+        for (const [header, body, ancestors, expected] of redMapping) {
+            it(`red: ${header} { ${body} }`, () => {
+                const output = handleStateBlock(header, body, stateCtx(ancestors), echoRecurse)
+                expect(canonicalHandlerResult(output)).toBe(expected)
+            })
+        }
+    })
 })
 
 describe('combo', () => {
@@ -770,12 +946,12 @@ describe('combo', () => {
             'button.medium .label {}', 'button.medium[disabled] .label {}', 'button.large .label {}', 'button.large[disabled] .label {}'
         ])],
         ['@state(button) button:has(.label)', '', [], joinExpected([
-            'button.medium:has(.label) {}', 'button.medium[disabled]:has(.label) {}',
-            'button.large:has(.label) {}', 'button.large[disabled]:has(.label) {}'
+            'button:has(.label).medium {}', 'button:has(.label).medium[disabled] {}',
+            'button:has(.label).large {}', 'button:has(.label).large[disabled] {}'
         ])],
         ['@state(button) .container>button:has(.label)>.label', '', [], joinExpected([
-            '.container>button.medium:has(.label)>.label {}', '.container>button.medium[disabled]:has(.label)>.label {}',
-            '.container>button.large:has(.label)>.label {}', '.container>button.large[disabled]:has(.label)>.label {}'
+            '.container>button:has(.label).medium>.label {}', '.container>button:has(.label).medium[disabled]>.label {}',
+            '.container>button:has(.label).large>.label {}', '.container>button:has(.label).large[disabled]>.label {}'
         ])],
         ['@state(button.show) button.show.foo', '', [], joinExpected([
             'button.show.medium.foo {}', 'button.show.medium[disabled].foo {}',
@@ -786,8 +962,8 @@ describe('combo', () => {
             'button.show[selected].large.foo {}', 'button.show[selected].large[disabled].foo {}'
         ])],
         ['@state(button) button:is(.icon,.label)', '', [], joinExpected([
-            'button.medium:is(.icon,.label) {}', 'button.medium[disabled]:is(.icon,.label) {}',
-            'button.large:is(.icon,.label) {}', 'button.large[disabled]:is(.icon,.label) {}'
+            'button:is(.icon,.label).medium {}', 'button:is(.icon,.label).medium[disabled] {}',
+            'button:is(.icon,.label).large {}', 'button:is(.icon,.label).large[disabled] {}'
         ])],
         ['@state(button) :host button', '', [], joinExpected([
             ':host button.medium {}', ':host button.medium[disabled] {}', ':host button.large {}', ':host button.large[disabled] {}'
@@ -800,12 +976,12 @@ describe('combo', () => {
             ':host(.large) .label {}', ':host(.large[disabled]) .label {}'
         ])],
         ['@state(button) button[type="submit"]', '', [], joinExpected([
-            'button.medium[type="submit"] {}', 'button.medium[disabled][type="submit"] {}',
-            'button.large[type="submit"] {}', 'button.large[disabled][type="submit"] {}'
+            'button[type="submit"].medium {}', 'button[type="submit"].medium[disabled] {}',
+            'button[type="submit"].large {}', 'button[type="submit"].large[disabled] {}'
         ])],
         ['@state(button) button[class*="btn-"]', '', [], joinExpected([
-            'button.medium[class*="btn-"] {}', 'button.medium[disabled][class*="btn-"] {}',
-            'button.large[class*="btn-"] {}', 'button.large[disabled][class*="btn-"] {}'
+            'button[class*="btn-"].medium {}', 'button[class*="btn-"].medium[disabled] {}',
+            'button[class*="btn-"].large {}', 'button[class*="btn-"].large[disabled] {}'
         ])],
         ['@state(button) button::before', '', [], joinExpected([
             'button.medium::before {}', 'button.medium[disabled]::before {}',
@@ -828,12 +1004,12 @@ describe('combo', () => {
         ])],
         // R3 子串安全
         ['@state(button) button:has(button)', '', [], joinExpected([
-            'button.medium:has(button) {}', 'button.medium[disabled]:has(button) {}',
-            'button.large:has(button) {}', 'button.large[disabled]:has(button) {}'
+            'button:has(button).medium {}', 'button:has(button).medium[disabled] {}',
+            'button:has(button).large {}', 'button:has(button).large[disabled] {}'
         ])],
         ['@state(button) .container button[data-x="button"]', '', [], joinExpected([
-            '.container button.medium[data-x="button"] {}', '.container button.medium[disabled][data-x="button"] {}',
-            '.container button.large[data-x="button"] {}', '.container button.large[disabled][data-x="button"] {}'
+            '.container button[data-x="button"].medium {}', '.container button[data-x="button"].medium[disabled] {}',
+            '.container button[data-x="button"].large {}', '.container button[data-x="button"].large[disabled] {}'
         ])],
         // R6 壳内并列
         ['@state(button) button', '.label {}', [], joinExpected([
@@ -887,10 +1063,6 @@ describe('custom-state', () => {
         ancestorPath: ancestors
     })
 
-    /**
-     * custom-state：S1 挂元素；S2 挂 :host 合入括号。
-     * S3（与 @when 协同提升）与 @when 嵌套行归 when-spec / 集成层。
-     */
     const greenMapping: StateMapping = [
         ['@state(button) button', '', [], joinExpected([
             'button {}', 'button:state(checked) {}', 'button:state(disabled) {}'
@@ -906,9 +1078,6 @@ describe('custom-state', () => {
         ])],
     ]
 
-    /**
-     * 红队：R8 [D]。
-     */
     const redMapping: StateMapping = [
         ['@state(button) .card', 'color: red;', [], ''],
     ]
@@ -923,56 +1092,6 @@ describe('custom-state', () => {
     for (const [header, body, ancestors, expected] of redMapping) {
         it(`red: ${header} { ${body} }`, () => {
             const output = handleStateBlock(header, body, customCtx(ancestors), echoRecurse)
-            expect(canonicalHandlerResult(output)).toBe(expected)
-        })
-    }
-})
-
-describe('when-in-body', () => {
-    const sizeStates: readonly StateDimensionItem[] = [
-        { name: 'small', modifier: '.small', target: 'self' },
-        { name: 'medium', modifier: '.medium', target: 'self' },
-        { name: 'large', modifier: '.large', target: 'self' }
-    ]
-    const stateCtx = (ancestors: readonly string[] = []) => fakeBaseCtx({
-        states: sizeStates,
-        isCombo: false,
-        ancestorPath: ancestors
-    })
-
-    /**
-     * S3：@state 体内的 @when 按状态展开后提升；非法 @when 表头静默跳过。
-     */
-    const greenMapping: StateMapping = [
-        ['@state(button) button', '@when(:host([checked])) { color: red; }', [], joinExpected([
-            'button.small {}',
-            'button.medium {}',
-            'button.large {}',
-            ':host([checked]) { button.small { color: red } button.medium { color: red } button.large { color: red } }'
-        ])],
-        ['@state(button) button', '@when(:host([checked])) { color: red; }', ['.wrapper'], joinExpected([
-            'button.small {}',
-            'button.medium {}',
-            'button.large {}',
-            ':host([checked]) { .wrapper { button.small { color: red } button.medium { color: red } button.large { color: red } } }'
-        ])],
-        ['@state(button) button', '@when() { color: red; }', [], joinExpected([
-            'button.small {}', 'button.medium {}', 'button.large {}'
-        ])],
-    ]
-
-    const redMapping: StateMapping = []
-
-    for (const [header, body, ancestors, expected] of greenMapping) {
-        it(`green: ${header} { ${body} }`, () => {
-            const output = handleStateBlock(header, body, stateCtx(ancestors), echoRecurse)
-            expect(canonicalHandlerResult(output)).toBe(expected)
-        })
-    }
-
-    for (const [header, body, ancestors, expected] of redMapping) {
-        it(`red: ${header} { ${body} }`, () => {
-            const output = handleStateBlock(header, body, stateCtx(ancestors), echoRecurse)
             expect(canonicalHandlerResult(output)).toBe(expected)
         })
     }
