@@ -39,17 +39,17 @@ const vitestBin = resolveVitestBin(packageRoot)
 const SPECS = [
     'src/schema/triggers.spec.ts',
     'src/foundation/flow.spec.ts',
-    'src/compiler/create-style-sheet-tables.spec.ts',
-    'src/compiler/internal/transform-state.spec.ts',
-    'src/compiler/internal/transform-variant.spec.ts',
-    'src/compiler/internal/transform-when.spec.ts',
+    'src/compiler/sheet/create-style-sheet-tables.spec.ts',
+    'src/compiler/transforms/transform-state.spec.ts',
+    'src/compiler/transforms/transform-variant.spec.ts',
+    'src/compiler/transforms/transform-when.spec.ts',
     'src/compiler/internal/hoist-helpers.spec.ts',
     'src/compiler/internal/at-rules-integration.spec.ts',
     'src/compiler/internal/at-rules-sheet.spec.ts',
-    'src/compiler/at-rules-compiler.spec.ts',
+    'src/compiler/sheet/at-rules-compiler.spec.ts',
 ]
 
-const VERSION_RE = /@version\s+(\d+\.\d+\.\d+)/
+const VERSION_RE = /@version(?:\s+|\s*[\*\s]\s*)(\d+\.\d+\.\d+)/
 
 const readVersion = (relPath) => {
     const text = readFileSync(join(packageRoot, relPath), 'utf8')

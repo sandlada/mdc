@@ -13,11 +13,10 @@
  * 类型层面允许 `import type` 真实类型（编译期擦除，无运行时耦合）。
  */
 
-import type { AtRulesCompilerContext } from '../compile-at-rules-sheet'
-import type { StateTokenMetadata } from '../extract-state-token-metadata'
-import type { ParsedStatement, TransformResult } from './at-rules-transformer'
+import type { AtRulesCompilerContext, StateTokenMetadata } from '../sheet'
+import type { ParsedStatement, TransformResult } from './primitives'
 import type { TriggerTables } from '../../schema'
-import type { AtRuleHandlerResult, Recurse } from './at-rule-handler'
+import type { AtRuleHandlerResult, Recurse } from '../transforms/at-rule-handler'
 
 /**
  * Handler 级映射表行：[at-rule 表头, 原始 body, 期望的规范化 handler 结果]。

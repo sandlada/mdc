@@ -18,7 +18,7 @@ import {
     hoistCondition,
     isHostRootSelector,
     wrapWithAncestorPath
-} from './hoist-helpers'
+} from '../hoist'
 
 describe('isHostRootSelector', () => {
     /**

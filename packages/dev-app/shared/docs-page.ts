@@ -59,7 +59,7 @@ export class DocsPage extends LitElement {
     public component: string = ''
 
     @property({ type: String })
-    public title: string = ''
+    public override title: string = ''
 
     @property({ type: String })
     public subtitle: string = ''
@@ -103,8 +103,8 @@ export class DocsPage extends LitElement {
         const root = this.shadowRoot ?? this
         const scriptTags = root.querySelectorAll('script')
         scriptTags.forEach((s) => {
-            if (s.dataset.executed) return
-            s.dataset.executed = 'true'
+            if (s.dataset['executed']) return
+            s.dataset['executed'] = 'true'
             try {
                 const scriptBody = s.textContent || ''
                 if (!scriptBody.trim()) return

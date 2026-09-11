@@ -19,8 +19,9 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import type { StateDimensionItem } from '../rewrite-state-variables'
-import { parseStatements, transformStatements } from './at-rules-transformer'
+import type { StateDimensionItem } from '../transforms'
+import { parseStatements } from './primitives'
+import { transformStatements } from '../transforms'
 import {
     fakeBaseCtx,
     fakeMeta,

@@ -1,9 +1,12 @@
 import { readdirSync, statSync } from 'node:fs'
+import { createRequire } from 'node:module'
 import { join, relative, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'rolldown'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
+const require = createRequire(import.meta.url)
+const cssTreeStandalone = require.resolve('css-tree/dist/csstree.esm')
 
 /**
  * Recursively enumerate every shippable .ts file under `src/`.
@@ -61,6 +64,11 @@ export default defineConfig([
         },
         platform: 'browser',
         tsconfig: './tsconfig.json',
+        resolve: {
+            alias: {
+                'css-tree': cssTreeStandalone,
+            },
+        },
         // The only runtime surface is the `lit` adapter (peer): bundling it
         // would bake browser-conditioned copies under build/node_modules/,
         // which then shadow real resolution for downstream bundlers and Node
@@ -91,6 +99,11 @@ export default defineConfig([
         },
         platform: 'node',
         tsconfig: './tsconfig.json',
+        resolve: {
+            alias: {
+                'css-tree': cssTreeStandalone,
+            },
+        },
         external: ['rolldown', 'node:vm', 'node:path', 'node:module', 'node:url'],
     },
 ])

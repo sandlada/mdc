@@ -16,7 +16,7 @@ import { createStyleDefinition } from '../../schema'
 import { defineSchema } from '../../schema'
 import { emptyTables, withState, withVariant } from '../../schema'
 import { flow } from '../../foundation'
-import { compileStateSheet } from '../compile-state-sheet'
+import { compileStateSheet } from '../sheet'
 
 type MappingRow = ReadonlyArray<readonly [input: string, expected: string | readonly string[]]>
 

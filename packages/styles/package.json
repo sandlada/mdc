@@ -27,7 +27,9 @@
     },
     "devDependencies": {
         "@sandlada/mdk": "^3.0.0-20260624.c",
+        "@types/css-tree": "^3.2.0",
         "@types/node": "^22.13.0",
+        "css-tree": "^3.2.1",
         "lit": "^3.3.3",
         "rolldown": "^1.2.4",
         "typescript": "~7.0.2",

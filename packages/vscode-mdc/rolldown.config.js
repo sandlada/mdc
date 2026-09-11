@@ -22,6 +22,7 @@ export default defineConfig([
             file: 'dist/extension.cjs',
             format: 'cjs',
             sourcemap: true,
+            exports: 'named',
         },
         external: ['vscode', 'typescript', 'rolldown', 'lit'],
         platform: 'node',
@@ -36,6 +37,7 @@ export default defineConfig([
                 file: 'dist/index.cjs',
                 format: 'cjs',
                 sourcemap: true,
+                exports: 'named',
             },
             {
                 file: 'dist/index.js',

@@ -38,6 +38,24 @@ const sizeDefinition = JSON.stringify({
     }
 }, null, 4)
 
+const interactiveDefinition = JSON.stringify({
+    states: ['enabled', 'hovered', 'focused', 'disabled'],
+    tokens: {
+        'container-color': {
+            enabled: '#0b57d0',
+            hovered: '#0842a0',
+            focused: '#062e6f',
+            disabled: '#e0e2ec'
+        },
+        'label-color': {
+            enabled: '#ffffff',
+            hovered: '#ffffff',
+            focused: '#ffffff',
+            disabled: '#8e919a'
+        }
+    }
+}, null, 4)
+
 const sizeTables = JSON.stringify({
     states: {
         small: '.small',
@@ -55,14 +73,29 @@ const variantTables = JSON.stringify({
     },
     variants: {
         filled: ':host([variant="filled"])',
-        tonal: ':host([variant="tonal"])'
+        outlined: ':host([variant="outlined"])'
     }
 }, null, 4)
 
+const interactiveTables = JSON.stringify({
+    states: {
+        enabled: '',
+        hovered: ':hover',
+        focused: ':focus-visible',
+        disabled: '[disabled]'
+    },
+    variants: {}
+}, null, 4)
+
 const sizePreview = [
-    '<button class="small">Small</button>',
-    '<button class="medium">Medium</button>',
-    '<button class="large">Large</button>'
+    '<button class="small">Small Button</button>',
+    '<button class="medium">Medium Button</button>',
+    '<button class="large">Large Button</button>'
+].join('\n')
+
+const interactivePreview = [
+    '<button>Standard Button</button>',
+    '<button disabled>Disabled Button</button>'
 ].join('\n')
 
 export const PRESETS: readonly PlaygroundPreset[] = [
@@ -74,6 +107,10 @@ export const PRESETS: readonly PlaygroundPreset[] = [
             '@state(button) button {',
             '    background-color: var(--_container-color);',
             '    color: var(--_label-color);',
+            '    border: none;',
+            '    padding: 8px 16px;',
+            '    border-radius: 8px;',
+            '    font-weight: 500;',
             '}'
         ].join('\n'),
         definition: sizeDefinition,
@@ -83,13 +120,16 @@ export const PRESETS: readonly PlaygroundPreset[] = [
     },
     {
         key: 'variant',
-        label: '@variant — filled / tonal',
+        label: '@variant — filled / outlined',
         description: 'Variant shells wrap the state expansion. Use the variant dropdown above the preview to switch shells.',
         css: [
-            '@variant(filled, tonal) {',
+            '@variant(filled, outlined) {',
             '    @state(button) button {',
             '        background-color: var(--_container-color);',
             '        color: var(--_label-color);',
+            '        padding: 8px 16px;',
+            '        border-radius: 8px;',
+            '        border: 1px solid transparent;',
             '    }',
             '}'
         ].join('\n'),
@@ -106,11 +146,15 @@ export const PRESETS: readonly PlaygroundPreset[] = [
             '@state(button) button {',
             '    background-color: var(--_container-color);',
             '    color: var(--_label-color);',
+            '    padding: 8px 16px;',
+            '    border-radius: 8px;',
+            '    border: 2px solid transparent;',
             '}',
             '',
             '@when(:host([checked])) {',
             '    button {',
-            '        outline: 3px solid #146c2e;',
+            '        border-color: #146c2e;',
+            '        outline: 2px solid #146c2e;',
             '        outline-offset: 2px;',
             '    }',
             '}'
@@ -119,5 +163,97 @@ export const PRESETS: readonly PlaygroundPreset[] = [
         tables: sizeTables,
         previewHtml: sizePreview,
         hostAttrs: { checked: '' }
+    },
+    {
+        key: 'nested-when',
+        label: '@state + nested @when — state-scoped condition hoisting',
+        description: 'Nested @when inside @state hoists conditions to the top level while preserving inner state selectors.',
+        css: [
+            '@state(button) button {',
+            '    background-color: var(--_container-color);',
+            '    color: var(--_label-color);',
+            '    padding: 8px 16px;',
+            '    border-radius: 8px;',
+            '    border: 2px solid transparent;',
+            '',
+            '    @when(:host([dense])) {',
+            '        padding: 4px 8px;',
+            '        font-size: 12px;',
+            '    }',
+            '',
+            '    @when(:host([checked])) {',
+            '        border-color: #0b57d0;',
+            '        box-shadow: 0 0 0 2px #0b57d0;',
+            '    }',
+            '}'
+        ].join('\n'),
+        definition: sizeDefinition,
+        tables: sizeTables,
+        previewHtml: sizePreview,
+        hostAttrs: { dense: '', checked: '' }
+    },
+    {
+        key: 'interleaved',
+        label: '@variant × @state × @when — full trio interleaving',
+        description: 'Three-way at-rule nesting: variant shells hoist, state modifiers insert at tail, and host conditions nest as &.',
+        css: [
+            '@variant(filled, outlined) {',
+            '    @state(button) button {',
+            '        background-color: var(--_container-color);',
+            '        color: var(--_label-color);',
+            '        padding: 8px 16px;',
+            '        border-radius: 8px;',
+            '        border: 1px solid transparent;',
+            '',
+            '        @when(:host([checked])) {',
+            '            outline: 3px solid #6750a4;',
+            '            outline-offset: 2px;',
+            '        }',
+            '    }',
+            '}'
+        ].join('\n'),
+        definition: sizeDefinition,
+        tables: variantTables,
+        previewHtml: sizePreview,
+        hostAttrs: { variant: 'filled', checked: '' }
+    },
+    {
+        key: 'macros',
+        label: 'Macros — shape & logical padding',
+        description: 'AST-level declaration expander expands shape into corner radii and padding into logical block/inline properties.',
+        css: [
+            '@state(button) button {',
+            '    background-color: var(--_container-color);',
+            '    color: var(--_label-color);',
+            '    shape: 8px 16px;',
+            '    padding: 8px 16px;',
+            '    border: 1px solid #7cacf8;',
+            '    cursor: pointer;',
+            '}'
+        ].join('\n'),
+        definition: sizeDefinition,
+        tables: sizeTables,
+        previewHtml: sizePreview,
+        hostAttrs: {}
+    },
+    {
+        key: 'interactive',
+        label: 'Interactive — hover, focus & disabled states',
+        description: 'Interactive pseudo-classes (:hover, :focus-visible, [disabled]) showcase tail-canonical insertion.',
+        css: [
+            '@state(button) button {',
+            '    background-color: var(--_container-color);',
+            '    color: var(--_label-color);',
+            '    padding: 10px 24px;',
+            '    border-radius: 20px;',
+            '    border: none;',
+            '    font-weight: 500;',
+            '    cursor: pointer;',
+            '}'
+        ].join('\n'),
+        definition: interactiveDefinition,
+        tables: interactiveTables,
+        previewHtml: interactivePreview,
+        hostAttrs: {}
     }
 ]

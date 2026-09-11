@@ -8,10 +8,13 @@ import { LitElement, html, css } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { compileStateSheet } from '@sandlada/styles/compiler'
 import type { StyleDiagnosticWarning } from '@sandlada/styles/compiler'
-import { createStyleDefinition } from '@sandlada/styles/create-style-definition'
-import { defineSchema } from '@sandlada/styles/define-schema'
-import { emptyTables, isTriggerTables } from '@sandlada/styles/triggers'
-import type { TriggerTables } from '@sandlada/styles/triggers'
+import {
+    createStyleDefinition,
+    defineSchema,
+    emptyTables,
+    isTriggerTables,
+    type TriggerTables
+} from '@sandlada/styles/schema'
 import { stringifyTokens } from '@sandlada/styles/tokens'
 import { PRESETS, type PlaygroundPreset } from './styles-playground-presets.js'
 import { formatCss, formatHtml, formatJson } from './playground-format.js'
@@ -49,9 +52,8 @@ const escapeStyleClose = (value: string): string => value.replace(/<\/style/gi, 
  * markup with the compiled CSS and generated token variables applied, with
  * host-attribute chips to toggle `:host(...)` conditions live.
  *
- * Only DOM-free barrels are imported (`compiler`, `define-schema`,
- * `create-style-definition`, `triggers`, `tokens`) — never `lit` or
- * `rolldown` subpaths.
+ * Only DOM-free barrels are imported (`compiler`, `schema`, `tokens`) —
+ * never `lit` or `rolldown` subpaths.
  */
 @customElement('styles-playground')
 export class StylesPlayground extends LitElement {
@@ -522,6 +524,9 @@ export class StylesPlayground extends LitElement {
     }
 
     private buildDefinition(): Record<string, unknown> {
+        if (this.definitionText.trim().length === 0) {
+            return {}
+        }
         let parsed: unknown
         try {
             parsed = JSON.parse(this.definitionText)
@@ -532,14 +537,17 @@ export class StylesPlayground extends LitElement {
             throw new Error('[playground] Definition must be a JSON object shaped { states, tokens }.')
         }
         const record = parsed as Record<string, unknown>
+        if (!('states' in record) && !('tokens' in record)) {
+            return {}
+        }
         if (!Array.isArray(record['states']) || record['states'].length === 0) {
             throw new Error('[playground] Definition.states must be a non-empty array of state names.')
         }
         if (record['tokens'] === null || typeof record['tokens'] !== 'object' || Array.isArray(record['tokens'])) {
             throw new Error('[playground] Definition.tokens must be a JSON object.')
         }
-        const schema = defineSchema(record['states'] as string[])
-        return createStyleDefinition(schema)(record['tokens'] as Record<string, unknown>) as unknown as Record<string, unknown>
+        const schema = defineSchema(record['states'] as any)
+        return createStyleDefinition(schema)(record['tokens'] as any) as unknown as Record<string, unknown>
     }
 
     private buildTables(): TriggerTables {
@@ -559,7 +567,17 @@ export class StylesPlayground extends LitElement {
     }
 
     private attrNames(): string[] {
-        return [...new Set([...Object.keys(this.hostAttrs), ...Object.keys(this.currentPreset().hostAttrs)])]
+        const names = new Set<string>([
+            ...Object.keys(this.hostAttrs),
+            ...Object.keys(this.currentPreset().hostAttrs)
+        ])
+        const matches = this.cssText.matchAll(/:host\(\[([a-zA-Z0-9_-]+)(?:=[^\]]+)?\]\)/g)
+        for (const match of matches) {
+            if (match[1]) {
+                names.add(match[1])
+            }
+        }
+        return [...names]
     }
 
     private variantNames(): string[] {

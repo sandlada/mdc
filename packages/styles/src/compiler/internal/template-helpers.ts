@@ -6,7 +6,7 @@
 
 import { MDCStyleSheet } from '../../foundation'
 import type { CSSLike } from '../../foundation'
-import { compileStateSheet, type CompileStateSheetOptions } from '../compile-state-sheet'
+import { compileStateSheet, type CompileStateSheetOptions } from '../sheet'
 
 export function interpolateTemplate(strings: TemplateStringsArray | string | readonly string[], values: readonly any[]): string {
     if (typeof strings === 'string') return strings
