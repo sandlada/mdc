@@ -18,6 +18,8 @@ node_modules
 .rollup.cache*
 dist
 dist-ssr
+# VS Code extension packaging
+*.vsix
 build
 **/demo/output/
 !docs
@@ -72,4 +74,6 @@ docs/.superpowers
 !CONTRIBUTING.md
 !SECURITY.md
 !docs/*.md
+!SPEC.md
+!USAGE.md
 *.py

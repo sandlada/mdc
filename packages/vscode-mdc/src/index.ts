@@ -14,7 +14,7 @@ const definitionMetaMap = new Map<string, DefinitionMeta>()
 /**
  * TypeScript Language Service Plugin entry point (for project-level tsconfig.json integration).
  *
- * Automatically loaded by VS Code / IDEs when `"plugins": [{ "name": "@sandlada/vscode-mdc" }]`
+  * Automatically loaded by VS Code / IDEs when `"plugins": [{ "name": "vscode-mdc" }]`
  * is configured in tsconfig.json.
  */
 export function init(modules: { typescript: any }) {

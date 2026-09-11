@@ -37,7 +37,7 @@
         "useDefineForClassFields": false,
         "verbatimModuleSyntax": true,
         "plugins": [
-            { "name": "@sandlada/vscode-mdc" }
+            { "name": "vscode-mdc" }
         ]
     },
     "include": [

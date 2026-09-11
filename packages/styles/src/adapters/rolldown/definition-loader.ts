@@ -8,7 +8,7 @@
  * definition module with rolldown (`platform: 'node'`, framework externals)
  * and evaluates it in a `node:vm` sandbox, returning the live definition
  * object. This mirrors the `rolldown` + VM genuine-CSS path proven in
- * `@sandlada/vscode-mdc` (`compiler-engine.ts`), so `${...}` interpolations,
+  * `vscode-mdc` (`compiler-engine.ts`), so `${...}` interpolations,
  * `flow(...)` tables and token helpers resolve exactly as they do at
  * runtime instead of via fragile static analysis.
  *
