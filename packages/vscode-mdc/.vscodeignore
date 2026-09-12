@@ -1,0 +1,17 @@
+.vscode/**
+.vscode-test/**
+src/**
+scripts/**
+tsconfig.json
+rolldown.config.js
+**/*.map
+.gitignore
+.editorconfig
+# workspace-hoist / dev symlink escapes must never enter the vsix.
+# Runtime deps are vendored locally by `npm run vendor-deps`, so dependency
+# detection resolves them inside this folder.
+../**
+../../**
+node_modules/.bin
+node_modules/**/.bin
+node_modules/.vite*/**

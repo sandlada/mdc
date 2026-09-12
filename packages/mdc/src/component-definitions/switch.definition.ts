@@ -4,8 +4,12 @@
  * SPDX-License-Identifier: MIT
  */
 import { Shape, State } from '@sandlada/mdk'
-import { Color } from '../utils/tokens/theme'
-import { createStyleDefinition } from '../utils/tokens/create-style-definition'
+import { Color, createStyleDefinition, defineSchema } from '../utils/styles'
+
+export const SwitchSchema = defineSchema([
+    ['enabled', 'hovered', 'focused', 'pressed', 'disabled'],
+    ['unselected', 'selected']
+] as const)
 
 export const SwitchDefinition = createStyleDefinition({
     'track-shape-start-start'      : Shape.Full,

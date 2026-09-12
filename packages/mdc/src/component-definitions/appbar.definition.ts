@@ -32,10 +32,10 @@ export const AppBarDefinition = createStyleDefinition({
     'enabled-container-shape-end-end'                       : Shape.None,
 
     // Container padding (4px edge padding to 48px touch targets)
-    'enabled-container-inline-leading-padding-space'        : `4px`,
-    'enabled-container-inline-trailing-padding-space'       : `4px`,
-    'enabled-container-block-leading-padding-space'         : `0px`,
-    'enabled-container-block-trailing-padding-space'        : `0px`,
+    'enabled-container-padding-inline-start'                : `4px`,
+    'enabled-container-padding-inline-end'                  : `4px`,
+    'enabled-container-padding-block-start'                 : `0px`,
+    'enabled-container-padding-block-end'                   : `0px`,
 
     // Variant heights (from measurements.png & measurements2.png)
     'enabled-small-container-height'                        : `64px`,
@@ -53,9 +53,10 @@ export const AppBarDefinition = createStyleDefinition({
     'enabled-actions-gap-space'                             : `0px`,
 
     // Flexible content padding (16px left/right, 12px bottom in MD3 Expressive)
-    'enabled-flexible-content-inline-leading-padding-space' : `16px`,
-    'enabled-flexible-content-inline-trailing-padding-space': `16px`,
-    'enabled-flexible-content-block-trailing-padding-space' : `12px`,
+    'enabled-flexible-content-padding-inline-start'         : `16px`,
+    'enabled-flexible-content-padding-inline-end'           : `16px`,
+    'enabled-flexible-content-padding-block-start'          : `0px`,
+    'enabled-flexible-content-padding-block-end'            : `12px`,
     'enabled-flexible-top-row-height'                       : `56px`,
 
     // Foreground colors
@@ -72,7 +73,10 @@ export const AppBarDefinition = createStyleDefinition({
     'enabled-search-box-icon-color'                         : Color.OnSurfaceVariant,
     'enabled-search-box-height'                             : `48px`,
     'enabled-search-box-gap-space'                          : `8px`,
-    'enabled-search-box-inline-padding-space'               : `16px`,
+    'enabled-search-box-padding-inline-start'               : `16px`,
+    'enabled-search-box-padding-inline-end'                 : `16px`,
+    'enabled-search-box-padding-block-start'                : `0px`,
+    'enabled-search-box-padding-block-end'                  : `0px`,
     'enabled-search-box-shape-start-start'                  : Shape.Full,
     'enabled-search-box-shape-start-end'                    : Shape.Full,
     'enabled-search-box-shape-end-start'                    : Shape.Full,

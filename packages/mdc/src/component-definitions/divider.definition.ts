@@ -1,12 +1,20 @@
 /**
  * @license
- * Copyright 2025 Kai-Orion & Sandlada
+ * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
+ *
+ * @version
+ * 1.0.0
  */
-import { Color } from '../utils/tokens/theme'
-import { createStyleDefinition } from '../utils/tokens/create-style-definition'
+import {
+    Color,
+    createStyleDefinition,
+    defineSchema
+} from '../utils/styles'
 
-export const DividerDefinition = createStyleDefinition({
-    'enabled-thickness': `1px`,
-    'enabled-color'    : Color.OutlineVariant,
+export const DividerSchema = defineSchema(['enabled'] as const)
+
+export const DividerDefinition = createStyleDefinition(DividerSchema)({
+    'thickness': '1px',
+    'color': Color.OutlineVariant,
 })

@@ -1,0 +1,201 @@
+{
+                "name": "vscode-mdc",
+    "displayName": "MDC Design System Tools",
+    "description": "IntelliSense, CodeLens token auditing, and AST reflection for @sandlada/mdc components and stylesheets.",
+    "version": "0.1.0",
+    "publisher": "sandlada",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/sandlada/mdc.git",
+        "directory": "packages/vscode-mdc"
+    },
+    "type": "module",
+    "main": "./dist/extension.cjs",
+    "module": "./dist/index.js",
+    "types": "./src/index.ts",
+    "exports": {
+        ".": {
+            "require": "./dist/index.cjs",
+            "import": "./dist/index.js",
+            "types": "./src/index.ts",
+            "default": "./dist/index.js"
+        }
+    },
+    "activationEvents": [
+        "onView:mdcSchema",
+        "onView:mdcSelectorMapping",
+        "onView:mdcComponentTokens",
+        "onView:mdcForwardedTokens",
+        "onView:mdcUnusedTokens",
+        "onView:mdcExplorer",
+        "onCommand:mdc.inspectTokens",
+        "onCommand:mdc.jumpToToken",
+        "onCommand:mdc.jumpToSchema",
+        "onCommand:mdc.showCompiledCss",
+        "onLanguage:typescript",
+        "onLanguage:javascript",
+        "onLanguage:typescriptreact",
+        "onLanguage:javascriptreact"
+    ],
+    "contributes": {
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "mdc-sidebar",
+                    "title": "MDC Design Tokens",
+                    "icon": "$(symbol-color)"
+                }
+            ]
+        },
+        "views": {
+            "mdc-sidebar": [
+                {
+                    "id": "mdcSchema",
+                    "name": "Schema"
+                },
+                {
+                    "id": "mdcSelectorMapping",
+                    "name": "Selector Mapping"
+                },
+                {
+                    "id": "mdcComponentTokens",
+                    "name": "Component Tokens"
+                },
+                {
+                    "id": "mdcForwardedTokens",
+                    "name": "Forwarded Tokens"
+                },
+                {
+                    "id": "mdcUnusedTokens",
+                    "name": "Unused Tokens"
+                },
+                {
+                    "id": "mdcExplorer",
+                    "name": "MDC Explorer"
+                }
+            ]
+        },
+        "snippets": [
+            {
+                "language": "typescript",
+                "path": "./snippets/mdc.json"
+            },
+            {
+                "language": "javascript",
+                "path": "./snippets/mdc.json"
+            },
+            {
+                "language": "css",
+                "path": "./snippets/css.json"
+            },
+            {
+                "language": "scss",
+                "path": "./snippets/css.json"
+            },
+            {
+                "language": "less",
+                "path": "./snippets/css.json"
+            },
+            {
+                "language": "typescript",
+                "path": "./snippets/css.json"
+            },
+            {
+                "language": "javascript",
+                "path": "./snippets/css.json"
+            },
+            {
+                "language": "typescriptreact",
+                "path": "./snippets/css.json"
+            },
+            {
+                "language": "javascriptreact",
+                "path": "./snippets/css.json"
+            },
+            {
+                "language": "html",
+                "path": "./snippets/css.json"
+            }
+        ],
+        "typescriptServerPlugins": [
+            {
+    "name": "vscode-mdc",
+                "enableForWorkspaceTypeScriptVersions": true
+            }
+        ],
+        "commands": [
+            {
+                "command": "mdc.inspectTokens",
+                "title": "MDC: Inspect Tokens in Stylesheet"
+            },
+            {
+                "command": "mdc.jumpToToken",
+                "title": "MDC: Jump to Token in Editor"
+            },
+            {
+                "command": "mdc.jumpToSchema",
+                "title": "MDC: Jump to Schema in Editor"
+            },
+            {
+                "command": "mdc.showCompiledCss",
+                "title": "MDC: Show Compiled CSS for Stylesheet",
+                "icon": "$(file-code)"
+            }
+        ],
+        "menus": {
+            "editor/title": [
+                {
+                    "command": "mdc.showCompiledCss",
+                    "when": "resourceExtname =~ /\\.(style|styles)\\.ts$/ || editorTextFocus && resourceLangId =~ /^typescript/",
+                    "group": "navigation"
+                }
+            ],
+            "editor/context": [
+                {
+                    "command": "mdc.showCompiledCss",
+                    "when": "resourceExtname =~ /\\.(style|styles)\\.ts$/ || editorTextFocus && resourceLangId =~ /^typescript/",
+                    "group": "1_modification@99"
+                }
+            ],
+            "view/title": [
+                {
+                    "command": "mdc.showCompiledCss",
+                    "when": "view == mdcExplorer",
+                    "group": "navigation"
+                }
+            ]
+        }
+    },
+    "engines": {
+        "vscode": "^1.90.0"
+    },
+    "categories": [
+        "Programming Languages",
+        "Linters",
+        "Snippets"
+    ],
+    "scripts": {
+        "build": "npm run vendor-deps && rolldown -c rolldown.config.js",
+        "vendor-deps": "node scripts/vendor-deps.mjs",
+        "test": "npm run build && node scripts/smoke-extension.mjs",
+        "package": "npm run build && vsce package",
+        "publish": "npm run build && vsce publish"
+    },
+    "vscodeRuntimeDependencies": {
+        "css-tree": "^3.2.1",
+        "lit": "^3.3.3",
+        "rolldown": "^1.2.4"
+    },
+    "dependencies": {},
+    "devDependencies": {
+        "@sandlada/jss": "^0.0.1-20260626.a",
+        "@sandlada/mdc": "*",
+        "@sandlada/mdk": "^3.0.0-20260624.c",
+        "@sandlada/styles": "*",
+        "typescript": "~7.0.2",
+        "@types/node": "^22.13.0",
+        "@types/vscode": "^1.90.0",
+        "@vscode/vsce": "^3.9.2"
+    }
+}

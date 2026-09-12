@@ -1,0 +1,111 @@
+<style>
+    .badge-interval-demo {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    .badge-demo-row {
+        display: flex;
+        align-items: center;
+        gap: 28px;
+        flex-wrap: wrap;
+    }
+
+    .badge-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .badge-item-label {
+        font-size: 12px;
+        color: #49454f;
+    }
+
+    .badge-anchor {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        background: #ece6f0;
+        border-radius: 12px;
+        color: #1d1b20;
+    }
+
+    .badge-anchor mdc-badge {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+    }
+
+    .status-indicator {
+        font-size: 14px;
+        font-weight: 500;
+        color: #6750a4;
+    }
+</style>
+
+<div class="badge-interval-demo">
+    <div class="status-indicator">
+        Current Value: <span id="badge-interval-val">0</span> (Oscillating 0 ↔ 5 every 500ms)
+    </div>
+
+    <div class="badge-demo-row">
+        <div class="badge-item">
+            <div class="badge-anchor">
+                <span class="material-symbols-outlined">notifications</span>
+                <mdc-badge id="interval-badge-auto" auto-size-on-zero value="0"></mdc-badge>
+            </div>
+            <span class="badge-item-label">auto-size-on-zero</span>
+        </div>
+
+        <div class="badge-item">
+            <div class="badge-anchor">
+                <span class="material-symbols-outlined">mail</span>
+                <mdc-badge id="interval-badge-large" size="large" value="0"></mdc-badge>
+            </div>
+            <span class="badge-item-label">size="large"</span>
+        </div>
+
+        <div class="badge-item">
+            <div class="badge-anchor">
+                <span class="material-symbols-outlined">shopping_cart</span>
+                <mdc-badge id="interval-badge-max" auto-size-on-zero max="3" value="0"></mdc-badge>
+            </div>
+            <span class="badge-item-label">max="3"</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    (() => {
+        let current = 0
+        let step = 1
+
+        const badgeAuto = document.getElementById('interval-badge-auto')
+        const badgeLarge = document.getElementById('interval-badge-large')
+        const badgeMax = document.getElementById('interval-badge-max')
+        const valDisplay = document.getElementById('badge-interval-val')
+
+        setInterval(() => {
+            current += step
+            if (current >= 5) {
+                current = 5
+                step = -1
+            } else if (current <= 0) {
+                current = 0
+                step = 1
+            }
+
+            if (badgeAuto) badgeAuto.value = current
+            if (badgeLarge) badgeLarge.value = current
+            if (badgeMax) badgeMax.value = current
+            if (valDisplay) valDisplay.textContent = current
+        }, 500)
+    })()
+</script>

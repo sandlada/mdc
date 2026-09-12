@@ -5,147 +5,195 @@
  */
 
 import { ElevationLevel, Shape, State } from '@sandlada/mdk'
-import { Color } from '../utils/tokens/theme'
-import { createStyleDefinition } from '../utils/tokens/create-style-definition'
+import {
+    Color,
+    createStyleDefinition,
+    defineSchema,
+    expandPadding,
+    expandShape,
+} from '../utils/styles'
+
+export const CardSchema = defineSchema([
+    ['enabled', 'hovered', 'focused', 'pressed', 'dragged', 'disabled'],
+    ['round', 'square'],
+] as const)
 
 const shared = {
-    'container-shape-start-start': Shape.Medium,
-    'container-shape-start-end'  : Shape.Medium,
-    'container-shape-end-start'  : Shape.Medium,
-    'container-shape-end-end'    : Shape.Medium,
+    ...expandShape('container-shape')({
+        round: Shape.Medium,
+        square: Shape.None,
+    }),
 
-    'container-shape-square-start-start': Shape.None,
-    'container-shape-square-start-end'  : Shape.None,
-    'container-shape-square-end-start'  : Shape.None,
-    'container-shape-square-end-end'    : Shape.None,
+    ...expandPadding('container-padding')(`16px`),
 
-    'container-padding-inline-start': `16px`,
-    'container-padding-inline-end'  : `16px`,
-    'container-padding-block-start' : `16px`,
-    'container-padding-block-end'   : `16px`,
-    'container-margin-inline-start' : `0px`,
-    'container-margin-inline-end'   : `0px`,
-    'container-margin-block-start'  : `0px`,
-    'container-margin-block-end'    : `0px`,
+    'container-margin-inline-start': `0px`,
+    'container-margin-inline-end': `0px`,
+    'container-margin-block-start': `0px`,
+    'container-margin-block-end': `0px`,
 
     'enabled-icon-color': Color.Primary,
-    'icon-size'         : `24px`,
+    'icon-size': `24px`,
 } as const
 
-export const ElevatedCardDefinition = createStyleDefinition({
+export const ElevatedCardDefinition = createStyleDefinition(CardSchema)({
     ...shared,
 
-    'enabled-container-color'       : Color.SurfaceContainerLow,
-    'enabled-container-elevation'   : ElevationLevel.Level1,
-    'enabled-container-shadow-color': Color.Shadow,
+    'container-color': {
+        enabled: Color.SurfaceContainerLow,
+        disabled: Color.Surface,
+    },
+    'container-elevation': {
+        enabled: ElevationLevel.Level1.Value,
+        hovered: ElevationLevel.Level2.Value,
+        focused: ElevationLevel.Level1.Value,
+        pressed: ElevationLevel.Level1.Value,
+        dragged: ElevationLevel.Level4.Value,
+        disabled: ElevationLevel.Level1.Value,
+    },
+    'container-shadow-color': {
+        enabled: Color.Shadow,
+    },
+    'container-opacity': {
+        disabled: `0.38`,
+    },
 
-    // Disabled
-    'disabled-container-color'    : Color.Surface,
-    'disabled-container-elevation': ElevationLevel.Level1,
-    'disabled-container-opacity'  : `0.38`,
+    // State Layer (Ripple & Dragged)
+    'state-layer-color': {
+        hovered: Color.OnSurface,
+        focused: Color.OnSurface,
+        pressed: Color.OnSurface,
+        dragged: Color.OnSurface,
+    },
+    'state-layer-opacity': {
+        hovered: State.HoveredStateLayerOpacity,
+        focused: State.FocusedStateLayerOpacity,
+        pressed: State.PressedStateLayerOpacity,
+        dragged: State.DraggedStateLayerOpacity,
+    },
 
-    // Hovered
-    'hovered-container-elevation': ElevationLevel.Level2,
-    'hovered-state-layer-color'  : Color.OnSurface,
-    'hovered-state-layer-opacity': State.HoveredStateLayerOpacity,
-
-    // Focused
-    'focused-container-elevation': ElevationLevel.Level1,
-    'focused-state-layer-color'  : Color.OnSurface,
-    'focused-state-layer-opacity': State.FocusedStateLayerOpacity,
-    'focused-indicator-color'    : Color.Secondary,
-    'focused-indicator-offset'   : State.FocusIndicator.OuterOffset,
-    'focused-indicator-thickness': State.FocusIndicator.Thickness,
-
-    // Pressed
-    'pressed-container-elevation': ElevationLevel.Level1,
-    'pressed-state-layer-color'  : Color.OnSurface,
-    'pressed-state-layer-opacity': State.PressedStateLayerOpacity,
-
-    // Dragged
-    'dragged-container-elevation': ElevationLevel.Level4,
-    'dragged-state-layer-color'  : Color.OnSurface,
-    'dragged-state-layer-opacity': State.DraggedStateLayerOpacity,
+    // Focus Indicator
+    'indicator-color': {
+        focused: Color.Secondary,
+    },
+    'indicator-offset': {
+        focused: State.FocusIndicator.OuterOffset,
+    },
+    'indicator-thickness': {
+        focused: State.FocusIndicator.Thickness,
+    },
 })
 
-export const FilledCardDefinition = createStyleDefinition({
+export const FilledCardDefinition = createStyleDefinition(CardSchema)({
     ...shared,
 
-    'enabled-container-color'       : Color.SurfaceContainerHighest,
-    'enabled-container-elevation'   : ElevationLevel.Level0,
-    'enabled-container-shadow-color': Color.Shadow,
+    'container-color': {
+        enabled: Color.SurfaceContainerHighest,
+        disabled: Color.SurfaceVariant,
+    },
+    'container-elevation': {
+        enabled: ElevationLevel.Level0,
+        hovered: ElevationLevel.Level1,
+        focused: ElevationLevel.Level0,
+        pressed: ElevationLevel.Level0,
+        dragged: ElevationLevel.Level3,
+        disabled: ElevationLevel.Level0,
+    },
+    'container-shadow-color': {
+        enabled: Color.Shadow,
+    },
+    'container-opacity': {
+        disabled: `0.38`,
+    },
 
-    // Disabled
-    'disabled-container-color'    : Color.SurfaceVariant,
-    'disabled-container-elevation': ElevationLevel.Level0,
-    'disabled-container-opacity'  : `0.38`,
+    // State Layer (Ripple & Dragged)
+    'state-layer-color': {
+        hovered: Color.OnSurface,
+        focused: Color.OnSurface,
+        pressed: Color.OnSurface,
+        dragged: Color.OnSurface,
+    },
+    'state-layer-opacity': {
+        hovered: State.HoveredStateLayerOpacity,
+        focused: State.FocusedStateLayerOpacity,
+        pressed: State.PressedStateLayerOpacity,
+        dragged: State.DraggedStateLayerOpacity,
+    },
 
-    // Hovered
-    'hovered-container-elevation': ElevationLevel.Level1,
-    'hovered-state-layer-color'  : Color.OnSurface,
-    'hovered-state-layer-opacity': State.HoveredStateLayerOpacity,
-
-    // Focused
-    'focused-container-elevation': ElevationLevel.Level0,
-    'focused-state-layer-color'  : Color.OnSurface,
-    'focused-state-layer-opacity': State.FocusedStateLayerOpacity,
-    'focused-indicator-color'    : Color.Secondary,
-    'focused-indicator-offset'   : State.FocusIndicator.OuterOffset,
-    'focused-indicator-thickness': State.FocusIndicator.Thickness,
-
-    // Pressed
-    'pressed-container-elevation': ElevationLevel.Level0,
-    'pressed-state-layer-color'  : Color.OnSurface,
-    'pressed-state-layer-opacity': State.PressedStateLayerOpacity,
-
-    // Dragged
-    'dragged-container-elevation': ElevationLevel.Level3,
-    'dragged-state-layer-color'  : Color.OnSurface,
-    'dragged-state-layer-opacity': State.DraggedStateLayerOpacity,
+    // Focus Indicator
+    'indicator-color': {
+        focused: Color.Secondary,
+    },
+    'indicator-offset': {
+        focused: State.FocusIndicator.OuterOffset,
+    },
+    'indicator-thickness': {
+        focused: State.FocusIndicator.Thickness,
+    },
 })
 
-export const OutlinedCardDefinition = createStyleDefinition({
+export const OutlinedCardDefinition = createStyleDefinition(CardSchema)({
     ...shared,
 
-    'enabled-container-color'       : Color.Surface,
-    'enabled-container-elevation'   : ElevationLevel.Level0,
-    'enabled-container-shadow-color': Color.Shadow,
-    'enabled-outline-color'         : Color.OutlineVariant,
-    'outline-width'                 : `1px`,
+    'container-color': {
+        enabled: Color.Surface,
+        disabled: Color.Surface,
+    },
+    'container-elevation': {
+        enabled: ElevationLevel.Level0,
+        hovered: ElevationLevel.Level1,
+        focused: ElevationLevel.Level0,
+        pressed: ElevationLevel.Level0,
+        dragged: ElevationLevel.Level3,
+        disabled: ElevationLevel.Level0,
+    },
+    'container-shadow-color': {
+        enabled: Color.Shadow,
+    },
+    'container-opacity': {
+        disabled: `0.38`,
+    },
 
-    // Disabled
-    'disabled-container-color'    : Color.Surface,
-    'disabled-container-elevation': ElevationLevel.Level0,
-    'disabled-container-opacity'  : `0.38`,
-    'disabled-outline-color'      : Color.Outline,
-    'disabled-outline-opacity'    : `0.12`,
+    'outline-color': {
+        enabled: Color.OutlineVariant,
+        hovered: Color.OutlineVariant,
+        focused: Color.OnSurface,
+        pressed: Color.OutlineVariant,
+        dragged: Color.OutlineVariant,
+        disabled: Color.Outline,
+    },
+    'outline-opacity': {
+        disabled: `0.12`,
+    },
+    'outline-width': `1px`,
 
-    // Hovered
-    'hovered-container-elevation': ElevationLevel.Level1,
-    'hovered-outline-color'      : Color.OutlineVariant,
-    'hovered-state-layer-color'  : Color.OnSurface,
-    'hovered-state-layer-opacity': State.HoveredStateLayerOpacity,
+    // State Layer (Ripple & Dragged)
+    'state-layer-color': {
+        hovered: Color.OnSurface,
+        focused: Color.OnSurface,
+        pressed: Color.OnSurface,
+        dragged: Color.OnSurface,
+    },
+    'state-layer-opacity': {
+        hovered: State.HoveredStateLayerOpacity,
+        focused: State.FocusedStateLayerOpacity,
+        pressed: State.PressedStateLayerOpacity,
+        dragged: State.DraggedStateLayerOpacity,
+    },
 
-    // Focused
-    'focused-container-elevation': ElevationLevel.Level0,
-    'focused-outline-color'      : Color.OnSurface,
-    'focused-state-layer-color'  : Color.OnSurface,
-    'focused-state-layer-opacity': State.FocusedStateLayerOpacity,
-    'focused-indicator-color'    : Color.Secondary,
-    'focused-indicator-offset'   : State.FocusIndicator.OuterOffset,
-    'focused-indicator-thickness': State.FocusIndicator.Thickness,
-
-    // Pressed
-    'pressed-container-elevation': ElevationLevel.Level0,
-    'pressed-outline-color'      : Color.OutlineVariant,
-    'pressed-state-layer-color'  : Color.OnSurface,
-    'pressed-state-layer-opacity': State.PressedStateLayerOpacity,
-
-    // Dragged
-    'dragged-container-elevation': ElevationLevel.Level3,
-    'dragged-outline-color'      : Color.OutlineVariant,
-    'dragged-state-layer-color'  : Color.OnSurface,
-    'dragged-state-layer-opacity': State.DraggedStateLayerOpacity,
+    // Focus Indicator
+    'indicator-color': {
+        focused: Color.Secondary,
+    },
+    'indicator-offset': {
+        focused: State.FocusIndicator.OuterOffset,
+    },
+    'indicator-thickness': {
+        focused: State.FocusIndicator.Thickness,
+    },
 })
 
-export const CardDefinition = FilledCardDefinition
+export const CardDefinitionVariants = {
+    'elevated': ElevatedCardDefinition,
+    'filled': FilledCardDefinition,
+    'outlined': OutlinedCardDefinition,
+} as const

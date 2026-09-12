@@ -74,8 +74,10 @@ export const ExpressiveSliderStyles = [
                tokens are still in slider.definition.ts for consumers. */
             --_label-container-width: 48px;
             --_label-container-height: 44px;
-            --_label-container-padding-inline: 16px;
-            --_label-container-padding-block: 12px;
+            --_label-container-padding-inline-start: 16px;
+            --_label-container-padding-inline-end: 16px;
+            --_label-container-padding-block-start: 12px;
+            --_label-container-padding-block-end: 12px;
             --_label-bottom-space: 6px;
             /* Edge inset: the visible track is inset by handleWidth/2 on
                each side. Derives from --_handle-width so each size preset
@@ -504,8 +506,10 @@ export const ExpressiveSliderStyles = [
             position: absolute;
             box-sizing: border-box;
             display: flex;
-            padding-inline: var(--_label-container-padding-inline);
-            padding-block: var(--_label-container-padding-block);
+            padding-inline-start: var(--_label-container-padding-inline-start);
+            padding-inline-end: var(--_label-container-padding-inline-end);
+            padding-block-start: var(--_label-container-padding-block-start);
+            padding-block-end: var(--_label-container-padding-block-end);
             place-content: center;
             place-items: center;
             border-radius: ${unsafeCSS(Shape.Full.ToCSSVariable())};

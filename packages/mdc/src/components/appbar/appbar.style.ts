@@ -70,10 +70,10 @@ export const AppBarStyles = css`
         width: 100%;
         min-height: var(--_enabled-small-container-height);
         box-sizing: border-box;
-        padding-inline-start: var(--_enabled-container-inline-leading-padding-space);
-        padding-inline-end: var(--_enabled-container-inline-trailing-padding-space);
-        padding-block-start: var(--_enabled-container-block-leading-padding-space);
-        padding-block-end: var(--_enabled-container-block-trailing-padding-space);
+        padding-inline-start: var(--_enabled-container-padding-inline-start);
+        padding-inline-end: var(--_enabled-container-padding-inline-end);
+        padding-block-start: var(--_enabled-container-padding-block-start);
+        padding-block-end: var(--_enabled-container-padding-block-end);
     }
 
     /* 48px touch targets for leading and trailing sections */
@@ -176,7 +176,8 @@ export const AppBarStyles = css`
     .container.centered .title-container {
         text-align: center;
         align-items: center;
-        padding-inline: var(--_enabled-title-gap-space);
+        padding-inline-start: var(--_enabled-title-gap-space);
+        padding-inline-end: var(--_enabled-title-gap-space);
     }
 
     .container.centered .headline,
@@ -207,10 +208,10 @@ export const AppBarStyles = css`
         display: flex;
         flex-direction: column;
         justify-content: flex-end;
-        padding-inline-start: var(--_enabled-flexible-content-inline-leading-padding-space);
-        padding-inline-end: var(--_enabled-flexible-content-inline-trailing-padding-space);
+        padding-inline-start: var(--_enabled-flexible-content-padding-inline-start);
+        padding-inline-end: var(--_enabled-flexible-content-padding-inline-end);
         padding-block-start: 4px;
-        padding-block-end: var(--_enabled-flexible-content-block-trailing-padding-space);
+        padding-block-end: var(--_enabled-flexible-content-padding-block-end);
     }
 
     .container.medium-flexible .flexible-content .title-container {
@@ -243,10 +244,10 @@ export const AppBarStyles = css`
         display: flex;
         flex-direction: column;
         justify-content: flex-end;
-        padding-inline-start: var(--_enabled-flexible-content-inline-leading-padding-space);
-        padding-inline-end: var(--_enabled-flexible-content-inline-trailing-padding-space);
+        padding-inline-start: var(--_enabled-flexible-content-padding-inline-start);
+        padding-inline-end: var(--_enabled-flexible-content-padding-inline-end);
         padding-block-start: 4px;
-        padding-block-end: var(--_enabled-flexible-content-block-trailing-padding-space);
+        padding-block-end: var(--_enabled-flexible-content-padding-block-end);
     }
 
     .container.large-flexible .flexible-content .title-container {
@@ -289,7 +290,10 @@ export const AppBarStyles = css`
         height: var(--_enabled-search-box-height);
         background-color: var(--_enabled-search-box-container-color);
         border-radius: var(--_enabled-search-box-shape-start-start);
-        padding-inline: var(--_enabled-search-box-inline-padding-space);
+        padding-inline-start: var(--_enabled-search-box-padding-inline-start);
+        padding-inline-end: var(--_enabled-search-box-padding-inline-end);
+        padding-block-start: var(--_enabled-search-box-padding-block-start);
+        padding-block-end: var(--_enabled-search-box-padding-block-end);
         gap: 8px;
         box-sizing: border-box;
         transition: background-color 200ms cubic-bezier(0.2, 0, 0, 1);

@@ -7,10 +7,21 @@
         "packages/*"
     ],
     "scripts": {
-        "build": "npm run build -w @sandlada/mdc",
-        "build:dts": "npm run build:dts -w @sandlada/mdc",
+        "build": "npm run build -w @sandlada/styles && npm run build -w @sandlada/mdc",
+        "build:styles": "npm run build -w @sandlada/styles",
+        "build:dts": "npm run build:dts -w @sandlada/styles && npm run build:dts -w @sandlada/mdc",
         "dev": "npm run dev -w @sandlada/mdc-dev",
         "build:dev": "npm run build -w @sandlada/mdc-dev",
-        "preview:dev": "npm run preview -w @sandlada/mdc-dev"
+        "preview:dev": "npm run preview -w @sandlada/mdc-dev",
+        "test": "npm run test -w @sandlada/styles && npm run test -w @sandlada/mdc",
+        "test:all": "npm run test -w @sandlada/styles && npm run test -w @sandlada/mdc && npm run test -w vscode-mdc --if-present && npm run test -w @sandlada/mdc-dev --if-present",
+        "build:all": "npm run build -w @sandlada/styles && npm run build -w @sandlada/mdc && npm run build -w vscode-mdc && npm run build -w @sandlada/mdc-dev",
+        "build:dts:all": "npm run build:dts -w @sandlada/styles && npm run build:dts -w @sandlada/mdc && npm run build:dts -w vscode-mdc --if-present && npm run build:dts -w @sandlada/mdc-dev --if-present",
+        "build:vscode": "npm run build -w vscode-mdc",
+        "package:vscode": "npm run package -w vscode-mdc",
+        "test:styles": "npm run test -w @sandlada/styles"
+    },
+    "devDependencies": {
+        "typescript": "~7.0.2"
     }
 }

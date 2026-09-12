@@ -5,7 +5,7 @@
  */
 import { describe, expect, it } from 'vitest'
 import {
-    CardDefinition,
+    CardDefinitionVariants,
     ElevatedCardDefinition,
     FilledCardDefinition,
     OutlinedCardDefinition,
@@ -18,6 +18,9 @@ describe('CardDefinition', () => {
         expect(FilledCardDefinition['container-shape-start-end']).toBeDefined()
         expect(FilledCardDefinition['container-shape-end-start']).toBeDefined()
         expect(FilledCardDefinition['container-shape-end-end']).toBeDefined()
+
+        expect(FilledCardDefinition['round-container-shape-start-start']).toBeDefined()
+        expect(FilledCardDefinition['square-container-shape-start-start']).toBeDefined()
 
         expect(FilledCardDefinition['container-padding-inline-start']).toBe('16px')
         expect(FilledCardDefinition['container-padding-inline-end']).toBe('16px')
@@ -37,7 +40,50 @@ describe('CardDefinition', () => {
         expect(OutlinedCardDefinition['enabled-outline-color']).toBeDefined()
         expect(OutlinedCardDefinition['outline-width']).toBe('1px')
 
-        expect(CardDefinition).toBe(FilledCardDefinition)
+        expect(CardDefinitionVariants.filled).toBe(FilledCardDefinition)
+        expect(CardDefinitionVariants.elevated).toBe(ElevatedCardDefinition)
+        expect(CardDefinitionVariants.outlined).toBe(OutlinedCardDefinition)
+    })
+
+    it('should carry ResolvedStyleDefinition metadata and CardSchema reference', () => {
+        expect(FilledCardDefinition.__brand).toBe('ResolvedStyleDefinition')
+        expect(FilledCardDefinition.schema.dimensions.length).toBe(2)
+        expect(FilledCardDefinition.schema.dimensions[0]).toEqual([
+            'enabled',
+            'hovered',
+            'focused',
+            'pressed',
+            'dragged',
+            'disabled',
+        ])
+        expect(FilledCardDefinition.schema.dimensions[1]).toEqual([
+            'round',
+            'square',
+        ])
+        expect(FilledCardDefinition.schema.states).toEqual([
+            'enabled',
+            'hovered',
+            'focused',
+            'pressed',
+            'dragged',
+            'disabled',
+            'round',
+            'square',
+        ])
+        expect(FilledCardDefinition.schema.isValidCombination(['enabled', 'round'])).toBe(true)
+        expect(FilledCardDefinition.schema.isValidCombination(['round', 'square'])).toBe(false)
+        expect(FilledCardDefinition.tokens['container-color']).toEqual({
+            enabled: expect.anything(),
+            disabled: expect.anything(),
+        })
+        expect(ElevatedCardDefinition.tokens['container-elevation']).toEqual({
+            enabled: expect.anything(),
+            hovered: expect.anything(),
+            focused: expect.anything(),
+            pressed: expect.anything(),
+            dragged: expect.anything(),
+            disabled: expect.anything(),
+        })
     })
 
     it('should export valid variant and shape constants', () => {
@@ -49,3 +95,4 @@ describe('CardDefinition', () => {
         expect(CardShape.Square).toBe('square')
     })
 })
+

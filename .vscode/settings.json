@@ -1,19 +1,17 @@
 {
     "terminal.integrated.sendKeybindingsToShell": true,
-    "[**/package.json]": {
-        "editor.formatOnSave": false
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.addMissingImports.ts": "always",
+        "source.fixAll.markdownlint": "always",
+        "source.fixAll.ts": "always",
+        "source.organizeImports": "always",
+        "source.organizeLinkDefinitions": "always",
+        "source.removeUnusedImports": "never",
+        "source.sortImports": "always"
     },
-    "[**/src/**]": {
-        "editor.codeActionsOnSave": {
-            "source.addMissingImports.ts": "always",
-            "source.fixAll.markdownlint": "always",
-            "source.fixAll.ts": "always",
-            "source.organizeImports": "always",
-            "source.organizeLinkDefinitions": "always",
-            "source.removeUnusedImports": "never",
-            "source.sortImports": "always"
-        },
-        "editor.formatOnSave": true
+    "[markdown]": {
+        "editor.fontFamily": "Jetbrains Mono, Noto Sans Mono CJK TC, Noto Sans Mono CJK SC"
     },
     "explorer.fileNesting.expand": true,
     "explorer.fileNesting.patterns": {
@@ -23,8 +21,10 @@
         "tsconfig.json": "tsconfig.*.json",
         "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, bun.lockb, bun.lock",
         "README.md": "SECURITY.md, LICENSE, CONTRIBUTING.md, CODE_OF_CONDUCT.md",
+        "index.ts": "README.md, *.ts",
         "AGENTS.md": "AGENTS.md, GEMINI.md, CLAUDE.md",
         ".gitattributes": ".gitatttributes, .gitignore",
+        "PROJECT.md": "ORIGINAL_REQUEST.md, TASK.md, TEST_INFRA.md, TEST_READY.md",
     },
     "betterAlign.surroundSpace": {
         "arrow": [
@@ -41,9 +41,7 @@
         ],
         "comment": -1
     },
-    "editor.codeActionsOnSave": {},
     "editor.cursorSmoothCaretAnimation": "on",
-    "editor.formatOnSave": false,
     "editor.indentSize": 4,
     "editor.smoothScrolling": true,
     "editor.tabSize": 4,
@@ -57,7 +55,9 @@
     "js/ts.format.semicolons": "remove",
     "js/ts.preferences.importModuleSpecifier": "non-relative",
     "js/ts.preferences.quoteStyle": "single",
-    "js/ts.experimental.useTsgo": false,
+    "js/ts.experimental.useTsgo": true,
     "terminal.integrated.smoothScrolling": true,
-    "workbench.list.smoothScrolling": true
+    "workbench.list.smoothScrolling": true,
+    "editor.detectIndentation": false,
+    "editor.insertSpaces": true,
 }

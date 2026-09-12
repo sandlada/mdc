@@ -52,8 +52,10 @@ export const ListItemStyles = css`
             align-items: stretch;
             width: 100%;
             min-height: var(--_one-line-container-height);
-            padding-inline-start: var(--_enabled-container-inline-leading-padding-space);
-            padding-inline-end: var(--_enabled-container-inline-trailing-padding-space);
+            padding-inline-start: var(--_enabled-container-padding-inline-start);
+            padding-inline-end: var(--_enabled-container-padding-inline-end);
+            padding-block-start: var(--_enabled-container-padding-block-start);
+            padding-block-end: var(--_enabled-container-padding-block-end);
             border-start-start-radius: var(--_container-shape-start-start);
             border-start-end-radius: var(--_container-shape-start-end);
             border-end-start-radius: var(--_container-shape-end-start);

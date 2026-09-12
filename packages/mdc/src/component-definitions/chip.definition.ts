@@ -77,10 +77,14 @@ const shared = {
 // Assist Chip — Widget.Material3.Chip.Assist
 export const AssistChipDefinition = createStyleDefinition({
     ...shared,
-    'container-padding-start'     : `8px`,
-    'container-padding-end'       : `8px`,
-    'text-padding-start'          : `8px`,
-    'text-padding-end'            : `8px`,
+    'container-padding-inline-start': `8px`,
+    'container-padding-inline-end'  : `8px`,
+    'container-padding-block-start' : `0px`,
+    'container-padding-block-end'   : `0px`,
+    'text-padding-inline-start'     : `8px`,
+    'text-padding-inline-end'       : `8px`,
+    'text-padding-block-start'      : `0px`,
+    'text-padding-block-end'        : `0px`,
 
     'enabled-container-color'     : `transparent`,
     'enabled-label-color'         : Color.OnSurface,
@@ -114,10 +118,14 @@ export const AssistChipDefinition = createStyleDefinition({
 // Filter Chip — Widget.Material3.Chip.Filter
 export const FilterChipDefinition = createStyleDefinition({
     ...shared,
-    'container-padding-start'     : `8px`,
-    'container-padding-end'       : `10px`,
-    'text-padding-start'          : `8px`,
-    'text-padding-end'            : `6px`,
+    'container-padding-inline-start': `8px`,
+    'container-padding-inline-end'  : `10px`,
+    'container-padding-block-start' : `0px`,
+    'container-padding-block-end'   : `0px`,
+    'text-padding-inline-start'     : `8px`,
+    'text-padding-inline-end'       : `6px`,
+    'text-padding-block-start'      : `0px`,
+    'text-padding-block-end'        : `0px`,
 
     'enabled-container-color'     : `transparent`,
     'enabled-label-color'         : Color.OnSurface,
@@ -177,10 +185,14 @@ export const FilterChipDefinition = createStyleDefinition({
 // Input Chip — Widget.Material3.Chip.Input
 export const InputChipDefinition = createStyleDefinition({
     ...shared,
-    'container-padding-start'     : `4px`,
-    'container-padding-end'       : `4px`,
-    'text-padding-start'          : `8px`,
-    'text-padding-end'            : `8px`,
+    'container-padding-inline-start': `4px`,
+    'container-padding-inline-end'  : `4px`,
+    'container-padding-block-start' : `0px`,
+    'container-padding-block-end'   : `0px`,
+    'text-padding-inline-start'     : `8px`,
+    'text-padding-inline-end'       : `8px`,
+    'text-padding-block-start'      : `0px`,
+    'text-padding-block-end'        : `0px`,
 
     'enabled-container-color'     : `transparent`,
     'enabled-label-color'         : Color.OnSurface,
@@ -224,10 +236,14 @@ export const InputChipDefinition = createStyleDefinition({
 // Suggestion Chip — Widget.Material3.Chip.Suggestion
 export const SuggestionChipDefinition = createStyleDefinition({
     ...shared,
-    'container-padding-start'     : `8px`,
-    'container-padding-end'       : `10px`,
-    'text-padding-start'          : `8px`,
-    'text-padding-end'            : `6px`,
+    'container-padding-inline-start': `8px`,
+    'container-padding-inline-end'  : `10px`,
+    'container-padding-block-start' : `0px`,
+    'container-padding-block-end'   : `0px`,
+    'text-padding-inline-start'     : `8px`,
+    'text-padding-inline-end'       : `6px`,
+    'text-padding-block-start'      : `0px`,
+    'text-padding-block-end'        : `0px`,
 
     'enabled-container-color'     : `transparent`,
     'enabled-label-color'         : Color.OnSurface,

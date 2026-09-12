@@ -81,16 +81,16 @@ export const MDCDockedToolbarStyles = [
                 z-index: 0;
             }
             .container.standard {
-                padding-inline-start: var(--_container-padding-inline-leading-space);
-                padding-inline-end: var(--_container-padding-inline-trailing-space);
-                padding-block-start: var(--_container-padding-block-leading-space);
-                padding-block-end: var(--_container-padding-block-trailing-space);
+                padding-inline-start: var(--_container-padding-inline-start);
+                padding-inline-end: var(--_container-padding-inline-end);
+                padding-block-start: var(--_container-padding-block-start);
+                padding-block-end: var(--_container-padding-block-end);
             }
             .container.vibrant {
-                padding-inline-start: var(--_container-padding-inline-leading-space);
-                padding-inline-end: var(--_container-padding-inline-trailing-space);
-                padding-block-start: var(--_container-padding-block-leading-space);
-                padding-block-end: var(--_container-padding-block-trailing-space);
+                padding-inline-start: var(--_container-padding-inline-start);
+                padding-inline-end: var(--_container-padding-inline-end);
+                padding-block-start: var(--_container-padding-block-start);
+                padding-block-end: var(--_container-padding-block-end);
             }
 
             .container > .background {

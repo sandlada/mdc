@@ -10,13 +10,14 @@ import { createValidator, getValidityAnchor, mixinConstraintValidation } from '.
 import { mixinElementInternals } from '../../utils/behaviors/element-internals'
 import { CheckboxValidator } from '../../utils/behaviors/validators/checkbox-validator'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
+import { OpacityTransitionController } from '../../utils/controller'
 import { dispatchActivationClick, isActivationClick } from '../../utils/event/form-label-activation'
 import { redispatchEvent } from '../../utils/event/redispatch-event'
 import { getFormState, getFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
-import { SwitchStyles } from './switch.style'
-import { mixinRippleOptions } from '../ripple/ripple-options.mixin'
 import { mixinFocusRingOptions } from '../focus-ring/focus-ring-options.mixin'
+import { mixinRippleOptions } from '../ripple/ripple-options.mixin'
 import type { ISwitch } from './switch.interface'
+import { SwitchStyles } from './switch.style'
 
 declare global {
     interface HTMLElementTagNameMap {
@@ -47,6 +48,7 @@ function installKeyboardModalityTracking() {
 
 /**
  *
+ * Classes:
  *
  *
  * @version "Material Design 3"
@@ -91,6 +93,14 @@ export class MDCSwitch extends composeMixin(
     @query('#input')
     private readonly inputElement!: HTMLInputElement
 
+    @query('.handle')
+    private readonly handleElement!: HTMLElement
+
+    private readonly opacityController = new OpacityTransitionController(this, {
+        target: () => this.handleElement,
+        duration: 250,
+    })
+
     public override get focusRingControl(): HTMLElement | null {
         return this.inputElement ?? null
     }
@@ -129,13 +139,17 @@ export class MDCSwitch extends composeMixin(
         }
     }
 
-    protected override render(): unknown {
-        const classes = classMap({
+    protected getRenderClasses() {
+        return {
             'selected': this.selected,
             'unselected': !this.selected,
             'disabled': this.disabled,
             'show-unselected-icon': this.showUnselectedIcon,
-        })
+        }
+    }
+
+    protected override render(): unknown {
+        const classes = classMap(this.getRenderClasses())
 
         return html`
             <div class="${classes} switch">
@@ -295,11 +309,11 @@ export class MDCSwitch extends composeMixin(
         dispatchActivationClick(this.inputElement)
     }
 
-    override[getFormValue]() {
+    override [getFormValue]() {
         return this.selected ? this.value : null
     }
 
-    override[getFormState]() {
+    override [getFormState]() {
         return String(this.selected)
     }
 
@@ -311,14 +325,14 @@ export class MDCSwitch extends composeMixin(
         this.selected = state === 'true'
     }
 
-    override[createValidator]() {
+    override [createValidator]() {
         return new CheckboxValidator(() => ({
             checked: this.selected,
             required: this.required,
         }))
     }
 
-    override[getValidityAnchor]() {
+    override [getValidityAnchor]() {
         return this.inputElement
     }
 }

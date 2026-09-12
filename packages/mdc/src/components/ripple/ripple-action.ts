@@ -10,7 +10,7 @@
 
 import { Easing } from '@sandlada/mdk'
 import { isServer } from 'lit'
-import type { IRipple } from './ripple.interface'
+import type { IMDCRipple } from './ripple.interface'
 
 const RippleState = {
     /**
@@ -48,8 +48,8 @@ const RippleState = {
 }
 
 const RippleConfiguration = {
-    pressGrowMs: 550,
-    minimumPressMs: 250,
+    pressGrowMs: 450,
+    minimumPressMs: 225,
     initialOriginScale: 0.2,
     padding: 10,
     softEdgeMinimumSize: 75,
@@ -77,7 +77,7 @@ const Events = [
  * Used to manage the `hovered`, `focused` and `pressed` states of ripple components.
  */
 export class RippleAction {
-    private readonly host: IRipple
+    private readonly host: IMDCRipple
     private state = RippleState.Inactive
     private startEvent: null | PointerEvent = null
     private checkBoundsAfterContextMenu = false
@@ -86,7 +86,7 @@ export class RippleAction {
     private rippleSize = ''
     private growAnimation: null | Animation = null
 
-    constructor(host: IRipple) {
+    constructor(host: IMDCRipple) {
         this.host = host
     }
 
@@ -164,13 +164,14 @@ export class RippleAction {
         if (!this.shouldReactToEvent(event)) return
         this.endPressAnimation()
     }
-    public handleClick() {
+    public handleClick(event?: MouseEvent) {
         if (this.host.disabled) return
         if (this.state === RippleState.WaitingForClick) {
             this.endPressAnimation()
             return
         }
-        if (this.state === RippleState.Inactive) {
+        const isKeyboardOrProgrammatic = !event || event.detail === 0
+        if (this.state === RippleState.Inactive && isKeyboardOrProgrammatic) {
             // keyboard synthesized click event
             this.startPressAnimation()
             this.endPressAnimation()
@@ -239,7 +240,7 @@ export class RippleAction {
             x: width / 2,
             y: height / 2,
         }
-        if (positionEvent instanceof PointerEvent) {
+        if (typeof PointerEvent !== 'undefined' && positionEvent instanceof PointerEvent) {
             startPoint = this.getNormalizedPointerEventCoords(positionEvent)!
         }
 
@@ -261,6 +262,7 @@ export class RippleAction {
         return { x: pageX - documentX, y: pageY - documentY }
     }
     private async endPressAnimation() {
+        this.startEvent = null
         this.state = RippleState.Inactive
         const animation = this.growAnimation
         let pressAnimationPlayState = Infinity
@@ -326,13 +328,17 @@ export class RippleAction {
             return !this.isTouch(event)
         }
 
+        if (event.type === 'pointerup' || event.type === 'pointercancel') {
+            return true
+        }
+
         const isPrimaryButton = event.buttons === 1
         return this.isTouch(event) || isPrimaryButton
     }
     private handleEvent = async (e: Event) => {
         switch (e.type) {
             case 'click':
-                this.handleClick()
+                this.handleClick(e as MouseEvent)
                 break
             case 'contextmenu':
                 this.handleContextmenu()

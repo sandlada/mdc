@@ -1,29 +1,20 @@
 /**
  * @license
- * Copyright 2025 Kai-Orion & Sandlada
+ * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { css, unsafeCSS } from 'lit'
-import { DividerDefinition } from '../../component-definitions/divider.definition'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+import { css } from 'lit'
+import { DividerDefinition } from './divider.definition'
+import { createStyleSheet, stringifyTokens } from '@sandlada/styles/adapters/lit'
 
-const tokenRecord = defineTokenRefsRecord(DividerDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-divider'
-})
-const tokenString = unsafeCSS(defineVars(tokenRecord, true).join(''))
+const tokens = stringifyTokens('--mdc-divider')(DividerDefinition)
 
-export const DividerStyles = css`
-    @layer mdc.divider.variant {
-        :host { ${tokenString}; }
-    }
-    @layer mdc.divider.base {
+const stylePart = createStyleSheet(DividerDefinition)(() => css`
+    @layer mdc.divider.component {
         :host {
             box-sizing: border-box;
-            color: var(--_enabled-color);
             display: flex;
-            height: var(--_enabled-thickness);
+            height: var(--_thickness);
             width: 100%;
         }
 
@@ -38,16 +29,59 @@ export const DividerStyles = css`
         }
 
         :host::before {
+            color: var(--_color);
             background: currentColor;
             content: '';
             height: 100%;
             width: 100%;
         }
+    }
 
-        @media (forced-colors: active) {
-            :host::before {
-            background: CanvasText;
+    @layer mdc.divider.motion {
+        @media (prefers-reduced-motion: reduce) {
+            :host,
+            :host * {
+                animation: none;
+                transition: none;
             }
         }
     }
-`
+    @layer mdc.divider.hcm {
+        @media (forced-colors: active) {
+            :host::before {
+                background: CanvasText;
+                forced-color-adjust: none;
+            }
+        }
+    }
+    @layer mdc.divider.contrast {
+        @media (prefers-contrast: more) {
+            :host::before {
+                color: CanvasText;
+            }
+        }
+
+        @media (prefers-contrast: less) {
+            :host::before {
+                opacity: 0.7;
+            }
+        }
+    }
+    @layer mdc.divider.transparency {
+        @media (prefers-reduced-transparency: reduce) {
+            :host::before {
+                opacity: 1;
+            }
+        }
+    }
+`)
+
+export const DividerStyles = [
+    css`
+        @layer mdc.divider {
+            @layer variable, component, motion, hcm, contrast, transparency;
+        }
+    `,
+    css`@layer mdc.divider.variable {:host {${tokens};}}`,
+    stylePart,
+]

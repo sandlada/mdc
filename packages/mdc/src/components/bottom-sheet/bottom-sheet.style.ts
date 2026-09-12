@@ -183,8 +183,8 @@ export const bottomSheetBaseStyles = css`
         display: flex;
         justify-content: center;
         align-items: center;
-        padding-block-start: var(--_drag-handle-container-block-leading-padding-space);
-        padding-block-end: var(--_drag-handle-container-block-trailing-padding-space);
+        padding-block-start: var(--_drag-handle-container-padding-block-start);
+        padding-block-end: var(--_drag-handle-container-padding-block-end);
         flex-shrink: 0;
         cursor: grab;
         touch-action: none;
@@ -210,10 +210,10 @@ export const bottomSheetBaseStyles = css`
     /* Header */
     .header {
         flex-shrink: 0;
-        padding-inline-start: var(--_header-container-inline-leading-padding-space);
-        padding-inline-end: var(--_header-container-inline-trailing-padding-space);
-        padding-block-start: var(--_header-container-block-leading-padding-space);
-        padding-block-end: var(--_header-container-block-trailing-padding-space);
+        padding-inline-start: var(--_header-container-padding-inline-start);
+        padding-inline-end: var(--_header-container-padding-inline-end);
+        padding-block-start: var(--_header-container-padding-block-start);
+        padding-block-end: var(--_header-container-padding-block-end);
     }
 
     .host:not(.has-header) .header {
@@ -224,10 +224,10 @@ export const bottomSheetBaseStyles = css`
     .content {
         flex: 1 1 auto;
         overflow-y: auto;
-        padding-inline-start: var(--_content-container-inline-leading-padding-space);
-        padding-inline-end: var(--_content-container-inline-trailing-padding-space);
-        padding-block-start: var(--_content-container-block-leading-padding-space);
-        padding-block-end: var(--_content-container-block-trailing-padding-space);
+        padding-inline-start: var(--_content-container-padding-inline-start);
+        padding-inline-end: var(--_content-container-padding-inline-end);
+        padding-block-start: var(--_content-container-padding-block-start);
+        padding-block-end: var(--_content-container-padding-block-end);
         min-height: 0;
     }
 

@@ -3,6 +3,7 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
+import type { LitElement } from 'lit'
 
 export const CardVariant = {
     Elevated: 'elevated',
@@ -17,7 +18,7 @@ export const CardShape = {
 } as const
 export type CardShape = typeof CardShape[keyof typeof CardShape]
 
-export interface ICard {
+export interface IMDCCardAttributes {
     variant: CardVariant
     interactive: boolean
     disabled: boolean
@@ -26,4 +27,10 @@ export interface ICard {
     href: string
     target: string
     cardTabIndex: number
+}
+
+export interface IMDCCardEvents { }
+
+export interface IMDCCard extends LitElement, IMDCCardAttributes {
+    readonly isInteractive: boolean
 }

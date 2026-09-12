@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "lib": ["ESNext", "DOM"],
+        "types": ["node", "vscode"],
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "declaration": true,
+        "outDir": "./dist",
+        "paths": {
+            "@sandlada/mdc/*": ["../mdc/src/*"],
+            "@sandlada/mdc": ["../mdc/src"]
+        }
+    },
+    "include": ["src/**/*"]
+}

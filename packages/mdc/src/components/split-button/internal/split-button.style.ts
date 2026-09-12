@@ -96,14 +96,18 @@ const getButtonSpacingStyles = () => {
         .container.${s} .leading-button {
             gap: var(--_${s}-between-icon-label-space);
             min-inline-size: var(--_${s}-leading-button-min-width);
-            padding-inline-end: var(--_${s}-leading-button-inline-trailing-padding-space);
-            padding-inline-start: var(--_${s}-leading-button-inline-leading-padding-space);
+            padding-inline-start: var(--_${s}-leading-button-padding-inline-start);
+            padding-inline-end: var(--_${s}-leading-button-padding-inline-end);
+            padding-block-start: var(--_${s}-leading-button-padding-block-start);
+            padding-block-end: var(--_${s}-leading-button-padding-block-end);
         }
         .container.${s} .trailing-button {
             gap: var(--_${s}-between-icon-label-space);
             min-inline-size: var(--_${s}-trailing-button-min-width);
-            padding-inline-end: var(--_${s}-trailing-button-inline-trailing-padding-space);
-            padding-inline-start: var(--_${s}-trailing-button-inline-leading-padding-space);
+            padding-inline-start: var(--_${s}-trailing-button-padding-inline-start);
+            padding-inline-end: var(--_${s}-trailing-button-padding-inline-end);
+            padding-block-start: var(--_${s}-trailing-button-padding-block-start);
+            padding-block-end: var(--_${s}-trailing-button-padding-block-end);
         }
     `)
     return css`

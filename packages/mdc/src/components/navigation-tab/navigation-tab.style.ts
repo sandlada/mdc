@@ -217,6 +217,16 @@ export const NavigationTabStyles = [
     `,
     // For Vertical Layout (RailVertical, RailXRVertical, BarVertical, BarXRVertical are compatible.)
     css`
+    :host([variant="rail-vertical"]) {
+        width: var(--_container-width);
+        min-height: var(--_container-height);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        box-sizing: border-box;
+    }
+
     :host([variant="rail-vertical"]) .container,
     :host([variant="rail-xr-vertical"]) .container,
     :host([variant="bar-vertical"]) .container,
@@ -224,10 +234,12 @@ export const NavigationTabStyles = [
         position: relative;
         display: grid;
         grid-template-columns: 1fr;
-        grid-template-rows: 1fr min(var(--_label-line-height), var(--_label-size));
+        grid-template-rows: var(--_indicator-height) min(var(--_label-line-height), var(--_label-size));
         gap: var(--_spacing-between-icon-and-label);
         place-self: center;
         place-content: center;
+        justify-items: center;
+        align-items: center;
     }
     :host([variant="rail-vertical"]) .indicator,
     :host([variant="rail-xr-vertical"]) .indicator,
@@ -238,6 +250,7 @@ export const NavigationTabStyles = [
         grid-column: 1/2;
         grid-row: 1/2;
         width: var(--_indicator-width);
+        height: var(--_indicator-height);
     }
     :host([variant="rail-vertical"]) .container .icon-container,
     :host([variant="rail-xr-vertical"]) .container .icon-container,
@@ -251,6 +264,9 @@ export const NavigationTabStyles = [
         grid-template-rows: 1fr;
         place-content: center;
         place-self: center;
+        width: var(--_indicator-width);
+        height: var(--_indicator-height);
+        z-index: 1;
     }
 
     :host([variant="rail-vertical"]) .container .icon-container .icon,
@@ -278,9 +294,125 @@ export const NavigationTabStyles = [
         display: none;
     }
     `,
-    // For Horizontal Bar & Rail
+    // For Horizontal Rail
     css`
-    :host([variant="rail-horizontal"]) .container,
+    :host([variant="rail-horizontal"]) {
+        width: 100%;
+        max-width: var(--_container-width);
+        height: var(--_container-height);
+        display: flex;
+        position: relative;
+        box-sizing: border-box;
+    }
+
+    :host([variant="rail-horizontal"]) .container {
+        all: unset;
+        color-scheme: inherit;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+        position: relative;
+        border-radius: var(--_indicator-shape-start-start);
+        padding-inline-start: var(--_icon-container-inline-leading-space);
+        padding-inline-end: var(--_icon-container-inline-trailing-space);
+        cursor: pointer;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+        z-index: 0;
+    }
+
+    :host([variant="rail-horizontal"]) .indicator {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: inherit;
+        z-index: -1;
+        pointer-events: none;
+        transform-origin: center;
+        transition-property: opacity, background-color, transform;
+        transition-duration: 200ms;
+        transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+    }
+    :host([variant="rail-horizontal"]:not([checked])) .indicator {
+        opacity: 0;
+        transform: scaleX(0.92);
+        background-color: var(--_unselected-indicator-color);
+    }
+    :host([variant="rail-horizontal"][checked]) .indicator {
+        opacity: 1;
+        transform: scaleX(1);
+        background-color: var(--_selected-indicator-color);
+    }
+
+    :host([variant="rail-horizontal"]) .ripple-layer {
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        pointer-events: none;
+        overflow: hidden;
+    }
+
+    :host([variant="rail-horizontal"]) .icon-container {
+        display: inline-grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr;
+        width: var(--_icon-size);
+        height: var(--_icon-size);
+        flex-shrink: 0;
+        align-items: center;
+        justify-items: center;
+        margin-inline-end: var(--_spacing-between-icon-and-label);
+        z-index: 1;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    :host([variant="rail-horizontal"]) .icon {
+        grid-column: 1/2;
+        grid-row: 1/2;
+        width: var(--_icon-size);
+        height: var(--_icon-size);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        place-content: center;
+    }
+
+    :host([variant="rail-horizontal"]) .label.in-icon-container {
+        display: none;
+    }
+
+    :host([variant="rail-horizontal"]) .label.out-icon-container {
+        display: block;
+        flex: 1;
+        text-align: start;
+        justify-self: start;
+        z-index: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-family: var(--_label-font);
+        font-size: var(--_label-size);
+        font-weight: var(--_label-font-weight);
+        line-height: var(--_label-line-height);
+        letter-spacing: var(--_label-tracking);
+    }
+
+    :host([variant="rail-horizontal"]) .badge-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2;
+        margin-inline-start: auto;
+        padding-inline-end: 4px;
+        flex-shrink: 0;
+    }
+
+    // For Horizontal Bar
     :host([variant="bar-horizontal"]) .container {
         display: grid;
         grid-template-columns: 1fr;
@@ -290,7 +422,6 @@ export const NavigationTabStyles = [
         justify-content: center;
         position: relative;
     }
-    :host([variant="rail-horizontal"]) .container .icon-container,
     :host([variant="bar-horizontal"]) .container .icon-container {
         grid-column: 1/2;
         grid-row: 1/2;
@@ -303,7 +434,6 @@ export const NavigationTabStyles = [
         box-sizing: border-box;
         position: relative;
     }
-    :host([variant="rail-horizontal"]) .indicator,
     :host([variant="bar-horizontal"]) .indicator {
         grid-column: 1/2;
         grid-row: 1/2;
@@ -315,17 +445,14 @@ export const NavigationTabStyles = [
         min-width: var(--_indicator-width);
         z-index: -1;
     }
-    :host([variant="rail-horizontal"]) .label.in-icon-container,
     :host([variant="bar-horizontal"]) .label.in-icon-container {
         grid-column: 2/3;
         grid-row: 1/-1;
         box-sizing: border-box;
     }
-    :host([variant="rail-horizontal"]) .label.out-icon-container,
     :host([variant="bar-horizontal"]) .label.out-icon-container {
         display: none;
     }
-    :host([variant="rail-horizontal"]) .icon,
     :host([variant="bar-horizontal"]) .icon {
         place-content: center;
         grid-column: 1/2;
@@ -619,11 +746,59 @@ export const NavigationTabStyles = [
     // Badge - Singleton
     css`
     .badge-container {
-        display: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2;
+        pointer-events: none;
     }
+
+    .badge-label {
+        background: var(--_badge-color);
+        color: var(--_badge-label-color);
+        font-family: var(--_badge-label-font);
+        font-size: var(--_badge-label-size);
+        font-weight: var(--_badge-label-font-weight);
+        line-height: var(--_badge-label-line-height);
+        letter-spacing: var(--_badge-label-tracking);
+        border-radius: 8px;
+        height: 16px;
+        min-width: 16px;
+        padding-inline: 4px;
+        box-sizing: border-box;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+    }
+
+    :host([badge=""]) .badge-label,
+    .badge-label:empty {
+        width: 6px;
+        min-width: 6px;
+        height: 6px;
+        padding-inline: 0;
+        border-radius: 50%;
+    }
+
+    :host([variant="rail-vertical"]) .badge-container,
+    :host([variant="rail-xr-vertical"]) .badge-container,
+    :host([variant="rail-round"]) .badge-container,
+    :host([variant="rail-xr-round"]) .badge-container,
+    :host([variant="bar-vertical"]) .badge-container,
+    :host([variant="bar-xr-vertical"]) .badge-container {
+        position: absolute;
+        top: 6px;
+        inset-inline-start: calc(50% + 6px);
+    }
+
+    :host([variant="rail-horizontal"]) .badge-container,
+    :host([variant="bar-horizontal"]) .badge-container,
     :host([variant="drawer"]) .badge-container,
     :host([variant="drawer-horizontal"]) .badge-container {
-        display: flex;
+        margin-inline-start: auto;
+        padding-inline-end: 12px;
+        flex-shrink: 0;
     }
     `,
     // Label - Singleton

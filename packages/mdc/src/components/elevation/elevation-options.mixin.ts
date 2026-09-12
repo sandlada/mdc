@@ -6,7 +6,7 @@
 import { html, type LitElement, type PropertyValues, type TemplateResult } from 'lit'
 import { property } from 'lit/decorators.js'
 import { ContextConsumer } from '@lit/context'
-import { GlobalMDCContext, type GlobalMDCContextElevationConfig } from '../../context-provider'
+import { GlobalMDCContext, type GlobalMDCContextElevationConfig } from '../../utils/context-provider'
 import type { MixinBase, MixinReturn } from '../../utils/behaviors/mixin'
 
 export interface IMixinElevationAttributes {

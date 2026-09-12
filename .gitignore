@@ -18,7 +18,10 @@ node_modules
 .rollup.cache*
 dist
 dist-ssr
+# VS Code extension packaging
+*.vsix
 build
+**/demo/output/
 !docs
 *.local
 test-report
@@ -55,6 +58,7 @@ dist
 .copilot
 .gemini
 .jules
+.agents
 .superpower
 docs/superpower
 docs/.superpower
@@ -62,3 +66,14 @@ docs/superpowers
 docs/.superpowers
 .superpower
 .superpowers
+*.md
+!README.md
+!AGENTS.md
+!CLAUDE.md
+!CODE_OF_CONDUCT.md
+!CONTRIBUTING.md
+!SECURITY.md
+!docs/*.md
+!SPEC.md
+!USAGE.md
+*.py

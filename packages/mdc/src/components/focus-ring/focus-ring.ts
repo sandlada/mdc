@@ -1,14 +1,12 @@
 /**
  * @license
- * Copyright 2021 Google LLC
- * SPDX-License-Identifier: Apache-2.0
- *
- * [Modified by Kai-Orion & Sandlada]
+ * Copyright 2026 Kai-Orion & Sandlada
+ * SPDX-License-Identifier: MIT
  */
+import { ContextConsumer } from '@lit/context'
 import { isServer, LitElement, type PropertyValues } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { ContextConsumer } from '@lit/context'
-import { GlobalMDCContext, type GlobalMDCContextFocusRingConfig } from '../../context-provider'
+import { GlobalMDCContext, type GlobalMDCContextFocusRingConfig } from '../../utils/context-provider'
 import { AttachableController } from '../../utils/controller/attachable-controller'
 import type { IFocusRing } from './focus-ring.interface'
 import { FocusRingStyle } from './focus-ring.style'
@@ -71,6 +69,10 @@ export class MDCFocusRing extends LitElement implements IFocusRing {
     @property({ type: Boolean, reflect: true, attribute: 'animation-disabled' })
     public animationDisabled = false
 
+    @property({ type: Boolean, reflect: true })
+    public persistent = false
+
+
     @property({ type: Boolean, attribute: 'ignore-global-config', reflect: true, noAccessor: true })
     public get ignoreGlobalConfig() {
         return this._ignoreGlobalConfig
@@ -111,31 +113,63 @@ export class MDCFocusRing extends LitElement implements IFocusRing {
         this.toggleAttribute('disabled', value)
         this._configAttributeSyncSource = null
 
+        if (value) {
+            this.focused = false
+        }
+
         if (oldValue !== value || !oldConfigured) {
             this.requestUpdate('disabled', oldValue)
         }
     }
+
 
     @property({ type: Boolean, reflect: false, noAccessor: true })
     public get focused() { return this.hasAttribute('focused') }
     public set focused(value: boolean) {
         if (value) {
             if (this.disabled) {
-                this.clearTimer()
-                this.removeAttribute('closing')
                 this.removeAttribute('focused')
                 return
             }
-
-            this.clearTimer()
-            this.removeAttribute('closing')
+            const wasFocused = this.hasAttribute('focused')
             this.setAttribute('focused', '')
+            if (wasFocused) {
+                this.restartAnimation()
+            }
             return
         }
         this.removeAttribute('focused')
-        this.removeAttribute('closing')
-        this.clearTimer()
     }
+
+    private restartAnimation(): void {
+        if (isServer || this.animationDisabled) return
+        if (typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches) {
+            return
+        }
+        const animations = this.getAnimations?.() ?? []
+        let restarted = false
+        for (const anim of animations) {
+            if (
+                typeof CSSAnimation !== 'undefined' &&
+                anim instanceof CSSAnimation &&
+                (anim.animationName === 'outward-grow' ||
+                    anim.animationName === 'outward-shrink' ||
+                    anim.animationName === 'inward-grow' ||
+                    anim.animationName === 'inward-shrink')
+            ) {
+                anim.currentTime = 0
+                anim.play()
+                restarted = true
+            }
+        }
+        if (!restarted && typeof this.style !== 'undefined') {
+            this.style.animation = 'none'
+            // Trigger a layout reflow to flush animation reset
+            void this.offsetHeight
+            this.style.animation = ''
+        }
+    }
+
 
     public constructor() {
         super()
@@ -211,31 +245,30 @@ export class MDCFocusRing extends LitElement implements IFocusRing {
         }
     }
 
-    private timer: null | ReturnType<typeof setTimeout> = null
-    private clearTimer() {
-        if (!this.timer) return
-        clearTimeout(this.timer)
-        this.timer = null
+    private checkFocusVisible(control: HTMLElement | null): boolean {
+        if (!control) return false
+        if (control.matches(':focus-visible')) return true
+        const shadowActive = control.shadowRoot?.activeElement
+        if (shadowActive && shadowActive.matches?.(':focus-visible')) {
+            return true
+        }
+        return false
     }
 
     private handleEvent(e: Event) {
         if (this.disabled) return
-        const duration = parseFloat(getComputedStyle(this).getPropertyValue('--_duration')) || 0
-
-        this.clearTimer()
 
         switch (e.type) {
             case 'focusin': {
-                const isVisible = this.control?.matches(':focus-visible') ?? false
+                const isVisible = this.checkFocusVisible(this.control)
                 if (isVisible) {
-                    this.removeAttribute('closing')
                     this.focused = true
                 }
                 break
             }
             case 'focusout':
             case 'pointerdown':
-                this.closeWithDuration(duration)
+                this.focused = false
                 break
             default:
                 break
@@ -243,35 +276,11 @@ export class MDCFocusRing extends LitElement implements IFocusRing {
     }
 
     /**
-     * Initiates a closing transition for the focus ring, mirroring the
-     * behaviour triggered by native focusout/pointerdown events.
-     *
-     * If the ring is currently focused, this adds the `closing` attribute
-     * and schedules `focused = false` after half the configured duration
-     * (so the CSS opacity transition can complete). If the ring is
-     * already closed, this is a no-op. If the ring is disabled, it is
-     * closed immediately without a transition.
-     *
-     * Use this method from host components (e.g. switch, radio-button,
-     * icon-button) that need to programmatically reset focus visuals
-     * without bypassing the focus-ring's own transition lifecycle.
+     * Resets focus visuals. Entrance and exit transitions are handled
+     * natively by CSS `@starting-style` and `transition-behavior: allow-discrete`.
      */
     public close(): void {
-        if (this.disabled) {
-            this.focused = false
-            return
-        }
-        const duration = parseFloat(getComputedStyle(this).getPropertyValue('--_duration')) || 0
-        this.closeWithDuration(duration)
-    }
-
-    private closeWithDuration(duration: number): void {
-        if (!this.hasAttribute('focused')) return
-        this.setAttribute('closing', '')
-        this.clearTimer()
-        this.timer = setTimeout(() => {
-            this.focused = false
-        }, duration * 0.5)
+        this.focused = false
     }
 
     protected override updated(_changedProperties: PropertyValues<this>): void {

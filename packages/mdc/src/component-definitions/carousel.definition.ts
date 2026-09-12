@@ -31,9 +31,9 @@ export const CarouselDefinition = createStyleDefinition({
     'item-shape-small' : Shape.Medium,
 
     // Spacing & container padding
-    'item-spacing'     : Space.Space100,
-    'container-inline-leading-padding-space' : Space.Space200,
-    'container-inline-trailing-padding-space': Space.Space200,
-    'container-block-leading-padding-space'  : Space.Space100,
-    'container-block-trailing-padding-space' : Space.Space100,
+    'item-spacing'                  : Space.Space100,
+    'container-padding-inline-start': Space.Space200,
+    'container-padding-inline-end'  : Space.Space200,
+    'container-padding-block-start' : Space.Space100,
+    'container-padding-block-end'   : Space.Space100,
 })

@@ -1,14 +1,23 @@
-<mdc-navigation-rail style="height: 320px;">
-    <mdc-navigation-tab name="ms1" value="/" checked label="Standard" variant="rail-horizontal">
-        <mdc-icon slot="inactive-icon">home</mdc-icon>
-        <mdc-icon slot="active-icon" filled>home</mdc-icon>
-    </mdc-navigation-tab>
-</mdc-navigation-rail>
+<mdc-button onclick="this.getRootNode().querySelector('#demo-modal-rail').show()">
+    <span>Open Modal Navigation Rail</span>
+</mdc-button>
 
-<mdc-navigation-rail modal expanded style="height: 320px;">
-    <mdc-icon-button slot="menu"><mdc-icon>menu</mdc-icon></mdc-icon-button>
-    <mdc-navigation-tab name="ms2" value="/" checked label="Modal" variant="rail-horizontal">
-        <mdc-icon slot="inactive-icon">home</mdc-icon>
-        <mdc-icon slot="active-icon" filled>home</mdc-icon>
+<mdc-navigation-rail id="demo-modal-rail" modal style="height: 480px;">
+    <mdc-icon-button slot="menu" onclick="this.closest('mdc-navigation-rail').hide()">
+        <mdc-icon>close</mdc-icon>
+    </mdc-icon-button>
+    <mdc-fab slot="fab" icon="edit" variant="primary"></mdc-fab>
+    <mdc-navigation-tab name="rail-mdl-tab" value="/inbox" label="Inbox" badge="3" checked>
+        <mdc-icon slot="inactive-icon">inbox</mdc-icon>
+        <mdc-icon slot="active-icon" filled>inbox</mdc-icon>
     </mdc-navigation-tab>
+    <mdc-navigation-tab name="rail-mdl-tab" value="/chat" label="Chat" badge="">
+        <mdc-icon slot="inactive-icon">chat</mdc-icon>
+        <mdc-icon slot="active-icon" filled>chat</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="rail-mdl-tab" value="/settings" label="Settings">
+        <mdc-icon slot="inactive-icon">settings</mdc-icon>
+        <mdc-icon slot="active-icon" filled>settings</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-icon-button slot="end"><mdc-icon>help</mdc-icon></mdc-icon-button>
 </mdc-navigation-rail>

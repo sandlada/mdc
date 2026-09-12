@@ -4,9 +4,11 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { createStyleDefinition } from '../utils/tokens/create-style-definition'
+import { createStyleDefinition, defineSchema } from '../utils/styles'
 
-export const IconDefinition = createStyleDefinition({
-    'enabled-font': 'Material Symbols Outlined',
-    'enabled-size': '24px'
+export const IconSchema = defineSchema(['enabled'] as const)
+
+export const IconDefinition = createStyleDefinition(IconSchema)({
+    'font': 'Material Symbols Outlined',
+    'size': '24px',
 })

@@ -103,14 +103,14 @@ export const searchBarStyle = css`
             width: 100%;
             box-sizing: border-box;
             height: var(--_enabled-container-height);
-            padding-inline-start: var(--_enabled-container-inline-leading-padding-space);
-            padding-inline-end: var(--_enabled-container-inline-trailing-padding-space);
-            padding-block-start: var(--_enabled-container-block-leading-padding-space);
-            padding-block-end: var(--_enabled-container-block-trailing-padding-space);
-            margin-inline-start: var(--_enabled-container-inline-leading-margin-space);
-            margin-inline-end: var(--_enabled-container-inline-trailing-margin-space);
-            margin-block-start: var(--_enabled-container-block-leading-margin-space);
-            margin-block-end: var(--_enabled-container-block-trailing-margin-space);
+            padding-inline-start: var(--_enabled-container-padding-inline-start);
+            padding-inline-end: var(--_enabled-container-padding-inline-end);
+            padding-block-start: var(--_enabled-container-padding-block-start);
+            padding-block-end: var(--_enabled-container-padding-block-end);
+            margin-inline-start: var(--_enabled-container-margin-inline-start);
+            margin-inline-end: var(--_enabled-container-margin-inline-end);
+            margin-block-start: var(--_enabled-container-margin-block-start);
+            margin-block-end: var(--_enabled-container-margin-block-end);
             gap: var(--_enabled-container-items-gap);
             border-start-start-radius: var(--_enabled-container-shape-start-start);
             border-start-end-radius: var(--_enabled-container-shape-start-end);
@@ -171,15 +171,15 @@ export const searchBarStyle = css`
             font-size: var(--_enabled-input-text-size);
             font-weight: var(--_enabled-input-text-weight);
             letter-spacing: var(--_enabled-input-text-tracking);
-            padding-inline-start: var(--_enabled-content-inline-leading-padding-space);
-            padding-inline-end: var(--_enabled-content-inline-trailing-padding-space);
-            padding-block-start: var(--_enabled-content-block-leading-padding-space);
-            padding-block-end: var(--_enabled-content-block-trailing-padding-space);
+            padding-inline-start: var(--_enabled-content-padding-inline-start);
+            padding-inline-end: var(--_enabled-content-padding-inline-end);
+            padding-block-start: var(--_enabled-content-padding-block-start);
+            padding-block-end: var(--_enabled-content-padding-block-end);
         }
 
         .search.has-leading-icon .input {
-            padding-inline-start:  calc(var(--_enabled-content-inline-leading-padding-space) - 16px);
-            padding-inline-end:  calc(var(--_enabled-content-inline-trailing-padding-space) - 16px);
+            padding-inline-start:  calc(var(--_enabled-content-padding-inline-start) - 16px);
+            padding-inline-end:  calc(var(--_enabled-content-padding-inline-end) - 16px);
         }
 
         .input::placeholder {
@@ -232,14 +232,14 @@ export const searchBarStyle = css`
             border-start-end-radius: var(--_enabled-avatar-container-shape-start-end);
             border-end-start-radius: var(--_enabled-avatar-container-shape-end-start);
             border-end-end-radius: var(--_enabled-avatar-container-shape-end-end);
-            padding-inline-start: var(--_enabled-avatar-container-inline-leading-padding-space);
-            padding-inline-end: var(--_enabled-avatar-container-inline-trailing-padding-space);
-            padding-block-start: var(--_enabled-avatar-container-block-leading-padding-space);
-            padding-block-end: var(--_enabled-avatar-container-block-trailing-padding-space);
-            margin-inline-start: var(--_enabled-avatar-container-inline-leading-margin-space);
-            margin-inline-end: var(--_enabled-avatar-container-inline-trailing-margin-space);
-            margin-block-start: var(--_enabled-avatar-container-block-leading-margin-space);
-            margin-block-end: var(--_enabled-avatar-container-block-trailing-margin-space);
+            padding-inline-start: var(--_enabled-avatar-container-padding-inline-start);
+            padding-inline-end: var(--_enabled-avatar-container-padding-inline-end);
+            padding-block-start: var(--_enabled-avatar-container-padding-block-start);
+            padding-block-end: var(--_enabled-avatar-container-padding-block-end);
+            margin-inline-start: var(--_enabled-avatar-container-margin-inline-start);
+            margin-inline-end: var(--_enabled-avatar-container-margin-inline-end);
+            margin-block-start: var(--_enabled-avatar-container-margin-block-start);
+            margin-block-end: var(--_enabled-avatar-container-margin-block-end);
             z-index: 0;
         }
 

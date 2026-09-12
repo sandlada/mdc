@@ -1,0 +1,13 @@
+<mdc-snackbar-host id="host-center" placement="bottom-center"></mdc-snackbar-host>
+
+<div style="display: flex; gap: 8px; flex-wrap: wrap;">
+    <button onclick="document.querySelector('#host-center').show({ message: 'Single line message', action: 'Action' })">
+        Show Bottom Center
+    </button>
+    <button onclick="document.querySelector('#host-center').show({ message: 'Error message occurred', variant: 'error', hasCloseIcon: true })">
+        Show Error Snackbar
+    </button>
+    <button onclick="document.querySelector('#host-center').show({ message: 'First in queue', duration: 'short' }); document.querySelector('#host-center').show({ message: 'Second in queue (auto-sequential)', duration: 'short' });">
+        Trigger 2 Queued Snackbars
+    </button>
+</div>

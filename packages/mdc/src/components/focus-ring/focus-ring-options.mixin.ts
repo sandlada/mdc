@@ -15,6 +15,7 @@ export interface IMixinFocusRingAttributes {
     focusRingDisabled         : boolean
     focusRingAnimationDisabled: boolean
     focusRingFocused          : boolean
+    focusRingPersistent       : boolean
 }
 
 export interface IMixinFocusRingOption extends IMixinFocusRingAttributes {
@@ -89,6 +90,9 @@ export function mixinFocusRingOptions<T extends MixinBase<LitElement>>(base: T):
         @property({ type: Boolean, reflect: true, attribute: 'focus-ring-focused'})
         public focusRingFocused: boolean = false
 
+        @property({ type: Boolean, reflect: true, attribute: 'focus-ring-persistent' })
+        public focusRingPersistent: boolean = false
+
         @query('#focus-ring-part')
         public focusRingElement!: MDCFocusRing | null
 
@@ -146,6 +150,9 @@ export function mixinFocusRingOptions<T extends MixinBase<LitElement>>(base: T):
                 if(this.focusRingElement.animationDisabled !== this.focusRingAnimationDisabled) {
                     this.focusRingElement.animationDisabled = this.focusRingAnimationDisabled
                 }
+                if(this.focusRingElement.persistent !== this.focusRingPersistent) {
+                    this.focusRingElement.persistent = this.focusRingPersistent
+                }
                 // Only force-show when the host explicitly requests it.
                 // Never force-hide: the ring manages its own closed state via
                 // focusout / pointerdown events. Overriding to false here would
@@ -165,6 +172,8 @@ export function mixinFocusRingOptions<T extends MixinBase<LitElement>>(base: T):
                         id="focus-ring-part"
                         ?inward=${this.focusRingInward}
                         .shapeInherit=${this.focusRingShapeInherit}
+                        .animationDisabled=${this.focusRingAnimationDisabled}
+                        .persistent=${this.focusRingPersistent}
                     ></mdc-focus-ring>
                 `
             }
@@ -177,10 +186,14 @@ export function mixinFocusRingOptions<T extends MixinBase<LitElement>>(base: T):
                     .disabled=${this.focusRingDisabled}
                     ?inward=${this.focusRingInward}
                     .shapeInherit=${this.focusRingShapeInherit}
+                    .animationDisabled=${this.focusRingAnimationDisabled}
+                    .persistent=${this.focusRingPersistent}
                 ></mdc-focus-ring>
             `
         }
+
     }
+
 
     return WithFocusRing
 }

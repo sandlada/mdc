@@ -1,79 +1,123 @@
-import { css, unsafeCSS } from 'lit'
-import { BadgeDefinition } from '../../definitions'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+/**
+ * @license
+ * Copyright 2026 Kai-Orion & Sandlada
+ * SPDX-License-Identifier: MIT
+ */
+import { css } from 'lit'
+import { BadgeDefinition } from '../../component-definitions/badge.definition'
+import {
+    pipe,
+    stringifyTokens,
+    mapStateTriggers,
+    createStyleSheet
+} from '../../utils/styles'
 
-const tokenRecord = defineTokenRefsRecord(BadgeDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--md-badge'
-})
-const tokens = defineVars(tokenRecord, true).join('')
+const tokens = stringifyTokens('--mdc-badge')(BadgeDefinition)
 
-export const BadgeStyles = [
-    css`:host {${unsafeCSS(tokens)};}`,
-    css`
-        :host {
-            box-sizing: border-box;
-            position: relative;
-            vertical-align: top;
-            display: inline-flex;
-            -webkit-tap-highlight-color: transparent;
-        }
+const compileBadgeStyles = pipe(
+    mapStateTriggers({
+        'small': '.small',
+        'large': '.large',
+    }),
+    createStyleSheet
+)
 
-        .container {
-            box-sizing: border-box;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+const stylePart = compileBadgeStyles(BadgeDefinition)(() => css`
+    :host {
+        box-sizing: border-box;
+        position: relative;
+        vertical-align: top;
+        display: inline-flex;
+        -webkit-tap-highlight-color: transparent;
+        flex-grow: 0;
+        flex-shrink: 0;
+    }
 
-        .container.large {
-            height: var(--_large-container-size);
-            min-width: var(--_large-container-size);
-            background: var(--_enabled-large-container-color);
-            border-start-start-radius: var(--_large-container-shape-start-start);
-            border-start-end-radius: var(--_large-container-shape-start-end);
-            border-end-end-radius: var(--_large-container-shape-end-end);
-            border-end-start-radius: var(--_large-container-shape-end-start);
+    .container {
+        box-sizing: border-box;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
-            padding-block-start: var(--_large-container-block-leading-padding-space);
-            padding-block-end: var(--_large-container-block-trailing-padding-space);
-            padding-inline-start: var(--_large-container-inline-leading-padding-space);
-            padding-inline-end: var(--_large-container-inline-trailing-padding-space);
-        }
-        .container.small {
-            height: var(--_small-container-size);
-            min-width: var(--_small-container-size);
-            background: var(--_enabled-small-container-color);
-            border-start-start-radius: var(--_small-container-shape-start-start);
-            border-start-end-radius: var(--_small-container-shape-start-end);
-            border-end-end-radius: var(--_small-container-shape-end-end);
-            border-end-start-radius: var(--_small-container-shape-end-start);
-            padding-block-start: var(--_small-container-block-leading-padding-space);
-            padding-block-end: var(--_small-container-block-trailing-padding-space);
-            padding-inline-start: var(--_small-container-inline-leading-padding-space);
-            padding-inline-end: var(--_small-container-inline-trailing-padding-space);
-        }
+    @anchor .container {
+        height: var(--_container-size);
+        min-width: var(--_container-size);
+        background: var(--_container-color);
+
+        border-start-start-radius: var(--_container-shape-start-start);
+        border-start-end-radius: var(--_container-shape-start-end);
+        border-end-end-radius: var(--_container-shape-end-end);
+        border-end-start-radius: var(--_container-shape-end-start);
+
+        padding-block-start: var(--_container-padding-block-start);
+        padding-block-end: var(--_container-padding-block-end);
+        padding-inline-start: var(--_container-padding-inline-start);
+        padding-inline-end: var(--_container-padding-inline-end);
 
         .label {
-            display: inline-flex;
-            transform: scale(1);
-            transform-origin: center;
-            transition-duration: 100ms;
+            color: var(--_label-color);
+            font-family: var(--_label-font);
+            line-height: var(--_label-leading);
+            font-size: var(--_label-size);
+            letter-spacing: var(--_label-tracking);
+            font-weight: var(--_label-weight);
+        }
+    }
+
+    .label {
+        display: inline-flex;
+        transform: scale(1);
+        transform-origin: center;
+        transition-duration: 100ms;
+    }
+
+    .container.small .label {
+        transform: scale(0);
+    }
+
+    @media (forced-colors: active) {
+        .container {
+            forced-color-adjust: none;
         }
 
         .container.large {
-            color: var(--_enabled-large-label-color);
-            font-family: var(--_large-label-font);
-            line-height: var(--_large-label-line-height);
-            font-size: var(--_large-label-size);
-            letter-spacing: var(--_large-label-tracking);
-            font-weight: var(--_large-label-weight);
-        }
-        .container.small .label {
-            transform: scale(0);
+            background: Highlight;
+            color: HighlightText;
         }
 
-    `,
+        .container.small {
+            background: Highlight;
+        }
+    }
+
+    @media (prefers-contrast: more) {
+        .container.large {
+            background: Canvas;
+            color: CanvasText;
+            border: 1px solid CanvasText;
+        }
+
+        .container.small {
+            background: CanvasText;
+        }
+    }
+
+    @media (prefers-contrast: less) {
+        .container.large {
+            opacity: 0.85;
+        }
+
+        .container.small {
+            opacity: 0.85;
+        }
+    }
+`)
+
+export const BadgeStyles = [
+    css`:host {
+        ${tokens}
+    }`,
+    stylePart,
 ]

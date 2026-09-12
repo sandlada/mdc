@@ -127,8 +127,10 @@ export const ChipStyles = css`
             display: inline-flex;
             align-items: center;
             height: var(--_container-height);
-            padding-inline-start: var(--_container-padding-start);
-            padding-inline-end: var(--_container-padding-end);
+            padding-inline-start: var(--_container-padding-inline-start);
+            padding-inline-end: var(--_container-padding-inline-end);
+            padding-block-start: var(--_container-padding-block-start);
+            padding-block-end: var(--_container-padding-block-end);
             border-start-start-radius: var(--_container-shape-start-start);
             border-start-end-radius: var(--_container-shape-start-end);
             border-end-start-radius: var(--_container-shape-end-start);
@@ -208,8 +210,10 @@ export const ChipStyles = css`
             font-weight: var(--_enabled-label-weight);
             letter-spacing: var(--_enabled-label-tracking);
             line-height: var(--_enabled-label-line-height);
-            padding-inline-start: var(--_text-padding-start);
-            padding-inline-end: var(--_text-padding-end);
+            padding-inline-start: var(--_text-padding-inline-start);
+            padding-inline-end: var(--_text-padding-inline-end);
+            padding-block-start: var(--_text-padding-block-start);
+            padding-block-end: var(--_text-padding-block-end);
         }
 
         .container:not(.has-label) .label {

@@ -16,6 +16,9 @@
         "module": "ESNext",
         /* Bundler mode */
         "moduleResolution": "bundler",
+        "types": [
+            "vite/client"
+        ],
         "noFallthroughCasesInSwitch": true,
         "noImplicitOverride": true,
         "noPropertyAccessFromIndexSignature": true,

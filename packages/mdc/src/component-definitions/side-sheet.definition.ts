@@ -21,7 +21,7 @@ import { createStyleDefinition } from '../utils/tokens/create-style-definition'
  *  - `enabled-*` prefix for default (un-hovered, un-pressed, un-focused) state
  *  - `container-*` prefix for the panel surface
  *  - shapes expand to four corner fields
- *  - paddings use the `*-inline-leading-padding-space` pattern
+ *  - paddings use the `{padding|margin}-{inline|block}-{start|end}` pattern
  *
  * Both variants share the same structural tokens (sizes, shapes) but
  * differ in colors — `Standard` uses `Color.Surface` and
@@ -50,10 +50,10 @@ const sharedStructural = {
     'container-shadow-color'                   : Color.Shadow,
 
     // Headline padding (24dp per spec)
-    'headline-container-inline-leading-padding-space'  : `24px`,
-    'headline-container-inline-trailing-padding-space' : `12px`,
-    'headline-container-block-leading-padding-space'   : `24px`,
-    'headline-container-block-trailing-padding-space'  : `12px`,
+    'headline-container-padding-inline-start' : `24px`,
+    'headline-container-padding-inline-end'   : `12px`,
+    'headline-container-padding-block-start'  : `24px`,
+    'headline-container-padding-block-end'    : `12px`,
 
     // Headline typography
     'enabled-headline-font'                    : Typescale.TitleLarge.Font,
@@ -63,18 +63,23 @@ const sharedStructural = {
     'enabled-headline-weight'                  : Typescale.TitleLarge.FontWeight,
 
     // Body content padding (24dp per spec)
-    'content-container-inline-leading-padding-space'  : `24px`,
-    'content-container-inline-trailing-padding-space' : `24px`,
-    'content-container-block-leading-padding-space'   : `16px`,
-    'content-container-block-trailing-padding-space'  : `24px`,
+    'content-container-padding-inline-start'  : `24px`,
+    'content-container-padding-inline-end'   : `24px`,
+    'content-container-padding-block-start'   : `16px`,
+    'content-container-padding-block-end'     : `24px`,
 
     // Actions padding + height (16dp top, 24dp bottom, 72dp row per spec)
-    'actions-container-block-leading-padding-space'   : `16px`,
-    'actions-container-block-trailing-padding-space'  : `24px`,
-    'actions-container-height'                         : `72px`,
+    'actions-container-padding-inline-start'  : `0px`,
+    'actions-container-padding-inline-end'    : `0px`,
+    'actions-container-padding-block-start'   : `16px`,
+    'actions-container-padding-block-end'     : `24px`,
+    'actions-container-height'                : `72px`,
 
     // Modal-only start padding with icon (16dp)
-    'headline-icon-container-inline-leading-padding-space': `16px`,
+    'headline-icon-container-padding-inline-start': `16px`,
+    'headline-icon-container-padding-inline-end'  : `0px`,
+    'headline-icon-container-padding-block-start' : `0px`,
+    'headline-icon-container-padding-block-end'   : `0px`,
 
     // Scrim opacity (MD3 modal scrim)
     'enabled-container-color-modal'            : Color.Scrim,

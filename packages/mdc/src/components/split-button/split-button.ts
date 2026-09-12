@@ -62,8 +62,8 @@ declare global {
  * @cssproperty --mdc-split-button-enabled-icon-color
  * @cssproperty --mdc-split-button-enabled-container-elevation
  * @cssproperty --mdc-split-button-{size}-container-height
- * @cssproperty --mdc-split-button-{size}-leading-button-inline-leading-padding-space
- * @cssproperty --mdc-split-button-{size}-trailing-button-inline-trailing-padding-space
+ * @cssproperty --mdc-split-button-{size}-leading-button-padding-inline-start
+ * @cssproperty --mdc-split-button-{size}-trailing-button-padding-inline-end
  * @cssproperty --mdc-split-button-{size}-trailing-icon-size
  * ...
  *

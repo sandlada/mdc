@@ -1,24 +1,26 @@
 /**
  * @license
- * Copyright 2025 Kai-Orion & Sandlada
+ * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
 import { isServer, LitElement } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
+import type { IMDCDivider } from './divider.interface'
 import { DividerStyles } from './divider.style'
 
 declare global {
     interface HTMLElementTagNameMap {
-        "mdc-divider": Divider
+        'mdc-divider': Divider
     }
 }
 
+export * from './divider.interface'
+
 @customElement('mdc-divider')
-export class Divider extends LitElement {
+export class Divider extends LitElement implements IMDCDivider {
+    public static override shadowRootOptions: ShadowRootInit = { mode: 'open', delegatesFocus: false }
 
-    static override shadowRootOptions: ShadowRootInit = { mode: 'open', delegatesFocus: false }
-
-    static override styles = DividerStyles
+    public static override styles = DividerStyles
 
     @property({ type: Boolean, reflect: true })
     public inset = false
@@ -31,11 +33,10 @@ export class Divider extends LitElement {
 
     public constructor() {
         super()
-        if(isServer) return
+        if (isServer) return
         if (!this.getAttribute('role')) this.setAttribute('role', 'separator')
         if (!this.getAttribute('aria-orientation')) this.setAttribute('aria-orientation', 'horizontal')
         if (!this.getAttribute('aria-hidden')) this.setAttribute('aria-hidden', 'true')
         if (!this.getAttribute('aria-label')) this.setAttribute('aria-label', 'Divider')
     }
-
 }

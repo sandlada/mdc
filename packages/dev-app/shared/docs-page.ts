@@ -6,13 +6,16 @@
 
 import { LitElement, html, css } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
+import { ContextProvider } from '@lit/context'
 import { getDemo, listDemos } from './demo-loader.js'
+import { docsPageTitleContext } from './contexts/index.js'
 import './docs-shell.js'
 
 /**
  * `<mdc-docs-page component="button">` wraps a component showcase page.
  * Renders a sidebar with the active component highlighted, a theme-switch
- * header, and a default slot for free-form demo content.
+ * header, and a default slot for free-form demo content. Publishes its
+ * `title` via `docsPageTitleContext` so the shell header can display it.
  *
  * For components with `*.demo.html` snippets, use the `demoFiles` attribute
  * (comma-separated basenames) and they will be rendered as labeled sections.
@@ -46,7 +49,7 @@ export class DocsPage extends LitElement {
         .demo-frame {
             padding: 24px;
             border-radius: 12px;
-            background: var(--md-sys-color-surface-container-low);
+            background: transparent;
             border: 1px solid var(--md-sys-color-outline-variant);
             overflow-x: auto;
         }
@@ -59,7 +62,7 @@ export class DocsPage extends LitElement {
     public component: string = ''
 
     @property({ type: String })
-    public title: string = ''
+    public override title: string = ''
 
     @property({ type: String })
     public subtitle: string = ''
@@ -70,6 +73,26 @@ export class DocsPage extends LitElement {
      */
     @property({ type: String, attribute: 'demo-files' })
     public demoFiles: string = ''
+
+    private titleProvider: ContextProvider<typeof docsPageTitleContext>
+
+    public constructor() {
+        super()
+        this.titleProvider = new ContextProvider(this, { context: docsPageTitleContext })
+    }
+
+    public override connectedCallback(): void {
+        super.connectedCallback()
+        this.publishTitle()
+    }
+
+    protected override updated(): void {
+        this.publishTitle()
+    }
+
+    private publishTitle(): void {
+        this.titleProvider.setValue(this.title || this.component)
+    }
 
     public override render() {
         // Explicitly-ordered demos first (curated via `demo-files`), then any
@@ -97,6 +120,46 @@ export class DocsPage extends LitElement {
                 <slot></slot>
             </mdc-docs-shell>
         `
+    }
+
+    protected override firstUpdated() {
+        const root = this.shadowRoot ?? this
+        const scriptTags = root.querySelectorAll('script')
+        scriptTags.forEach((s) => {
+            if (s.dataset['executed']) return
+            s.dataset['executed'] = 'true'
+            try {
+                const scriptBody = s.textContent || ''
+                if (!scriptBody.trim()) return
+
+                const runner = new Function('root', 'document', `
+                    const customDocument = new Proxy(document, {
+                        get(target, prop) {
+                            if (prop === 'getElementById') {
+                                return (id) => root.querySelector('#' + id) || target.getElementById(id);
+                            }
+                            if (prop === 'querySelector') {
+                                return (sel) => root.querySelector(sel) || target.querySelector(sel);
+                            }
+                            if (prop === 'querySelectorAll') {
+                                return (sel) => {
+                                    const inRoot = root.querySelectorAll(sel);
+                                    return inRoot.length > 0 ? inRoot : target.querySelectorAll(sel);
+                                };
+                            }
+                            const val = target[prop];
+                            return typeof val === 'function' ? val.bind(target) : val;
+                        }
+                    });
+                    (function(document) {
+                        ${scriptBody}
+                    })(customDocument);
+                `)
+                runner(root, document)
+            } catch (err) {
+                console.error('Error executing demo script:', err)
+            }
+        })
     }
 }
 

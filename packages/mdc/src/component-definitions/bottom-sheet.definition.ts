@@ -24,7 +24,7 @@ import { createStyleDefinition } from '../utils/tokens/create-style-definition'
  *  - `enabled-*` prefix for default state
  *  - `container-*` prefix for the panel surface
  *  - shapes expand to four corner fields
- *  - paddings use the `*-inline-leading-padding-space` pattern
+ *  - paddings use the `{padding|margin}-{inline|block}-{start|end}` pattern
  */
 const sharedStructural = {
     // Detent heights
@@ -48,23 +48,25 @@ const sharedStructural = {
     'container-shadow-color'                         : Color.Shadow,
 
     // Header padding (upper slot)
-    'header-container-inline-leading-padding-space'   : `24px`,
-    'header-container-inline-trailing-padding-space'  : `24px`,
-    'header-container-block-leading-padding-space'    : `0px`,
-    'header-container-block-trailing-padding-space'   : `16px`,
+    'header-container-padding-inline-start'           : `24px`,
+    'header-container-padding-inline-end'             : `24px`,
+    'header-container-padding-block-start'            : `0px`,
+    'header-container-padding-block-end'              : `16px`,
 
     // Body content padding (the developer fills this with whatever they want)
-    'content-container-inline-leading-padding-space'  : `24px`,
-    'content-container-inline-trailing-padding-space' : `24px`,
-    'content-container-block-leading-padding-space'   : `16px`,
-    'content-container-block-trailing-padding-space'  : `24px`,
+    'content-container-padding-inline-start'          : `24px`,
+    'content-container-padding-inline-end'           : `24px`,
+    'content-container-padding-block-start'           : `16px`,
+    'content-container-padding-block-end'             : `24px`,
 
     // Drag handle geometry (per MD3 spec: centered bar with 22dp top/bottom padding)
-    'drag-handle-width'                              : `32px`,
-    'drag-handle-height'                             : `4px`,
-    'drag-handle-shape'                              : `2px`,
-    'drag-handle-container-block-leading-padding-space'  : `22px`,
-    'drag-handle-container-block-trailing-padding-space' : `22px`,
+    'drag-handle-width'                               : `32px`,
+    'drag-handle-height'                              : `4px`,
+    'drag-handle-shape'                               : `2px`,
+    'drag-handle-container-padding-inline-start'      : `0px`,
+    'drag-handle-container-padding-inline-end'        : `0px`,
+    'drag-handle-container-padding-block-start'       : `22px`,
+    'drag-handle-container-padding-block-end'         : `22px`,
 
     // Modal scrim
     'enabled-container-color-modal'                  : Color.Scrim,

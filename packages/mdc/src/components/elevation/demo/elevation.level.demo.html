@@ -1,0 +1,74 @@
+<style>
+    .elevation-level-demo {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+        font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    .elevation-level-box {
+        position: relative;
+        height: 96px;
+        width: 96px;
+        box-sizing: border-box;
+        border: 1px solid #d9d9e3;
+        border-radius: 8px;
+        background: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        color: #49454f;
+        transition-duration: 500ms;
+    }
+</style>
+
+<div class="elevation-level-demo">
+    <div
+        class="elevation-level-box"
+        tabindex="0"
+    >
+        <mdc-elevation style="--mdc-elevation-level: 0;"></mdc-elevation>
+        Level 0
+    </div>
+
+    <div
+        class="elevation-level-box"
+        tabindex="0"
+    >
+        <mdc-elevation style="--mdc-elevation-level: 1;"></mdc-elevation>
+        Level 1
+    </div>
+
+    <div
+        class="elevation-level-box"
+        tabindex="0"
+    >
+        <mdc-elevation style="--mdc-elevation-level: 2;"></mdc-elevation>
+        Level 2
+    </div>
+
+    <div
+        class="elevation-level-box"
+        tabindex="0"
+    >
+        <mdc-elevation style="--mdc-elevation-level: 3;"></mdc-elevation>
+        Level 3
+    </div>
+
+    <div
+        class="elevation-level-box"
+        tabindex="0"
+    >
+        <mdc-elevation style="--mdc-elevation-level: 4;"></mdc-elevation>
+        Level 4
+    </div>
+
+    <div
+        class="elevation-level-box"
+        tabindex="0"
+    >
+        <mdc-elevation style="--mdc-elevation-level: 5;"></mdc-elevation>
+        Level 5
+    </div>
+</div>

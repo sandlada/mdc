@@ -32,10 +32,10 @@ export const OnThisPageStyles = css`
         flex-direction: column;
         box-sizing: border-box;
         width: 100%;
-        padding-inline-start: var(--_enabled-container-inline-leading-padding-space);
-        padding-inline-end: var(--_enabled-container-inline-trailing-padding-space);
-        padding-block-start: var(--_enabled-container-block-leading-padding-space);
-        padding-block-end: var(--_enabled-container-block-trailing-padding-space);
+        padding-inline-start: var(--_enabled-container-padding-inline-start);
+        padding-inline-end: var(--_enabled-container-padding-inline-end);
+        padding-block-start: var(--_enabled-container-padding-block-start);
+        padding-block-end: var(--_enabled-container-padding-block-end);
         background-color: var(--_enabled-container-color);
     }
 

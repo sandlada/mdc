@@ -2,22 +2,16 @@
  * @license
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
+ *
+ * @version
+ * 1.0.0
  */
 import { State } from '@sandlada/mdk'
-import { Color } from '../utils/tokens/theme'
-import { createStyleDefinition } from '../utils/tokens/create-style-definition'
+import { Color, createStyleDefinition, defineSchema } from '../utils/styles'
 
-export const RippleDefinition = createStyleDefinition({
-    'enabled-hovered-color'  : Color.OnSurface,
-    'enabled-hovered-opacity': State.HoveredStateLayerOpacity,
-    'enabled-focused-color'  : Color.OnSurface,
-    'enabled-focused-opacity': State.FocusedStateLayerOpacity,
-    'enabled-pressed-color'  : Color.OnSurface,
-    'enabled-pressed-opacity': State.PressedStateLayerOpacity,
+export const RippleSchema = defineSchema(['enabled', 'hovered', 'focused', 'pressed', 'disabled'] as const)
 
-    /**
-     * @todo
-     */
-    // 'enabled-dragged-color'  : Color.OnSurface,
-    // 'enabled-dragged-opacity': State.DraggedStateLayerOpacity,
+export const RippleDefinition = createStyleDefinition(RippleSchema)({
+    'color': [`transparent`, Color.OnSurface, Color.OnSurface, Color.OnSurface, null],
+    'opacity': [`0`, State.HoveredStateLayerOpacity, State.FocusedStateLayerOpacity, State.PressedStateLayerOpacity, null],
 })

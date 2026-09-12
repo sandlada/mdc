@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { GlobalMDCContextProvider } from '@sandlada/mdc/context-provider'
+import { GlobalMDCContextProvider } from '@sandlada/mdc/utils/context-provider'
 
 GlobalMDCContextProvider.attach()
 GlobalMDCContextProvider.setConfig({
@@ -18,4 +18,4 @@ GlobalMDCContextProvider.setConfig({
     },
 })
 
-export {}
+export { }

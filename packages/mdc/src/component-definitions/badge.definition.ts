@@ -1,40 +1,43 @@
 /**
  * @license
- * Copyright 2025 Kai-Orion & Sandlada
+ * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
+ *
+ * @version
+ * 1.0.0
  */
 import { Shape, Typescale, Space } from '@sandlada/mdk'
-import { createStyleDefinition }   from '../utils/tokens/create-style-definition'
-import { Color }                   from '../utils/tokens/theme'
+import {
+    defineSchema,
+    createStyleDefinition,
+    Color,
+    expandShape,
+    expandPadding,
+    expandTypescale
+} from '../utils/styles'
 
-export const BadgeDefinition = createStyleDefinition({
-    // Large
-    'enabled-large-container-color'                      : Color.Error,
-    'large-container-shape-start-start'                  : Shape.Full,
-    'large-container-shape-start-end'                    : Shape.Full,
-    'large-container-shape-end-start'                    : Shape.Full,
-    'large-container-shape-end-end'                      : Shape.Full,
-    'large-container-size'                               : `16px`,
-    'enabled-large-label-color'                          : Color.OnError,
-    'large-label-font'                                   : Typescale.LabelSmall.Font,
-    'large-label-line-height'                            : Typescale.LabelSmall.LineHeight,
-    'large-label-size'                                   : Typescale.LabelSmall.FontSize,
-    'large-label-tracking'                               : Typescale.LabelSmall.Tracking,
-    'large-label-weight'                                 : Typescale.LabelSmall.FontWeight,
-    'large-container-block-leading-padding-space'        : Space.Space0,
-    'large-container-block-trailing-padding-space'       : Space.Space0,
-    'large-container-inline-leading-padding-space'       : Space.Space50,
-    'large-container-inline-trailing-padding-space'      : Space.Space50,
+/**
+ * Badge state schema:
+ * - small: dot badge (6px)
+ * - large: labeled badge (16px)
+ */
+export const BadgeSchema = defineSchema([
+    ['small', 'large']
+] as const)
 
-    // Small
-    'enabled-small-container-color'                      : Color.Error,
-    'small-container-shape-start-start'                  : Shape.Full,
-    'small-container-shape-start-end'                    : Shape.Full,
-    'small-container-shape-end-start'                    : Shape.Full,
-    'small-container-shape-end-end'                      : Shape.Full,
-    'small-container-size'                               : `6px`,
-    'small-container-block-leading-padding-space'        : Space.Space25,
-    'small-container-block-trailing-padding-space'       : Space.Space25,
-    'small-container-inline-leading-padding-space'       : Space.Space25,
-    'small-container-inline-trailing-padding-space'      : Space.Space25,
+export const BadgeDefinition = createStyleDefinition(BadgeSchema)({
+    // Shape & Color (Static / Shared across sizes)
+    ...expandShape('container-shape')(Shape.Full),
+    'container-color': Color.Error,
+
+    // Size-differentiated Tokens [small, large]
+    'container-size': ['6px', '16px'],
+    ...expandPadding('container-padding')({
+        small: [Space.Space25, Space.Space25],
+        large: [Space.Space0, Space.Space50],
+    }),
+
+    // Typography
+    'label-color': Color.OnError,
+    ...expandTypescale('label')(Typescale.LabelSmall),
 })

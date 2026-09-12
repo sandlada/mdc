@@ -236,29 +236,35 @@ const containerStyles = css`
         width: var(--_large-container-width);
     }
     button.small {
-        gap: var(--_small-icon-label-padding-space);
+        gap: var(--_small-icon-label-space);
         height: var(--_small-container-height);
     }
     button.medium {
-        gap: var(--_medium-icon-label-padding-space);
+        gap: var(--_medium-icon-label-space);
         height: var(--_medium-container-height);
     }
     button.large {
-        gap: var(--_large-icon-label-padding-space);
+        gap: var(--_large-icon-label-space);
         height: var(--_large-container-height);
     }
 
     button.extended.small {
-        padding-inline-start: var(--_small-container-inline-leading-padding-space);
-        padding-inline-end: var(--_small-container-inline-trailing-padding-space);
+        padding-inline-start: var(--_small-container-padding-inline-start);
+        padding-inline-end: var(--_small-container-padding-inline-end);
+        padding-block-start: var(--_small-container-padding-block-start);
+        padding-block-end: var(--_small-container-padding-block-end);
     }
     button.extended.medium {
-        padding-inline-start: var(--_medium-container-inline-leading-padding-space);
-        padding-inline-end: var(--_medium-container-inline-trailing-padding-space);
+        padding-inline-start: var(--_medium-container-padding-inline-start);
+        padding-inline-end: var(--_medium-container-padding-inline-end);
+        padding-block-start: var(--_medium-container-padding-block-start);
+        padding-block-end: var(--_medium-container-padding-block-end);
     }
     button.extended.large {
-        padding-inline-start: var(--_large-container-inline-leading-padding-space);
-        padding-inline-end: var(--_large-container-inline-trailing-padding-space);
+        padding-inline-start: var(--_large-container-padding-inline-start);
+        padding-inline-end: var(--_large-container-padding-inline-end);
+        padding-block-start: var(--_large-container-padding-block-start);
+        padding-block-end: var(--_large-container-padding-block-end);
     }
 
     :host([show]) button {

@@ -2,11 +2,15 @@
  * @license
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
+ *
+ * @version
+ * 1.0.0
  */
-import { Color } from '../utils/tokens/theme'
-import { createStyleDefinition } from '../utils/tokens/create-style-definition'
+import { Color, createStyleDefinition, defineSchema } from '../utils/styles'
 
-export const ElevationDefinition = createStyleDefinition({
-    'enabled-level'       : '0',
-    'enabled-shadow-color': Color.Shadow,
+export const ElevationSchema = defineSchema(['enabled'] as const)
+
+export const ElevationDefinition = createStyleDefinition(ElevationSchema)({
+    'level': '0',
+    'shadow-color': Color.Shadow,
 })

@@ -1,0 +1,32 @@
+<mdc-scaffold rail-layout="full-height" style="height: 500px; border: 1px solid var(--md-sys-color-outline-variant, #ccc);">
+    <!-- Primary Start Rail -->
+    <mdc-navigation-rail slot="rail">
+        <mdc-navigation-tab label="Files" checked>
+            <mdc-icon slot="active-icon" filled>folder</mdc-icon>
+            <mdc-icon slot="inactive-icon">folder</mdc-icon>
+        </mdc-navigation-tab>
+        <mdc-navigation-tab label="Search">
+            <mdc-icon slot="active-icon" filled>search</mdc-icon>
+            <mdc-icon slot="inactive-icon">search</mdc-icon>
+        </mdc-navigation-tab>
+    </mdc-navigation-rail>
+
+    <mdc-appbar slot="appbar" headline="Productivity Canvas (Dual-Rail)"></mdc-appbar>
+
+    <div style="padding: 24px;">
+        <h2>Dual-Rail Desktop / Tablet Layout</h2>
+        <p>Left side: Primary navigation rail. Right side: Secondary inspector / tool rail.</p>
+    </div>
+
+    <!-- Secondary End Rail -->
+    <mdc-navigation-rail slot="end-rail">
+        <mdc-navigation-tab label="Layers" checked>
+            <mdc-icon slot="active-icon" filled>layers</mdc-icon>
+            <mdc-icon slot="inactive-icon">layers</mdc-icon>
+        </mdc-navigation-tab>
+        <mdc-navigation-tab label="History">
+            <mdc-icon slot="active-icon" filled>history</mdc-icon>
+            <mdc-icon slot="inactive-icon">history</mdc-icon>
+        </mdc-navigation-tab>
+    </mdc-navigation-rail>
+</mdc-scaffold>

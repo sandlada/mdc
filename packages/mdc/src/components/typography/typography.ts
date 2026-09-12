@@ -5,16 +5,14 @@
  */
 import { html, LitElement } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { typographyStyles } from './typography.styles'
 import type { ITypography, TypographyVariant } from './typography.interface'
+import { typographyStyles } from './typography.styles'
 
 declare global {
     interface HTMLElementTagNameMap {
         "mdc-typography": MDCTypography
     }
 }
-
-
 
 /**
  * Used to display text.

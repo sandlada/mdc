@@ -60,16 +60,17 @@ const ChromeDefinition = createStyleDefinition({
 
     /**
      * @rule
-     * 對於所有的 padding 屬性和 margin 屬性，必須使用 {inline|block}-{leading|trailing}-{padding|margin}-space
+     * 對於所有的 padding 屬性和 margin 屬性，必須使用 {padding|margin}-{inline|block}-{start|end} 格式。
+     * 即使 4 個方向數值均相等，也必須拆分為 4 個獨立欄位，禁止使用 padding-block 或 padding-inline 縮寫，必須搭配 start 與 end。
      */
-    'enabled-container-inline-leading-padding-space' : `4px`, // = inline-padding-start: 4px
-    'enabled-container-inline-trailing-padding-space': `4px`, // = inline-padding-end: 4px
-    'enabled-container-block-leading-padding-space'  : `4px`, // = block-padding-start: 4px
-    'enabled-container-block-trailing-padding-space' : `4px`, // = block-padding-end: 4px
-    'enabled-container-inline-leading-margin-space'  : `4px`, // = inline-margin-start: 4px
-    'enabled-container-inline-trailing-margin-space' : `4px`, // = inline-margin-end: 4px
-    'enabled-container-block-leading-margin-space'   : `4px`, // = block-margin-staendrt: 4px
-    'enabled-container-block-trailing-margin-space'  : `4px`, // = block-margin-end: 4px
+    'enabled-container-padding-inline-start': `4px`, // = padding-inline-start: 4px
+    'enabled-container-padding-inline-end'  : `4px`, // = padding-inline-end: 4px
+    'enabled-container-padding-block-start' : `4px`, // = padding-block-start: 4px
+    'enabled-container-padding-block-end'   : `4px`, // = padding-block-end: 4px
+    'enabled-container-margin-inline-start' : `4px`, // = margin-inline-start: 4px
+    'enabled-container-margin-inline-end'   : `4px`, // = margin-inline-end: 4px
+    'enabled-container-margin-block-start'  : `4px`, // = margin-block-start: 4px
+    'enabled-container-margin-block-end'    : `4px`, // = margin-block-end: 4px
 
     /**
      * @rule

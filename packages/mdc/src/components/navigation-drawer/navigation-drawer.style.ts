@@ -39,7 +39,7 @@ const permanentString = unsafeCSS(defineVars(permanentRecord, true).join(''))
 const overrideTab = stringTokens(overrideComponentTokens<keyof typeof NavigationDrawerTabDefinition>(
     '--mdc-navigation-tab',
     {
-        'container-width': 'calc(var(--_enabled-container-width) - var(--_content-container-inline-leading-padding-space) - var(--_content-container-inline-trailing-padding-space))',
+        'container-width': 'calc(var(--_enabled-container-width) - var(--_content-container-padding-inline-start) - var(--_content-container-padding-inline-end))',
     },
 ))
 
@@ -266,10 +266,10 @@ export const NavigationDrawerStyles = [
         /* ── Header Section ───────────────────────────────────────── */
         .header {
             display: none;
-            padding-inline-start: var(--_header-container-inline-leading-padding-space);
-            padding-inline-end: var(--_header-container-inline-trailing-padding-space);
-            padding-block-start: var(--_header-container-block-leading-padding-space);
-            padding-block-end: var(--_header-container-block-trailing-padding-space);
+            padding-inline-start: var(--_header-container-padding-inline-start);
+            padding-inline-end: var(--_header-container-padding-inline-end);
+            padding-block-start: var(--_header-container-padding-block-start);
+            padding-block-end: var(--_header-container-padding-block-end);
             flex-shrink: 0;
             box-sizing: border-box;
         }
@@ -281,10 +281,10 @@ export const NavigationDrawerStyles = [
         /* ── Headline Section ─────────────────────────────────────── */
         .headline-section {
             display: none;
-            padding-inline-start: var(--_headline-container-inline-leading-padding-space);
-            padding-inline-end: var(--_headline-container-inline-trailing-padding-space);
-            padding-block-start: var(--_headline-container-block-leading-padding-space);
-            padding-block-end: var(--_headline-container-block-trailing-padding-space);
+            padding-inline-start: var(--_headline-container-padding-inline-start);
+            padding-inline-end: var(--_headline-container-padding-inline-end);
+            padding-block-start: var(--_headline-container-padding-block-start);
+            padding-block-end: var(--_headline-container-padding-block-end);
             flex-shrink: 0;
             box-sizing: border-box;
             color: var(--_enabled-headline-color);
@@ -326,10 +326,10 @@ export const NavigationDrawerStyles = [
             display: flex;
             flex-direction: column;
             gap: var(--_content-item-gap);
-            padding-inline-start: var(--_content-container-inline-leading-padding-space);
-            padding-inline-end: var(--_content-container-inline-trailing-padding-space);
-            padding-block-start: var(--_content-container-block-leading-padding-space);
-            padding-block-end: var(--_content-container-block-trailing-padding-space);
+            padding-inline-start: var(--_content-container-padding-inline-start);
+            padding-inline-end: var(--_content-container-padding-inline-end);
+            padding-block-start: var(--_content-container-padding-block-start);
+            padding-block-end: var(--_content-container-padding-block-end);
             position: relative;
             min-height: min-content;
             box-sizing: border-box;
@@ -373,10 +373,10 @@ export const NavigationDrawerStyles = [
         /* ── Footer Section ───────────────────────────────────────── */
         .footer {
             display: none;
-            padding-inline-start: var(--_footer-container-inline-leading-padding-space);
-            padding-inline-end: var(--_footer-container-inline-trailing-padding-space);
-            padding-block-start: var(--_footer-container-block-leading-padding-space);
-            padding-block-end: var(--_footer-container-block-trailing-padding-space);
+            padding-inline-start: var(--_footer-container-padding-inline-start);
+            padding-inline-end: var(--_footer-container-padding-inline-end);
+            padding-block-start: var(--_footer-container-padding-block-start);
+            padding-block-end: var(--_footer-container-padding-block-end);
             flex-shrink: 0;
             box-sizing: border-box;
         }

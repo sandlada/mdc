@@ -66,20 +66,24 @@ const shared = {
     'pressed-state-layer-opacity': `0.1`,
 
     // Container internal padding (MD3 spec).
-    'container-inline-leading-padding-space':  `16px`,
-    'container-inline-trailing-padding-space': `16px`,
-    'container-block-leading-padding-space':   `8px`,
-    'container-block-trailing-padding-space':  `8px`,
+    'container-padding-inline-start': `16px`,
+    'container-padding-inline-end'  : `16px`,
+    'container-padding-block-start' : `8px`,
+    'container-padding-block-end'   : `8px`,
 
     // Icon sizes.
     'leading-icon-size':  `24px`,
     'trailing-icon-size': `24px`,
 
     // Prefix / suffix text internal padding.
-    'prefix-inline-leading-padding-space':  `2px`,
-    'prefix-inline-trailing-padding-space': `2px`,
-    'suffix-inline-leading-padding-space':  `2px`,
-    'suffix-inline-trailing-padding-space': `2px`,
+    'prefix-padding-inline-start': `2px`,
+    'prefix-padding-inline-end'  : `2px`,
+    'prefix-padding-block-start' : `0px`,
+    'prefix-padding-block-end'   : `0px`,
+    'suffix-padding-inline-start': `2px`,
+    'suffix-padding-inline-end'  : `2px`,
+    'suffix-padding-block-start' : `0px`,
+    'suffix-padding-block-end'   : `0px`,
 } as const
 
 /**

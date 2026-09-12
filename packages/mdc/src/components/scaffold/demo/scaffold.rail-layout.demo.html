@@ -1,0 +1,39 @@
+<!-- Full-Height Rail Layout (MD3 Adaptive / Google I/O Standard) -->
+<mdc-scaffold rail-layout="full-height" style="height: 500px; border: 1px solid var(--md-sys-color-outline-variant, #ccc); margin-bottom: 24px;">
+    <mdc-navigation-rail slot="rail">
+        <mdc-navigation-tab label="Home" checked>
+            <mdc-icon slot="active-icon" filled>home</mdc-icon>
+            <mdc-icon slot="inactive-icon">home</mdc-icon>
+        </mdc-navigation-tab>
+        <mdc-navigation-tab label="Explore">
+            <mdc-icon slot="active-icon" filled>explore</mdc-icon>
+            <mdc-icon slot="inactive-icon">explore</mdc-icon>
+        </mdc-navigation-tab>
+    </mdc-navigation-rail>
+
+    <mdc-appbar slot="appbar" headline="Material at Google I/O 2026"></mdc-appbar>
+
+    <div style="padding: 24px;">
+        <h2>Full-Height Navigation Rail</h2>
+        <p>The navigation rail spans full height (top to bottom), and the top app bar is flush with it.</p>
+    </div>
+
+    <mdc-fab slot="fab" icon="add" label="Create"></mdc-fab>
+</mdc-scaffold>
+
+<!-- Below-Appbar Layout -->
+<mdc-scaffold rail-layout="below-appbar" style="height: 500px; border: 1px solid var(--md-sys-color-outline-variant, #ccc);">
+    <mdc-appbar slot="appbar" headline="Full-Width App Bar"></mdc-appbar>
+
+    <mdc-navigation-rail slot="rail">
+        <mdc-navigation-tab label="Inbox" checked>
+            <mdc-icon slot="active-icon" filled>inbox</mdc-icon>
+            <mdc-icon slot="inactive-icon">inbox</mdc-icon>
+        </mdc-navigation-tab>
+    </mdc-navigation-rail>
+
+    <div style="padding: 24px;">
+        <h2>Below-Appbar Rail</h2>
+        <p>The top app bar spans full width across the top, and the rail is placed below it.</p>
+    </div>
+</mdc-scaffold>

@@ -21,7 +21,14 @@ declare global {
 }
 
 /**
- * `mdc-toggle-button variant="text"` is not supported by M3 Expressive.
+ * Toggle variant of the button component sharing the button token foundation.
+ *
+ * Available in 5 variants:
+ * - filled (default)
+ * - filled-tonal
+ * - elevated
+ * - outlined
+ * - text
  *
  * @version
  * Material Design 3 - Expressive
@@ -54,7 +61,7 @@ export class MDCTogglableButton extends composeMixin(
     public required: boolean = false
 
     @property({ type: String, reflect: false })
-    public variant: 'filled' | 'filled-tonal' | 'elevated' | 'outlined' = 'filled'
+    public variant: 'filled' | 'filled-tonal' | 'elevated' | 'outlined' | 'text' = 'filled'
 
     @property({ type: Boolean, reflect: true })
     public checked = false

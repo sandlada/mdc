@@ -9,28 +9,22 @@ import type { FocusRingDefinition } from '../../component-definitions/focus-ring
 import type { IconDefinition } from '../../component-definitions/icon.definition'
 import type { RippleDefinition } from '../../component-definitions/ripple.definition'
 import { SwitchDefinition } from '../../component-definitions/switch.definition'
-import { overrideComponentTokens, stringTokens } from '../../utils/tokens'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+import { overrideTokens, stringifyTokens } from '../../utils/styles/lit'
 
-const switchTokens = defineTokenRefsRecord(SwitchDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-switch'
-})
-const switchTokenString = defineVars(switchTokens, true).join('')
+const tokens = stringifyTokens('--mdc-switch')(SwitchDefinition)
 
-const focusRingShape = stringTokens(overrideComponentTokens<keyof typeof FocusRingDefinition>('--mdc-focus-ring', {
+const focusRingShape = overrideTokens<typeof FocusRingDefinition>('--mdc-focus-ring')({
     "shape-end-end": `var(--_track-shape-end-end)`,
     "shape-end-start": `var(--_track-shape-end-start)`,
     "shape-start-end": `var(--_track-shape-start-end)`,
     "shape-start-start": `var(--_track-shape-start-start)`,
-}))
-const rippleStyles = (state: 'selected' | 'unselected') => stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', {
-    "enabled-hovered-color": `var(--_hovered-state-layer-color-${state})`,
-    "enabled-hovered-opacity": `var(--_hovered-state-layer-opacity-${state})`,
-    "enabled-pressed-color": `var(--_pressed-state-layer-color-${state})`,
-    "enabled-pressed-opacity": `var(--_pressed-state-layer-opacity-${state})`,
-}))
+})()
+const rippleStyles = (state: 'selected' | 'unselected') => overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
+    "hovered-color": `var(--_hovered-state-layer-color-${state})`,
+    "hovered-opacity": `var(--_hovered-state-layer-opacity-${state})`,
+    "pressed-color": `var(--_pressed-state-layer-color-${state})`,
+    "pressed-opacity": `var(--_pressed-state-layer-opacity-${state})`,
+})()
 
 const handleContainerEasing = unsafeCSS(Easing.ExpressiveFastSpatial.ToCSSValue())
 const handleEasing = unsafeCSS(Easing.Standard.ToCSSValue())
@@ -38,7 +32,7 @@ const handleEasing = unsafeCSS(Easing.Standard.ToCSSValue())
 
 export const SwitchStyles = css`
     @layer mdc.switch.variable {
-        :host { ${unsafeCSS(switchTokenString)}; }
+        :host { ${tokens}; }
     }
 
     @layer mdc.switch.composite.focus-ring {
@@ -147,7 +141,7 @@ export const SwitchStyles = css`
             font-size: var(--_icon-size-selected);
             inline-size: var(--_icon-size-selected);
             block-size: var(--_icon-size-selected);
-            ${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': `var(--_icon-size-selected)` })))}
+            ${overrideTokens<typeof IconDefinition>('--mdc-icon')({ 'enabled-size': `var(--_icon-size-selected)` })()}
         }
         .icon.icon-unselected {
             display: flex;
@@ -156,7 +150,7 @@ export const SwitchStyles = css`
             font-size: var(--_icon-size-unselected);
             inline-size: var(--_icon-size-unselected);
             block-size: var(--_icon-size-unselected);
-            ${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': `var(--_icon-size-unselected)` })))}
+            ${overrideTokens<typeof IconDefinition>('--mdc-icon')({ 'enabled-size': `var(--_icon-size-unselected)` })()}
         }
 
         .disabled .icon.icon-selected {

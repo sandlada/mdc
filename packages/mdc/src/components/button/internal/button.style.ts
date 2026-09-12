@@ -4,50 +4,41 @@
  * SPDX-License-Identifier: MIT
  */
 import { css, unsafeCSS } from 'lit'
-import { ElevatedButtonDefinition, FilledButtonDefinition, FilledTonalButtonDefinition, OutlinedButtonDefinition, TextButtonDefinition } from '../../../component-definitions/button.definition'
-import type { ElevationDefinition } from '../../../component-definitions/elevation.definition'
-import type { FocusRingDefinition } from '../../../component-definitions/focus-ring.definition'
-import type { IconDefinition } from '../../../component-definitions/icon.definition'
-import type { RippleDefinition } from '../../../component-definitions/ripple.definition'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
-import { overrideComponentTokens, stringTokens } from '../../../utils/tokens'
+import { flow } from '@sandlada/styles/foundation'
+import { emptyTables, withState } from '@sandlada/styles/schema'
+import { createStyleSheet, overrideTokens, stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { ButtonDefinition, ToggleButtonDefinition } from '../button.definition'
+import type { RippleDefinition } from '../../ripple/ripple.definition'
+import type { ElevationDefinition } from '../../elevation/elevation.definition'
+import { FocusRingDefinition } from '../../focus-ring/focus-ring.definition'
+import type { IconDefinition } from '../../icon/icon.definition'
 
-const elevatedTokenRecord = defineTokenRefsRecord(ElevatedButtonDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-button'
-})
-const elevatedTokenString = unsafeCSS(defineVars(elevatedTokenRecord, true).join(''))
+const buttonTokens = stringifyTokens('--mdc-button')(ButtonDefinition)
+const toggleButtonTokens = stringifyTokens('--mdc-button')(ToggleButtonDefinition)
 
-const filledTokenRecord = defineTokenRefsRecord(FilledButtonDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-button'
-})
-const filledTokenString = unsafeCSS(defineVars(filledTokenRecord, true).join(''))
+const tables = flow(
+    withState({
+        enabled: '',
+        hovered: ':hover',
+        focused: ':focus-within',
+        pressed: ':active',
+        disabled: '.disabled',
+        filled: '.filled',
+        'filled-tonal': '.filled-tonal',
+        elevated: '.elevated',
+        outlined: '.outlined',
+        text: '.text',
+        unselected: '.unselected',
+        selected: '.selected'
+    })
+)(emptyTables)
 
-const filledTonalTokenRecord = defineTokenRefsRecord(FilledTonalButtonDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-button'
-})
-const filledTonalTokenString = unsafeCSS(defineVars(filledTonalTokenRecord, true).join(''))
+const elevationBridge = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
+    'level': `var(--_container-elevation)`,
+    'shadow-color': `var(--_container-shadow-color)`
+})()
 
-const outlinedTokenRecord = defineTokenRefsRecord(OutlinedButtonDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-button'
-})
-const outlinedTokenString = unsafeCSS(defineVars(outlinedTokenRecord, true).join(''))
-
-const textTokenRecord = defineTokenRefsRecord(TextButtonDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-button'
-})
-const textTokenString = unsafeCSS(defineVars(textTokenRecord, true).join(''))
-
-type TState = 'container-shape-round' | 'container-shape-square' | 'container-shape-round-toggle-selected' | 'container-shape-square-toggle-selected' | 'container-shape-pressed-morph'
+type TState = 'container-shape-round' | 'container-shape-square' | 'container-shape-round-selected' | 'container-shape-square-selected' | 'container-shape-pressed-morph'
 type TSize = 'extra-small' | 'small' | 'medium' | 'large' | 'extra-large'
 
 const getContainerShapeStyles = () => {
@@ -65,10 +56,10 @@ const getContainerShapeStyles = () => {
         &.extra-large { ${getShape('extra-large', mode)}; }
     `
     return css`
-        .container.round  {${getSizedShape('container-shape-round')};}
+        .container.round {${getSizedShape('container-shape-round')};}
         .container.square {${getSizedShape('container-shape-square')};}
-        .container.round.togglable.selected {${getSizedShape('container-shape-round-toggle-selected')};}
-        .container.square.togglable.selected {${getSizedShape('container-shape-square-toggle-selected')};}
+        .container.round.togglable.selected {${getSizedShape('container-shape-round-selected')};}
+        .container.square.togglable.selected {${getSizedShape('container-shape-square-selected')};}
         .container:not(.disable-morph, .togglable):is(.round, .square):active,
         .container:not(.disable-morph).togglable:is(.selected, .unselected):has(.toggle-input:active) {${getSizedShape('container-shape-pressed-morph')};}
     `
@@ -77,51 +68,54 @@ const getFocusRingStyles = () => {
     const getShape = (
         size: TSize,
         mode: TState
-    ) => stringTokens(overrideComponentTokens<keyof typeof FocusRingDefinition>('--mdc-focus-ring', {
+    ) => overrideTokens<typeof FocusRingDefinition>('--mdc-focus-ring')({
         'shape-start-start': `min(var(--_${size}-${mode}-start-start), calc(var(--_${size}-container-height) / 2))`,
         'shape-start-end': `min(var(--_${size}-${mode}-start-end), calc(var(--_${size}-container-height) / 2))`,
         'shape-end-end': `min(var(--_${size}-${mode}-end-end), calc(var(--_${size}-container-height) / 2))`,
         'shape-end-start': `min(var(--_${size}-${mode}-end-start), calc(var(--_${size}-container-height) / 2))`,
-    }))
-    const getSizedShape = (mode: TState) => unsafeCSS(`
+    })()
+    const getSizedShape = (mode: TState) => css`
         &.extra-small mdc-focus-ring {${getShape('extra-small', mode)};}
         &.small mdc-focus-ring {${getShape('small', mode)};}
         &.medium mdc-focus-ring {${getShape('medium', mode)};}
         &.large mdc-focus-ring {${getShape('large', mode)};}
         &.extra-large mdc-focus-ring {${getShape('extra-large', mode)};}
-    `)
+    `
     return css`
         .container.round {${getSizedShape('container-shape-round')};}
         .container.square {${getSizedShape('container-shape-square')};}
-        .container.togglable.selected.round {${getSizedShape('container-shape-round-toggle-selected')};}
-        .container.togglable.selected.square {${getSizedShape('container-shape-square-toggle-selected')};}
+        .container.togglable.selected.round {${getSizedShape('container-shape-round-selected')};}
+        .container.togglable.selected.square {${getSizedShape('container-shape-square-selected')};}
         .container:not(.disable-morph, .togglable):is(.round, .square):active,
         .container:not(.disable-morph).togglable:is(.selected, .unselected):has(.toggle-input:active) {${getSizedShape('container-shape-pressed-morph')};}
     `
 }
 const getIconSizeStyle = () => {
     return css`
-        .container.extra-small :is(::slotted([slot="icon"]), .icon) {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': `var(--_extra-small-icon-size)` }))};}
-        .container.small :is(::slotted([slot="icon"]), .icon) {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': `var(--_small-icon-size)` }))};}
-        .container.medium :is(::slotted([slot="icon"]), .icon) {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': `var(--_medium-icon-size)` }))};}
-        .container.large :is(::slotted([slot="icon"]), .icon) {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': `var(--_large-icon-size)` }))};}
-        .container.extra-large :is(::slotted([slot="icon"]), .icon) {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': `var(--_extra-large-icon-size)` }))};}
+        .container.extra-small :is(::slotted([slot="icon"]), .icon) {${overrideTokens<typeof IconDefinition>('--mdc-icon')({ 'size': `var(--_extra-small-icon-size)` })()};}
+        .container.small :is(::slotted([slot="icon"]), .icon) {${overrideTokens<typeof IconDefinition>('--mdc-icon')({ 'size': `var(--_small-icon-size)` })()};}
+        .container.medium :is(::slotted([slot="icon"]), .icon) {${overrideTokens<typeof IconDefinition>('--mdc-icon')({ 'size': `var(--_medium-icon-size)` })()};}
+        .container.large :is(::slotted([slot="icon"]), .icon) {${overrideTokens<typeof IconDefinition>('--mdc-icon')({ 'size': `var(--_large-icon-size)` })()};}
+        .container.extra-large :is(::slotted([slot="icon"]), .icon) {${overrideTokens<typeof IconDefinition>('--mdc-icon')({ 'size': `var(--_extra-large-icon-size)` })()};}
     `
 }
 
-const ripple = css`
-    .container mdc-ripple {${stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', { 'enabled-hovered-color': `var(--_hovered-state-layer-color)`, 'enabled-focused-color': `var(--_focused-state-layer-color)`, 'enabled-pressed-color': `var(--_pressed-state-layer-color)`, 'enabled-hovered-opacity': `var(--_hovered-state-layer-opacity)`, 'enabled-focused-opacity': `var(--_focused-state-layer-opacity)`, 'enabled-pressed-opacity': `var(--_pressed-state-layer-opacity)`, }))};}
-    .container.togglable.selected mdc-ripple {${stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', { 'enabled-hovered-color': `var(--_hovered-state-layer-color-toggle-selected)`, 'enabled-focused-color': `var(--_focused-state-layer-color-toggle-selected)`, 'enabled-pressed-color': `var(--_pressed-state-layer-color-toggle-selected)` }))};}
-    .container.togglable.unselected mdc-ripple {${stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', { 'enabled-hovered-color': `var(--_hovered-state-layer-color-toggle-unselected)`, 'enabled-focused-color': `var(--_focused-state-layer-color-toggle-unselected)`, 'enabled-pressed-color': `var(--_pressed-state-layer-color-toggle-unselected)` }))};}
-`
-const elevation = css`
-    .container mdc-elevation {transition-duration: 0ms;${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { 'enabled-level': `var(--_enabled-container-elevation)`, 'enabled-shadow-color': `var(--_enabled-container-shadow-color)` }))};}
-    .container:hover mdc-elevation {${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { 'enabled-level': `var(--_hovered-container-elevation)` }))};}
-    .container:focus-within mdc-elevation {${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { 'enabled-level': `var(--_focused-container-elevation)` }))};}
-    .container:active mdc-elevation {${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { 'enabled-level': `var(--_pressed-container-elevation)` }))};}
-    .container.disabled mdc-elevation {transition: none;${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { 'enabled-level': `var(--_disabled-container-elevation)` }))};}
-`
-const shared = css`
+const rippleBridge = (variant: string) => overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
+    'hovered-color': `var(--_hovered-${variant}-state-layer-color)`,
+    'focused-color': `var(--_focused-${variant}-state-layer-color)`,
+    'pressed-color': `var(--_pressed-${variant}-state-layer-color)`,
+    'hovered-opacity': `var(--_hovered-state-layer-opacity)`,
+    'focused-opacity': `var(--_focused-state-layer-opacity)`,
+    'pressed-opacity': `var(--_pressed-state-layer-opacity)`
+})()
+
+const toggleRippleBridge = (variant: string, toggle: string) => overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
+    'hovered-color': `var(--_hovered-${variant}-${toggle}-state-layer-color)`,
+    'focused-color': `var(--_focused-${variant}-${toggle}-state-layer-color)`,
+    'pressed-color': `var(--_pressed-${variant}-${toggle}-state-layer-color)`
+})()
+
+const buttonPart = createStyleSheet(tables)(ButtonDefinition)(() => css`
     :host {
         display: inline-flex;
         outline: none;
@@ -159,57 +153,46 @@ const shared = css`
         pointer-events: none;
     }
 
-    /* Root Width & Height */
-
-    .container {
-        &.extra-small {
-            height: var(--_extra-small-container-height);
-            min-width: calc(64px - var(--_extra-small-container-inline-leading-padding-space) - var(--_extra-small-container-inline-trailing-padding-space));
-        }
-        &.small {
-            height: var(--_small-container-height);
-            min-width: calc(64px - var(--_small-container-inline-leading-padding-space) - var(--_small-container-inline-trailing-padding-space));
-        }
-        &.medium {
-            height: var(--_medium-container-height);
-            min-width: calc(64px - var(--_medium-container-inline-leading-padding-space) - var(--_medium-container-inline-trailing-padding-space));
-        }
-        &.large {
-            height: var(--_large-container-height);
-            min-width: calc(64px - var(--_large-container-inline-leading-padding-space) - var(--_large-container-inline-trailing-padding-space));
-        }
-        &.extra-large {
-            height: var(--_extra-large-container-height);
-            min-width: calc(64px - var(--_extra-large-container-inline-leading-padding-space) - var(--_extra-large-container-inline-trailing-padding-space));
-        }
+    .container.extra-small {
+        height: var(--_extra-small-container-height);
+        min-width: calc(64px - var(--_extra-small-container-padding-inline-start) - var(--_extra-small-container-padding-inline-end));
     }
-
-    /* Button Size */
+    .container.small {
+        height: var(--_small-container-height);
+        min-width: calc(64px - var(--_small-container-padding-inline-start) - var(--_small-container-padding-inline-end));
+    }
+    .container.medium {
+        height: var(--_medium-container-height);
+        min-width: calc(64px - var(--_medium-container-padding-inline-start) - var(--_medium-container-padding-inline-end));
+    }
+    .container.large {
+        height: var(--_large-container-height);
+        min-width: calc(64px - var(--_large-container-padding-inline-start) - var(--_large-container-padding-inline-end));
+    }
+    .container.extra-large {
+        height: var(--_extra-large-container-height);
+        min-width: calc(64px - var(--_extra-large-container-padding-inline-start) - var(--_extra-large-container-padding-inline-end));
+    }
 
     .container.extra-small {
-        padding-inline-start: var(--_extra-small-container-inline-leading-padding-space);
-        padding-inline-end: var(--_extra-small-container-inline-trailing-padding-space);
-        gap: var(--_extra-small-icon-label-padding-space);
+        padding: var(--_extra-small-container-padding);
+        gap: var(--_extra-small-icon-label-space);
     }
-    .container.small{
-        padding-inline-start: var(--_small-container-inline-leading-padding-space);
-        padding-inline-end: var(--_small-container-inline-trailing-padding-space);
-        gap: var(--_small-icon-label-padding-space);
+    .container.small {
+        padding: var(--_small-container-padding);
+        gap: var(--_small-icon-label-space);
     }
-    .container.medium{
-        padding-inline-start: var(--_medium-container-inline-leading-padding-space);
-        padding-inline-end: var(--_medium-container-inline-trailing-padding-space);
-        gap: var(--_medium-icon-label-padding-space);
+    .container.medium {
+        padding: var(--_medium-container-padding);
+        gap: var(--_medium-icon-label-space);
     }
-    .container.large{
-        padding-inline-start: var(--_large-container-inline-leading-padding-space);
-        padding-inline-end: var(--_large-container-inline-trailing-padding-space);
-        gap: var(--_large-icon-label-padding-space);
+    .container.large {
+        padding: var(--_large-container-padding);
+        gap: var(--_large-icon-label-space);
     }
-    .container.extra-large{
-        padding-inline-start: var(--_extra-large-container-inline-leading-padding-space);
-        padding-inline-end: var(--_extra-large-container-inline-trailing-padding-space);
-        gap: var(--_extra-large-icon-label-padding-space);
+    .container.extra-large {
+        padding: var(--_extra-large-container-padding);
+        gap: var(--_extra-large-icon-label-space);
     }
 
     .container:not(.has-label) .label {
@@ -221,44 +204,23 @@ const shared = css`
         display: inline-flex;
         box-sizing: border-box;
         will-change: width, opacity;
+        overflow: hidden;
     }
-
-    /* Label Size */
 
     .container.extra-small .label {
-        font-family: var(--_extra-small-label-font);
-        font-weight: var(--_extra-small-label-weight);
-        line-height: var(--_extra-small-label-line-height);
-        letter-spacing: var(--_extra-small-label-tracking);
-        font-size: var(--_extra-small-label-size);
+        typescale: var(--_extra-small-label);
     }
     .container.small .label {
-        font-family: var(--_small-label-font);
-        font-weight: var(--_small-label-weight);
-        line-height: var(--_small-label-line-height);
-        letter-spacing: var(--_small-label-tracking);
-        font-size: var(--_small-label-size);
+        typescale: var(--_small-label);
     }
     .container.medium .label {
-        font-family: var(--_medium-label-font);
-        font-weight: var(--_medium-label-weight);
-        line-height: var(--_medium-label-line-height);
-        letter-spacing: var(--_medium-label-tracking);
-        font-size: var(--_medium-label-size);
+        typescale: var(--_medium-label);
     }
     .container.large .label {
-        font-family: var(--_large-label-font);
-        font-weight: var(--_large-label-weight);
-        line-height: var(--_large-label-line-height);
-        letter-spacing: var(--_large-label-tracking);
-        font-size: var(--_large-label-size);
+        typescale: var(--_large-label);
     }
     .container.extra-large .label {
-        font-family: var(--_extra-large-label-font);
-        font-weight: var(--_extra-large-label-weight);
-        line-height: var(--_extra-large-label-line-height);
-        letter-spacing: var(--_extra-large-label-tracking);
-        font-size: var(--_extra-large-label-size);
+        typescale: var(--_extra-large-label);
     }
 
     .toggle-input {
@@ -279,61 +241,10 @@ const shared = css`
         transform: translate(-50%, -50%);
     }
 
-    /* Label Color */
-
-    .container .label {
-        overflow: hidden;
-        color: var(--_label-color);
+    @state(.container) .container .background {
+        background-color: var(--_container-color);
+        opacity: var(--_container-opacity);
     }
-    .container.togglable.selected .label {
-        color: var(--_label-color-toggle-selected);
-    }
-    .container.togglable.unselected .label {
-        color: var(--_label-color-toggle-unselected);
-    }
-
-    .container:hover .label {
-        color: var(--_hovered-label-color);
-    }
-    .container.togglable.selected:hover .label {
-        color: var(--_hovered-label-color-toggle-selected);
-    }
-    .container.togglable.unselected:hover .label {
-        color: var(--_hovered-label-color-toggle-unselected);
-    }
-
-    .container:focus-within .label {
-        color: var(--_focused-label-color);
-    }
-    .container.togglable.selected:focus-within .label {
-        color: var(--_focused-label-color-toggle-selected);
-    }
-    .container.togglable.unselected:focus-within .label {
-        color: var(--_focused-label-color-toggle-unselected);
-    }
-
-    .container:active .label {
-        color: var(--_pressed-label-color);
-    }
-    .container.togglable.selected:active .label {
-        color: var(--_pressed-label-color-toggle-selected);
-    }
-    .container.togglable.unselected:active .label {
-        color: var(--_pressed-label-color-toggle-unselected);
-    }
-
-    .container.disabled .label {
-        color: var(--_disabled-label-color);
-        opacity: var(--_disabled-label-opacity);
-    }
-    .container.disabled.togglable.selected .label {
-        color: var(--_disabled-label-color-toggle-selected);
-    }
-    .container.disabled.togglable.unselected .label {
-        color: var(--_disabled-label-color-toggle-unselected);
-    }
-
-    /* Background Color */
 
     .container .background {
         border-radius: inherit;
@@ -341,94 +252,12 @@ const shared = css`
         position: absolute;
         z-index: -1;
     }
-    .container:not(.disabled) .background {
-        background-color: var(--_container-color);
-    }
-    .container.togglable.selected:not(.disabled) .background {
-        background-color: var(--_container-color-toggle-selected);
-    }
-    .container.togglable.unselected:not(.disabled) .background {
-        background-color: var(--_container-color-toggle-unselected);
+
+    @state(.container) .container .label {
+        color: var(--_label-color);
+        opacity: var(--_label-opacity);
     }
 
-    .container:not(.disabled):hover .background {
-        background-color: var(--_hovered-container-color);
-    }
-    .container.togglable.selected:not(.disabled):hover .background {
-        background-color: var(--_hovered-container-color-toggle-selected);
-    }
-    .container.togglable.unselected:not(.disabled):hover .background {
-        background-color: var(--_hovered-container-color-toggle-unselected);
-    }
-
-    .container:not(.disabled):focus-within .background {
-        background-color: var(--_focused-container-color);
-    }
-    .container.togglable.selected:not(.disabled):focus-within .background {
-        background-color: var(--_focused-container-color-toggle-selected);
-    }
-    .container.togglable.unselected:not(.disabled):focus-within .background {
-        background-color: var(--_focused-container-color-toggle-unselected);
-    }
-
-    .container:not(.disabled):active .background {
-        background-color: var(--_pressed-container-color);
-    }
-    .container.togglable.selected:not(.disabled):active .background {
-        background-color: var(--_pressed-container-color-toggle-selected);
-    }
-    .container.togglable.unselected:not(.disabled):active .background {
-        background-color: var(--_pressed-container-color-toggle-unselected);
-    }
-
-    .container.disabled .background {
-        background-color: var(--_disabled-container-color);
-        opacity: var(--_disabled-container-opacity);
-    }
-    .container.togglable.selected.disabled .background {
-        background-color: var(--_disabled-container-color-toggle-selected);
-    }
-    .container.togglable.unselected.disabled .background {
-        background-color: var(--_disabled-container-color-toggle-unselected);
-    }
-
-    :is(.container .label, .label *) {
-        text-overflow: inherit;
-    }
-
-    @media (forced-colors: active) {
-        .background {
-            border: 1px solid CanvasText;
-        }
-
-        :host:is([disabled], .disabled) {
-            --_disabled-icon-color: GrayText;
-            --_disabled-icon-opacity: 1;
-            --_disabled-container-opacity: 1;
-            --_disabled-label-color: GrayText;
-            --_disabled-label-opacity: 1;
-        }
-    }
-
-    .touch-target {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        height: 100%;
-        transform: translate(-50%, -50%);
-        z-index: 1;
-    }
-
-    [touch-target='wrapper'] {
-        margin: max(0px, (48px - var(--_container-height)) / 2) 0;
-    }
-
-    [touch-target='none'] .touch-target {
-        display: none;
-    }
-
-`
-const icon = css`
     .container :is(::slotted([slot="icon"]), .icon) {
         display: inline-flex;
         position: relative;
@@ -441,58 +270,11 @@ const icon = css`
         display: none;
     }
 
-    .container:not(.disabled) :is(::slotted([slot="icon"]), .icon) {
+    @state(.container) .container :is(::slotted([slot="icon"]), .icon) {
         color: var(--_icon-color);
-    }
-    .container:not(.disabled).togglable.selected :is(::slotted([slot="icon"]), .icon) {
-        color: var(--_icon-color-toggle-selected);
-    }
-    .container:not(.disabled).togglable.unselected :is(::slotted([slot="icon"]), .icon) {
-        color: var(--_icon-color-toggle-unselected);
+        opacity: var(--_icon-opacity);
     }
 
-    .container:not(.disabled):hover :is(::slotted([slot="icon"]), .icon) {
-        color: var(--_hovered-icon-color);
-    }
-    .container:not(.disabled).togglable.selected:hover :is(::slotted([slot="icon"]), .icon) {
-        color: var(--_hovered-icon-color-toggle-selected);
-    }
-    .container:not(.disabled).togglable.unselected:hover :is(::slotted([slot="icon"]), .icon) {
-        color: var(--_hovered-icon-color-toggle-unselected);
-    }
-
-    .container:not(.disabled):focus-within :is(::slotted([slot="icon"]), .icon) {
-        color: var(--_focused-icon-color);
-    }
-    .container:not(.disabled).togglable.selected:focus-within :is(::slotted([slot="icon"]), .icon) {
-        color: var(--_focused-icon-color-toggle-selected);
-    }
-    .container:not(.disabled).togglable.unselected:focus-within :is(::slotted([slot="icon"]), .icon) {
-        color: var(--_focused-icon-color-toggle-unselected);
-    }
-
-    .container:not(.disabled):active :is(::slotted([slot="icon"]), .icon) {
-        color: var(--_pressed-icon-color);
-    }
-    .container:not(.disabled).togglable.selected:active :is(::slotted([slot="icon"]), .icon) {
-        color: var(--_pressed-icon-color-toggle-selected);
-    }
-    .container:not(.disabled).togglable.unselected:active :is(::slotted([slot="icon"]), .icon) {
-        color: var(--_pressed-icon-color-toggle-unselected);
-    }
-
-    .container.disabled :is(::slotted([slot="icon"]), .icon) {
-        color: var(--_disabled-icon-color);
-        opacity: var(--_disabled-icon-opacity);
-    }
-    .container.disabled.togglable.selected :is(::slotted([slot="icon"]), .icon) {
-        color: var(--_disabled-icon-color-toggle-selected);
-    }
-    .container.disabled.togglable.unselected :is(::slotted([slot="icon"]), .icon) {
-        color: var(--_disabled-icon-color-toggle-unselected);
-    }
-
-    /* Icon Size */
     .container.extra-small :is(::slotted([slot="icon"]), .icon) {
         font-size: var(--_extra-small-icon-size);
         inline-size: var(--_extra-small-icon-size);
@@ -519,8 +301,6 @@ const icon = css`
         block-size: var(--_extra-large-icon-size);
     }
 
-`
-const outline = css`
     .container.extra-small .outline {
         border-width: var(--_extra-small-outline-width);
     }
@@ -542,7 +322,6 @@ const outline = css`
         border-style: solid;
         position: absolute;
         box-sizing: border-box;
-        border-color: var(--_outline-color);
         border-start-start-radius: inherit;
         border-start-end-radius: inherit;
         border-end-start-radius: inherit;
@@ -550,54 +329,122 @@ const outline = css`
         z-index: -1;
     }
 
-    .container.togglable.selected .outline {
-        border-color: var(--_outline-color-toggle-selected);
-    }
-    .container.togglable.unselected .outline {
-        border-color: var(--_outline-color-toggle-unselected);
-    }
-    .container.disabled .outline {
-        border-color: var(--_disabled-outline-color);
-        opacity: var(--_disabled-outline-opacity);
-    }
-    .container.disabled.togglable.selected .outline {
-        border-color: var(--_disabled-outline-color-toggle-selected);
-    }
-    .container.disabled.togglable.unselected .outline {
-        border-color: var(--_disabled-outline-color-toggle-unselected);
+    @state(.container) .container .outline {
+        border-color: var(--_outline-color);
     }
 
-    .container:hover .outline {
-        border-color: var(--_hovered-outline-color);
-    }
-    .container.togglable.selected:hover .outline {
-        border-color: var(--_hovered-outline-color-toggle-selected);
-    }
-    .container.togglable.unselected:hover .outline {
-        border-color: var(--_hovered-outline-color-toggle-unselected);
+    @state(.container) .container mdc-elevation {
+        transition-duration: 0ms;
+        ${elevationBridge}
     }
 
-    .container:focus-within .outline {
-        border-color: var(--_focused-outline-color);
-    }
-    .container.togglable.selected:focus-within .outline {
-        border-color: var(--_focused-outline-color-toggle-selected);
-    }
-    .container.togglable.unselected:focus-within .outline {
-        border-color: var(--_focused-outline-color-toggle-unselected);
+    .container.filled mdc-ripple {${rippleBridge('filled')};}
+    .container.filled-tonal mdc-ripple {${rippleBridge('filled-tonal')};}
+    .container.elevated mdc-ripple {${rippleBridge('elevated')};}
+    .container.outlined mdc-ripple {${rippleBridge('outlined')};}
+    .container.text mdc-ripple {${rippleBridge('text')};}
+
+    :is(.container .label, .label *) {
+        text-overflow: inherit;
     }
 
-    .container:active .outline {
-        border-color: var(--_pressed-outline-color);
-    }
-    .container.togglable.selected:active .outline {
-        border-color: var(--_pressed-outline-color-toggle-selected);
-    }
-    .container.togglable.unselected:active .outline {
-        border-color: var(--_pressed-outline-color-toggle-unselected);
+    .touch-target {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        height: 100%;
+        transform: translate(-50%, -50%);
+        z-index: 1;
     }
 
-    @media (forced-colors: active) {
+    [touch-target='wrapper'] {
+        margin: max(0px, (48px - var(--_container-height)) / 2) 0;
+    }
+
+    [touch-target='none'] .touch-target {
+        display: none;
+    }
+`)
+
+const togglePart = createStyleSheet(tables)(ToggleButtonDefinition)(() => css`
+    @state(.container) .container.togglable .background {
+        background-color: var(--_container-color);
+        opacity: var(--_container-opacity);
+    }
+
+    @state(.container) .container.togglable .label {
+        color: var(--_label-color);
+        opacity: var(--_label-opacity);
+    }
+
+    @state(.container) .container.togglable :is(::slotted([slot="icon"]), .icon) {
+        color: var(--_icon-color);
+        opacity: var(--_icon-opacity);
+    }
+
+    @state(.container) .container.togglable .outline {
+        border-color: var(--_outline-color);
+    }
+
+    @state(.container) .container.togglable mdc-elevation {
+        transition-duration: 0ms;
+        ${elevationBridge}
+    }
+
+    .container.togglable.unselected.filled mdc-ripple {${toggleRippleBridge('filled', 'unselected')};}
+    .container.togglable.selected.filled mdc-ripple {${toggleRippleBridge('filled', 'selected')};}
+    .container.togglable.unselected.filled-tonal mdc-ripple {${toggleRippleBridge('filled-tonal', 'unselected')};}
+    .container.togglable.selected.filled-tonal mdc-ripple {${toggleRippleBridge('filled-tonal', 'selected')};}
+    .container.togglable.unselected.elevated mdc-ripple {${toggleRippleBridge('elevated', 'unselected')};}
+    .container.togglable.selected.elevated mdc-ripple {${toggleRippleBridge('elevated', 'selected')};}
+    .container.togglable.unselected.outlined mdc-ripple {${toggleRippleBridge('outlined', 'unselected')};}
+    .container.togglable.selected.outlined mdc-ripple {${toggleRippleBridge('outlined', 'selected')};}
+    .container.togglable.unselected.text mdc-ripple {${toggleRippleBridge('text', 'unselected')};}
+    .container.togglable.selected.text mdc-ripple {${toggleRippleBridge('text', 'selected')};}
+`)
+
+const a11y = createStyleSheet(tables)(ButtonDefinition)(() => css`
+    @forced-colors {
+        .background {
+            border: 1px solid CanvasText;
+        }
+
+        :host([disabled]) {
+            --_disabled-filled-icon-color: GrayText;
+            --_disabled-filled-tonal-icon-color: GrayText;
+            --_disabled-elevated-icon-color: GrayText;
+            --_disabled-outlined-icon-color: GrayText;
+            --_disabled-text-icon-color: GrayText;
+            --_disabled-icon-opacity: 1;
+            --_disabled-container-opacity: 1;
+            --_disabled-filled-label-color: GrayText;
+            --_disabled-filled-tonal-label-color: GrayText;
+            --_disabled-elevated-label-color: GrayText;
+            --_disabled-outlined-label-color: GrayText;
+            --_disabled-text-label-color: GrayText;
+            --_disabled-label-opacity: 1;
+            --_disabled-filled-unselected-icon-color: GrayText;
+            --_disabled-filled-selected-icon-color: GrayText;
+            --_disabled-filled-tonal-unselected-icon-color: GrayText;
+            --_disabled-filled-tonal-selected-icon-color: GrayText;
+            --_disabled-elevated-unselected-icon-color: GrayText;
+            --_disabled-elevated-selected-icon-color: GrayText;
+            --_disabled-outlined-unselected-icon-color: GrayText;
+            --_disabled-outlined-selected-icon-color: GrayText;
+            --_disabled-text-unselected-icon-color: GrayText;
+            --_disabled-text-selected-icon-color: GrayText;
+            --_disabled-filled-unselected-label-color: GrayText;
+            --_disabled-filled-selected-label-color: GrayText;
+            --_disabled-filled-tonal-unselected-label-color: GrayText;
+            --_disabled-filled-tonal-selected-label-color: GrayText;
+            --_disabled-elevated-unselected-label-color: GrayText;
+            --_disabled-elevated-selected-label-color: GrayText;
+            --_disabled-outlined-unselected-label-color: GrayText;
+            --_disabled-outlined-selected-label-color: GrayText;
+            --_disabled-text-unselected-label-color: GrayText;
+            --_disabled-text-selected-label-color: GrayText;
+        }
+
         .container.disabled .background {
             border-color: GrayText;
         }
@@ -605,24 +452,41 @@ const outline = css`
             opacity: 1;
         }
     }
-`
 
-const colorVariants = css`
-    :host:has(.container.elevated) {${elevatedTokenString};}
-    :host:has(.filled) {${filledTokenString};}
-    :host:has(.container.filled-tonal) {${filledTonalTokenString};}
-    :host:has(.container.outlined) {${outlinedTokenString};}
-    :host:has(.container.text) {${textTokenString};}
-`
+    @reduced-motion {
+        .container {
+            transition: none;
+        }
+        .container mdc-elevation {
+            transition: none;
+        }
+    }
+
+    @contrast-more {
+        .container .outline {
+            border-color: CanvasText;
+        }
+        .container .label {
+            color: CanvasText;
+        }
+        .container :is(::slotted([slot="icon"]), .icon) {
+            color: CanvasText;
+        }
+    }
+
+    @contrast-less {
+        .container .outline {
+            border-color: GrayText;
+        }
+    }
+`)
 
 export const buttonStyles = [
+    css`:host {${buttonTokens}${toggleButtonTokens};}`,
     getContainerShapeStyles(),
     getFocusRingStyles(),
     getIconSizeStyle(),
-    ripple,
-    elevation,
-    shared,
-    icon,
-    outline,
-    colorVariants,
+    buttonPart,
+    togglePart,
+    a11y
 ]

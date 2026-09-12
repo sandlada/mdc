@@ -1,0 +1,76 @@
+{
+    "name": "@sandlada/styles",
+    "version": "0.1.0",
+    "author": "Kai-Orion & Sandlada",
+    "description": "Framework-agnostic Material Design 3 style & token engine (schemas, state-compiler, at-rules, expanders) with a Lit adapter and a rolldown pre-build plugin.",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/sandlada/mdc.git",
+        "directory": "packages/styles"
+    },
+    "type": "module",
+    "sideEffects": false,
+    "publishConfig": {
+        "access": "public"
+    },
+    "scripts": {
+        "build": "rolldown -c rolldown.config.js",
+        "build:dts": "tsc --project tsconfig.build.json --emitDeclarationOnly --outDir build --skipLibCheck",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "check:spec-versions": "node scripts/check-spec-versions.mjs",
+        "demo": "npm run build && node demo/run.ts"
+    },
+    "peerDependencies": {
+        "lit": ">=3"
+    },
+    "devDependencies": {
+        "@sandlada/mdk": "^3.0.0-20260624.c",
+        "@types/css-tree": "^3.2.0",
+        "@types/node": "^22.13.0",
+        "css-tree": "^3.2.1",
+        "lit": "^3.3.3",
+        "rolldown": "^1.2.4",
+        "typescript": "~7.0.2",
+        "vitest": "^4.1.11"
+    },
+    "files": [
+        "build/**/*",
+        "LICENSE",
+        "README.md"
+    ],
+    "exports": {
+        "./package.json": "./package.json",
+        "./foundation": {
+            "types": "./build/foundation/index.d.ts",
+            "import": "./build/foundation/index.js",
+            "default": "./build/foundation/index.js"
+        },
+        "./schema": {
+            "types": "./build/schema/index.d.ts",
+            "import": "./build/schema/index.js",
+            "default": "./build/schema/index.js"
+        },
+        "./tokens": {
+            "types": "./build/tokens/index.d.ts",
+            "import": "./build/tokens/index.js",
+            "default": "./build/tokens/index.js"
+        },
+        "./compiler": {
+            "types": "./build/compiler/index.d.ts",
+            "import": "./build/compiler/index.js",
+            "default": "./build/compiler/index.js"
+        },
+        "./adapters/lit": {
+            "types": "./build/adapters/lit/index.d.ts",
+            "import": "./build/adapters/lit/index.js",
+            "default": "./build/adapters/lit/index.js"
+        },
+        "./adapters/rolldown": {
+            "types": "./build/adapters/rolldown/index.d.ts",
+            "import": "./build/adapters/rolldown/index.js",
+            "default": "./build/adapters/rolldown/index.js"
+        }
+    }
+}

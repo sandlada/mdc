@@ -196,10 +196,10 @@ export const sideSheetBaseStyles = css`
         display: flex;
         align-items: center;
         gap: 8px;
-        padding-inline-start: var(--_headline-container-inline-leading-padding-space);
-        padding-inline-end: var(--_headline-container-inline-trailing-padding-space);
-        padding-block-start: var(--_headline-container-block-leading-padding-space);
-        padding-block-end: var(--_headline-container-block-trailing-padding-space);
+        padding-inline-start: var(--_headline-container-padding-inline-start);
+        padding-inline-end: var(--_headline-container-padding-inline-end);
+        padding-block-start: var(--_headline-container-padding-block-start);
+        padding-block-end: var(--_headline-container-padding-block-end);
         min-height: 56px;
         color: var(--_enabled-headline-color);
         user-select: none;
@@ -208,7 +208,7 @@ export const sideSheetBaseStyles = css`
 
     dialog.has-back-icon .headline,
     dialog.show-back-button .headline {
-        padding-inline-start: var(--_headline-icon-container-inline-leading-padding-space);
+        padding-inline-start: var(--_headline-icon-container-padding-inline-start);
     }
 
     .headline-label {
@@ -264,18 +264,18 @@ export const sideSheetBaseStyles = css`
     .content {
         flex: 1 1 auto;
         overflow-y: auto;
-        padding-inline-start: var(--_content-container-inline-leading-padding-space);
-        padding-inline-end: var(--_content-container-inline-trailing-padding-space);
-        padding-block-start: var(--_content-container-block-leading-padding-space);
-        padding-block-end: var(--_content-container-block-trailing-padding-space);
+        padding-inline-start: var(--_content-container-padding-inline-start);
+        padding-inline-end: var(--_content-container-padding-inline-end);
+        padding-block-start: var(--_content-container-padding-block-start);
+        padding-block-end: var(--_content-container-padding-block-end);
         min-height: 0;
     }
 
     /* Actions */
     .actions {
         flex-shrink: 0;
-        padding-block-start: var(--_actions-container-block-leading-padding-space);
-        padding-block-end: var(--_actions-container-block-trailing-padding-space);
+        padding-block-start: var(--_actions-container-padding-block-start);
+        padding-block-end: var(--_actions-container-padding-block-end);
         min-height: var(--_actions-container-height);
     }
 
@@ -285,8 +285,8 @@ export const sideSheetBaseStyles = css`
         display: flex;
         gap: 8px;
         align-items: center;
-        padding-inline-start: var(--_content-container-inline-leading-padding-space);
-        padding-inline-end: var(--_content-container-inline-trailing-padding-space);
+        padding-inline-start: var(--_content-container-padding-inline-start);
+        padding-inline-end: var(--_content-container-padding-inline-end);
     }
 
     /* Focus traps */

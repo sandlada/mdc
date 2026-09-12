@@ -47,35 +47,35 @@ const sharedStructural = {
     'container-shadow-color'                                 : Color.Shadow,
 
     // Header section padding
-    'header-container-inline-leading-padding-space'          : `28px`,
-    'header-container-inline-trailing-padding-space'         : `28px`,
-    'header-container-block-leading-padding-space'           : `16px`,
-    'header-container-block-trailing-padding-space'          : `16px`,
+    'header-container-padding-inline-start'          : `28px`,
+    'header-container-padding-inline-end'            : `28px`,
+    'header-container-padding-block-start'           : `16px`,
+    'header-container-padding-block-end'             : `16px`,
 
     // Headline typography & padding (MD3 TitleSmall)
-    'headline-container-inline-leading-padding-space'        : `28px`,
-    'headline-container-inline-trailing-padding-space'       : `28px`,
-    'headline-container-block-leading-padding-space'         : `16px`,
-    'headline-container-block-trailing-padding-space'        : `16px`,
+    'headline-container-padding-inline-start'        : `28px`,
+    'headline-container-padding-inline-end'          : `28px`,
+    'headline-container-padding-block-start'         : `16px`,
+    'headline-container-padding-block-end'          : `16px`,
 
-    'enabled-headline-font'                                  : Typescale.TitleSmall.Font,
-    'enabled-headline-line-height'                           : Typescale.TitleSmall.LineHeight,
-    'enabled-headline-size'                                  : Typescale.TitleSmall.FontSize,
-    'enabled-headline-tracking'                              : Typescale.TitleSmall.Tracking,
-    'enabled-headline-weight'                                : Typescale.TitleSmall.FontWeight,
+    'enabled-headline-font'                          : Typescale.TitleSmall.Font,
+    'enabled-headline-line-height'                   : Typescale.TitleSmall.LineHeight,
+    'enabled-headline-size'                          : Typescale.TitleSmall.FontSize,
+    'enabled-headline-tracking'                      : Typescale.TitleSmall.Tracking,
+    'enabled-headline-weight'                        : Typescale.TitleSmall.FontWeight,
 
     // Destinations list container padding (360px container - 2*12px = 336px destination tabs)
-    'content-container-inline-leading-padding-space'         : `12px`,
-    'content-container-inline-trailing-padding-space'        : `12px`,
-    'content-container-block-leading-padding-space'          : `0px`,
-    'content-container-block-trailing-padding-space'         : `12px`,
-    'content-item-gap'                                       : `0px`,
+    'content-container-padding-inline-start'         : `12px`,
+    'content-container-padding-inline-end'           : `12px`,
+    'content-container-padding-block-start'          : `0px`,
+    'content-container-padding-block-end'            : `12px`,
+    'content-item-gap'                               : `0px`,
 
     // Footer section padding
-    'footer-container-inline-leading-padding-space'          : `12px`,
-    'footer-container-inline-trailing-padding-space'         : `12px`,
-    'footer-container-block-leading-padding-space'           : `12px`,
-    'footer-container-block-trailing-padding-space'          : `16px`,
+    'footer-container-padding-inline-start'          : `12px`,
+    'footer-container-padding-inline-end'            : `12px`,
+    'footer-container-padding-block-start'           : `12px`,
+    'footer-container-padding-block-end'             : `16px`,
 
     // Scrim
     'scrim-color'                                            : Color.Scrim,

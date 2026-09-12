@@ -67,7 +67,10 @@ export const TooltipStyles = css`
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: var(--_container-padding-block) var(--_container-padding-inline);
+            padding-inline-start: var(--_container-padding-inline-start);
+            padding-inline-end: var(--_container-padding-inline-end);
+            padding-block-start: var(--_container-padding-block-start);
+            padding-block-end: var(--_container-padding-block-end);
             min-width: var(--_container-min-width);
             min-height: var(--_container-min-height);
             max-width: var(--_container-max-width);
@@ -92,7 +95,10 @@ export const TooltipStyles = css`
         :host([rich]) .container {
             display: flex;
             flex-direction: column;
-            padding: var(--_container-padding);
+            padding-inline-start: var(--_container-padding-inline-start);
+            padding-inline-end: var(--_container-padding-inline-end);
+            padding-block-start: var(--_container-padding-block-start);
+            padding-block-end: var(--_container-padding-block-end);
             max-width: var(--_container-max-width);
             border-start-start-radius: var(--_container-shape-start-start);
             border-start-end-radius: var(--_container-shape-start-end);
@@ -110,7 +116,10 @@ export const TooltipStyles = css`
             letter-spacing: var(--_headline-tracking);
             line-height: var(--_headline-line-height);
             color: var(--_enabled-headline-color);
-            padding-bottom: var(--_headline-padding-block);
+            padding-inline-start: var(--_headline-padding-inline-start);
+            padding-inline-end: var(--_headline-padding-inline-end);
+            padding-block-start: var(--_headline-padding-block-start);
+            padding-block-end: var(--_headline-padding-block-end);
         }
 
         :host([rich]:not(.has-headline)) .headline {
@@ -130,7 +139,10 @@ export const TooltipStyles = css`
             display: flex;
             justify-content: flex-end;
             gap: var(--_actions-gap);
-            padding-top: var(--_actions-padding-block);
+            padding-inline-start: var(--_actions-padding-inline-start);
+            padding-inline-end: var(--_actions-padding-inline-end);
+            padding-block-start: var(--_actions-padding-block-start);
+            padding-block-end: var(--_actions-padding-block-end);
         }
 
         :host([rich]:not(.has-actions)) .actions {
@@ -143,28 +155,28 @@ export const TooltipStyles = css`
             left: 50%;
             bottom: 100%;
             transform: translateX(-50%);
-            margin-bottom: var(--_container-margin);
+            margin-block-end: var(--_container-margin-block-end);
         }
 
         :host([position="bottom"]) {
             left: 50%;
             top: 100%;
             transform: translateX(-50%);
-            margin-top: var(--_container-margin);
+            margin-block-start: var(--_container-margin-block-start);
         }
 
         :host([position="left"]) {
             right: 100%;
             top: 50%;
             transform: translateY(-50%);
-            margin-right: var(--_container-margin);
+            margin-inline-end: var(--_container-margin-inline-end);
         }
 
         :host([position="right"]) {
             left: 100%;
             top: 50%;
             transform: translateY(-50%);
-            margin-left: var(--_container-margin);
+            margin-inline-start: var(--_container-margin-inline-start);
         }
     }
 
