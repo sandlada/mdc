@@ -6,3 +6,4 @@
 
 export * from './divider'
 export * from './divider.interface'
+export * from './divider.definition'

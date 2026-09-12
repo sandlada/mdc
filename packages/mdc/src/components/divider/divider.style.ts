@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: MIT
  */
 import { css } from 'lit'
-import { DividerDefinition } from '../../component-definitions/divider.definition'
-import { createStyleSheet, stringifyTokens } from '../../utils/styles/lit'
+import { DividerDefinition } from './divider.definition'
+import { createStyleSheet, stringifyTokens } from '@sandlada/styles/adapters/lit'
 
 const tokens = stringifyTokens('--mdc-divider')(DividerDefinition)
 
