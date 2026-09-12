@@ -25,7 +25,7 @@ describe('TypographyDefinition (joint n-dimensional tokens)', () => {
             'font',
             'size',
             'weight',
-            'line-height',
+            'leading',
             'tracking'
         ])
         const tokens = TypographyDefinition.tokens as Record<string, any>
@@ -49,7 +49,7 @@ describe('TypographyDefinition (joint n-dimensional tokens)', () => {
         expect(tokens['size'][0][2][1]).toBe(Typescale.EmphasizedDisplayLarge.FontSize)
         expect(tokens['font'][3][0][0]).toBe(Typescale.LabelSmall.Font)
         expect(tokens['weight'][4][2][1]).toBe(Typescale.EmphasizedBodyLarge.FontWeight)
-        expect(tokens['line-height'][1][1][0]).toBe(Typescale.HeadlineMedium.LineHeight)
+        expect(tokens['leading'][1][1][0]).toBe(Typescale.HeadlineMedium.LineHeight)
         expect(tokens['tracking'][2][0][1]).toBe(Typescale.EmphasizedTitleSmall.Tracking)
     })
 

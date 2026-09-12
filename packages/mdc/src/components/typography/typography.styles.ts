@@ -30,14 +30,14 @@ const createStylePart = createStyleSheet(tables)(TypographyDefinition)
 
 export const typographyStyles = createStylePart(() => css`
     @layer mdc.typography {
-        @layer variable, component, hcm, contrast, motion;
+        @layer variable, component, hcm, contrast, motion, transparency;
     }
 
     @layer mdc.typography.variable {
         :host{${tokens};}
     }
 
-    @layer mdc.typography {
+    @layer mdc.typography.component {
 
         :host([block]) {
             display: block;
@@ -57,6 +57,37 @@ export const typographyStyles = createStylePart(() => css`
             font-weight: var(--_weight);
             line-height: var(--_leading);
             letter-spacing: var(--_tracking);
+        }
+    }
+
+    @layer mdc.typography {
+        @layer motion {
+            @reduced-motion {
+                :host {
+                    animation: none;
+                    transition: none;
+                }
+            }
+        }
+        @layer hcm {
+            @contrast(less) {
+                :host {
+                    color: CanvasText;
+                }
+            }
+            @contrast(more) {
+                :host {
+                    color: CanvasText;
+                    font-weight: 700;
+                }
+            }
+        }
+        @layer transparency {
+            @reduced-transparency {
+                :host {
+                    opacity: 1;
+                }
+            }
         }
     }
 `)

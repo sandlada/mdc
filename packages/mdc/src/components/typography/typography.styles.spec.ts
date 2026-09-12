@@ -21,7 +21,7 @@ describe('typographyStyles', () => {
         }
         expect([...refs].filter(r => !defs.has(r))).toEqual([])
         expect(
-            [...defs].filter(d => /--_(display|headline|title|label|body)-(small|medium|large)-(regular|emphasized)-(font|size|weight|line-height|tracking)$/.test(d))
+            [...defs].filter(d => /--_(display|headline|title|label|body)-(small|medium|large)-(regular|emphasized)-(font|size|weight|leading|tracking)$/.test(d))
         ).toHaveLength(150)
     })
 
@@ -74,7 +74,7 @@ describe('typographyStyles', () => {
                 expect(matches[0]!.body).toContain(`var(--_${expectedInfix}-font)`)
                 expect(matches[0]!.body).toContain(`var(--_${expectedInfix}-size)`)
                 expect(matches[0]!.body).toContain(`var(--_${expectedInfix}-weight)`)
-                expect(matches[0]!.body).toContain(`var(--_${expectedInfix}-line-height)`)
+                expect(matches[0]!.body).toContain(`var(--_${expectedInfix}-leading)`)
                 expect(matches[0]!.body).toContain(`var(--_${expectedInfix}-tracking)`)
             }
         }
