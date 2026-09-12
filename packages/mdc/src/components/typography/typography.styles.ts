@@ -3,18 +3,40 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { css, unsafeCSS } from 'lit'
-import { TypographyDefinition } from '../../component-definitions/typography.definition'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+import { createStyleSheet, stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { flow } from '@sandlada/styles/foundation'
+import { emptyTables, withState } from '@sandlada/styles/schema'
+import { css } from 'lit'
+import { TypographyDefinition } from './typography.definition'
 
-const tokenRecord = defineTokenRefsRecord(TypographyDefinition, {
-    expandShapes: true,
-    useBaseFallback: true,
-    prefix: '--mdc-typography'
-})
-const typographyTokens = unsafeCSS(defineVars(tokenRecord, true).join(''))
+const tokens = stringifyTokens('--mdc-typography')(TypographyDefinition)
 
-export const typographyStyles = css`
+const tables = flow(
+    withState({
+        'display': '[variant^="display-"]',
+        'headline': '[variant^="headline-"]',
+        'title': '[variant^="title-"]',
+        'label': '[variant^="label-"]',
+        'body': '[variant^="body-"]',
+        'small': '[variant$="-small"]',
+        'medium': '[variant$="-medium"]',
+        'large': '[variant$="-large"]',
+        'regular': ':not([emphasized])',
+        'emphasized': '[emphasized]'
+    }),
+)(emptyTables)
+
+const createStylePart = createStyleSheet(tables)(TypographyDefinition)
+
+export const typographyStyles = createStylePart(() => css`
+    @layer mdc.typography {
+        @layer variable, component, hcm, contrast, motion;
+    }
+
+    @layer mdc.typography.variable {
+        :host{${tokens};}
+    }
+
     @layer mdc.typography {
 
         :host([block]) {
@@ -29,248 +51,12 @@ export const typographyStyles = css`
             display: inline-block;
         }
 
-        :host {
-            ${typographyTokens}
-        }
-
-        :host(:not([emphasized])[variant="display-large"]) {
-            font-family: var(--_display-large-font);
-            font-size: var(--_display-large-size);
-            font-weight: var(--_display-large-weight);
-            line-height: var(--_display-large-line-height);
-            letter-spacing: var(--_display-large-tracking);
-        }
-
-        :host(:not([emphasized])[variant="display-medium"]) {
-            font-family: var(--_display-medium-font);
-            font-size: var(--_display-medium-size);
-            font-weight: var(--_display-medium-weight);
-            line-height: var(--_display-medium-line-height);
-            letter-spacing: var(--_display-medium-tracking);
-        }
-
-        :host(:not([emphasized])[variant="display-small"]) {
-            font-family: var(--_display-small-font);
-            font-size: var(--_display-small-size);
-            font-weight: var(--_display-small-weight);
-            line-height: var(--_display-small-line-height);
-            letter-spacing: var(--_display-small-tracking);
-        }
-
-        :host(:not([emphasized])[variant="headline-large"]) {
-            font-family: var(--_headline-large-font);
-            font-size: var(--_headline-large-size);
-            font-weight: var(--_headline-large-weight);
-            line-height: var(--_headline-large-line-height);
-            letter-spacing: var(--_headline-large-tracking);
-        }
-
-        :host(:not([emphasized])[variant="headline-medium"]) {
-            font-family: var(--_headline-medium-font);
-            font-size: var(--_headline-medium-size);
-            font-weight: var(--_headline-medium-weight);
-            line-height: var(--_headline-medium-line-height);
-            letter-spacing: var(--_headline-medium-tracking);
-        }
-
-        :host(:not([emphasized])[variant="headline-small"]) {
-            font-family: var(--_headline-small-font);
-            font-size: var(--_headline-small-size);
-            font-weight: var(--_headline-small-weight);
-            line-height: var(--_headline-small-line-height);
-            letter-spacing: var(--_headline-small-tracking);
-        }
-
-        :host(:not([emphasized])[variant="title-large"]) {
-            font-family: var(--_title-large-font);
-            font-size: var(--_title-large-size);
-            font-weight: var(--_title-large-weight);
-            line-height: var(--_title-large-line-height);
-            letter-spacing: var(--_title-large-tracking);
-        }
-
-        :host(:not([emphasized])[variant="title-medium"]) {
-            font-family: var(--_title-medium-font);
-            font-size: var(--_title-medium-size);
-            font-weight: var(--_title-medium-weight);
-            line-height: var(--_title-medium-line-height);
-            letter-spacing: var(--_title-medium-tracking);
-        }
-
-        :host(:not([emphasized])[variant="title-small"]) {
-            font-family: var(--_title-small-font);
-            font-size: var(--_title-small-size);
-            font-weight: var(--_title-small-weight);
-            line-height: var(--_title-small-line-height);
-            letter-spacing: var(--_title-small-tracking);
-        }
-
-        :host(:not([emphasized])[variant="label-large"]) {
-            font-family: var(--_label-large-font);
-            font-size: var(--_label-large-size);
-            font-weight: var(--_label-large-weight);
-            line-height: var(--_label-large-line-height);
-            letter-spacing: var(--_label-large-tracking);
-        }
-
-        :host(:not([emphasized])[variant="label-medium"]) {
-            font-family: var(--_label-medium-font);
-            font-size: var(--_label-medium-size);
-            font-weight: var(--_label-medium-weight);
-            line-height: var(--_label-medium-line-height);
-            letter-spacing: var(--_label-medium-tracking);
-        }
-
-        :host(:not([emphasized])[variant="label-small"]) {
-            font-family: var(--_label-small-font);
-            font-size: var(--_label-small-size);
-            font-weight: var(--_label-small-weight);
-            line-height: var(--_label-small-line-height);
-            letter-spacing: var(--_label-small-tracking);
-        }
-
-        :host(:not([emphasized])[variant="body-large"]) {
-            font-family: var(--_body-large-font);
-            font-size: var(--_body-large-size);
-            font-weight: var(--_body-large-weight);
-            line-height: var(--_body-large-line-height);
-            letter-spacing: var(--_body-large-tracking);
-        }
-
-        :host(:not([emphasized])[variant="body-medium"]) {
-            font-family: var(--_body-medium-font);
-            font-size: var(--_body-medium-size);
-            font-weight: var(--_body-medium-weight);
-            line-height: var(--_body-medium-line-height);
-            letter-spacing: var(--_body-medium-tracking);
-        }
-
-        :host(:not([emphasized])[variant="body-small"]) {
-            font-family: var(--_body-small-font);
-            font-size: var(--_body-small-size);
-            font-weight: var(--_body-small-weight);
-            line-height: var(--_body-small-line-height);
-            letter-spacing: var(--_body-small-tracking);
-        }
-
-        :host([emphasized][variant="display-large"]) {
-            font-family: var(--_emphasized-display-large-font);
-            font-size: var(--_emphasized-display-large-size);
-            font-weight: var(--_emphasized-display-large-weight);
-            line-height: var(--_emphasized-display-large-line-height);
-            letter-spacing: var(--_emphasized-display-large-tracking);
-        }
-
-        :host([emphasized][variant="display-medium"]) {
-            font-family: var(--_emphasized-display-medium-font);
-            font-size: var(--_emphasized-display-medium-size);
-            font-weight: var(--_emphasized-display-medium-weight);
-            line-height: var(--_emphasized-display-medium-line-height);
-            letter-spacing: var(--_emphasized-display-medium-tracking);
-        }
-
-        :host([emphasized][variant="display-small"]) {
-            font-family: var(--_emphasized-display-small-font);
-            font-size: var(--_emphasized-display-small-size);
-            font-weight: var(--_emphasized-display-small-weight);
-            line-height: var(--_emphasized-display-small-line-height);
-            letter-spacing: var(--_emphasized-display-small-tracking);
-        }
-
-        :host([emphasized][variant="headline-large"]) {
-            font-family: var(--_emphasized-headline-large-font);
-            font-size: var(--_emphasized-headline-large-size);
-            font-weight: var(--_emphasized-headline-large-weight);
-            line-height: var(--_emphasized-headline-large-line-height);
-            letter-spacing: var(--_emphasized-headline-large-tracking);
-        }
-
-        :host([emphasized][variant="headline-medium"]) {
-            font-family: var(--_emphasized-headline-medium-font);
-            font-size: var(--_emphasized-headline-medium-size);
-            font-weight: var(--_emphasized-headline-medium-weight);
-            line-height: var(--_emphasized-headline-medium-line-height);
-            letter-spacing: var(--_emphasized-headline-medium-tracking);
-        }
-
-        :host([emphasized][variant="headline-small"]) {
-            font-family: var(--_emphasized-headline-small-font);
-            font-size: var(--_emphasized-headline-small-size);
-            font-weight: var(--_emphasized-headline-small-weight);
-            line-height: var(--_emphasized-headline-small-line-height);
-            letter-spacing: var(--_emphasized-headline-small-tracking);
-        }
-
-        :host([emphasized][variant="title-large"]) {
-            font-family: var(--_emphasized-title-large-font);
-            font-size: var(--_emphasized-title-large-size);
-            font-weight: var(--_emphasized-title-large-weight);
-            line-height: var(--_emphasized-title-large-line-height);
-            letter-spacing: var(--_emphasized-title-large-tracking);
-        }
-
-        :host([emphasized][variant="title-medium"]) {
-            font-family: var(--_emphasized-title-medium-font);
-            font-size: var(--_emphasized-title-medium-size);
-            font-weight: var(--_emphasized-title-medium-weight);
-            line-height: var(--_emphasized-title-medium-line-height);
-            letter-spacing: var(--_emphasized-title-medium-tracking);
-        }
-
-        :host([emphasized][variant="title-small"]) {
-            font-family: var(--_emphasized-title-small-font);
-            font-size: var(--_emphasized-title-small-size);
-            font-weight: var(--_emphasized-title-small-weight);
-            line-height: var(--_emphasized-title-small-line-height);
-            letter-spacing: var(--_emphasized-title-small-tracking);
-        }
-
-        :host([emphasized][variant="label-large"]) {
-            font-family: var(--_emphasized-label-large-font);
-            font-size: var(--_emphasized-label-large-size);
-            font-weight: var(--_emphasized-label-large-weight);
-            line-height: var(--_emphasized-label-large-line-height);
-            letter-spacing: var(--_emphasized-label-large-tracking);
-        }
-
-        :host([emphasized][variant="label-medium"]) {
-            font-family: var(--_emphasized-label-medium-font);
-            font-size: var(--_emphasized-label-medium-size);
-            font-weight: var(--_emphasized-label-medium-weight);
-            line-height: var(--_emphasized-label-medium-line-height);
-            letter-spacing: var(--_emphasized-label-medium-tracking);
-        }
-
-        :host([emphasized][variant="label-small"]) {
-            font-family: var(--_emphasized-label-small-font);
-            font-size: var(--_emphasized-label-small-size);
-            font-weight: var(--_emphasized-label-small-weight);
-            line-height: var(--_emphasized-label-small-line-height);
-            letter-spacing: var(--_emphasized-label-small-tracking);
-        }
-
-        :host([emphasized][variant="body-large"]) {
-            font-family: var(--_emphasized-body-large-font);
-            font-size: var(--_emphasized-body-large-size);
-            font-weight: var(--_emphasized-body-large-weight);
-            line-height: var(--_emphasized-body-large-line-height);
-            letter-spacing: var(--_emphasized-body-large-tracking);
-        }
-
-        :host([emphasized][variant="body-medium"]) {
-            font-family: var(--_emphasized-body-medium-font);
-            font-size: var(--_emphasized-body-medium-size);
-            font-weight: var(--_emphasized-body-medium-weight);
-            line-height: var(--_emphasized-body-medium-line-height);
-            letter-spacing: var(--_emphasized-body-medium-tracking);
-        }
-
-        :host([emphasized][variant="body-small"]) {
-            font-family: var(--_emphasized-body-small-font);
-            font-size: var(--_emphasized-body-small-size);
-            font-weight: var(--_emphasized-body-small-weight);
-            line-height: var(--_emphasized-body-small-line-height);
-            letter-spacing: var(--_emphasized-body-small-tracking);
+        @state(:host) :host {
+            font-family: var(--_font);
+            font-size: var(--_size);
+            font-weight: var(--_weight);
+            line-height: var(--_leading);
+            letter-spacing: var(--_tracking);
         }
     }
-`
+`)
