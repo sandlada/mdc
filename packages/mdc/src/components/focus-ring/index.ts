@@ -6,3 +6,4 @@
 
 export * from './focus-ring'
 export * from './focus-ring.interface'
+export * from './focus-ring.definition'

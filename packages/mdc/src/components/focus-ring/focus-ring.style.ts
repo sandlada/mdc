@@ -4,19 +4,21 @@
  * SPDX-License-Identifier: MIT
  */
 import { Easing } from '@sandlada/mdk'
+import { createStyleSheet, stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { flow } from '@sandlada/styles/foundation'
+import { emptyTables, withState } from '@sandlada/styles/schema'
 import { css, unsafeCSS } from 'lit'
-import { FocusRingDefinition } from '../../component-definitions/focus-ring.definition'
-import { mapStateTriggers, pipe } from '../../utils/styles'
-import { createStyleSheet, stringifyTokens } from '../../utils/styles/lit'
+import { FocusRingDefinition } from './focus-ring.definition'
 
 const tokens = stringifyTokens('--mdc-focus-ring')(FocusRingDefinition)
 
-const stylePart = pipe(
-    mapStateTriggers({
-        enabled: '',
-    }),
-    createStyleSheet
-)(FocusRingDefinition)(() => css`
+const tables = flow(
+    withState({
+        enabled: ''
+    })
+)(emptyTables)
+
+const stylePart = createStyleSheet(tables)(FocusRingDefinition)(() => css`
     @layer mdc.focus-ring.component {
         :host {
             border-style: solid;
