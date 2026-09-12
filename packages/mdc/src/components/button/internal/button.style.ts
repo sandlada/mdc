@@ -3,14 +3,14 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { css, unsafeCSS } from 'lit'
-import { ElevatedButtonDefinition, FilledButtonDefinition, FilledTonalButtonDefinition, OutlinedButtonDefinition, TextButtonDefinition } from '../../../component-definitions/button.definition'
-import type { ElevationDefinition } from '../../../component-definitions/elevation.definition'
-import type { FocusRingDefinition } from '../../../component-definitions/focus-ring.definition'
-import type { IconDefinition } from '../../../component-definitions/icon.definition'
-import type { RippleDefinition } from '../../../component-definitions/ripple.definition'
 import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
-import { overrideComponentTokens, stringTokens } from '../../../utils/tokens'
+import { overrideTokens } from '@sandlada/styles/adapters/lit'
+import { css, unsafeCSS } from 'lit'
+import { ElevatedButtonDefinition, FilledButtonDefinition, FilledTonalButtonDefinition, OutlinedButtonDefinition, TextButtonDefinition } from '../button.definition'
+import type { RippleDefinition } from '../../ripple/ripple.definition'
+import type { ElevationDefinition } from '../../elevation/elevation.definition'
+import { FocusRingDefinition } from '../../focus-ring/focus-ring.definition'
+import type { IconDefinition } from '../../icon/icon.definition'
 
 const elevatedTokenRecord = defineTokenRefsRecord(ElevatedButtonDefinition, {
     expandShapes: false,
@@ -77,12 +77,12 @@ const getFocusRingStyles = () => {
     const getShape = (
         size: TSize,
         mode: TState
-    ) => stringTokens(overrideComponentTokens<keyof typeof FocusRingDefinition>('--mdc-focus-ring', {
+    ) => overrideTokens<typeof FocusRingDefinition>('--mdc-focus-ring')({
         'shape-start-start': `min(var(--_${size}-${mode}-start-start), calc(var(--_${size}-container-height) / 2))`,
         'shape-start-end': `min(var(--_${size}-${mode}-start-end), calc(var(--_${size}-container-height) / 2))`,
         'shape-end-end': `min(var(--_${size}-${mode}-end-end), calc(var(--_${size}-container-height) / 2))`,
         'shape-end-start': `min(var(--_${size}-${mode}-end-start), calc(var(--_${size}-container-height) / 2))`,
-    }))
+    })()
     const getSizedShape = (mode: TState) => unsafeCSS(`
         &.extra-small mdc-focus-ring {${getShape('extra-small', mode)};}
         &.small mdc-focus-ring {${getShape('small', mode)};}
@@ -101,25 +101,25 @@ const getFocusRingStyles = () => {
 }
 const getIconSizeStyle = () => {
     return css`
-        .container.extra-small :is(::slotted([slot="icon"]), .icon) {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': `var(--_extra-small-icon-size)` }))};}
-        .container.small :is(::slotted([slot="icon"]), .icon) {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': `var(--_small-icon-size)` }))};}
-        .container.medium :is(::slotted([slot="icon"]), .icon) {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': `var(--_medium-icon-size)` }))};}
-        .container.large :is(::slotted([slot="icon"]), .icon) {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': `var(--_large-icon-size)` }))};}
-        .container.extra-large :is(::slotted([slot="icon"]), .icon) {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': `var(--_extra-large-icon-size)` }))};}
+        .container.extra-small :is(::slotted([slot="icon"]), .icon) {${overrideTokens<typeof IconDefinition>('--mdc-icon')({ 'enabled-size': `var(--_extra-small-icon-size)` })()};}
+        .container.small :is(::slotted([slot="icon"]), .icon) {${overrideTokens<typeof IconDefinition>('--mdc-icon')({ 'enabled-size': `var(--_small-icon-size)` })()};}
+        .container.medium :is(::slotted([slot="icon"]), .icon) {${overrideTokens<typeof IconDefinition>('--mdc-icon')({ 'enabled-size': `var(--_medium-icon-size)` })()};}
+        .container.large :is(::slotted([slot="icon"]), .icon) {${overrideTokens<typeof IconDefinition>('--mdc-icon')({ 'enabled-size': `var(--_large-icon-size)` })()};}
+        .container.extra-large :is(::slotted([slot="icon"]), .icon) {${overrideTokens<typeof IconDefinition>('--mdc-icon')({ 'enabled-size': `var(--_extra-large-icon-size)` })()};}
     `
 }
 
 const ripple = css`
-    .container mdc-ripple {${stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', { 'enabled-hovered-color': `var(--_hovered-state-layer-color)`, 'enabled-focused-color': `var(--_focused-state-layer-color)`, 'enabled-pressed-color': `var(--_pressed-state-layer-color)`, 'enabled-hovered-opacity': `var(--_hovered-state-layer-opacity)`, 'enabled-focused-opacity': `var(--_focused-state-layer-opacity)`, 'enabled-pressed-opacity': `var(--_pressed-state-layer-opacity)`, }))};}
-    .container.togglable.selected mdc-ripple {${stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', { 'enabled-hovered-color': `var(--_hovered-state-layer-color-toggle-selected)`, 'enabled-focused-color': `var(--_focused-state-layer-color-toggle-selected)`, 'enabled-pressed-color': `var(--_pressed-state-layer-color-toggle-selected)` }))};}
-    .container.togglable.unselected mdc-ripple {${stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', { 'enabled-hovered-color': `var(--_hovered-state-layer-color-toggle-unselected)`, 'enabled-focused-color': `var(--_focused-state-layer-color-toggle-unselected)`, 'enabled-pressed-color': `var(--_pressed-state-layer-color-toggle-unselected)` }))};}
+    .container mdc-ripple {${overrideTokens<typeof RippleDefinition>('--mdc-ripple')({ 'enabled-hovered-color': `var(--_hovered-state-layer-color)`, 'enabled-focused-color': `var(--_focused-state-layer-color)`, 'enabled-pressed-color': `var(--_pressed-state-layer-color)`, 'enabled-hovered-opacity': `var(--_hovered-state-layer-opacity)`, 'enabled-focused-opacity': `var(--_focused-state-layer-opacity)`, 'enabled-pressed-opacity': `var(--_pressed-state-layer-opacity)` })()};}
+    .container.togglable.selected mdc-ripple {${overrideTokens<typeof RippleDefinition>('--mdc-ripple')({ 'enabled-hovered-color': `var(--_hovered-state-layer-color-toggle-selected)`, 'enabled-focused-color': `var(--_focused-state-layer-color-toggle-selected)`, 'enabled-pressed-color': `var(--_pressed-state-layer-color-toggle-selected)` })()};}
+    .container.togglable.unselected mdc-ripple {${overrideTokens<typeof RippleDefinition>('--mdc-ripple')({ 'enabled-hovered-color': `var(--_hovered-state-layer-color-toggle-unselected)`, 'enabled-focused-color': `var(--_focused-state-layer-color-toggle-unselected)`, 'enabled-pressed-color': `var(--_pressed-state-layer-color-toggle-unselected)` })()};}
 `
 const elevation = css`
-    .container mdc-elevation {transition-duration: 0ms;${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { 'enabled-level': `var(--_enabled-container-elevation)`, 'enabled-shadow-color': `var(--_enabled-container-shadow-color)` }))};}
-    .container:hover mdc-elevation {${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { 'enabled-level': `var(--_hovered-container-elevation)` }))};}
-    .container:focus-within mdc-elevation {${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { 'enabled-level': `var(--_focused-container-elevation)` }))};}
-    .container:active mdc-elevation {${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { 'enabled-level': `var(--_pressed-container-elevation)` }))};}
-    .container.disabled mdc-elevation {transition: none;${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', { 'enabled-level': `var(--_disabled-container-elevation)` }))};}
+    .container mdc-elevation {transition-duration: 0ms;${overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({ 'enabled-level': `var(--_enabled-container-elevation)`, 'enabled-shadow-color': `var(--_enabled-container-shadow-color)` })()};}
+    .container:hover mdc-elevation {${overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({ 'enabled-level': `var(--_hovered-container-elevation)` })()};}
+    .container:focus-within mdc-elevation {${overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({ 'enabled-level': `var(--_focused-container-elevation)` })()};}
+    .container:active mdc-elevation {${overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({ 'enabled-level': `var(--_pressed-container-elevation)` })()};}
+    .container.disabled mdc-elevation {transition: none;${overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({ 'enabled-level': `var(--_disabled-container-elevation)` })()};}
 `
 const shared = css`
     :host {
