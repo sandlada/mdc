@@ -4,13 +4,12 @@
  * SPDX-License-Identifier: MIT
  */
 import { css } from 'lit'
-import { RippleDefinition } from '../../component-definitions/ripple.definition'
-import { pipe } from '../../utils/styles'
-import { createStyleSheet, stringifyTokens } from '../../utils/styles/lit'
+import { RippleDefinition } from './ripple.definition'
+import { createStyleSheet, stringifyTokens } from '@sandlada/styles/adapters/lit'
 
 const tokens = stringifyTokens('--mdc-ripple')(RippleDefinition)
 
-const stylePart = pipe(createStyleSheet)(RippleDefinition)(() => css`
+const stylePart = createStyleSheet(RippleDefinition)(() => css`
     @layer mdc.ripple.component {
         :host {
             display: flex;

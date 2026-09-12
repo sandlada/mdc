@@ -6,3 +6,4 @@
 
 export * from './ripple'
 export * from './ripple.interface'
+export * from './ripple.definition'
