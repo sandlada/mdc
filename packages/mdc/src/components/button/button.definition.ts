@@ -5,602 +5,283 @@
  */
 import { Shape, State, Typescale } from '@sandlada/mdk'
 import { Color } from '../../utils/color'
-import { createStyleDefinition, defineSchema } from '@sandlada/styles/schema'
+import { createStyleDefinition, defineSchema, type NDJointArray, type PrimitiveTokenValue } from '@sandlada/styles/schema'
+import { expandPadding, expandTypescale } from '@sandlada/styles/tokens'
+
+export const ButtonInteractions = ['enabled', 'hovered', 'focused', 'pressed', 'disabled'] as const
+export const ButtonVariants = ['filled', 'filled-tonal', 'elevated', 'outlined', 'text'] as const
+export const ToggleStates = ['unselected', 'selected'] as const
+
+export type ButtonInteraction = (typeof ButtonInteractions)[number]
+export type ButtonVariant = (typeof ButtonVariants)[number]
+export type ToggleState = (typeof ToggleStates)[number]
 
 export const ButtonSchema = defineSchema([
-    ['enabled', 'hovered', 'focused', 'pressed', 'disabled'],
-    ['extra-small', 'small', 'medium', 'large', 'extra-large'],
-    ['round', 'square'],
-    ['unselected', 'selected']
-] as const)
+    ButtonInteractions,
+    ButtonVariants
+])
 
-const shared = {
-    'extra-small-container-shape-round-start-start': Shape.Full,
-    'extra-small-container-shape-round-start-end': Shape.Full,
-    'extra-small-container-shape-round-end-start': Shape.Full,
-    'extra-small-container-shape-round-end-end': Shape.Full,
-    'small-container-shape-round-start-start': Shape.Full,
-    'small-container-shape-round-start-end': Shape.Full,
-    'small-container-shape-round-end-start': Shape.Full,
-    'small-container-shape-round-end-end': Shape.Full,
-    'medium-container-shape-round-start-start': Shape.Full,
-    'medium-container-shape-round-start-end': Shape.Full,
-    'medium-container-shape-round-end-start': Shape.Full,
-    'medium-container-shape-round-end-end': Shape.Full,
-    'large-container-shape-round-start-start': Shape.Full,
-    'large-container-shape-round-start-end': Shape.Full,
-    'large-container-shape-round-end-start': Shape.Full,
-    'large-container-shape-round-end-end': Shape.Full,
-    'extra-large-container-shape-round-start-start': Shape.Full,
-    'extra-large-container-shape-round-start-end': Shape.Full,
-    'extra-large-container-shape-round-end-start': Shape.Full,
-    'extra-large-container-shape-round-end-end': Shape.Full,
+export const ToggleButtonSchema = defineSchema([
+    ButtonInteractions,
+    ButtonVariants,
+    ToggleStates
+])
 
-    'extra-small-container-shape-square-start-start': Shape.Medium,
-    'extra-small-container-shape-square-start-end': Shape.Medium,
-    'extra-small-container-shape-square-end-start': Shape.Medium,
-    'extra-small-container-shape-square-end-end': Shape.Medium,
-    'small-container-shape-square-start-start': Shape.Medium,
-    'small-container-shape-square-start-end': Shape.Medium,
-    'small-container-shape-square-end-start': Shape.Medium,
-    'small-container-shape-square-end-end': Shape.Medium,
-    'medium-container-shape-square-start-start': Shape.Large,
-    'medium-container-shape-square-start-end': Shape.Large,
-    'medium-container-shape-square-end-start': Shape.Large,
-    'medium-container-shape-square-end-end': Shape.Large,
-    'large-container-shape-square-start-start': Shape.ExtraLarge,
-    'large-container-shape-square-start-end': Shape.ExtraLarge,
-    'large-container-shape-square-end-start': Shape.ExtraLarge,
-    'large-container-shape-square-end-end': Shape.ExtraLarge,
-    'extra-large-container-shape-square-start-start': Shape.ExtraLarge,
-    'extra-large-container-shape-square-start-end': Shape.ExtraLarge,
-    'extra-large-container-shape-square-end-start': Shape.ExtraLarge,
-    'extra-large-container-shape-square-end-end': Shape.ExtraLarge,
+type Cell = PrimitiveTokenValue | null
+type InteractionVariantTable = Record<ButtonInteraction, Record<ButtonVariant, Cell>>
+type ToggleTable = Record<ButtonInteraction, Record<ButtonVariant, readonly [Cell, Cell]>>
 
-    'extra-small-container-shape-pressed-morph-start-start': Shape.Small,
-    'extra-small-container-shape-pressed-morph-start-end': Shape.Small,
-    'extra-small-container-shape-pressed-morph-end-start': Shape.Small,
-    'extra-small-container-shape-pressed-morph-end-end': Shape.Small,
-    'small-container-shape-pressed-morph-start-start': Shape.Small,
-    'small-container-shape-pressed-morph-start-end': Shape.Small,
-    'small-container-shape-pressed-morph-end-start': Shape.Small,
-    'small-container-shape-pressed-morph-end-end': Shape.Small,
-    'medium-container-shape-pressed-morph-start-start': Shape.Medium,
-    'medium-container-shape-pressed-morph-start-end': Shape.Medium,
-    'medium-container-shape-pressed-morph-end-start': Shape.Medium,
-    'medium-container-shape-pressed-morph-end-end': Shape.Medium,
-    'large-container-shape-pressed-morph-start-start': Shape.Large,
-    'large-container-shape-pressed-morph-start-end': Shape.Large,
-    'large-container-shape-pressed-morph-end-start': Shape.Large,
-    'large-container-shape-pressed-morph-end-end': Shape.Large,
-    'extra-large-container-shape-pressed-morph-start-start': Shape.Large,
-    'extra-large-container-shape-pressed-morph-start-end': Shape.Large,
-    'extra-large-container-shape-pressed-morph-end-start': Shape.Large,
-    'extra-large-container-shape-pressed-morph-end-end': Shape.Large,
+const joint2 = (pick: (interaction: ButtonInteraction, variant: ButtonVariant) => Cell): NDJointArray =>
+    ButtonInteractions.map(interaction =>
+        ButtonVariants.map(variant => pick(interaction, variant))
+    )
 
-    'extra-small-container-shape-round-toggle-selected-start-start': Shape.Medium,
-    'extra-small-container-shape-round-toggle-selected-start-end': Shape.Medium,
-    'extra-small-container-shape-round-toggle-selected-end-start': Shape.Medium,
-    'extra-small-container-shape-round-toggle-selected-end-end': Shape.Medium,
-    'small-container-shape-round-toggle-selected-start-start': Shape.Medium,
-    'small-container-shape-round-toggle-selected-start-end': Shape.Medium,
-    'small-container-shape-round-toggle-selected-end-start': Shape.Medium,
-    'small-container-shape-round-toggle-selected-end-end': Shape.Medium,
-    'medium-container-shape-round-toggle-selected-start-start': Shape.Large,
-    'medium-container-shape-round-toggle-selected-start-end': Shape.Large,
-    'medium-container-shape-round-toggle-selected-end-start': Shape.Large,
-    'medium-container-shape-round-toggle-selected-end-end': Shape.Large,
-    'large-container-shape-round-toggle-selected-start-start': Shape.ExtraLarge,
-    'large-container-shape-round-toggle-selected-start-end': Shape.ExtraLarge,
-    'large-container-shape-round-toggle-selected-end-start': Shape.ExtraLarge,
-    'large-container-shape-round-toggle-selected-end-end': Shape.ExtraLarge,
-    'extra-large-container-shape-round-toggle-selected-start-start': Shape.ExtraLarge,
-    'extra-large-container-shape-round-toggle-selected-start-end': Shape.ExtraLarge,
-    'extra-large-container-shape-round-toggle-selected-end-start': Shape.ExtraLarge,
-    'extra-large-container-shape-round-toggle-selected-end-end': Shape.ExtraLarge,
+const joint3 = (pick: (interaction: ButtonInteraction, variant: ButtonVariant, toggle: ToggleState) => Cell): NDJointArray =>
+    ButtonInteractions.map(interaction =>
+        ButtonVariants.map(variant =>
+            ToggleStates.map(toggle => pick(interaction, variant, toggle))
+        )
+    )
 
-    'extra-small-container-shape-square-toggle-selected-start-start': Shape.Full,
-    'extra-small-container-shape-square-toggle-selected-start-end': Shape.Full,
-    'extra-small-container-shape-square-toggle-selected-end-start': Shape.Full,
-    'extra-small-container-shape-square-toggle-selected-end-end': Shape.Full,
-    'small-container-shape-square-toggle-selected-start-start': Shape.Full,
-    'small-container-shape-square-toggle-selected-start-end': Shape.Full,
-    'small-container-shape-square-toggle-selected-end-start': Shape.Full,
-    'small-container-shape-square-toggle-selected-end-end': Shape.Full,
-    'medium-container-shape-square-toggle-selected-start-start': Shape.Full,
-    'medium-container-shape-square-toggle-selected-start-end': Shape.Full,
-    'medium-container-shape-square-toggle-selected-end-start': Shape.Full,
-    'medium-container-shape-square-toggle-selected-end-end': Shape.Full,
-    'large-container-shape-square-toggle-selected-start-start': Shape.Full,
-    'large-container-shape-square-toggle-selected-start-end': Shape.Full,
-    'large-container-shape-square-toggle-selected-end-start': Shape.Full,
-    'large-container-shape-square-toggle-selected-end-end': Shape.Full,
-    'extra-large-container-shape-square-toggle-selected-start-start': Shape.Full,
-    'extra-large-container-shape-square-toggle-selected-start-end': Shape.Full,
-    'extra-large-container-shape-square-toggle-selected-end-start': Shape.Full,
-    'extra-large-container-shape-square-toggle-selected-end-end': Shape.Full,
+const joint3FromPairs = (table: ToggleTable): NDJointArray =>
+    joint3((interaction, variant, toggle) => table[interaction][variant][toggle === 'selected' ? 1 : 0])
 
-    'extra-small-container-height'              : `32px`,
-    'extra-small-outline-width'                 : `1px`,
-    'extra-small-label-font'                    : Typescale.LabelLarge.Font,
-    'extra-small-label-line-height'             : Typescale.LabelLarge.LineHeight,
-    'extra-small-label-size'                    : Typescale.LabelLarge.FontSize,
-    'extra-small-label-tracking'                : Typescale.LabelLarge.Tracking,
-    'extra-small-label-weight'                  : Typescale.LabelLarge.FontWeight,
-    'extra-small-icon-size'                     : `20px`,
-    'extra-small-container-padding-inline-start': `12px`,
-    'extra-small-container-padding-inline-end'  : `12px`,
-    'extra-small-container-padding-block-start' : `0px`,
-    'extra-small-container-padding-block-end'   : `0px`,
-    'extra-small-icon-label-space'              : `8px`,
+const containerColorTable: InteractionVariantTable = {
+    enabled: { filled: Color.Primary, 'filled-tonal': Color.SecondaryContainer, elevated: Color.SurfaceContainerLow, outlined: `transparent`, text: `transparent` },
+    hovered: { filled: Color.Primary, 'filled-tonal': Color.SecondaryContainer, elevated: Color.SurfaceContainerLow, outlined: `transparent`, text: `transparent` },
+    focused: { filled: Color.Primary, 'filled-tonal': Color.SecondaryContainer, elevated: Color.SurfaceContainerLow, outlined: `transparent`, text: `transparent` },
+    pressed: { filled: Color.Primary, 'filled-tonal': Color.SecondaryContainer, elevated: Color.SurfaceContainerLow, outlined: `transparent`, text: `transparent` },
+    disabled: { filled: Color.OnSurface, 'filled-tonal': Color.OnSurface, elevated: Color.OnSurface, outlined: Color.OnSurface, text: Color.OnSurface }
+}
 
-    'small-container-height'              : `40px`,
-    'small-outline-width'                 : `1px`,
-    'small-label-font'                    : Typescale.LabelLarge.Font,
-    'small-label-line-height'             : Typescale.LabelLarge.LineHeight,
-    'small-label-size'                    : Typescale.LabelLarge.FontSize,
-    'small-label-tracking'                : Typescale.LabelLarge.Tracking,
-    'small-label-weight'                  : Typescale.LabelLarge.FontWeight,
-    'small-icon-size'                     : `20px`,
-    'small-container-padding-inline-start': `16px`,
-    'small-container-padding-inline-end'  : `16px`,
-    'small-container-padding-block-start' : `0px`,
-    'small-container-padding-block-end'   : `0px`,
-    'small-icon-label-space'              : `8px`,
+const containerShadowColorTable: InteractionVariantTable = {
+    enabled: { filled: Color.Shadow, 'filled-tonal': Color.Shadow, elevated: Color.Shadow, outlined: null, text: null },
+    hovered: { filled: Color.Shadow, 'filled-tonal': Color.Shadow, elevated: Color.Shadow, outlined: null, text: null },
+    focused: { filled: Color.Shadow, 'filled-tonal': Color.Shadow, elevated: Color.Shadow, outlined: null, text: null },
+    pressed: { filled: Color.Shadow, 'filled-tonal': Color.Shadow, elevated: Color.Shadow, outlined: null, text: null },
+    disabled: { filled: Color.Shadow, 'filled-tonal': Color.Shadow, elevated: Color.Shadow, outlined: null, text: null }
+}
 
-    'medium-container-height'              : `56px`,
-    'medium-outline-width'                 : `1px`,
-    'medium-label-font'                    : Typescale.TitleMedium.Font,
-    'medium-label-line-height'             : Typescale.TitleMedium.LineHeight,
-    'medium-label-size'                    : Typescale.TitleMedium.FontSize,
-    'medium-label-tracking'                : Typescale.TitleMedium.Tracking,
-    'medium-label-weight'                  : Typescale.TitleMedium.FontWeight,
-    'medium-icon-size'                     : `24px`,
-    'medium-container-padding-inline-start': `24px`,
-    'medium-container-padding-inline-end'  : `24px`,
-    'medium-container-padding-block-start' : `0px`,
-    'medium-container-padding-block-end'   : `0px`,
-    'medium-icon-label-space'              : `8px`,
+const containerElevationTable: InteractionVariantTable = {
+    enabled: { filled: `0`, 'filled-tonal': `0`, elevated: `1`, outlined: null, text: null },
+    hovered: { filled: null, 'filled-tonal': `0`, elevated: `1`, outlined: null, text: null },
+    focused: { filled: `0`, 'filled-tonal': `0`, elevated: `1`, outlined: null, text: null },
+    pressed: { filled: `0`, 'filled-tonal': `0`, elevated: `1`, outlined: null, text: null },
+    disabled: { filled: `0`, 'filled-tonal': `0`, elevated: `0`, outlined: null, text: null }
+}
 
-    'large-container-height'              : `96px`,
-    'large-outline-width'                 : `2px`,
-    'large-label-font'                    : Typescale.HeadlineSmall.Font,
-    'large-label-line-height'             : Typescale.HeadlineSmall.LineHeight,
-    'large-label-size'                    : Typescale.HeadlineSmall.FontSize,
-    'large-label-tracking'                : Typescale.HeadlineSmall.Tracking,
-    'large-label-weight'                  : Typescale.HeadlineSmall.FontWeight,
-    'large-icon-size'                     : `32px`,
-    'large-container-padding-inline-start': `48px`,
-    'large-container-padding-inline-end'  : `48px`,
-    'large-container-padding-block-start' : `0px`,
-    'large-container-padding-block-end'   : `0px`,
-    'large-icon-label-space'              : `12px`,
+const labelColorTable: InteractionVariantTable = {
+    enabled: { filled: Color.OnPrimary, 'filled-tonal': Color.OnSecondaryContainer, elevated: Color.Primary, outlined: Color.OnSurfaceVariant, text: Color.Primary },
+    hovered: { filled: Color.OnPrimary, 'filled-tonal': Color.OnSecondaryContainer, elevated: Color.Primary, outlined: Color.OnSurfaceVariant, text: Color.Primary },
+    focused: { filled: Color.OnPrimary, 'filled-tonal': Color.OnSecondaryContainer, elevated: Color.Primary, outlined: Color.OnSurfaceVariant, text: Color.Primary },
+    pressed: { filled: Color.OnPrimary, 'filled-tonal': Color.OnSecondaryContainer, elevated: Color.Primary, outlined: Color.OnSurfaceVariant, text: Color.Primary },
+    disabled: { filled: Color.OnSurface, 'filled-tonal': Color.OnSurface, elevated: Color.OnSurface, outlined: Color.OnSurface, text: Color.OnSurface }
+}
 
-    'extra-large-container-height'              : `136px`,
-    'extra-large-outline-width'                 : `3px`,
-    'extra-large-label-font'                    : Typescale.HeadlineLarge.Font,
-    'extra-large-label-line-height'             : Typescale.HeadlineLarge.LineHeight,
-    'extra-large-label-size'                    : Typescale.HeadlineLarge.FontSize,
-    'extra-large-label-tracking'                : Typescale.HeadlineLarge.Tracking,
-    'extra-large-label-weight'                  : Typescale.HeadlineLarge.FontWeight,
-    'extra-large-icon-size'                     : `40px`,
-    'extra-large-container-padding-inline-start': `64px`,
-    'extra-large-container-padding-inline-end'  : `64px`,
-    'extra-large-container-padding-block-start' : `0px`,
-    'extra-large-container-padding-block-end'   : `0px`,
-    'extra-large-icon-label-space'              : `16px`,
+const iconColorTable: InteractionVariantTable = {
+    enabled: { filled: Color.OnPrimary, 'filled-tonal': Color.OnSecondaryContainer, elevated: Color.Primary, outlined: Color.OnSurfaceVariant, text: Color.Primary },
+    hovered: { filled: Color.OnPrimary, 'filled-tonal': Color.OnSecondaryContainer, elevated: Color.Primary, outlined: Color.OnSurfaceVariant, text: Color.Primary },
+    focused: { filled: Color.OnPrimary, 'filled-tonal': Color.OnSecondaryContainer, elevated: Color.Primary, outlined: Color.OnSurfaceVariant, text: Color.Primary },
+    pressed: { filled: Color.OnPrimary, 'filled-tonal': Color.OnSecondaryContainer, elevated: Color.Primary, outlined: Color.OnSurfaceVariant, text: Color.Primary },
+    disabled: { filled: Color.OnSurface, 'filled-tonal': Color.OnSurface, elevated: Color.OnSurface, outlined: Color.OnSurface, text: Color.OnSurface }
+}
+
+const stateLayerColorTable: InteractionVariantTable = {
+    enabled: { filled: null, 'filled-tonal': null, elevated: null, outlined: null, text: null },
+    hovered: { filled: Color.OnPrimary, 'filled-tonal': Color.OnSecondaryContainer, elevated: Color.Primary, outlined: Color.OnSurfaceVariant, text: Color.Primary },
+    focused: { filled: Color.OnPrimary, 'filled-tonal': Color.OnSecondaryContainer, elevated: Color.Primary, outlined: Color.OnSurfaceVariant, text: Color.Primary },
+    pressed: { filled: Color.OnPrimary, 'filled-tonal': Color.OnSecondaryContainer, elevated: Color.Primary, outlined: Color.OnSurfaceVariant, text: Color.Primary },
+    disabled: { filled: null, 'filled-tonal': null, elevated: null, outlined: null, text: null }
+}
+
+const outlineColorTable: InteractionVariantTable = {
+    enabled: { filled: null, 'filled-tonal': null, elevated: null, outlined: Color.OutlineVariant, text: null },
+    hovered: { filled: null, 'filled-tonal': null, elevated: null, outlined: Color.OutlineVariant, text: null },
+    focused: { filled: null, 'filled-tonal': null, elevated: null, outlined: Color.OutlineVariant, text: null },
+    pressed: { filled: null, 'filled-tonal': null, elevated: null, outlined: Color.OutlineVariant, text: null },
+    disabled: { filled: null, 'filled-tonal': null, elevated: null, outlined: Color.OutlineVariant, text: null }
+}
+
+const toggleContainerColorTable: ToggleTable = {
+    enabled: { filled: [Color.SurfaceContainer, Color.Primary], 'filled-tonal': [Color.SecondaryContainer, Color.Secondary], elevated: [Color.SurfaceContainerLow, Color.Primary], outlined: [`transparent`, Color.InverseSurface], text: [`transparent`, `transparent`] },
+    hovered: { filled: [Color.SurfaceContainer, Color.Primary], 'filled-tonal': [Color.SecondaryContainer, Color.Secondary], elevated: [Color.SurfaceContainerLow, Color.Primary], outlined: [`transparent`, Color.InverseSurface], text: [`transparent`, `transparent`] },
+    focused: { filled: [Color.SurfaceContainer, Color.Primary], 'filled-tonal': [Color.SecondaryContainer, Color.Secondary], elevated: [Color.SurfaceContainerLow, Color.Primary], outlined: [`transparent`, Color.InverseSurface], text: [`transparent`, `transparent`] },
+    pressed: { filled: [Color.SurfaceContainer, Color.Primary], 'filled-tonal': [Color.SecondaryContainer, Color.Secondary], elevated: [Color.SurfaceContainerLow, Color.Primary], outlined: [`transparent`, Color.InverseSurface], text: [`transparent`, `transparent`] },
+    disabled: { filled: [Color.OnSurface, Color.OnSurface], 'filled-tonal': [Color.OnSurface, Color.OnSurface], elevated: [Color.OnSurface, Color.OnSurface], outlined: [Color.OnSurface, Color.OnSurface], text: [Color.OnSurface, Color.OnSurface] }
+}
+
+const toggleLabelColorTable: ToggleTable = {
+    enabled: { filled: [Color.OnSurfaceVariant, Color.OnPrimary], 'filled-tonal': [Color.OnSecondaryContainer, Color.OnSecondary], elevated: [Color.Primary, Color.OnPrimary], outlined: [Color.OnSurfaceVariant, Color.InverseOnSurface], text: [Color.Primary, Color.Primary] },
+    hovered: { filled: [Color.OnSurfaceVariant, Color.OnPrimary], 'filled-tonal': [Color.OnSecondaryContainer, Color.OnSecondary], elevated: [Color.Primary, Color.OnPrimary], outlined: [Color.OnSurfaceVariant, Color.InverseOnSurface], text: [Color.Primary, Color.Primary] },
+    focused: { filled: [Color.OnSurfaceVariant, Color.OnPrimary], 'filled-tonal': [Color.OnSecondaryContainer, Color.OnSecondary], elevated: [Color.Primary, Color.OnPrimary], outlined: [Color.OnSurfaceVariant, Color.InverseOnSurface], text: [Color.Primary, Color.Primary] },
+    pressed: { filled: [Color.OnSurfaceVariant, Color.OnPrimary], 'filled-tonal': [Color.OnSecondaryContainer, Color.OnSecondary], elevated: [Color.Primary, Color.OnPrimary], outlined: [Color.OnSurfaceVariant, Color.InverseOnSurface], text: [Color.Primary, Color.Primary] },
+    disabled: { filled: [Color.OnSurface, Color.OnSurface], 'filled-tonal': [Color.OnSurface, Color.OnSurface], elevated: [Color.OnSurface, Color.OnSurface], outlined: [Color.OnSurface, Color.OnSurface], text: [Color.OnSurface, Color.OnSurface] }
+}
+
+const toggleIconColorTable: ToggleTable = {
+    enabled: { filled: [Color.OnSurfaceVariant, Color.OnPrimary], 'filled-tonal': [Color.OnSecondaryContainer, Color.OnSecondary], elevated: [Color.Primary, Color.OnPrimary], outlined: [Color.OnSurfaceVariant, Color.InverseOnSurface], text: [Color.Primary, Color.Primary] },
+    hovered: { filled: [Color.OnSurfaceVariant, Color.OnPrimary], 'filled-tonal': [Color.OnSecondaryContainer, Color.OnSecondary], elevated: [Color.Primary, Color.OnPrimary], outlined: [Color.OnSurfaceVariant, Color.InverseOnSurface], text: [Color.Primary, Color.Primary] },
+    focused: { filled: [Color.OnSurfaceVariant, Color.OnPrimary], 'filled-tonal': [Color.OnSecondaryContainer, Color.OnSecondary], elevated: [Color.Primary, Color.OnPrimary], outlined: [Color.OnSurfaceVariant, Color.InverseOnSurface], text: [Color.Primary, Color.Primary] },
+    pressed: { filled: [Color.OnSurfaceVariant, Color.OnPrimary], 'filled-tonal': [Color.OnSecondaryContainer, Color.OnSecondary], elevated: [Color.Primary, Color.OnPrimary], outlined: [Color.OnSurfaceVariant, Color.InverseOnSurface], text: [Color.Primary, Color.Primary] },
+    disabled: { filled: [Color.OnSurface, Color.OnSurface], 'filled-tonal': [Color.OnSurface, Color.OnSurface], elevated: [Color.OnSurface, Color.OnSurface], outlined: [Color.OnSurface, Color.OnSurface], text: [Color.OnSurface, Color.OnSurface] }
+}
+
+const toggleStateLayerColorTable: ToggleTable = {
+    enabled: { filled: [null, null], 'filled-tonal': [null, null], elevated: [null, null], outlined: [null, null], text: [null, null] },
+    hovered: { filled: [Color.OnSurfaceVariant, Color.OnPrimary], 'filled-tonal': [Color.OnSecondaryContainer, Color.OnSecondary], elevated: [Color.Primary, Color.OnPrimary], outlined: [Color.OnSurfaceVariant, Color.InverseOnSurface], text: [Color.Primary, Color.Primary] },
+    focused: { filled: [Color.OnSurfaceVariant, Color.OnPrimary], 'filled-tonal': [Color.OnSecondaryContainer, Color.OnSecondary], elevated: [Color.Primary, Color.OnPrimary], outlined: [Color.OnSurfaceVariant, Color.InverseOnSurface], text: [Color.Primary, Color.Primary] },
+    pressed: { filled: [Color.OnSurfaceVariant, Color.OnPrimary], 'filled-tonal': [Color.OnSecondaryContainer, Color.OnSecondary], elevated: [Color.Primary, Color.OnPrimary], outlined: [Color.OnSurfaceVariant, Color.InverseOnSurface], text: [Color.Primary, Color.Primary] },
+    disabled: { filled: [null, null], 'filled-tonal': [null, null], elevated: [null, null], outlined: [null, null], text: [null, null] }
+}
+
+const toggleOutlineColorTable: ToggleTable = {
+    enabled: { filled: [null, null], 'filled-tonal': [null, null], elevated: [null, null], outlined: [Color.OutlineVariant, `transparent`], text: [null, null] },
+    hovered: { filled: [null, null], 'filled-tonal': [null, null], elevated: [null, null], outlined: [Color.OutlineVariant, `transparent`], text: [null, null] },
+    focused: { filled: [null, null], 'filled-tonal': [null, null], elevated: [null, null], outlined: [Color.OutlineVariant, `transparent`], text: [null, null] },
+    pressed: { filled: [null, null], 'filled-tonal': [null, null], elevated: [null, null], outlined: [Color.OutlineVariant, `transparent`], text: [null, null] },
+    disabled: { filled: [null, null], 'filled-tonal': [null, null], elevated: [null, null], outlined: [Color.OutlineVariant, `transparent`], text: [null, null] }
+}
+
+const SIZES = ['extra-small', 'small', 'medium', 'large', 'extra-large'] as const
+const SHAPES = ['round', 'square'] as const
+const SHAPE_CORNERS = ['start-start', 'start-end', 'end-start', 'end-end'] as const
+
+type SizeName = (typeof SIZES)[number]
+type ShapeName = (typeof SHAPES)[number]
+
+const expandShapeTable = (
+    keyPrefix: (size: SizeName, shape: ShapeName) => string,
+    table: Record<SizeName, Record<ShapeName, PrimitiveTokenValue>>
+): Record<string, PrimitiveTokenValue> => {
+    const out: Record<string, PrimitiveTokenValue> = {}
+    for (const size of SIZES) {
+        for (const shape of SHAPES) {
+            for (const corner of SHAPE_CORNERS) {
+                out[`${keyPrefix(size, shape)}-${corner}`] = table[size][shape]
+            }
+        }
+    }
+    return out
+}
+
+const expandSingleShapeTable = (
+    keyPrefix: (size: SizeName) => string,
+    table: Record<SizeName, PrimitiveTokenValue>
+): Record<string, PrimitiveTokenValue> => {
+    const out: Record<string, PrimitiveTokenValue> = {}
+    for (const size of SIZES) {
+        for (const corner of SHAPE_CORNERS) {
+            out[`${keyPrefix(size)}-${corner}`] = table[size]
+        }
+    }
+    return out
+}
+
+const shapeTable: Record<SizeName, Record<ShapeName, PrimitiveTokenValue>> = {
+    'extra-small': { round: Shape.Full, square: Shape.Medium },
+    small: { round: Shape.Full, square: Shape.Medium },
+    medium: { round: Shape.Full, square: Shape.Large },
+    large: { round: Shape.Full, square: Shape.ExtraLarge },
+    'extra-large': { round: Shape.Full, square: Shape.ExtraLarge }
+}
+
+const selectedShapeTable: Record<SizeName, Record<ShapeName, PrimitiveTokenValue>> = {
+    'extra-small': { round: Shape.Medium, square: Shape.Full },
+    small: { round: Shape.Medium, square: Shape.Full },
+    medium: { round: Shape.Large, square: Shape.Full },
+    large: { round: Shape.ExtraLarge, square: Shape.Full },
+    'extra-large': { round: Shape.ExtraLarge, square: Shape.Full }
+}
+
+const morphShapeTable: Record<SizeName, PrimitiveTokenValue> = {
+    'extra-small': Shape.Small,
+    small: Shape.Small,
+    medium: Shape.Medium,
+    large: Shape.Large,
+    'extra-large': Shape.Large
+}
+
+const buttonSharedTokens = {
+    ...expandTypescale('extra-small-label')(Typescale.LabelLarge),
+    ...expandTypescale('small-label')(Typescale.LabelLarge),
+    ...expandTypescale('medium-label')(Typescale.TitleMedium),
+    ...expandTypescale('large-label')(Typescale.HeadlineSmall),
+    ...expandTypescale('extra-large-label')(Typescale.HeadlineLarge),
+
+    ...expandPadding('extra-small-container')({ block: `0px`, inlineStart: `12px`, inlineEnd: `12px` }),
+    ...expandPadding('small-container')({ block: `0px`, inlineStart: `16px`, inlineEnd: `16px` }),
+    ...expandPadding('medium-container')({ block: `0px`, inlineStart: `24px`, inlineEnd: `24px` }),
+    ...expandPadding('large-container')({ block: `0px`, inlineStart: `48px`, inlineEnd: `48px` }),
+    ...expandPadding('extra-large-container')({ block: `0px`, inlineStart: `64px`, inlineEnd: `64px` }),
+
+    ...expandShapeTable((size, shape) => `${size}-container-shape-${shape}`, shapeTable),
+    ...expandSingleShapeTable((size) => `${size}-container-shape-pressed-morph`, morphShapeTable),
+
+    'extra-small-container-height': `32px`,
+    'small-container-height': `40px`,
+    'medium-container-height': `56px`,
+    'large-container-height': `96px`,
+    'extra-large-container-height': `136px`,
+
+    'extra-small-outline-width': `1px`,
+    'small-outline-width': `1px`,
+    'medium-outline-width': `1px`,
+    'large-outline-width': `2px`,
+    'extra-large-outline-width': `3px`,
+
+    'extra-small-icon-size': `20px`,
+    'small-icon-size': `20px`,
+    'medium-icon-size': `24px`,
+    'large-icon-size': `32px`,
+    'extra-large-icon-size': `40px`,
+
+    'extra-small-icon-label-space': `8px`,
+    'small-icon-label-space': `8px`,
+    'medium-icon-label-space': `8px`,
+    'large-icon-label-space': `12px`,
+    'extra-large-icon-label-space': `16px`
 } as const
 
-export const ElevatedButtonDefinition = createStyleDefinition({
-    ...shared,
+export const ButtonDefinition = createStyleDefinition(ButtonSchema)({
+    ...buttonSharedTokens,
 
-    // Enabled
-    'container-color'                  : Color.SurfaceContainerLow,
-    'container-color-toggle-unselected': Color.SurfaceContainerLow,
-    'container-color-toggle-selected'  : Color.Primary,
-    'container-shadow-color'           : Color.Shadow,
-    'container-elevation'              : '1',
-    'label-color'                      : Color.Primary,
-    'label-color-toggle-unselected'    : Color.Primary,
-    'label-color-toggle-selected'      : Color.OnPrimary,
-    'icon-color'                       : Color.Primary,
-    'icon-color-toggle-unselected'     : Color.Primary,
-    'icon-color-toggle-selected'       : Color.OnPrimary,
+    'container-color': joint2((interaction, variant) => containerColorTable[interaction][variant]),
+    'container-shadow-color': joint2((interaction, variant) => containerShadowColorTable[interaction][variant]),
+    'container-elevation': joint2((interaction, variant) => containerElevationTable[interaction][variant]),
+    'label-color': joint2((interaction, variant) => labelColorTable[interaction][variant]),
+    'icon-color': joint2((interaction, variant) => iconColorTable[interaction][variant]),
+    'state-layer-color': joint2((interaction, variant) => stateLayerColorTable[interaction][variant]),
+    'outline-color': joint2((interaction, variant) => outlineColorTable[interaction][variant]),
 
-    // Disabled
-    'disabled-container-color'                  : Color.OnSurface,
-    'disabled-container-color-toggle-unselected': Color.OnSurface,
-    'disabled-container-color-toggle-selected'  : Color.OnSurface,
-    'disabled-container-opacity'                : `0.1`,
-    'disabled-container-shadow-color'           : Color.Shadow,
-    'disabled-container-elevation'              : '0',
-    'disabled-label-color'                      : Color.OnSurface,
-    'disabled-label-color-toggle-unselected'    : Color.OnSurface,
-    'disabled-label-color-toggle-selected'      : Color.OnSurface,
-    'disabled-label-opacity'                    : `0.38`,
-    'disabled-icon-color'                       : Color.OnSurface,
-    'disabled-icon-color-toggle-unselected'     : Color.OnSurface,
-    'disabled-icon-color-toggle-selected'       : Color.OnSurface,
-    'disabled-icon-opacity'                     : `0.38`,
-
-    // Hovered
-    'hovered-state-layer-color'                  : Color.Primary,
-    'hovered-state-layer-color-toggle-unselected': Color.Primary,
-    'hovered-state-layer-color-toggle-selected'  : Color.OnPrimary,
-    'hovered-state-layer-opacity'                : State.HoveredStateLayerOpacity,
-    'hovered-container-color'                    : Color.SurfaceContainerLow,
-    'hovered-container-color-toggle-unselected'  : Color.SurfaceContainerLow,
-    'hovered-container-color-toggle-selected'    : Color.Primary,
-    'hovered-container-shadow-color'             : Color.Shadow,
-    'hovered-container-elevation'                : '1',
-    'hovered-label-color'                        : Color.Primary,
-    'hovered-label-color-toggle-unselected'      : Color.Primary,
-    'hovered-label-color-toggle-selected'        : Color.OnPrimary,
-    'hovered-icon-color'                         : Color.Primary,
-    'hovered-icon-color-toggle-unselected'       : Color.Primary,
-    'hovered-icon-color-toggle-selected'         : Color.OnPrimary,
-
-    // Focused
-    'focused-state-layer-color'                  : Color.Primary,
-    'focused-state-layer-color-toggle-unselected': Color.Primary,
-    'focused-state-layer-color-toggle-selected'  : Color.OnPrimary,
-    'focused-state-layer-opacity'                : State.FocusedStateLayerOpacity,
-    'focused-container-color'                    : Color.SurfaceContainerLow,
-    'focused-container-color-toggle-unselected'  : Color.SurfaceContainerLow,
-    'focused-container-color-toggle-selected'    : Color.Primary,
-    'focused-container-shadow-color'             : Color.Shadow,
-    'focused-container-elevation'                : '1',
-    'focused-label-color'                        : Color.Primary,
-    'focused-label-color-toggle-unselected'      : Color.Primary,
-    'focused-label-color-toggle-selected'        : Color.OnPrimary,
-    'focused-icon-color'                         : Color.Primary,
-    'focused-icon-color-toggle-unselected'       : Color.Primary,
-    'focused-icon-color-toggle-selected'         : Color.OnPrimary,
-
-    // Pressed
-    'pressed-state-layer-color'                  : Color.Primary,
-    'pressed-state-layer-color-toggle-unselected': Color.Primary,
-    'pressed-state-layer-color-toggle-selected'  : Color.OnPrimary,
-    'pressed-state-layer-opacity'                : State.PressedStateLayerOpacity,
-    'pressed-container-color'                    : Color.SurfaceContainerLow,
-    'pressed-container-color-toggle-unselected'  : Color.SurfaceContainerLow,
-    'pressed-container-color-toggle-selected'    : Color.Primary,
-    'pressed-container-shadow-color'             : Color.Shadow,
-    'pressed-container-elevation'                : '1',
-    'pressed-label-color'                        : Color.Primary,
-    'pressed-label-color-toggle-unselected'      : Color.Primary,
-    'pressed-label-color-toggle-selected'        : Color.OnPrimary,
-    'pressed-icon-color'                         : Color.Primary,
-    'pressed-icon-color-toggle-unselected'       : Color.Primary,
-    'pressed-icon-color-toggle-selected'         : Color.OnPrimary,
+    'state-layer-opacity': {
+        hovered: State.HoveredStateLayerOpacity,
+        focused: State.FocusedStateLayerOpacity,
+        pressed: State.PressedStateLayerOpacity
+    },
+    'container-opacity': { disabled: `0.1` },
+    'label-opacity': { disabled: `0.38` },
+    'icon-opacity': { disabled: `0.38` }
 })
 
-export const FilledButtonDefinition = createStyleDefinition({
-    ...shared,
+export const ToggleButtonDefinition = createStyleDefinition(ToggleButtonSchema)({
+    ...buttonSharedTokens,
 
-    // Enabled
-    'container-color'                  : Color.Primary,
-    'container-color-toggle-unselected': Color.SurfaceContainer,
-    'container-color-toggle-selected'  : Color.Primary,
-    'container-shadow-color'           : Color.Shadow,
-    'container-elevation'              : '0',
-    'label-color'                      : Color.OnPrimary,
-    'label-color-toggle-unselected'    : Color.OnSurfaceVariant,
-    'label-color-toggle-selected'      : Color.OnPrimary,
-    'icon-color'                       : Color.OnPrimary,
-    'icon-color-toggle-unselected'     : Color.OnSurfaceVariant,
-    'icon-color-toggle-selected'       : Color.OnPrimary,
+    ...expandShapeTable((size, shape) => `${size}-container-shape-${shape}-selected`, selectedShapeTable),
 
-    // Disabled
-    'disabled-container-color'                  : Color.OnSurface,
-    'disabled-container-color-toggle-unselected': Color.OnSurface,
-    'disabled-container-color-toggle-selected'  : Color.OnSurface,
-    'disabled-container-shadow-color'           : Color.Shadow,
-    'disabled-container-opacity'                : `0.1`,
-    'disabled-container-elevation'              : '0',
-    'disabled-label-color'                      : Color.OnSurface,
-    'disabled-label-color-toggle-unselected'    : Color.OnSurface,
-    'disabled-label-color-toggle-selected'      : Color.OnSurface,
-    'disabled-label-opacity'                    : `0.38`,
-    'disabled-icon-color'                       : Color.OnSurface,
-    'disabled-icon-color-toggle-unselected'     : Color.OnSurface,
-    'disabled-icon-color-toggle-selected'       : Color.OnSurface,
-    'disabled-icon-opacity'                     : `0.38`,
+    'container-color': joint3FromPairs(toggleContainerColorTable),
+    'label-color': joint3FromPairs(toggleLabelColorTable),
+    'icon-color': joint3FromPairs(toggleIconColorTable),
+    'state-layer-color': joint3FromPairs(toggleStateLayerColorTable),
+    'outline-color': joint3FromPairs(toggleOutlineColorTable),
+    'container-shadow-color': joint3((interaction, variant) => containerShadowColorTable[interaction][variant]),
+    'container-elevation': joint3((interaction, variant) => containerElevationTable[interaction][variant]),
 
-    // Hovered
-    'hovered-state-layer-color'                  : Color.OnPrimary,
-    'hovered-state-layer-color-toggle-unselected': Color.OnSurfaceVariant,
-    'hovered-state-layer-color-toggle-selected'  : Color.OnPrimary,
-    'hovered-state-layer-opacity'                : State.HoveredStateLayerOpacity,
-    'hovered-container-color'                    : Color.Primary,
-    'hovered-container-color-toggle-unselected'  : Color.SurfaceContainer,
-    'hovered-container-color-toggle-selected'    : Color.Primary,
-    'hovered-container-shadow-color'             : Color.Shadow,
-    'hovered-label-color'                        : Color.OnPrimary,
-    'hovered-label-color-toggle-unselected'      : Color.OnSurfaceVariant,
-    'hovered-label-color-toggle-selected'        : Color.OnPrimary,
-    'hovered-icon-color'                         : Color.OnPrimary,
-    'hovered-icon-color-toggle-unselected'       : Color.OnSurfaceVariant,
-    'hovered-icon-color-toggle-selected'         : Color.OnPrimary,
-
-    // Focused
-    'focused-state-layer-color'                  : Color.OnPrimary,
-    'focused-state-layer-color-toggle-unselected': Color.OnSurfaceVariant,
-    'focused-state-layer-color-toggle-selected'  : Color.OnPrimary,
-    'focused-state-layer-opacity'                : State.FocusedStateLayerOpacity,
-    'focused-container-color'                    : Color.Primary,
-    'focused-container-color-toggle-unselected'  : Color.SurfaceContainer,
-    'focused-container-color-toggle-selected'    : Color.Primary,
-    'focused-container-shadow-color'             : Color.Shadow,
-    'focused-container-elevation'                : '0',
-    'focused-label-color'                        : Color.OnPrimary,
-    'focused-label-color-toggle-unselected'      : Color.OnSurfaceVariant,
-    'focused-label-color-toggle-selected'        : Color.OnPrimary,
-    'focused-icon-color'                         : Color.OnPrimary,
-    'focused-icon-color-toggle-unselected'       : Color.OnSurfaceVariant,
-    'focused-icon-color-toggle-selected'         : Color.OnPrimary,
-
-    // Pressed
-    'pressed-state-layer-color'                  : Color.OnPrimary,
-    'pressed-state-layer-color-toggle-unselected': Color.OnSurfaceVariant,
-    'pressed-state-layer-color-toggle-selected'  : Color.OnPrimary,
-    'pressed-state-layer-opacity'                : State.PressedStateLayerOpacity,
-    'pressed-container-color'                    : Color.Primary,
-    'pressed-container-color-toggle-unselected'  : Color.SurfaceContainer,
-    'pressed-container-color-toggle-selected'    : Color.Primary,
-    'pressed-container-shadow-color'             : Color.Shadow,
-    'pressed-container-elevation'                : '0',
-    'pressed-label-color'                        : Color.OnPrimary,
-    'pressed-label-color-toggle-unselected'      : Color.OnSurfaceVariant,
-    'pressed-label-color-toggle-selected'        : Color.OnPrimary,
-    'pressed-icon-color'                         : Color.OnPrimary,
-    'pressed-icon-color-toggle-unselected'       : Color.OnSurfaceVariant,
-    'pressed-icon-color-toggle-selected'         : Color.OnPrimary,
-})
-
-export const FilledTonalButtonDefinition = createStyleDefinition({
-    ...shared,
-
-    // Enabled
-    'container-color'                  : Color.SecondaryContainer,
-    'container-color-toggle-unselected': Color.SecondaryContainer,
-    'container-color-toggle-selected'  : Color.Secondary,
-    'container-shadow-color'           : Color.Shadow,
-    'container-elevation'              : '0',
-    'label-color'                      : Color.OnSecondaryContainer,
-    'label-color-toggle-unselected'    : Color.OnSecondaryContainer,
-    'label-color-toggle-selected'      : Color.OnSecondary,
-    'icon-color'                       : Color.OnSecondaryContainer,
-    'icon-color-toggle-unselected'     : Color.OnSecondaryContainer,
-    'icon-color-toggle-selected'       : Color.OnSecondary,
-
-    // Disabled
-    'disabled-container-color'                  : Color.OnSurface,
-    'disabled-container-color-toggle-unselected': Color.OnSurface,
-    'disabled-container-color-toggle-selected'  : Color.OnSurface,
-    'disabled-container-shadow-color'           : Color.Shadow,
-    'disabled-container-opacity'                : `0.1`,
-    'disabled-container-elevation'              : '0',
-    'disabled-label-color'                      : Color.OnSurface,
-    'disabled-label-color-toggle-unselected'    : Color.OnSurface,
-    'disabled-label-color-toggle-selected'      : Color.OnSurface,
-    'disabled-label-opacity'                    : `0.38`,
-    'disabled-icon-color'                       : Color.OnSurface,
-    'disabled-icon-color-toggle-unselected'     : Color.OnSurface,
-    'disabled-icon-color-toggle-selected'       : Color.OnSurface,
-    'disabled-icon-opacity'                     : `0.38`,
-
-    // Hovered
-    'hovered-state-layer-color'                  : Color.OnSecondaryContainer,
-    'hovered-state-layer-color-toggle-unselected': Color.OnSecondaryContainer,
-    'hovered-state-layer-color-toggle-selected'  : Color.OnSecondary,
-    'hovered-state-layer-opacity'                : State.HoveredStateLayerOpacity,
-    'hovered-container-color'                    : Color.SecondaryContainer,
-    'hovered-container-color-toggle-unselected'  : Color.SecondaryContainer,
-    'hovered-container-color-toggle-selected'    : Color.Secondary,
-    'hovered-container-shadow-color'             : Color.Shadow,
-    'hovered-container-elevation'                : '0',
-    'hovered-label-color'                        : Color.OnSecondaryContainer,
-    'hovered-label-color-toggle-unselected'      : Color.OnSecondaryContainer,
-    'hovered-label-color-toggle-selected'        : Color.OnSecondary,
-    'hovered-icon-color'                         : Color.OnSecondaryContainer,
-    'hovered-icon-color-toggle-unselected'       : Color.OnSecondaryContainer,
-    'hovered-icon-color-toggle-selected'         : Color.OnSecondary,
-
-    // Focused
-    'focused-state-layer-color'                  : Color.OnSecondaryContainer,
-    'focused-state-layer-color-toggle-unselected': Color.OnSecondaryContainer,
-    'focused-state-layer-color-toggle-selected'  : Color.OnSecondary,
-    'focused-state-layer-opacity'                : State.FocusedStateLayerOpacity,
-    'focused-container-color'                    : Color.SecondaryContainer,
-    'focused-container-color-toggle-unselected'  : Color.SecondaryContainer,
-    'focused-container-color-toggle-selected'    : Color.Secondary,
-    'focused-container-shadow-color'             : Color.Shadow,
-    'focused-container-elevation'                : '0',
-    'focused-label-color'                        : Color.OnSecondaryContainer,
-    'focused-label-color-toggle-unselected'      : Color.OnSecondaryContainer,
-    'focused-label-color-toggle-selected'        : Color.OnSecondary,
-    'focused-icon-color'                         : Color.OnSecondaryContainer,
-    'focused-icon-color-toggle-unselected'       : Color.OnSecondaryContainer,
-    'focused-icon-color-toggle-selected'         : Color.OnSecondary,
-
-    // Pressed
-    'pressed-state-layer-color'                  : Color.OnSecondaryContainer,
-    'pressed-state-layer-color-toggle-unselected': Color.OnSecondaryContainer,
-    'pressed-state-layer-color-toggle-selected'  : Color.OnSecondary,
-    'pressed-state-layer-opacity'                : State.PressedStateLayerOpacity,
-    'pressed-container-color'                    : Color.SecondaryContainer,
-    'pressed-container-color-toggle-unselected'  : Color.SecondaryContainer,
-    'pressed-container-color-toggle-selected'    : Color.Secondary,
-    'pressed-container-shadow-color'             : Color.Shadow,
-    'pressed-container-elevation'                : '0',
-    'pressed-label-color'                        : Color.OnSecondaryContainer,
-    'pressed-label-color-toggle-unselected'      : Color.OnSecondaryContainer,
-    'pressed-label-color-toggle-selected'        : Color.OnSecondary,
-    'pressed-icon-color'                         : Color.OnSecondaryContainer,
-    'pressed-icon-color-toggle-unselected'       : Color.OnSecondaryContainer,
-    'pressed-icon-color-toggle-selected'         : Color.OnSecondary,
-})
-
-export const OutlinedButtonDefinition = createStyleDefinition({
-    ...shared,
-
-    // Enabled
-    'outline-color'                    : Color.OutlineVariant,
-    'outline-color-toggle-unselected'  : Color.OutlineVariant,
-    'outline-color-toggle-selected'    : `transparent`,
-    'container-color'                  : `transparent`,
-    'container-color-toggle-unselected': `transparent`,
-    'container-color-toggle-selected'  : Color.InverseSurface,
-    'label-color'                      : Color.OnSurfaceVariant,
-    'label-color-toggle-unselected'    : Color.OnSurfaceVariant,
-    'label-color-toggle-selected'      : Color.InverseOnSurface,
-    'icon-color'                       : Color.OnSurfaceVariant,
-    'icon-color-toggle-unselected'     : Color.OnSurfaceVariant,
-    'icon-color-toggle-selected'       : Color.InverseOnSurface,
-
-    // Disabled
-    'disabled-outline-color'                    : Color.OutlineVariant,
-    'disabled-outline-color-toggle-unselected'  : Color.OutlineVariant,
-    'disabled-outline-color-toggle-selected'    : `transparent`,
-    'disabled-container-color'                  : Color.OnSurface,
-    'disabled-container-color-toggle-unselected': Color.OnSurface,
-    'disabled-container-color-toggle-selected'  : Color.OnSurface,
-    'disabled-container-opacity'                : `0.1`,
-    'disabled-label-color'                      : Color.OnSurface,
-    'disabled-label-color-toggle-unselected'    : Color.OnSurface,
-    'disabled-label-color-toggle-selected'      : Color.OnSurface,
-    'disabled-label-opacity'                    : `0.38`,
-    'disabled-icon-color'                       : Color.OnSurface,
-    'disabled-icon-color-toggle-unselected'      : Color.OnSurface,
-    'disabled-icon-color-toggle-selected'        : Color.OnSurface,
-    'disabled-icon-opacity'                     : `0.38`,
-
-    // Hovered
-    'hovered-state-layer-color'                  : Color.OnSurfaceVariant,
-    'hovered-state-layer-color-toggle-unselected': Color.OnSurfaceVariant,
-    'hovered-state-layer-color-toggle-selected'  : Color.InverseOnSurface,
-    'hovered-state-layer-opacity'                : State.HoveredStateLayerOpacity,
-    'hovered-outline-color'                      : Color.OutlineVariant,
-    'hovered-outline-color-toggle-unselected'    : Color.OutlineVariant,
-    'hovered-outline-color-toggle-selected'      : `transparent`,
-    'hovered-container-color'                    : `transparent`,
-    'hovered-container-color-toggle-unselected'  : `transparent`,
-    'hovered-container-color-toggle-selected'    : Color.InverseSurface,
-    'hovered-label-color'                        : Color.OnSurfaceVariant,
-    'hovered-label-color-toggle-unselected'      : Color.OnSurfaceVariant,
-    'hovered-label-color-toggle-selected'        : Color.InverseOnSurface,
-    'hovered-icon-color'                         : Color.OnSurfaceVariant,
-    'hovered-icon-color-toggle-unselected'       : Color.OnSurfaceVariant,
-    'hovered-icon-color-toggle-selected'         : Color.InverseOnSurface,
-
-    // Focused
-    'focused-state-layer-color'                  : Color.OnSurfaceVariant,
-    'focused-state-layer-color-toggle-unselected': Color.OnSurfaceVariant,
-    'focused-state-layer-color-toggle-selected'  : Color.InverseOnSurface,
-    'focused-state-layer-opacity'                : State.FocusedStateLayerOpacity,
-    'focused-outline-color'                      : Color.OutlineVariant,
-    'focused-outline-color-toggle-unselected'    : Color.OutlineVariant,
-    'focused-outline-color-toggle-selected'      : `transparent`,
-    'focused-container-color'                    : `transparent`,
-    'focused-container-color-toggle-unselected'  : `transparent`,
-    'focused-container-color-toggle-selected'    : Color.InverseSurface,
-    'focused-label-color'                        : Color.OnSurfaceVariant,
-    'focused-label-color-toggle-unselected'      : Color.OnSurfaceVariant,
-    'focused-label-color-toggle-selected'        : Color.InverseOnSurface,
-    'focused-icon-color'                         : Color.OnSurfaceVariant,
-    'focused-icon-color-toggle-unselected'       : Color.OnSurfaceVariant,
-    'focused-icon-color-toggle-selected'         : Color.InverseOnSurface,
-
-    // Pressed
-    'pressed-state-layer-color'                  : Color.OnSurfaceVariant,
-    'pressed-state-layer-color-toggle-unselected': Color.OnSurfaceVariant,
-    'pressed-state-layer-color-toggle-selected'  : Color.InverseOnSurface,
-    'pressed-state-layer-opacity'                : State.PressedStateLayerOpacity,
-    'pressed-outline-color'                      : Color.OutlineVariant,
-    'pressed-outline-color-toggle-unselected'    : Color.OutlineVariant,
-    'pressed-outline-color-toggle-selected'      : `transparent`,
-    'pressed-container-color'                    : `transparent`,
-    'pressed-container-color-toggle-unselected'  : `transparent`,
-    'pressed-container-color-toggle-selected'    : Color.InverseSurface,
-    'pressed-label-color'                        : Color.OnSurfaceVariant,
-    'pressed-label-color-toggle-unselected'      : Color.OnSurfaceVariant,
-    'pressed-label-color-toggle-selected'        : Color.InverseOnSurface,
-    'pressed-icon-color'                         : Color.OnSurfaceVariant,
-    'pressed-icon-color-toggle-unselected'       : Color.OnSurfaceVariant,
-    'pressed-icon-color-toggle-selected'         : Color.InverseOnSurface,
-})
-
-export const TextButtonDefinition = createStyleDefinition({
-    ...shared,
-
-    // Enabled
-    'container-color'                  : `transparent`,
-    'container-color-toggle-unselected': `transparent`,
-    'container-color-toggle-selected'  : `transparent`,
-    'label-color'                      : Color.Primary,
-    'label-color-toggle-unselected'    : Color.Primary,
-    'label-color-toggle-selected'      : Color.Primary,
-    'icon-color'                       : Color.Primary,
-    'icon-color-toggle-unselected'     : Color.Primary,
-    'icon-color-toggle-selected'       : Color.Primary,
-
-    // Disabled
-    'disabled-container-color'                  : Color.OnSurface,
-    'disabled-container-color-toggle-unselected': Color.OnSurface,
-    'disabled-container-color-toggle-selected'  : Color.OnSurface,
-    'disabled-container-opacity'                : `0.1`,
-    'disabled-label-color'                      : Color.OnSurface,
-    'disabled-label-color-toggle-unselected'    : Color.OnSurface,
-    'disabled-label-color-toggle-selected'      : Color.OnSurface,
-    'disabled-label-opacity'                    : `0.38`,
-    'disabled-icon-color'                       : Color.OnSurface,
-    'disabled-icon-color-toggle-unselected'     : Color.OnSurface,
-    'disabled-icon-color-toggle-selected'       : Color.OnSurface,
-    'disabled-icon-opacity'                     : `0.38`,
-
-    // Hovered
-    'hovered-state-layer-color'                  : Color.Primary,
-    'hovered-state-layer-color-toggle-unselected': Color.Primary,
-    'hovered-state-layer-color-toggle-selected'  : Color.Primary,
-    'hovered-state-layer-opacity'                : State.HoveredStateLayerOpacity,
-    'hovered-container-color'                    : `transparent`,
-    'hovered-container-color-toggle-unselected'  : `transparent`,
-    'hovered-container-color-toggle-selected'    : `transparent`,
-    'hovered-label-color'                        : Color.Primary,
-    'hovered-label-color-toggle-unselected'      : Color.Primary,
-    'hovered-label-color-toggle-selected'        : Color.Primary,
-    'hovered-icon-color'                         : Color.Primary,
-    'hovered-icon-color-toggle-unselected'       : Color.Primary,
-    'hovered-icon-color-toggle-selected'         : Color.Primary,
-
-    // Focused
-    'focused-state-layer-color'                  : Color.Primary,
-    'focused-state-layer-color-toggle-unselected': Color.Primary,
-    'focused-state-layer-color-toggle-selected'  : Color.Primary,
-    'focused-state-layer-opacity'                : State.FocusedStateLayerOpacity,
-    'focused-container-color'                    : `transparent`,
-    'focused-container-color-toggle-unselected'  : `transparent`,
-    'focused-container-color-toggle-selected'    : `transparent`,
-    'focused-label-color'                        : Color.Primary,
-    'focused-label-color-toggle-unselected'      : Color.Primary,
-    'focused-label-color-toggle-selected'        : Color.Primary,
-    'focused-icon-color'                         : Color.Primary,
-    'focused-icon-color-toggle-unselected'       : Color.Primary,
-    'focused-icon-color-toggle-selected'         : Color.Primary,
-
-    // Pressed
-    'pressed-state-layer-color'                  : Color.Primary,
-    'pressed-state-layer-color-toggle-unselected': Color.Primary,
-    'pressed-state-layer-color-toggle-selected'  : Color.Primary,
-    'pressed-state-layer-opacity'                : State.PressedStateLayerOpacity,
-    'pressed-container-color'                    : `transparent`,
-    'pressed-container-color-toggle-unselected'  : `transparent`,
-    'pressed-container-color-toggle-selected'    : `transparent`,
-    'pressed-label-color'                        : Color.Primary,
-    'pressed-label-color-toggle-unselected'      : Color.Primary,
-    'pressed-label-color-toggle-selected'        : Color.Primary,
-    'pressed-icon-color'                         : Color.Primary,
-    'pressed-icon-color-toggle-unselected'       : Color.Primary,
-    'pressed-icon-color-toggle-selected'         : Color.Primary,
+    'state-layer-opacity': {
+        hovered: State.HoveredStateLayerOpacity,
+        focused: State.FocusedStateLayerOpacity,
+        pressed: State.PressedStateLayerOpacity
+    },
+    'container-opacity': { disabled: `0.1` },
+    'label-opacity': { disabled: `0.38` },
+    'icon-opacity': { disabled: `0.38` }
 })
