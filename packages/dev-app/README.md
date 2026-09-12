@@ -26,7 +26,7 @@ packages/dev-app/
 │   │   ├── title-context.ts      # docsPageTitleContext (current page title)
 │   │   └── index.ts
 │   ├── docs-shell.ts             # <mdc-docs-shell> page chrome (Lit)
-│   ├── docs-sidebar.ts           # <mdc-docs-sidebar> nav (Lit)
+│   ├── docs-sidebar.ts           # <mdc-docs-sidebar> dialog nav (Lit)
 │   ├── docs-manifest.ts          # live component list from import.meta.glob
 │   ├── docs-page.ts              # <mdc-docs-page> per-page wrapper (Lit)
 │   ├── demo-loader.ts            # import.meta.glob('?raw') for *.demo.html
@@ -50,6 +50,16 @@ The sidebar (`shared/docs-sidebar.ts`, grouped in `shared/docs-manifest.ts`) has
 three sections in order: **Style Playground** (the `playground` page),
 **Base Components** (`BASE_COMPONENT_ORDER`: divider, elevation, focus-ring,
 ripple, badge, icon, typography), and **Components** (everything else).
+
+## Responsive sidebar
+
+`<mdc-docs-shell>` subscribes to the viewport width via `@sandlada/breakpoint`
+(`< 840px`, i.e. below `md`) and owns the sidebar state. Below `md` the
+sidebar (`<mdc-docs-sidebar>`, a controlled native `<dialog>`) opens as a
+modal with a scrim (scrim click / Escape closes it, with a Material-dialog
+style slide + fade transition); on `md` and above it renders as a static
+element that the header menu button collapses and expands. Entering the
+compact range auto-closes the sidebar.
 
 ## Page contexts
 
