@@ -500,6 +500,46 @@ export function normalizePrivateToken(
     return { cleanKey: rawKey, isTuple: false }
 }
 
+/**
+ * Checks whether a private token key is a shorthand virtual base produced by
+ * a stylesheet macro (`shape` / `padding` / `margin` / `typescale`).
+ *
+ * Mirrors `expandDeclarationAst` in `@sandlada/styles/compiler`:
+ * `shape: var(--_X)` expands to `var(--_X-start-start)` etc. even though
+ * only the expanded corners exist in `ownTokens` (via `expandShape`).
+ * Returns true only when ALL expanded suffixes exist, so genuine ghost
+ * tokens can never be masked.
+ */
+export function isExpandedShorthandBase(
+    cleanKey: string,
+    ownTokens: Map<string, any>
+): boolean {
+    if (!cleanKey || ownTokens.has(cleanKey)) return false
+
+    const hasAll = (suffixes: readonly string[]): boolean =>
+        suffixes.every((s) => ownTokens.has(`${cleanKey}${s}`))
+
+    if (
+        hasAll(['-start-start', '-start-end', '-end-start', '-end-end'])
+    ) {
+        return true
+    }
+
+    if (
+        hasAll(['-block-start', '-block-end', '-inline-start', '-inline-end'])
+    ) {
+        return true
+    }
+
+    if (
+        hasAll(['-font', '-size', '-leading', '-weight', '-tracking'])
+    ) {
+        return true
+    }
+
+    return false
+}
+
 export function analyzeStylesheetSource(
     sourceText: string,
     definitionMetaMap: Map<string, DefinitionMeta>,

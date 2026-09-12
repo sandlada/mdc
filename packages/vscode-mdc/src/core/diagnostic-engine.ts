@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 import type { StylesheetAnalysis, DefinitionMeta, DiagnosticIssue } from './types'
-import { splitChildBridgeSuffix } from './stylesheet-analyzer'
+import { isExpandedShorthandBase, splitChildBridgeSuffix } from './stylesheet-analyzer'
 import { isHostMountedSelector, replaceTargetInSelector } from '@sandlada/styles/compiler'
 
 /**
@@ -35,7 +35,9 @@ export function getStylesheetDiagnostics(
 
         // Rule MDC002: Ghost token check (undefined in Definition)
         if (usage.token.startsWith('--_') && defMeta) {
-            const isDefined = defMeta.ownTokens.has(usage.cleanKey)
+            const isDefined =
+                defMeta.ownTokens.has(usage.cleanKey) ||
+                isExpandedShorthandBase(usage.cleanKey, defMeta.ownTokens)
             if (!isDefined) {
                 issues.push({
                     code: 'MDC002',
