@@ -21,6 +21,11 @@ export {
     type StateTuple,
     type StateRecord,
     type TokenValue,
+    type TokenValueForSchema,
+    type EffectiveDimensions,
+    type NDArrayValue,
+    type NDJointArray,
+    type NDTokenArray,
     type ForwardedTokenMeta,
     type ResolvedStyleDefinition
 } from './create-style-definition'

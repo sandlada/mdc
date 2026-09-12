@@ -120,6 +120,8 @@ export function fakeMeta(variantNames: readonly string[] = []): StateTokenMetada
         allDefinedStates: new Set<string>(),
         getDefinedStates: () => new Set<string>(),
         resolveStateVarName: (name: string) => name,
+        isComboToken: () => false,
+        resolveComboVarName: () => undefined,
         hasStateDelta: () => false,
         statesList: [],
         baseState: 'enabled',

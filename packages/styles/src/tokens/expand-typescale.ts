@@ -256,6 +256,14 @@ export type ExpandedTypescaleTokens<TPrefix extends string = string, TValue = an
  * })
  * ```
  */
+/**
+ * Maps typography leaves preserving array nesting, so joint n-dimensional
+ * values (`[[TypescaleA, TypescaleB], ...]`) project per property into
+ * matching n-dimensional arrays.
+ */
+const mapTypescaleLeaves = (node: unknown, pick: (leaf: unknown) => unknown): unknown =>
+    Array.isArray(node) ? node.map(item => mapTypescaleLeaves(item, pick)) : pick(node)
+
 export const expandTypescale = <const TPrefix extends string>(prefix: TPrefix) => <const TValue extends TypescaleValueInput>(
     typescaleValue: TValue
 ): ExpandedTypescaleResult<TPrefix, TValue> => {
@@ -266,13 +274,14 @@ export const expandTypescale = <const TPrefix extends string>(prefix: TPrefix) =
         if (typescaleValue.length === 0) {
             throw new Error('[expandTypescale] Tuple of typescale values cannot be empty.')
         }
-        const extractedList = typescaleValue.map(item => extractTypography(item))
+        const projectLeaf = (pick: (extracted: ExtractedTypography) => unknown) =>
+            mapTypescaleLeaves(typescaleValue, item => pick(extractTypography(item)))
         return {
-            [`${cleanPrefix}-font`]: extractedList.map(e => e.font),
-            [`${cleanPrefix}-leading`]: extractedList.map(e => e.leading),
-            [`${cleanPrefix}-size`]: extractedList.map(e => e.size),
-            [`${cleanPrefix}-tracking`]: extractedList.map(e => e.tracking),
-            [`${cleanPrefix}-weight`]: extractedList.map(e => e.weight)
+            [`${cleanPrefix}-font`]: projectLeaf(e => e.font),
+            [`${cleanPrefix}-leading`]: projectLeaf(e => e.leading),
+            [`${cleanPrefix}-size`]: projectLeaf(e => e.size),
+            [`${cleanPrefix}-tracking`]: projectLeaf(e => e.tracking),
+            [`${cleanPrefix}-weight`]: projectLeaf(e => e.weight)
         } as unknown as ExpandedTypescaleResult<TPrefix, TValue>
     }
 

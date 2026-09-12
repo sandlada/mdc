@@ -5,6 +5,7 @@
  */
 
 import type { StateSchema } from '../../schema'
+import { flattenNDValue, getEffectiveTopology, getRank1States, type EffectiveTopology } from '../../schema/internal/ndarray'
 import { canonicalizeState } from '../selectors'
 import {
     formatValueString,
@@ -22,6 +23,8 @@ export interface StateTokenMetadata {
     allDefinedStates: ReadonlySet<string>
     getDefinedStates(name: string): ReadonlySet<string>
     resolveStateVarName(name: string, state: string): string
+    isComboToken(name: string): boolean
+    resolveComboVarName(name: string, combo: readonly string[]): string | undefined
     hasStateDelta(tokenName: string, state: string): boolean
     statesList: readonly string[]
     baseState: string
@@ -84,6 +87,21 @@ export function extractStateTokenMetadata(definition: any): StateTokenMetadata {
     const definedStatesPerToken = new Map<string, Set<string>>()
     const deltaStatesPerToken = new Map<string, Set<string>>()
     const stateVarMap = new Map<string, string>()
+    const comboValuesPerToken = new Map<string, Map<string, unknown>>()
+    const comboTopologyPerToken = new Map<string, EffectiveTopology>()
+    const topologyCache = new Map<object, EffectiveTopology>()
+    const topologyOf = (def: any): EffectiveTopology => {
+        if (def && typeof def === 'object') {
+            const cached = topologyCache.get(def)
+            if (cached) {
+                return cached
+            }
+            const topology = getEffectiveTopology(def.schema)
+            topologyCache.set(def, topology)
+            return topology
+        }
+        return getEffectiveTopology(undefined)
+    }
 
     let statesList: string[] = []
 
@@ -148,17 +166,66 @@ export function extractStateTokenMetadata(definition: any): StateTokenMetadata {
                     deltaStatesPerToken.set(key, deltaStates)
                 }
 
+                const topology = topologyOf(def)
+
+                // Joint n-dimensional value (rank 2+): cells address full
+                // combinations positionally; every effective dimension holding
+                // a non-null cell counts as active for combo expansion.
+                if (topology.rank > 1) {
+                    const cells = flattenNDValue(topology, key, rawVal)
+                    let comboValues = comboValuesPerToken.get(key)
+                    if (!comboValues) {
+                        comboValues = new Map<string, unknown>()
+                        comboValuesPerToken.set(key, comboValues)
+                    }
+                    if (!comboTopologyPerToken.has(key)) {
+                        comboTopologyPerToken.set(key, topology)
+                    }
+                    const baseCanonical = topology.dims.map(dim => dim[0]).join('-')
+                    const baseCell = cells.find(cell => cell.canonical === baseCanonical)
+                    const baseValStr = baseCell ? formatValueString(baseCell.value) : ''
+                    for (const cell of cells) {
+                        for (const sName of cell.states) {
+                            tokenStates.add(sName)
+                            allDefinedStates.add(sName)
+                            const canonical = canonicalizeState(sName)
+                            if (canonical !== sName) {
+                                tokenStates.add(canonical)
+                            }
+                        }
+                        stateVarMap.set(`${key}:${cell.canonical}`, `${cell.canonical}-${key}`)
+                        comboValues.set(cell.canonical, cell.value)
+                        if (cell.canonical !== baseCanonical && formatValueString(cell.value) !== baseValStr) {
+                            for (let d = 0; d < cell.states.length; d++) {
+                                const sName = cell.states[d]!
+                                if (sName === topology.dims[d]![0] || sName === 'enabled' || sName === 'base') {
+                                    continue
+                                }
+                                deltaStates.add(sName)
+                                const canonical = canonicalizeState(sName)
+                                if (canonical !== sName) {
+                                    deltaStates.add(canonical)
+                                }
+                            }
+                        }
+                    }
+                    continue
+                }
+
+                const rank1 = getRank1States(topology)
+                const indexStates = rank1 !== null && rawVal.length === rank1.length ? rank1 : statesList
+
                 const baseValStr = formatValueString(rawVal[0])
                 stateVarMap.set(`${key}:${baseState}`, `${baseState}-${key}`)
                 stateVarMap.set(`${key}:enabled`, `${baseState}-${key}`)
                 stateVarMap.set(`${key}:base`, `${baseState}-${key}`)
 
-                for (let i = 0; i < statesList.length && i < rawVal.length; i++) {
+                for (let i = 0; i < indexStates.length && i < rawVal.length; i++) {
                     const rawItem = rawVal[i]
                     if (rawItem === null || rawItem === undefined) {
                         continue
                     }
-                    const sName = statesList[i]
+                    const sName = indexStates[i]
                     const sValStr = formatValueString(rawItem)
 
                     tokenStates.add(sName)
@@ -262,6 +329,32 @@ export function extractStateTokenMetadata(definition: any): StateTokenMetadata {
         getDefinedStates(name: string) {
             const clean = name.replace(/^--_?/, '')
             return definedStatesPerToken.get(clean) ?? new Set()
+        },
+        isComboToken(name: string) {
+            const clean = name.replace(/^--_?/, '')
+            return comboValuesPerToken.has(clean)
+        },
+        resolveComboVarName(name: string, combo: readonly string[]) {
+            const clean = name.replace(/^--_?/, '')
+            const values = comboValuesPerToken.get(clean)
+            const topo = comboTopologyPerToken.get(clean)
+            if (!values || !topo) {
+                return undefined
+            }
+            const ordered: string[] = []
+            for (let d = 0; d < topo.dims.length; d++) {
+                const dim = topo.dims[d]!
+                const found = combo.find(s => dim.includes(s))
+                if (found === undefined) {
+                    return undefined
+                }
+                ordered.push(found)
+            }
+            const canonical = ordered.join('-')
+            if (!values.has(canonical)) {
+                return undefined
+            }
+            return `${canonical}-${clean}`
         },
         resolveStateVarName(name: string, state: string) {
             const clean = name.replace(/^--_?/, '')

@@ -8,6 +8,7 @@ import type { StateSchema } from '../define-schema'
 import type { ForwardedTokenMeta, ResolvedStyleDefinition } from '../create-style-definition'
 import { FORWARDED_TOKEN_META } from '../create-style-definition'
 import { isPlainObject } from './is-plain-object'
+import { deepFreezeNDCopy, flattenNDValue, getEffectiveTopology, getRank1States } from './ndarray'
 
 export function buildResolvedStyleDefinition<
     TSchema extends StateSchema<any>,
@@ -38,6 +39,15 @@ export function buildResolvedStyleDefinition<
         if (Array.isArray(val)) {
             if (meta) {
                 forwardedBridges[key] = meta
+            }
+            const topology = getEffectiveTopology(schema)
+            if (topology.rank > 1) {
+                flattenNDValue(topology, key, val)
+                normalizedTokens[key] = deepFreezeNDCopy(val)
+                continue
+            }
+            if (topology.rank === 0) {
+                throw new Error(`[createStyleDefinition] Token '${key}' uses an array but the schema holds a single combination: only stateless values are allowed.`)
             }
             normalizedTokens[key] = Object.freeze([...val])
             continue
@@ -76,11 +86,20 @@ export function buildResolvedStyleDefinition<
         result[key] = val
 
         if (Array.isArray(val) && schema?.states) {
-            for (let i = 0; i < schema.states.length; i++) {
-                const sVal = val[i]
-                if (sVal !== null && sVal !== undefined) {
-                    const stateName = schema.states[i]
-                    result[`${stateName}-${key}`] = sVal
+            const topology = getEffectiveTopology(schema)
+            if (topology.rank > 1) {
+                for (const cell of flattenNDValue(topology, key, val)) {
+                    result[`${cell.canonical}-${key}`] = cell.value
+                }
+            } else {
+                const rank1 = getRank1States(topology)
+                const names = rank1 !== null && val.length === rank1.length ? rank1 : schema.states
+                for (let i = 0; i < names.length; i++) {
+                    const sVal = val[i]
+                    if (sVal !== null && sVal !== undefined) {
+                        const stateName = names[i]
+                        result[`${stateName}-${key}`] = sVal
+                    }
                 }
             }
         } else if (

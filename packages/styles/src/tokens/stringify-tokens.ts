@@ -7,6 +7,7 @@
 import { MDCStyleSheet } from '../foundation'
 import type { StateSchema } from '../schema'
 import type { ResolvedStyleDefinition, TokenValue, PrimitiveTokenValue } from '../schema'
+import { flattenNDValue, getEffectiveTopology, getRank1States } from '../schema/internal/ndarray'
 import {
     normalizeOptions,
     formatTokenValue,
@@ -77,6 +78,10 @@ export function stringifyTokens(
         const schema = (definition as any).schema
         const states: readonly string[] = schema?.states ?? (Array.isArray((definition as any).states) ? (definition as any).states : ['enabled'])
         const baseState = states[0] ?? 'enabled'
+        const topology = getEffectiveTopology(schema)
+        const baseComboName = schema && topology.rank > 1
+            ? topology.dims.map(dim => dim[0]).join('-')
+            : baseState
 
         const tokensObj = (('tokens' in definition && typeof (definition as any).tokens === 'object' && (definition as any).tokens !== null)
             ? (definition as any).tokens
@@ -98,8 +103,23 @@ export function stringifyTokens(
 
             if (Array.isArray(rawValue)) {
                 tokenMultiStateMap.set(cleanKey, true)
-                for (let i = 0; i < states.length; i++) {
-                    const stateName = states[i]
+                if (schema && topology.rank > 1) {
+                    for (const cell of flattenNDValue(topology, cleanKey, rawValue)) {
+                        const cellVal = formatTokenValue(cell.value)
+                        if (cellVal.length > 0) {
+                            if (options.includePublicVars) {
+                                declarations.push(`--_${cell.canonical}-${cleanKey}: var(${options.prefix}-${cell.canonical}-${cleanKey}, ${cellVal});`)
+                            } else {
+                                declarations.push(`--_${cell.canonical}-${cleanKey}: ${cellVal};`)
+                            }
+                        }
+                    }
+                    continue
+                }
+                const rank1 = schema ? getRank1States(topology) : null
+                const names = rank1 !== null && rawValue.length === rank1.length ? rank1 : states
+                for (let i = 0; i < names.length; i++) {
+                    const stateName = names[i]
                     const stateVal = formatTokenValue(rawValue[i])
                     if (stateVal.length > 0) {
                         if (options.includePublicVars) {
@@ -154,7 +174,7 @@ export function stringifyTokens(
                 const isMultiState = tokenMultiStateMap.get(cleanParent) ?? false
 
                 const privateVarName = isMultiState
-                    ? `--_${baseState}-${cleanParent}`
+                    ? `--_${baseComboName}-${cleanParent}`
                     : `--_${cleanParent}`
 
                 declarations.push(`${targetPrefix}-${childKey}: var(${privateVarName});`)

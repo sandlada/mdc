@@ -5,7 +5,7 @@
  */
 
 import type { CSSLike } from '../foundation'
-import { defineSchema, type StateSchema } from './define-schema'
+import { defineSchema, type FlattenDimensions, type StateSchema } from './define-schema'
 import { buildResolvedStyleDefinition } from './internal/build-resolved-style-definition'
 
 export const FORWARDED_TOKEN_META = Symbol.for('mdc.styles.forwarded_token_meta')
@@ -23,10 +23,69 @@ export type StateRecord<TStates extends readonly string[], TValue = PrimitiveTok
     readonly [K in TStates[number]]?: TValue
 }
 
+/**
+ * Loose recursive n-dimensional positional array (rank validated at runtime
+ * against the schema topology; see `./internal/ndarray`).
+ */
+export interface NDTokenArray<TValue = PrimitiveTokenValue> extends ReadonlyArray<TValue | null | undefined | NDTokenArray<TValue>> {}
+
 export type TokenValue<TStates extends readonly string[], TValue = PrimitiveTokenValue> =
     | TValue
     | StateTuple<TStates, TValue>
     | StateRecord<TStates, TValue>
+    | NDTokenArray<TValue>
+
+/**
+ * Filters singleton dimensions (exactly one state) out of a dimensions tuple.
+ */
+export type EffectiveDimensions<TDimensions extends readonly (readonly string[])[]> =
+    TDimensions extends readonly [infer First extends readonly string[], ...infer Rest extends readonly (readonly string[])[]]
+        ? First['length'] extends 1
+            ? EffectiveDimensions<Rest>
+            : readonly [First, ...EffectiveDimensions<Rest>]
+        : readonly []
+
+/**
+ * Precise positional array mirroring an effective dimensions tuple:
+ * nesting depth and per-level lengths are enforced positionally.
+ */
+export type NDArrayValue<
+    TDimensions extends readonly (readonly string[])[],
+    TValue = PrimitiveTokenValue
+> =
+    TDimensions extends readonly [infer First extends readonly string[], ...infer Rest extends readonly (readonly string[])[]]
+        ? { readonly [K in keyof First]: NDArrayValue<Rest, TValue> }
+        : TValue | null
+
+/**
+ * Loose joint n-dimensional array (rank 2+): nesting depth and per-level
+ * lengths are validated at runtime with exact-shape errors, so computed
+ * construction (`.map` over scale tables) stays ergonomic. Literals that
+ * match the precise {@link NDArrayValue} shape additionally enjoy
+ * compile-time length checking.
+ */
+export type NDJointArray<TValue = PrimitiveTokenValue> = readonly NDTokenArray<TValue>[]
+
+/**
+ * Author-facing token value union for a concrete StateSchema: rank 0 admits
+ * only stateless primitives, rank 1 admits legacy 1D tuples/records plus 1D
+ * positional arrays, rank 2+ admits flat separable records plus joint
+ * n-dimensional arrays (flat tuples are rejected: order would be ambiguous).
+ */
+export type TokenValueForSchema<
+    TSchema extends StateSchema<any, any>,
+    TValue = PrimitiveTokenValue
+> = TSchema extends StateSchema<any, infer TDimensions>
+    ? TDimensions extends readonly (readonly string[])[]
+        ? EffectiveDimensions<TDimensions> extends infer TEff extends readonly (readonly string[])[]
+            ? TEff['length'] extends 0
+                ? TValue
+                : TEff['length'] extends 1
+                    ? TValue | StateTuple<FlattenDimensions<TEff>, TValue> | StateRecord<FlattenDimensions<TEff>, TValue> | NDArrayValue<TEff, TValue> | NDTokenArray<TValue>
+                    : TValue | StateRecord<FlattenDimensions<TEff>, TValue> | NDArrayValue<TEff, TValue> | NDJointArray<TValue>
+            : never
+        : never
+    : never
 
 export interface ForwardedTokenMeta {
     readonly targetPrefix: string
@@ -71,11 +130,14 @@ export interface ResolvedStyleDefinition<
  * })
  * ```
  */
-export function createStyleDefinition<const TStates extends readonly string[]>(
-    schema: StateSchema<TStates>
-): <const TTokens extends Record<string, TokenValue<TStates, PrimitiveTokenValue>>>(
+export function createStyleDefinition<
+    const TStates extends readonly string[],
+    const TDimensions extends readonly (readonly string[])[]
+>(
+    schema: StateSchema<TStates, TDimensions>
+): <const TTokens extends Record<string, TokenValueForSchema<StateSchema<TStates, TDimensions>, PrimitiveTokenValue>>>(
     tokens: TTokens
-) => ResolvedStyleDefinition<StateSchema<TStates>, TTokens>
+) => ResolvedStyleDefinition<StateSchema<TStates, TDimensions>, TTokens>
 
 export function createStyleDefinition<const TTokens extends Record<string, TokenValue<readonly ['enabled', 'hovered', 'focused', 'pressed', 'disabled'], PrimitiveTokenValue>>>(
     tokens: TTokens

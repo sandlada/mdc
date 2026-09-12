@@ -25,6 +25,14 @@ export const rewriteStateVariables = (
                 return fullMatch
             }
 
+            if (currentStates.length > 1 && meta.isComboToken(tokenName)) {
+                const comboVar = meta.resolveComboVarName(tokenName, currentStates)
+                if (comboVar !== undefined) {
+                    return `var(--_${comboVar}${fallback})`
+                }
+                return fullMatch
+            }
+
             for (const state of currentStates) {
                 if (meta.hasStateToken(tokenName, state)) {
                     const stateVar = meta.resolveStateVarName(tokenName, state)
