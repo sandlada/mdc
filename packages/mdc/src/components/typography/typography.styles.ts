@@ -70,12 +70,19 @@ export const typographyStyles = createStylePart(() => css`
             }
         }
         @layer hcm {
-            @contrast(less) {
+            @forced-colors {
+                :host {
+
+                }
+            }
+        }
+        @layer contrast {
+            @contrast-less {
                 :host {
                     color: CanvasText;
                 }
             }
-            @contrast(more) {
+            @contrast-more {
                 :host {
                     color: CanvasText;
                     font-weight: 700;

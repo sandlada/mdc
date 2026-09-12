@@ -326,7 +326,7 @@ export function maskCommentsPreservingSpans(text: string): string {
 export function extractATRules(cssText: string, globalOffset: number, sourceText: string): ATRuleUsageMeta[] {
     const atRules: ATRuleUsageMeta[] = []
     const masked = maskCommentsPreservingSpans(cssText)
-    const atRuleNameRegex = /@(state|anchor|when|variant|size|slotted|slot|elevation|layer|media|supports|container|keyframes|reduced-motion|forced-colors|contrast|reduced-transparency|starting-style)(?![a-zA-Z0-9_-])/g
+    const atRuleNameRegex = /@(state|anchor|when|variant|size|slotted|slot|elevation|layer|media|supports|container|keyframes|reduced-motion|forced-colors|contrast-more|contrast-less|reduced-transparency|starting-style)(?![a-zA-Z0-9_-])/g
     let match: RegExpExecArray | null
 
     const stack: { meta: ATRuleUsageMeta; endIndex: number }[] = []

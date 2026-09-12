@@ -11,7 +11,7 @@ export const expandA11yPresets = (css: string): string => {
     return css
         .replace(/@reduced-motion\b/g, '@media (prefers-reduced-motion: reduce)')
         .replace(/@forced-colors\b/g, '@media (forced-colors: active)')
-        .replace(/@contrast\s*\(\s*more\s*\)/g, '@media (prefers-contrast: more)')
-        .replace(/@contrast\s*\(\s*less\s*\)/g, '@media (prefers-contrast: less)')
+        .replace(/@contrast-more\b/g, '@media (prefers-contrast: more)')
+        .replace(/@contrast-less\b/g, '@media (prefers-contrast: less)')
         .replace(/@reduced-transparency\b/g, '@media (prefers-reduced-transparency: reduce)')
 }

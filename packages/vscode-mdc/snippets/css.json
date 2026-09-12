@@ -1,0 +1,272 @@
+{
+    "MD Sys Color Primary Palette Key Color": {
+        "prefix": "--md-sys-color-primary-palette-key-color",
+        "body": "--md-sys-color-primary-palette-key-color",
+        "description": "MD system token --md-sys-color-primary-palette-key-color."
+    },
+    "MD Sys Color Secondary Palette Key Color": {
+        "prefix": "--md-sys-color-secondary-palette-key-color",
+        "body": "--md-sys-color-secondary-palette-key-color",
+        "description": "MD system token --md-sys-color-secondary-palette-key-color."
+    },
+    "MD Sys Color Tertiary Palette Key Color": {
+        "prefix": "--md-sys-color-tertiary-palette-key-color",
+        "body": "--md-sys-color-tertiary-palette-key-color",
+        "description": "MD system token --md-sys-color-tertiary-palette-key-color."
+    },
+    "MD Sys Color Neutral Palette Key Color": {
+        "prefix": "--md-sys-color-neutral-palette-key-color",
+        "body": "--md-sys-color-neutral-palette-key-color",
+        "description": "MD system token --md-sys-color-neutral-palette-key-color."
+    },
+    "MD Sys Color Neutral Variant Palette Key Color": {
+        "prefix": "--md-sys-color-neutral-variant-palette-key-color",
+        "body": "--md-sys-color-neutral-variant-palette-key-color",
+        "description": "MD system token --md-sys-color-neutral-variant-palette-key-color."
+    },
+    "MD Sys Color Background": {
+        "prefix": "--md-sys-color-background",
+        "body": "--md-sys-color-background",
+        "description": "MD system token --md-sys-color-background."
+    },
+    "MD Sys Color On Background": {
+        "prefix": "--md-sys-color-on-background",
+        "body": "--md-sys-color-on-background",
+        "description": "MD system token --md-sys-color-on-background."
+    },
+    "MD Sys Color Surface": {
+        "prefix": "--md-sys-color-surface",
+        "body": "--md-sys-color-surface",
+        "description": "MD system token --md-sys-color-surface."
+    },
+    "MD Sys Color Surface Dim": {
+        "prefix": "--md-sys-color-surface-dim",
+        "body": "--md-sys-color-surface-dim",
+        "description": "MD system token --md-sys-color-surface-dim."
+    },
+    "MD Sys Color Surface Bright": {
+        "prefix": "--md-sys-color-surface-bright",
+        "body": "--md-sys-color-surface-bright",
+        "description": "MD system token --md-sys-color-surface-bright."
+    },
+    "MD Sys Color Surface Container Lowest": {
+        "prefix": "--md-sys-color-surface-container-lowest",
+        "body": "--md-sys-color-surface-container-lowest",
+        "description": "MD system token --md-sys-color-surface-container-lowest."
+    },
+    "MD Sys Color Surface Container Low": {
+        "prefix": "--md-sys-color-surface-container-low",
+        "body": "--md-sys-color-surface-container-low",
+        "description": "MD system token --md-sys-color-surface-container-low."
+    },
+    "MD Sys Color Surface Container": {
+        "prefix": "--md-sys-color-surface-container",
+        "body": "--md-sys-color-surface-container",
+        "description": "MD system token --md-sys-color-surface-container."
+    },
+    "MD Sys Color Surface Container High": {
+        "prefix": "--md-sys-color-surface-container-high",
+        "body": "--md-sys-color-surface-container-high",
+        "description": "MD system token --md-sys-color-surface-container-high."
+    },
+    "MD Sys Color Surface Container Highest": {
+        "prefix": "--md-sys-color-surface-container-highest",
+        "body": "--md-sys-color-surface-container-highest",
+        "description": "MD system token --md-sys-color-surface-container-highest."
+    },
+    "MD Sys Color On Surface": {
+        "prefix": "--md-sys-color-on-surface",
+        "body": "--md-sys-color-on-surface",
+        "description": "MD system token --md-sys-color-on-surface."
+    },
+    "MD Sys Color Surface Variant": {
+        "prefix": "--md-sys-color-surface-variant",
+        "body": "--md-sys-color-surface-variant",
+        "description": "MD system token --md-sys-color-surface-variant."
+    },
+    "MD Sys Color On Surface Variant": {
+        "prefix": "--md-sys-color-on-surface-variant",
+        "body": "--md-sys-color-on-surface-variant",
+        "description": "MD system token --md-sys-color-on-surface-variant."
+    },
+    "MD Sys Color Inverse Surface": {
+        "prefix": "--md-sys-color-inverse-surface",
+        "body": "--md-sys-color-inverse-surface",
+        "description": "MD system token --md-sys-color-inverse-surface."
+    },
+    "MD Sys Color Inverse On Surface": {
+        "prefix": "--md-sys-color-inverse-on-surface",
+        "body": "--md-sys-color-inverse-on-surface",
+        "description": "MD system token --md-sys-color-inverse-on-surface."
+    },
+    "MD Sys Color Outline": {
+        "prefix": "--md-sys-color-outline",
+        "body": "--md-sys-color-outline",
+        "description": "MD system token --md-sys-color-outline."
+    },
+    "MD Sys Color Outline Variant": {
+        "prefix": "--md-sys-color-outline-variant",
+        "body": "--md-sys-color-outline-variant",
+        "description": "MD system token --md-sys-color-outline-variant."
+    },
+    "MD Sys Color Shadow": {
+        "prefix": "--md-sys-color-shadow",
+        "body": "--md-sys-color-shadow",
+        "description": "MD system token --md-sys-color-shadow."
+    },
+    "MD Sys Color Scrim": {
+        "prefix": "--md-sys-color-scrim",
+        "body": "--md-sys-color-scrim",
+        "description": "MD system token --md-sys-color-scrim."
+    },
+    "MD Sys Color Surface Tint": {
+        "prefix": "--md-sys-color-surface-tint",
+        "body": "--md-sys-color-surface-tint",
+        "description": "MD system token --md-sys-color-surface-tint."
+    },
+    "MD Sys Color Primary": {
+        "prefix": "--md-sys-color-primary",
+        "body": "--md-sys-color-primary",
+        "description": "MD system token --md-sys-color-primary."
+    },
+    "MD Sys Color On Primary": {
+        "prefix": "--md-sys-color-on-primary",
+        "body": "--md-sys-color-on-primary",
+        "description": "MD system token --md-sys-color-on-primary."
+    },
+    "MD Sys Color Primary Container": {
+        "prefix": "--md-sys-color-primary-container",
+        "body": "--md-sys-color-primary-container",
+        "description": "MD system token --md-sys-color-primary-container."
+    },
+    "MD Sys Color On Primary Container": {
+        "prefix": "--md-sys-color-on-primary-container",
+        "body": "--md-sys-color-on-primary-container",
+        "description": "MD system token --md-sys-color-on-primary-container."
+    },
+    "MD Sys Color Inverse Primary": {
+        "prefix": "--md-sys-color-inverse-primary",
+        "body": "--md-sys-color-inverse-primary",
+        "description": "MD system token --md-sys-color-inverse-primary."
+    },
+    "MD Sys Color Secondary": {
+        "prefix": "--md-sys-color-secondary",
+        "body": "--md-sys-color-secondary",
+        "description": "MD system token --md-sys-color-secondary."
+    },
+    "MD Sys Color On Secondary": {
+        "prefix": "--md-sys-color-on-secondary",
+        "body": "--md-sys-color-on-secondary",
+        "description": "MD system token --md-sys-color-on-secondary."
+    },
+    "MD Sys Color Secondary Container": {
+        "prefix": "--md-sys-color-secondary-container",
+        "body": "--md-sys-color-secondary-container",
+        "description": "MD system token --md-sys-color-secondary-container."
+    },
+    "MD Sys Color On Secondary Container": {
+        "prefix": "--md-sys-color-on-secondary-container",
+        "body": "--md-sys-color-on-secondary-container",
+        "description": "MD system token --md-sys-color-on-secondary-container."
+    },
+    "MD Sys Color Tertiary": {
+        "prefix": "--md-sys-color-tertiary",
+        "body": "--md-sys-color-tertiary",
+        "description": "MD system token --md-sys-color-tertiary."
+    },
+    "MD Sys Color On Tertiary": {
+        "prefix": "--md-sys-color-on-tertiary",
+        "body": "--md-sys-color-on-tertiary",
+        "description": "MD system token --md-sys-color-on-tertiary."
+    },
+    "MD Sys Color Tertiary Container": {
+        "prefix": "--md-sys-color-tertiary-container",
+        "body": "--md-sys-color-tertiary-container",
+        "description": "MD system token --md-sys-color-tertiary-container."
+    },
+    "MD Sys Color On Tertiary Container": {
+        "prefix": "--md-sys-color-on-tertiary-container",
+        "body": "--md-sys-color-on-tertiary-container",
+        "description": "MD system token --md-sys-color-on-tertiary-container."
+    },
+    "MD Sys Color Error": {
+        "prefix": "--md-sys-color-error",
+        "body": "--md-sys-color-error",
+        "description": "MD system token --md-sys-color-error."
+    },
+    "MD Sys Color On Error": {
+        "prefix": "--md-sys-color-on-error",
+        "body": "--md-sys-color-on-error",
+        "description": "MD system token --md-sys-color-on-error."
+    },
+    "MD Sys Color Error Container": {
+        "prefix": "--md-sys-color-error-container",
+        "body": "--md-sys-color-error-container",
+        "description": "MD system token --md-sys-color-error-container."
+    },
+    "MD Sys Color On Error Container": {
+        "prefix": "--md-sys-color-on-error-container",
+        "body": "--md-sys-color-on-error-container",
+        "description": "MD system token --md-sys-color-on-error-container."
+    },
+    "MD Sys Color Primary Fixed": {
+        "prefix": "--md-sys-color-primary-fixed",
+        "body": "--md-sys-color-primary-fixed",
+        "description": "MD system token --md-sys-color-primary-fixed."
+    },
+    "MD Sys Color Primary Fixed Dim": {
+        "prefix": "--md-sys-color-primary-fixed-dim",
+        "body": "--md-sys-color-primary-fixed-dim",
+        "description": "MD system token --md-sys-color-primary-fixed-dim."
+    },
+    "MD Sys Color On Primary Fixed": {
+        "prefix": "--md-sys-color-on-primary-fixed",
+        "body": "--md-sys-color-on-primary-fixed",
+        "description": "MD system token --md-sys-color-on-primary-fixed."
+    },
+    "MD Sys Color On Primary Fixed Variant": {
+        "prefix": "--md-sys-color-on-primary-fixed-variant",
+        "body": "--md-sys-color-on-primary-fixed-variant",
+        "description": "MD system token --md-sys-color-on-primary-fixed-variant."
+    },
+    "MD Sys Color Secondary Fixed": {
+        "prefix": "--md-sys-color-secondary-fixed",
+        "body": "--md-sys-color-secondary-fixed",
+        "description": "MD system token --md-sys-color-secondary-fixed."
+    },
+    "MD Sys Color Secondary Fixed Dim": {
+        "prefix": "--md-sys-color-secondary-fixed-dim",
+        "body": "--md-sys-color-secondary-fixed-dim",
+        "description": "MD system token --md-sys-color-secondary-fixed-dim."
+    },
+    "MD Sys Color On Secondary Fixed": {
+        "prefix": "--md-sys-color-on-secondary-fixed",
+        "body": "--md-sys-color-on-secondary-fixed",
+        "description": "MD system token --md-sys-color-on-secondary-fixed."
+    },
+    "MD Sys Color On Secondary Fixed Variant": {
+        "prefix": "--md-sys-color-on-secondary-fixed-variant",
+        "body": "--md-sys-color-on-secondary-fixed-variant",
+        "description": "MD system token --md-sys-color-on-secondary-fixed-variant."
+    },
+    "MD Sys Color Tertiary Fixed": {
+        "prefix": "--md-sys-color-tertiary-fixed",
+        "body": "--md-sys-color-tertiary-fixed",
+        "description": "MD system token --md-sys-color-tertiary-fixed."
+    },
+    "MD Sys Color Tertiary Fixed Dim": {
+        "prefix": "--md-sys-color-tertiary-fixed-dim",
+        "body": "--md-sys-color-tertiary-fixed-dim",
+        "description": "MD system token --md-sys-color-tertiary-fixed-dim."
+    },
+    "MD Sys Color On Tertiary Fixed": {
+        "prefix": "--md-sys-color-on-tertiary-fixed",
+        "body": "--md-sys-color-on-tertiary-fixed",
+        "description": "MD system token --md-sys-color-on-tertiary-fixed."
+    },
+    "MD Sys Color On Tertiary Fixed Variant": {
+        "prefix": "--md-sys-color-on-tertiary-fixed-variant",
+        "body": "--md-sys-color-on-tertiary-fixed-variant",
+        "description": "MD system token --md-sys-color-on-tertiary-fixed-variant."
+    }
+}

@@ -114,10 +114,10 @@ export const compileAtRulesSheet = (
 
     const tables = options?.tables ?? emptyTables
 
-    if (/@contrast\b(?!\s*\(\s*(more|less)\s*\))/.test(a11yExpanded) && options?.onWarn) {
+    if (/@contrast(?![-a-zA-Z0-9_])/.test(a11yExpanded) && options?.onWarn) {
         options.onWarn({
             type: 'invalid-a11y-macro',
-            message: 'Invalid @contrast syntax. Supported parameters are (more) or (less).'
+            message: 'Invalid @contrast syntax. Use @contrast-more or @contrast-less.'
         })
     }
 

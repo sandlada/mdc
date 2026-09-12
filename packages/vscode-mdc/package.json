@@ -84,6 +84,38 @@
             {
                 "language": "javascript",
                 "path": "./snippets/mdc.json"
+            },
+            {
+                "language": "css",
+                "path": "./snippets/css.json"
+            },
+            {
+                "language": "scss",
+                "path": "./snippets/css.json"
+            },
+            {
+                "language": "less",
+                "path": "./snippets/css.json"
+            },
+            {
+                "language": "typescript",
+                "path": "./snippets/css.json"
+            },
+            {
+                "language": "javascript",
+                "path": "./snippets/css.json"
+            },
+            {
+                "language": "typescriptreact",
+                "path": "./snippets/css.json"
+            },
+            {
+                "language": "javascriptreact",
+                "path": "./snippets/css.json"
+            },
+            {
+                "language": "html",
+                "path": "./snippets/css.json"
             }
         ],
         "typescriptServerPlugins": [
