@@ -7,7 +7,7 @@
 // Single source of truth for the docs site's component list, derived live from
 // the dev-app page folders via import.meta.glob. Vite 8 re-transforms this
 // module whenever a matching page folder is added/removed in dev, so the
-// sidebar and landing grid stay in sync without restarting the server.
+// sidebar sections stay in sync without restarting the server.
 //
 // Each page's `<mdc-docs-page component="..." title="...">` tag declares the
 // component name and its curated display label — parse them here rather than
@@ -41,3 +41,27 @@ export const components: ComponentEntry[] = Object.keys(pageModules)
         const label = attr(tag, /title="([^"]*)"/) ?? titleCase(folder)
         return { name, label, href: `/components/${name}/` }
     })
+
+export const PLAYGROUND_NAME = 'playground'
+
+export const BASE_COMPONENT_ORDER = [
+    'divider',
+    'elevation',
+    'focus-ring',
+    'ripple',
+    'badge',
+    'icon',
+    'typography',
+]
+
+const byName = new Map(components.map((c) => [c.name, c]))
+
+export const playground: ComponentEntry | undefined = byName.get(PLAYGROUND_NAME)
+
+export const baseComponents: ComponentEntry[] = BASE_COMPONENT_ORDER
+    .map((name) => byName.get(name))
+    .filter((c): c is ComponentEntry => c !== undefined)
+
+const excluded = new Set([PLAYGROUND_NAME, ...BASE_COMPONENT_ORDER])
+
+export const regularComponents: ComponentEntry[] = components.filter((c) => !excluded.has(c.name))

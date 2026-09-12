@@ -4,14 +4,17 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { LitElement, html, css } from 'lit'
+import { LitElement, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
+import { consume } from '@lit/context'
+import { docsPageTitleContext } from './contexts/index.js'
 import './base-imports.js'
 import './docs-sidebar.js'
 
 /**
  * `<mdc-docs-shell active="button">` is the full-page layout for the docs site.
- * Provides a sticky sidebar (left), a theme-switch header (top right), and a
+ * Provides a sticky sidebar (left), a header showing the current page title
+ * (via `docsPageTitleContext`) with a theme switch (top right), and a
  * scrolling main slot. Use `<mdc-docs-page>` if you want a one-shot wrapper.
  */
 @customElement('mdc-docs-shell')
@@ -39,10 +42,19 @@ export class DocsShell extends LitElement {
             grid-row: 1 / 2;
             display: flex;
             align-items: center;
-            justify-content: flex-end;
+            justify-content: space-between;
+            gap: 16px;
             padding: 0 16px;
-            border-bottom: 1px solid var(--md-sys-color-outline-variant);
-            background: var(--md-sys-color-surface-container-low);
+            background: var(--md-sys-color-surface);
+        }
+        .page-title {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--md-sys-color-on-surface);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         main {
             grid-column: 2 / 3;
@@ -55,12 +67,17 @@ export class DocsShell extends LitElement {
     @property({ type: String, reflect: true })
     public active: string = ''
 
+    @consume({ context: docsPageTitleContext, subscribe: true })
+    @property({ type: String, attribute: false })
+    public pageTitle: string = ''
+
     public override render() {
         return html`
             <aside>
                 <mdc-docs-sidebar .active=${this.active}></mdc-docs-sidebar>
             </aside>
             <header>
+                <span class="page-title">${this.pageTitle}</span>
                 <mdc-switch
                     id="docs-theme-switch"
                     show-unselected-icon

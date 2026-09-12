@@ -6,13 +6,16 @@
 
 import { LitElement, html, css } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
+import { ContextProvider } from '@lit/context'
 import { getDemo, listDemos } from './demo-loader.js'
+import { docsPageTitleContext } from './contexts/index.js'
 import './docs-shell.js'
 
 /**
  * `<mdc-docs-page component="button">` wraps a component showcase page.
  * Renders a sidebar with the active component highlighted, a theme-switch
- * header, and a default slot for free-form demo content.
+ * header, and a default slot for free-form demo content. Publishes its
+ * `title` via `docsPageTitleContext` so the shell header can display it.
  *
  * For components with `*.demo.html` snippets, use the `demoFiles` attribute
  * (comma-separated basenames) and they will be rendered as labeled sections.
@@ -70,6 +73,26 @@ export class DocsPage extends LitElement {
      */
     @property({ type: String, attribute: 'demo-files' })
     public demoFiles: string = ''
+
+    private titleProvider: ContextProvider<typeof docsPageTitleContext>
+
+    public constructor() {
+        super()
+        this.titleProvider = new ContextProvider(this, { context: docsPageTitleContext })
+    }
+
+    public override connectedCallback(): void {
+        super.connectedCallback()
+        this.publishTitle()
+    }
+
+    protected override updated(): void {
+        this.publishTitle()
+    }
+
+    private publishTitle(): void {
+        this.titleProvider.setValue(this.title || this.component)
+    }
 
     public override render() {
         // Explicitly-ordered demos first (curated via `demo-files`), then any
