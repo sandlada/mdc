@@ -12,7 +12,7 @@ import { RadioValidator } from '../../utils/behaviors/validators/radio-validator
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import { SelectionController } from '../../utils/controller/selection-controller'
 import { getFormState, getFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
-import { BaseButton } from './internal/base-button'
+import { BaseButton } from './button.base'
 
 declare global {
     interface HTMLElementTagNameMap {

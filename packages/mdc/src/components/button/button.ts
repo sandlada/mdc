@@ -6,7 +6,7 @@
 import { customElement, property } from 'lit/decorators.js'
 import { internals } from '../../utils/behaviors/element-internals'
 import { setupFormSubmitter, type FormSubmitter, type FormSubmitterType } from '../../utils/controller/form-submitter'
-import { BaseButton } from './internal/base-button'
+import { BaseButton } from './button.base'
 
 declare global {
     interface HTMLElementTagNameMap {

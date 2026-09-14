@@ -6,16 +6,16 @@
 import { html, isServer, LitElement, nothing, type TemplateResult } from 'lit'
 import { property, query, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
-import type { AriaMixinStrict } from '../../../utils/aria/aria'
-import { mixinDelegatesAria } from '../../../utils/aria/delegate'
-import { mixinElementInternals } from '../../../utils/behaviors/element-internals'
-import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
-import { MeasuredDimensionController } from '../../../utils/controller/measured-dimension-controller'
-import { OpacityTransitionController } from '../../../utils/controller/opacity-transition-controller'
-import { dispatchActivationClick, isActivationClick } from '../../../utils/event/form-label-activation'
-import { mixinElevationOptions } from '../../elevation/elevation-options.mixin'
-import { mixinFocusRingOptions } from '../../focus-ring/focus-ring-options.mixin'
-import { mixinRippleOptions } from '../../ripple/ripple-options.mixin'
+import type { AriaMixinStrict } from '../../utils/aria/aria'
+import { mixinDelegatesAria } from '../../utils/aria/delegate'
+import { mixinElementInternals } from '../../utils/behaviors/element-internals'
+import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
+import { MeasuredDimensionController } from '../../utils/controller/measured-dimension-controller'
+import { OpacityTransitionController } from '../../utils/controller/opacity-transition-controller'
+import { dispatchActivationClick, isActivationClick } from '../../utils/event/form-label-activation'
+import { mixinElevationOptions } from '../elevation/elevation-options.mixin'
+import { mixinFocusRingOptions } from '../focus-ring/focus-ring-options.mixin'
+import { mixinRippleOptions } from '../ripple/ripple-options.mixin'
 import { buttonStyles } from './button.style'
 
 /**
@@ -116,7 +116,7 @@ export abstract class BaseButton extends composeMixin(
     protected readonly sizeController = new MeasuredDimensionController(this, { target: () => this.labelElement })
     protected readonly opacityController = new OpacityTransitionController(this, { target: () => this.labelElement })
 
-    public override get focusRingControl(): HTMLElement | null {return this.buttonElement }
+    public override get focusRingControl(): HTMLElement | null { return this.buttonElement }
     public override get rippleControl(): HTMLElement | null { return this.buttonElement }
 
     constructor() {

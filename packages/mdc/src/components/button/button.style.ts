@@ -3,15 +3,15 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { css, unsafeCSS } from 'lit'
+import { createStyleSheet, overrideTokens, stringifyTokens } from '@sandlada/styles/adapters/lit'
 import { flow } from '@sandlada/styles/foundation'
 import { emptyTables, withState } from '@sandlada/styles/schema'
-import { createStyleSheet, overrideTokens, stringifyTokens } from '@sandlada/styles/adapters/lit'
-import { ButtonDefinition, ToggleButtonDefinition } from '../button.definition'
-import type { RippleDefinition } from '../../ripple/ripple.definition'
-import type { ElevationDefinition } from '../../elevation/elevation.definition'
-import { FocusRingDefinition } from '../../focus-ring/focus-ring.definition'
-import type { IconDefinition } from '../../icon/icon.definition'
+import { css, unsafeCSS } from 'lit'
+import type { ElevationDefinition } from '../elevation/elevation.definition'
+import { FocusRingDefinition } from '../focus-ring/focus-ring.definition'
+import type { IconDefinition } from '../icon/icon.definition'
+import type { RippleDefinition } from '../ripple/ripple.definition'
+import { ButtonDefinition, ToggleButtonDefinition } from './button.definition'
 
 const buttonTokens = stringifyTokens('--mdc-button')(ButtonDefinition)
 const toggleButtonTokens = stringifyTokens('--mdc-button')(ToggleButtonDefinition)
@@ -153,7 +153,7 @@ const buttonPart = createStyleSheet(tables)(ButtonDefinition)(() => css`
         pointer-events: none;
     }
 
-    .container.extra-small {
+    @state(.container) .container.extra-small {
         height: var(--_extra-small-container-height);
         min-width: calc(64px - var(--_extra-small-container-padding-inline-start) - var(--_extra-small-container-padding-inline-end));
     }
