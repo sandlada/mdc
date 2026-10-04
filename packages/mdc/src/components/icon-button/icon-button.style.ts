@@ -4,37 +4,16 @@
  * SPDX-License-Identifier: MIT
  */
 import { css, unsafeCSS } from 'lit'
-import { FilledIconButtonDefinition, FilledTonalIconButtonDefinition, OutlinedIconButtonDefinition, StandardIconButtonDefinition } from '../../component-definitions/icon-button.definition'
-import type { IconDefinition } from '../../component-definitions/icon.definition'
-import type { RippleDefinition } from '../../component-definitions/ripple.definition'
-import type { FocusRingDefinition } from '../../definitions'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
-import { overrideComponentTokens, stringTokens } from '../../utils/tokens'
+import { FilledIconButtonDefinition, FilledTonalIconButtonDefinition, OutlinedIconButtonDefinition, StandardIconButtonDefinition } from './icon-button.definition'
+import type { IconDefinition } from '../icon/icon.definition'
+import type { RippleDefinition } from '../ripple/ripple.definition'
+import type { FocusRingDefinition } from '../focus-ring/focus-ring.definition'
+import { overrideTokens, stringifyTokens } from '@sandlada/styles/adapters/lit'
 
-const filledIconButtonRecord = defineTokenRefsRecord(FilledIconButtonDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-icon-button'
-})
-const filledString = unsafeCSS(defineVars(filledIconButtonRecord, true).join(''))
-const filledTonalIconButtonRecord = defineTokenRefsRecord(FilledTonalIconButtonDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-icon-button'
-})
-const filledTonalString = unsafeCSS(defineVars(filledTonalIconButtonRecord, true).join(''))
-const outlinedIconButtonRecord = defineTokenRefsRecord(OutlinedIconButtonDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-icon-button'
-})
-const outlinedString = unsafeCSS(defineVars(outlinedIconButtonRecord, true).join(''))
-const standardIconButtonRecord = defineTokenRefsRecord(StandardIconButtonDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-icon-button'
-})
-const standardString = unsafeCSS(defineVars(standardIconButtonRecord, true).join(''))
+const filledString = stringifyTokens('--mdc-icon-button')(FilledIconButtonDefinition)
+const filledTonalString = stringifyTokens('--mdc-icon-button')(FilledTonalIconButtonDefinition)
+const outlinedString = stringifyTokens('--mdc-icon-button')(OutlinedIconButtonDefinition)
+const standardString = stringifyTokens('--mdc-icon-button')(StandardIconButtonDefinition)
 
 type TShapeState = 'container-shape-round' | 'container-shape-square' | 'container-shape-round-selected' | 'container-shape-square-selected' | 'container-shape-pressed-morph'
 type TSize = 'extra-small' | 'small' | 'medium' | 'large' | 'extra-large'
@@ -68,14 +47,14 @@ const getContainerShapes = () => {
     `
 }
 const getRippleStyle = () => {
-    const getStyles = (togglable: boolean, selected: boolean) => unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', {
+    const getStyles = (togglable: boolean, selected: boolean) => overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
         "enabled-hovered-color": togglable ? `var(--_hovered-state-layer-color-toggle-${selected ? 'selected' : 'unselected'})` : `var(--_hovered-state-layer-color)`,
         "enabled-focused-color": togglable ? `var(--_focused-state-layer-color-toggle-${selected ? 'selected' : 'unselected'})` : `var(--_focused-state-layer-color)`,
         "enabled-pressed-color": togglable ? `var(--_pressed-state-layer-color-toggle-${selected ? 'selected' : 'unselected'})` : `var(--_pressed-state-layer-color)`,
         "enabled-hovered-opacity": `var(--_hovered-state-layer-opacity)`,
         "enabled-focused-opacity": `var(--_focused-state-layer-opacity)`,
         "enabled-pressed-opacity": `var(--_pressed-state-layer-opacity)`,
-    })))
+    })()
     return css`
         mdc-ripple { ${getStyles(false, false)}; }
         .togglable.selected mdc-ripple { ${getStyles(true, true)}; }
@@ -86,12 +65,12 @@ const getFocusRingStyles = () => {
     const getShape = (
         size: TSize,
         mode: TShapeState
-    ) => stringTokens(overrideComponentTokens<keyof typeof FocusRingDefinition>('--mdc-focus-ring', {
+    ) => overrideTokens<typeof FocusRingDefinition>('--mdc-focus-ring')({
         'shape-start-start': `min(var(--_${size}-${mode}-start-start), calc(var(--_${size}-container-height) / 2))`,
         'shape-start-end': `min(var(--_${size}-${mode}-start-end), calc(var(--_${size}-container-height) / 2))`,
         'shape-end-end': `min(var(--_${size}-${mode}-end-end), calc(var(--_${size}-container-height) / 2))`,
         'shape-end-start': `min(var(--_${size}-${mode}-end-start), calc(var(--_${size}-container-height) / 2))`,
-    }))
+    })()
     const getSizedShape = (mode: TShapeState) => unsafeCSS(`
         &.extra-small mdc-focus-ring {${getShape('extra-small', mode)};}
         &.small mdc-focus-ring {${getShape('small', mode)};}
@@ -402,11 +381,11 @@ const iconSizeStyle = css`
         width: var(--_extra-large-icon-size);
     }
 
-    .container.extra-small .icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': 'var(--_extra-small-icon-size)', }))};}
-    .container.small .icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': 'var(--_small-icon-size)', }))};}
-    .container.medium .icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': 'var(--_medium-icon-size)', }))};}
-    .container.large .icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': 'var(--_large-icon-size)', }))};}
-    .container.extra-large .icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': 'var(--_extra-large-icon-size)', }))};}
+    .container.extra-small .icon {${overrideTokens<typeof IconDefinition>('--mdc-icon')({ 'enabled-size': 'var(--_extra-small-icon-size)' })()};}
+    .container.small .icon {${overrideTokens<typeof IconDefinition>('--mdc-icon')({ 'enabled-size': 'var(--_small-icon-size)' })()};}
+    .container.medium .icon {${overrideTokens<typeof IconDefinition>('--mdc-icon')({ 'enabled-size': 'var(--_medium-icon-size)' })()};}
+    .container.large .icon {${overrideTokens<typeof IconDefinition>('--mdc-icon')({ 'enabled-size': 'var(--_large-icon-size)' })()};}
+    .container.extra-large .icon {${overrideTokens<typeof IconDefinition>('--mdc-icon')({ 'enabled-size': 'var(--_extra-large-icon-size)' })()};}
 `
 
 const iconSlotStyle = css`

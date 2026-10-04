@@ -4,15 +4,10 @@
  * SPDX-License-Identifier: MIT
  */
 import { css, unsafeCSS } from 'lit'
-import { ProgressIndicatorDefinition } from '../../component-definitions/progress-indicator.definition'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+import { ProgressIndicatorDefinition } from './progress-indicator.definition'
+import { stringifyTokens } from '@sandlada/styles/adapters/lit'
 
-const tokenRecord = defineTokenRefsRecord(ProgressIndicatorDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-progress-indicator'
-})
-const tokenString = unsafeCSS(defineVars(tokenRecord, true).join(''))
+const tokenString = stringifyTokens('--mdc-progress-indicator')(ProgressIndicatorDefinition)
 
 // ── Animation constants (match @material/web / MDC) ─────────────────────────
 const determinateDuration = unsafeCSS(`250ms`)

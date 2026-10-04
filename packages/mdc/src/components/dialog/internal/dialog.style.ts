@@ -3,17 +3,12 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { Color } from '../../../utils/tokens/theme'
+import { Color } from '../../../utils/color'
 import { css, unsafeCSS } from 'lit'
-import { BasicDialogDefinition } from '../../../component-definitions/dialog.definition'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+import { BasicDialogDefinition } from '../dialog.definition'
+import { stringifyTokens } from '@sandlada/styles/adapters/lit'
 
-const tokenRecord = defineTokenRefsRecord(BasicDialogDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-basic-dialog'
-})
-const basicDialogTokenString = unsafeCSS(defineVars(tokenRecord, true).join(''))
+const basicDialogTokenString = stringifyTokens('--mdc-basic-dialog')(BasicDialogDefinition)
 
 const scrimColor = unsafeCSS(Color.Scrim)
 

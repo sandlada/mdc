@@ -4,16 +4,12 @@
  * SPDX-License-Identifier: MIT
  */
 import { css } from 'lit'
-import { IconDefinition } from '../../component-definitions/icon.definition'
-import { pipe } from '../../utils/styles'
-import { createStyleSheet, stringifyTokens } from '../../utils/styles/lit'
+import { IconDefinition } from './icon.definition'
+import { createStyleSheet, stringifyTokens } from '@sandlada/styles/adapters/lit'
 
 const tokens = stringifyTokens('--mdc-icon')(IconDefinition)
 
-const stylePart = pipe(
-    createStyleSheet
-)(IconDefinition)(() => css`
-:host {
+const stylePart = createStyleSheet(IconDefinition)(() => `
     @layer mdc.icon.component {
         :host {
             font-size: var(--_size);
@@ -114,7 +110,9 @@ export const styles = [
     }
     @layer mdc.icon.transparncy {
         @media (prefers-reduced-transparency: reduce) {
+            :host {
 
+            }
         }
     }
 `

@@ -8,24 +8,20 @@ import { css, unsafeCSS } from 'lit'
 import {
     PlainTooltipDefinition,
     RichTooltipDefinition,
-} from '../../component-definitions/tooltip.definition'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+} from './tooltip.definition'
+import { stringifyTokens } from '@sandlada/styles/adapters/lit'
 
-const plainTokens = defineVars(defineTokenRefsRecord(PlainTooltipDefinition, {
-    expandShapes: true, useBaseFallback: true, prefix: '--mdc-tooltip',
-}), true).join('')
+const plainTokens = stringifyTokens('--mdc-tooltip')(PlainTooltipDefinition)
 
-const richTokens = defineVars(defineTokenRefsRecord(RichTooltipDefinition, {
-    expandShapes: true, useBaseFallback: true, prefix: '--mdc-tooltip',
-}), true).join('')
+const richTokens = stringifyTokens('--mdc-tooltip')(RichTooltipDefinition)
 
 const emphasizedDecelerateEasing = unsafeCSS(Easing.EmphasizedDecelerate.ToCSSValue())
 const emphasizedAccelerateEasing = unsafeCSS(Easing.EmphasizedAccelerate.ToCSSValue())
 
 export const TooltipStyles = css`
     @layer mdc.tooltip.variable {
-        :host(:not([rich])) { ${unsafeCSS(plainTokens)}; }
-        :host([rich]) { ${unsafeCSS(richTokens)}; }
+        :host(:not([rich])) { ${plainTokens}; }
+        :host([rich]) { ${richTokens}; }
     }
 
     @layer mdc.tooltip.base {

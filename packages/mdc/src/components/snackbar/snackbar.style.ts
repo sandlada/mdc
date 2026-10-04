@@ -5,7 +5,7 @@
  */
 import { Easing } from '@sandlada/mdk'
 import { css, unsafeCSS } from 'lit'
-import type { IconDefinition } from '../../component-definitions/icon.definition'
+import type { IconDefinition } from '../icon/icon.definition'
 import {
     ErrorContainerSnackbarDefinition,
     ErrorSnackbarDefinition,
@@ -18,89 +18,33 @@ import {
     TertiaryContainerSnackbarDefinition,
     TertiarySnackbarDefinition,
     SurfaceSnackbarDefinition,
-} from '../../component-definitions/snackbar.definition'
-import { overrideComponentTokens, stringTokens } from '../../utils/tokens'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+} from './snackbar.definition'
+import { overrideTokens, stringifyTokens } from '@sandlada/styles/adapters/lit'
 
 // ─── Base token record (used for variable layer default) ────────────────────
-const tokenRecord = defineTokenRefsRecord(SnackbarDefinition, {
-    expandShapes: true,
-    useBaseFallback: true,
-    prefix: '--mdc-snackbar',
-})
-const tokenString = defineVars(tokenRecord, true).join('')
+const tokenString = stringifyTokens('--mdc-snackbar')(SnackbarDefinition)
 
 // ─── Per-variant token records ──────────────────────────────────────────────
 
-const surfaceTokenRecord = defineTokenRefsRecord(SurfaceSnackbarDefinition, {
-    expandShapes: true,
-    useBaseFallback: true,
-    prefix: '--mdc-snackbar',
-})
-const surfaceTokenString = unsafeCSS(defineVars(surfaceTokenRecord, true).join(''))
+const surfaceTokenString = stringifyTokens('--mdc-snackbar')(SurfaceSnackbarDefinition)
 
-const inverseSurfaceTokenRecord = defineTokenRefsRecord(InverseSurfaceSnackbarDefinition, {
-    expandShapes: true,
-    useBaseFallback: true,
-    prefix: '--mdc-snackbar',
-})
-const inverseSurfaceTokenString = unsafeCSS(defineVars(inverseSurfaceTokenRecord, true).join(''))
+const inverseSurfaceTokenString = stringifyTokens('--mdc-snackbar')(InverseSurfaceSnackbarDefinition)
 
-const primaryTokenRecord = defineTokenRefsRecord(PrimarySnackbarDefinition, {
-    expandShapes: true,
-    useBaseFallback: true,
-    prefix: '--mdc-snackbar',
-})
-const primaryTokenString = unsafeCSS(defineVars(primaryTokenRecord, true).join(''))
+const primaryTokenString = stringifyTokens('--mdc-snackbar')(PrimarySnackbarDefinition)
 
-const secondaryTokenRecord = defineTokenRefsRecord(SecondarySnackbarDefinition, {
-    expandShapes: true,
-    useBaseFallback: true,
-    prefix: '--mdc-snackbar',
-})
-const secondaryTokenString = unsafeCSS(defineVars(secondaryTokenRecord, true).join(''))
+const secondaryTokenString = stringifyTokens('--mdc-snackbar')(SecondarySnackbarDefinition)
 
-const tertiaryTokenRecord = defineTokenRefsRecord(TertiarySnackbarDefinition, {
-    expandShapes: true,
-    useBaseFallback: true,
-    prefix: '--mdc-snackbar',
-})
-const tertiaryTokenString = unsafeCSS(defineVars(tertiaryTokenRecord, true).join(''))
+const tertiaryTokenString = stringifyTokens('--mdc-snackbar')(TertiarySnackbarDefinition)
 
-const errorTokenRecord = defineTokenRefsRecord(ErrorSnackbarDefinition, {
-    expandShapes: true,
-    useBaseFallback: true,
-    prefix: '--mdc-snackbar',
-})
-const errorTokenString = unsafeCSS(defineVars(errorTokenRecord, true).join(''))
+const errorTokenString = stringifyTokens('--mdc-snackbar')(ErrorSnackbarDefinition)
 
-const primaryContainerTokenRecord = defineTokenRefsRecord(PrimaryContainerSnackbarDefinition, {
-    expandShapes: true,
-    useBaseFallback: true,
-    prefix: '--mdc-snackbar',
-})
-const primaryContainerTokenString = unsafeCSS(defineVars(primaryContainerTokenRecord, true).join(''))
+const primaryContainerTokenString = stringifyTokens('--mdc-snackbar')(PrimaryContainerSnackbarDefinition)
 
-const secondaryContainerTokenRecord = defineTokenRefsRecord(SecondaryContainerSnackbarDefinition, {
-    expandShapes: true,
-    useBaseFallback: true,
-    prefix: '--mdc-snackbar',
-})
-const secondaryContainerTokenString = unsafeCSS(defineVars(secondaryContainerTokenRecord, true).join(''))
+const secondaryContainerTokenString = stringifyTokens('--mdc-snackbar')(SecondaryContainerSnackbarDefinition)
 
-const tertiaryContainerTokenRecord = defineTokenRefsRecord(TertiaryContainerSnackbarDefinition, {
-    expandShapes: true,
-    useBaseFallback: true,
-    prefix: '--mdc-snackbar',
-})
-const tertiaryContainerTokenString = unsafeCSS(defineVars(tertiaryContainerTokenRecord, true).join(''))
+const tertiaryContainerTokenString = stringifyTokens('--mdc-snackbar')(TertiaryContainerSnackbarDefinition)
 
-const errorContainerTokenRecord = defineTokenRefsRecord(ErrorContainerSnackbarDefinition, {
-    expandShapes: true,
-    useBaseFallback: true,
-    prefix: '--mdc-snackbar',
-})
-const errorContainerTokenString = unsafeCSS(defineVars(errorContainerTokenRecord, true).join(''))
+const errorContainerTokenString = stringifyTokens('--mdc-snackbar')(ErrorContainerSnackbarDefinition)
 
 // ─── Easings ────────────────────────────────────────────────────────────────
 
@@ -109,15 +53,15 @@ const emphasizedAccelerateEasing = unsafeCSS(Easing.EmphasizedAccelerate.ToCSSVa
 
 // ─── Icon override styles ───────────────────────────────────────────────────
 
-const iconStyles = stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', {
+const iconStyles = overrideTokens<typeof IconDefinition>('--mdc-icon')({
     'enabled-size': `var(--_icon-size)`,
-}))
+})()
 
 // ─── Base styles ────────────────────────────────────────────────────────────
 
 const base = css`
     @layer mdc.snackbar.variable {
-        :host { ${unsafeCSS(tokenString)}; }
+        :host { ${tokenString}; }
     }
 
     @layer mdc.snackbar.base {
@@ -190,7 +134,7 @@ const base = css`
             justify-content: center;
             flex-shrink: 0;
             color: var(--_enabled-icon-color);
-            ${unsafeCSS(iconStyles)};
+            ${iconStyles};
         }
 
         .container:not(.has-icon) .icon {

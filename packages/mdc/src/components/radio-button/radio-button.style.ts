@@ -5,17 +5,11 @@
  */
 import { Easing } from '@sandlada/mdk'
 import { css, unsafeCSS } from 'lit'
-import { RadioButtonDefinition } from '../../component-definitions/radio-button.definition'
-import type { RippleDefinition } from '../../component-definitions/ripple.definition'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
-import { overrideComponentTokens, stringTokens } from '../../utils/tokens'
+import { RadioButtonDefinition } from './radio-button.definition'
+import type { RippleDefinition } from '../ripple/ripple.definition'
+import { overrideTokens, stringifyTokens } from '@sandlada/styles/adapters/lit'
 
-const tokenRecord = defineTokenRefsRecord(RadioButtonDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-radio-button'
-})
-const tokenString = unsafeCSS(defineVars(tokenRecord, true).join(''))
+const tokenString = stringifyTokens('--mdc-radio-button')(RadioButtonDefinition)
 
 export const radioButtonStyle = css`
     @layer mdc.radio-button {
@@ -81,13 +75,13 @@ export const radioButtonStyle = css`
             .unselected .outer {
                 r: 9px;
                 stroke: var(--_enabled-icon-color-unselected);
-                transition-timing-function: ${unsafeCSS(Easing.Emphasized)};
+                transition-timing-function: ${unsafeCSS(Easing.Emphasized.ToCSSVariable())};
                 transition-duration: 250ms;
             }
             .selected .outer {
                 r: 8px;
                 stroke: var(--_enabled-icon-color-selected);
-                transition-timing-function: ${unsafeCSS(Easing.EmphasizedDecelerate)};
+                transition-timing-function: ${unsafeCSS(Easing.EmphasizedDecelerate.ToCSSVariable())};
                 transition-duration: 300ms;
             }
 
@@ -99,7 +93,7 @@ export const radioButtonStyle = css`
                 stroke-width: 0px;
                 stroke: var(--_enabled-icon-color-unselected);
                 opacity: 0;
-                transition-timing-function: ${unsafeCSS(Easing.Emphasized)};
+                transition-timing-function: ${unsafeCSS(Easing.Emphasized.ToCSSVariable())};
                 transition-duration: 250ms;
             }
             .selected .inner {
@@ -107,7 +101,7 @@ export const radioButtonStyle = css`
                 stroke-width: 5px;
                 stroke: var(--_enabled-icon-color-selected);
                 opacity: 1;
-                transition-timing-function: ${unsafeCSS(Easing.EmphasizedDecelerate)};
+                transition-timing-function: ${unsafeCSS(Easing.EmphasizedDecelerate.ToCSSVariable())};
                 transition-duration: 300ms;
             }
 
@@ -167,20 +161,20 @@ export const radioButtonStyle = css`
                 width: var(--_state-layer-size);
             }
             .container.selected mdc-ripple {
-                ${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', {
+                ${overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
                     'enabled-hovered-color': `var(--_hovered-state-layer-color-selected)`,
                     'enabled-hovered-opacity': `var(--_hovered-state-layer-opacity-selected)`,
                     'enabled-pressed-color': `var(--_pressed-state-layer-color-selected)`,
                     'enabled-pressed-opacity': `var(--_pressed-state-layer-opacity-selected)`,
-                })))}
+                })()}
             }
             .container:not(.selected) mdc-ripple {
-                ${unsafeCSS(stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', {
+                ${overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
                     'enabled-hovered-color': `var(--_hovered-state-layer-color-unselected)`,
                     'enabled-hovered-opacity': `var(--_hovered-state-layer-opacity-unselected)`,
                     'enabled-pressed-color': `var(--_pressed-state-layer-color-unselected)`,
                     'enabled-pressed-opacity': `var(--_pressed-state-layer-opacity-unselected)`,
-                })))}
+                })()}
             }
         }
 

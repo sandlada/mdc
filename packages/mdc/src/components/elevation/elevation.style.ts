@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: MIT
  */
 import { css } from 'lit'
-import { ElevationDefinition } from '../../component-definitions/elevation.definition'
-import { createStyleSheet, stringifyTokens } from '../../utils/styles/lit'
+import { ElevationDefinition } from './elevation.definition'
+import { createStyleSheet, stringifyTokens } from '@sandlada/styles/adapters/lit'
 
 const tokens = stringifyTokens('--mdc-elevation')(ElevationDefinition)
 

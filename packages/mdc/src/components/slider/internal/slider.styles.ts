@@ -1,16 +1,10 @@
 import { Duration, Easing, Shape } from '@sandlada/mdk'
 import { css, unsafeCSS } from 'lit'
-import { ElevationDefinition } from '../../../component-definitions/elevation.definition'
-import { SliderDefinitionVersion2 } from '../../../component-definitions/slider.definition'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
-import { overrideComponentTokens, stringTokens } from '../../../utils/tokens'
+import { ElevationDefinition } from '../../elevation/elevation.definition'
+import { SliderDefinitionVersion2 } from '../slider.definition'
+import { overrideTokens, stringifyTokens } from '@sandlada/styles/adapters/lit'
 
-const tokenRecord = defineTokenRefsRecord(SliderDefinitionVersion2, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-slider'
-})
-const tokensStringified = unsafeCSS(defineVars(tokenRecord, true).join(''))
+const tokensStringified = stringifyTokens('--mdc-slider')(SliderDefinitionVersion2)
 
 const medium1Duration = unsafeCSS(Duration.Medium1.ToCSSVariable())
 const short2Duration = unsafeCSS(Duration.Short2.ToCSSVariable())
@@ -31,10 +25,10 @@ export const sliderStyles = [
             min-inline-size: 200px;
 
             /* Elevation for the handle nub (see _slider.scss elevation.theme). */
-            ${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
+            ${overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
                 'enabled-level': `var(--_enabled-handle-elevation)`,
                 'enabled-shadow-color': `var(--_enabled-handle-shadow-color)`,
-            }))};
+            })()};
         }
 
         /* Note, opacity for active track and handle is controlled via host.
@@ -43,9 +37,9 @@ export const sliderStyles = [
         :host([disabled]) {
             opacity: var(--_disabled-active-track-opacity);
 
-            ${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
+            ${overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
                 'enabled-level': `var(--_disabled-handle-elevation)`,
-            }))};
+            })()};
         }
         mdc-focus-ring {
             inset: unset;

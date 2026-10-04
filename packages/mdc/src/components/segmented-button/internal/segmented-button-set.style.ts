@@ -3,16 +3,11 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { css, unsafeCSS } from 'lit'
-import { OutlinedSegmentedButtonSetDefinition } from '../../../component-definitions/segmented-button.definition'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+import { css } from 'lit'
+import { OutlinedSegmentedButtonSetDefinition } from '../segmented-button.definition'
+import { stringifyTokens } from '@sandlada/styles/adapters/lit'
 
-const tokenRecord = defineTokenRefsRecord(OutlinedSegmentedButtonSetDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-segmented-button',
-})
-const tokenString = unsafeCSS(defineVars(tokenRecord, true).join(''))
+const tokenString = stringifyTokens('--mdc-segmented-button')(OutlinedSegmentedButtonSetDefinition)
 
 export const SegmentedButtonSetStyles = css`
     :host {

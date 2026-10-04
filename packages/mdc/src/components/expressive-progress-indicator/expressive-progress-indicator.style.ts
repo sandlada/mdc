@@ -3,18 +3,14 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
+import { flow } from '@sandlada/styles/foundation'
+import { emptyTables, withState, withVariant } from '@sandlada/styles/schema'
+import { createStyleSheet, stringifyTokens } from '@sandlada/styles/adapters/lit'
 import { css, unsafeCSS } from 'lit'
-import { ExpressiveProgressIndicatorDefinition } from '../../component-definitions/expressive-progress-indicator.definition'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+import { ExpressiveProgressIndicatorDefinition } from './expressive-progress-indicator.definition'
 
-const tokenRecord = defineTokenRefsRecord(ExpressiveProgressIndicatorDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-expressive-progress-indicator'
-})
-const tokenString = unsafeCSS(defineVars(tokenRecord, true).join(''))
+const tokens = stringifyTokens('--mdc-expressive-progress-indicator')(ExpressiveProgressIndicatorDefinition)
 
-// ── Animation constants ─────────────────────────────────────────────────────
 // Determinate motion approximates Compose's `ProgressAnimationSpec`
 // (SpringSpec dampingRatio = NoBouncy, stiffness = VeryLow): a smooth,
 // non-overshooting settle. `cubic-bezier(0.16, 1, 0.3, 1)` gives a springy
@@ -31,13 +27,21 @@ const indeterminateLinearDuration = unsafeCSS(`1750ms`)
 const indeterminateCircularDuration = unsafeCSS(`6000ms`)
 const indeterminateCircularEasing = unsafeCSS(`cubic-bezier(0.4, 0, 0.2, 1)`)
 
-export const ExpressiveProgressIndicatorStyles = css`
-    @layer mdc.expressive-progress-indicator.variable {
-        :host { ${tokenString}; }
-    }
+const tables = flow(
+    withState({
+        'extra-small': `:host([circular-size='extra-small'])`,
+        'small': `:host([circular-size='small'])`,
+        'medium': `:host([circular-size='medium'])`,
+        'large': `:host([circular-size='large'])`
+    }),
+    withVariant({
+        'linear': `:host([variant='linear'])`,
+        'circular': `:host([variant='circular'])`
+    })
+)(emptyTables)
 
+const stylePart = createStyleSheet(tables)(ExpressiveProgressIndicatorDefinition)(() => css`
     @layer mdc.expressive-progress-indicator.base {
-        /* ── Host ──────────────────────────────────────────────────────────── */
         :host([variant='linear']) {
             border-start-start-radius: var(--_track-shape-start-start);
             border-start-end-radius: var(--_track-shape-start-end);
@@ -424,4 +428,14 @@ export const ExpressiveProgressIndicatorStyles = css`
             }
         }
     }
-`
+`)
+
+export const ExpressiveProgressIndicatorStyles = [
+    css`
+        @layer mdc.expressive-progress-indicator {
+            @layer variable, base;
+        }
+    `,
+    css`@layer mdc.expressive-progress-indicator.variable {:host {${tokens};}}`,
+    stylePart
+]

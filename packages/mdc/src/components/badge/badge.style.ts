@@ -3,24 +3,20 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
+import { createStyleSheet, stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { flow } from '@sandlada/styles/foundation'
+import { emptyTables, withState } from '@sandlada/styles/schema'
 import { css } from 'lit'
-import { BadgeDefinition } from '../../component-definitions/badge.definition'
-import {
-    pipe,
-    stringifyTokens,
-    mapStateTriggers,
-    createStyleSheet
-} from '../../utils/styles'
+import { BadgeDefinition } from './badge.definition'
 
 const tokens = stringifyTokens('--mdc-badge')(BadgeDefinition)
 
-const compileBadgeStyles = pipe(
-    mapStateTriggers({
+const compileBadgeStyles = createStyleSheet(flow(
+    withState({
         'small': '.small',
-        'large': '.large',
-    }),
-    createStyleSheet
-)
+        'large': '.large'
+    })
+)(emptyTables))
 
 const stylePart = compileBadgeStyles(BadgeDefinition)(() => css`
     :host {
@@ -39,22 +35,7 @@ const stylePart = compileBadgeStyles(BadgeDefinition)(() => css`
         display: flex;
         align-items: center;
         justify-content: center;
-    }
-
-    @anchor .container {
-        height: var(--_container-size);
-        min-width: var(--_container-size);
         background: var(--_container-color);
-
-        border-start-start-radius: var(--_container-shape-start-start);
-        border-start-end-radius: var(--_container-shape-start-end);
-        border-end-end-radius: var(--_container-shape-end-end);
-        border-end-start-radius: var(--_container-shape-end-start);
-
-        padding-block-start: var(--_container-padding-block-start);
-        padding-block-end: var(--_container-padding-block-end);
-        padding-inline-start: var(--_container-padding-inline-start);
-        padding-inline-end: var(--_container-padding-inline-end);
 
         .label {
             color: var(--_label-color);
@@ -64,6 +45,16 @@ const stylePart = compileBadgeStyles(BadgeDefinition)(() => css`
             letter-spacing: var(--_label-tracking);
             font-weight: var(--_label-weight);
         }
+    }
+
+    @state(.container) .container {
+        shape: var(--_container-shape);
+        height: var(--_container-size);
+        min-width: var(--_container-size);
+        padding-block-start: var(--_container-padding-block-start);
+        padding-block-end: var(--_container-padding-block-end);
+        padding-inline-start: var(--_container-padding-inline-start);
+        padding-inline-end: var(--_container-padding-inline-end);
     }
 
     .label {
@@ -116,8 +107,6 @@ const stylePart = compileBadgeStyles(BadgeDefinition)(() => css`
 `)
 
 export const BadgeStyles = [
-    css`:host {
-        ${tokens}
-    }`,
+    css`:host {${tokens};}`,
     stylePart,
 ]

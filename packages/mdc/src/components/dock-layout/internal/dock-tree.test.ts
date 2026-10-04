@@ -13,8 +13,8 @@ import {
     deserialize,
     type GridNode,
     type LeafNode,
-} from './dock-tree.ts'
-import { projectLayout } from './dock-layout-projection.ts'
+} from './dock-tree'
+import { projectLayout } from './dock-layout-projection'
 
 const makeLeaf = (id: string, view = id): LeafNode => ({ kind: 'leaf', id, view })
 
@@ -179,7 +179,7 @@ test('projectLayout handles nested branches with different orientations', () => 
     assert.deepEqual(rects.get('c'), { x: 100, y: 50, width: 100, height: 50 })
 })
 
-import { evaluate } from './dock-hit-tester.ts'
+import { evaluate } from './dock-hit-tester'
 
 test('hit tester: pointer in center of leaf → merge', () => {
     const tree: GridNode = makeLeaf('a')

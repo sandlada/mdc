@@ -37,15 +37,10 @@
 
 import { Duration, Easing, Shape } from '@sandlada/mdk'
 import { css, unsafeCSS } from 'lit'
-import { SliderDefinition } from '../../component-definitions/slider.definition'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+import { SliderDefinition } from '../slider/slider.definition'
+import { stringifyTokens } from '@sandlada/styles/adapters/lit'
 
-const tokenRecord = defineTokenRefsRecord(SliderDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-expressive-slider',
-})
-const tokensStringified = unsafeCSS(defineVars(tokenRecord, true).join(''))
+const tokensStringified = stringifyTokens('--mdc-expressive-slider')(SliderDefinition)
 
 const short2Duration = unsafeCSS(Duration.Short2.ToCSSVariable())
 const emphasizedEasing = unsafeCSS(Easing.Emphasized.ToCSSVariable())

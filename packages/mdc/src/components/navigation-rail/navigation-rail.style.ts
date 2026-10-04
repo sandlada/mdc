@@ -3,36 +3,21 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+import { stringifyTokens } from '@sandlada/styles/adapters/lit'
 import { css, unsafeCSS } from 'lit'
 import {
     NavigationRailCollapsedDefinition,
     NavigationRailCollapsedXRDefinition,
     NavigationRailExpandedDefinition,
-    NavigationRailVerticalTabDefinition,
-} from '../../definitions'
-import { overrideComponentTokens, stringTokens } from '../../utils'
+} from './navigation-rail.definition'
+import type { NavigationRailVerticalTabDefinition } from '../navigation-tab/navigation-tab.definition'
+import { overrideComponentTokens, stringTokens } from '@sandlada/styles/adapters/lit'
 
-const expanded = defineTokenRefsRecord(NavigationRailExpandedDefinition, {
-    expandShapes: true,
-    prefix: '--mdc-navigation-rail',
-    useBaseFallback: true,
-})
-const expandedString = unsafeCSS(defineVars(expanded, true).join(''))
+const expandedString = stringifyTokens('--mdc-navigation-rail')(NavigationRailExpandedDefinition)
 
-const collapsed = defineTokenRefsRecord(NavigationRailCollapsedDefinition, {
-    expandShapes: true,
-    prefix: '--mdc-navigation-rail',
-    useBaseFallback: true,
-})
-const collapsedString = unsafeCSS(defineVars(collapsed, true).join(''))
+const collapsedString = stringifyTokens('--mdc-navigation-rail')(NavigationRailCollapsedDefinition)
 
-const collapsedXR = defineTokenRefsRecord(NavigationRailCollapsedXRDefinition, {
-    expandShapes: true,
-    prefix: '--mdc-navigation-rail',
-    useBaseFallback: true,
-})
-const collapsedXRString = unsafeCSS(defineVars(collapsedXR, true).join(''))
+const collapsedXRString = stringifyTokens('--mdc-navigation-rail')(NavigationRailCollapsedXRDefinition)
 
 const overrideTab = {
     collapsed: stringTokens(overrideComponentTokens<keyof typeof NavigationRailVerticalTabDefinition>('--mdc-navigation-tab', {
@@ -502,4 +487,3 @@ export const NavigationRailStyles = [
         }
     `,
 ]
-

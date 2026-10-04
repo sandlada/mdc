@@ -3,8 +3,8 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { projectLayout } from './dock-layout-projection.ts'
-import type { Direction, GridNode, Rect } from './dock-tree.ts'
+import { projectLayout } from './dock-layout-projection'
+import type { Direction, GridNode, Rect } from './dock-tree'
 
 /**
  * A drop zone is a single actionable place where a dragged view can land.

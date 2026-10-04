@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 import { describe, expect, it } from 'vitest'
-import { OnThisPageDefinition, OnThisPageItemDefinition } from '../src/component-definitions/on-this-page.definition'
+import { OnThisPageDefinition, OnThisPageItemDefinition } from '../src/components/on-this-page/on-this-page.definition'
 import { OnThisPage } from '../src/components/on-this-page/on-this-page'
 import { OnThisPageItem } from '../src/components/on-this-page/on-this-page-item'
 

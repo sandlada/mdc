@@ -4,12 +4,12 @@
  * SPDX-License-Identifier: MIT
  */
 import { Easing } from '@sandlada/mdk'
+import { overrideTokens, stringifyTokens } from '@sandlada/styles/adapters/lit'
 import { css, unsafeCSS } from 'lit'
-import type { FocusRingDefinition } from '../../component-definitions/focus-ring.definition'
-import type { IconDefinition } from '../../component-definitions/icon.definition'
-import type { RippleDefinition } from '../../component-definitions/ripple.definition'
-import { SwitchDefinition } from '../../component-definitions/switch.definition'
-import { overrideTokens, stringifyTokens } from '../../utils/styles/lit'
+import type { RippleDefinition } from '../ripple/ripple.definition'
+import { SwitchDefinition } from './switch.definition'
+import { FocusRingDefinition } from '../focus-ring/focus-ring.definition'
+import type { IconDefinition } from '../icon/icon.definition'
 
 const tokens = stringifyTokens('--mdc-switch')(SwitchDefinition)
 

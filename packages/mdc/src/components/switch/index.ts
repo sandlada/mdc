@@ -6,3 +6,4 @@
 
 export * from './switch'
 export * from './switch.interface'
+export * from './switch.definition'

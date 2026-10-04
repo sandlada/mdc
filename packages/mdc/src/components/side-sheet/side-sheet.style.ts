@@ -3,32 +3,17 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { css, unsafeCSS } from 'lit'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
-import type { ElevationDefinition } from '../../component-definitions/elevation.definition'
+import { css } from 'lit'
+import type { ElevationDefinition } from '../elevation/elevation.definition'
 import {
     ModalSideSheetDefinition,
     StandardSideSheetDefinition,
-} from '../../component-definitions/side-sheet.definition'
-import { overrideComponentTokens, stringTokens } from '../../utils/tokens'
+} from './side-sheet.definition'
+import { overrideTokens, stringifyTokens } from '@sandlada/styles/adapters/lit'
 
-const standardTokenRecord = defineTokenRefsRecord(StandardSideSheetDefinition, {
-    expandShapes: true,
-    useBaseFallback: true,
-    prefix: '--mdc-side-sheet',
-})
-const standardTokenString = unsafeCSS(
-    defineVars(standardTokenRecord, true).join('')
-)
+const standardTokenString = stringifyTokens('--mdc-side-sheet')(StandardSideSheetDefinition)
 
-const modalTokenRecord = defineTokenRefsRecord(ModalSideSheetDefinition, {
-    expandShapes: true,
-    useBaseFallback: true,
-    prefix: '--mdc-side-sheet',
-})
-const modalTokenString = unsafeCSS(
-    defineVars(modalTokenRecord, true).join('')
-)
+const modalTokenString = stringifyTokens('--mdc-side-sheet')(ModalSideSheetDefinition)
 
 const standardTokens = css`
     dialog.standard {${standardTokenString};}
@@ -39,12 +24,10 @@ const modalTokens = css`
 `
 
 const getElevationStyles = () => {
-    const styles = stringTokens(
-        overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
-            'enabled-level': `var(--_enabled-container-elevation)`,
-            'enabled-shadow-color': `var(--_container-shadow-color)`,
-        })
-    )
+    const styles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
+        'enabled-level': `var(--_enabled-container-elevation)`,
+        'enabled-shadow-color': `var(--_container-shadow-color)`,
+    })()
     return css`
         .container > mdc-elevation {
             ${styles};

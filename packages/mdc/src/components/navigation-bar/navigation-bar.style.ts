@@ -1,13 +1,8 @@
 import { css, unsafeCSS } from 'lit'
-import { NavigationBarDefinition } from '../../definitions'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+import { NavigationBarDefinition } from './navigation-bar.definition'
+import { stringifyTokens } from '@sandlada/styles/adapters/lit'
 
-const tokenRecord = defineTokenRefsRecord(NavigationBarDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-navigation-bar'
-})
-const tS = unsafeCSS(defineVars(tokenRecord, true).join(''))
+const tS = stringifyTokens('--mdc-navigation-bar')(NavigationBarDefinition)
 
 type Direction = 'vertical' | 'horizontal' | 'vertical-xr'
 const Directions = {

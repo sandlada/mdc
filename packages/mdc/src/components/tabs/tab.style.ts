@@ -6,8 +6,8 @@
  * @fileoverview
  * Styles for `mdc-tab`.
  *
- * Three variants consume the same `--_*` internal tokens, redefined per
- * variant via `defineTokenRefsRecord`:
+ * Three variants consume the same `--_*` internal tokens, stringified per
+ * variant via `stringifyTokens`:
  * - `primary`   : MD3 primary tab — full-width cell, 3dp bottom indicator,
  *                 icon stacked above label.
  * - `secondary` : MD3 secondary tab — inline icon + label, 2dp indicator.
@@ -18,62 +18,46 @@
  * indicator) clips itself to the container shape instead.
  */
 import { css, unsafeCSS } from 'lit'
-import { FloatingTabDefinition, IconDefinition, PrimaryTabDefinition, RippleDefinition, SecondaryTabDefinition } from '../../definitions'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
-import { overrideComponentTokens, stringTokens } from '../../utils'
+import { FloatingTabDefinition, PrimaryTabDefinition, SecondaryTabDefinition } from './tab.definition'
+import { IconDefinition } from '../icon/icon.definition'
+import { RippleDefinition } from '../ripple/ripple.definition'
+import { overrideTokens, stringifyTokens } from '@sandlada/styles/adapters/lit'
 
-const primaryRecord = defineTokenRefsRecord(PrimaryTabDefinition, {
-    expandShapes: true,
-    useBaseFallback: true,
-    prefix: '--mdc-tab'
-})
-const primaryTokens = unsafeCSS(defineVars(primaryRecord, true).join(''))
+const primaryTokens = stringifyTokens('--mdc-tab')(PrimaryTabDefinition)
 
-const secondaryRecord = defineTokenRefsRecord(SecondaryTabDefinition, {
-    expandShapes: true,
-    useBaseFallback: true,
-    prefix: '--mdc-tab'
-})
-const secondaryTokens = unsafeCSS(defineVars(secondaryRecord, true).join(''))
+const secondaryTokens = stringifyTokens('--mdc-tab')(SecondaryTabDefinition)
 
-const floatingRecord = defineTokenRefsRecord(FloatingTabDefinition, {
-    expandShapes: true,
-    useBaseFallback: true,
-    prefix: '--mdc-tab'
-})
-const floatingTokens = unsafeCSS(defineVars(floatingRecord, true).join(''))
+const floatingTokens = stringifyTokens('--mdc-tab')(FloatingTabDefinition)
 
 // Wire the tab's state-layer tokens into the ripple, so the ripple draws the
 // MD3 hover / focus / press state layer with the tab's colors & opacities.
 const overrideRipple = {
-    unselected: stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>(
-        '--mdc-ripple',
-        {
-            'enabled-hovered-color'  : 'var(--_hovered-state-layer-color-unselected)',
-            'enabled-hovered-opacity': 'var(--_hovered-state-layer-opacity-unselected)',
-            'enabled-focused-color'  : 'var(--_focused-state-layer-color-unselected)',
-            'enabled-focused-opacity': 'var(--_focused-state-layer-opacity-unselected)',
-            'enabled-pressed-color'  : 'var(--_pressed-state-layer-color-unselected)',
-            'enabled-pressed-opacity': 'var(--_pressed-state-layer-opacity-unselected)',
-        }
-    )),
-    selected: stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>(
-        '--mdc-ripple',
-        {
-            'enabled-hovered-color'  : 'var(--_hovered-state-layer-color-selected)',
-            'enabled-hovered-opacity': 'var(--_hovered-state-layer-opacity-selected)',
-            'enabled-focused-color'  : 'var(--_focused-state-layer-color-selected)',
-            'enabled-focused-opacity': 'var(--_focused-state-layer-opacity-selected)',
-            'enabled-pressed-color'  : 'var(--_pressed-state-layer-color-selected)',
-            'enabled-pressed-opacity': 'var(--_pressed-state-layer-opacity-selected)',
-        }
-    )),
+    unselected: overrideTokens<typeof RippleDefinition>(
+        '--mdc-ripple'
+    )({
+        'enabled-hovered-color'  : 'var(--_hovered-state-layer-color-unselected)',
+        'enabled-hovered-opacity': 'var(--_hovered-state-layer-opacity-unselected)',
+        'enabled-focused-color'  : 'var(--_focused-state-layer-color-unselected)',
+        'enabled-focused-opacity': 'var(--_focused-state-layer-opacity-unselected)',
+        'enabled-pressed-color'  : 'var(--_pressed-state-layer-color-unselected)',
+        'enabled-pressed-opacity': 'var(--_pressed-state-layer-opacity-unselected)',
+    })(),
+    selected: overrideTokens<typeof RippleDefinition>(
+        '--mdc-ripple'
+    )({
+        'enabled-hovered-color'  : 'var(--_hovered-state-layer-color-selected)',
+        'enabled-hovered-opacity': 'var(--_hovered-state-layer-opacity-selected)',
+        'enabled-focused-color'  : 'var(--_focused-state-layer-color-selected)',
+        'enabled-focused-opacity': 'var(--_focused-state-layer-opacity-selected)',
+        'enabled-pressed-color'  : 'var(--_pressed-state-layer-color-selected)',
+        'enabled-pressed-opacity': 'var(--_pressed-state-layer-opacity-selected)',
+    })(),
 }
 
 // Sized icons (e.g. `mdc-icon`) fill the tab's icon slot.
-const overrideIcon = stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', {
+const overrideIcon = overrideTokens<typeof IconDefinition>('--mdc-icon')({
     'enabled-size': 'var(--_icon-size)',
-}))
+})()
 
 export const TabStyles = [
     // ── Variant token blocks ────────────────────────────────────────────────
@@ -173,7 +157,7 @@ export const TabStyles = [
         width: var(--_icon-size);
         height: var(--_icon-size);
         color: var(--_enabled-icon-color-unselected);
-        ${unsafeCSS(overrideIcon)};
+        ${overrideIcon};
         pointer-events: none;
     }
     :host(:hover:not([active])) .icon {

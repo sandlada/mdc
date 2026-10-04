@@ -5,36 +5,33 @@
  */
 import { Easing } from '@sandlada/mdk'
 import { css, unsafeCSS } from 'lit'
-import type { FocusRingDefinition } from '../../../component-definitions/focus-ring.definition'
-import type { IconDefinition } from '../../../component-definitions/icon.definition'
-import type { RippleDefinition } from '../../../component-definitions/ripple.definition'
-import { ListItemDefinition } from '../../../component-definitions/list.definition'
-import { overrideComponentTokens, stringTokens } from '../../../utils/tokens'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+import type { FocusRingDefinition } from '../../focus-ring/focus-ring.definition'
+import type { IconDefinition } from '../../icon/icon.definition'
+import type { RippleDefinition } from '../../ripple/ripple.definition'
+import { ListItemDefinition } from '../list.definition'
+import { overrideTokens, stringifyTokens } from '@sandlada/styles/adapters/lit'
 
 // Token injection for `mdc-list-item`
-const listItemTokens = defineVars(defineTokenRefsRecord(ListItemDefinition, {
-    expandShapes: true, useBaseFallback: true, prefix: '--mdc-list-item',
-}), true).join('')
+const listItemTokens = stringifyTokens('--mdc-list-item')(ListItemDefinition)
 
 const emphasizedEasing = unsafeCSS(Easing.Emphasized.ToCSSValue())
 
-const rippleStyles = stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', {
+const rippleStyles = overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
     'enabled-hovered-color': `var(--_hovered-state-layer-color)`,
     'enabled-focused-color': `var(--_focused-state-layer-color)`,
     'enabled-pressed-color': `var(--_pressed-state-layer-color)`,
     'enabled-hovered-opacity': `var(--_hovered-state-layer-opacity)`,
     'enabled-focused-opacity': `var(--_focused-state-layer-opacity)`,
     'enabled-pressed-opacity': `var(--_pressed-state-layer-opacity)`,
-}))
+})()
 
-const iconStyles = stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', {
+const iconStyles = overrideTokens<typeof IconDefinition>('--mdc-icon')({
     'enabled-size': `var(--_leading-icon-size)`,
-}))
+})()
 
 export const ListItemStyles = css`
     @layer mdc.list-item.variable {
-        :host { ${unsafeCSS(listItemTokens)}; }
+        :host { ${listItemTokens}; }
     }
 
     @layer mdc.list-item.base {
@@ -116,7 +113,7 @@ export const ListItemStyles = css`
             flex-shrink: 0;
             min-width: 0;
             color: var(--_enabled-leading-icon-color);
-            ${unsafeCSS(iconStyles)};
+            ${iconStyles};
         }
 
         ::slotted([slot='start']),
@@ -208,7 +205,7 @@ export const ListItemStyles = css`
         .container mdc-ripple {
             border-radius: inherit;
             z-index: 0;
-            ${unsafeCSS(rippleStyles)};
+            ${rippleStyles};
         }
     }
 

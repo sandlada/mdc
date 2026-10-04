@@ -200,7 +200,7 @@ export class MDCPopupController extends LitElement {
         this.dispatchEvent(new CustomEvent('mdc-popup-closed'))
     }
 
-    private readonly handleTriggerClick = (event: MouseEvent): void => {``
+    private readonly handleTriggerClick = (event: MouseEvent): void => {
         const path = event.composedPath()
         if (this.triggerElement && path.includes(this.triggerElement)) {
             this.open = !this.open

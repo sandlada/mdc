@@ -3,16 +3,11 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { css, unsafeCSS } from 'lit'
-import { LoadingIndicatorDefinition } from '../../component-definitions/loading-indicator.definition'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+import { css } from 'lit'
+import { LoadingIndicatorDefinition } from './loading-indicator.definition'
+import { stringifyTokens } from '@sandlada/styles/adapters/lit'
 
-const tokenRecord = defineTokenRefsRecord(LoadingIndicatorDefinition, {
-    expandShapes: true,
-    useBaseFallback: true,
-    prefix: '--mdc-loading-indicator',
-})
-const tokenString = unsafeCSS(defineVars(tokenRecord, true).join(''))
+const tokenString = stringifyTokens('--mdc-loading-indicator')(LoadingIndicatorDefinition)
 
 export const LoadingIndicatorStyles = css`
     @layer mdc.loading-indicator {

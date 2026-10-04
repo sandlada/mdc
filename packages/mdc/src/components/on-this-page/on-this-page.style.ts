@@ -7,16 +7,11 @@
  * Styles for `mdc-on-this-page` — the in-page table of contents container,
  * header area, item list, and floating active indicator outline pill.
  */
-import { css, unsafeCSS } from 'lit'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
-import { OnThisPageDefinition } from '../../definitions'
+import { css } from 'lit'
+import { stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { OnThisPageDefinition } from './on-this-page.definition'
 
-const tokenRecord = defineTokenRefsRecord(OnThisPageDefinition, {
-    expandShapes: true,
-    useBaseFallback: true,
-    prefix: '--mdc-on-this-page',
-})
-const tokenString = unsafeCSS(defineVars(tokenRecord, true).join(''))
+const tokenString = stringifyTokens('--mdc-on-this-page')(OnThisPageDefinition)
 
 export const OnThisPageStyles = css`
     :host {

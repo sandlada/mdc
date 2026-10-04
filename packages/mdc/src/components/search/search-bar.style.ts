@@ -3,22 +3,16 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { css, unsafeCSS } from 'lit'
-import { SearchBarDefinition } from '../../component-definitions/search.definition'
-import type { FocusRingDefinition } from '../../component-definitions/focus-ring.definition'
-import type { IconDefinition } from '../../component-definitions/icon.definition'
-import type { RippleDefinition } from '../../component-definitions/ripple.definition'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
-import { overrideComponentTokens, stringTokens } from '../../utils/tokens'
+import { css } from 'lit'
+import { SearchBarDefinition } from './search.definition'
+import type { FocusRingDefinition } from '../focus-ring/focus-ring.definition'
+import type { IconDefinition } from '../icon/icon.definition'
+import type { RippleDefinition } from '../ripple/ripple.definition'
+import { overrideTokens, stringifyTokens } from '@sandlada/styles/adapters/lit'
 
-const tokenRecord = defineTokenRefsRecord(SearchBarDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-search-bar',
-})
-const tokenString = unsafeCSS(defineVars(tokenRecord, true).join(''))
+const tokenString = stringifyTokens('--mdc-search-bar')(SearchBarDefinition)
 
-const focusRingStyles = stringTokens(overrideComponentTokens<keyof typeof FocusRingDefinition>('--mdc-focus-ring', {
+const focusRingStyles = overrideTokens<typeof FocusRingDefinition>('--mdc-focus-ring')({
     'shape-start-start': `var(--_enabled-container-shape-start-start)`,
     'shape-start-end': `var(--_enabled-container-shape-start-end)`,
     'shape-end-start': `var(--_enabled-container-shape-end-start)`,
@@ -27,29 +21,29 @@ const focusRingStyles = stringTokens(overrideComponentTokens<keyof typeof FocusR
     'width': `var(--_focused-indicator-thickness)`,
     'outward-offset': `var(--_focused-indicator-offset)`,
     'inward-offset': `var(--_focused-indicator-offset)`,
-}))
+})()
 
-const avatarFocusRingStyles = stringTokens(overrideComponentTokens<keyof typeof FocusRingDefinition>('--mdc-focus-ring', {
+const avatarFocusRingStyles = overrideTokens<typeof FocusRingDefinition>('--mdc-focus-ring')({
     'shape-start-start': `var(--_enabled-avatar-container-shape-start-start)`,
     'shape-start-end': `var(--_enabled-avatar-container-shape-start-end)`,
     'shape-end-start': `var(--_enabled-avatar-container-shape-end-start)`,
     'shape-end-end': `var(--_enabled-avatar-container-shape-end-end)`,
-}))
+})()
 
-const rippleStyles = stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', {
+const rippleStyles = overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
     'enabled-hovered-color': `var(--_hovered-state-layer-color)`,
     'enabled-pressed-color': `var(--_pressed-state-layer-color)`,
     'enabled-hovered-opacity': `var(--_hovered-state-layer-opacity)`,
     'enabled-pressed-opacity': `var(--_pressed-state-layer-opacity)`,
-}))
+})()
 
-const leadingIconTokens = stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', {
+const leadingIconTokens = overrideTokens<typeof IconDefinition>('--mdc-icon')({
     'enabled-size': `var(--_enabled-leading-icon-size)`,
-}))
+})()
 
-const trailingIconTokens = stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', {
+const trailingIconTokens = overrideTokens<typeof IconDefinition>('--mdc-icon')({
     'enabled-size': `var(--_enabled-trailing-icon-size)`,
-}))
+})()
 
 export const searchBarStyle = css`
     @layer mdc.search-bar.variable {
@@ -61,27 +55,27 @@ export const searchBarStyle = css`
     @layer mdc.search-bar.composite.focus-ring {
         .search > mdc-focus-ring {
             border-radius: inherit;
-            ${unsafeCSS(focusRingStyles)};
+            ${focusRingStyles};
         }
         .avatar mdc-focus-ring {
             border-radius: inherit;
-            ${unsafeCSS(avatarFocusRingStyles)};
+            ${avatarFocusRingStyles};
         }
     }
 
     @layer mdc.search-bar.composite.ripple {
         mdc-ripple {
             border-radius: inherit;
-            ${unsafeCSS(rippleStyles)};
+            ${rippleStyles};
         }
     }
 
     @layer mdc.search-bar.composite.icon {
         .leading-icon {
-            ${unsafeCSS(leadingIconTokens)};
+            ${leadingIconTokens};
         }
         .trailing-icon {
-            ${unsafeCSS(trailingIconTokens)};
+            ${trailingIconTokens};
         }
     }
 

@@ -3,59 +3,28 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
+import { overrideTokens, stringifyTokens } from '@sandlada/styles/adapters/lit'
 import { css, unsafeCSS } from 'lit'
-import type { ElevationDefinition } from '../../../component-definitions/elevation.definition'
-import { PrimaryExtendedFabDefinition, SecondaryExtendedFabDefinition, TertiaryExtendedFabDefinition, TonalPrimaryExtendedFabDefinition, TonalSecondaryExtendedFabDefinition, TonalTertiaryExtendedFabDefinition } from '../../../component-definitions/fab.definition'
-import type { FocusRingDefinition } from '../../../component-definitions/focus-ring.definition'
-import type { IconDefinition } from '../../../component-definitions/icon.definition'
-import type { RippleDefinition } from '../../../component-definitions/ripple.definition'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
-import { overrideComponentTokens, stringTokens } from '../../../utils/tokens'
+import { PrimaryExtendedFabDefinition, SecondaryExtendedFabDefinition, TertiaryExtendedFabDefinition, TonalPrimaryExtendedFabDefinition, TonalSecondaryExtendedFabDefinition, TonalTertiaryExtendedFabDefinition } from '../fab.definition'
+import type { IconDefinition } from '../../icon/icon.definition'
+import type { RippleDefinition } from '../../ripple/ripple.definition'
+import type { ElevationDefinition } from '../../elevation/elevation.definition'
+import { FocusRingDefinition } from '../../focus-ring/focus-ring.definition'
 
-const tpeRecord = defineTokenRefsRecord(TonalPrimaryExtendedFabDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-fab'
-})
-const tpes = unsafeCSS(defineVars(tpeRecord, true).join(''))
-const tseRecord = defineTokenRefsRecord(TonalSecondaryExtendedFabDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-fab'
-})
-const tses = unsafeCSS(defineVars(tseRecord, true).join(''))
-const tteRecord = defineTokenRefsRecord(TonalTertiaryExtendedFabDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-fab'
-})
-const ttes = unsafeCSS(defineVars(tteRecord, true).join(''))
-const peRecord = defineTokenRefsRecord(PrimaryExtendedFabDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-fab'
-})
-const pes = unsafeCSS(defineVars(peRecord, true).join(''))
-const seRecord = defineTokenRefsRecord(SecondaryExtendedFabDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-fab'
-})
-const ses = unsafeCSS(defineVars(seRecord, true).join(''))
-const teRecord = defineTokenRefsRecord(TertiaryExtendedFabDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-fab'
-})
-const tes = unsafeCSS(defineVars(teRecord, true).join(''))
+const tpes = stringifyTokens('--mdc-fab')(TonalPrimaryExtendedFabDefinition)
+const tses = stringifyTokens('--mdc-fab')(TonalSecondaryExtendedFabDefinition)
+const ttes = stringifyTokens('--mdc-fab')(TonalTertiaryExtendedFabDefinition)
+const pes = stringifyTokens('--mdc-fab')(PrimaryExtendedFabDefinition)
+const ses = stringifyTokens('--mdc-fab')(SecondaryExtendedFabDefinition)
+const tes = stringifyTokens('--mdc-fab')(TertiaryExtendedFabDefinition)
 
 const getElevationStyles = () => {
-    const getSingleStateLevelStyles = (state: 'enabled-' | 'hovered-' | 'pressed-' | 'focused-') => stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
+    const getSingleStateLevelStyles = (state: 'enabled-' | 'hovered-' | 'pressed-' | 'focused-') => overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
         "enabled-level": `var(--_${state}container-elevation)`,
-    }))
-    const getShadowColorStyles = () => stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
+    })()
+    const getShadowColorStyles = () => overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
         "enabled-shadow-color": `var(--_enabled-container-shadow-color)`,
-    }))
+    })()
     return css`
         mdc-elevation {
             ${getShadowColorStyles()};
@@ -67,12 +36,12 @@ const getElevationStyles = () => {
     `
 }
 const getFocusRingStyles = () => {
-    const getShapes = (size: 'small' | 'medium' | 'large') => stringTokens(overrideComponentTokens<keyof typeof FocusRingDefinition>('--mdc-focus-ring', {
+    const getShapes = (size: 'small' | 'medium' | 'large') => overrideTokens<typeof FocusRingDefinition>('--mdc-focus-ring')({
         "shape-end-end": `var(--_${size}-container-shape-end-end)`,
         "shape-end-start": `var(--_${size}-container-shape-end-start)`,
         "shape-start-end": `var(--_${size}-container-shape-start-end)`,
         "shape-start-start": `var(--_${size}-container-shape-start-start)`,
-    }))
+    })()
     return css`
         .button.small mdc-focus-ring {${getShapes('small')};}
         .button.medium mdc-focus-ring {${getShapes('medium')};}
@@ -80,12 +49,12 @@ const getFocusRingStyles = () => {
     `
 }
 const getRippleStyles = () => {
-    const styles = stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', {
+    const styles = overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
         "enabled-hovered-color": `var(--_hovered-state-layer-color)`,
         "enabled-hovered-opacity": `var(--_hovered-state-layer-opacity)`,
         "enabled-pressed-color": `var(--_pressed-state-layer-color)`,
         "enabled-pressed-opacity": `var(--_pressed-state-layer-opacity)`,
-    }))
+    })()
     return css`
         button mdc-ripple {${styles};}
     `
@@ -109,9 +78,9 @@ const getIconStyles = () => {
         button.small :is(.icon, ::slotted([name="icon"])) {${getSize('small')};}
         button.medium :is(.icon, ::slotted([name="icon"])) {${getSize('medium')};}
         button.large :is(.icon, ::slotted([name="icon"])) {${getSize('large')};}
-        button.small .icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': `var(--_small-icon-size)` }))};}
-        button.medium .icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': `var(--_medium-icon-size)` }))};}
-        button.large .icon {${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': `var(--_large-icon-size)` }))};}
+        button.small .icon {${overrideTokens<typeof IconDefinition>('--mdc-icon')({ 'enabled-size': `var(--_small-icon-size)` })()};}
+        button.medium .icon {${overrideTokens<typeof IconDefinition>('--mdc-icon')({ 'enabled-size': `var(--_medium-icon-size)` })()};}
+        button.large .icon {${overrideTokens<typeof IconDefinition>('--mdc-icon')({ 'enabled-size': `var(--_large-icon-size)` })()};}
 
         button :is(.icon, ::slotted([name="icon"])) {
             color: var(--_enabled-icon-color);

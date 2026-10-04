@@ -74,7 +74,7 @@ export interface ILoadingIndicator extends LitElement {
      * MD3 color-role scheme: `'primary'` (default), `'secondary'`,
      * `'tertiary'`, `'error'` or `'surface'`. Each variant re-keys the
      * uncontained / contained color tokens (see
-     * `component-definitions/loading-indicator.definition.ts`). Reflects to
+     * `loading-indicator.definition.ts`). Reflects to
      * the `variant` attribute.
      */
     variant: LoadingIndicatorVariant

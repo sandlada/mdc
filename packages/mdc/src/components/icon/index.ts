@@ -6,3 +6,4 @@
 
 export * from './icon'
 export * from './icon.interface'
+export * from './icon.definition'

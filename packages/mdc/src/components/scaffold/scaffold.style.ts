@@ -4,20 +4,15 @@
  * SPDX-License-Identifier: MIT
  */
 import { css, unsafeCSS } from 'lit'
-import { ScaffoldDefinition } from '../../component-definitions/scaffold.definition'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+import { ScaffoldDefinition } from './scaffold.definition'
+import { stringifyTokens } from '@sandlada/styles/adapters/lit'
 
-const tokenRecord = defineTokenRefsRecord(ScaffoldDefinition, {
-    expandShapes: true,
-    useBaseFallback: true,
-    prefix: '--mdc-scaffold',
-})
-const tokenString = defineVars(tokenRecord, true).join('')
+const tokenString = stringifyTokens('--mdc-scaffold')(ScaffoldDefinition)
 
 const base = css`
     @layer mdc.scaffold.variable {
         :host {
-            ${unsafeCSS(tokenString)};
+            ${tokenString};
         }
     }
 

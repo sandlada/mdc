@@ -5,19 +5,13 @@
  */
 import { Duration, Easing } from '@sandlada/mdk'
 import { css, unsafeCSS } from 'lit'
-import type { FocusRingDefinition } from '../../../component-definitions/focus-ring.definition'
-import type { IconDefinition } from '../../../component-definitions/icon.definition'
-import type { RippleDefinition } from '../../../component-definitions/ripple.definition'
-import { OutlinedSegmentedButtonDefinition } from '../../../component-definitions/segmented-button.definition'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
-import { overrideComponentTokens, stringTokens } from '../../../utils/tokens'
+import type { FocusRingDefinition } from '../../focus-ring/focus-ring.definition'
+import type { IconDefinition } from '../../icon/icon.definition'
+import type { RippleDefinition } from '../../ripple/ripple.definition'
+import { OutlinedSegmentedButtonDefinition } from '../segmented-button.definition'
+import { overrideTokens, stringifyTokens } from '@sandlada/styles/adapters/lit'
 
-const tokenRecord = defineTokenRefsRecord(OutlinedSegmentedButtonDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-segmented-button',
-})
-const tokenString = unsafeCSS(defineVars(tokenRecord, true).join(''))
+const tokenString = stringifyTokens('--mdc-segmented-button')(OutlinedSegmentedButtonDefinition)
 
 /**
  * Length of the MD3 checkmark path (viewBox `0 0 24 24`), used to drive the
@@ -33,21 +27,21 @@ const ripple = css`
     .container mdc-ripple {
         border-radius: inherit;
         z-index: 0;
-        ${stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', {
+        ${overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
             'enabled-hovered-color': `var(--_hovered-state-layer-color-unselected)`,
             'enabled-focused-color': `var(--_focused-state-layer-color-unselected)`,
             'enabled-pressed-color': `var(--_pressed-state-layer-color-unselected)`,
             'enabled-hovered-opacity': `var(--_hovered-state-layer-opacity)`,
             'enabled-focused-opacity': `var(--_focused-state-layer-opacity)`,
             'enabled-pressed-opacity': `var(--_pressed-state-layer-opacity)`,
-        }))};
+        })()};
     }
     .container.selected mdc-ripple {
-        ${stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', {
+        ${overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
             'enabled-hovered-color': `var(--_hovered-state-layer-color-selected)`,
             'enabled-focused-color': `var(--_focused-state-layer-color-selected)`,
             'enabled-pressed-color': `var(--_pressed-state-layer-color-selected)`,
-        }))};
+        })()};
     }
 `
 
@@ -62,9 +56,9 @@ const icon = css`
         align-items: center;
         display: inline-flex;
         justify-content: center;
-        ${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', {
+        ${overrideTokens<typeof IconDefinition>('--mdc-icon')({
             'enabled-size': `var(--_icon-size)`,
-        }))};
+        })()};
     }
 `
 

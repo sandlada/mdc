@@ -4,45 +4,24 @@
  * SPDX-License-Identifier: MIT
  */
 import { css, unsafeCSS } from 'lit'
-import type { ElevationDefinition } from '../../../component-definitions/elevation.definition'
-import type { IconDefinition } from '../../../component-definitions/icon.definition'
-import type { RippleDefinition } from '../../../component-definitions/ripple.definition'
+import type { ElevationDefinition } from '../../elevation/elevation.definition'
+import type { IconDefinition } from '../../icon/icon.definition'
+import type { RippleDefinition } from '../../ripple/ripple.definition'
 import {
     ElevatedSplitButtonDefinition,
     FilledSplitButtonDefinition,
     FilledTonalSplitButtonDefinition,
     OutlinedSplitButtonDefinition,
-} from '../../../component-definitions/split-button.definition'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
-import { overrideComponentTokens, stringTokens } from '../../../utils/tokens'
+} from '../split-button.definition'
+import { overrideTokens, stringifyTokens } from '@sandlada/styles/adapters/lit'
 
-const filledTokenRecord = defineTokenRefsRecord(FilledSplitButtonDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-split-button',
-})
-const filledTokenString = unsafeCSS(defineVars(filledTokenRecord, true).join(''))
+const filledTokenString = stringifyTokens('--mdc-split-button')(FilledSplitButtonDefinition)
 
-const filledTonalTokenRecord = defineTokenRefsRecord(FilledTonalSplitButtonDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-split-button',
-})
-const filledTonalTokenString = unsafeCSS(defineVars(filledTonalTokenRecord, true).join(''))
+const filledTonalTokenString = stringifyTokens('--mdc-split-button')(FilledTonalSplitButtonDefinition)
 
-const elevatedTokenRecord = defineTokenRefsRecord(ElevatedSplitButtonDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-split-button',
-})
-const elevatedTokenString = unsafeCSS(defineVars(elevatedTokenRecord, true).join(''))
+const elevatedTokenString = stringifyTokens('--mdc-split-button')(ElevatedSplitButtonDefinition)
 
-const outlinedTokenRecord = defineTokenRefsRecord(OutlinedSplitButtonDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-split-button',
-})
-const outlinedTokenString = unsafeCSS(defineVars(outlinedTokenRecord, true).join(''))
+const outlinedTokenString = stringifyTokens('--mdc-split-button')(OutlinedSplitButtonDefinition)
 
 type TSize = 'extra-small' | 'small' | 'medium' | 'large' | 'extra-large'
 type TPart = 'leading-button' | 'trailing-button'
@@ -145,7 +124,7 @@ const getLeadingIconSizeStyles = () => {
             block-size: var(--_${s}-leading-icon-size);
             font-size: var(--_${s}-leading-icon-size);
             inline-size: var(--_${s}-leading-icon-size);
-            ${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': `var(--_${s}-leading-icon-size)` }))}
+            ${overrideTokens<typeof IconDefinition>('--mdc-icon')({ 'enabled-size': `var(--_${s}-leading-icon-size)` })().cssText}
         }
     `)
     return css`
@@ -168,7 +147,7 @@ const getTrailingIconSizeStyles = () => {
             block-size: var(--_${s}-trailing-icon-size);
             font-size: var(--_${s}-trailing-icon-size);
             inline-size: var(--_${s}-trailing-icon-size);
-            ${stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', { 'enabled-size': `var(--_${s}-trailing-icon-size)` }))}
+            ${overrideTokens<typeof IconDefinition>('--mdc-icon')({ 'enabled-size': `var(--_${s}-trailing-icon-size)` })().cssText}
         }
         .container.${s} .trailing-button:not(.has-label):not(.expanded) .icon {
             translate: var(--_${s}-trailing-icon-optical-offset) 0;
@@ -243,14 +222,14 @@ const ripple = css`
     .trailing-button mdc-ripple {
         border-radius: inherit;
         z-index: 0;
-        ${stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', {
+        ${overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
             'enabled-hovered-color': `var(--_hovered-state-layer-color)`,
             'enabled-focused-color': `var(--_focused-state-layer-color)`,
             'enabled-pressed-color': `var(--_pressed-state-layer-color)`,
             'enabled-hovered-opacity': `var(--_hovered-state-layer-opacity)`,
             'enabled-focused-opacity': `var(--_focused-state-layer-opacity)`,
             'enabled-pressed-opacity': `var(--_pressed-state-layer-opacity)`,
-        }))};
+        })()};
     }
 `
 
@@ -258,17 +237,17 @@ const elevation = css`
     .leading-button mdc-elevation,
     .trailing-button mdc-elevation {
         transition-duration: 0ms;
-        ${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
+        ${overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
             'enabled-level': `var(--_enabled-container-elevation)`,
             'enabled-shadow-color': `var(--_enabled-container-shadow-color)`,
-        }))};
+        })()};
     }
     .leading-button.disabled mdc-elevation,
     .trailing-button.disabled mdc-elevation {
-        ${stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
+        ${overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
             'enabled-level': `var(--_disabled-container-elevation)`,
             'enabled-shadow-color': `var(--_disabled-container-shadow-color)`,
-        }))};
+        })()};
     }
 `
 

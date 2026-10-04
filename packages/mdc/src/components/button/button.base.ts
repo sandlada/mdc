@@ -16,7 +16,6 @@ import { dispatchActivationClick, isActivationClick } from '../../utils/event/fo
 import { mixinElevationOptions } from '../elevation/elevation-options.mixin'
 import { mixinFocusRingOptions } from '../focus-ring/focus-ring-options.mixin'
 import { mixinRippleOptions } from '../ripple/ripple-options.mixin'
-import { buttonStyles } from './button.style'
 
 /**
  * Supports inserting icon and label buttons.
@@ -82,8 +81,6 @@ export abstract class BaseButton extends composeMixin(
     mixinElevationOptions,
     mixinFocusRingOptions
 )(LitElement) {
-
-    static override styles = buttonStyles
 
     /**
      * 'filled' | 'filled-tonal' | 'elevated' | 'outlined' | 'text'

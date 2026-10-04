@@ -7,6 +7,7 @@ import { customElement, property } from 'lit/decorators.js'
 import { internals } from '../../utils/behaviors/element-internals'
 import { setupFormSubmitter, type FormSubmitter, type FormSubmitterType } from '../../utils/controller/form-submitter'
 import { BaseButton } from './button.base'
+import { buttonStyles } from './button.style'
 
 declare global {
     interface HTMLElementTagNameMap {
@@ -39,6 +40,7 @@ declare global {
 @customElement('mdc-button')
 export class MDCButton extends BaseButton implements FormSubmitter {
 
+    static override styles = buttonStyles
     static readonly formAssociated = true
     static {
         setupFormSubmitter(MDCButton)

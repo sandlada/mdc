@@ -4,25 +4,15 @@
  * SPDX-License-Identifier: MIT
  */
 import { css, unsafeCSS } from 'lit'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+import { stringifyTokens } from '@sandlada/styles/adapters/lit'
 import {
     ConnectedButtonGroupDefinition,
     StandardButtonGroupDefinition,
-} from '../../component-definitions/button-group.definition'
+} from './button-group.definition'
 
-const standardTokenRecord = defineTokenRefsRecord(StandardButtonGroupDefinition, {
-    expandShapes: true,
-    useBaseFallback: true,
-    prefix: '--mdc-standard-button-group',
-})
-const standardTokenString = unsafeCSS(defineVars(standardTokenRecord, true).join(''))
+const standardTokenString = stringifyTokens('--mdc-standard-button-group')(StandardButtonGroupDefinition)
 
-const connectedTokenRecord = defineTokenRefsRecord(ConnectedButtonGroupDefinition, {
-    expandShapes: true,
-    useBaseFallback: true,
-    prefix: '--mdc-connected-button-group',
-})
-const connectedTokenString = unsafeCSS(defineVars(connectedTokenRecord, true).join(''))
+const connectedTokenString = stringifyTokens('--mdc-connected-button-group')(ConnectedButtonGroupDefinition)
 
 type TSize = 'extra-small' | 'small' | 'medium' | 'large' | 'extra-large'
 
@@ -43,9 +33,10 @@ function getConnectedShapeTokensString(
     position: 'start' | 'middle' | 'end' | 'single',
     orientation: 'horizontal' | 'vertical',
 ): string {
-    // `inner-shape` keys are auto-expanded by `defineTokenRefsRecord({ expandShapes: true })`
-    // into 4 logical-corner CSS variables on :host (the shorthand var itself is NOT
-    // emitted). Read each corner individually so the CSS resolves.
+    // `inner-shape` keys are expanded in `button-group.definition.ts` via
+    // `expandShape(...)` into 4 logical-corner CSS variables on :host (the
+    // shorthand var itself is NOT emitted). Read each corner individually so
+    // the CSS resolves.
     const innerShapeStartStart = `var(--_enabled-${size}-inner-shape-start-start)`
     const innerShapeStartEnd = `var(--_enabled-${size}-inner-shape-start-end)`
     const innerShapeEndStart = `var(--_enabled-${size}-inner-shape-end-start)`

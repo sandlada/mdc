@@ -6,16 +6,11 @@
  * @fileoverview
  * Styles for `mdc-on-this-page-item`.
  */
-import { css, unsafeCSS } from 'lit'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
-import { OnThisPageItemDefinition } from '../../definitions'
+import { css } from 'lit'
+import { stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { OnThisPageItemDefinition } from './on-this-page.definition'
 
-const tokenRecord = defineTokenRefsRecord(OnThisPageItemDefinition, {
-    expandShapes: true,
-    useBaseFallback: true,
-    prefix: '--mdc-on-this-page-item',
-})
-const tokenString = unsafeCSS(defineVars(tokenRecord, true).join(''))
+const tokenString = stringifyTokens('--mdc-on-this-page-item')(OnThisPageItemDefinition)
 
 export const OnThisPageItemStyles = css`
     :host {

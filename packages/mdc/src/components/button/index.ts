@@ -7,3 +7,5 @@
 export * from './button'
 export * from './toggle-button'
 export * from './button.definition'
+export * from './toggle-button.definition'
+export * from './button-size.definition'

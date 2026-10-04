@@ -19,7 +19,7 @@
 
 - 零托底：禁 polyfill、vendor prefix、feature detection fallback、舊版 alias 與 deprecation 過渡期，變遷直接 breaking。
 - SSOT 僅約束架構與數據（tokens / 定義）。元件 CSS 直接用 `:host` 注入的 `--_*` 私有變數。
-- 禁 CSS 第二參數 fallback（如 `var(--_x, #fff)`）；預設值與回退鏈由 `src/component-definitions/*.definition.ts` 經 `createStyleDefinition()` 注入。僅未於 definition 定義的動態計算變數允許 inline fallback。
+- 禁 CSS 第二參數 fallback（如 `var(--_x, #fff)`）；預設值與回退鏈由 `src/components/{name}/{name}.definition.ts` 經 `createStyleDefinition()` 注入。僅未於 definition 定義的動態計算變數允許 inline fallback。
 - 錯誤一律 `throw new Error(...)`；禁返回碼、哨兵值、吞異常。
 - a11y（WCAG 2.2+）：`forced-colors` 用系統色 + 對比外框並覆蓋各互動狀態；`prefers-contrast: more` 加框、`less` 柔化；`reduced-motion` 停動畫；`reduced-transparency` 去半透明與 `backdrop-filter`。
 
@@ -36,6 +36,7 @@ packages/mdc/src/components/{name}/
 ├── {name}.ts
 ├── {name}.style.ts
 ├── {name}.interface.ts
+├── {name}.definition.ts
 ├── {name}-options.mixin.ts        # 可選
 ├── demo/{comp-name}.{prop}.demo.html
 └── internal/base-{name}.ts
@@ -46,9 +47,9 @@ packages/mdc/src/components/{name}/
 - 非 host 根元素用 `getRenderClasses()` + `classMap`；host 自身用 `getHostClasses()`；子類 spread `super` 結果再擴展。
 - 狀態三軸（不適用可省略）：`variant`（如 `filled` / `outlined` / `text`）、`size`（`extra-small` ~ `extra-large`）、`shape`（`round` / `square`）。
 - 介面三檔（複數 + `IMDC` 前綴）：`IMDC{Pascal}Attributes`（純輸入屬性）、`IMDC{Pascal}Events`（`'event-name': EventType` 映射）、`IMDC{Pascal}`（繼承 `LitElement` + Attributes + mixins / 方法）。
-- 新元件步驟：定 interface → 寫 `internal/base-{name}.ts`（複雜者）→ 寫 `{name}.ts` → 加 `component-definitions/{name}.definition.ts` → 於 `src/definitions.ts` 與 `src/all.ts` 導出。
+- 新元件步驟：定 interface → 寫 `internal/base-{name}.ts`（複雜者）→ 寫 `{name}.ts` → 加 `components/{name}/{name}.definition.ts` → 於 `components/{name}/index.ts` 導出。
 - Barrel：深層資料夾以 `index.ts` 導出、外部禁直引內檔；禁 `utils/index.ts` 與 `components/index.ts` 頂層大桶。
-- Token 命名：`[狀態-]?[尺寸-]?[元素-][屬性][-selected|-checked]?`。預設狀態加 `enabled-`；容器屬性帶 `container-*`；圓角展四角；Margin / Padding 拆四邊；文字備齊 `font`、`size`、`line-height`、`weight`、`tracking`、`opacity`。
+- Token 命名：`[狀態-]?[尺寸-]?[元素-][屬性][-selected|-checked]?`。預設狀態加 `enabled-`；容器屬性帶 `container-*`；圓角展四角；Margin / Padding 拆四邊；文字備齊 `font`、`size`、`leading`、`weight`、`tracking`、`opacity`。comp def 一律用 `leading` 表示 line-height，禁 `line-height` 後綴（與 `expandTypescale` 的 `${prefix}-leading` 一致；樣式側 CSS 屬性仍寫 `line-height`）。
 - Demo：`demo/{comp-name}.{prop}.demo.html`，純 HTML 片段，每個 `@property` 一個檔案。
 
 ---

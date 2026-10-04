@@ -3,24 +3,16 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { css, unsafeCSS } from 'lit'
+import { css } from 'lit'
 import {
     FilledFieldDefinition,
     OutlinedFieldDefinition,
-} from '../../component-definitions/field.definition'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+} from './field.definition'
+import { stringifyTokens } from '@sandlada/styles/adapters/lit'
 
-const filledTokens = defineVars(defineTokenRefsRecord(FilledFieldDefinition, {
-    expandShapes: true,
-    useBaseFallback: true,
-    prefix: '--mdc-field',
-}), true).join('')
+const filledTokens = stringifyTokens('--mdc-field')(FilledFieldDefinition)
 
-const outlinedTokens = defineVars(defineTokenRefsRecord(OutlinedFieldDefinition, {
-    expandShapes: true,
-    useBaseFallback: true,
-    prefix: '--mdc-field',
-}), true).join('')
+const outlinedTokens = stringifyTokens('--mdc-field')(OutlinedFieldDefinition)
 
 export const baseFieldStyles = css`
     @layer mdc.field.base {
@@ -591,8 +583,8 @@ export const baseFieldStyles = css`
 
 export const fieldVariantStyles = css`
     @layer mdc.field.variant {
-        :host([variant="filled"])   { ${unsafeCSS(filledTokens)}; }
-        :host([variant="outlined"]) { ${unsafeCSS(outlinedTokens)}; }
+        :host([variant="filled"])   { ${filledTokens}; }
+        :host([variant="outlined"]) { ${outlinedTokens}; }
     }
 `
 

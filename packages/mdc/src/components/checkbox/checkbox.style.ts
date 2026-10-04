@@ -5,51 +5,46 @@
  */
 import { Easing } from '@sandlada/mdk'
 import { css, unsafeCSS } from 'lit'
-import type { FocusRingDefinition } from '../../component-definitions/focus-ring.definition'
-import type { RippleDefinition } from '../../component-definitions/ripple.definition'
-import { CheckboxDefinition } from '../../component-definitions/checkbox.definition'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
-import { overrideComponentTokens, stringTokens } from '../../utils/tokens'
+import type { FocusRingDefinition } from '../focus-ring/focus-ring.definition'
+import type { RippleDefinition } from '../ripple/ripple.definition'
+import { CheckboxDefinition } from './checkbox.definition'
+import { stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { overrideTokens } from '@sandlada/styles/adapters/lit'
 
-const tokenRecord = defineTokenRefsRecord(CheckboxDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-checkbox',
-})
-const tokenString = unsafeCSS(defineVars(tokenRecord, true).join(''))
+const tokenString = stringifyTokens('--mdc-checkbox')(CheckboxDefinition)
 
 // MD3 checkbox motion: 350ms enter / 150ms exit with Emphasized easings.
 const emphasizedAccelerate = unsafeCSS(Easing.EmphasizedAccelerate.ToCSSValue())
 const emphasizedDecelerate = unsafeCSS(Easing.EmphasizedDecelerate.ToCSSValue())
 
-const rippleStyles = (state: 'selected' | 'unselected') => stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', {
+const rippleStyles = (state: 'selected' | 'unselected') => overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
     'enabled-hovered-color': `var(--_hovered-state-layer-color-${state})`,
     'enabled-hovered-opacity': `var(--_hovered-state-layer-opacity-${state})`,
     'enabled-focused-color': `var(--_focused-state-layer-color-${state})`,
     'enabled-focused-opacity': `var(--_focused-state-layer-opacity-${state})`,
     'enabled-pressed-color': `var(--_pressed-state-layer-color-${state})`,
     'enabled-pressed-opacity': `var(--_pressed-state-layer-opacity-${state})`,
-}))
-const errorRippleStyles = () => stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', {
+})()
+const errorRippleStyles = () => overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
     'enabled-hovered-color': `var(--_hovered-error-state-layer-color)`,
     'enabled-hovered-opacity': `var(--_hovered-error-state-layer-opacity)`,
     'enabled-focused-color': `var(--_focused-error-state-layer-color)`,
     'enabled-focused-opacity': `var(--_focused-error-state-layer-opacity)`,
     'enabled-pressed-color': `var(--_pressed-error-state-layer-color)`,
     'enabled-pressed-opacity': `var(--_pressed-error-state-layer-opacity)`,
-}))
+})()
 
 // The focus indicator is a 44px circle around the 18px box. The ring
 // sizes itself through its own `outward-offset` mechanism, so it stays correct
 // even when `enabled-container-size` is overridden.
-const focusRingTokens = stringTokens(overrideComponentTokens<keyof typeof FocusRingDefinition>('--mdc-focus-ring', {
+const focusRingTokens = overrideTokens<typeof FocusRingDefinition>('--mdc-focus-ring')({
     'enabled-color': `var(--_focused-indicator-color)`,
     'outward-offset': `calc((44px - var(--_enabled-container-size)) / 2)`,
     "shape-end-end": 'var(--_focus-ring-shape-end-end)',
     "shape-end-start": 'var(--_focus-ring-shape-end-start)',
     "shape-start-end": 'var(--_focus-ring-shape-start-end)',
     "shape-start-start": 'var(--_focus-ring-shape-start-start)',
-}))
+})()
 
 export const CheckboxStyles = css`
     @layer mdc.checkbox {

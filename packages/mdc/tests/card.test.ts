@@ -9,7 +9,7 @@ import {
     ElevatedCardDefinition,
     FilledCardDefinition,
     OutlinedCardDefinition,
-} from '../src/component-definitions/card.definition'
+} from '../src/components/card/card.definition'
 import { CardShape, CardVariant } from '../src/components/card/card.interface'
 
 describe('CardDefinition', () => {

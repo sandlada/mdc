@@ -13,6 +13,7 @@ import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import { SelectionController } from '../../utils/controller/selection-controller'
 import { getFormState, getFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
 import { BaseButton } from './button.base'
+import { toggleButtonStyles } from './toggle-button.style'
 
 declare global {
     interface HTMLElementTagNameMap {
@@ -43,6 +44,7 @@ export class MDCTogglableButton extends composeMixin(
     mixinFormAssociated,
 )(BaseButton) {
 
+    static override styles = toggleButtonStyles
     static override shadowRootOptions: ShadowRootInit = {
         mode: 'open',
         delegatesFocus: true,

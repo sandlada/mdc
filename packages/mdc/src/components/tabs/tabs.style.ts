@@ -6,16 +6,11 @@
  * @fileoverview
  * Styles for `mdc-tabs` — the tab bar container and its trailing divider.
  */
-import { css, unsafeCSS } from 'lit'
-import { TabsDefinition } from '../../definitions'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+import { css } from 'lit'
+import { TabsDefinition } from './tabs.definition'
+import { stringifyTokens } from '@sandlada/styles/adapters/lit'
 
-const tokenRecord = defineTokenRefsRecord(TabsDefinition, {
-    expandShapes: true,
-    useBaseFallback: true,
-    prefix: '--mdc-tabs'
-})
-const tokenString = unsafeCSS(defineVars(tokenRecord, true).join(''))
+const tokenString = stringifyTokens('--mdc-tabs')(TabsDefinition)
 
 export const TabsStyles = css`
     :host {

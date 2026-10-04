@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 import { describe, expect, it } from 'vitest'
-import { AppBarDefinition } from '../src/component-definitions/appbar.definition'
+import { AppBarDefinition } from '../src/components/appbar/appbar.definition'
 import { AppBarAlignment, AppBarVariant } from '../src/components/appbar/appbar.interface'
 
 describe('AppBarDefinition', () => {

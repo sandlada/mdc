@@ -3,16 +3,11 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { css, unsafeCSS } from 'lit'
-import { ChipSetDefinition } from '../../../component-definitions/chip-set.definition'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+import { css } from 'lit'
+import { ChipSetDefinition } from '../chip-set.definition'
+import { stringifyTokens } from '@sandlada/styles/adapters/lit'
 
-const tokenRecord = defineTokenRefsRecord(ChipSetDefinition, {
-    expandShapes: false,
-    useBaseFallback: true,
-    prefix: '--mdc-chip-set',
-})
-const tokenString = unsafeCSS(defineVars(tokenRecord, true).join(''))
+const tokenString = stringifyTokens('--mdc-chip-set')(ChipSetDefinition)
 
 export const ChipSetStyles = css`
     @layer mdc.chip-set.variable {

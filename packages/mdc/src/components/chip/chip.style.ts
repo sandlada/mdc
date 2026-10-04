@@ -5,82 +5,73 @@
  */
 import { Easing } from '@sandlada/mdk'
 import { css, unsafeCSS } from 'lit'
-import type { ElevationDefinition } from '../../component-definitions/elevation.definition'
-import type { FocusRingDefinition } from '../../component-definitions/focus-ring.definition'
-import type { IconDefinition } from '../../component-definitions/icon.definition'
-import type { RippleDefinition } from '../../component-definitions/ripple.definition'
+import type { ElevationDefinition } from '../elevation/elevation.definition'
+import type { FocusRingDefinition } from '../focus-ring/focus-ring.definition'
+import type { IconDefinition } from '../icon/icon.definition'
+import type { RippleDefinition } from '../ripple/ripple.definition'
 import {
     AssistChipDefinition,
     FilterChipDefinition,
     InputChipDefinition,
     SuggestionChipDefinition,
-} from '../../component-definitions/chip.definition'
-import { overrideComponentTokens, stringTokens } from '../../utils/tokens'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+} from './chip.definition'
+import { overrideTokens, stringifyTokens } from '@sandlada/styles/adapters/lit'
 
 // Token injection per variant
-const assistTokens = defineVars(defineTokenRefsRecord(AssistChipDefinition, {
-    expandShapes: true, useBaseFallback: true, prefix: '--mdc-chip',
-}), true).join('')
+const assistTokens = stringifyTokens('--mdc-chip')(AssistChipDefinition)
 
-const filterTokens = defineVars(defineTokenRefsRecord(FilterChipDefinition, {
-    expandShapes: true, useBaseFallback: true, prefix: '--mdc-chip',
-}), true).join('')
+const filterTokens = stringifyTokens('--mdc-chip')(FilterChipDefinition)
 
-const inputTokens = defineVars(defineTokenRefsRecord(InputChipDefinition, {
-    expandShapes: true, useBaseFallback: true, prefix: '--mdc-chip',
-}), true).join('')
+const inputTokens = stringifyTokens('--mdc-chip')(InputChipDefinition)
 
-const suggestionTokens = defineVars(defineTokenRefsRecord(SuggestionChipDefinition, {
-    expandShapes: true, useBaseFallback: true, prefix: '--mdc-chip',
-}), true).join('')
+const suggestionTokens = stringifyTokens('--mdc-chip')(SuggestionChipDefinition)
 
 const emphasizedEasing = unsafeCSS(Easing.Emphasized.ToCSSValue())
 const CHECKMARK_LENGTH = 29.7833385
 
-const rippleStyles = stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>('--mdc-ripple', {
+const rippleStyles = overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
     'enabled-hovered-color': `var(--_hovered-state-layer-color)`,
     'enabled-focused-color': `var(--_focused-state-layer-color)`,
     'enabled-pressed-color': `var(--_pressed-state-layer-color)`,
     'enabled-hovered-opacity': `var(--_hovered-state-layer-opacity)`,
     'enabled-focused-opacity': `var(--_focused-state-layer-opacity)`,
     'enabled-pressed-opacity': `var(--_pressed-state-layer-opacity)`,
-}))
+})()
 
-const iconStyles = stringTokens(overrideComponentTokens<keyof typeof IconDefinition>('--mdc-icon', {
+const iconStyles = overrideTokens<typeof IconDefinition>('--mdc-icon')({
     'enabled-size': `var(--_icon-size)`,
-}))
+})()
 
-const elevationStyles = stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
+const elevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
     'enabled-level': `var(--_enabled-container-elevation)`,
     'enabled-shadow-color': `var(--_enabled-container-shadow-color)`,
-}))
-const hoveredElevationStyles = stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
+})()
+const hoveredElevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
     'enabled-level': `var(--_hovered-container-elevation)`,
-}))
-const focusedElevationStyles = stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
+})()
+const focusedElevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
     'enabled-level': `var(--_focused-container-elevation)`,
-}))
-const pressedElevationStyles = stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
+})()
+const pressedElevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
     'enabled-level': `var(--_pressed-container-elevation)`,
-}))
-const disabledElevationStyles = stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>('--mdc-elevation', {
+})()
+const disabledElevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
     'enabled-level': `var(--_disabled-container-elevation)`,
-}))
+})()
 
 export const ChipStyles = css`
     @layer mdc.chip.variable {
-        :host([variant="assist"]) { ${unsafeCSS(assistTokens)}; }
-        :host([variant="filter"]) { ${unsafeCSS(filterTokens)}; }
-        :host([variant="input"]) { ${unsafeCSS(inputTokens)}; }
-        :host([variant="suggestion"]) { ${unsafeCSS(suggestionTokens)}; }
+        :host([variant="assist"]) { ${assistTokens}; }
+        :host([variant="filter"]) { ${filterTokens}; }
+        :host([variant="input"]) { ${inputTokens}; }
+        :host([variant="suggestion"]) { ${suggestionTokens}; }
     }
 
     @layer mdc.chip.composite.ripple {
         .container mdc-ripple {
             border-radius: inherit;
             z-index: 0;
-            ${unsafeCSS(rippleStyles)};
+            ${rippleStyles};
         }
     }
 
@@ -95,20 +86,20 @@ export const ChipStyles = css`
             border-radius: inherit;
             z-index: 0;
             transition-duration: 0ms;
-            ${unsafeCSS(elevationStyles)};
+            ${elevationStyles};
         }
         .container:hover mdc-elevation {
-            ${unsafeCSS(hoveredElevationStyles)};
+            ${hoveredElevationStyles};
         }
         .container:focus-visible mdc-elevation {
-            ${unsafeCSS(focusedElevationStyles)};
+            ${focusedElevationStyles};
         }
         .container:active mdc-elevation {
-            ${unsafeCSS(pressedElevationStyles)};
+            ${pressedElevationStyles};
         }
         .container.disabled mdc-elevation {
             transition: none;
-            ${unsafeCSS(disabledElevationStyles)};
+            ${disabledElevationStyles};
         }
     }
 
@@ -232,7 +223,7 @@ export const ChipStyles = css`
             justify-content: center;
             flex-shrink: 0;
             color: var(--_enabled-icon-color);
-            ${unsafeCSS(iconStyles)};
+            ${iconStyles};
         }
 
         .container:not(.has-icon) .icon {

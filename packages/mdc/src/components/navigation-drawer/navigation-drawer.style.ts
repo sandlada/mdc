@@ -3,64 +3,45 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+import { stringifyTokens, overrideTokens } from '@sandlada/styles/adapters/lit'
 import { css, unsafeCSS } from 'lit'
+import { ElevationDefinition } from '../elevation/elevation.definition'
 import {
-    ElevationDefinition,
     ModalNavigationDrawerDefinition,
-    NavigationDrawerTabDefinition,
     PermanentNavigationDrawerDefinition,
     StandardNavigationDrawerDefinition,
-    type TypographyDefinition,
-} from '../../definitions'
-import { overrideComponentTokens, stringTokens } from '../../utils'
+} from './navigation-drawer.definition'
+import { NavigationDrawerTabDefinition } from '../navigation-tab/navigation-tab.definition'
+import type { TypographyDefinition } from '../typography/typography.definition'
 
-const modalRecord = defineTokenRefsRecord(ModalNavigationDrawerDefinition, {
-    expandShapes: true,
-    prefix: '--mdc-navigation-drawer',
-    useBaseFallback: true,
-})
-const modalString = unsafeCSS(defineVars(modalRecord, true).join(''))
+const modalString = stringifyTokens('--mdc-navigation-drawer')(ModalNavigationDrawerDefinition)
 
-const standardRecord = defineTokenRefsRecord(StandardNavigationDrawerDefinition, {
-    expandShapes: true,
-    prefix: '--mdc-navigation-drawer',
-    useBaseFallback: true,
-})
-const standardString = unsafeCSS(defineVars(standardRecord, true).join(''))
+const standardString = stringifyTokens('--mdc-navigation-drawer')(StandardNavigationDrawerDefinition)
 
-const permanentRecord = defineTokenRefsRecord(PermanentNavigationDrawerDefinition, {
-    expandShapes: true,
-    prefix: '--mdc-navigation-drawer',
-    useBaseFallback: true,
-})
-const permanentString = unsafeCSS(defineVars(permanentRecord, true).join(''))
+const permanentString = stringifyTokens('--mdc-navigation-drawer')(PermanentNavigationDrawerDefinition)
 
-const overrideTab = stringTokens(overrideComponentTokens<keyof typeof NavigationDrawerTabDefinition>(
-    '--mdc-navigation-tab',
-    {
-        'container-width': 'calc(var(--_enabled-container-width) - var(--_content-container-padding-inline-start) - var(--_content-container-padding-inline-end))',
-    },
-))
+const overrideTab = overrideTokens<typeof NavigationDrawerTabDefinition>(
+    '--mdc-navigation-tab'
+)({
+    'enabled-container-width': 'calc(var(--_enabled-container-width) - var(--_content-container-padding-inline-start) - var(--_content-container-padding-inline-end))',
+})()
 
-const overrideElevation = stringTokens(overrideComponentTokens<keyof typeof ElevationDefinition>(
-    '--mdc-elevation',
-    {
-        'enabled-level': 'var(--_enabled-container-elevation)',
-        'enabled-shadow-color': 'var(--_container-shadow-color)',
-    },
-))
+const overrideElevation = overrideTokens<typeof ElevationDefinition>(
+    '--mdc-elevation'
+)({
+    'enabled-level': 'var(--_enabled-container-elevation)',
+    'enabled-shadow-color': 'var(--_container-shadow-color)',
+})()
 
-const overrideTypography = stringTokens(overrideComponentTokens<keyof typeof TypographyDefinition>(
-    '--mdc-typography',
-    {
-        'title-small-font': 'var(--_enabled-headline-font)',
-        'title-small-size': 'var(--_enabled-headline-size)',
-        'title-small-line-height': 'var(--_enabled-headline-line-height)',
-        'title-small-weight': 'var(--_enabled-headline-weight)',
-        'title-small-tracking': 'var(--_enabled-headline-tracking)',
-    },
-))
+const overrideTypography = overrideTokens<typeof TypographyDefinition>(
+    '--mdc-typography'
+)({
+    'title-small-regular-font': 'var(--_enabled-headline-font)',
+    'title-small-regular-size': 'var(--_enabled-headline-size)',
+    'title-small-regular-leading': 'var(--_enabled-headline-line-height)',
+    'title-small-regular-weight': 'var(--_enabled-headline-weight)',
+    'title-small-regular-tracking': 'var(--_enabled-headline-tracking)',
+})()
 
 export const NavigationDrawerStyles = [
     // Token injection

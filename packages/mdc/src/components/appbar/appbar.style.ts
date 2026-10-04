@@ -3,17 +3,11 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { css, unsafeCSS } from 'lit'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
-import { AppBarDefinition } from '../../component-definitions/appbar.definition'
+import { css } from 'lit'
+import { stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { AppBarDefinition } from './appbar.definition'
 
-const tokenRecord = defineTokenRefsRecord(AppBarDefinition, {
-    expandShapes: true,
-    useBaseFallback: true,
-    prefix: '--mdc-appbar',
-})
-
-const tokenString = unsafeCSS(defineVars(tokenRecord, true).join(''))
+const tokenString = stringifyTokens('--mdc-appbar')(AppBarDefinition)
 
 export const AppBarStyles = css`
     :host {

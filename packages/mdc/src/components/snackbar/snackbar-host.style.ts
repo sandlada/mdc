@@ -3,21 +3,16 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { css, unsafeCSS } from 'lit'
-import { SnackbarHostDefinition } from '../../component-definitions/snackbar-host.definition'
-import { defineTokenRefsRecord, defineVars } from '@sandlada/jss'
+import { css } from 'lit'
+import { SnackbarHostDefinition } from './snackbar-host.definition'
+import { stringifyTokens } from '@sandlada/styles/adapters/lit'
 
-const tokenRecord = defineTokenRefsRecord(SnackbarHostDefinition, {
-    expandShapes: true,
-    useBaseFallback: true,
-    prefix: '--mdc-snackbar-host',
-})
-const tokenString = defineVars(tokenRecord, true).join('')
+const tokenString = stringifyTokens('--mdc-snackbar-host')(SnackbarHostDefinition)
 
 const base = css`
     @layer mdc.snackbar-host.variable {
         :host {
-            ${unsafeCSS(tokenString)};
+            ${tokenString};
         }
     }
 

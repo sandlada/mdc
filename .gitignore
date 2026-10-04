@@ -59,6 +59,9 @@ dist
 .gemini
 .jules
 .agents
+.teamwork
+.opencode
+!.opencode/skills
 .superpower
 docs/superpower
 docs/.superpower
@@ -77,3 +80,5 @@ docs/.superpowers
 !SPEC.md
 !USAGE.md
 *.py
+.playwright-cli
+.playwright-mcp
