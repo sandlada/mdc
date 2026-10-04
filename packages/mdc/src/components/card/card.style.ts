@@ -9,19 +9,20 @@ import {
     ElevatedCardDefinition,
     FilledCardDefinition,
     OutlinedCardDefinition
-} from '../../component-definitions/card.definition'
-import type { ElevationDefinition } from '../../component-definitions/elevation.definition'
-import type { RippleDefinition } from '../../component-definitions/ripple.definition'
-import { mapStateTriggers, pipe } from '../../utils/styles'
-import { createStyleSheet, overrideTokens, stringifyTokens } from '../../utils/styles/lit'
+} from './card.definition'
+import type { ElevationDefinition } from '../elevation/elevation.definition'
+import type { RippleDefinition } from '../ripple/ripple.definition'
+import { flow } from '@sandlada/styles/foundation'
+import { emptyTables, withState } from '@sandlada/styles/schema'
+import { createStyleSheet, overrideTokens, stringifyTokens } from '@sandlada/styles/adapters/lit'
 
 const stringify = stringifyTokens('--mdc-card')
 const filled = stringify(FilledCardDefinition)
 const outlined = stringify(OutlinedCardDefinition)
 const elevated = stringify(ElevatedCardDefinition)
 
-const stylePart = pipe(
-    mapStateTriggers({
+const tables = flow(
+    withState({
         'enabled': '',
         'hovered': ':hover',
         'focused': ':focus-within',
@@ -29,10 +30,11 @@ const stylePart = pipe(
         // 'dragged': ':drag',
         'disabled': '.disabled',
         'round': '.round',
-        'square': '.square',
-    }),
-    createStyleSheet
-)(CardDefinitionVariants)(() => css`
+        'square': '.square'
+    })
+)(emptyTables)
+
+const stylePart = createStyleSheet(tables)(CardDefinitionVariants)(() => css`
     @layer mdc.card.component {
         :host {
             display: inline-flex;
