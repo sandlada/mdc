@@ -81,15 +81,20 @@ properties below. Widths are recomputed when the container resizes.
 
 | Property | Default |
 | -------- | ------- |
-| `--mdc-carousel-large-item-width` | computed |
+| `--mdc-carousel-small-item-width`  | computed |
 | `--mdc-carousel-medium-item-width` | computed |
-| `--mdc-carousel-small-item-width` | computed |
-| `--mdc-carousel-large-item-shape` | `28px` |
-| `--mdc-carousel-medium-item-shape` | `20px` |
-| `--mdc-carousel-small-item-shape` | `12px` |
-| `--mdc-carousel-item-spacing` | `8px` |
-| `--mdc-carousel-leading-padding` | `16px` |
-| `--mdc-carousel-trailing-padding` | `16px` |
-| `--mdc-carousel-top-padding` | `8px` |
-| `--mdc-carousel-bottom-padding` | `8px` |
-| `--mdc-carousel-item-height` | `auto` (stretched to tallest) |
+| `--mdc-carousel-large-item-width`  | computed |
+| `--mdc-carousel-*-item-shape-start-start` | `28px` / `20px` / `12px` |
+| `--mdc-carousel-*-item-shape-start-end`   | `28px` / `20px` / `12px` |
+| `--mdc-carousel-*-item-shape-end-start`   | `28px` / `20px` / `12px` |
+| `--mdc-carousel-*-item-shape-end-end`     | `28px` / `20px` / `12px` |
+| `--mdc-carousel-item-spacing`             | `8px` |
+| `--mdc-carousel-item-height`              | `auto` (stretched to tallest) |
+| `--mdc-carousel-container-padding-block-start`  | `8px` |
+| `--mdc-carousel-container-padding-block-end`    | `8px` |
+| `--mdc-carousel-container-padding-inline-start` | `16px` |
+| `--mdc-carousel-container-padding-inline-end`   | `16px` |
+
+`*` in the shape rows stands for `small` / `medium` / `large` (the item size);
+the per-size defaults are the extra-large (`28px`), large-increased (`20px`)
+and medium (`12px`) MD3 corners respectively.

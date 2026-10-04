@@ -44,7 +44,7 @@ export interface ICarouselItem extends LitElement {
  *
  * Item widths are derived from `preferred-item-width` using the Jetpack
  * Compose Material 3 formulas and are exposed as inheritable CSS custom
- * properties (`--_item-width-*` / `--_item-shape-*`), so every `size` value
+ * properties (`--_*-item-width` / `--_*-item-shape-*`), so every `size` value
  * differs only in width and roundness while sharing one height.
  *
  * @slot — One or more `mdc-carousel-item` elements.
@@ -52,18 +52,27 @@ export interface ICarouselItem extends LitElement {
  * @fires carousel-active-change — Dispatched when the focal (leading) item
  *     changes, on scroll or via `scrollToItem()`.
  *
- * @cssproperty --mdc-carousel-large-item-width
- * @cssproperty --mdc-carousel-medium-item-width
  * @cssproperty --mdc-carousel-small-item-width
- * @cssproperty --mdc-carousel-large-item-shape
- * @cssproperty --mdc-carousel-medium-item-shape
- * @cssproperty --mdc-carousel-small-item-shape
+ * @cssproperty --mdc-carousel-medium-item-width
+ * @cssproperty --mdc-carousel-large-item-width
+ * @cssproperty --mdc-carousel-small-item-shape-start-start
+ * @cssproperty --mdc-carousel-small-item-shape-start-end
+ * @cssproperty --mdc-carousel-small-item-shape-end-start
+ * @cssproperty --mdc-carousel-small-item-shape-end-end
+ * @cssproperty --mdc-carousel-medium-item-shape-start-start
+ * @cssproperty --mdc-carousel-medium-item-shape-start-end
+ * @cssproperty --mdc-carousel-medium-item-shape-end-start
+ * @cssproperty --mdc-carousel-medium-item-shape-end-end
+ * @cssproperty --mdc-carousel-large-item-shape-start-start
+ * @cssproperty --mdc-carousel-large-item-shape-start-end
+ * @cssproperty --mdc-carousel-large-item-shape-end-start
+ * @cssproperty --mdc-carousel-large-item-shape-end-end
  * @cssproperty --mdc-carousel-item-spacing
- * @cssproperty --mdc-carousel-leading-padding
- * @cssproperty --mdc-carousel-trailing-padding
- * @cssproperty --mdc-carousel-top-padding
- * @cssproperty --mdc-carousel-bottom-padding
  * @cssproperty --mdc-carousel-item-height
+ * @cssproperty --mdc-carousel-container-padding-block-start
+ * @cssproperty --mdc-carousel-container-padding-block-end
+ * @cssproperty --mdc-carousel-container-padding-inline-start
+ * @cssproperty --mdc-carousel-container-padding-inline-end
  */
 export interface ICarousel extends LitElement {
     /** Visual variant: `'multi-browse'` (default) | `'uncontained'`. */

@@ -30,12 +30,21 @@ declare global {
  *
  * @slot — The cell content (image, card, label, …).
  *
- * @cssproperty --mdc-carousel-large-item-width
- * @cssproperty --mdc-carousel-medium-item-width
  * @cssproperty --mdc-carousel-small-item-width
- * @cssproperty --mdc-carousel-large-item-shape
- * @cssproperty --mdc-carousel-medium-item-shape
- * @cssproperty --mdc-carousel-small-item-shape
+ * @cssproperty --mdc-carousel-medium-item-width
+ * @cssproperty --mdc-carousel-large-item-width
+ * @cssproperty --mdc-carousel-small-item-shape-start-start
+ * @cssproperty --mdc-carousel-small-item-shape-start-end
+ * @cssproperty --mdc-carousel-small-item-shape-end-start
+ * @cssproperty --mdc-carousel-small-item-shape-end-end
+ * @cssproperty --mdc-carousel-medium-item-shape-start-start
+ * @cssproperty --mdc-carousel-medium-item-shape-start-end
+ * @cssproperty --mdc-carousel-medium-item-shape-end-start
+ * @cssproperty --mdc-carousel-medium-item-shape-end-end
+ * @cssproperty --mdc-carousel-large-item-shape-start-start
+ * @cssproperty --mdc-carousel-large-item-shape-start-end
+ * @cssproperty --mdc-carousel-large-item-shape-end-start
+ * @cssproperty --mdc-carousel-large-item-shape-end-end
  * @cssproperty --mdc-carousel-item-height
  */
 @customElement('mdc-carousel-item')

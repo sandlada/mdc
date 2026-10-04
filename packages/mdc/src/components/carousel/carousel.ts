@@ -26,7 +26,7 @@ declare global {
  * A horizontal carousel container that owns layout and focal tracking for its
  * `mdc-carousel-item` children. Item widths derive from `preferred-item-width`
  * (the large size; small ≈ ⅓ of large clamped to 40–56px, medium the average)
- * and are published as inheritable `--_item-width-*` / `--_item-shape-*`
+ * and are published as inheritable `--_*-item-width` / `--_*-item-shape-*`
  * custom properties, so the three sizes differ only in width and roundness.
  *
  * @slot — One or more `mdc-carousel-item` elements.
@@ -35,18 +35,27 @@ declare global {
  *     Dispatched when the focal (leading) item changes, on scroll or via
  *     `scrollToItem()`. --bubbles --composed
  *
- * @cssproperty --mdc-carousel-large-item-width
- * @cssproperty --mdc-carousel-medium-item-width
  * @cssproperty --mdc-carousel-small-item-width
- * @cssproperty --mdc-carousel-large-item-shape
- * @cssproperty --mdc-carousel-medium-item-shape
- * @cssproperty --mdc-carousel-small-item-shape
+ * @cssproperty --mdc-carousel-medium-item-width
+ * @cssproperty --mdc-carousel-large-item-width
+ * @cssproperty --mdc-carousel-small-item-shape-start-start
+ * @cssproperty --mdc-carousel-small-item-shape-start-end
+ * @cssproperty --mdc-carousel-small-item-shape-end-start
+ * @cssproperty --mdc-carousel-small-item-shape-end-end
+ * @cssproperty --mdc-carousel-medium-item-shape-start-start
+ * @cssproperty --mdc-carousel-medium-item-shape-start-end
+ * @cssproperty --mdc-carousel-medium-item-shape-end-start
+ * @cssproperty --mdc-carousel-medium-item-shape-end-end
+ * @cssproperty --mdc-carousel-large-item-shape-start-start
+ * @cssproperty --mdc-carousel-large-item-shape-start-end
+ * @cssproperty --mdc-carousel-large-item-shape-end-start
+ * @cssproperty --mdc-carousel-large-item-shape-end-end
  * @cssproperty --mdc-carousel-item-spacing
- * @cssproperty --mdc-carousel-leading-padding
- * @cssproperty --mdc-carousel-trailing-padding
- * @cssproperty --mdc-carousel-top-padding
- * @cssproperty --mdc-carousel-bottom-padding
  * @cssproperty --mdc-carousel-item-height
+ * @cssproperty --mdc-carousel-container-padding-block-start
+ * @cssproperty --mdc-carousel-container-padding-block-end
+ * @cssproperty --mdc-carousel-container-padding-inline-start
+ * @cssproperty --mdc-carousel-container-padding-inline-end
  */
 @customElement('mdc-carousel')
 export class Carousel extends BaseCarousel {

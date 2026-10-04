@@ -12,8 +12,8 @@
  * the large item targets `preferred-item-width`, the small item clamps to
  * roughly a third of it (40–56px, `CarouselDefaults.Min/MaxSmallItemSize`)
  * and the medium item is their average. Sizes are recomputed on container
- * resize and published as `--_carousel-computed-*` custom properties that the
- * items consume via `--_item-width-*`.
+ * resize and published as `--_computed-*-item-width` custom properties that
+ * the definition's `--_*-item-width` chain (and thereby the items) consume.
  *
  * The focal item is the cell resting at the leading keyline (inline-start
  * padding position); it is tracked across scroll and surfaced through the
@@ -91,14 +91,18 @@ export abstract class BaseCarousel extends LitElement implements ICarousel {
 
     /**
      * Scrolls the item at `index` so its start edge rests on the leading
-     * keyline. Resolves when the smooth scroll has been requested.
+     * keyline. Resolves when the smooth scroll has been requested; honors
+     * `prefers-reduced-motion` by scrolling instantly.
      */
     public scrollToItem(index: number): void {
         const item = this.items[index]
         if (!item) return
         // `scrollIntoView` honors the container's scroll-padding, so the item
         // rests exactly on the leading keyline (and mirrors correctly in RTL).
-        item.scrollIntoView({ block: 'nearest', inline: 'start', behavior: 'smooth' })
+        const behavior = matchMedia('(prefers-reduced-motion: reduce)').matches
+            ? 'auto'
+            : 'smooth'
+        item.scrollIntoView({ block: 'nearest', inline: 'start', behavior })
     }
 
     protected override render(): TemplateResult {
@@ -119,7 +123,8 @@ export abstract class BaseCarousel extends LitElement implements ICarousel {
     /**
      * Derives the large / medium / small item widths from
      * `preferred-item-width` and the current container width, then publishes
-     * them as `--_carousel-computed-*` for the slotted items.
+     * them as `--_computed-*-item-width` for the definition's per-size
+     * `--_*-item-width` chain.
      */
     private computeSizes(): void {
         const containerWidth = this.clientWidth
@@ -130,9 +135,9 @@ export abstract class BaseCarousel extends LitElement implements ICarousel {
             Math.max(MIN_SMALL_ITEM_SIZE, Math.round(large / 3)),
         )
         const medium = Math.round((large + small) / 2)
-        this.style.setProperty('--_carousel-computed-large', `${large}px`)
-        this.style.setProperty('--_carousel-computed-medium', `${medium}px`)
-        this.style.setProperty('--_carousel-computed-small', `${small}px`)
+        this.style.setProperty('--_computed-large-item-width', `${large}px`)
+        this.style.setProperty('--_computed-medium-item-width', `${medium}px`)
+        this.style.setProperty('--_computed-small-item-width', `${small}px`)
         this.updateActiveItem()
     }
 
@@ -220,6 +225,6 @@ export abstract class BaseCarousel extends LitElement implements ICarousel {
 
     /** Resolved inline-start padding, used as the leading keyline offset. */
     private get leadingPadding(): number {
-        return parseFloat(getComputedStyle(this).getPropertyValue('--_leading-padding')) || 16
+        return parseFloat(getComputedStyle(this).getPropertyValue('--_container-padding-inline-start')) || 0
     }
 }

@@ -6,11 +6,12 @@
  * @fileoverview
  * Styles for `mdc-carousel-item` — a sized cell of an `mdc-carousel`.
  *
- * For a horizontal carousel the three sizes differ only in width and corner
- * roundness; the width / shape values come from inheritable `--_item-width-*`
- * / `--_item-shape-*` custom properties that the owning carousel publishes.
- * The cell's height is uniform (`--_item-height`) and stretched to the tallest
- * item by the carousel's `align-items: stretch`.
+ * The item declares no tokens of its own: the owning carousel publishes the
+ * per-size `--_small/medium/large-item-width` and `--_*-item-shape-*` custom
+ * properties (see `carousel.definition.ts`) and they inherit across the
+ * shadow boundary into this light-DOM child. The cell's height is uniform
+ * (`--_item-height`) and stretched to the tallest item by the carousel's
+ * `align-items: stretch`.
  */
 import { css } from 'lit'
 
@@ -24,18 +25,27 @@ export const CarouselItemStyles = css`
     }
 
     :host([size='large']) {
-        width: var(--_item-width-large);
-        border-radius: var(--_item-shape-large);
+        width: var(--_large-item-width);
+        border-start-start-radius: var(--_large-item-shape-start-start);
+        border-start-end-radius: var(--_large-item-shape-start-end);
+        border-end-start-radius: var(--_large-item-shape-end-start);
+        border-end-end-radius: var(--_large-item-shape-end-end);
     }
 
     :host([size='medium']) {
-        width: var(--_item-width-medium);
-        border-radius: var(--_item-shape-medium);
+        width: var(--_medium-item-width);
+        border-start-start-radius: var(--_medium-item-shape-start-start);
+        border-start-end-radius: var(--_medium-item-shape-start-end);
+        border-end-start-radius: var(--_medium-item-shape-end-start);
+        border-end-end-radius: var(--_medium-item-shape-end-end);
     }
 
     :host([size='small']) {
-        width: var(--_item-width-small);
-        border-radius: var(--_item-shape-small);
+        width: var(--_small-item-width);
+        border-start-start-radius: var(--_small-item-shape-start-start);
+        border-start-end-radius: var(--_small-item-shape-start-end);
+        border-end-start-radius: var(--_small-item-shape-end-start);
+        border-end-end-radius: var(--_small-item-shape-end-end);
     }
 
     /* Slotted content fills the cell. */
