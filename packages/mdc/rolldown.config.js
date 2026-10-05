@@ -2,7 +2,6 @@ import { readdirSync, statSync } from 'node:fs'
 import { join, relative, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'rolldown'
-import { mdcStyles } from '@sandlada/styles/adapters/rolldown'
 import template from 'rollup-plugin-html-literals'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
@@ -74,16 +73,8 @@ export default defineConfig({
     platform: 'browser',
     tsconfig: './tsconfig.json',
     plugins: [
-        // mdcStyles must run before template(): it compiles marked `css`
-        // literals (@state / nesting) into standard CSS. Requires
-        // `@sandlada/styles` built first (root `npm run build` orders
-        // styles before mdc).
-        mdcStyles(),
-        // CSS minification is intentionally disabled: shipped CSS is produced
-        // at runtime by createStyleSheet (already minimal base+deltas) and
-        // wrapped in unsafeCSS(), which this plugin skips anyway. Minifying
-        // source-level `css` literals has zero download benefit and crashes
-        // clean-css on custom syntax (@state / nesting / @layer lists).
+        // Shipped CSS is plain native CSS in source-level `css` literals;
+        // minification stays disabled (see template() below).
         template({
             options: {
                 shouldMinifyCSS: () => false,

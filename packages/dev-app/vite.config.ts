@@ -4,7 +4,6 @@ import { readdirSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 
 const srcRoot = fileURLToPath(new URL('../mdc/src', import.meta.url))
-const stylesRoot = fileURLToPath(new URL('../styles/src', import.meta.url))
 
 // Watch the library source so import.meta.glob modules over mdc files (e.g.
 // demo-loader.ts) see `add`/`unlink` events for new demo files or component
@@ -43,7 +42,6 @@ export default defineConfig(({ command }) => ({
             { find: '@sandlada/mdc/utils/context-provider', replacement: `${srcRoot}/utils/context-provider/index.ts` },
             { find: '@sandlada/mdc/utils', replacement: `${srcRoot}/utils.ts` },
             { find: /^@sandlada\/mdc\/(.*)/, replacement: `${srcRoot}/$1` },
-            { find: /^@sandlada\/styles\/(.*)/, replacement: `${stylesRoot}/$1` },
         ],
     },
     build: command === 'build' ? {

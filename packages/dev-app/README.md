@@ -18,7 +18,7 @@ npm run preview:dev  # preview the production build
 
 ```
 packages/dev-app/
-├── index.html                    # meta-refresh redirect to Styles Playground
+├── index.html                    # meta-refresh redirect to Divider
 ├── components/
 │   └── {component-name}/index.html   # one page per enabled component
 ├── shared/
@@ -47,9 +47,9 @@ Demo snippets live next to the component in `packages/mdc/src/components/{name}/
 ## Sidebar sections
 
 The sidebar (`shared/docs-sidebar.ts`, grouped in `shared/docs-manifest.ts`) has
-three sections in order: **Style Playground** (the `playground` page),
-**Base Components** (`BASE_COMPONENT_ORDER`: divider, elevation, focus-ring,
-ripple, badge, icon, typography), and **Components** (everything else).
+two sections in order: **Base Components** (`BASE_COMPONENT_ORDER`: divider,
+elevation, focus-ring, ripple, badge, icon, typography), and **Components**
+(everything else).
 
 ## Responsive sidebar
 
@@ -77,7 +77,7 @@ so while the dev server is running:
 
 - **New component page** — drop a folder under `components/{name}/index.html`;
   the matching sidebar section picks it up (page auto-reloads). No edits to
-  `docs-sidebar.ts` or the root `index.html` (which redirects to the playground).
+  `docs-sidebar.ts` or the root `index.html` (which redirects to divider).
 - **New demo file** — add `{name}.{prop}.demo.html` under the component's
   `demo/` folder; it appears on the component page automatically, appended
   after the curated `demo-files` list.

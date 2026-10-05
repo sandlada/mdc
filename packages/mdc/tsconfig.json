@@ -35,10 +35,7 @@
         "noImplicitThis": true,
         "target": "ESNext",
         "useDefineForClassFields": false,
-        "verbatimModuleSyntax": true,
-        "plugins": [
-            { "name": "vscode-mdc" }
-        ]
+        "verbatimModuleSyntax": true
     },
     "include": [
         "./src/**/*"

@@ -33,18 +33,15 @@
         "build:dts": "tsc --project tsconfig.json --emitDeclarationOnly --outDir build --skipLibCheck",
         "smoke": "node .smoke/run.mjs",
         "test": "vitest run",
-        "test:watch": "vitest",
-        "check:spec-versions": "node ../styles/scripts/check-spec-versions.mjs"
+        "test:watch": "vitest"
     },
     "dependencies": {
         "@floating-ui/dom": "^1.8.0",
         "@lit/context": "^1.1.6",
         "@sandlada/mdk": "^3.0.0-20260624.c",
-        "@sandlada/styles": "*",
         "lit": "^3.3.3"
     },
     "devDependencies": {
-        "vscode-mdc": "*",
         "rolldown": "^1.2.4",
         "rollup-plugin-html-literals": "^2.0.1",
         "tslib": "^2.8.1",

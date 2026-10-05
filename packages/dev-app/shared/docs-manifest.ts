@@ -42,8 +42,6 @@ export const components: ComponentEntry[] = Object.keys(pageModules)
         return { name, label, href: `/components/${name}/` }
     })
 
-export const PLAYGROUND_NAME = 'playground'
-
 export const BASE_COMPONENT_ORDER = [
     'divider',
     'elevation',
@@ -56,12 +54,10 @@ export const BASE_COMPONENT_ORDER = [
 
 const byName = new Map(components.map((c) => [c.name, c]))
 
-export const playground: ComponentEntry | undefined = byName.get(PLAYGROUND_NAME)
-
 export const baseComponents: ComponentEntry[] = BASE_COMPONENT_ORDER
     .map((name) => byName.get(name))
     .filter((c): c is ComponentEntry => c !== undefined)
 
-const excluded = new Set([PLAYGROUND_NAME, ...BASE_COMPONENT_ORDER])
+const excluded = new Set([...BASE_COMPONENT_ORDER])
 
 export const regularComponents: ComponentEntry[] = components.filter((c) => !excluded.has(c.name))

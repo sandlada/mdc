@@ -7,7 +7,7 @@
 import { LitElement, css, html, nothing } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
 import { Easing } from '@sandlada/mdk'
-import { baseComponents, playground, regularComponents, type ComponentEntry } from './docs-manifest.js'
+import { baseComponents, regularComponents, type ComponentEntry } from './docs-manifest.js'
 
 /**
  * Cancelable event fired when the sidebar requests to close
@@ -208,10 +208,6 @@ export class DocsSidebar extends LitElement {
                 ` : nothing}
                 <div class="panel">
                     <nav>
-                        <section aria-label="Style Playground">
-                            <h3>Style Playground</h3>
-                            ${playground !== undefined ? this.renderLinks([playground]) : nothing}
-                        </section>
                         <section aria-label="Base Components">
                             <h3>Base Components</h3>
                             ${this.renderLinks(baseComponents)}
