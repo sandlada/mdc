@@ -5,31 +5,33 @@
  */
 import { State } from '@sandlada/mdk'
 import { Color } from '../../utils/color'
-import { createStyleDefinition, defineSchema, type NDJointArray, type PrimitiveTokenValue } from '@sandlada/styles/schema'
+import { createStyleDefinition, type PrimitiveTokenValue } from '../../utils/style'
 import { ButtonInteractions, ButtonVariants, type ButtonInteraction, type ButtonVariant } from './button.definition'
 
 export const ToggleStates = ['unselected', 'selected'] as const
 
 export type ToggleState = (typeof ToggleStates)[number]
 
-export const ToggleButtonSchema = defineSchema([
-    ButtonInteractions,
-    ButtonVariants,
-    ToggleStates
-])
-
 type Cell = PrimitiveTokenValue | null
 type ToggleTable = Record<ButtonInteraction, Record<ButtonVariant, readonly [Cell, Cell]>>
 
-const joint3 = (pick: (interaction: ButtonInteraction, variant: ButtonVariant, toggle: ToggleState) => Cell): NDJointArray =>
-    ButtonInteractions.map(interaction =>
-        ButtonVariants.map(variant =>
-            ToggleStates.map(toggle => pick(interaction, variant, toggle))
-        )
-    )
+const flattenJoint3 = (key: string, pick: (interaction: ButtonInteraction, variant: ButtonVariant, toggle: ToggleState) => Cell): Record<string, Exclude<Cell, null>> => {
+    const flat: Record<string, Exclude<Cell, null>> = {}
+    for (const interaction of ButtonInteractions) {
+        for (const variant of ButtonVariants) {
+            for (const toggle of ToggleStates) {
+                const value = pick(interaction, variant, toggle)
+                if (value !== null) {
+                    flat[`${interaction}-${variant}-${toggle}-${key}`] = value
+                }
+            }
+        }
+    }
+    return flat
+}
 
-const joint3FromPairs = (table: ToggleTable): NDJointArray =>
-    joint3((interaction, variant, toggle) => table[interaction][variant][toggle === 'selected' ? 1 : 0])
+const flattenJoint3FromPairs = (key: string, table: ToggleTable): Record<string, Exclude<Cell, null>> =>
+    flattenJoint3(key, (interaction, variant, toggle) => table[interaction][variant][toggle === 'selected' ? 1 : 0])
 
 const toggleContainerColorTable: ToggleTable = {
     enabled: { filled: [Color.SurfaceContainer, Color.Primary], 'filled-tonal': [Color.SecondaryContainer, Color.Secondary], elevated: [Color.SurfaceContainerLow, Color.Primary], outlined: [`transparent`, Color.InverseSurface], text: [`transparent`, `transparent`] },
@@ -87,14 +89,14 @@ const containerElevationTable: Record<ButtonInteraction, Record<ButtonVariant, C
     disabled: { filled: `0`, 'filled-tonal': `0`, elevated: `0`, outlined: null, text: null }
 }
 
-export const ToggleButtonDefinition = createStyleDefinition(ToggleButtonSchema)({
-    'container-color': joint3FromPairs(toggleContainerColorTable),
-    'label-color': joint3FromPairs(toggleLabelColorTable),
-    'icon-color': joint3FromPairs(toggleIconColorTable),
-    'state-layer-color': joint3FromPairs(toggleStateLayerColorTable),
-    'outline-color': joint3FromPairs(toggleOutlineColorTable),
-    'container-shadow-color': joint3((interaction, variant) => containerShadowColorTable[interaction][variant]),
-    'container-elevation': joint3((interaction, variant) => containerElevationTable[interaction][variant]),
+export const ToggleButtonDefinition = createStyleDefinition({
+    ...flattenJoint3FromPairs('container-color', toggleContainerColorTable),
+    ...flattenJoint3FromPairs('label-color', toggleLabelColorTable),
+    ...flattenJoint3FromPairs('icon-color', toggleIconColorTable),
+    ...flattenJoint3FromPairs('state-layer-color', toggleStateLayerColorTable),
+    ...flattenJoint3FromPairs('outline-color', toggleOutlineColorTable),
+    ...flattenJoint3('container-shadow-color', (interaction, variant) => containerShadowColorTable[interaction][variant]),
+    ...flattenJoint3('container-elevation', (interaction, variant) => containerElevationTable[interaction][variant]),
 
     'state-layer-opacity': {
         hovered: State.HoveredStateLayerOpacity,

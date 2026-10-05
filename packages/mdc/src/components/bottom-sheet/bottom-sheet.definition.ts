@@ -9,9 +9,8 @@
 // side-sheet.definition.ts / dialog.definition.ts / search.definition.ts.
 import { ElevationLevel, Shape } from '@sandlada/mdk'
 import { Color } from '../../utils/color'
-import { createStyleDefinition, defineSchema } from '@sandlada/styles/schema'
+import { createStyleDefinition } from '../../utils/style'
 
-export const BottomSheetSchema = defineSchema(['enabled', 'dragged'] as const)
 
 /**
  * Style definitions for `mdc-bottom-sheet`.

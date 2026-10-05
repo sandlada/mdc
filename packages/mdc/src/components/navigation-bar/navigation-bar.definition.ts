@@ -5,12 +5,8 @@
  */
 import { Shape } from '@sandlada/mdk'
 import { Color } from '../../utils/color'
-import { createStyleDefinition, defineSchema } from '@sandlada/styles/schema'
+import { createStyleDefinition } from '../../utils/style'
 
-export const NavigationBarSchema = defineSchema([
-    ['enabled'],
-    ['vertical', 'horizontal', 'vertical-xr']
-] as const)
 
 export const NavigationBarDefinition = createStyleDefinition({
     // Peek mode: visible sliver size when the bar is mostly docked outside the

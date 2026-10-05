@@ -5,7 +5,7 @@
  */
 import { State } from '@sandlada/mdk'
 import { Color } from '../../utils/color'
-import { createStyleDefinition, defineSchema, type NDJointArray, type PrimitiveTokenValue } from '@sandlada/styles/schema'
+import { createStyleDefinition, type PrimitiveTokenValue } from '../../utils/style'
 
 export const ButtonInteractions = ['enabled', 'hovered', 'focused', 'pressed', 'disabled'] as const
 export const ButtonVariants = ['filled', 'filled-tonal', 'elevated', 'outlined', 'text'] as const
@@ -13,18 +13,21 @@ export const ButtonVariants = ['filled', 'filled-tonal', 'elevated', 'outlined',
 export type ButtonInteraction = (typeof ButtonInteractions)[number]
 export type ButtonVariant = (typeof ButtonVariants)[number]
 
-export const ButtonSchema = defineSchema([
-    ButtonInteractions,
-    ButtonVariants
-])
-
 type Cell = PrimitiveTokenValue | null
 type InteractionVariantTable = Record<ButtonInteraction, Record<ButtonVariant, Cell>>
 
-const joint2 = (pick: (interaction: ButtonInteraction, variant: ButtonVariant) => Cell): NDJointArray =>
-    ButtonInteractions.map(interaction =>
-        ButtonVariants.map(variant => pick(interaction, variant))
-    )
+const flattenJoint2 = (key: string, pick: (interaction: ButtonInteraction, variant: ButtonVariant) => Cell): Record<string, Exclude<Cell, null>> => {
+    const flat: Record<string, Exclude<Cell, null>> = {}
+    for (const interaction of ButtonInteractions) {
+        for (const variant of ButtonVariants) {
+            const value = pick(interaction, variant)
+            if (value !== null) {
+                flat[`${interaction}-${variant}-${key}`] = value
+            }
+        }
+    }
+    return flat
+}
 
 const containerColorTable: InteractionVariantTable = {
     enabled: { filled: Color.Primary, 'filled-tonal': Color.SecondaryContainer, elevated: Color.SurfaceContainerLow, outlined: `transparent`, text: `transparent` },
@@ -82,14 +85,14 @@ const outlineColorTable: InteractionVariantTable = {
     disabled: { filled: null, 'filled-tonal': null, elevated: null, outlined: Color.OutlineVariant, text: null }
 }
 
-export const ButtonDefinition = createStyleDefinition(ButtonSchema)({
-    'container-color': joint2((interaction, variant) => containerColorTable[interaction][variant]),
-    'container-shadow-color': joint2((interaction, variant) => containerShadowColorTable[interaction][variant]),
-    'container-elevation': joint2((interaction, variant) => containerElevationTable[interaction][variant]),
-    'label-color': joint2((interaction, variant) => labelColorTable[interaction][variant]),
-    'icon-color': joint2((interaction, variant) => iconColorTable[interaction][variant]),
-    'state-layer-color': joint2((interaction, variant) => stateLayerColorTable[interaction][variant]),
-    'outline-color': joint2((interaction, variant) => outlineColorTable[interaction][variant]),
+export const ButtonDefinition = createStyleDefinition({
+    ...flattenJoint2('container-color', (interaction, variant) => containerColorTable[interaction][variant]),
+    ...flattenJoint2('container-shadow-color', (interaction, variant) => containerShadowColorTable[interaction][variant]),
+    ...flattenJoint2('container-elevation', (interaction, variant) => containerElevationTable[interaction][variant]),
+    ...flattenJoint2('label-color', (interaction, variant) => labelColorTable[interaction][variant]),
+    ...flattenJoint2('icon-color', (interaction, variant) => iconColorTable[interaction][variant]),
+    ...flattenJoint2('state-layer-color', (interaction, variant) => stateLayerColorTable[interaction][variant]),
+    ...flattenJoint2('outline-color', (interaction, variant) => outlineColorTable[interaction][variant]),
 
     'state-layer-opacity': {
         hovered: State.HoveredStateLayerOpacity,

@@ -6,13 +6,7 @@
 
 import { ElevationLevel, Shape, State } from '@sandlada/mdk'
 import { Color } from '../../utils/color'
-import { createStyleDefinition, defineSchema } from '@sandlada/styles/schema'
-import { expandPadding, expandShape } from '@sandlada/styles/tokens'
-
-export const CardSchema = defineSchema([
-    ['enabled', 'hovered', 'focused', 'pressed', 'dragged', 'disabled'],
-    ['round', 'square'],
-] as const)
+import { createStyleDefinition, expandPadding, expandShape } from '../../utils/style'
 
 const shared = {
     ...expandShape('container-shape')({
@@ -31,7 +25,7 @@ const shared = {
     'icon-size': `24px`,
 } as const
 
-export const ElevatedCardDefinition = createStyleDefinition(CardSchema)({
+export const ElevatedCardDefinition = createStyleDefinition({
     ...shared,
 
     'container-color': {
@@ -79,7 +73,7 @@ export const ElevatedCardDefinition = createStyleDefinition(CardSchema)({
     },
 })
 
-export const FilledCardDefinition = createStyleDefinition(CardSchema)({
+export const FilledCardDefinition = createStyleDefinition({
     ...shared,
 
     'container-color': {
@@ -127,7 +121,7 @@ export const FilledCardDefinition = createStyleDefinition(CardSchema)({
     },
 })
 
-export const OutlinedCardDefinition = createStyleDefinition(CardSchema)({
+export const OutlinedCardDefinition = createStyleDefinition({
     ...shared,
 
     'container-color': {

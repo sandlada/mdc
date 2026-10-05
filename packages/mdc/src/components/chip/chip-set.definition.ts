@@ -3,9 +3,8 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { createStyleDefinition, defineSchema } from '@sandlada/styles/schema'
+import { createStyleDefinition } from '../../utils/style'
 
-export const ChipSetSchema = defineSchema(['enabled'] as const)
 
 /**
  * Style definition for `mdc-chip-set`.

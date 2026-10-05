@@ -6,7 +6,7 @@
 
 import { describe, it, expect } from 'vitest'
 import { Color } from './color'
-import { createStyleDefinition, defineSchema } from '@sandlada/styles/schema'
+import { createStyleDefinition } from '../style'
 
 describe('Color', () => {
     it('provides MDK system color tokens', () => {
@@ -27,13 +27,12 @@ describe('Color', () => {
     })
 
     it('integrates seamlessly with createStyleDefinition', () => {
-        const schema = defineSchema(['enabled', 'hovered'] as const)
-        const def = createStyleDefinition(schema)({
-            'container-color': [Color.Surface, Color.Primary],
+        const def = createStyleDefinition({
+            'container-color': { enabled: Color.Surface, hovered: Color.Primary },
             'outline-color': Color.Outline
         })
 
-        expect(def.tokens['container-color']).toEqual([Color.Surface, Color.Primary])
+        expect(def.tokens['container-color']).toEqual({ enabled: Color.Surface, hovered: Color.Primary })
         expect(def.tokens['outline-color']).toBe(Color.Outline)
         expect(def.flatTokenKeys).toContain('container-color')
         expect(def.flatTokenKeys).toContain('outline-color')

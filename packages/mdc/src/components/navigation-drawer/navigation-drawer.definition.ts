@@ -5,9 +5,8 @@
  */
 import { ElevationLevel, Shape, Space, Typescale } from '@sandlada/mdk'
 import { Color } from '../../utils/color'
-import { createStyleDefinition, defineSchema } from '@sandlada/styles/schema'
+import { createStyleDefinition } from '../../utils/style'
 
-export const NavigationDrawerSchema = defineSchema(['enabled', 'dragged'] as const)
 
 /**
  * Style definitions for `mdc-navigation-drawer`.

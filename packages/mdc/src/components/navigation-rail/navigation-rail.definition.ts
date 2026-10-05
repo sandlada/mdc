@@ -16,13 +16,9 @@
  */
 import { ElevationLevel, Shape, Space } from '@sandlada/mdk'
 import { Color } from '../../utils/color'
-import { createStyleDefinition, defineSchema } from '@sandlada/styles/schema'
-import { expandShape } from '@sandlada/styles/tokens'
+import { createStyleDefinition } from '../../utils/style'
+import { expandShape } from '../../utils/style'
 
-export const NavigationRailSchema = defineSchema([
-    ['enabled'],
-    ['collapsed', 'expanded', 'collapsed-xr']
-] as const)
 
 type BaseNavigationProps
      =  'scrim-color'

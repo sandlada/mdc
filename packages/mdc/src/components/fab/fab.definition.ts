@@ -5,12 +5,9 @@
  */
 import { ElevationLevel, Shape, State, Typescale } from '@sandlada/mdk'
 import { Color } from '../../utils/color'
-import { createStyleDefinition, defineSchema, type PrimitiveTokenValue } from '@sandlada/styles/schema'
-import { expandPadding, expandShape, expandTypescale } from '@sandlada/styles/tokens'
+import { createStyleDefinition, type PrimitiveTokenValue } from '../../utils/style'
+import { expandPadding, expandShape, expandTypescale } from '../../utils/style'
 
-export const FabSchema = defineSchema([
-    ['small', 'medium', 'large']
-] as const)
 
 /**
  * Per-size shared tokens. Interaction states are expressed through flat
@@ -88,27 +85,27 @@ const fabVariantTokens = (
     'pressed-label-color': onContainerColor,
 })
 
-export const TonalPrimaryFabDefinition = createStyleDefinition(FabSchema)(
+export const TonalPrimaryFabDefinition = createStyleDefinition(
     fabVariantTokens(Color.PrimaryContainer, Color.OnPrimaryContainer)
 )
 
-export const TonalSecondaryFabDefinition = createStyleDefinition(FabSchema)(
+export const TonalSecondaryFabDefinition = createStyleDefinition(
     fabVariantTokens(Color.SecondaryContainer, Color.OnSecondaryContainer)
 )
 
-export const TonalTertiaryFabDefinition = createStyleDefinition(FabSchema)(
+export const TonalTertiaryFabDefinition = createStyleDefinition(
     fabVariantTokens(Color.TertiaryContainer, Color.OnTertiaryContainer)
 )
 
-export const PrimaryFabDefinition = createStyleDefinition(FabSchema)(
+export const PrimaryFabDefinition = createStyleDefinition(
     fabVariantTokens(Color.Primary, Color.OnPrimary)
 )
 
-export const SecondaryFabDefinition = createStyleDefinition(FabSchema)(
+export const SecondaryFabDefinition = createStyleDefinition(
     fabVariantTokens(Color.Secondary, Color.OnSecondary)
 )
 
-export const TertiaryFabDefinition = createStyleDefinition(FabSchema)(
+export const TertiaryFabDefinition = createStyleDefinition(
     fabVariantTokens(Color.Tertiary, Color.OnTertiary)
 )
 
@@ -125,27 +122,27 @@ const fabExtendedSharedTokens = {
     })
 }
 
-export const TonalPrimaryExtendedFabDefinition = createStyleDefinition(FabSchema)({
+export const TonalPrimaryExtendedFabDefinition = createStyleDefinition({
     ...fabVariantTokens(Color.PrimaryContainer, Color.OnPrimaryContainer),
     ...fabExtendedSharedTokens
 })
-export const TonalSecondaryExtendedFabDefinition = createStyleDefinition(FabSchema)({
+export const TonalSecondaryExtendedFabDefinition = createStyleDefinition({
     ...fabVariantTokens(Color.SecondaryContainer, Color.OnSecondaryContainer),
     ...fabExtendedSharedTokens
 })
-export const TonalTertiaryExtendedFabDefinition = createStyleDefinition(FabSchema)({
+export const TonalTertiaryExtendedFabDefinition = createStyleDefinition({
     ...fabVariantTokens(Color.TertiaryContainer, Color.OnTertiaryContainer),
     ...fabExtendedSharedTokens
 })
-export const PrimaryExtendedFabDefinition = createStyleDefinition(FabSchema)({
+export const PrimaryExtendedFabDefinition = createStyleDefinition({
     ...fabVariantTokens(Color.Primary, Color.OnPrimary),
     ...fabExtendedSharedTokens
 })
-export const SecondaryExtendedFabDefinition = createStyleDefinition(FabSchema)({
+export const SecondaryExtendedFabDefinition = createStyleDefinition({
     ...fabVariantTokens(Color.Secondary, Color.OnSecondary),
     ...fabExtendedSharedTokens
 })
-export const TertiaryExtendedFabDefinition = createStyleDefinition(FabSchema)({
+export const TertiaryExtendedFabDefinition = createStyleDefinition({
     ...fabVariantTokens(Color.Tertiary, Color.OnTertiary),
     ...fabExtendedSharedTokens
 })

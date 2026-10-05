@@ -5,13 +5,8 @@
  */
 import { Shape, State } from '@sandlada/mdk'
 import { Color } from '../../utils/color'
-import { createStyleDefinition, defineSchema } from '@sandlada/styles/schema'
+import { createStyleDefinition } from '../../utils/style'
 
-export const CheckboxSchema = defineSchema([
-    ['enabled', 'hovered', 'focused', 'pressed', 'disabled'],
-    ['unselected', 'selected', 'indeterminate'],
-    ['valid', 'error']
-] as const)
 
 export const CheckboxDefinition = createStyleDefinition({
     'container-shape-start-start'  : `2px`,

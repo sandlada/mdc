@@ -4,13 +4,9 @@
  * SPDX-License-Identifier: MIT
  */
 import { Shape } from '@sandlada/mdk'
-import { createStyleDefinition, defineSchema } from '@sandlada/styles/schema'
-import { expandShape } from '@sandlada/styles/tokens'
+import { createStyleDefinition } from '../../utils/style'
+import { expandShape } from '../../utils/style'
 
-export const ButtonGroupSchema = defineSchema([
-    ['enabled'],
-    ['extra-small', 'small', 'medium', 'large', 'extra-large']
-] as const)
 
 /**
  * Style definition for `mdc-button-group` — standard variant.

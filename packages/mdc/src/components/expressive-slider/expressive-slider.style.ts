@@ -38,7 +38,7 @@
 import { Duration, Easing, Shape } from '@sandlada/mdk'
 import { css, unsafeCSS } from 'lit'
 import { SliderDefinition } from '../slider/slider.definition'
-import { stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { stringifyTokens } from '../../utils/style'
 
 const tokensStringified = stringifyTokens('--mdc-expressive-slider')(SliderDefinition)
 

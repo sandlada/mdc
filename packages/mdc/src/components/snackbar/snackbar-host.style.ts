@@ -5,7 +5,7 @@
  */
 import { css } from 'lit'
 import { SnackbarHostDefinition } from './snackbar-host.definition'
-import { stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { stringifyTokens } from '../../utils/style'
 
 const tokenString = stringifyTokens('--mdc-snackbar-host')(SnackbarHostDefinition)
 

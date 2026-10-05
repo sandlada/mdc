@@ -5,12 +5,8 @@
  */
 import { Shape, State, Typescale } from '@sandlada/mdk'
 import { Color } from '../../utils/color'
-import { createStyleDefinition, defineSchema } from '@sandlada/styles/schema'
+import { createStyleDefinition } from '../../utils/style'
 
-export const SliderSchema = defineSchema([
-    ['enabled', 'hovered', 'focused', 'pressed', 'disabled'],
-    ['extra-small', 'small', 'medium', 'large', 'extra-large']
-] as const)
 
 /**
  * @version

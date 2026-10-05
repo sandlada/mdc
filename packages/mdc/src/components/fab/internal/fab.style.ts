@@ -3,7 +3,7 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { overrideTokens, stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { overrideTokens, stringifyTokens } from '../../../utils/style'
 import { css, unsafeCSS } from 'lit'
 import { PrimaryExtendedFabDefinition, SecondaryExtendedFabDefinition, TertiaryExtendedFabDefinition, TonalPrimaryExtendedFabDefinition, TonalSecondaryExtendedFabDefinition, TonalTertiaryExtendedFabDefinition } from '../fab.definition'
 import type { IconDefinition } from '../../icon/icon.definition'

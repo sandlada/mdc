@@ -181,7 +181,7 @@ export type ExpandedPaddingResult<TPrefix extends string, TValue = PrimitivePadd
  *
  * @example
  * ```typescript
- * import { expandPadding } from '@sandlada/styles/expand'
+ * import { expandPadding } from '../../utils/style'
  *
  * // 1. Single scalar:
  * expandPadding('container')('16px')

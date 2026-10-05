@@ -8,7 +8,7 @@ import { SearchBarDefinition } from './search.definition'
 import type { FocusRingDefinition } from '../focus-ring/focus-ring.definition'
 import type { IconDefinition } from '../icon/icon.definition'
 import type { RippleDefinition } from '../ripple/ripple.definition'
-import { overrideTokens, stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { overrideTokens, stringifyTokens } from '../../utils/style'
 
 const tokenString = stringifyTokens('--mdc-search-bar')(SearchBarDefinition)
 

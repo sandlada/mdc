@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 import { css, unsafeCSS } from 'lit'
-import { stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { stringifyTokens } from '../../utils/style'
 import {
     ConnectedButtonGroupDefinition,
     StandardButtonGroupDefinition,

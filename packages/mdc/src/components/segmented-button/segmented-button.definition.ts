@@ -5,14 +5,9 @@
  */
 import { Shape, State, Typescale } from '@sandlada/mdk'
 import { Color } from '../../utils/color'
-import { createStyleDefinition, defineSchema } from '@sandlada/styles/schema'
+import { createStyleDefinition } from '../../utils/style'
 
-export const SegmentedButtonSchema = defineSchema([
-    ['enabled', 'hovered', 'focused', 'pressed', 'disabled'],
-    ['unselected', 'selected']
-] as const)
 
-export const SegmentedButtonSetSchema = defineSchema(['enabled'] as const)
 
 /**
  * Style definition for `mdc-segmented-button` — a single selectable segment.

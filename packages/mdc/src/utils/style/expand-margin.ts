@@ -181,7 +181,7 @@ export type ExpandedMarginResult<TPrefix extends string, TValue = PrimitiveMargi
  *
  * @example
  * ```typescript
- * import { expandMargin } from '@sandlada/styles/expand'
+ * import { expandMargin } from '../../utils/style'
  *
  * // 1. Single scalar:
  * expandMargin('container')('16px')

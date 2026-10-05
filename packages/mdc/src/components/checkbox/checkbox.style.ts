@@ -8,8 +8,8 @@ import { css, unsafeCSS } from 'lit'
 import type { FocusRingDefinition } from '../focus-ring/focus-ring.definition'
 import type { RippleDefinition } from '../ripple/ripple.definition'
 import { CheckboxDefinition } from './checkbox.definition'
-import { stringifyTokens } from '@sandlada/styles/adapters/lit'
-import { overrideTokens } from '@sandlada/styles/adapters/lit'
+import { stringifyTokens } from '../../utils/style'
+import { overrideTokens } from '../../utils/style'
 
 const tokenString = stringifyTokens('--mdc-checkbox')(CheckboxDefinition)
 

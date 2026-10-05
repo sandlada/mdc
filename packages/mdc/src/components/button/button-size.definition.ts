@@ -4,12 +4,9 @@
  * SPDX-License-Identifier: MIT
  */
 import { Shape, Typescale } from '@sandlada/mdk'
-import { createStyleDefinition, defineSchema, type PrimitiveTokenValue } from '@sandlada/styles/schema'
-import { expandPadding, expandTypescale } from '@sandlada/styles/tokens'
+import { createStyleDefinition, expandPadding, expandTypescale, type PrimitiveTokenValue, type TokenValue } from '../../utils/style'
 
 export const ButtonSizes = ['extra-small', 'small', 'medium', 'large', 'extra-large'] as const
-
-export const ButtonSizeSchema = defineSchema(ButtonSizes)
 
 export type ButtonSize = (typeof ButtonSizes)[number]
 
@@ -20,6 +17,13 @@ type ShapeName = (typeof SHAPES)[number]
 
 const toSizeTuple = (pick: (size: SizeName) => PrimitiveTokenValue): PrimitiveTokenValue[] =>
     ButtonSizes.map((size) => pick(size))
+
+const toSizeRecord = (values: readonly PrimitiveTokenValue[]): Record<SizeName, PrimitiveTokenValue> => {
+    if (values.length !== ButtonSizes.length) {
+        throw new Error(`[ButtonSizeDefinition] Expected ${ButtonSizes.length} size entries, got ${values.length}.`)
+    }
+    return Object.fromEntries(ButtonSizes.map((size, index) => [size, values[index]])) as Record<SizeName, PrimitiveTokenValue>
+}
 
 const shapeSizeFamily = (
     keyBase: string,
@@ -92,4 +96,9 @@ const buttonSizeTokens = {
     'icon-label-space': [`8px`, `8px`, `8px`, `12px`, `16px`]
 } as const
 
-export const ButtonSizeDefinition = createStyleDefinition(ButtonSizeSchema)(buttonSizeTokens)
+export const ButtonSizeDefinition = createStyleDefinition(Object.fromEntries(
+    Object.entries(buttonSizeTokens).map(([key, value]) => [
+        key,
+        Array.isArray(value) ? toSizeRecord(value) : value
+    ])
+) as Record<string, TokenValue>)

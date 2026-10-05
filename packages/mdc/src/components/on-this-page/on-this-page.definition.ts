@@ -8,14 +8,9 @@
  */
 import { Duration, Easing, Shape, Space, State, Typescale,  } from '@sandlada/mdk'
 import { Color } from '../../utils/color'
-import { createStyleDefinition, defineSchema } from '@sandlada/styles/schema'
+import { createStyleDefinition } from '../../utils/style'
 
-export const OnThisPageSchema = defineSchema(['enabled'] as const)
 
-export const OnThisPageItemSchema = defineSchema([
-    ['enabled', 'hovered', 'focused', 'pressed', 'disabled'],
-    ['unselected', 'selected']
-] as const)
 
 export const OnThisPageDefinition = createStyleDefinition({
     'enabled-container-width'                               : '220px',

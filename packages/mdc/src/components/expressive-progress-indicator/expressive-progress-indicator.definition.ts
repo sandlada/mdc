@@ -5,12 +5,8 @@
  */
 import { Shape } from '@sandlada/mdk'
 import { Color } from '../../utils/color'
-import { createStyleDefinition, defineSchema } from '@sandlada/styles/schema'
+import { createStyleDefinition } from '../../utils/style'
 
-export const ExpressiveProgressIndicatorSchema = defineSchema([
-    ['linear', 'circular'],
-    ['extra-small', 'small', 'medium', 'large']
-] as const)
 
 /**
  * MD3 Expressive Progress Indicator style tokens.

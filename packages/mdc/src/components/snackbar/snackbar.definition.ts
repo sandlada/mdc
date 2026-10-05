@@ -5,9 +5,8 @@
  */
 import { Shape, Typescale } from '@sandlada/mdk'
 import { Color } from '../../utils/color'
-import { createStyleDefinition, defineSchema } from '@sandlada/styles/schema'
+import { createStyleDefinition } from '../../utils/style'
 
-export const SnackbarSchema = defineSchema(['enabled', 'hovered', 'focused', 'pressed'] as const)
 
 /**
  * Shared (non-color) tokens for `mdc-snackbar`.

@@ -15,7 +15,7 @@ import {
     InputChipDefinition,
     SuggestionChipDefinition,
 } from './chip.definition'
-import { overrideTokens, stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { overrideTokens, stringifyTokens } from '../../utils/style'
 
 // Token injection per variant
 const assistTokens = stringifyTokens('--mdc-chip')(AssistChipDefinition)

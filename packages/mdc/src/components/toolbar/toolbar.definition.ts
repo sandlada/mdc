@@ -15,13 +15,9 @@
  */
 import { Shape } from '@sandlada/mdk'
 import { Color } from '../../utils/color'
-import { createStyleDefinition, defineSchema } from '@sandlada/styles/schema'
-import { expandShape } from '@sandlada/styles/tokens'
+import { createStyleDefinition } from '../../utils/style'
+import { expandShape } from '../../utils/style'
 
-export const ToolbarSchema = defineSchema([
-    ['enabled', 'hovered', 'focused', 'pressed', 'disabled'],
-    ['unselected', 'selected']
-] as const)
 
 export const MDCDockedToolbarStyleDefinition = createStyleDefinition({
     'container-height'              : '64px',

@@ -3,7 +3,7 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { stringifyTokens } from '../../utils/style'
 import { css, unsafeCSS } from 'lit'
 import {
     NavigationRailCollapsedDefinition,
@@ -11,7 +11,7 @@ import {
     NavigationRailExpandedDefinition,
 } from './navigation-rail.definition'
 import type { NavigationRailVerticalTabDefinition } from '../navigation-tab/navigation-tab.definition'
-import { overrideComponentTokens, stringTokens } from '@sandlada/styles/adapters/lit'
+import { overrideComponentTokens, stringTokens } from '../../utils/style'
 
 const expandedString = stringifyTokens('--mdc-navigation-rail')(NavigationRailExpandedDefinition)
 

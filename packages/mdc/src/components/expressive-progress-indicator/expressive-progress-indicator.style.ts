@@ -3,9 +3,7 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { flow } from '@sandlada/styles/foundation'
-import { emptyTables, withState, withVariant } from '@sandlada/styles/schema'
-import { createStyleSheet, stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { stringifyTokens } from '../../utils/style'
 import { css, unsafeCSS } from 'lit'
 import { ExpressiveProgressIndicatorDefinition } from './expressive-progress-indicator.definition'
 
@@ -27,20 +25,7 @@ const indeterminateLinearDuration = unsafeCSS(`1750ms`)
 const indeterminateCircularDuration = unsafeCSS(`6000ms`)
 const indeterminateCircularEasing = unsafeCSS(`cubic-bezier(0.4, 0, 0.2, 1)`)
 
-const tables = flow(
-    withState({
-        'extra-small': `:host([circular-size='extra-small'])`,
-        'small': `:host([circular-size='small'])`,
-        'medium': `:host([circular-size='medium'])`,
-        'large': `:host([circular-size='large'])`
-    }),
-    withVariant({
-        'linear': `:host([variant='linear'])`,
-        'circular': `:host([variant='circular'])`
-    })
-)(emptyTables)
-
-const stylePart = createStyleSheet(tables)(ExpressiveProgressIndicatorDefinition)(() => css`
+const stylePart = css`
     @layer mdc.expressive-progress-indicator.base {
         :host([variant='linear']) {
             border-start-start-radius: var(--_track-shape-start-start);
@@ -428,7 +413,7 @@ const stylePart = createStyleSheet(tables)(ExpressiveProgressIndicatorDefinition
             }
         }
     }
-`)
+`
 
 export const ExpressiveProgressIndicatorStyles = [
     css`

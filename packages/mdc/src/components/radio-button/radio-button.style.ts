@@ -7,7 +7,7 @@ import { Easing } from '@sandlada/mdk'
 import { css, unsafeCSS } from 'lit'
 import { RadioButtonDefinition } from './radio-button.definition'
 import type { RippleDefinition } from '../ripple/ripple.definition'
-import { overrideTokens, stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { overrideTokens, stringifyTokens } from '../../utils/style'
 
 const tokenString = stringifyTokens('--mdc-radio-button')(RadioButtonDefinition)
 

@@ -7,7 +7,7 @@
  * Styles for `mdc-on-this-page-item`.
  */
 import { css } from 'lit'
-import { stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { stringifyTokens } from '../../utils/style'
 import { OnThisPageItemDefinition } from './on-this-page.definition'
 
 const tokenString = stringifyTokens('--mdc-on-this-page-item')(OnThisPageItemDefinition)

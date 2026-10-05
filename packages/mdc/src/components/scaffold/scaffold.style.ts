@@ -5,7 +5,7 @@
  */
 import { css, unsafeCSS } from 'lit'
 import { ScaffoldDefinition } from './scaffold.definition'
-import { stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { stringifyTokens } from '../../utils/style'
 
 const tokenString = stringifyTokens('--mdc-scaffold')(ScaffoldDefinition)
 

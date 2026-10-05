@@ -3,7 +3,7 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { stringifyTokens, overrideTokens } from '@sandlada/styles/adapters/lit'
+import { stringifyTokens, overrideTokens } from '../../utils/style'
 import { css, unsafeCSS } from 'lit'
 import { ElevationDefinition } from '../elevation/elevation.definition'
 import {

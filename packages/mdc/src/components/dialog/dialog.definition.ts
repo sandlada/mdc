@@ -5,9 +5,8 @@
  */
 import { ElevationLevel, Shape, State, Typescale } from '@sandlada/mdk'
 import { Color } from '../../utils/color'
-import { createStyleDefinition, defineSchema } from '@sandlada/styles/schema'
+import { createStyleDefinition } from '../../utils/style'
 
-export const DialogSchema = defineSchema(['enabled', 'hovered', 'focused', 'pressed'] as const)
 
 export const BasicDialogDefinition = createStyleDefinition({
     'container-shape-start-start': Shape.ExtraLarge,

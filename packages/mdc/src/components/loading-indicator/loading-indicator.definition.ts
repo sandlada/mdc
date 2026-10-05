@@ -5,12 +5,8 @@
  */
 import { Shape } from '@sandlada/mdk'
 import { Color } from '../../utils/color'
-import { createStyleDefinition, defineSchema } from '@sandlada/styles/schema'
+import { createStyleDefinition } from '../../utils/style'
 
-export const LoadingIndicatorSchema = defineSchema([
-    ['enabled'],
-    ['uncontained', 'contained']
-] as const)
 
 /**
  * MD3 Expressive Loading Indicator style tokens, aligned with

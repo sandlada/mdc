@@ -5,7 +5,7 @@
  */
 import { css } from 'lit'
 import { LoadingIndicatorDefinition } from './loading-indicator.definition'
-import { stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { stringifyTokens } from '../../utils/style'
 
 const tokenString = stringifyTokens('--mdc-loading-indicator')(LoadingIndicatorDefinition)
 

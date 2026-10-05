@@ -5,7 +5,7 @@
  */
 import { css, unsafeCSS } from 'lit'
 import { ProgressIndicatorDefinition } from './progress-indicator.definition'
-import { stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { stringifyTokens } from '../../utils/style'
 
 const tokenString = stringifyTokens('--mdc-progress-indicator')(ProgressIndicatorDefinition)
 

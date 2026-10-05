@@ -3,13 +3,12 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { createStyleSheet, overrideTokens, stringifyTokens } from '@sandlada/styles/adapters/lit'
-import { css } from 'lit'
+import { overrideTokens, stringifyTokens } from '../../utils/style'
+import { css, unsafeCSS } from 'lit'
 import type { RippleDefinition } from '../ripple/ripple.definition'
 import { ButtonSizeDefinition } from './button-size.definition'
 import {
     buttonLayoutStyles,
-    buttonTables,
     elevationBridge,
     getFocusRingShape,
     getIconSizeStyle,
@@ -18,7 +17,8 @@ import {
     type TSize,
     type TState
 } from './button.style'
-import { ToggleButtonDefinition } from './toggle-button.definition'
+import { ButtonVariants } from './button.definition'
+import { ToggleButtonDefinition, ToggleStates } from './toggle-button.definition'
 
 const toggleButtonTokens = stringifyTokens('--mdc-toggle-button')(ToggleButtonDefinition)
 const sizeTokens = stringifyTokens('--mdc-toggle-button')(ButtonSizeDefinition)
@@ -64,7 +64,40 @@ const toggleRippleBridge = (variant: string, toggle: string) => overrideTokens<t
     'pressed-opacity': `var(--_pressed-state-layer-opacity)`
 })()
 
-const togglePart = createStyleSheet(buttonTables)(ToggleButtonDefinition)(() => css`
+const toggleVariantRules = ButtonVariants.map((variant) => ToggleStates.map((toggle) => `
+    .container.togglable.${toggle}.${variant} .background {
+        background-color: var(--_enabled-${variant}-${toggle}-container-color);
+    }
+    .container.togglable.${toggle}.${variant} .label {
+        color: var(--_enabled-${variant}-${toggle}-label-color);
+    }
+    .container.togglable.${toggle}.${variant} :is(::slotted([slot="icon"]), .icon) {
+        color: var(--_enabled-${variant}-${toggle}-icon-color);
+    }
+    .container.togglable.disabled.${toggle}.${variant} .background {
+        background-color: var(--_disabled-${variant}-${toggle}-container-color);
+        opacity: var(--_disabled-container-opacity);
+    }
+    .container.togglable.disabled.${toggle}.${variant} .label {
+        color: var(--_disabled-${variant}-${toggle}-label-color);
+        opacity: var(--_disabled-label-opacity);
+    }
+    .container.togglable.disabled.${toggle}.${variant} :is(::slotted([slot="icon"]), .icon) {
+        color: var(--_disabled-${variant}-${toggle}-icon-color);
+        opacity: var(--_disabled-icon-opacity);
+    }
+`).join('\n\n')).join('\n\n')
+
+const toggleElevationVariants = ['filled', 'filled-tonal', 'elevated'] as const
+
+const toggleElevationRules = toggleElevationVariants.map((variant) => `
+    .container.togglable.${variant} mdc-elevation {
+        transition-duration: 0ms;
+        ${elevationBridge(`--_enabled-${variant}-unselected-container-elevation`, `--_enabled-${variant}-unselected-container-shadow-color`).cssText};
+    }
+`).join('\n\n')
+
+const togglePart = css`
     .toggle-input {
         all: unset;
         appearance: none;
@@ -83,28 +116,18 @@ const togglePart = createStyleSheet(buttonTables)(ToggleButtonDefinition)(() => 
         transform: translate(-50%, -50%);
     }
 
-    @state(.container) .container.togglable .background {
-        background-color: var(--_container-color);
-        opacity: var(--_container-opacity);
+    ${unsafeCSS(toggleVariantRules)}
+
+    .container.togglable.unselected.outlined .outline {
+        border-color: var(--_enabled-outlined-unselected-outline-color);
+    }
+    .container.togglable.selected.outlined .outline {
+        border-color: var(--_enabled-outlined-selected-outline-color);
     }
 
-    @state(.container) .container.togglable .label {
-        color: var(--_label-color);
-        opacity: var(--_label-opacity);
-    }
-
-    @state(.container) .container.togglable :is(::slotted([slot="icon"]), .icon) {
-        color: var(--_icon-color);
-        opacity: var(--_icon-opacity);
-    }
-
-    @state(.container) .container.togglable .outline {
-        border-color: var(--_outline-color);
-    }
-
-    @state(.container) .container.togglable mdc-elevation {
-        transition-duration: 0ms;
-        ${elevationBridge}
+    ${unsafeCSS(toggleElevationRules)}
+    .container.togglable.disabled.elevated mdc-elevation {
+        ${elevationBridge('--_disabled-elevated-unselected-container-elevation', '--_disabled-elevated-unselected-container-shadow-color')};
     }
 
     .container.togglable.unselected.filled mdc-ripple {${toggleRippleBridge('filled', 'unselected')};}
@@ -117,10 +140,10 @@ const togglePart = createStyleSheet(buttonTables)(ToggleButtonDefinition)(() => 
     .container.togglable.selected.outlined mdc-ripple {${toggleRippleBridge('outlined', 'selected')};}
     .container.togglable.unselected.text mdc-ripple {${toggleRippleBridge('text', 'unselected')};}
     .container.togglable.selected.text mdc-ripple {${toggleRippleBridge('text', 'selected')};}
-`)
+`
 
-export const toggleA11y = createStyleSheet(buttonTables)(ToggleButtonDefinition)(() => css`
-    @forced-colors {
+export const toggleA11y = css`
+    @media (forced-colors: active) {
         .background {
             border: 1px solid CanvasText;
         }
@@ -180,14 +203,14 @@ export const toggleA11y = createStyleSheet(buttonTables)(ToggleButtonDefinition)
         }
     }
 
-    @reduced-motion {
+    @media (prefers-reduced-motion: reduce) {
         .container,
         .container * {
             transition: none;
         }
     }
 
-    @contrast-more {
+    @media (prefers-contrast: more) {
         .container .outline {
             border-color: CanvasText;
         }
@@ -199,12 +222,12 @@ export const toggleA11y = createStyleSheet(buttonTables)(ToggleButtonDefinition)
         }
     }
 
-    @contrast-less {
+    @media (prefers-contrast: less) {
         .container .outline {
             border-color: GrayText;
         }
     }
-`)
+`
 
 export const toggleButtonStyles = [
     css`:host {${toggleButtonTokens}${sizeTokens};}`,

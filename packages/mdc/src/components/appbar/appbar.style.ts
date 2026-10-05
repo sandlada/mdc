@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 import { css } from 'lit'
-import { stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { stringifyTokens } from '../../utils/style'
 import { AppBarDefinition } from './appbar.definition'
 
 const tokenString = stringifyTokens('--mdc-appbar')(AppBarDefinition)

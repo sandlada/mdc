@@ -12,29 +12,14 @@ import {
 } from './card.definition'
 import type { ElevationDefinition } from '../elevation/elevation.definition'
 import type { RippleDefinition } from '../ripple/ripple.definition'
-import { flow } from '@sandlada/styles/foundation'
-import { emptyTables, withState } from '@sandlada/styles/schema'
-import { createStyleSheet, overrideTokens, stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { overrideTokens, stringifyTokens } from '../../utils/style'
 
 const stringify = stringifyTokens('--mdc-card')
 const filled = stringify(FilledCardDefinition)
 const outlined = stringify(OutlinedCardDefinition)
 const elevated = stringify(ElevatedCardDefinition)
 
-const tables = flow(
-    withState({
-        'enabled': '',
-        'hovered': ':hover',
-        'focused': ':focus-within',
-        'pressed': ':active',
-        // 'dragged': ':drag',
-        'disabled': '.disabled',
-        'round': '.round',
-        'square': '.square'
-    })
-)(emptyTables)
-
-const stylePart = createStyleSheet(tables)(CardDefinitionVariants)(() => css`
+const stylePart = css`
     @layer mdc.card.component {
         :host {
             display: inline-flex;
@@ -59,17 +44,23 @@ const stylePart = createStyleSheet(tables)(CardDefinitionVariants)(() => css`
             border: none;
             transition: background-color 200ms ease, border-color 200ms ease, opacity 200ms ease;
         }
-        @state(.container) .container {
+        .container {
             padding-inline-start: var(--_container-padding-inline-start);
             padding-inline-end: var(--_container-padding-inline-end);
             padding-block-start: var(--_container-padding-block-start);
             padding-block-end: var(--_container-padding-block-end);
         }
-        @state(.container) .container {
-            border-start-start-radius: var(--_container-shape-start-start);
-            border-start-end-radius: var(--_container-shape-start-end);
-            border-end-start-radius: var(--_container-shape-end-start);
-            border-end-end-radius: var(--_container-shape-end-end);
+        .container.round {
+            border-start-start-radius: var(--_round-container-shape-start-start);
+            border-start-end-radius: var(--_round-container-shape-start-end);
+            border-end-end-radius: var(--_round-container-shape-end-end);
+            border-end-start-radius: var(--_round-container-shape-end-start);
+        }
+        .container.square {
+            border-start-start-radius: var(--_square-container-shape-start-start);
+            border-start-end-radius: var(--_square-container-shape-start-end);
+            border-end-end-radius: var(--_square-container-shape-end-end);
+            border-end-start-radius: var(--_square-container-shape-end-start);
         }
 
         .container.stacked {
@@ -195,7 +186,7 @@ const stylePart = createStyleSheet(tables)(CardDefinitionVariants)(() => css`
             background: ButtonFace;
         }
     }
-`)
+`
 
 const rippleStyles = overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
     'hovered-color': `var(--_hovered-state-layer-color)`,

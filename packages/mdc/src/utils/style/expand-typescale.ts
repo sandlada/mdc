@@ -221,7 +221,7 @@ export type ExpandedTypescaleTokens<TPrefix extends string = string, TValue = an
  * @example Single MDK Typescale instance
  * ```typescript
  * import { Typescale } from '@sandlada/mdk'
- * import { expandTypescale } from '@sandlada/styles/expand'
+ * import { expandTypescale } from '../../utils/style'
  *
  * const tokens = expandTypescale('label')(Typescale.LabelLarge)
  * // Inferred Type:
@@ -237,7 +237,7 @@ export type ExpandedTypescaleTokens<TPrefix extends string = string, TValue = an
  * @example Multi-state Tuple
  * ```typescript
  * import { Typescale } from '@sandlada/mdk'
- * import { expandTypescale } from '@sandlada/styles/expand'
+ * import { expandTypescale } from '../../utils/style'
  *
  * const tokens = expandTypescale('label')([
  *     Typescale.LabelSmall,
@@ -248,7 +248,7 @@ export type ExpandedTypescaleTokens<TPrefix extends string = string, TValue = an
  * @example Multi-state Record
  * ```typescript
  * import { Typescale } from '@sandlada/mdk'
- * import { expandTypescale } from '@sandlada/styles/expand'
+ * import { expandTypescale } from '../../utils/style'
  *
  * const tokens = expandTypescale('headline')({
  *     enabled: Typescale.TitleMedium,

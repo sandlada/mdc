@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 import { Easing } from '@sandlada/mdk'
-import { overrideTokens, stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { overrideTokens, stringifyTokens } from '../../utils/style'
 import { css, unsafeCSS } from 'lit'
 import type { RippleDefinition } from '../ripple/ripple.definition'
 import { SwitchDefinition } from './switch.definition'

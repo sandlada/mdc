@@ -19,7 +19,7 @@ import {
     TertiarySnackbarDefinition,
     SurfaceSnackbarDefinition,
 } from './snackbar.definition'
-import { overrideTokens, stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { overrideTokens, stringifyTokens } from '../../utils/style'
 
 // ─── Base token record (used for variable layer default) ────────────────────
 const tokenString = stringifyTokens('--mdc-snackbar')(SnackbarDefinition)

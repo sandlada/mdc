@@ -1,6 +1,6 @@
 import { css, unsafeCSS } from 'lit'
 import { NavigationBarDefinition } from './navigation-bar.definition'
-import { stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { stringifyTokens } from '../../utils/style'
 
 const tS = stringifyTokens('--mdc-navigation-bar')(NavigationBarDefinition)
 

@@ -5,12 +5,8 @@
  */
 import { Shape, State, Typescale } from '@sandlada/mdk'
 import { Color } from '../../utils/color'
-import { createStyleDefinition, defineSchema } from '@sandlada/styles/schema'
+import { createStyleDefinition } from '../../utils/style'
 
-export const SplitButtonSchema = defineSchema([
-    ['enabled', 'hovered', 'focused', 'pressed', 'disabled'],
-    ['extra-small', 'small', 'medium', 'large', 'extra-large']
-] as const)
 
 /** Any `Shape` — widened past the branded corner-key so different sizes can pass different corners. */
 type TShape = Shape<string, number | string, string>

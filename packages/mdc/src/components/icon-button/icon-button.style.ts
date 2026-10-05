@@ -8,7 +8,7 @@ import { FilledIconButtonDefinition, FilledTonalIconButtonDefinition, OutlinedIc
 import type { IconDefinition } from '../icon/icon.definition'
 import type { RippleDefinition } from '../ripple/ripple.definition'
 import type { FocusRingDefinition } from '../focus-ring/focus-ring.definition'
-import { overrideTokens, stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { overrideTokens, stringifyTokens } from '../../utils/style'
 
 const filledString = stringifyTokens('--mdc-icon-button')(FilledIconButtonDefinition)
 const filledTonalString = stringifyTokens('--mdc-icon-button')(FilledTonalIconButtonDefinition)

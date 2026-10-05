@@ -4,9 +4,8 @@
  * SPDX-License-Identifier: MIT
  */
 import { Color } from '../../utils/color'
-import { createStyleDefinition, defineSchema } from '@sandlada/styles/schema'
+import { createStyleDefinition } from '../../utils/style'
 
-export const ScaffoldSchema = defineSchema(['enabled'] as const)
 
 export const ScaffoldDefinition = createStyleDefinition({
     // Container colors

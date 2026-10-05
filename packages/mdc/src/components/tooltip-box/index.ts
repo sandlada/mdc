@@ -6,4 +6,3 @@
 
 export * from './tooltip-box'
 export * from './tooltip-box.interface'
-export * from './tooltip-box.definition'

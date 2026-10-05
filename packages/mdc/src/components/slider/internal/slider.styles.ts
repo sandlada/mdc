@@ -2,7 +2,7 @@ import { Duration, Easing, Shape } from '@sandlada/mdk'
 import { css, unsafeCSS } from 'lit'
 import { ElevationDefinition } from '../../elevation/elevation.definition'
 import { SliderDefinitionVersion2 } from '../slider.definition'
-import { overrideTokens, stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { overrideTokens, stringifyTokens } from '../../../utils/style'
 
 const tokensStringified = stringifyTokens('--mdc-slider')(SliderDefinitionVersion2)
 

@@ -5,7 +5,7 @@
  */
 import { css } from 'lit'
 import { ChipSetDefinition } from '../chip-set.definition'
-import { stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { stringifyTokens } from '../../../utils/style'
 
 const tokenString = stringifyTokens('--mdc-chip-set')(ChipSetDefinition)
 

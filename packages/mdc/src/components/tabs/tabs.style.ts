@@ -8,7 +8,7 @@
  */
 import { css } from 'lit'
 import { TabsDefinition } from './tabs.definition'
-import { stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { stringifyTokens } from '../../utils/style'
 
 const tokenString = stringifyTokens('--mdc-tabs')(TabsDefinition)
 

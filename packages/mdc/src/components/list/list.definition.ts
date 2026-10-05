@@ -5,15 +5,7 @@
  */
 import { Shape, Typescale } from '@sandlada/mdk'
 import { Color } from '../../utils/color'
-import { createStyleDefinition, defineSchema } from '@sandlada/styles/schema'
-
-export const ListSchema = defineSchema([
-    ['enabled', 'hovered', 'focused', 'pressed', 'disabled'],
-    ['unselected', 'selected'],
-    ['one-line', 'two-line', 'three-line']
-] as const)
-
-export const ListItemSchema = ListSchema
+import { createStyleDefinition } from '../../utils/style'
 
 /**
  * Style definition for `mdc-list-item`.

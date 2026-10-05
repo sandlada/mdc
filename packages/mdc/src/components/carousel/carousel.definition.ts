@@ -7,16 +7,13 @@
  * 1.0.0
  */
 import { Shape, Space } from '@sandlada/mdk'
-import { createStyleDefinition, defineSchema } from '@sandlada/styles/schema'
-import { expandShape, expandPadding } from '@sandlada/styles/tokens'
+import { createStyleDefinition } from '../../utils/style'
+import { expandShape, expandPadding } from '../../utils/style'
 
 /**
  * Carousel item-size schema:
  * - small / medium / large — the three `mdc-carousel-item` sizes.
  */
-export const CarouselSchema = defineSchema([
-    ['small', 'medium', 'large']
-] as const)
 
 /**
  * Style definition for `mdc-carousel` — the horizontal carousel container and
@@ -38,7 +35,7 @@ export const CarouselSchema = defineSchema([
  * @version
  * Material Design 3
  */
-export const CarouselDefinition = createStyleDefinition(CarouselSchema)({
+export const CarouselDefinition = createStyleDefinition({
     // Item width — the concrete value is computed at runtime (large targets
     // `preferred-item-width`, small ≈ ⅓ of it clamped to 40–56px, medium the
     // average); the definition only wires the public override chain.

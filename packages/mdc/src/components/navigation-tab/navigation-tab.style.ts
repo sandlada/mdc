@@ -1,4 +1,4 @@
-import { stringifyTokens, overrideComponentTokens, stringTokens } from '@sandlada/styles/adapters/lit'
+import { stringifyTokens, overrideComponentTokens, stringTokens } from '../../utils/style'
 import { Easing } from '@sandlada/mdk'
 import { css, unsafeCSS } from 'lit'
 import type { IconDefinition } from '../icon/icon.definition'

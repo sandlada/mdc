@@ -1,7 +1,7 @@
 import { css, unsafeCSS } from 'lit'
 import { MDCDockedToolbarStyleDefinition, MDCStandardDockedToolbarStyleDefinition, MDCVibrantDockedToolbarStyleDefinition } from '../toolbar.definition'
 import type { FilledIconButtonDefinition } from '../../../definitions'
-import { overrideTokens, stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { overrideTokens, stringifyTokens } from '../../../utils/style'
 
 const standardBaseVars = stringifyTokens('--mdc-standard-docked-toolbar')(MDCDockedToolbarStyleDefinition)
 const standardVars = stringifyTokens('--mdc-standard-docked-toolbar')(MDCStandardDockedToolbarStyleDefinition)

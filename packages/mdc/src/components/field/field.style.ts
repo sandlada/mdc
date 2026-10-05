@@ -8,7 +8,7 @@ import {
     FilledFieldDefinition,
     OutlinedFieldDefinition,
 } from './field.definition'
-import { stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { stringifyTokens } from '../../utils/style'
 
 const filledTokens = stringifyTokens('--mdc-field')(FilledFieldDefinition)
 

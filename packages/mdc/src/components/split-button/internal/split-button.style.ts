@@ -13,7 +13,7 @@ import {
     FilledTonalSplitButtonDefinition,
     OutlinedSplitButtonDefinition,
 } from '../split-button.definition'
-import { overrideTokens, stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { overrideTokens, stringifyTokens } from '../../../utils/style'
 
 const filledTokenString = stringifyTokens('--mdc-split-button')(FilledSplitButtonDefinition)
 

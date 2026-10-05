@@ -14,9 +14,8 @@
  * https://m3.material.io/components/tabs/overview
  */
 import { Color } from '../../utils/color'
-import { createStyleDefinition, defineSchema } from '@sandlada/styles/schema'
+import { createStyleDefinition } from '../../utils/style'
 
-export const TabsSchema = defineSchema(['enabled'] as const)
 
 interface ITabsScheme {
     'enabled-container-color': string

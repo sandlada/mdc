@@ -21,7 +21,7 @@ import { css, unsafeCSS } from 'lit'
 import { FloatingTabDefinition, PrimaryTabDefinition, SecondaryTabDefinition } from './tab.definition'
 import { IconDefinition } from '../icon/icon.definition'
 import { RippleDefinition } from '../ripple/ripple.definition'
-import { overrideTokens, stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { overrideTokens, stringifyTokens } from '../../utils/style'
 
 const primaryTokens = stringifyTokens('--mdc-tab')(PrimaryTabDefinition)
 

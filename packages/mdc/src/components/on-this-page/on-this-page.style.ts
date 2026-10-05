@@ -8,7 +8,7 @@
  * header area, item list, and floating active indicator outline pill.
  */
 import { css } from 'lit'
-import { stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { stringifyTokens } from '../../utils/style'
 import { OnThisPageDefinition } from './on-this-page.definition'
 
 const tokenString = stringifyTokens('--mdc-on-this-page')(OnThisPageDefinition)

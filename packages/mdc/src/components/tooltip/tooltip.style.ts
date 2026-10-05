@@ -9,7 +9,7 @@ import {
     PlainTooltipDefinition,
     RichTooltipDefinition,
 } from './tooltip.definition'
-import { stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { stringifyTokens } from '../../utils/style'
 
 const plainTokens = stringifyTokens('--mdc-tooltip')(PlainTooltipDefinition)
 

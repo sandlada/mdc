@@ -9,7 +9,7 @@ import {
     ModalBottomSheetDefinition,
     StandardBottomSheetDefinition,
 } from './bottom-sheet.definition'
-import { overrideTokens, stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { overrideTokens, stringifyTokens } from '../../utils/style'
 
 const standardTokenString = stringifyTokens('--mdc-bottom-sheet')(StandardBottomSheetDefinition)
 

@@ -5,10 +5,7 @@
  */
 import { Shape, Space, State, Typescale } from '@sandlada/mdk'
 import { Color } from '../../utils/color'
-import { createStyleDefinition, defineSchema } from '@sandlada/styles/schema'
-
-export const SearchBarSchema = defineSchema(['enabled', 'hovered', 'focused', 'pressed'] as const)
-export const SearchSchema = SearchBarSchema
+import { createStyleDefinition } from '../../utils/style'
 
 export const SearchBarDefinition = createStyleDefinition({
     'enabled-container-height'                       : `56px`,

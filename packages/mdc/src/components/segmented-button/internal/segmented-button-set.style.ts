@@ -5,7 +5,7 @@
  */
 import { css } from 'lit'
 import { OutlinedSegmentedButtonSetDefinition } from '../segmented-button.definition'
-import { stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { stringifyTokens } from '../../../utils/style'
 
 const tokenString = stringifyTokens('--mdc-segmented-button')(OutlinedSegmentedButtonSetDefinition)
 

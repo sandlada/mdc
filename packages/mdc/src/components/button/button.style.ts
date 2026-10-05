@@ -3,45 +3,21 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { createStyleSheet, overrideTokens, stringifyTokens } from '@sandlada/styles/adapters/lit'
-import { flow } from '@sandlada/styles/foundation'
-import { emptyTables, withState } from '@sandlada/styles/schema'
+import { overrideTokens, stringifyTokens } from '../../utils/style'
 import { css, unsafeCSS } from 'lit'
 import type { ElevationDefinition } from '../elevation/elevation.definition'
 import { FocusRingDefinition } from '../focus-ring/focus-ring.definition'
 import type { IconDefinition } from '../icon/icon.definition'
 import type { RippleDefinition } from '../ripple/ripple.definition'
-import { ButtonSizeDefinition } from './button-size.definition'
-import { ButtonDefinition } from './button.definition'
+import { ButtonSizeDefinition, ButtonSizes } from './button-size.definition'
+import { ButtonDefinition, ButtonVariants } from './button.definition'
 
 const buttonTokens = stringifyTokens('--mdc-button')(ButtonDefinition)
 const sizeTokens = stringifyTokens('--mdc-button')(ButtonSizeDefinition)
 
-export const buttonTables = flow(
-    withState({
-        enabled: '',
-        hovered: ':hover',
-        focused: ':focus-within',
-        pressed: ':active',
-        disabled: '.disabled',
-        filled: '.filled',
-        'filled-tonal': '.filled-tonal',
-        elevated: '.elevated',
-        outlined: '.outlined',
-        text: '.text',
-        unselected: '.unselected',
-        selected: '.selected',
-        'extra-small': '.extra-small',
-        small: '.small',
-        medium: '.medium',
-        large: '.large',
-        'extra-large': '.extra-large'
-    })
-)(emptyTables)
-
-export const elevationBridge = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
-    'level': `var(--_container-elevation)`,
-    'shadow-color': `var(--_container-shadow-color)`
+export const elevationBridge = (levelVar: string, shadowColorVar: string) => overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
+    'level': `var(${levelVar})`,
+    'shadow-color': `var(${shadowColorVar})`
 })()
 
 export type TState = 'container-shape-round' | 'container-shape-square' | 'container-shape-round-selected' | 'container-shape-square-selected' | 'container-shape-pressed-morph'
@@ -212,29 +188,49 @@ export const buttonLayoutStyles = css`
     }
 `
 
-const buttonPart = createStyleSheet(buttonTables)(ButtonDefinition)(() => css`
-    @state(.container) .container .background {
-        background-color: var(--_container-color);
-        opacity: var(--_container-opacity);
-    }
+const buttonElevationVariants = ['filled', 'filled-tonal', 'elevated'] as const
 
-    @state(.container) .container .label {
-        color: var(--_label-color);
-        opacity: var(--_label-opacity);
+const buttonVariantRules = ButtonVariants.map((variant) => `
+    .container.${variant} .background {
+        background-color: var(--_enabled-${variant}-container-color);
     }
-
-    @state(.container) .container :is(::slotted([slot="icon"]), .icon) {
-        color: var(--_icon-color);
-        opacity: var(--_icon-opacity);
+    .container.${variant} .label {
+        color: var(--_enabled-${variant}-label-color);
     }
-
-    @state(.container) .container .outline {
-        border-color: var(--_outline-color);
+    .container.${variant} :is(::slotted([slot="icon"]), .icon) {
+        color: var(--_enabled-${variant}-icon-color);
     }
+    .container.disabled.${variant} .background {
+        background-color: var(--_disabled-${variant}-container-color);
+        opacity: var(--_disabled-container-opacity);
+    }
+    .container.disabled.${variant} .label {
+        color: var(--_disabled-${variant}-label-color);
+        opacity: var(--_disabled-label-opacity);
+    }
+    .container.disabled.${variant} :is(::slotted([slot="icon"]), .icon) {
+        color: var(--_disabled-${variant}-icon-color);
+        opacity: var(--_disabled-icon-opacity);
+    }
+`).join('\n\n')
 
-    @state(.container) .container mdc-elevation {
+const buttonElevationRules = buttonElevationVariants.map((variant) => `
+    .container.${variant} mdc-elevation {
         transition-duration: 0ms;
-        ${elevationBridge}
+        ${elevationBridge(`--_enabled-${variant}-container-elevation`, `--_enabled-${variant}-container-shadow-color`).cssText};
+    }
+`).join('\n\n')
+
+const buttonPart = css`
+    ${unsafeCSS(buttonVariantRules)}
+
+    .container.outlined .outline {
+        border-color: var(--_enabled-outlined-outline-color);
+    }
+
+    ${unsafeCSS(buttonElevationRules)}
+    .container.disabled.elevated mdc-elevation {
+        ${elevationBridge('--_disabled-elevated-container-elevation', '--_disabled-elevated-container-shadow-color')};
     }
 
     .container.filled mdc-ripple {${rippleBridge('filled')};}
@@ -242,33 +238,44 @@ const buttonPart = createStyleSheet(buttonTables)(ButtonDefinition)(() => css`
     .container.elevated mdc-ripple {${rippleBridge('elevated')};}
     .container.outlined mdc-ripple {${rippleBridge('outlined')};}
     .container.text mdc-ripple {${rippleBridge('text')};}
-`)
+`
 
-export const sizePart = createStyleSheet(buttonTables)(ButtonSizeDefinition)(() => css`
-    @state(.container) .container {
-        height: var(--_container-height);
-        min-width: calc(64px - var(--_container-padding-inline-start) - var(--_container-padding-inline-end));
-        padding: var(--_container-padding);
-        gap: var(--_icon-label-space);
+const sizeVariantRules = ButtonSizes.map((size) => `
+    .container.${size} {
+        height: var(--_${size}-container-height);
+        min-width: calc(64px - var(--_${size}-container-padding-inline-start) - var(--_${size}-container-padding-inline-end));
+        padding-block-start: var(--_${size}-container-padding-block-start);
+        padding-block-end: var(--_${size}-container-padding-block-end);
+        padding-inline-start: var(--_${size}-container-padding-inline-start);
+        padding-inline-end: var(--_${size}-container-padding-inline-end);
+        gap: var(--_${size}-icon-label-space);
     }
 
-    @state(.container) .container .label {
-        typescale: var(--_label);
+    .container.${size} .label {
+        font-family: var(--_${size}-label-font);
+        font-size: var(--_${size}-label-size);
+        line-height: var(--_${size}-label-leading);
+        font-weight: var(--_${size}-label-weight);
+        letter-spacing: var(--_${size}-label-tracking);
     }
 
-    @state(.container) .container :is(::slotted([slot="icon"]), .icon) {
-        font-size: var(--_icon-size);
-        inline-size: var(--_icon-size);
-        block-size: var(--_icon-size);
+    .container.${size} :is(::slotted([slot="icon"]), .icon) {
+        font-size: var(--_${size}-icon-size);
+        inline-size: var(--_${size}-icon-size);
+        block-size: var(--_${size}-icon-size);
     }
 
-    @state(.container) .container .outline {
-        border-width: var(--_outline-width);
+    .container.${size} .outline {
+        border-width: var(--_${size}-outline-width);
     }
-`)
+`).join('\n\n')
 
-export const a11y = createStyleSheet(buttonTables)(ButtonDefinition)(() => css`
-    @forced-colors {
+export const sizePart = css`
+    ${unsafeCSS(sizeVariantRules)}
+`
+
+export const a11y = css`
+    @media (forced-colors: active) {
         .background {
             border: 1px solid CanvasText;
         }
@@ -312,14 +319,14 @@ export const a11y = createStyleSheet(buttonTables)(ButtonDefinition)(() => css`
         }
     }
 
-    @reduced-motion {
+    @media (prefers-reduced-motion: reduce) {
         .container,
         .container * {
             transition: none;
         }
     }
 
-    @contrast-more {
+    @media (prefers-contrast: more) {
         .container .outline {
             border-color: CanvasText;
         }
@@ -331,12 +338,12 @@ export const a11y = createStyleSheet(buttonTables)(ButtonDefinition)(() => css`
         }
     }
 
-    @contrast-less {
+    @media (prefers-contrast: less) {
         .container .outline {
             border-color: GrayText;
         }
     }
-`)
+`
 
 export const buttonStyles = [
     css`:host {${buttonTokens}${sizeTokens};}`,

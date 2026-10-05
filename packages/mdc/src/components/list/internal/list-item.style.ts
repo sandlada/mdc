@@ -9,7 +9,7 @@ import type { FocusRingDefinition } from '../../focus-ring/focus-ring.definition
 import type { IconDefinition } from '../../icon/icon.definition'
 import type { RippleDefinition } from '../../ripple/ripple.definition'
 import { ListItemDefinition } from '../list.definition'
-import { overrideTokens, stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { overrideTokens, stringifyTokens } from '../../../utils/style'
 
 // Token injection for `mdc-list-item`
 const listItemTokens = stringifyTokens('--mdc-list-item')(ListItemDefinition)

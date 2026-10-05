@@ -6,7 +6,7 @@
 import { Color } from '../../../utils/color'
 import { css, unsafeCSS } from 'lit'
 import { BasicDialogDefinition } from '../dialog.definition'
-import { stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { stringifyTokens } from '../../../utils/style'
 
 const basicDialogTokenString = stringifyTokens('--mdc-basic-dialog')(BasicDialogDefinition)
 

@@ -14,12 +14,12 @@
  * value through the public `--mdc-carousel-*` properties.
  */
 import { css } from 'lit'
-import { createStyleSheet, stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { stringifyTokens } from '../../utils/style'
 import { CarouselDefinition } from './carousel.definition'
 
 const tokens = stringifyTokens('--mdc-carousel')(CarouselDefinition)
 
-const stylePart = createStyleSheet(CarouselDefinition)(() => css`
+const stylePart = css`
     @layer mdc.carousel.component {
         :host {
             display: flex;
@@ -69,7 +69,7 @@ const stylePart = createStyleSheet(CarouselDefinition)(() => css`
             }
         }
     }
-`)
+`
 
 export const CarouselStyles = [
     css`
