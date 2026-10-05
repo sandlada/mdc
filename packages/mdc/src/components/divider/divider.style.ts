@@ -5,11 +5,11 @@
  */
 import { css } from 'lit'
 import { DividerDefinition } from './divider.definition'
-import { createStyleSheet, stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { stringifyTokens } from '../../utils/style'
 
 const tokens = stringifyTokens('--mdc-divider')(DividerDefinition)
 
-const stylePart = createStyleSheet(DividerDefinition)(() => css`
+const stylePart = css`
     @layer mdc.divider.component {
         :host {
             box-sizing: border-box;
@@ -74,7 +74,7 @@ const stylePart = createStyleSheet(DividerDefinition)(() => css`
             }
         }
     }
-`)
+`
 
 export const DividerStyles = [
     css`

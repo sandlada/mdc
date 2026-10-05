@@ -1,17 +1,19 @@
 import { Typescale } from '@sandlada/mdk'
-import { createStyleDefinition, defineSchema } from '@sandlada/styles/schema'
+import { createStyleDefinition, type PrimitiveTokenValue } from '../../utils/style'
 
-export const TypographySchema = defineSchema([
-    ['display', 'headline', 'title', 'label', 'body'],
-    ['small', 'medium', 'large'],
-    ['regular', 'emphasized']
-] as const)
+export const typographyRoles = ['display', 'headline', 'title', 'label', 'body'] as const
+export const typographySizes = ['small', 'medium', 'large'] as const
+export const typographyEmphases = ['regular', 'emphasized'] as const
+
+export type TypographyRole = (typeof typographyRoles)[number]
+export type TypographySize = (typeof typographySizes)[number]
+export type TypographyEmphasis = (typeof typographyEmphases)[number]
 
 /**
- * Joint `[role][size][emphasis]` scale pairs in schema dimension order.
- * Each cell holds `[regular, emphasized]` Typescale instances, so every
- * `def` value below addresses its full Cartesian combination positionally
- * (`cell[role][size][emphasis]`) instead of hand-flattened token keys.
+ * Joint `[role][size][emphasis]` scale pairs in dimension order.
+ * Each cell holds `[regular, emphasized]` Typescale instances; the flat
+ * token map below addresses every combination by an explicit
+ * `${role}-${size}-${emphasis}-${prop}` key instead of positional arrays.
  */
 const scalePairs = [
     [[Typescale.DisplaySmall, Typescale.EmphasizedDisplaySmall], [Typescale.DisplayMedium, Typescale.EmphasizedDisplayMedium], [Typescale.DisplayLarge, Typescale.EmphasizedDisplayLarge]],
@@ -21,14 +23,30 @@ const scalePairs = [
     [[Typescale.BodySmall, Typescale.EmphasizedBodySmall], [Typescale.BodyMedium, Typescale.EmphasizedBodyMedium], [Typescale.BodyLarge, Typescale.EmphasizedBodyLarge]]
 ] as const
 
-type TypescaleProp = 'Font' | 'FontSize' | 'FontWeight' | 'LineHeight' | 'Tracking'
+const propMap = [
+    ['font', 'Font'],
+    ['size', 'FontSize'],
+    ['weight', 'FontWeight'],
+    ['leading', 'LineHeight'],
+    ['tracking', 'Tracking']
+] as const
 
-const pickProp = (prop: TypescaleProp) => scalePairs.map(row => row.map(([regular, emphasized]) => [regular[prop], emphasized[prop]] as const))
+const buildFlatTokens = (): Record<string, PrimitiveTokenValue> => {
+    const flat: Record<string, PrimitiveTokenValue> = {}
+    for (let r = 0; r < typographyRoles.length; r++) {
+        for (let s = 0; s < typographySizes.length; s++) {
+            for (let e = 0; e < typographyEmphases.length; e++) {
+                const row = scalePairs[r] as readonly unknown[]
+                const cell = row[s] as readonly unknown[]
+                const instance = cell[e] as Record<string, unknown>
+                const infix = `${typographyRoles[r]}-${typographySizes[s]}-${typographyEmphases[e]}`
+                for (const [suffix, prop] of propMap) {
+                    flat[`${infix}-${suffix}`] = instance[prop] as PrimitiveTokenValue
+                }
+            }
+        }
+    }
+    return flat
+}
 
-export const TypographyDefinition = createStyleDefinition(TypographySchema)({
-    'font': pickProp('Font'),
-    'size': pickProp('FontSize'),
-    'weight': pickProp('FontWeight'),
-    'leading': pickProp('LineHeight'),
-    'tracking': pickProp('Tracking')
-})
+export const TypographyDefinition = createStyleDefinition(buildFlatTokens())

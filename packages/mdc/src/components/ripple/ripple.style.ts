@@ -5,11 +5,11 @@
  */
 import { css } from 'lit'
 import { RippleDefinition } from './ripple.definition'
-import { createStyleSheet, stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { stringifyTokens } from '../../utils/style'
 
 const tokens = stringifyTokens('--mdc-ripple')(RippleDefinition)
 
-const stylePart = createStyleSheet(RippleDefinition)(() => css`
+const stylePart = css`
     @layer mdc.ripple.component {
         :host {
             display: flex;
@@ -148,7 +148,7 @@ const stylePart = createStyleSheet(RippleDefinition)(() => css`
             }
         }
     }
-`)
+`
 
 export const styles = [
     css`

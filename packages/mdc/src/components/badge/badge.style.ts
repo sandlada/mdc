@@ -3,22 +3,13 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { createStyleSheet, stringifyTokens } from '@sandlada/styles/adapters/lit'
-import { flow } from '@sandlada/styles/foundation'
-import { emptyTables, withState } from '@sandlada/styles/schema'
 import { css } from 'lit'
+import { stringifyTokens } from '../../utils/style'
 import { BadgeDefinition } from './badge.definition'
 
 const tokens = stringifyTokens('--mdc-badge')(BadgeDefinition)
 
-const compileBadgeStyles = createStyleSheet(flow(
-    withState({
-        'small': '.small',
-        'large': '.large'
-    })
-)(emptyTables))
-
-const stylePart = compileBadgeStyles(BadgeDefinition)(() => css`
+const stylePart = css`
     :host {
         box-sizing: border-box;
         position: relative;
@@ -47,14 +38,30 @@ const stylePart = compileBadgeStyles(BadgeDefinition)(() => css`
         }
     }
 
-    @state(.container) .container {
-        shape: var(--_container-shape);
-        height: var(--_container-size);
-        min-width: var(--_container-size);
-        padding-block-start: var(--_container-padding-block-start);
-        padding-block-end: var(--_container-padding-block-end);
-        padding-inline-start: var(--_container-padding-inline-start);
-        padding-inline-end: var(--_container-padding-inline-end);
+    .container.small {
+        border-start-start-radius: var(--_container-shape-start-start);
+        border-start-end-radius: var(--_container-shape-start-end);
+        border-end-end-radius: var(--_container-shape-end-end);
+        border-end-start-radius: var(--_container-shape-end-start);
+        height: var(--_small-container-size);
+        min-width: var(--_small-container-size);
+        padding-block-start: var(--_small-container-padding-block-start);
+        padding-block-end: var(--_small-container-padding-block-end);
+        padding-inline-start: var(--_small-container-padding-inline-start);
+        padding-inline-end: var(--_small-container-padding-inline-end);
+    }
+
+    .container.large {
+        border-start-start-radius: var(--_container-shape-start-start);
+        border-start-end-radius: var(--_container-shape-start-end);
+        border-end-end-radius: var(--_container-shape-end-end);
+        border-end-start-radius: var(--_container-shape-end-start);
+        height: var(--_large-container-size);
+        min-width: var(--_large-container-size);
+        padding-block-start: var(--_large-container-padding-block-start);
+        padding-block-end: var(--_large-container-padding-block-end);
+        padding-inline-start: var(--_large-container-padding-inline-start);
+        padding-inline-end: var(--_large-container-padding-inline-end);
     }
 
     .label {
@@ -104,7 +111,7 @@ const stylePart = compileBadgeStyles(BadgeDefinition)(() => css`
             opacity: 0.85;
         }
     }
-`)
+`
 
 export const BadgeStyles = [
     css`:host {${tokens};}`,

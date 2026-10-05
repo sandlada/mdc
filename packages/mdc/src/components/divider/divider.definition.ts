@@ -7,11 +7,9 @@
  * 1.0.0
  */
 import { Color } from '../../utils/color'
-import { createStyleDefinition, defineSchema } from '@sandlada/styles/schema'
+import { createStyleDefinition } from '../../utils/style'
 
-export const DividerSchema = defineSchema(['enabled'] as const)
-
-export const DividerDefinition = createStyleDefinition(DividerSchema)({
+export const DividerDefinition = createStyleDefinition({
     'thickness': '1px',
     'color': Color.OutlineVariant,
 })

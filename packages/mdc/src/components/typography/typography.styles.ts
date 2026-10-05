@@ -3,32 +3,29 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { createStyleSheet, stringifyTokens } from '@sandlada/styles/adapters/lit'
-import { flow } from '@sandlada/styles/foundation'
-import { emptyTables, withState } from '@sandlada/styles/schema'
-import { css } from 'lit'
-import { TypographyDefinition } from './typography.definition'
+import { css, unsafeCSS } from 'lit'
+import { stringifyTokens } from '../../utils/style'
+import { TypographyDefinition, typographyEmphases, typographyRoles, typographySizes } from './typography.definition'
 
 const tokens = stringifyTokens('--mdc-typography')(TypographyDefinition)
 
-const tables = flow(
-    withState({
-        'display': '[variant^="display-"]',
-        'headline': '[variant^="headline-"]',
-        'title': '[variant^="title-"]',
-        'label': '[variant^="label-"]',
-        'body': '[variant^="body-"]',
-        'small': '[variant$="-small"]',
-        'medium': '[variant$="-medium"]',
-        'large': '[variant$="-large"]',
-        'regular': ':not([emphasized])',
-        'emphasized': '[emphasized]'
-    }),
-)(emptyTables)
+const comboRules = typographyRoles.flatMap((role) =>
+    typographySizes.flatMap((size) =>
+        typographyEmphases.map((emphasis) => {
+            const infix = `${role}-${size}-${emphasis}`
+            const condition = emphasis === 'emphasized' ? '[emphasized]' : ':not([emphasized])'
+            return `:host([variant^="${role}-"][variant$="-${size}"]${condition}) {
+        font-family: var(--_${infix}-font);
+        font-size: var(--_${infix}-size);
+        line-height: var(--_${infix}-leading);
+        font-weight: var(--_${infix}-weight);
+        letter-spacing: var(--_${infix}-tracking);
+    }`
+        })
+    )
+).join('\n\n')
 
-const createStylePart = createStyleSheet(tables)(TypographyDefinition)
-
-export const typographyStyles = createStylePart(() => css`
+export const typographyStyles = css`
     @layer mdc.typography {
         @layer variable, component, hcm, contrast, motion, transparency;
     }
@@ -51,18 +48,12 @@ export const typographyStyles = createStylePart(() => css`
             display: inline-block;
         }
 
-        @state(:host) :host {
-            font-family: var(--_font);
-            font-size: var(--_size);
-            font-weight: var(--_weight);
-            line-height: var(--_leading);
-            letter-spacing: var(--_tracking);
-        }
+        ${unsafeCSS(comboRules)}
     }
 
     @layer mdc.typography {
         @layer motion {
-            @reduced-motion {
+            @media (prefers-reduced-motion: reduce) {
                 :host {
                     animation: none;
                     transition: none;
@@ -70,19 +61,19 @@ export const typographyStyles = createStylePart(() => css`
             }
         }
         @layer hcm {
-            @forced-colors {
+            @media (forced-colors: active) {
                 :host {
 
                 }
             }
         }
         @layer contrast {
-            @contrast-less {
+            @media (prefers-contrast: less) {
                 :host {
                     color: CanvasText;
                 }
             }
-            @contrast-more {
+            @media (prefers-contrast: more) {
                 :host {
                     color: CanvasText;
                     font-weight: 700;
@@ -90,11 +81,11 @@ export const typographyStyles = createStylePart(() => css`
             }
         }
         @layer transparency {
-            @reduced-transparency {
+            @media (prefers-reduced-transparency: reduce) {
                 :host {
                     opacity: 1;
                 }
             }
         }
     }
-`)
+`

@@ -5,7 +5,7 @@
  */
 import { css } from 'lit'
 import { ElevationDefinition } from './elevation.definition'
-import { createStyleSheet, stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { stringifyTokens } from '../../utils/style'
 
 const tokens = stringifyTokens('--mdc-elevation')(ElevationDefinition)
 
@@ -16,7 +16,7 @@ export const styles = [
         }
     `,
     css`@layer mdc.elevation.variable {:host {${tokens};}}`,
-    createStyleSheet(ElevationDefinition)(() => css`
+    css`
         @layer mdc.elevation.component {
             :host {
                 display: flex;
@@ -135,7 +135,7 @@ export const styles = [
                 }
             }
         }
-    `)
+    `
 ]
 
 export const ElevationStyles = styles

@@ -4,21 +4,13 @@
  * SPDX-License-Identifier: MIT
  */
 import { Easing } from '@sandlada/mdk'
-import { createStyleSheet, stringifyTokens } from '@sandlada/styles/adapters/lit'
-import { flow } from '@sandlada/styles/foundation'
-import { emptyTables, withState } from '@sandlada/styles/schema'
 import { css, unsafeCSS } from 'lit'
+import { stringifyTokens } from '../../utils/style'
 import { FocusRingDefinition } from './focus-ring.definition'
 
 const tokens = stringifyTokens('--mdc-focus-ring')(FocusRingDefinition)
 
-const tables = flow(
-    withState({
-        enabled: ''
-    })
-)(emptyTables)
-
-const stylePart = createStyleSheet(tables)(FocusRingDefinition)(() => css`
+const stylePart = css`
     @layer mdc.focus-ring.component {
         :host {
             border-style: solid;
@@ -83,7 +75,10 @@ const stylePart = createStyleSheet(tables)(FocusRingDefinition)(() => css`
         }
 
         :host([shape-inherit]) {
-            shape: inherit;
+            border-end-end-radius: inherit;
+            border-end-start-radius: inherit;
+            border-start-end-radius: inherit;
+            border-start-start-radius: inherit;
         }
 
         /* NOTE: these two branches are written as flat selectors on purpose.
@@ -167,7 +162,7 @@ const stylePart = createStyleSheet(tables)(FocusRingDefinition)(() => css`
             }
         }
     }
-`)
+`
 
 export const FocusRingStyle = [
     css`

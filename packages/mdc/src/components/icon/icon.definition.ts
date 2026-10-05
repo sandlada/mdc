@@ -4,11 +4,9 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { createStyleDefinition, defineSchema } from '@sandlada/styles/schema'
+import { createStyleDefinition } from '../../utils/style'
 
-export const IconSchema = defineSchema(['enabled'] as const)
-
-export const IconDefinition = createStyleDefinition(IconSchema)({
+export const IconDefinition = createStyleDefinition({
     'font': 'Material Symbols Outlined',
     'size': '24px',
 })

@@ -8,25 +8,15 @@
  */
 import { Shape, Typescale, Space } from '@sandlada/mdk'
 import { Color } from '../../utils/color'
-import { defineSchema, createStyleDefinition } from '@sandlada/styles/schema'
-import { expandShape, expandPadding, expandTypescale } from '@sandlada/styles/tokens'
+import { createStyleDefinition, expandShape, expandPadding, expandTypescale } from '../../utils/style'
 
-/**
- * Badge state schema:
- * - small: dot badge (6px)
- * - large: labeled badge (16px)
- */
-export const BadgeSchema = defineSchema([
-    ['small', 'large']
-] as const)
-
-export const BadgeDefinition = createStyleDefinition(BadgeSchema)({
+export const BadgeDefinition = createStyleDefinition({
     // Shape & Color (Static / Shared across sizes)
     ...expandShape('container-shape')(Shape.Full),
     'container-color': Color.Error,
 
-    // Size-differentiated Tokens [small, large]
-    'container-size': ['6px', '16px'],
+    // Size-differentiated Tokens (small / large records)
+    'container-size': { small: '6px', large: '16px' },
     ...expandPadding('container-padding')({
         small: [Space.Space25, Space.Space25],
         large: [Space.Space0, Space.Space50],

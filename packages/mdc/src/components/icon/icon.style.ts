@@ -5,11 +5,11 @@
  */
 import { css } from 'lit'
 import { IconDefinition } from './icon.definition'
-import { createStyleSheet, stringifyTokens } from '@sandlada/styles/adapters/lit'
+import { stringifyTokens } from '../../utils/style'
 
 const tokens = stringifyTokens('--mdc-icon')(IconDefinition)
 
-const stylePart = createStyleSheet(IconDefinition)(() => `
+const stylePart = css`
     @layer mdc.icon.component {
         :host {
             font-size: var(--_size);
@@ -18,7 +18,7 @@ const stylePart = createStyleSheet(IconDefinition)(() => `
             font-family: var(--_font);
         }
     }
-`)
+`
 
 export const styles = [
     css`
