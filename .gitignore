@@ -80,5 +80,6 @@ docs/.superpowers
 !SPEC.md
 !USAGE.md
 *.py
+.playwright
 .playwright-cli
 .playwright-mcp

@@ -1,7 +1,7 @@
 # MDC — AI 編碼代理指南
 
 > `@sandlada/mdc` — Lit + Web Components 的 MD3 / MD3E 元件庫，跨框架可用。Monorepo（`packages/mdc/` 為主），`rolldown` 打包 + `vitest` 測試，基準 Chrome 150+ / CSS Baseline 2026 / ECMA Next。
-> 本文件為架構唯一聲明；產品語義以各包 `SPEC-*.md` 為準（衝突時 SPEC 勝）。agent 不得新增或修改 SPEC 語義（含測試期望語義側），拿不準先問。
+> 本文件為架構唯一聲明；產品語義以各元件 `README.md`／`demo/` 為準。樣式只用原生 CSS + `src/utils/style/` 本地 token 層（無 schema、無 at-rule 編譯器），拿不準先問。
 
 ---
 
@@ -10,7 +10,7 @@
 - 格式以 `.editorconfig` 為準；TS 一律無行尾分號。
 - Copyright：新檔用 MIT（Kai-Orion & Sandlada）；衍生 Google / Material Web 用 Apache-2.0。
 - Web Components：一律 `class`（繼承 `LitElement` 或 `Base*`），成員顯式標 `public` / `protected` / `private`，對外只用 HTML 屬性、DOM 事件、Slots，禁框架專屬型別。
-- 非 Web Components（工具、算法、tokens）：純函數 + 高階函數 + 數據後置（Data-Last / Currying），以 `flow(f, g)(x)` 組合，不另設 `pipe`。
+- 非 Web Components（工具、算法、tokens）：純函數 + 高階函數 + 數據後置（Data-Last / Currying），以嵌套調用組合，不另設 `pipe`。
 - Mixins：接收基類並返回擴充類別的高階函數，以 `composeMixin(...)` 組合。
 
 ---
@@ -57,17 +57,17 @@ packages/mdc/src/components/{name}/
 ## 4. 測試與 Spec
 
 - 黑盒先行：期望值依規格獨立推導，禁以實際輸出回填；失敗時只修源碼不改斷言（除非規格變更）；流程 Red → Green → 重構。
-- 快速失敗：非法輸入顯性失敗（丟棄 + `warn` / 拋異常），禁靜默透傳、修復、吞異常。at-rules 側 R1 缺 selector / target、空 `@variant()` / `@when()` 表頭、R8 全分支零匹配一律丟整塊。
+- 快速失敗：非法輸入顯性失敗（`throw new Error(...)`），禁靜默透傳、修復、吞異常。token 值只允許靜態量與普通 record，數組直接拋錯（無 schema 可命名位置項）；樣式是原生 CSS，禁止自創 at-rule。
 - 驗證：`npm test` 目標全綠；僅容忍已知基線清單，清单外新增失敗必須清零。
-- styles 包三源：契約 `packages/styles/SPEC-at-rules.md`、骨架 `packages/styles/TESTING.md`、任務 `packages/styles/TASK.md`；引用只用規則編號（如 R8、W1），禁引行號。
-- `@version`：僅 spec 在檔頭 docblock 首行標 CalVer；agent 禁 bump 或改寫；禁脫離 spec 紅燈改實現；判定與豁免見 `TESTING.md`，檢查用 `npm run check:spec-versions -w @sandlada/styles`（不接入 `test`）。
+- token 層唯一源：`packages/mdc/src/utils/style/`（`createStyleDefinition` 單參數、`expandShape`／`expandPadding`／`expandMargin`／`expandTypescale`、`stringifyTokens`／`overrideTokens`）；深層 `internal/` 禁外部直引。
+- `@version`：僅對外契約在檔頭 docblock 首行標 CalVer；agent 禁 bump 或改寫。
 
 ---
 
 ## 5. 構建、提交與避坑
 
-- 指令（根目錄執行，順序先 `styles` 後 `mdc`）：`npm run build` / `npm run build:dts` / `npm test`；細節見 `package.json` 與 `CONTRIBUTING.md`。
-- 入口：`mdc/all`（全量自動註冊）、`definitions`（手動註冊）、`utils`、`mdc/*` 子路徑；`styles/rolldown` 的 `mdcStyles()` 僅 Node，排 CSS 壓縮插件之前，禁瀏覽器 / `lit` 層引用。
+- 指令（根目錄執行）：`npm run build` / `npm run build:dts` / `npm test`；細節見 `package.json`。
+- 入口：`mdc/all`（全量自動註冊）、`definitions`（手動註冊）、`utils`、`mdc/*` 子路徑；token 層經 `src/utils/style` 本地引用，禁外部包。
 - 提交 / 分支：`{type}: {message}`（`feat | chore | docs | refactor | fix | ai | test | extension`，可加範圍如 `feat(button)`）；分支 `type/name`。
 - 避坑：
   1. 動畫用即時 Chrome CDP + 真實延時驗證；headless `--virtual-time-budget` 會凍結 `@layer` 陰影樹動畫。
