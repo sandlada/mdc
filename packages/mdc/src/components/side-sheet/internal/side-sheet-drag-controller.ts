@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 import type { ReactiveController, ReactiveControllerHost } from 'lit'
+import { resolveDockSide } from '../../../utils/docking'
 import {
     SIDE_SHEET_DRAG_END_EVENT,
     SIDE_SHEET_DRAG_EVENT,
@@ -12,7 +13,8 @@ import {
     type ISideSheetDragEventDetail,
     type ISideSheetDragStartEventDetail,
     type SideSheetDragTarget,
-    type SideSheetEdge,
+    type SideSheetHandleMode,
+    type SideSheetPosition,
     type SideSheetVariant,
 } from '../side-sheet.interface'
 
@@ -21,13 +23,13 @@ const ENGAGE_THRESHOLD_PX = 4
 
 /**
  * Snap-decision distance: drag must exceed this fraction of container width to
- * commit close.
+ * commit close / reveal.
  */
 const DISTANCE_COMMIT_FRACTION = 0.25
 
 /**
- * Snap-decision velocity: release must exceed this px/ms in the dismiss direction to commit
- * close (per Material Design spec).
+ * Snap-decision velocity: release must exceed this px/ms in the commit
+ * direction to commit (per Material Design spec).
  */
 const VELOCITY_COMMIT_PX_PER_MS = 0.5
 
@@ -43,39 +45,80 @@ const VELOCITY_WINDOW_MS = 80
  */
 const MAX_VERTICAL_RATIO = 2
 
+/** Resistance factor applied to movement beyond a drag's hard boundary. */
+const RUBBER_BAND_FACTOR = 0.2
+
+/**
+ * Drag gesture mode:
+ * - `move`: sheet is open; free horizontal drag.
+ * - `reveal`: sheet is closed in peek mode; dragging pulls the sheet out.
+ */
+type DragMode = 'move' | 'reveal'
+
 /**
  * Host contract for {@link SideSheetDragController}.
  */
 export interface ISideSheetDragHost extends ReactiveControllerHost, HTMLElement {
     containerRef: () => HTMLElement | null
-    headlineRef: () => HTMLElement | null
     scrimRef: () => HTMLElement | null
-    enabled: () => boolean
+    handleRef: () => HTMLElement | null
+    /** Drag gestures allowed at all (`draggable && !quick`). */
+    dragEnabled: () => boolean
+    /** Whether the sheet currently shows its open resting state. */
+    isOpen: () => boolean
     getVariant: () => SideSheetVariant
-    getSheetEdge: () => SideSheetEdge
+    getPosition: () => SideSheetPosition
+    getHandleMode: () => SideSheetHandleMode
+    /** Peek sliver width in CSS px (peek mode only). */
+    peekWidthPx: () => number
+    /**
+     * Clear the live drag artifacts — inline transform / scrim opacity /
+     * cursor / `dragged` attribute — when a gesture aborts without a
+     * settle animation.
+     */
+    onDragCleanup: () => void
 }
 
 /**
- * Pointer-driven horizontal swipe-to-dismiss controller for side-sheet.
- * Tracks horizontal pointer movement, engages after 4px threshold, applies live
- * translateX during drag, and decides dismiss vs snap-back on release using distance
- * and velocity heuristics per M3 / MDC-Android specifications.
+ * Pointer-driven drag controller for side-sheet.
+ *
+ * Gestures start on the drag handle (or the peek grip) and engage after a
+ * 4px horizontal threshold, canceling on vertical-dominant movement:
+ * - **Move** (open sheet): the sheet follows the pointer freely for as
+ *   long as it is held — outward until fully off the docked edge,
+ *   inward until its inner edge reaches the opposite viewport edge —
+ *   rubber-banding beyond either limit. On release the controller
+ *   decides: push far/fast enough toward the docked edge commits the
+ *   dismissal; otherwise the new dock side is judged from the sheet's
+ *   center and release velocity — crossing to the opposite side
+ *   relocates the sheet, anything else snaps back open.
+ * - **Reveal** (peeked sheet): dragging pulls the sheet out; release
+ *   commits open on distance/velocity, relocates across the midline, or
+ *   snaps back to the peek sliver.
+ *
+ * All live motion is expressed in a dock-agnostic "push-out value": `0` is
+ * the open resting position, `W` fully hidden, `W - peekWidth` the peek
+ * sliver, negatives spill toward the opposite midline.
  */
 export class SideSheetDragController implements ReactiveController {
     private readonly host: ISideSheetDragHost
 
     // ── Pointer state ──────────────────────────────────────────────────────
     private pointerId: number | null = null
+    private mode: DragMode = 'move'
     private startX = 0
     private startY = 0
     private engaged = false
     private canceled = false
 
     // ── Drag geometry ──────────────────────────────────────────────────────
-    private currentDx = 0
+    /** Dock-agnostic push-out value (0 open, W closed, W - peek sliver). */
+    private currentValue = 0
+    /** Base value the gesture started from (peek sliver or 0). */
+    private baseValue = 0
     private containerWidth = 0
     private lastMoveT = 0
-    private lastMoveDx = 0
+    private lastMoveValue = 0
     private releaseVelocity = 0
 
     // ── Bound handlers ─────────────────────────────────────────────────────
@@ -89,65 +132,72 @@ export class SideSheetDragController implements ReactiveController {
 
         this.handlePointerMoveBound = (e) => this.handlePointerMove(e)
         this.handlePointerUpBound = (e) => this.handlePointerUp(e)
-        this.handlePointerCancelBound = (e) => this.handlePointerUp(e)
+        this.handlePointerCancelBound = (e) => this.handlePointerUp(e, true)
     }
 
     public hostConnected(): void {
-        // Pointer down listener is bound on the header / container in template.
+        // Pointer down listeners are bound on the handle / peek grip in template.
     }
 
     public hostDisconnected(): void {
-        window.removeEventListener('pointermove', this.handlePointerMoveBound)
-        window.removeEventListener('pointerup', this.handlePointerUpBound)
-        window.removeEventListener('pointercancel', this.handlePointerCancelBound)
+        this.detachWindowListeners()
         this.resetState()
     }
 
     /**
      * Cancel any in-flight drag (e.g. when the host calls `hide()` mid-drag).
+     * Idempotent: also drops live artifacts left by an already-finished
+     * gesture so a stale state never leaks into the next lifecycle step.
      */
     public cancel(): void {
-        if (this.pointerId === null) return
-        window.removeEventListener('pointermove', this.handlePointerMoveBound)
-        window.removeEventListener('pointerup', this.handlePointerUpBound)
-        window.removeEventListener('pointercancel', this.handlePointerCancelBound)
+        this.detachWindowListeners()
         this.resetState()
-        const container = this.host.containerRef()
-        if (container) {
-            container.style.removeProperty('transform')
-            container.style.removeProperty('cursor')
-        }
-        const scrim = this.host.scrimRef()
-        if (scrim) scrim.style.removeProperty('opacity')
-        this.host.removeAttribute('touch-action')
-        this.host.removeAttribute('dragged')
+        this.host.onDragCleanup()
     }
 
+    // ── Gesture entry point (bound in the host template) ──────────────────
+
+    /**
+     * Pointer down on the drag handle. Starts `move` (open sheet) or
+     * `reveal` (peeked sheet).
+     */
     public handlePointerDown(event: PointerEvent): void {
         if (this.pointerId !== null) return
-        if (!this.host.enabled()) return
-        // Only primary pointer (left mouse / first touch / pen tip).
+        if (!this.host.dragEnabled()) return
         if (!event.isPrimary) return
 
-        // Ignore clicks on interactive elements (buttons, inputs, links, etc.)
-        const target = event.target as HTMLElement | null
-        if (target && target.closest('button, a, input, select, textarea, [tabindex]:not([tabindex="-1"])')) {
-            return
-        }
+        const open = this.host.isOpen()
+        const peek = this.host.getHandleMode() === 'peek'
+        if (!open && !peek) return
 
+        this.mode = open ? 'move' : 'reveal'
+        this.beginTracking(event)
+    }
+
+    // ── Tracking ───────────────────────────────────────────────────────────
+
+    private beginTracking(event: PointerEvent): void {
         this.pointerId = event.pointerId
         this.startX = event.clientX
         this.startY = event.clientY
         this.engaged = false
         this.canceled = false
-        this.currentDx = 0
         this.releaseVelocity = 0
         this.lastMoveT = 0
-        this.lastMoveDx = 0
+        this.lastMoveValue = 0
+        this.containerWidth = 0
+        this.baseValue = this.host.isOpen() ? 0 : this.restPeekValue()
+        this.currentValue = this.baseValue
 
         window.addEventListener('pointermove', this.handlePointerMoveBound)
         window.addEventListener('pointerup', this.handlePointerUpBound)
         window.addEventListener('pointercancel', this.handlePointerCancelBound)
+    }
+
+    private detachWindowListeners(): void {
+        window.removeEventListener('pointermove', this.handlePointerMoveBound)
+        window.removeEventListener('pointerup', this.handlePointerUpBound)
+        window.removeEventListener('pointercancel', this.handlePointerCancelBound)
     }
 
     private handlePointerMove(event: PointerEvent): void {
@@ -157,7 +207,7 @@ export class SideSheetDragController implements ReactiveController {
         const deltaX = event.clientX - this.startX
         const deltaY = Math.abs(event.clientY - this.startY)
 
-        // Vertical-dominant motion before engagement → cancel drag (user is scrolling vertically).
+        // Vertical-dominant motion before engagement → cancel drag.
         if (!this.engaged && deltaY > MAX_VERTICAL_RATIO * Math.max(Math.abs(deltaX), 1)) {
             this.canceled = true
             this.handlePointerUp(event)
@@ -166,7 +216,6 @@ export class SideSheetDragController implements ReactiveController {
 
         if (!this.engaged) {
             if (Math.abs(deltaX) < ENGAGE_THRESHOLD_PX) return
-            // Engage: take pointer capture so we keep getting moves off the container.
             const container = this.host.containerRef()
             if (!container) return
             try {
@@ -177,172 +226,205 @@ export class SideSheetDragController implements ReactiveController {
             this.engaged = true
             this.containerWidth = container.getBoundingClientRect().width
 
-            this.host.setAttribute('touch-action', 'none')
-            container.style.cursor = 'grabbing'
+            this.host.setAttribute('dragged', '')
+            this.host.handleRef()?.style.setProperty('cursor', 'grabbing')
             this.host.dispatchEvent(new CustomEvent<ISideSheetDragStartEventDetail>(
                 SIDE_SHEET_DRAG_START_EVENT,
                 {
                     bubbles: true,
                     composed: true,
-                    detail: { sheetEdge: this.host.getSheetEdge() },
+                    detail: { position: this.host.getPosition() },
                 },
             ))
         }
 
-        const edge = this.host.getSheetEdge()
-        const isStandard = this.host.getVariant() === 'standard'
+        const sign = this.host.getPosition() === 'left' ? -1 : 1
+        // Dock-agnostic push-out value: pointer travel projected onto the
+        // outward axis of the current dock. The sheet follows the pointer
+        // for as long as it is held; the limits below only rubber-band.
+        let value = this.baseValue + sign * deltaX
 
-        // Calculate dx with rubber-band resistance against dragging into the viewport
-        let dx = 0
-        if (edge === 'end') {
-            // Sheet is docked on the right. Moving right (+deltaX) dismisses it offscreen.
-            if (deltaX < 0) {
-                dx = deltaX * 0.2 // rubber-band
-            } else {
-                dx = deltaX
-            }
-        } else {
-            // Sheet is docked on the left. Moving left (-deltaX) dismisses it offscreen.
-            if (deltaX > 0) {
-                dx = deltaX * 0.2 // rubber-band
-            } else {
-                dx = deltaX
-            }
+        // Outward limit: fully off the docked edge (move) / the peek rest
+        // (reveal). Inward limit: the sheet's inner edge reaching the
+        // opposite viewport edge.
+        const viewportWidth = this.host.containerRef()
+            ?.ownerDocument.defaultView?.innerWidth ?? 0
+        const outwardHard = this.mode === 'reveal'
+            ? this.baseValue
+            : this.containerWidth
+        const inwardHard = -(viewportWidth - this.containerWidth)
+        if (value > outwardHard) {
+            value = outwardHard + (value - outwardHard) * RUBBER_BAND_FACTOR
+        } else if (value < inwardHard) {
+            value = inwardHard + (value - inwardHard) * RUBBER_BAND_FACTOR
         }
 
-        // Track release velocity using a moving window.
+        this.currentValue = value
+
+        // Track release velocity in push-out space (outward positive).
         const now = performance.now()
         const prevT = this.lastMoveT
-        const prevDx = this.lastMoveDx
+        const prevValue = this.lastMoveValue
         this.lastMoveT = now
-        this.lastMoveDx = dx
+        this.lastMoveValue = value
         if (prevT > 0 && now - prevT < VELOCITY_WINDOW_MS) {
-            this.releaseVelocity = (dx - prevDx) / (now - prevT)
+            this.releaseVelocity = (value - prevValue) / (now - prevT)
         } else if (now - prevT >= VELOCITY_WINDOW_MS) {
             this.releaseVelocity = 0
         }
 
-        this.currentDx = dx
-        if (Math.abs(dx) > 0) {
-            this.host.setAttribute('dragged', '')
-        } else {
-            this.host.removeAttribute('dragged')
-        }
-
-        const container = this.host.containerRef()
-        const scrim = this.host.scrimRef()
-        const peak = 0.32
-
-        // Scrim opacity interpolation (modal only)
-        if (scrim && !isStandard) {
-            const progress = Math.min(1, Math.max(0, Math.abs(dx) / Math.max(1, this.containerWidth)))
-            scrim.style.opacity = String(peak * (1 - progress))
-        }
-
-        if (container) container.style.transform = `translateX(${dx}px)`
-
-        const totalW = this.containerWidth > 0 ? this.containerWidth : 1
-        const progress = Math.min(1, Math.max(0, Math.abs(dx) / totalW))
-
-        this.host.dispatchEvent(new CustomEvent<ISideSheetDragEventDetail>(
-            SIDE_SHEET_DRAG_EVENT,
-            {
-                bubbles: true,
-                composed: true,
-                detail: { dx, progress },
-            },
-        ))
+        this.paint(value)
+        this.emitDrag(value)
     }
 
-    private handlePointerUp(event: PointerEvent): void {
+    private handlePointerUp(event: PointerEvent, canceled = false): void {
         if (this.pointerId !== event.pointerId) return
-        window.removeEventListener('pointermove', this.handlePointerMoveBound)
-        window.removeEventListener('pointerup', this.handlePointerUpBound)
-        window.removeEventListener('pointercancel', this.handlePointerCancelBound)
+        this.detachWindowListeners()
 
         const container = this.host.containerRef()
-        const scrim = this.host.scrimRef()
-        const lastDx = this.currentDx
 
         if (!this.engaged) {
             this.resetState()
             return
         }
 
-        if (this.canceled) {
-            if (container) {
-                container.style.transform = ''
-                container.style.cursor = ''
-            }
-            if (scrim) scrim.style.opacity = ''
-            this.host.removeAttribute('touch-action')
-            this.host.removeAttribute('dragged')
-            try { container?.releasePointerCapture(event.pointerId) } catch {}
-            this.host.dispatchEvent(new CustomEvent<ISideSheetDragEndEventDetail>(
-                SIDE_SHEET_DRAG_END_EVENT,
-                {
-                    bubbles: true,
-                    composed: true,
-                    detail: { committed: false, target: 'open', reason: 'cancel', dx: lastDx },
-                },
-            ))
-            this.resetState()
+        try { container?.releasePointerCapture(event.pointerId) } catch { /* detached */ }
+
+        if (canceled || this.canceled) {
+            this.finishGesture(this.mode === 'reveal' ? 'peek' : 'open', false, 'cancel')
             return
         }
 
-        try { container?.releasePointerCapture(event.pointerId) } catch {}
+        const lastValue = this.currentValue
+        const width = this.containerWidth > 0 ? this.containerWidth : 1
+        const commitDistance = Math.max(40, width * DISTANCE_COMMIT_FRACTION)
 
-        const edge = this.host.getSheetEdge()
-        const closeThreshold = Math.max(40, this.containerWidth * DISTANCE_COMMIT_FRACTION)
+        let target: SideSheetDragTarget = this.mode === 'reveal' ? 'peek' : 'open'
+        let reason: 'distance' | 'velocity' | undefined = undefined
+        let relocateTo: SideSheetPosition | undefined = undefined
 
-        let target: SideSheetDragTarget = 'open'
-        let commitReason: 'distance' | 'velocity' | undefined = undefined
+        const rect = container?.getBoundingClientRect()
+        const viewportWidth = container?.ownerDocument.defaultView?.innerWidth
+            ?? rect?.width ?? 0
+        const sideByCenter = rect
+            ? resolveDockSide(viewportWidth)(rect.left + rect.width / 2)
+            : this.host.getPosition()
 
-        if (edge === 'end') {
-            if (this.releaseVelocity > VELOCITY_COMMIT_PX_PER_MS || this.currentDx > closeThreshold) {
-                target = 'closed'
-                commitReason = this.releaseVelocity > VELOCITY_COMMIT_PX_PER_MS ? 'velocity' : 'distance'
-            }
-        } else {
-            if (this.releaseVelocity < -VELOCITY_COMMIT_PX_PER_MS || this.currentDx < -closeThreshold) {
-                target = 'closed'
-                commitReason = this.releaseVelocity < -VELOCITY_COMMIT_PX_PER_MS ? 'velocity' : 'distance'
-            }
+        if (this.mode === 'reveal' && (
+            lastValue < this.baseValue - commitDistance
+            || this.releaseVelocity < -VELOCITY_COMMIT_PX_PER_MS
+        )) {
+            // Pulling the sheet out: far enough / fast enough reveals it.
+            // The opened sheet re-docks to the side its center ended on.
+            target = 'reveal'
+            reason = this.releaseVelocity < -VELOCITY_COMMIT_PX_PER_MS
+                ? 'velocity'
+                : 'distance'
+            if (sideByCenter !== this.host.getPosition()) relocateTo = sideByCenter
+        } else if (this.mode === 'move' && (
+            lastValue > commitDistance
+            || this.releaseVelocity > VELOCITY_COMMIT_PX_PER_MS
+        )) {
+            target = 'closed'
+            reason = this.releaseVelocity > VELOCITY_COMMIT_PX_PER_MS
+                ? 'velocity'
+                : 'distance'
+        } else if (sideByCenter !== this.host.getPosition()) {
+            // Free travel released away from a commit boundary: judge the
+            // new dock side on release.
+            target = 'relocate'
+            relocateTo = sideByCenter
         }
 
-        const isClosing = target === 'closed'
+        this.finishGesture(target, target === 'closed' || target === 'reveal', reason, relocateTo)
+    }
 
+    /**
+     * Emits the drag-end event and clears the live drag bookkeeping. The
+     * inline transform stays on the container until the host's settle
+     * animation takes over.
+     */
+    private finishGesture(
+        target: SideSheetDragTarget,
+        committed: boolean,
+        reason: 'distance' | 'velocity' | 'cancel' | undefined,
+        relocateTo?: SideSheetPosition,
+    ): void {
+        const sign = this.host.getPosition() === 'left' ? -1 : 1
         this.host.dispatchEvent(new CustomEvent<ISideSheetDragEndEventDetail>(
             SIDE_SHEET_DRAG_END_EVENT,
             {
                 bubbles: true,
                 composed: true,
                 detail: {
-                    committed: isClosing,
+                    committed,
                     target,
-                    reason: commitReason,
-                    dx: lastDx,
+                    reason,
+                    dx: sign * this.currentValue,
+                    relocateTo,
                 },
             },
         ))
         this.resetState()
     }
 
-    private resetState(): void {
-        this.host.removeAttribute('dragged')
-        const container = this.host.containerRef()
-        if (container) {
-            container.style.removeProperty('cursor')
+    private emitDrag(value: number): void {
+        const sign = this.host.getPosition() === 'left' ? -1 : 1
+        const translateX = sign * value
+        const width = this.containerWidth > 0 ? this.containerWidth : 1
+        let progress: number
+        if (this.mode === 'reveal') {
+            const travel = Math.max(1, width - this.host.peekWidthPx())
+            progress = Math.min(1, Math.max(0, (this.baseValue - value) / travel))
+        } else {
+            progress = Math.min(1, Math.max(0, value / width))
         }
+        this.host.dispatchEvent(new CustomEvent<ISideSheetDragEventDetail>(
+            SIDE_SHEET_DRAG_EVENT,
+            {
+                bubbles: true,
+                composed: true,
+                detail: { dx: translateX, progress },
+            },
+        ))
+    }
+
+    /**
+     * Paint the live translation for the current push-out value.
+     */
+    private paint(value: number): void {
+        const sign = this.host.getPosition() === 'left' ? -1 : 1
+        const container = this.host.containerRef()
+        if (container) container.style.transform = `translateX(${sign * value}px)`
+        // The scrim only follows the OUTWARD (dismiss) direction; pulling
+        // the sheet inward (negative value) must never dim it.
+        const scrim = this.host.scrimRef()
+        const peak = 0.32
+        if (scrim && this.host.getVariant() === 'modal' && value > 0) {
+            const width = this.containerWidth > 0 ? this.containerWidth : 1
+            const progress = Math.min(1, Math.max(0, value / Math.max(1, width)))
+            scrim.style.opacity = String(peak * (1 - progress))
+        }
+    }
+
+    private restPeekValue(): number {
+        const width = this.host.containerRef()?.getBoundingClientRect().width
+            ?? this.host.getBoundingClientRect().width
+        return Math.max(0, width - this.host.peekWidthPx())
+    }
+
+    private resetState(): void {
         this.pointerId = null
+        this.mode = 'move'
         this.startX = 0
         this.startY = 0
         this.engaged = false
         this.canceled = false
-        this.currentDx = 0
+        this.currentValue = 0
+        this.baseValue = 0
         this.containerWidth = 0
         this.releaseVelocity = 0
         this.lastMoveT = 0
-        this.lastMoveDx = 0
+        this.lastMoveValue = 0
     }
 }

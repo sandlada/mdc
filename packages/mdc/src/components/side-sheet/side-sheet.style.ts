@@ -3,7 +3,8 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { css } from 'lit'
+import { css, unsafeCSS } from 'lit'
+import { Easing } from '@sandlada/mdk'
 import type { ElevationDefinition } from '../elevation/elevation.definition'
 import {
     ModalSideSheetDefinition,
@@ -22,6 +23,9 @@ const standardTokens = css`
 const modalTokens = css`
     dialog.modal {${modalTokenString};}
 `
+
+const emphasizedEasing = unsafeCSS(Easing.Emphasized.ToCSSValue())
+const emphasizedAccelerateEasing = unsafeCSS(Easing.EmphasizedAccelerate.ToCSSValue())
 
 const getElevationStyles = () => {
     const styles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
@@ -52,7 +56,7 @@ export const sideSheetBaseStyles = css`
     }
 
     dialog {
-        display: block !important;
+        display: block;
         position: fixed;
         inset: 0;
         box-sizing: border-box;
@@ -68,35 +72,70 @@ export const sideSheetBaseStyles = css`
         background: transparent;
         color: var(--_enabled-headline-color);
         pointer-events: none;
+        /* Closed state: the exit transition animates towards display none.
+        allow-discrete keeps the dialog rendered until it ends. */
+        transition:
+            display 150ms allow-discrete,
+            overlay 150ms allow-discrete;
     }
+
+    dialog[open] {
+        transition:
+            display 500ms allow-discrete,
+            overlay 500ms allow-discrete;
+    }
+
+    dialog:not([open]) { display: none; }
 
     dialog::backdrop { display: none; }
 
-    /* Scrim */
-    .scrim {
+    /*
+     * The scrim renders permanently as a dialog descendant (state derived
+     * from the native dialog[open], mirroring the dialog component) and
+     * toggles via display + allow-discrete — the modern alternative to
+     * the dialog's visibility trick, valid here because the scrim lives
+     * inside the dialog subtree. Base rules stay scoped under dialog:
+     * Chrome only honors the starting styles of newly rendered shadow
+     * descendants when their matching base rules are scoped to the dialog
+     * element; bare class selectors snap straight to the open values.
+     */
+    dialog .scrim {
+        display: none;
         position: absolute;
         inset: 0;
         background: var(--_enabled-container-color-modal);
         opacity: 0;
         pointer-events: none;
         z-index: 0;
+        transition:
+            display 150ms allow-discrete,
+            opacity 150ms linear;
+    }
+
+    dialog.modal.open .scrim {
+        display: block;
+        opacity: var(--_enabled-container-opacity-modal);
+        pointer-events: auto;
+        transition:
+            display 500ms allow-discrete,
+            opacity 500ms linear;
     }
 
     dialog.standard .scrim {
         display: none !important;
     }
 
-    :host([open]) dialog.modal .scrim {
-        opacity: var(--_enabled-container-opacity-modal);
-        pointer-events: auto;
-    }
-
-    /* Container */
-    .container {
+    /* Container. Base rule scoped under dialog — see the scrim note on
+    why the starting styles need this on first render. Transform offsets
+    are PIXEL-based (token-driven) — Chrome resolves a starting-style
+    percentage transform to the destination frame and never paints the
+    slide; px keyframes animate correctly (mirrors the dialog's px
+    transform). */
+    /* Base container shape and transitions */
+    dialog .container {
         position: absolute;
         top: 0;
         bottom: 0;
-        inset-inline-end: 0;
         width: min(
             var(--_enabled-container-width),
             100%
@@ -106,53 +145,90 @@ export const sideSheetBaseStyles = css`
         color: inherit;
         display: flex;
         flex-direction: column;
-
-        border-start-start-radius: var(--_enabled-container-shape-start-start);
-        border-end-start-radius: var(--_enabled-container-shape-end-start);
-        border-start-end-radius: var(--_enabled-container-shape-start-end);
-        border-end-end-radius: var(--_enabled-container-shape-end-end);
-        transition: border-radius 200ms cubic-bezier(0.2, 0, 0, 1);
-
-        transform: translateX(100%);
+        transition:
+            border-radius 200ms cubic-bezier(0.2, 0, 0, 1),
+            transform 150ms ${emphasizedAccelerateEasing};
         pointer-events: auto;
         z-index: 1;
         will-change: transform;
         touch-action: pan-x;
     }
 
-    :host([dragged]) .container,
-    .host.dragged .container {
-        border-start-start-radius: var(--_dragged-container-shape-start-start);
-        border-end-start-radius: var(--_dragged-container-shape-end-start);
-        border-start-end-radius: var(--_dragged-container-shape-start-end);
-        border-end-end-radius: var(--_dragged-container-shape-end-end);
+    /* Dock anchor: physical right (default dock) */
+    dialog.right .container {
+        left: auto;
+        right: 0;
+        border-start-start-radius: var(--_enabled-container-shape-start-start);
+        border-end-start-radius: var(--_enabled-container-shape-end-start);
+        border-start-end-radius: var(--_enabled-container-shape-start-end);
+        border-end-end-radius: var(--_enabled-container-shape-end-end);
+        /* Closed state values: the exit transition animates towards these. */
+        transform: translateX(var(--_enabled-container-width));
     }
 
-    dialog:not([open]) {
-        display: none !important;
-    }
-
-    :host([open]) .container {
-        transform: translateX(0);
-    }
-
-    /* sheet-edge=start */
-    dialog.edge-start .container {
-        inset-inline-end: auto;
-        inset-inline-start: 0;
+    /* Dock anchor: physical left */
+    dialog.left .container {
+        left: 0;
+        right: auto;
         border-start-start-radius: var(--_enabled-container-shape-start-end);
         border-end-start-radius: var(--_enabled-container-shape-end-end);
         border-start-end-radius: var(--_enabled-container-shape-start-start);
         border-end-end-radius: var(--_enabled-container-shape-end-start);
-        transform: translateX(-100%);
+        /* Closed state values: the exit transition animates towards these. */
+        transform: translateX(calc(-1 * (var(--_enabled-container-width))));
     }
 
-    :host([open]) dialog.edge-start .container {
+    /* Open state: the enter transition runs from the starting styles below. */
+    dialog.open .container {
         transform: translateX(0);
+        transition:
+            border-radius 200ms cubic-bezier(0.2, 0, 0, 1),
+            transform 500ms ${emphasizedEasing};
     }
 
-    :host([touch-action='none']) .container {
+    /* Peek sliver (handle-mode="peek", closed sheet): most of the sheet
+    hangs off the docked edge, only the vertical grip stays grabbable. */
+    dialog.peek .container {
+        transition:
+            border-radius 200ms cubic-bezier(0.2, 0, 0, 1),
+            transform 150ms ${emphasizedAccelerateEasing};
+    }
+
+    dialog.right.peek:not(.open) .container {
+        transform: translateX(calc(var(--_enabled-container-width) - var(--_peeked-container-width)));
+    }
+
+    dialog.left.peek:not(.open) .container {
+        transform: translateX(calc(-1 * (var(--_enabled-container-width) - var(--_peeked-container-width))));
+    }
+
+    dialog.peek.open .container {
+        transition:
+            border-radius 200ms cubic-bezier(0.2, 0, 0, 1),
+            transform 500ms ${emphasizedEasing};
+    }
+
+    :host([dragged]) dialog .container,
+    :host([dragged]) dialog.peek:not(.open) .container {
+        /* The drag paints inline transforms per pointer move; CSS
+        transitions must not smooth behind them. Border-radius keeps its
+        transition so the corner morph still animates. Kept alive through
+        the settle animations, which carry the dragged state themselves.
+        Scoped to tie specificity with dialog.open / dialog.peek (order
+        decides). */
         transition: border-radius 200ms cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    :host([dragged]) dialog.modal .scrim {
+        transition: none;
+    }
+
+    /* Dragged state: all four corners round while off the dock. */
+    :host([dragged]) dialog .container {
+        border-start-start-radius: var(--_dragged-container-shape-start-start);
+        border-end-start-radius: var(--_dragged-container-shape-end-start);
+        border-start-end-radius: var(--_dragged-container-shape-start-end);
+        border-end-end-radius: var(--_dragged-container-shape-end-end);
     }
 
     /* Elevation */
@@ -169,9 +245,79 @@ export const sideSheetBaseStyles = css`
     .headline,
     mdc-divider,
     .content,
-    .actions {
+    .actions,
+    .handle,
+    .peek-grip {
         position: relative;
         z-index: 1;
+    }
+
+    /* Drag handle row */
+    .handle {
+        display: flex;
+        justify-content: center;
+        flex-shrink: 0;
+        box-sizing: border-box;
+        padding-block-start: var(--_handle-container-padding-block-start);
+        padding-block-end: var(--_handle-container-padding-block-end);
+        cursor: grab;
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: pan-x;
+    }
+
+    .handle-grip {
+        display: block;
+        width: var(--_enabled-handle-width);
+        height: var(--_enabled-handle-height);
+        background: var(--_enabled-handle-color);
+        border-start-start-radius: var(--_enabled-handle-shape-start-start);
+        border-start-end-radius: var(--_enabled-handle-shape-start-end);
+        border-end-start-radius: var(--_enabled-handle-shape-end-start);
+        border-end-end-radius: var(--_enabled-handle-shape-end-end);
+    }
+
+    /* Peeked sliver: only the vertical grip pokes into the viewport, pinned
+    to the sheet's inner edge. The horizontal top handle appears once the
+    sheet is fully shown. */
+    dialog.peek:not(.open) .handle {
+        display: none;
+    }
+
+    .peek-grip {
+        display: none;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        left: auto;
+        right: auto;
+        width: var(--_enabled-peek-grip-width);
+        height: var(--_enabled-peek-grip-height);
+        background: var(--_enabled-peek-grip-color);
+        border-start-start-radius: var(--_enabled-peek-grip-shape-start-start);
+        border-start-end-radius: var(--_enabled-peek-grip-shape-start-end);
+        border-end-start-radius: var(--_enabled-peek-grip-shape-end-start);
+        border-end-end-radius: var(--_enabled-peek-grip-shape-end-end);
+        cursor: grab;
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: pan-x;
+    }
+
+    dialog.right.peek:not(.open) .peek-grip {
+        display: block;
+        left: 0;
+    }
+
+    dialog.left.peek:not(.open) .peek-grip {
+        display: block;
+        left: auto;
+        right: 0;
+    }
+
+    dialog:not(.draggable) .handle,
+    dialog:not(.draggable) .peek-grip {
+        cursor: default;
     }
 
     /* Headline row */
@@ -284,6 +430,48 @@ export const sideSheetBaseStyles = css`
 
     .focus-trap-first { inset-block-start: 0; inset-inline-start: 0; }
     .focus-trap-last  { inset-block-end: 0; inset-inline-end: 0; }
+
+    /* "quick" skips all transitions. These rules must stay after the
+    open-state blocks to win the specificity tie. */
+    dialog.quick,
+    dialog.quick .container,
+    dialog.quick .scrim,
+    dialog.quick.peek .container {
+        transition: none;
+    }
+
+    /* Starting styles for the scrim's open transition (the scrim's own
+    display transition paints correctly). The CONTAINER must NOT use one:
+    its open/close motion is WAAPI-driven — see SideSheetOpenAnimation —
+    because Chrome does not paint a descendant transform transition when
+    the ancestor dialog's display flips in the top layer. Declared after
+    the main rules: starting-style declarations take part in the normal
+    cascade, so a block placed earlier would lose to the matching
+    open-state rules and the before-change value would equal the open
+    value, killing the transition. */
+    @starting-style {
+        dialog.modal.open .scrim {
+            opacity: 0;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        dialog,
+        dialog[open],
+        dialog .container,
+        dialog.open .container,
+        dialog.peek .container,
+        dialog .scrim,
+        dialog.modal.open .scrim {
+            transition: none;
+        }
+    }
+
+    @media (forced-colors: active) {
+        .handle-grip {
+            background: Highlight;
+        }
+    }
 `
 
 export const sideSheetStyles = [

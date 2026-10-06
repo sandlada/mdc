@@ -1,11 +1,11 @@
 <mdc-side-sheet id="ss-draggable-on" variant="modal" draggable>
     <span slot="headline">Draggable (default)</span>
-    <p>Swipe horizontally towards the viewport edge to dismiss.</p>
+    <p>Drag the top handle: push it towards the docked edge to dismiss, or pull it across the viewport midline to relocate to the other side.</p>
 </mdc-side-sheet>
 
 <mdc-side-sheet id="ss-draggable-off" variant="modal" draggable="false">
     <span slot="headline">Not draggable</span>
-    <p>Horizontal swipe gesture is disabled.</p>
+    <p>Handle-drag gestures are disabled.</p>
 </mdc-side-sheet>
 
 <mdc-button onclick="this.getRootNode().querySelector('#ss-draggable-on').show()"><span>Draggable</span></mdc-button>

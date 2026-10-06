@@ -12,10 +12,21 @@ import type { LitElement } from 'lit'
 export type SideSheetVariant = 'standard' | 'modal'
 
 /**
- * Viewport edge the sheet docks to. RTL-aware: in `dir="rtl"`, the visual
- * mapping follows `inset-inline-end` / `inset-inline-start` automatically.
+ * Physical viewport edge the sheet docks to. Physical — `left` anchors to
+ * the viewport's left edge and `right` to its right edge regardless of the
+ * `dir` context. Flip-driven drag relocation swaps this value.
  */
-export type SideSheetEdge = 'start' | 'end'
+export type SideSheetPosition = 'left' | 'right'
+
+/**
+ * Drag-handle presentation of the side sheet.
+ * - `open-only` (default): the handle renders on the open sheet only;
+ *   a closed sheet exposes nothing and cannot be dragged out.
+ * - `peek`: a closed sheet stays as a docked sliver exposing the handle;
+ *   dragging the handle pulls the sheet out (open) or pushes it back
+ *   (close). Requires `variant='standard'` and `draggable`.
+ */
+export type SideSheetHandleMode = 'open-only' | 'peek'
 
 /**
  * Why the sheet is closing. Reported via the `side-sheet-closed` event detail.
@@ -24,6 +35,7 @@ export type SideSheetEdge = 'start' | 'end'
  * - `scrim`: modal's scrim tap (when `cancelable=true`)
  * - `close-button`: the close icon-button was clicked
  * - `back-button`: the back icon-button was clicked (modal + `show-back-button`)
+ * - `drag`: the handle drag committed a dismissal
  */
 export type SideSheetCloseReason =
     | 'programmatic'
@@ -35,8 +47,14 @@ export type SideSheetCloseReason =
 
 /**
  * Snap target decided on release of a drag gesture.
+ * - `closed`: commit the dismissal.
+ * - `open`: snap back to the open resting position.
+ * - `peek`: snap back to the peek sliver (peek mode, closed sheet).
+ * - `reveal`: commit opening from the peek sliver.
+ * - `relocate`: re-dock to the opposite edge (see `relocateTo` in the
+ *   drag-end detail).
  */
-export type SideSheetDragTarget = 'closed' | 'open'
+export type SideSheetDragTarget = 'closed' | 'open' | 'peek' | 'reveal' | 'relocate'
 
 /**
  * Detail payload of the `side-sheet-closed` event.
@@ -67,7 +85,8 @@ export interface ISideSheetActionEventDetail {
  * Detail payload of the `side-sheet-drag-start` event.
  */
 export interface ISideSheetDragStartEventDetail {
-    sheetEdge: SideSheetEdge
+    /** Physical side the sheet is docked to when the gesture engages. */
+    position: SideSheetPosition
 }
 
 /**
@@ -76,7 +95,7 @@ export interface ISideSheetDragStartEventDetail {
 export interface ISideSheetDragEventDetail {
     /** Live horizontal delta (px) from resting position. */
     dx: number
-    /** Fractional progress [0..1] towards dismiss. */
+    /** Fractional progress [0..1] towards dismiss / reveal. */
     progress: number
 }
 
@@ -84,7 +103,7 @@ export interface ISideSheetDragEventDetail {
  * Detail payload of the `side-sheet-drag-end` event.
  */
 export interface ISideSheetDragEndEventDetail {
-    /** True when the drag decided to commit a dismiss. */
+    /** True when the drag decided to commit a state change. */
     committed: boolean
     /** Snap target decided by the release heuristics. */
     target: SideSheetDragTarget
@@ -92,6 +111,17 @@ export interface ISideSheetDragEndEventDetail {
     reason?: 'distance' | 'velocity' | 'cancel'
     /** The horizontal translation at the instant of release. */
     dx: number
+    /** When `target === 'relocate'`: the physical side to re-dock to. */
+    relocateTo?: SideSheetPosition
+}
+
+/**
+ * Detail payload of the `side-sheet-relocate` event. Fired after a
+ * handle-driven drag crosses the viewport midline and the sheet has
+ * re-docked to the opposite edge with its transition.
+ */
+export interface ISideSheetRelocateEventDetail {
+    position: SideSheetPosition
 }
 
 /**
@@ -108,8 +138,10 @@ export interface ISideSheet extends LitElement {
     variant: SideSheetVariant
     /** Visibility driver. */
     open: boolean
-    /** Edge the sheet docks to. */
-    sheetEdge: SideSheetEdge
+    /** Physical edge the sheet docks to. */
+    position: SideSheetPosition
+    /** Drag-handle presentation. */
+    handleMode: SideSheetHandleMode
     /**
      * Hard ceiling on panel width in CSS px.
      * `0` (default) means no ceiling — width is driven solely by the
@@ -126,7 +158,7 @@ export interface ISideSheet extends LitElement {
     returnValue: string
     /** Modal only — surface a back icon-button in the headline row. */
     showBackButton: boolean
-    /** Swipe-to-dismiss drag gesture. */
+    /** Handle-drag gestures (dismiss / relocate / peek reveal). */
     draggable: boolean
 
     /** Open the sheet and resolve when the entrance transition completes. */
@@ -135,6 +167,11 @@ export interface ISideSheet extends LitElement {
     hide(): Promise<void>
     /** Close the sheet with a return value. */
     close(returnValue?: string): Promise<void>
+    /**
+     * Relocate the sheet to the given physical edge with a transition.
+     * Resolves when the relocation transition completes.
+     */
+    relocate(position: SideSheetPosition): Promise<void>
 }
 
 /** Fired when the sheet begins to open. */
@@ -155,3 +192,5 @@ export const SIDE_SHEET_DRAG_START_EVENT = 'side-sheet-drag-start'
 export const SIDE_SHEET_DRAG_EVENT = 'side-sheet-drag'
 /** Fired when the pointer is released after an active drag. */
 export const SIDE_SHEET_DRAG_END_EVENT = 'side-sheet-drag-end'
+/** Fired after a handle drag relocated the sheet to the opposite edge. */
+export const SIDE_SHEET_RELOCATE_EVENT = 'side-sheet-relocate'

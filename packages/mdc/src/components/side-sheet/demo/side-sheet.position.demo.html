@@ -1,0 +1,12 @@
+<mdc-side-sheet id="ss-position-right" variant="modal" position="right">
+    <span slot="headline">Right (default)</span>
+    <p>Docked to the viewport's right edge.</p>
+</mdc-side-sheet>
+
+<mdc-side-sheet id="ss-position-left" variant="modal" position="left">
+    <span slot="headline">Left</span>
+    <p>Docked to the viewport's left edge.</p>
+</mdc-side-sheet>
+
+<mdc-button onclick="this.getRootNode().querySelector('#ss-position-right').show()"><span>Right</span></mdc-button>
+<mdc-button onclick="this.getRootNode().querySelector('#ss-position-left').show()"><span>Left</span></mdc-button>

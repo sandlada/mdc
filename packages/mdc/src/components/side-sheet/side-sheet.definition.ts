@@ -34,6 +34,31 @@ const sharedStructural = {
     // Container size
     'enabled-container-width'                  : `400px`,
 
+    // Peek sliver: only the vertical grip pokes into the viewport
+    'peeked-container-width'                   : `4px`,
+
+    // Vertical peek grip (the closed-state drag handle)
+    'enabled-peek-grip-width'                  : `4px`,
+    'enabled-peek-grip-height'                 : `32px`,
+    'enabled-peek-grip-color'                  : Color.OutlineVariant,
+    'enabled-peek-grip-shape-start-start'      : Shape.Full,
+    'enabled-peek-grip-shape-start-end'        : Shape.Full,
+    'enabled-peek-grip-shape-end-start'        : Shape.Full,
+    'enabled-peek-grip-shape-end-end'          : Shape.Full,
+
+    // Drag handle row paddings
+    'handle-container-padding-block-start'    : `12px`,
+    'handle-container-padding-block-end'      : `8px`,
+
+    // Drag handle grip (pill)
+    'enabled-handle-width'                     : `32px`,
+    'enabled-handle-height'                    : `4px`,
+    'enabled-handle-shape-start-start'         : Shape.Full,
+    'enabled-handle-shape-start-end'           : Shape.Full,
+    'enabled-handle-shape-end-start'           : Shape.Full,
+    'enabled-handle-shape-end-end'             : Shape.Full,
+    'enabled-handle-color'                     : Color.OutlineVariant,
+
     // Container shape (default enabled: end edge corners 0 when docked, start edge corners ExtraLarge 28px)
     'enabled-container-shape-start-start'      : Shape.ExtraLarge,
     'enabled-container-shape-start-end'        : `0`,
