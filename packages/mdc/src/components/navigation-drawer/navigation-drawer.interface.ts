@@ -33,7 +33,7 @@ export const NavigationDrawerEdge = {
  * - `programmatic`: consumer called `hide()` / `close()` or changed `open`
  * - `escape`: modal's Esc key
  * - `scrim`: modal's scrim tap
- * - `drag`: swipe-to-dismiss drag gesture
+ * - `drag`: drag-handle dismissal / relocate gesture
  */
 export type NavigationDrawerCloseReason =
     | 'programmatic'
@@ -43,8 +43,12 @@ export type NavigationDrawerCloseReason =
 
 /**
  * Snap target decided on release of a drag gesture.
+ * - `closed`: commit the dismissal.
+ * - `open`: snap back to the resting position.
+ * - `relocate`: re-dock to the opposite edge (see `relocateTo` in the
+ *   drag-end detail).
  */
-export type NavigationDrawerDragTarget = 'closed' | 'open'
+export type NavigationDrawerDragTarget = 'closed' | 'open' | 'relocate'
 
 /**
  * Detail payload of the `navigation-drawer-closed` event.
@@ -83,7 +87,7 @@ export interface INavigationDrawerDragEventDetail {
  * Detail payload of the `navigation-drawer-drag-end` event.
  */
 export interface INavigationDrawerDragEndEventDetail {
-    /** True when the drag decided to commit a dismiss. */
+    /** True when the drag decided to commit a state change (close / relocate). */
     committed: boolean
     /** Snap target decided by the release heuristics. */
     target: NavigationDrawerDragTarget
@@ -91,6 +95,17 @@ export interface INavigationDrawerDragEndEventDetail {
     reason?: 'distance' | 'velocity' | 'cancel'
     /** The horizontal translation at the instant of release. */
     dx: number
+    /** When `target === 'relocate'`: the edge to re-dock to. */
+    relocateTo?: NavigationDrawerEdge
+}
+
+/**
+ * Detail payload of the `navigation-drawer-relocate` event. Fired after a
+ * handle drag crossed the viewport midline and the drawer re-docked to the
+ * opposite edge with its transition.
+ */
+export interface INavigationDrawerRelocateEventDetail {
+    edge: NavigationDrawerEdge
 }
 
 /**
@@ -116,7 +131,7 @@ export interface INavigationDrawer extends LitElement {
     quick: boolean
     /** Modal only — allows Esc and scrim-tap dismissal. */
     cancelable: boolean
-    /** Enable swipe-to-dismiss drag gesture. */
+    /** Modal only — enables drag-handle gestures (dismiss / edge relocate). */
     draggable: boolean
     /** Disable focus traps when modal is open. */
     noFocusTrap: boolean
@@ -133,6 +148,11 @@ export interface INavigationDrawer extends LitElement {
     close(returnValue?: string): Promise<void>
     /** Toggle open state. */
     toggle(): Promise<void>
+    /**
+     * Re-dock the drawer to the given edge with a transition. Resolves when
+     * the relocation transition completes. Closed drawers swap instantly.
+     */
+    relocate(edge: NavigationDrawerEdge): Promise<void>
 }
 
 /** Fired when the drawer begins to open. */
@@ -151,3 +171,5 @@ export const NAVIGATION_DRAWER_DRAG_START_EVENT = 'navigation-drawer-drag-start'
 export const NAVIGATION_DRAWER_DRAG_EVENT = 'navigation-drawer-drag'
 /** Fired when the drag gesture is released. */
 export const NAVIGATION_DRAWER_DRAG_END_EVENT = 'navigation-drawer-drag-end'
+/** Fired after a handle drag re-docked the drawer to the opposite edge. */
+export const NAVIGATION_DRAWER_RELOCATE_EVENT = 'navigation-drawer-relocate'

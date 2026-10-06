@@ -235,6 +235,41 @@ export const NavigationDrawerStyles = [
             border-end-start-radius: var(--_dragged-container-shape-end-start);
         }
 
+        /* ── Modal Drag Handle ────────────────────────────────────── */
+        .handle {
+            display: none;
+            justify-content: center;
+            flex-shrink: 0;
+            box-sizing: border-box;
+            padding-block-start: var(--_handle-container-padding-block-start);
+            padding-block-end: var(--_handle-container-padding-block-end);
+            cursor: grab;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: pan-y;
+        }
+        :host([variant="modal"]) .handle,
+        :host(:not([variant])) .handle {
+            display: flex;
+        }
+        dialog:not(.draggable) .handle,
+        :host([quick]) .handle {
+            cursor: default;
+        }
+        :host([dragged]) .handle {
+            cursor: grabbing;
+        }
+        .handle-grip {
+            display: block;
+            width: var(--_enabled-handle-width);
+            height: var(--_enabled-handle-height);
+            background: var(--_enabled-handle-color);
+            border-start-start-radius: var(--_enabled-handle-shape-start-start);
+            border-start-end-radius: var(--_enabled-handle-shape-start-end);
+            border-end-start-radius: var(--_enabled-handle-shape-end-start);
+            border-end-end-radius: var(--_enabled-handle-shape-end-end);
+        }
+
         .background {
             position: absolute;
             inset: 0;

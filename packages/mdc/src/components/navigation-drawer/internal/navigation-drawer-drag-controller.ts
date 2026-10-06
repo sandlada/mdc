@@ -5,6 +5,13 @@
  */
 import type { ReactiveController, ReactiveControllerHost } from 'lit'
 import {
+    resolveDockEdgeOfSide,
+    resolveDockSide,
+    resolveDockSideOfEdge,
+    type DockSide,
+    type TextDirection,
+} from '../../../utils/docking'
+import {
     NAVIGATION_DRAWER_DRAG_END_EVENT,
     NAVIGATION_DRAWER_DRAG_EVENT,
     NAVIGATION_DRAWER_DRAG_START_EVENT,
@@ -16,11 +23,32 @@ import {
     type NavigationDrawerVariant,
 } from '../navigation-drawer.interface'
 
+/** Distance (CSS px) the pointer must travel from the down point before a drag engages. */
 const ENGAGE_THRESHOLD_PX = 4
+
+/**
+ * Snap-decision distance: drag must exceed this fraction of container
+ * width to commit a dismissal.
+ */
 const DISTANCE_COMMIT_FRACTION = 0.25
+
+/**
+ * Snap-decision velocity: release must exceed this px/ms outward to commit
+ * a dismissal.
+ */
 const VELOCITY_COMMIT_PX_PER_MS = 0.5
+
+/** Window over which to compute release velocity (ms). */
 const VELOCITY_WINDOW_MS = 80
+
+/**
+ * Max vertical movement (px) allowed during a drag, expressed as a
+ * multiple of the horizontal movement. Beyond this, the drag is canceled.
+ */
 const MAX_VERTICAL_RATIO = 2
+
+/** Resistance factor applied to movement beyond a drag's hard boundary. */
+const RUBBER_BAND_FACTOR = 0.2
 
 /**
  * Host contract for {@link NavigationDrawerDragController}.
@@ -28,29 +56,56 @@ const MAX_VERTICAL_RATIO = 2
 export interface INavigationDrawerDragHost extends ReactiveControllerHost, HTMLElement {
     containerRef: () => HTMLElement | null
     scrimRef: () => HTMLElement | null
+    /** Drag gestures allowed at all (`draggable && !quick`). */
     enabled: () => boolean
+    /** Whether the drawer currently rests open. */
+    isOpen: () => boolean
     getVariant: () => NavigationDrawerVariant
     getDrawerEdge: () => NavigationDrawerEdge
+    /** Ambient text direction of the host (`ltr` / `rtl`). */
+    getDirection: () => TextDirection
+    /**
+     * Clear the live drag artifacts — inline transform / scrim opacity /
+     * `dragged` attribute — when a gesture aborts without a settle
+     * animation.
+     */
+    onDragCleanup: () => void
 }
 
 /**
- * Pointer-driven horizontal swipe-to-dismiss controller for navigation drawer.
+ * Pointer-driven handle drag controller for the modal navigation drawer.
+ *
+ * The gesture starts on the top drag handle and follows the pointer in a
+ * dock-agnostic "push-out value" space (`0` open, `W` fully off the docked
+ * edge, negative values spilling towards the opposite edge):
+ * - outward past the commit distance / velocity dismisses, mirroring the
+ *   previous swipe-to-dismiss heuristics;
+ * - a release whose center crossed the viewport midline relocates the
+ *   drawer to the opposite edge (logical `start` / `end`, resolved against
+ *   the text direction);
+ * - anything else snaps back to the open resting position.
  */
 export class NavigationDrawerDragController implements ReactiveController {
     private readonly host: INavigationDrawerDragHost
 
+    // ── Pointer state ──────────────────────────────────────────────────────
     private pointerId: number | null = null
     private startX = 0
     private startY = 0
     private engaged = false
     private canceled = false
 
-    private currentDx = 0
+    // ── Drag geometry ──────────────────────────────────────────────────────
+    /** Dock-agnostic push-out value (0 open, W fully off the docked edge). */
+    private currentValue = 0
     private containerWidth = 0
     private lastMoveT = 0
-    private lastMoveDx = 0
+    private lastMoveValue = 0
     private releaseVelocity = 0
+    /** Text direction captured when the gesture engaged. */
+    private direction: TextDirection = 'ltr'
 
+    // ── Bound handlers ─────────────────────────────────────────────────────
     private readonly handlePointerMoveBound: (e: PointerEvent) => void
     private readonly handlePointerUpBound: (e: PointerEvent) => void
     private readonly handlePointerCancelBound: (e: PointerEvent) => void
@@ -61,59 +116,70 @@ export class NavigationDrawerDragController implements ReactiveController {
 
         this.handlePointerMoveBound = (e) => this.handlePointerMove(e)
         this.handlePointerUpBound = (e) => this.handlePointerUp(e)
-        this.handlePointerCancelBound = (e) => this.handlePointerUp(e)
+        this.handlePointerCancelBound = (e) => this.handlePointerUp(e, true)
     }
 
-    public hostConnected(): void {}
+    public hostConnected(): void {
+        // Pointer down listeners are bound on the handle in the template.
+    }
 
     public hostDisconnected(): void {
-        window.removeEventListener('pointermove', this.handlePointerMoveBound)
-        window.removeEventListener('pointerup', this.handlePointerUpBound)
-        window.removeEventListener('pointercancel', this.handlePointerCancelBound)
+        this.detachWindowListeners()
         this.resetState()
     }
 
+    /**
+     * Cancel any in-flight drag (e.g. when the host calls `hide()` mid-drag).
+     * Idempotent: also drops live artifacts left by an already-finished
+     * gesture so a stale state never leaks into the next lifecycle step.
+     */
     public cancel(): void {
-        if (this.pointerId === null) return
-        window.removeEventListener('pointermove', this.handlePointerMoveBound)
-        window.removeEventListener('pointerup', this.handlePointerUpBound)
-        window.removeEventListener('pointercancel', this.handlePointerCancelBound)
+        this.detachWindowListeners()
         this.resetState()
-        const container = this.host.containerRef()
-        if (container) {
-            container.style.removeProperty('transform')
-            container.style.removeProperty('cursor')
-        }
-        const scrim = this.host.scrimRef()
-        if (scrim) scrim.style.removeProperty('opacity')
-        this.host.removeAttribute('touch-action')
-        this.host.removeAttribute('dragged')
+        this.host.onDragCleanup()
     }
 
+    // ── Gesture entry point (bound in the host template) ──────────────────
+
+    /**
+     * Pointer down on the drag handle. Only the open modal drawer accepts a
+     * gesture — a closed container is off-viewport and standard/permanent
+     * variants never drag.
+     */
     public handlePointerDown(event: PointerEvent): void {
         if (this.pointerId !== null) return
         if (!this.host.enabled()) return
         if (this.host.getVariant() !== 'modal') return
+        if (!this.host.isOpen()) return
         if (!event.isPrimary) return
 
-        const target = event.target as HTMLElement | null
-        if (target && target.closest('button, a, input, select, textarea, [tabindex]:not([tabindex="-1"])')) {
-            return
-        }
+        this.beginTracking(event)
+    }
 
+    // ── Tracking ───────────────────────────────────────────────────────────
+
+    private beginTracking(event: PointerEvent): void {
         this.pointerId = event.pointerId
         this.startX = event.clientX
         this.startY = event.clientY
         this.engaged = false
         this.canceled = false
-        this.currentDx = 0
+        this.currentValue = 0
+        this.containerWidth = 0
         this.releaseVelocity = 0
         this.lastMoveT = 0
-        this.lastMoveDx = 0
+        this.lastMoveValue = 0
+        this.direction = this.host.getDirection()
 
         window.addEventListener('pointermove', this.handlePointerMoveBound)
         window.addEventListener('pointerup', this.handlePointerUpBound)
         window.addEventListener('pointercancel', this.handlePointerCancelBound)
+    }
+
+    private detachWindowListeners(): void {
+        window.removeEventListener('pointermove', this.handlePointerMoveBound)
+        window.removeEventListener('pointerup', this.handlePointerUpBound)
+        window.removeEventListener('pointercancel', this.handlePointerCancelBound)
     }
 
     private handlePointerMove(event: PointerEvent): void {
@@ -123,6 +189,7 @@ export class NavigationDrawerDragController implements ReactiveController {
         const deltaX = event.clientX - this.startX
         const deltaY = Math.abs(event.clientY - this.startY)
 
+        // Vertical-dominant motion before engagement → cancel drag.
         if (!this.engaged && deltaY > MAX_VERTICAL_RATIO * Math.max(Math.abs(deltaX), 1)) {
             this.canceled = true
             this.handlePointerUp(event)
@@ -135,12 +202,13 @@ export class NavigationDrawerDragController implements ReactiveController {
             if (!container) return
             try {
                 container.setPointerCapture(event.pointerId)
-            } catch {}
+            } catch {
+                // setPointerCapture can throw on detached elements; safe to ignore.
+            }
             this.engaged = true
             this.containerWidth = container.getBoundingClientRect().width
 
-            this.host.setAttribute('touch-action', 'none')
-            container.style.cursor = 'grabbing'
+            this.host.setAttribute('dragged', '')
             this.host.dispatchEvent(new CustomEvent<INavigationDrawerDragStartEventDetail>(
                 NAVIGATION_DRAWER_DRAG_START_EVENT,
                 {
@@ -151,155 +219,170 @@ export class NavigationDrawerDragController implements ReactiveController {
             ))
         }
 
-        const edge = this.host.getDrawerEdge()
-        let dx = 0
+        const sign = this.currentSide() === 'left' ? -1 : 1
+        // Dock-agnostic push-out value: pointer travel projected onto the
+        // outward axis of the current dock. The drawer follows the pointer
+        // for as long as it is held; the limits below only rubber-band.
+        let value = sign * deltaX
 
-        if (edge === 'end') {
-            if (deltaX < 0) {
-                dx = deltaX * 0.2
-            } else {
-                dx = deltaX
-            }
-        } else {
-            if (deltaX > 0) {
-                dx = deltaX * 0.2
-            } else {
-                dx = deltaX
-            }
+        // Outward limit: fully off the docked edge. Inward limit: the
+        // drawer's inner edge reaching the opposite viewport edge.
+        const viewportWidth = this.host.containerRef()
+            ?.ownerDocument.defaultView?.innerWidth ?? 0
+        const outwardHard = this.containerWidth
+        const inwardHard = -(viewportWidth - this.containerWidth)
+        if (value > outwardHard) {
+            value = outwardHard + (value - outwardHard) * RUBBER_BAND_FACTOR
+        } else if (value < inwardHard) {
+            value = inwardHard + (value - inwardHard) * RUBBER_BAND_FACTOR
         }
 
+        this.currentValue = value
+
+        // Track release velocity in push-out space (outward positive).
         const now = performance.now()
         const prevT = this.lastMoveT
-        const prevDx = this.lastMoveDx
+        const prevValue = this.lastMoveValue
         this.lastMoveT = now
-        this.lastMoveDx = dx
+        this.lastMoveValue = value
         if (prevT > 0 && now - prevT < VELOCITY_WINDOW_MS) {
-            this.releaseVelocity = (dx - prevDx) / (now - prevT)
+            this.releaseVelocity = (value - prevValue) / (now - prevT)
         } else if (now - prevT >= VELOCITY_WINDOW_MS) {
             this.releaseVelocity = 0
         }
 
-        this.currentDx = dx
-        if (Math.abs(dx) > 0) {
-            this.host.setAttribute('dragged', '')
-        } else {
-            this.host.removeAttribute('dragged')
-        }
-
-        const container = this.host.containerRef()
-        const scrim = this.host.scrimRef()
-        const peak = 0.38
-
-        if (scrim) {
-            const progress = Math.min(1, Math.max(0, Math.abs(dx) / Math.max(1, this.containerWidth)))
-            scrim.style.opacity = String(peak * (1 - progress))
-        }
-
-        if (container) container.style.transform = `translateX(${dx}px)`
-
-        const totalW = this.containerWidth > 0 ? this.containerWidth : 1
-        const progress = Math.min(1, Math.max(0, Math.abs(dx) / totalW))
-
-        this.host.dispatchEvent(new CustomEvent<INavigationDrawerDragEventDetail>(
-            NAVIGATION_DRAWER_DRAG_EVENT,
-            {
-                bubbles: true,
-                composed: true,
-                detail: { dx, progress },
-            },
-        ))
+        this.paint(value)
+        this.emitDrag(value)
     }
 
-    private handlePointerUp(event: PointerEvent): void {
+    private handlePointerUp(event: PointerEvent, canceled = false): void {
         if (this.pointerId !== event.pointerId) return
-        window.removeEventListener('pointermove', this.handlePointerMoveBound)
-        window.removeEventListener('pointerup', this.handlePointerUpBound)
-        window.removeEventListener('pointercancel', this.handlePointerCancelBound)
+        this.detachWindowListeners()
 
         const container = this.host.containerRef()
-        const scrim = this.host.scrimRef()
-        const lastDx = this.currentDx
 
         if (!this.engaged) {
             this.resetState()
             return
         }
 
-        if (this.canceled) {
-            if (container) {
-                container.style.transform = ''
-                container.style.cursor = ''
-            }
-            if (scrim) scrim.style.opacity = ''
-            this.host.removeAttribute('touch-action')
-            this.host.removeAttribute('dragged')
-            try { container?.releasePointerCapture(event.pointerId) } catch {}
-            this.host.dispatchEvent(new CustomEvent<INavigationDrawerDragEndEventDetail>(
-                NAVIGATION_DRAWER_DRAG_END_EVENT,
-                {
-                    bubbles: true,
-                    composed: true,
-                    detail: { committed: false, target: 'open', reason: 'cancel', dx: lastDx },
-                },
-            ))
-            this.resetState()
+        try { container?.releasePointerCapture(event.pointerId) } catch { /* detached */ }
+
+        if (canceled || this.canceled) {
+            this.finishGesture('open', false, 'cancel')
             return
         }
 
-        try { container?.releasePointerCapture(event.pointerId) } catch {}
-
-        const edge = this.host.getDrawerEdge()
-        const closeThreshold = Math.max(40, this.containerWidth * DISTANCE_COMMIT_FRACTION)
+        const lastValue = this.currentValue
+        const width = this.containerWidth > 0 ? this.containerWidth : 1
+        const commitDistance = Math.max(40, width * DISTANCE_COMMIT_FRACTION)
 
         let target: NavigationDrawerDragTarget = 'open'
-        let commitReason: 'distance' | 'velocity' | undefined = undefined
+        let reason: 'distance' | 'velocity' | undefined = undefined
+        let relocateTo: NavigationDrawerEdge | undefined = undefined
 
-        if (edge === 'end') {
-            if (this.releaseVelocity > VELOCITY_COMMIT_PX_PER_MS || this.currentDx > closeThreshold) {
-                target = 'closed'
-                commitReason = this.releaseVelocity > VELOCITY_COMMIT_PX_PER_MS ? 'velocity' : 'distance'
-            }
-        } else {
-            if (this.releaseVelocity < -VELOCITY_COMMIT_PX_PER_MS || this.currentDx < -closeThreshold) {
-                target = 'closed'
-                commitReason = this.releaseVelocity < -VELOCITY_COMMIT_PX_PER_MS ? 'velocity' : 'distance'
-            }
+        const rect = container?.getBoundingClientRect()
+        const viewportWidth = container?.ownerDocument.defaultView?.innerWidth
+            ?? rect?.width ?? 0
+        const currentSide = this.currentSide()
+        const sideByCenter = rect
+            ? resolveDockSide(viewportWidth)(rect.left + rect.width / 2)
+            : currentSide
+
+        if (lastValue > commitDistance
+            || this.releaseVelocity > VELOCITY_COMMIT_PX_PER_MS
+        ) {
+            target = 'closed'
+            reason = this.releaseVelocity > VELOCITY_COMMIT_PX_PER_MS
+                ? 'velocity'
+                : 'distance'
+        } else if (sideByCenter !== currentSide) {
+            // Released past the viewport midline: re-dock to that side's edge.
+            target = 'relocate'
+            relocateTo = resolveDockEdgeOfSide(this.direction)(sideByCenter)
         }
 
-        const isClosing = target === 'closed'
+        this.finishGesture(target, target !== 'open', reason, relocateTo)
+    }
 
+    /**
+     * Emits the drag-end event and clears the live drag bookkeeping. The
+     * inline transform stays on the container until the host's settle
+     * animation takes over.
+     */
+    private finishGesture(
+        target: NavigationDrawerDragTarget,
+        committed: boolean,
+        reason: 'distance' | 'velocity' | 'cancel' | undefined,
+        relocateTo?: NavigationDrawerEdge,
+    ): void {
+        const sign = this.currentSide() === 'left' ? -1 : 1
         this.host.dispatchEvent(new CustomEvent<INavigationDrawerDragEndEventDetail>(
             NAVIGATION_DRAWER_DRAG_END_EVENT,
             {
                 bubbles: true,
                 composed: true,
                 detail: {
-                    committed: isClosing,
+                    committed,
                     target,
-                    reason: commitReason,
-                    dx: lastDx,
+                    reason,
+                    dx: sign * this.currentValue,
+                    relocateTo,
                 },
             },
         ))
         this.resetState()
     }
 
-    private resetState(): void {
-        this.host.removeAttribute('dragged')
-        this.host.removeAttribute('touch-action')
+    private emitDrag(value: number): void {
+        const sign = this.currentSide() === 'left' ? -1 : 1
+        const translateX = sign * value
+        const width = this.containerWidth > 0 ? this.containerWidth : 1
+        const progress = Math.min(1, Math.max(0, value / width))
+        this.host.dispatchEvent(new CustomEvent<INavigationDrawerDragEventDetail>(
+            NAVIGATION_DRAWER_DRAG_EVENT,
+            {
+                bubbles: true,
+                composed: true,
+                detail: { dx: translateX, progress },
+            },
+        ))
+    }
+
+    /**
+     * Paint the live translation for the current push-out value. The scrim
+     * only follows the OUTWARD (dismiss) direction; pulling the drawer
+     * inward must never dim it.
+     */
+    private paint(value: number): void {
+        const sign = this.currentSide() === 'left' ? -1 : 1
         const container = this.host.containerRef()
-        if (container) {
-            container.style.removeProperty('cursor')
+        if (container) container.style.transform = `translateX(${sign * value}px)`
+        const scrim = this.host.scrimRef()
+        const peak = 0.38
+        if (scrim && value > 0) {
+            const width = this.containerWidth > 0 ? this.containerWidth : 1
+            const progress = Math.min(1, Math.max(0, value / Math.max(1, width)))
+            scrim.style.opacity = String(peak * (1 - progress))
         }
+    }
+
+    /** Physical side of the drawer's current logical edge under its `dir`. */
+    private currentSide(): DockSide {
+        return resolveDockSideOfEdge(this.direction)(this.host.getDrawerEdge())
+    }
+
+    private resetState(): void {
         this.pointerId = null
         this.startX = 0
         this.startY = 0
         this.engaged = false
         this.canceled = false
-        this.currentDx = 0
+        this.currentValue = 0
         this.containerWidth = 0
         this.releaseVelocity = 0
         this.lastMoveT = 0
-        this.lastMoveDx = 0
+        this.lastMoveValue = 0
+        this.direction = 'ltr'
     }
 }

@@ -91,6 +91,17 @@ export const ModalNavigationDrawerDefinition = createStyleDefinition({
     'enabled-container-color'           : Color.SurfaceContainerLow,
     'enabled-headline-color'            : Color.OnSurfaceVariant,
     'enabled-divider-color'             : Color.OutlineVariant,
+
+    // Modal drag handle: 32x4 pill, 12px top / 8px bottom padding
+    'handle-container-padding-block-start': `12px`,
+    'handle-container-padding-block-end'  : `8px`,
+    'enabled-handle-width'                : `32px`,
+    'enabled-handle-height'               : `4px`,
+    'enabled-handle-color'                : Color.OutlineVariant,
+    'enabled-handle-shape-start-start'    : Shape.Full,
+    'enabled-handle-shape-start-end'      : Shape.Full,
+    'enabled-handle-shape-end-start'      : Shape.Full,
+    'enabled-handle-shape-end-end'        : Shape.Full,
 })
 
 /**

@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 import { Easing } from '@sandlada/mdk'
-import type { NavigationDrawerEdge } from './navigation-drawer.interface'
+import type { DockSide } from '../../utils/docking'
 
 /**
  * A navigation drawer animation's arguments. See `Element.prototype.animate`.
@@ -24,13 +24,22 @@ export interface NavigationDrawerAnimation {
 const SCRIM_OPACITY_PEAK = 0.38
 
 /**
+ * Pixel-space keyframe for the container's off-dock resting offset on a
+ * physical dock side. The factories take the PHYSICAL side (resolved from
+ * the logical `drawer-edge` against `dir` by the host) so `translateX`
+ * always points off the actual docked edge, including under `rtl`.
+ */
+const offDockTransform = (side: DockSide): string =>
+    side === 'left' ? 'translateX(-100%)' : 'translateX(100%)'
+
+/**
  * The default navigation drawer open animation.
  *
  * - Scrim: opacity 0 -> 0.38 over 400ms, linear.
- * - Container: translateX(±100%) -> translateX(0) over 400ms, Emphasized.
+ * - Container: translateX(off-dock) -> translateX(0) over 400ms, Emphasized.
  */
 export const NavigationDrawerDefaultOpenAnimation = (
-    drawerEdge: NavigationDrawerEdge,
+    side: DockSide,
 ): NavigationDrawerAnimation => ({
     scrim: [
         [
@@ -43,15 +52,10 @@ export const NavigationDrawerDefaultOpenAnimation = (
     ],
     container: [
         [
-            drawerEdge === 'start'
-                ? [
-                    { transform: 'translateX(-100%)' },
-                    { transform: 'translateX(0)' },
-                ]
-                : [
-                    { transform: 'translateX(100%)' },
-                    { transform: 'translateX(0)' },
-                ],
+            [
+                { transform: offDockTransform(side) },
+                { transform: 'translateX(0)' },
+            ],
             { duration: 400, easing: Easing.Emphasized.ToCSSValue() },
         ],
     ],
@@ -61,10 +65,10 @@ export const NavigationDrawerDefaultOpenAnimation = (
  * The default navigation drawer close animation.
  *
  * - Scrim: opacity 0.38 -> 0 over 200ms, linear.
- * - Container: translateX(0) -> translateX(±100%) over 200ms, EmphasizedAccelerate.
+ * - Container: translateX(0) -> translateX(off-dock) over 200ms, EmphasizedAccelerate.
  */
 export const NavigationDrawerDefaultCloseAnimation = (
-    drawerEdge: NavigationDrawerEdge,
+    side: DockSide,
 ): NavigationDrawerAnimation => ({
     scrim: [
         [
@@ -77,62 +81,55 @@ export const NavigationDrawerDefaultCloseAnimation = (
     ],
     container: [
         [
-            drawerEdge === 'start'
-                ? [
-                    { transform: 'translateX(0)' },
-                    { transform: 'translateX(-100%)' },
-                ]
-                : [
-                    { transform: 'translateX(0)' },
-                    { transform: 'translateX(100%)' },
-                ],
+            [
+                { transform: 'translateX(0)' },
+                { transform: offDockTransform(side) },
+            ],
             { duration: 200, easing: Easing.EmphasizedAccelerate.ToCSSValue() },
         ],
     ],
 })
 
 /**
- * The drag snap-back animation when dismiss threshold is not met.
+ * The drag snap-back animation when neither the dismiss nor the relocate
+ * threshold is met.
  *
  * - Scrim: opacity scrimCurrent -> 0.38 over 250ms, linear.
  * - Container: translateX(fromDx px) -> translateX(0) over 250ms, EmphasizedDecelerate.
  */
 export const NavigationDrawerDragSnapBackAnimation = (
-    drawerEdge: NavigationDrawerEdge,
     fromDx: number,
     scrimCurrent: number,
-): NavigationDrawerAnimation => {
-    void drawerEdge
-    return {
-        scrim: [
+): NavigationDrawerAnimation => ({
+    scrim: [
+        [
             [
-                [
-                    { opacity: scrimCurrent },
-                    { opacity: SCRIM_OPACITY_PEAK },
-                ],
-                { duration: 250, easing: 'linear' },
+                { opacity: scrimCurrent },
+                { opacity: SCRIM_OPACITY_PEAK },
             ],
+            { duration: 250, easing: 'linear' },
         ],
-        container: [
+    ],
+    container: [
+        [
             [
-                [
-                    { transform: `translateX(${fromDx}px)` },
-                    { transform: 'translateX(0)' },
-                ],
-                { duration: 250, easing: Easing.EmphasizedDecelerate.ToCSSValue() },
+                { transform: `translateX(${fromDx}px)` },
+                { transform: 'translateX(0)' },
             ],
+            { duration: 250, easing: Easing.EmphasizedDecelerate.ToCSSValue() },
         ],
-    }
-}
+    ],
+})
 
 /**
- * The drag commit-close animation when dismiss threshold is met.
+ * The drag commit-close animation when the dismiss threshold is met.
  *
  * - Scrim: opacity scrimCurrent -> 0 over 200ms, linear.
- * - Container: translateX(fromDx px) -> translateX(±100%) over 200ms, EmphasizedAccelerate.
+ * - Container: translateX(fromDx px) -> translateX(off-dock) over 200ms,
+ *   EmphasizedAccelerate.
  */
 export const NavigationDrawerDragCommitCloseAnimation = (
-    drawerEdge: NavigationDrawerEdge,
+    side: DockSide,
     fromDx: number,
     scrimCurrent: number,
 ): NavigationDrawerAnimation => ({
@@ -147,16 +144,33 @@ export const NavigationDrawerDragCommitCloseAnimation = (
     ],
     container: [
         [
-            drawerEdge === 'start'
-                ? [
-                    { transform: `translateX(${fromDx}px)` },
-                    { transform: 'translateX(-100%)' },
-                ]
-                : [
-                    { transform: `translateX(${fromDx}px)` },
-                    { transform: 'translateX(100%)' },
-                ],
+            [
+                { transform: `translateX(${fromDx}px)` },
+                { transform: offDockTransform(side) },
+            ],
             { duration: 200, easing: Easing.EmphasizedAccelerate.ToCSSValue() },
+        ],
+    ],
+})
+
+/**
+ * The drag-relocate (edge flip) animation. The container starts from the
+ * visual position the drag handed over — expressed against the NEW dock —
+ * and animates to the open resting position while the dock anchor swaps.
+ *
+ * - Container: translateX(newDx px) -> translateX(0) over 300ms,
+ *   EmphasizedDecelerate.
+ */
+export const NavigationDrawerDragRelocateAnimation = (
+    newDx: number,
+): NavigationDrawerAnimation => ({
+    container: [
+        [
+            [
+                { transform: `translateX(${newDx}px)` },
+                { transform: 'translateX(0)' },
+            ],
+            { duration: 300, easing: Easing.EmphasizedDecelerate.ToCSSValue() },
         ],
     ],
 })

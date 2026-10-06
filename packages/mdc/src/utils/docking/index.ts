@@ -5,6 +5,13 @@
  */
 
 export {
+    type DockEdge,
+    type TextDirection,
+    resolveDockEdgeOfSide,
+    resolveDockSideOfEdge,
+} from './resolve-dock-edge'
+
+export {
     type DockSide,
     resolveDockSide,
 } from './resolve-dock-side'

@@ -1,0 +1,27 @@
+<!-- Drag-handle gestures enabled: drag the top handle outward past the commit
+     threshold to dismiss, or pull it across the viewport midline to relocate
+     the drawer to the opposite edge. -->
+<mdc-button variant="filled" onclick="this.getRootNode().querySelector('#draggable-on-drawer').show()"><span>Draggable</span></mdc-button>
+<mdc-navigation-drawer id="draggable-on-drawer" variant="modal" headline="Draggable (default)" draggable navigation-scope="draggable-demo-1">
+    <mdc-navigation-tab name="draggable-tabs-1" value="/inbox" checked label="Inbox">
+        <mdc-icon slot="inactive-icon">inbox</mdc-icon>
+        <mdc-icon slot="active-icon" filled>inbox</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="draggable-tabs-1" value="/outbox" label="Outbox">
+        <mdc-icon slot="inactive-icon">send</mdc-icon>
+        <mdc-icon slot="active-icon" filled>send</mdc-icon>
+    </mdc-navigation-tab>
+</mdc-navigation-drawer>
+
+<!-- Drag-handle gestures disabled: the handle renders but does not drag. -->
+<mdc-button variant="filled" onclick="this.getRootNode().querySelector('#draggable-off-drawer').show()"><span>Not draggable</span></mdc-button>
+<mdc-navigation-drawer id="draggable-off-drawer" variant="modal" headline="Not draggable" draggable="false" navigation-scope="draggable-demo-2">
+    <mdc-navigation-tab name="draggable-tabs-2" value="/inbox" checked label="Inbox">
+        <mdc-icon slot="inactive-icon">inbox</mdc-icon>
+        <mdc-icon slot="active-icon" filled>inbox</mdc-icon>
+    </mdc-navigation-tab>
+    <mdc-navigation-tab name="draggable-tabs-2" value="/outbox" label="Outbox">
+        <mdc-icon slot="inactive-icon">send</mdc-icon>
+        <mdc-icon slot="active-icon" filled>send</mdc-icon>
+    </mdc-navigation-tab>
+</mdc-navigation-drawer>

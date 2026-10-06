@@ -9,6 +9,11 @@ import { classMap } from 'lit/directives/class-map.js'
 import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
 import { mixinConnectedPromiseResolve, type IConnectedPromiseResolve } from '../../../utils/behaviors/connected-promise-resolve'
+import {
+    resolveDockSideOfEdge,
+    type DockSide,
+    type TextDirection,
+} from '../../../utils/docking'
 import { mixinElevationOptions } from '../../elevation/elevation-options.mixin'
 import { BaseNavigationContainer } from '../../navigation/internal/base-navigation-container'
 import '../../typography/typography'
@@ -16,6 +21,7 @@ import {
     NavigationDrawerDefaultCloseAnimation,
     NavigationDrawerDefaultOpenAnimation,
     NavigationDrawerDragCommitCloseAnimation,
+    NavigationDrawerDragRelocateAnimation,
     NavigationDrawerDragSnapBackAnimation,
     type NavigationDrawerAnimation,
     type NavigationDrawerAnimationArgs,
@@ -31,12 +37,14 @@ import {
     NAVIGATION_DRAWER_DRAG_END_EVENT,
     NAVIGATION_DRAWER_OPENED_EVENT,
     NAVIGATION_DRAWER_OPENING_EVENT,
+    NAVIGATION_DRAWER_RELOCATE_EVENT,
     NavigationDrawerEdge,
     NavigationDrawerVariant,
     type INavigationDrawer,
     type INavigationDrawerCancelEventDetail,
     type INavigationDrawerClosedEventDetail,
     type INavigationDrawerDragEndEventDetail,
+    type INavigationDrawerRelocateEventDetail,
     type NavigationDrawerCloseReason,
 } from '../navigation-drawer.interface'
 
@@ -46,7 +54,8 @@ const SCRIM_OPACITY_PEAK = 0.38
  * Abstract base for `mdc-navigation-drawer`.
  *
  * Provides scope propagation, tab variant auto-syncing, WAAPI animations,
- * swipe-to-dismiss gesture handling, focus traps, and modal/standard/permanent modes.
+ * handle-drag gesture handling (dismiss / edge relocate), focus traps, and
+ * modal/standard/permanent modes.
  *
  * @version
  * Material Design 3
@@ -152,8 +161,21 @@ export abstract class BaseNavigationDrawer extends composeMixin(
     public containerRef = (): HTMLElement | null => this.containerEl
     public scrimRef = (): HTMLElement | null => this.scrimEl
     public enabled = (): boolean => this.draggable && !this.quick
+    public isOpen = (): boolean => this.open
     public getVariant = (): NavigationDrawerVariant => this.variant
     public getDrawerEdge = (): NavigationDrawerEdge => this.drawerEdge
+    public getDirection = (): TextDirection =>
+        getComputedStyle(this).direction === 'rtl' ? 'rtl' : 'ltr'
+    public onDragCleanup = (): void => this.cleanUpDragStyles()
+
+    /**
+     * Physical side of the docked edge under the ambient text direction.
+     * All move/animation math is physical; the public `drawerEdge` contract
+     * stays logical.
+     */
+    private getDockSide(): DockSide {
+        return resolveDockSideOfEdge(this.getDirection())(this.drawerEdge)
+    }
 
     public override connectedCallback(): void {
         super.connectedCallback()
@@ -271,7 +293,7 @@ export abstract class BaseNavigationDrawer extends composeMixin(
 
         if (isModal && !this.quick) {
             await this.animateDrawer(
-                NavigationDrawerDefaultOpenAnimation(this.drawerEdge),
+                NavigationDrawerDefaultOpenAnimation(this.getDockSide()),
             )
         }
 
@@ -325,7 +347,7 @@ export abstract class BaseNavigationDrawer extends composeMixin(
 
         if (isModal && !this.quick && targetDialog && targetDialog.open && reason !== 'drag') {
             await this.animateDrawer(
-                NavigationDrawerDefaultCloseAnimation(this.drawerEdge),
+                NavigationDrawerDefaultCloseAnimation(this.getDockSide()),
             )
         }
 
@@ -374,6 +396,64 @@ export abstract class BaseNavigationDrawer extends composeMixin(
         }
     }
 
+    /**
+     * Re-dock the drawer to the given logical edge with a transition.
+     * Called by the drag handle on a midline crossing (with a hand-over
+     * offset for visual continuity) and exposed publicly for programmatic
+     * relocation while the drawer is open. Closed drawers swap instantly.
+     */
+    public async relocate(edge: NavigationDrawerEdge): Promise<void> {
+        if (edge === this.drawerEdge) return
+
+        const container = this.containerEl
+        if (!container || !this.isConnected || this.quick || !this.isModal) {
+            this.drawerEdge = edge
+            this.dispatchRelocate(edge)
+            return
+        }
+        if (!this.open) {
+            // Closed: nothing exposed — the swap is invisible; skip motion.
+            this.drawerEdge = edge
+            this.dispatchRelocate(edge)
+            return
+        }
+
+        // Measure the visual rect under the OLD dock before anything moves.
+        const viewportWidth = container.ownerDocument.defaultView?.innerWidth
+            ?? container.getBoundingClientRect().width
+        const rect = container.getBoundingClientRect()
+        // Hand-over translation expressed against the NEW dock anchor so
+        // the container paints the identical visual rect across the swap.
+        const newSide = resolveDockSideOfEdge(this.getDirection())(edge)
+        const newDockLeft = newSide === 'left' ? 0 : viewportWidth - rect.width
+        const newDx = rect.left - newDockLeft
+
+        // Freeze the visual position before the anchor class flips: the
+        // inline transform overrides the class transform, so no jump. The
+        // settle animation then carries it to the new resting state, while
+        // the `dragged` attribute keeps CSS transitions suppressed.
+        this.cancelAnimations?.abort()
+        this.cancelAnimations = new AbortController()
+        container.style.setProperty('transform', `translateX(${newDx}px)`)
+        // Drop any scrim opacity the drag interpolated in; the CSS value
+        // takes over.
+        if (this.scrimEl) this.scrimEl.style.removeProperty('opacity')
+        this.setAttribute('dragged', '')
+
+        this.drawerEdge = edge
+        await this.updateComplete
+        await this.animateDrawer(NavigationDrawerDragRelocateAnimation(newDx))
+        this.cleanUpDragStyles()
+        this.dispatchRelocate(edge)
+    }
+
+    private dispatchRelocate(edge: NavigationDrawerEdge): void {
+        this.dispatchEvent(new CustomEvent<INavigationDrawerRelocateEventDetail>(
+            NAVIGATION_DRAWER_RELOCATE_EVENT,
+            { bubbles: true, composed: true, detail: { edge } },
+        ))
+    }
+
     protected getRenderClasses() {
         const isScrollable = !(this.isAtScrollTop && this.isAtScrollBottom)
         const isEffectiveOpen = this.variant === 'permanent' || this.open
@@ -393,6 +473,7 @@ export abstract class BaseNavigationDrawer extends composeMixin(
             'has-headline': this.hasHeadlineSlot || Boolean(this.headline),
             'has-header': this.hasHeaderSlot,
             'has-footer': this.hasFooterSlot,
+            'draggable': this.draggable,
         }
     }
 
@@ -412,9 +493,16 @@ export abstract class BaseNavigationDrawer extends composeMixin(
                 ></span>
                 <div
                     class="container"
-                    @pointerdown=${this.handlePointerDown}
                     @click=${this.handleContentClick}
                 >
+                    <div
+                        class="handle"
+                        part="handle"
+                        aria-hidden="true"
+                        @pointerdown=${this.handlePointerDown}
+                    >
+                        <span class="handle-grip"></span>
+                    </div>
                     <div class="header">${this.renderHeaderSlot()}</div>
                     <div class="headline-section">${this.renderHeadlineSection()}</div>
                     <div class="scroller-section">
@@ -604,15 +692,20 @@ export abstract class BaseNavigationDrawer extends composeMixin(
         event: Event,
     ): Promise<void> => {
         const customEvent = event as CustomEvent<INavigationDrawerDragEndEventDetail>
-        const { committed, dx } = customEvent.detail
+        const { target, dx, relocateTo } = customEvent.detail
         const scrimCurrent = this.scrimEl
             ? parseFloat(getComputedStyle(this.scrimEl).opacity) || 0
             : 0
 
-        if (committed) {
+        if (target === 'relocate') {
+            await this.relocate(relocateTo ?? this.drawerEdge)
+            return
+        }
+
+        if (target === 'closed') {
             await this.animateDrawer(
                 NavigationDrawerDragCommitCloseAnimation(
-                    this.drawerEdge,
+                    this.getDockSide(),
                     dx,
                     scrimCurrent,
                 ),
@@ -622,7 +715,6 @@ export abstract class BaseNavigationDrawer extends composeMixin(
         } else {
             await this.animateDrawer(
                 NavigationDrawerDragSnapBackAnimation(
-                    this.drawerEdge,
                     dx,
                     scrimCurrent,
                 ),
