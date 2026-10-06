@@ -83,3 +83,4 @@ docs/.superpowers
 .playwright
 .playwright-cli
 .playwright-mcp
+opencode.json
