@@ -1,0 +1,118 @@
+/**
+ * @license
+ * Copyright 2026 Kai-Orion & Sandlada
+ * SPDX-License-Identifier: MIT
+ */
+import { Shape, State, Typescale } from '@sandlada/mdk'
+import { Color } from '../../utils/color'
+import { createStyleDefinition } from '../../utils/style'
+
+/**
+ * @version
+ * Material Design 3 Expressive
+ */
+export const TimePickerDialDefinition = createStyleDefinition({
+    'container-shape-start-start': Shape.ExtraLarge,
+    'container-shape-start-end': Shape.ExtraLarge,
+    'container-shape-end-start': Shape.ExtraLarge,
+    'container-shape-end-end': Shape.ExtraLarge,
+    'enabled-container-color': Color.SurfaceContainerHigh,
+    'enabled-container-elevation': '0',
+    'container-padding-inline-start': `24px`,
+    'container-padding-inline-end': `24px`,
+    'container-padding-block-start': `24px`,
+    'container-padding-block-end': `24px`,
+    'headline-label-font': Typescale.LabelLarge.Font,
+    'headline-label-leading': Typescale.LabelLarge.LineHeight,
+    'headline-label-size': Typescale.LabelLarge.FontSize,
+    'headline-label-weight': Typescale.LabelLarge.FontWeight,
+    'headline-label-tracking': Typescale.LabelLarge.Tracking,
+    'enabled-headline-label-color': Color.OnSurfaceVariant,
+    'time-selector-container-width': `96px`,
+    'time-selector-container-height': `80px`,
+    'time-selector-wide-container-width': `114px`,
+    'time-selector-container-shape-start-start': Shape.Medium,
+    'time-selector-container-shape-start-end': Shape.Medium,
+    'time-selector-container-shape-end-start': Shape.Medium,
+    'time-selector-container-shape-end-end': Shape.Medium,
+    'time-selector-label-font': Typescale.DisplayLarge.Font,
+    'time-selector-label-leading': Typescale.DisplayLarge.LineHeight,
+    'time-selector-label-size': Typescale.DisplayLarge.FontSize,
+    'time-selector-label-weight': Typescale.DisplayLarge.FontWeight,
+    'time-selector-label-tracking': Typescale.DisplayLarge.Tracking,
+    'enabled-time-selector-selected-container-color': Color.PrimaryContainer,
+    'enabled-time-selector-selected-label-color': Color.OnPrimaryContainer,
+    'enabled-time-selector-unselected-container-color': Color.SurfaceContainerHighest,
+    'enabled-time-selector-unselected-label-color': Color.OnSurface,
+    'enabled-time-selector-separator-color': Color.OnSurface,
+    'hovered-time-selector-state-layer-color': Color.OnSurface,
+    'hovered-time-selector-state-layer-opacity': State.HoveredStateLayerOpacity,
+    'focused-time-selector-state-layer-color': Color.OnSurface,
+    'focused-time-selector-state-layer-opacity': State.FocusedStateLayerOpacity,
+    'pressed-time-selector-state-layer-color': Color.OnSurface,
+    'pressed-time-selector-state-layer-opacity': State.PressedStateLayerOpacity,
+    'period-selector-vertical-container-width': `52px`,
+    'period-selector-vertical-container-height': `80px`,
+    'period-selector-horizontal-container-width': `216px`,
+    'period-selector-horizontal-container-height': `38px`,
+    'period-selector-label-font': Typescale.TitleMedium.Font,
+    'period-selector-label-leading': Typescale.TitleMedium.LineHeight,
+    'period-selector-label-size': Typescale.TitleMedium.FontSize,
+    'period-selector-label-weight': Typescale.TitleMedium.FontWeight,
+    'period-selector-label-tracking': Typescale.TitleMedium.Tracking,
+    'enabled-period-selector-selected-container-color': Color.TertiaryContainer,
+    'enabled-period-selector-selected-label-color': Color.OnTertiaryContainer,
+    'enabled-period-selector-unselected-container-color': Color.SurfaceContainerHigh,
+    'enabled-period-selector-unselected-label-color': Color.OnSurface,
+    'enabled-period-selector-outline-color': Color.Outline,
+    'hovered-period-state-layer-color': Color.OnSurface,
+    'hovered-period-state-layer-opacity': State.HoveredStateLayerOpacity,
+    'focused-period-state-layer-color': Color.OnSurface,
+    'focused-period-state-layer-opacity': State.FocusedStateLayerOpacity,
+    'pressed-period-state-layer-color': Color.OnSurface,
+    'pressed-period-state-layer-opacity': State.PressedStateLayerOpacity,
+    'dial-container-size': `256px`,
+    'enabled-dial-container-color': Color.SurfaceContainerHighest,
+    'dial-label-font': Typescale.BodyLarge.Font,
+    'dial-label-leading': Typescale.BodyLarge.LineHeight,
+    'dial-label-size': Typescale.BodyLarge.FontSize,
+    'dial-label-weight': Typescale.BodyLarge.FontWeight,
+    'dial-label-tracking': Typescale.BodyLarge.Tracking,
+    'enabled-dial-label-color': Color.OnSurface,
+    'enabled-dial-selected-label-color': Color.OnPrimary,
+    'enabled-dial-selector-color': Color.Primary,
+    'dial-selector-handle-size': `48px`,
+    'dial-selector-handle-shape': Shape.Full,
+    'dial-selector-center-size': `8px`,
+    'dial-selector-track-width': `2px`,
+    'hovered-dial-state-layer-color': Color.OnSurface,
+    'hovered-dial-state-layer-opacity': State.HoveredStateLayerOpacity,
+    'focused-dial-state-layer-color': Color.OnSurface,
+    'focused-dial-state-layer-opacity': State.FocusedStateLayerOpacity,
+    'pressed-dial-state-layer-color': Color.OnSurface,
+    'pressed-dial-state-layer-opacity': State.PressedStateLayerOpacity,
+})
+
+/**
+ * @version
+ * Material Design 3 Expressive
+ */
+export const TimePickerInputDefinition = createStyleDefinition({
+    'container-shape-start-start': Shape.ExtraLarge,
+    'container-shape-start-end': Shape.ExtraLarge,
+    'container-shape-end-start': Shape.ExtraLarge,
+    'container-shape-end-end': Shape.ExtraLarge,
+    'enabled-container-color': Color.SurfaceContainerHigh,
+    'enabled-container-elevation': '0',
+    'input-container-width': `96px`,
+    'input-container-height': `72px`,
+    'input-container-shape': Shape.Large,
+    'period-selector-container-width': `52px`,
+    'period-selector-container-height': `72px`,
+    'enabled-input-supporting-text-color': Color.OnSurfaceVariant,
+    'enabled-input-label-color': Color.OnSurfaceVariant,
+    'enabled-input-container-color': Color.SurfaceContainerHighest,
+    'focused-input-container-color': Color.PrimaryContainer,
+    'enabled-input-outline-color': Color.Outline,
+    'focused-input-outline-color': Color.Primary,
+})
