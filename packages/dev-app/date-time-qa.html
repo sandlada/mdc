@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Date/Time Picker Visual QA</title>
+<script type="module" src="/shared/base-imports.ts"></script>
+<link rel="stylesheet" href="/shared/styles.css" />
+<style>
+body { font-family: Roboto, system-ui, sans-serif; padding: 24px; display: flex; gap: 32px; flex-wrap: wrap; }
+section { display: flex; flex-direction: column; gap: 12px; }
+h2 { font-size: 14px; margin: 0; }
+.measure { font-size: 12px; color: #555; }
+</style>
+</head>
+<body>
+<section id="sec-date">
+<h2 id="date-title">Modal single calendar (open)</h2>
+<p class="measure">Expected: 328px min-width, 28px radius, 40px day cells</p>
+<mdc-date-picker id="qa-date" variant="modal" selection="single" supporting-text="Select date"></mdc-date-picker>
+</section>
+<section id="sec-time">
+<h2 id="time-title">Dial 12h vertical (open)</h2>
+<p class="measure">Expected: 256px dial, 48px handle, 96x80 selectors, 52x80 period</p>
+<mdc-time-picker id="qa-time" variant="dial" orientation="vertical" headline="Select time"></mdc-time-picker>
+</section>
+<script type="module">
+const params = new URLSearchParams(location.search)
+const target = params.get('target') ?? 'both'
+const applyAttrs = (el, names) => {
+  for (const name of names) {
+    const value = params.get(name)
+    if (value === null) continue
+    if (value === '') el.setAttribute(name, '')
+    else el.setAttribute(name, value)
+  }
+}
+window.addEventListener('load', async () => {
+  const d = document.querySelector('#qa-date')
+  const t = document.querySelector('#qa-time')
+  if (target === 'date') document.querySelector('#sec-time')?.remove()
+  if (target === 'time') document.querySelector('#sec-date')?.remove()
+  if (d) {
+    applyAttrs(d, ['variant', 'selection', 'display-mode', 'headline', 'supporting-text'])
+    const title = params.get('date-title')
+    if (title) {
+      const h = document.querySelector('#date-title')
+      if (h) h.textContent = title
+    }
+    if (target === 'date' || target === 'both') {
+      try { await d.show() } catch (e) { console.warn(e) }
+    }
+  }
+  if (t) {
+    applyAttrs(t, ['variant', 'orientation', 'headline', 'is-24-hour'])
+    if (params.get('is-24-hour') !== null && !t.hasAttribute('is-24-hour')) t.setAttribute('is-24-hour', '')
+    const title = params.get('time-title')
+    if (title) {
+      const h = document.querySelector('#time-title')
+      if (h) h.textContent = title
+    }
+    if (target === 'time' || target === 'both') {
+      try { await t.show() } catch (e) { console.warn(e) }
+    }
+  }
+  if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
+})
+</script>
+</body>
+</html>
