@@ -306,7 +306,7 @@ export abstract class BaseSideSheet extends composeMixin(
             }
         }
         // Promote to the top layer first so the scrim + container animate
-        // against the live render tree (matches DialogAction.show ordering).
+        // against the live render tree (matches BaseDialog.show ordering).
         await this.animateSideSheet(SideSheetDefaultOpenAnimation(this.sheetEdge))
         this.dispatchEvent(new Event(
             SIDE_SHEET_OPENED_EVENT,

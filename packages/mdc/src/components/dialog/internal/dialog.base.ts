@@ -5,28 +5,23 @@
  *
  * [Modified by Kai-Orion & Sandlada]
  */
-import { isServer, LitElement } from 'lit'
-import { property, state } from 'lit/decorators.js'
+import { html, isServer, LitElement, nothing } from 'lit'
+import { property, query, state } from 'lit/decorators.js'
+import { classMap } from 'lit/directives/class-map.js'
+import type { AriaMixinStrict } from '../../../utils/aria/aria'
 import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
 import { redispatchEvent } from '../../../utils/event/redispatch-event'
-import { DialogDefaultCloseAnimation, DialogDefaultOpenAnimation, type DialogAnimation, type DialogAnimationArgs } from './dialog-animations'
 
-export abstract class DialogAction extends composeMixin(mixinDelegatesAria)(LitElement) {
-
-    declare returnValue: string
-    declare quick: boolean
-
-    protected declare readonly dialog: HTMLDialogElement | null
-    protected declare readonly scrim: HTMLElement | null
-    protected declare readonly container: HTMLElement | null
-    protected declare readonly headline: HTMLElement | null
-    protected declare readonly content: HTMLElement | null
-    protected declare readonly actions: HTMLElement | null
-    protected declare readonly scroller: HTMLElement | null
-    protected declare readonly topAnchor: HTMLElement | null
-    protected declare readonly bottomAnchor: HTMLElement | null
-    protected declare readonly firstFocusTrap: HTMLElement | null
+/**
+ *
+ * @version
+ * Material Design 3
+ *
+ * @link
+ * https://m3.material.io/components/dialogs/specs
+ */
+export abstract class BaseDialog extends composeMixin(mixinDelegatesAria)(LitElement) {
 
     @property({ type: Boolean, noAccessor: true })
     public get open(): boolean {
@@ -46,6 +41,18 @@ export abstract class DialogAction extends composeMixin(mixinDelegatesAria)(LitE
         }
     }
 
+    @property({ type: Boolean })
+    public quick: boolean = false
+
+    @property({ type: String, attribute: 'return-value' })
+    public returnValue: string = ''
+
+    @property({ type: String })
+    public type: 'alert' | '' = ''
+
+    @property({ type: Boolean, attribute: 'no-focus-trap', reflect: true })
+    public noFocusTrap: boolean = false
+
     @state()
     protected isAtScrollTop = false;
     @state()
@@ -57,8 +64,37 @@ export abstract class DialogAction extends composeMixin(mixinDelegatesAria)(LitE
     protected isConnectedPromise = this.getIsConnectedPromise()
     protected nextClickIsFromContent = false;
     protected intersectionObserver?: IntersectionObserver
-    protected cancelAnimations?: AbortController
     protected escapePressedWithoutCancel = false
+
+    @query('dialog')
+    protected declare readonly dialog: HTMLDialogElement | null
+    @query('.scrim')
+    protected declare readonly scrim: HTMLElement | null
+    @query('.container')
+    protected declare readonly container: HTMLElement | null
+    @query('.headline')
+    protected declare readonly headline: HTMLElement | null
+    @query('.content')
+    protected declare readonly content: HTMLElement | null
+    @query('.actions')
+    protected declare readonly actions: HTMLElement | null
+    @query('.scroller')
+    protected declare readonly scroller: HTMLElement | null
+    @query('.top.anchor')
+    protected declare readonly topAnchor: HTMLElement | null
+    @query('.bottom.anchor')
+    protected declare readonly bottomAnchor: HTMLElement | null
+    @query('.first-focus-trap')
+    protected declare readonly firstFocusTrap: HTMLElement | null
+    @query('.last-focus-trap')
+    private declare readonly lastFocusTrap: HTMLElement | null
+
+    @state()
+    private hasHeadline = false;
+    @state()
+    private hasActions = false;
+    @state()
+    private hasIcon = false;
 
     protected getIsConnectedPromise() {
         return new Promise<void>((resolve) => {
@@ -66,24 +102,159 @@ export abstract class DialogAction extends composeMixin(mixinDelegatesAria)(LitE
         })
     }
 
-    private get getCloseAnimation() {
-        return DialogDefaultCloseAnimation
-    }
-    private get getOpenAnimation() {
-        return DialogDefaultOpenAnimation
-    }
-
     constructor() {
         super()
-        if(isServer) {
+        if (isServer) {
             return
         }
         this.addEventListener('submit', this.handleSubmit.bind(this))
     }
 
+    override connectedCallback() {
+        super.connectedCallback()
+        this.isConnectedPromiseResolve()
+    }
+
     public override disconnectedCallback() {
         super.disconnectedCallback()
+        this.isConnectedPromise = this.getIsConnectedPromise()
         this.disconnectIntersectionObserver()
+    }
+
+    protected override render(): unknown {
+        return html`
+            ${this.renderScrim()}
+            ${this.renderDialog()}
+        `
+    }
+
+    protected renderScrim() {
+        return html`
+            <span aria-hidden="true" class="${this.quick ? 'scrim quick' : 'scrim'}"></span>
+        `
+    }
+
+    protected getDialogClasses() {
+        const scrollable = this.open && !(this.isAtScrollTop && this.isAtScrollBottom)
+        return {
+            'has-headline': this.hasHeadline,
+            'has-actions': this.hasActions,
+            'has-icon': this.hasIcon,
+            'quick': this.quick,
+            'scrollable': scrollable,
+            'show-top-divider': scrollable && !this.isAtScrollTop,
+            'show-bottom-divider': scrollable && !this.isAtScrollBottom,
+        }
+    }
+
+    protected renderDialog() {
+        const { ariaLabel } = this as AriaMixinStrict
+        return html`
+            <dialog
+                class="${classMap(this.getDialogClasses())}"
+                aria-label=${ariaLabel || nothing}
+                role=${this.type === 'alert' ? 'alertdialog' : nothing}
+                .returnValue=${this.returnValue}
+                @cancel=${this.handleCancel}
+                @click=${this.handleDialogClick}
+                @close=${this.handleClose}
+                @keydown=${this.handleKeydown}
+            >
+                ${!this.noFocusTrap ? html`<div class="first-focus-trap" tabindex="0"
+                    @focus=${this.handleFirstFocusTrapFocus}></div>` : nothing}
+                <div class="container" @click=${this.handleContentClick}>
+                    <div class="headline">
+                        ${this.renderHeadlineIcon()}
+                        ${this.renderHeadlineLabel()}
+                        <mdc-divider></mdc-divider>
+                    </div>
+                    ${this.renderContent()}
+                    ${this.renderActions()}
+                </div>
+                ${!this.noFocusTrap ? html`<div class="last-focus-trap" tabindex="0"
+                    @focus=${this.handleLastFocusTrapFocus}></div>` : nothing}
+            </dialog>
+        `
+    }
+
+    protected renderHeadlineLabel() {
+        return html`
+            <h2 id="headline" .aria-hidden=${!this.hasHeadline || nothing}>
+                <slot name="headline" @slotchange=${this.handleHeadlineChange}></slot>
+            </h2>
+        `
+    }
+    protected renderHeadlineIcon() {
+        return html`
+            <div class="icon" aria-hidden="true">
+                <slot name="icon" @slotchange=${this.handleIconChange}></slot>
+            </div>
+        `
+    }
+    protected renderActions() {
+        return html`
+            <div class="actions">
+                <mdc-divider></mdc-divider>
+                <slot name="actions" @slotchange=${this.handleActionsChange}></slot>
+            </div>
+        `
+    }
+    protected renderContent() {
+        return html`
+            <div class="scroller">
+                <div class="content">
+                    <div class="top anchor"></div>
+                    <slot name="content"></slot>
+                    <div class="bottom anchor"></div>
+                </div>
+            </div>
+        `
+    }
+
+    private handleHeadlineChange(event: Event) {
+        const slot = event.target as HTMLSlotElement
+        this.hasHeadline = slot.assignedElements().length > 0
+    }
+
+    private handleActionsChange(event: Event) {
+        const slot = event.target as HTMLSlotElement
+        this.hasActions = slot.assignedElements().length > 0
+    }
+
+    private handleIconChange(event: Event) {
+        const slot = event.target as HTMLSlotElement
+        this.hasIcon = slot.assignedElements().length > 0
+    }
+
+    private handleFirstFocusTrapFocus() {
+        // Focus trapped at the start — move focus to the last focusable element.
+        const focusable = this.getFocusableElements()
+        if (focusable.length > 0) {
+            focusable[focusable.length - 1].focus()
+        }
+    }
+
+    private handleLastFocusTrapFocus() {
+        // Focus trapped at the end — move focus to the first focusable element.
+        const focusable = this.getFocusableElements()
+        if (focusable.length > 0) {
+            focusable[0].focus()
+        }
+    }
+
+    private getFocusableElements(): HTMLElement[] {
+        if (!this.dialog) {
+            return []
+        }
+        const candidates = this.dialog.querySelectorAll<HTMLElement>(
+            'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])',
+        )
+        return Array.from(candidates).filter(
+            (el) => !el.hasAttribute('disabled')
+                && !el.getAttribute('aria-hidden')
+                && !el.classList.contains('first-focus-trap')
+                && !el.classList.contains('last-focus-trap'),
+        )
     }
 
     public async show() {
@@ -126,7 +297,7 @@ export abstract class DialogAction extends composeMixin(mixinDelegatesAria)(LitE
         // an autofocus attribute.
         this.querySelector<HTMLElement>('[autofocus]')?.focus()
 
-        await this.animateDialog(this.getOpenAnimation)
+        await this.waitForAnimations()
         this.dispatchEvent(new Event('opened'))
         this.isOpening = false
     }
@@ -167,63 +338,39 @@ export abstract class DialogAction extends composeMixin(mixinDelegatesAria)(LitE
             return
         }
 
-        await this.animateDialog(this.getCloseAnimation)
+        // Close first: the close transition only starts once the native
+        // `[open]` attribute is removed. `allow-discrete` keeps the dialog and
+        // the scrim rendered until the transition ends.
         dialog.close(returnValue)
         this.disconnectIntersectionObserver()
         this.open = false
+        await this.waitForAnimations()
         this.dispatchEvent(new Event('closed'))
     }
 
-    private async animateDialog(animation: DialogAnimation) {
-        // Always cancel the previous animations. Animations can include `fill`
-        // modes that need to be cleared when `quick` is toggled. If not, content
-        // that faded out will remain hidden when a `quick` dialog re-opens after
-        // previously opening and closing without `quick`.
-        this.cancelAnimations?.abort()
-        this.cancelAnimations = new AbortController()
-        if (this.quick) {
-            return
-        }
-
-        const { dialog, scrim, container, headline, content, actions } = this
-        if (!dialog || !scrim || !container || !headline || !content || !actions) {
-            return
-        }
-
-        const {
-            container: containerAnimate,
-            dialog: dialogAnimate,
-            scrim: scrimAnimate,
-            headline: headlineAnimate,
-            content: contentAnimate,
-            actions: actionsAnimate,
-        } = animation
-
-        const elementAndAnimation: Array<[Element, DialogAnimationArgs[]]> = [
-            [dialog, dialogAnimate ?? []],
-            [scrim, scrimAnimate ?? []],
-            [container, containerAnimate ?? []],
-            [headline, headlineAnimate ?? []],
-            [content, contentAnimate ?? []],
-            [actions, actionsAnimate ?? []],
+    /**
+     * Waits until every CSS transition started by the last state change is
+     * done. CSS transitions carry no awaitable handle of their own, so the
+     * live ones are gathered from the rendered elements and awaited through
+     * the Web Animations `finished` promises.
+     *
+     * A replaced or canceled transition (e.g. the state flipped again mid-way)
+     * rejects `finished`, which counts as "no longer animating". When nothing
+     * animates (`quick`, reduced motion, zero durations), this resolves
+     * immediately.
+     */
+    private async waitForAnimations() {
+        const animations = [
+            ...(this.dialog?.getAnimations({ subtree: true }) ?? []),
+            ...(this.scrim?.getAnimations() ?? []),
         ]
-
-        const animations: Animation[] = []
-        for (const [element, animation] of elementAndAnimation) {
-            for (const animateArgs of animation) {
-                const animation = element.animate(...animateArgs)
-                this.cancelAnimations.signal.addEventListener('abort', () => {
-                    animation.cancel()
-                })
-
-                animations.push(animation)
-            }
+        if (animations.length === 0) {
+            return
         }
-
         await Promise.all(
             animations.map((animation) =>
                 animation.finished.catch(() => {
-                    // Ignore intentional AbortErrors when calling `animation.cancel()`.
+                    // Ignore intentional interruptions (replace or cancel).
                 }),
             ),
         )
@@ -272,8 +419,8 @@ export abstract class DialogAction extends composeMixin(mixinDelegatesAria)(LitE
         }
         this.escapePressedWithoutCancel = false
         const preventDefault = redispatchEvent(this, event)
-        // We always prevent default on the original dialog event since we'll
-        // animate closing it before it actually closes.
+        // We always prevent default on the original dialog event since we close
+        // it through `close()` to let the closing transition play out.
         event.preventDefault()
         if (preventDefault) {
             return
@@ -303,7 +450,6 @@ export abstract class DialogAction extends composeMixin(mixinDelegatesAria)(LitE
             this.escapePressedWithoutCancel = false
         })
     }
-
 
     private connectIntersectionObserver() {
         this.disconnectIntersectionObserver()

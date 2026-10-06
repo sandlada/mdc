@@ -3,14 +3,17 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { Color } from '../../../utils/color'
+import { Easing } from '@sandlada/mdk'
 import { css, unsafeCSS } from 'lit'
-import { BasicDialogDefinition } from '../dialog.definition'
+import { Color } from '../../../utils/color'
 import { stringifyTokens } from '../../../utils/style'
+import { BasicDialogDefinition } from '../dialog.definition'
 
 const basicDialogTokenString = stringifyTokens('--mdc-basic-dialog')(BasicDialogDefinition)
 
 const scrimColor = unsafeCSS(Color.Scrim)
+const emphasizedEasing = unsafeCSS(Easing.Emphasized.ToCSSValue())
+const emphasizedAccelerateEasing = unsafeCSS(Easing.EmphasizedAccelerate.ToCSSValue())
 
 export const basicDialogStyle = css`
     @layer mdc.basic-dialog.variable { :host{${basicDialogTokenString};} }
@@ -39,26 +42,53 @@ export const basicDialogStyle = css`
         overflow: visible;
         padding: 0;
         width: fit-content;
+        /* Closed state values: the close transition animates towards these. */
+        transform: translateY(-50px);
+        transition:
+            display 150ms allow-discrete,
+            overlay 150ms allow-discrete,
+            transform 150ms ${emphasizedAccelerateEasing};
     }
     dialog[open] {
         display: flex;
+        transform: translateY(0);
+        transition:
+            display 500ms allow-discrete,
+            overlay 500ms allow-discrete,
+            transform 500ms ${emphasizedEasing};
     }
-
     ::backdrop {
         background: none;
     }
 
+    /*
+     * The scrim keeps its open state tied to the native dialog "open"
+     * attribute through the sibling ":has()" selector instead of
+     * ":host([open])", and stays continuously rendered via "visibility"
+     * instead of "display: none". Chrome stops creating enter transitions
+     * that derive from a host attribute (and re-entry transitions of
+     * shadow siblings) once a full modal open/close cycle has completed;
+     * sibling-derived state and permanent rendering keep animating on
+     * every cycle.
+     */
     .scrim {
         background: ${scrimColor};
-        display: none;
+        visibility: hidden;
         inset: 0;
-        opacity: 32%;
+        opacity: 0;
         pointer-events: none;
         position: fixed;
+        transition:
+            visibility 150ms,
+            opacity 150ms linear;
         z-index: 1;
     }
-    :host([open]) .scrim {
-        display: flex;
+    .scrim:has(+ dialog[open]) {
+        visibility: visible;
+        opacity: 32%;
+        transition:
+            visibility 500ms,
+            opacity 500ms linear;
     }
 
     h2 {
@@ -66,7 +96,11 @@ export const basicDialogStyle = css`
         align-self: stretch;
     }
 
-    .headline {
+    /* Closed-state rules compiled under "dialog": Chrome only honors the
+    starting styles of newly rendered shadow descendants when their matching
+    base rules are scoped to the dialog element; bare class selectors snap
+    straight to the open values. */
+    dialog .headline {
         align-items: center;
         color: var(--_enabled-headline-label-color);
         display: flex;
@@ -75,7 +109,13 @@ export const basicDialogStyle = css`
         font-size: var(--_headline-label-size);
         line-height: var(--_headline-label-line-height);
         font-weight: var(--_headline-label-weight);
+        opacity: 0;
         position: relative;
+        transition: opacity 100ms linear;
+    }
+    dialog[open] .headline {
+        opacity: 1;
+        transition: opacity 250ms linear;
     }
 
     slot[name='headline']::slotted(*) {
@@ -123,12 +163,25 @@ export const basicDialogStyle = css`
         transform-origin: top;
     }
 
-    .container::before {
+    dialog .container::before {
         background: var(--_enabled-container-color);
         border-radius: inherit;
         content: '';
         inset: 0;
         position: absolute;
+        /* Closed state values: shrink to 35% then fade out with a delay. */
+        height: 35%;
+        opacity: 0;
+        transition:
+            height 150ms ${emphasizedAccelerateEasing},
+            opacity 50ms linear 100ms;
+    }
+    dialog[open] .container::before {
+        height: 100%;
+        opacity: 1;
+        transition:
+            height 500ms ${emphasizedEasing},
+            opacity 50ms linear;
     }
 
     .scroller {
@@ -143,7 +196,7 @@ export const basicDialogStyle = css`
         overflow-y: scroll;
     }
 
-    .content {
+    dialog .content {
         color: var(--_enabled-supporting-text-label-color);
         font-family: var(--_supporting-text-label-font);
         font-size: var(--_supporting-text-label-size);
@@ -151,7 +204,13 @@ export const basicDialogStyle = css`
         font-weight: var(--_supporting-text-label-weight);
         flex: 1;
         height: min-content;
+        opacity: 0;
         position: relative;
+        transition: opacity 100ms linear;
+    }
+    dialog[open] .content {
+        opacity: 1;
+        transition: opacity 250ms linear;
     }
 
     slot[name='content']::slotted(*) {
@@ -172,13 +231,19 @@ export const basicDialogStyle = css`
         bottom: 0;
     }
 
-    .actions {
+    dialog .actions {
         position: relative;
         box-sizing: border-box;
         display: flex;
         gap: 8px;
+        opacity: 0;
         padding: 16px 24px 24px;
         justify-content: flex-end;
+        transition: opacity 100ms linear;
+    }
+    dialog[open] .actions {
+        opacity: 1;
+        transition: opacity 300ms linear;
     }
 
     slot[name='actions']::slotted(*) {
@@ -213,6 +278,60 @@ export const basicDialogStyle = css`
         width: 0;
         height: 0;
         overflow: hidden;
+    }
+
+    /* "quick" skips all transitions. These rules must stay after the
+    "dialog[open]" / ".scrim:has(+ dialog[open])" blocks to win the specificity tie. */
+    dialog.quick,
+    dialog.quick .container::before,
+    dialog.quick .headline,
+    dialog.quick .content,
+    dialog.quick .actions,
+    .scrim.quick {
+        transition: none;
+    }
+    .scrim.quick:has(+ dialog[open]) {
+        transition: none;
+    }
+
+    /* Starting styles for the open transition. Declared after the main rules:
+    starting-style declarations take part in the normal cascade, so a block
+    placed earlier would lose to the matching open-state rules and the
+    before-change value would equal the open value, killing the transition. */
+    @starting-style {
+        dialog[open] {
+            transform: translateY(-50px);
+        }
+        dialog[open] .container::before {
+            height: 35%;
+            opacity: 0;
+        }
+        dialog[open] .headline {
+            opacity: 0;
+        }
+        dialog[open] .content {
+            opacity: 0;
+        }
+        dialog[open] .actions {
+            opacity: 0;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        dialog,
+        dialog[open],
+        dialog .headline,
+        dialog[open] .headline,
+        dialog .content,
+        dialog[open] .content,
+        dialog .actions,
+        dialog[open] .actions,
+        dialog .container::before,
+        dialog[open] .container::before,
+        .scrim,
+        .scrim:has(+ dialog[open]) {
+            transition: none;
+        }
     }
 
     @media (forced-colors: active) {
