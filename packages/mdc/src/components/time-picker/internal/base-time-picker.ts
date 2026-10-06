@@ -12,6 +12,7 @@ import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
 import { mixinElevationOptions } from '../../elevation/elevation-options.mixin'
 import type { TimePickerOrientation, TimePickerVariant, TimeSelection } from '../time-picker.interface'
 import { angleForHour, angleForMinute, angleFromOffset, assertTimeOfDay, formatTimeOfDay, hourFromAngle, hourOfPeriod, isValidHourInput, isValidMinuteInput, minuteFromAngle, pad2, periodOf, withHourOfPeriod, withPeriod, type DayPeriod } from './time-utils'
+import { Easing } from '@sandlada/mdk'
 import '../../button/index'
 import '../../icon-button/index'
 import '../../ripple/index'
@@ -88,6 +89,13 @@ export abstract class BaseTimePicker extends composeMixin(
 
     @state()
     protected dragging = false
+
+    /**
+     * Accumulated hand rotation in degrees. Unbounded so that CSS
+     * transitions always interpolate along the shortest arc between two
+     * consecutive positions.
+     */
+    private runningHandAngle: number | null = null
 
     @query('dialog')
     protected declare readonly dialog: HTMLDialogElement | null
@@ -402,19 +410,41 @@ export abstract class BaseTimePicker extends composeMixin(
     }
 
     protected renderDial(): unknown {
-        const angle = this.selection === 'minute' ? angleForMinute(this.pendingMinute) : angleForHour(this.pendingHour)(this.is24Hour)
+        const hourLabel = this.is24Hour ? pad2(this.pendingHour) : String(hourOfPeriod(this.pendingHour))
+        const minuteLabel = pad2(this.pendingMinute)
+        const targetAngle = this.selection === 'minute' ? angleForMinute(this.pendingMinute) : angleForHour(this.pendingHour)(this.is24Hour)
+        const hand = this.resolveHandAngle(targetAngle)
         // 24h inner-ring hours (1..12) sit closer to the center: the hand
         // must stop at the handle instead of poking out to the outer ring.
         const isInner = this.is24Hour && this.selection === 'hour' && this.pendingHour >= 1 && this.pendingHour <= 12
         const trackLength = isInner ? RADIUS * 0.55 : RADIUS
         return html`
-            <div class="dial" role="radiogroup" aria-label=${this.selection === 'minute' ? 'Select minutes' : 'Select hours'} tabindex="0"
+            <div class=${classMap({ 'dial': true, 'dragging': this.dragging })} role="radiogroup" aria-label=${this.selection === 'minute' ? 'Select minutes' : 'Select hours'} tabindex="0"
                 @pointerdown=${this.handleDialPointerDown} @pointermove=${this.handleDialPointerMove} @pointerup=${this.handleDialPointerUp} @keydown=${this.handleDialKeydown}>
-                <div class="dial-track" style=${styleMap({ height: `${trackLength}px`, transform: `translateX(-50%) rotate(${angle + 180}deg)` })}></div>
+                <div class="dial-track" style=${styleMap({ height: `${trackLength}px`, transform: `translateX(-50%) rotate(${hand + 180}deg)` })}>
+                    <span class="dial-handle" aria-hidden="true" style=${styleMap({ transform: `translateX(-50%) rotate(${-(hand + 180)}deg)` })}>${this.selection === 'minute' ? minuteLabel : hourLabel}</span>
+                </div>
                 ${this.renderDialLabels()}
                 <div class="dial-center"></div>
             </div>
         `
+    }
+
+    /**
+     * Moves the running hand angle to the closest equivalent of the target
+     * angle so that CSS transitions rotate along the shortest arc instead of
+     * sweeping the long way around the dial.
+     */
+    private resolveHandAngle(target: number): number {
+        if (this.runningHandAngle === null) {
+            this.runningHandAngle = target
+            return target
+        }
+        let delta = (target - this.runningHandAngle) % 360
+        if (delta > 180) delta -= 360
+        if (delta < -180) delta += 360
+        this.runningHandAngle += delta
+        return this.runningHandAngle
     }
 
     protected renderSelectors(): unknown {

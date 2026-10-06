@@ -3,7 +3,8 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { css } from 'lit'
+import { css, unsafeCSS } from 'lit'
+import { Easing } from '@sandlada/mdk'
 import type { ElevationDefinition } from '../elevation/elevation.definition'
 import { RippleDefinition } from '../ripple/ripple.definition'
 import { TimePickerDialDefinition, TimePickerInputDefinition } from './time-picker.definition'
@@ -280,14 +281,53 @@ const stylePart = css`
             ${dialRippleStyles};
         }
 
-        .dial-label.selected {
-            background: var(--_enabled-dial-selector-color);
-            color: var(--_enabled-dial-selected-label-color);
-        }
-
         .dial-label:focus-visible {
             outline: 2px solid var(--_enabled-dial-selector-color);
             outline-offset: 2px;
+        }
+
+        .dial-track {
+            background: var(--_enabled-dial-selector-color);
+            height: calc(var(--_dial-container-size) / 2 - var(--_dial-selector-handle-size) / 2);
+            left: 50%;
+            position: absolute;
+            top: 50%;
+            transform-origin: top center;
+            transition: transform 500ms ${unsafeCSS(Easing.ExpressiveFastSpatial.ToCSSValue())}, height 300ms ${unsafeCSS(Easing.StandardDefaultSpatial.ToCSSValue())};
+            width: var(--_dial-selector-track-width);
+            z-index: 1;
+        }
+
+        /* While dragging the hand follows magnetically with a faster,
+           overshoot-free curve. */
+        .dial.dragging .dial-track {
+            transition-duration: 150ms, 200ms;
+            transition-timing-function: ${unsafeCSS(Easing.Standard.ToCSSValue())}, ${unsafeCSS(Easing.StandardDefaultSpatial.ToCSSValue())};
+        }
+
+        .dial-handle {
+            align-items: center;
+            background: var(--_enabled-dial-selector-color);
+            border-radius: 50%;
+            bottom: calc(var(--_dial-selector-handle-size) / -2);
+            color: var(--_enabled-dial-selected-label-color);
+            display: flex;
+            font-family: var(--_dial-label-font);
+            font-size: var(--_dial-label-size);
+            height: var(--_dial-selector-handle-size);
+            justify-content: center;
+            left: 50%;
+            line-height: var(--_dial-label-leading);
+            position: absolute;
+            /* Counter-rotates against the track so the value stays upright;
+               the transform is provided inline and must share the track's
+               transition to remain upright while the hand sweeps. */
+            transition: transform 500ms ${unsafeCSS(Easing.ExpressiveFastSpatial.ToCSSValue())};
+            width: var(--_dial-selector-handle-size);
+        }
+
+        .dial.dragging .dial-handle {
+            transition-duration: 150ms;
         }
 
         .dial-center {
@@ -299,16 +339,7 @@ const stylePart = css`
             top: 50%;
             transform: translate(-50%, -50%);
             width: var(--_dial-selector-center-size);
-        }
-
-        .dial-track {
-            background: var(--_enabled-dial-selector-color);
-            height: calc(var(--_dial-container-size) / 2 - var(--_dial-selector-handle-size) / 2);
-            left: 50%;
-            position: absolute;
-            top: 50%;
-            transform-origin: top center;
-            width: var(--_dial-selector-track-width);
+            z-index: 2;
         }
 
         .inputs {
