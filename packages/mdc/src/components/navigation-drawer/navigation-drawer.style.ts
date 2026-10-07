@@ -5,6 +5,7 @@
  */
 import { stringifyTokens, overrideTokens } from '../../utils/style'
 import { css, unsafeCSS } from 'lit'
+import { Easing } from '@sandlada/mdk'
 import { ElevationDefinition } from '../elevation/elevation.definition'
 import {
     ModalNavigationDrawerDefinition,
@@ -19,6 +20,9 @@ const modalString = stringifyTokens('--mdc-navigation-drawer')(ModalNavigationDr
 const standardString = stringifyTokens('--mdc-navigation-drawer')(StandardNavigationDrawerDefinition)
 
 const permanentString = stringifyTokens('--mdc-navigation-drawer')(PermanentNavigationDrawerDefinition)
+
+const emphasizedEasing = unsafeCSS(Easing.Emphasized.ToCSSValue())
+const emphasizedAccelerateEasing = unsafeCSS(Easing.EmphasizedAccelerate.ToCSSValue())
 
 const overrideTab = overrideTokens<typeof NavigationDrawerTabDefinition>(
     '--mdc-navigation-tab'
@@ -121,7 +125,13 @@ export const NavigationDrawerStyles = [
             max-width: 100vw;
             pointer-events: none;
             display: block;
-            overflow: hidden;
+            /* "clip", NOT "hidden": hidden makes the dialog a scroll
+            container, and Chrome then stops repainting the container's
+            entrance transform when its closed position sits on the
+            scrollable-overflow side (edge-end under ltr, edge-start under
+            rtl) — the slide is skipped. "clip" still clips the offscreen
+            panel without creating scrollable overflow. */
+            overflow: clip;
             background: transparent;
             border-radius: 0;
         }
@@ -135,12 +145,12 @@ export const NavigationDrawerStyles = [
             z-index: 0;
             -webkit-tap-highlight-color: transparent;
             border-radius: 0;
+            transition: opacity 200ms linear;
         }
-        :host([variant="modal"][open]) dialog .scrim,
-        :host(:not([variant])[open]) dialog .scrim,
-        :host([open]) dialog.modal .scrim {
+        dialog.modal.open .scrim {
             opacity: var(--_scrim-opacity);
             pointer-events: auto;
+            transition: opacity 400ms linear;
         }
         dialog.standard .scrim,
         dialog.permanent .scrim,
@@ -233,6 +243,79 @@ export const NavigationDrawerStyles = [
             border-start-end-radius: var(--_dragged-container-shape-start-end);
             border-end-end-radius: var(--_dragged-container-shape-end-end);
             border-end-start-radius: var(--_dragged-container-shape-end-start);
+        }
+
+        /* ── Modal Open/Close Motion (CSS + @starting-style) ──────── */
+        /*
+         * The closed state rests one container width off the docked edge;
+         * the .open class transitions the container in and the scrim fades.
+         * The off-dock direction is PHYSICAL (sign * width): start is left
+         * under ltr and right under rtl, end the other way around.
+         * Pixel offsets are mandatory — Chrome resolves a starting-style
+         * percentage transform to the destination frame and never paints
+         * the slide.
+         *
+         * TIMING: the .open class must land BEFORE the native dialog is
+         * first shown (see BaseNavigationDrawer.show()); if the dialog is
+         * displayed first and the class flips afterwards, Chrome computes
+         * the transition but never paints it. The dialog's overflow: clip
+         * (see above) is the second half of the same requirement.
+         */
+        dialog.modal .container {
+            --_drawer-off-dock-sign: -1;
+            transform: translateX(calc(var(--_drawer-off-dock-sign) * var(--_enabled-container-width)));
+            transition: transform 200ms ${emphasizedAccelerateEasing};
+        }
+        dialog.modal.edge-end .container {
+            --_drawer-off-dock-sign: 1;
+        }
+        :host(:dir(rtl)) dialog.modal.edge-start .container {
+            --_drawer-off-dock-sign: 1;
+        }
+        :host(:dir(rtl)) dialog.modal.edge-end .container {
+            --_drawer-off-dock-sign: -1;
+        }
+        dialog.open.modal .container {
+            transform: translateX(0);
+            transition: transform 400ms ${emphasizedEasing};
+        }
+
+        /* "quick" skips all transitions. Must stay after the open-state
+        blocks to win the specificity tie. */
+        :host([quick]) dialog.modal .container,
+        :host([quick]) dialog.modal .scrim {
+            transition: none;
+        }
+
+        /* The drag paints inline transforms / scrim opacity per pointer
+        move; the CSS transitions must not smooth behind them. Kept through
+        the settle animations, which carry the dragged state themselves. */
+        :host([dragged]) dialog.modal .container,
+        :host([dragged]) dialog.modal .scrim {
+            transition: none;
+        }
+
+        /* Starting styles for the open transition. Declared after the main
+        rules: starting-style declarations take part in the normal cascade,
+        so a block placed earlier would lose to the matching open-state
+        rules and the before-change value would equal the open value,
+        killing the transition. */
+        @starting-style {
+            dialog.open.modal .container {
+                transform: translateX(calc(var(--_drawer-off-dock-sign) * var(--_enabled-container-width)));
+            }
+            dialog.open.modal .scrim {
+                opacity: 0;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            dialog.modal .container,
+            dialog.modal.open .container,
+            dialog.modal .scrim,
+            dialog.modal.open .scrim {
+                transition: none;
+            }
         }
 
         /* ── Modal Drag Handle ────────────────────────────────────── */

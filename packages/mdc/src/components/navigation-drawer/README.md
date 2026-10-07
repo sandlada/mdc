@@ -10,7 +10,7 @@ Material Design 3 Navigation Drawer component (`<mdc-navigation-drawer>`) built 
 ## Features
 
 - **3 Variants**:
-  - `modal` (default): Floating overlay above content with a scrim backdrop, smooth WAAPI entry/exit animations, and a top drag handle (dismiss outward / relocate across the viewport midline).
+  - `modal` (default): Floating overlay above content with a scrim backdrop, smooth CSS `@starting-style` entry/exit animations, and a top drag handle (dismiss outward / relocate across the viewport midline).
   - `standard`: In-flow collapsible drawer sharing screen space with main content.
   - `permanent`: Persistent fixed side panel always visible in layout.
 - **Docking Edges**: Supports `drawer-edge="start"` (default) and `drawer-edge="end"` with full RTL awareness (`dir="rtl"`) — drag the handle across the viewport midline to re-dock the open modal drawer, or call `relocate(edge)` programmatically.

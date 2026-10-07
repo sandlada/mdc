@@ -65,6 +65,18 @@ export interface INavigationDrawerDragHost extends ReactiveControllerHost, HTMLE
     /** Ambient text direction of the host (`ltr` / `rtl`). */
     getDirection: () => TextDirection
     /**
+     * Whether a pointer drag is currently in flight (engaged or tracking).
+     * Async lifecycle flows must check this before cleaning up drag-owned
+     * state or moving focus.
+     */
+    isDragging: () => boolean
+    /**
+     * Called the moment a gesture engages, BEFORE the first paint. The host
+     * aborts any in-flight settle animation so it cannot keep overriding
+     * the inline transform the drag is about to write.
+     */
+    onDragStart: () => void
+    /**
      * Clear the live drag artifacts — inline transform / scrim opacity /
      * `dragged` attribute — when a gesture aborts without a settle
      * animation.
@@ -96,8 +108,15 @@ export class NavigationDrawerDragController implements ReactiveController {
     private canceled = false
 
     // ── Drag geometry ──────────────────────────────────────────────────────
-    /** Dock-agnostic push-out value (0 open, W fully off the docked edge). */
+    /**
+     * Rest-relative push-out movement (0 at the grab point, outward
+     * positive). Drives the snap decisions, velocity and scrim progress.
+     */
     private currentValue = 0
+    /** Physical translate at engagement — grabs mid-motion continue from it. */
+    private baseTranslate = 0
+    /** Physical translate currently painted on the container. */
+    private currentTranslate = 0
     private containerWidth = 0
     private lastMoveT = 0
     private lastMoveValue = 0
@@ -137,6 +156,14 @@ export class NavigationDrawerDragController implements ReactiveController {
         this.detachWindowListeners()
         this.resetState()
         this.host.onDragCleanup()
+    }
+
+    /**
+     * Whether a gesture is in flight (tracking or engaged). Async lifecycle
+     * flows must not clean up drag-owned state while this is true.
+     */
+    public isDragging(): boolean {
+        return this.pointerId !== null
     }
 
     // ── Gesture entry point (bound in the host template) ──────────────────
@@ -207,6 +234,16 @@ export class NavigationDrawerDragController implements ReactiveController {
             }
             this.engaged = true
             this.containerWidth = container.getBoundingClientRect().width
+            // Read the LIVE offset before anything is canceled: a grab during
+            // the open transition (or a settle animation) continues from the
+            // position on screen instead of jumping to the pointer's rest
+            // offset. Read first — aborting the animation / suppressing the
+            // transition would fall the computed value back to the class rest.
+            this.baseTranslate = this.readTranslateX(container)
+            // Let the host abort any in-flight settle WAAPI: an animation
+            // keeps overriding inline transforms, so the drag could not
+            // paint until it finished.
+            this.host.onDragStart()
 
             this.host.setAttribute('dragged', '')
             this.host.dispatchEvent(new CustomEvent<INavigationDrawerDragStartEventDetail>(
@@ -220,39 +257,49 @@ export class NavigationDrawerDragController implements ReactiveController {
         }
 
         const sign = this.currentSide() === 'left' ? -1 : 1
-        // Dock-agnostic push-out value: pointer travel projected onto the
-        // outward axis of the current dock. The drawer follows the pointer
-        // for as long as it is held; the limits below only rubber-band.
-        let value = sign * deltaX
+        // Rest-relative movement (push-out space, outward positive) drives
+        // the snap decisions, velocity and scrim progress...
+        const movement = sign * deltaX
+        // ...while the painted translate follows the pointer from wherever
+        // the drawer was when grabbed (physical space).
+        let translate = this.baseTranslate + deltaX
 
         // Outward limit: fully off the docked edge. Inward limit: the
-        // drawer's inner edge reaching the opposite viewport edge.
+        // drawer's inner edge reaching the opposite viewport edge. The
+        // limits live in physical space (sign * value).
         const viewportWidth = this.host.containerRef()
             ?.ownerDocument.defaultView?.innerWidth ?? 0
-        const outwardHard = this.containerWidth
-        const inwardHard = -(viewportWidth - this.containerWidth)
-        if (value > outwardHard) {
-            value = outwardHard + (value - outwardHard) * RUBBER_BAND_FACTOR
-        } else if (value < inwardHard) {
-            value = inwardHard + (value - inwardHard) * RUBBER_BAND_FACTOR
+        const outwardHard = sign * this.containerWidth
+        const inwardHard = -sign * (viewportWidth - this.containerWidth)
+        const beyondOutward = sign > 0
+            ? translate > outwardHard
+            : translate < outwardHard
+        const beyondInward = sign > 0
+            ? translate < inwardHard
+            : translate > inwardHard
+        if (beyondOutward) {
+            translate = outwardHard + (translate - outwardHard) * RUBBER_BAND_FACTOR
+        } else if (beyondInward) {
+            translate = inwardHard + (translate - inwardHard) * RUBBER_BAND_FACTOR
         }
 
-        this.currentValue = value
+        this.currentValue = movement
+        this.currentTranslate = translate
 
         // Track release velocity in push-out space (outward positive).
         const now = performance.now()
         const prevT = this.lastMoveT
         const prevValue = this.lastMoveValue
         this.lastMoveT = now
-        this.lastMoveValue = value
+        this.lastMoveValue = movement
         if (prevT > 0 && now - prevT < VELOCITY_WINDOW_MS) {
-            this.releaseVelocity = (value - prevValue) / (now - prevT)
+            this.releaseVelocity = (movement - prevValue) / (now - prevT)
         } else if (now - prevT >= VELOCITY_WINDOW_MS) {
             this.releaseVelocity = 0
         }
 
-        this.paint(value)
-        this.emitDrag(value)
+        this.paint(translate, movement)
+        this.emitDrag(translate, movement)
     }
 
     private handlePointerUp(event: PointerEvent, canceled = false): void {
@@ -316,7 +363,6 @@ export class NavigationDrawerDragController implements ReactiveController {
         reason: 'distance' | 'velocity' | 'cancel' | undefined,
         relocateTo?: NavigationDrawerEdge,
     ): void {
-        const sign = this.currentSide() === 'left' ? -1 : 1
         this.host.dispatchEvent(new CustomEvent<INavigationDrawerDragEndEventDetail>(
             NAVIGATION_DRAWER_DRAG_END_EVENT,
             {
@@ -326,7 +372,11 @@ export class NavigationDrawerDragController implements ReactiveController {
                     committed,
                     target,
                     reason,
-                    dx: sign * this.currentValue,
+                    // Physical position at release: settle animations start
+                    // exactly where the drag left the container (which may
+                    // differ from the rest-relative movement when the grab
+                    // happened mid-motion).
+                    dx: this.currentTranslate,
                     relocateTo,
                 },
             },
@@ -334,35 +384,32 @@ export class NavigationDrawerDragController implements ReactiveController {
         this.resetState()
     }
 
-    private emitDrag(value: number): void {
-        const sign = this.currentSide() === 'left' ? -1 : 1
-        const translateX = sign * value
+    private emitDrag(translate: number, movement: number): void {
         const width = this.containerWidth > 0 ? this.containerWidth : 1
-        const progress = Math.min(1, Math.max(0, value / width))
+        const progress = Math.min(1, Math.max(0, movement / width))
         this.host.dispatchEvent(new CustomEvent<INavigationDrawerDragEventDetail>(
             NAVIGATION_DRAWER_DRAG_EVENT,
             {
                 bubbles: true,
                 composed: true,
-                detail: { dx: translateX, progress },
+                detail: { dx: translate, progress },
             },
         ))
     }
 
     /**
-     * Paint the live translation for the current push-out value. The scrim
-     * only follows the OUTWARD (dismiss) direction; pulling the drawer
-     * inward must never dim it.
+     * Paint the live physical translation. The scrim only follows the
+     * OUTWARD (dismiss) direction; pulling the drawer inward must never dim
+     * it.
      */
-    private paint(value: number): void {
-        const sign = this.currentSide() === 'left' ? -1 : 1
+    private paint(translate: number, movement: number): void {
         const container = this.host.containerRef()
-        if (container) container.style.transform = `translateX(${sign * value}px)`
+        if (container) container.style.transform = `translateX(${translate}px)`
         const scrim = this.host.scrimRef()
         const peak = 0.38
-        if (scrim && value > 0) {
+        if (scrim && movement > 0) {
             const width = this.containerWidth > 0 ? this.containerWidth : 1
-            const progress = Math.min(1, Math.max(0, value / Math.max(1, width)))
+            const progress = Math.min(1, Math.max(0, movement / Math.max(1, width)))
             scrim.style.opacity = String(peak * (1 - progress))
         }
     }
@@ -372,6 +419,16 @@ export class NavigationDrawerDragController implements ReactiveController {
         return resolveDockSideOfEdge(this.direction)(this.host.getDrawerEdge())
     }
 
+    /** Read the x-translation component from a `matrix(a, b, c, d, e, f)`. */
+    private readTranslateX(el: HTMLElement): number {
+        const t = getComputedStyle(el).transform
+        if (!t || t === 'none') return 0
+        const match = t.match(/matrix\([^)]*\)/)
+        if (!match) return 0
+        const parts = match[0].slice(7, -1).split(',').map((s) => parseFloat(s.trim()))
+        return parts.length >= 5 ? parts[4] : 0
+    }
+
     private resetState(): void {
         this.pointerId = null
         this.startX = 0
@@ -379,6 +436,8 @@ export class NavigationDrawerDragController implements ReactiveController {
         this.engaged = false
         this.canceled = false
         this.currentValue = 0
+        this.baseTranslate = 0
+        this.currentTranslate = 0
         this.containerWidth = 0
         this.releaseVelocity = 0
         this.lastMoveT = 0

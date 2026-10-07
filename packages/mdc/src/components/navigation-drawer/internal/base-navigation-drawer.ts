@@ -18,8 +18,6 @@ import { mixinElevationOptions } from '../../elevation/elevation-options.mixin'
 import { BaseNavigationContainer } from '../../navigation/internal/base-navigation-container'
 import '../../typography/typography'
 import {
-    NavigationDrawerDefaultCloseAnimation,
-    NavigationDrawerDefaultOpenAnimation,
     NavigationDrawerDragCommitCloseAnimation,
     NavigationDrawerDragRelocateAnimation,
     NavigationDrawerDragSnapBackAnimation,
@@ -53,7 +51,8 @@ const SCRIM_OPACITY_PEAK = 0.38
 /**
  * Abstract base for `mdc-navigation-drawer`.
  *
- * Provides scope propagation, tab variant auto-syncing, WAAPI animations,
+ * Provides scope propagation, tab variant auto-syncing, CSS open/close
+ * motion (`@starting-style` + `transition`), WAAPI drag settle animations,
  * handle-drag gesture handling (dismiss / edge relocate), focus traps, and
  * modal/standard/permanent modes.
  *
@@ -162,10 +161,21 @@ export abstract class BaseNavigationDrawer extends composeMixin(
     public scrimRef = (): HTMLElement | null => this.scrimEl
     public enabled = (): boolean => this.draggable && !this.quick
     public isOpen = (): boolean => this.open
+    public isDragging = (): boolean => this.dragController.isDragging()
     public getVariant = (): NavigationDrawerVariant => this.variant
     public getDrawerEdge = (): NavigationDrawerEdge => this.drawerEdge
     public getDirection = (): TextDirection =>
         getComputedStyle(this).direction === 'rtl' ? 'rtl' : 'ltr'
+    /**
+     * A fresh pointer grab supersedes any in-flight settle animation: the
+     * WAAPI would keep overriding the drag's inline transform until it
+     * finished. Drop its scrim fade too — the drag repaints it from the
+     * rest value.
+     */
+    public onDragStart = (): void => {
+        this.cancelAnimations?.abort()
+        if (this.scrimEl) this.scrimEl.style.removeProperty('opacity')
+    }
     public onDragCleanup = (): void => this.cleanUpDragStyles()
 
     /**
@@ -291,21 +301,36 @@ export abstract class BaseNavigationDrawer extends composeMixin(
             this.scroller.scrollTop = 0
         }
 
+        // The container / scrim slide + fade are CSS transitions started by
+        // the `.open` class that was applied BEFORE the dialog was first
+        // shown (see render(): the class lands in the same update as
+        // `open = true`, `showModal()` runs afterwards). Showing the dialog
+        // first and flipping the class after makes Chrome stop painting the
+        // container transform — the entrance is skipped.
         if (isModal && !this.quick) {
-            await this.animateDrawer(
-                NavigationDrawerDefaultOpenAnimation(this.getDockSide()),
-            )
+            await this.waitForTransitions()
+        }
+        if (!this.open) {
+            this.isOpening = false
+            return
         }
 
-        this.cleanUpDragStyles()
+        // A pointer grab during the entrance cancels the CSS transition
+        // (which resolves the wait above early) and takes over the
+        // container. While a drag is in flight it owns the inline
+        // transform / `dragged` attribute — cleaning up here would break
+        // the gesture — and focus must not be stolen mid-drag either.
+        if (!this.dragController.isDragging()) {
+            this.cleanUpDragStyles()
 
-        if (isModal && !this.noFocusTrap) {
-            const autofocusTarget = this.querySelector<HTMLElement>('[autofocus]')
-            if (autofocusTarget) {
-                autofocusTarget.focus()
-            } else {
-                const firstTab = this.querySelector<HTMLElement>('mdc-navigation-tab, button, [tabindex]:not([tabindex="-1"])')
-                firstTab?.focus()
+            if (isModal && !this.noFocusTrap) {
+                const autofocusTarget = this.querySelector<HTMLElement>('[autofocus]')
+                if (autofocusTarget) {
+                    autofocusTarget.focus()
+                } else {
+                    const firstTab = this.querySelector<HTMLElement>('mdc-navigation-tab, button, [tabindex]:not([tabindex="-1"])')
+                    firstTab?.focus()
+                }
             }
         }
 
@@ -345,13 +370,22 @@ export abstract class BaseNavigationDrawer extends composeMixin(
         const targetDialog = this.dialogEl
         const isModal = this.isModal
 
+        // The container / scrim transition towards their closed CSS values
+        // (the `.open` class was just removed by the render above); the
+        // dialog must stay displayed until the motion finishes.
         if (isModal && !this.quick && targetDialog && targetDialog.open && reason !== 'drag') {
-            await this.animateDrawer(
-                NavigationDrawerDefaultCloseAnimation(this.getDockSide()),
-            )
+            await this.waitForTransitions()
         }
+        // A fresh show() interrupted the exit; it owns the lifecycle now.
+        if (this.open) return
 
         if (targetDialog && targetDialog.open) {
+            // Force a style/layout pass with the closed class applied while
+            // the dialog is still displayed. Closing immediately — the drag
+            // path does not await a CSS transition — otherwise leaves
+            // Chrome's starting-style snapshot stale, and the NEXT open
+            // skips its entrance transition entirely (the slide is lost).
+            if (this.containerEl) void this.containerEl.offsetWidth
             targetDialog.close(returnValue)
         }
 
@@ -430,20 +464,26 @@ export abstract class BaseNavigationDrawer extends composeMixin(
 
         // Freeze the visual position before the anchor class flips: the
         // inline transform overrides the class transform, so no jump. The
-        // settle animation then carries it to the new resting state, while
-        // the `dragged` attribute keeps CSS transitions suppressed.
+        // settle animation then carries it to the new resting state. The
+        // `dragged` attribute goes on FIRST so the CSS open/close transition
+        // is suppressed before the inline write (otherwise it would smooth
+        // the hand-over).
         this.cancelAnimations?.abort()
         this.cancelAnimations = new AbortController()
+        this.setAttribute('dragged', '')
         container.style.setProperty('transform', `translateX(${newDx}px)`)
         // Drop any scrim opacity the drag interpolated in; the CSS value
         // takes over.
         if (this.scrimEl) this.scrimEl.style.removeProperty('opacity')
-        this.setAttribute('dragged', '')
 
         this.drawerEdge = edge
         await this.updateComplete
         await this.animateDrawer(NavigationDrawerDragRelocateAnimation(newDx))
-        this.cleanUpDragStyles()
+        // A fresh grab during the settle aborts the animation and owns the
+        // container now; leave its live artifacts to the drag controller.
+        if (!this.dragController.isDragging()) {
+            this.cleanUpDragStyles()
+        }
         this.dispatchRelocate(edge)
     }
 
@@ -677,13 +717,21 @@ export abstract class BaseNavigationDrawer extends composeMixin(
     }
 
     private cleanUpDragStyles(): void {
-        if (this.containerEl) {
-            this.containerEl.style.removeProperty('transform')
-            this.containerEl.style.removeProperty('cursor')
+        const container = this.containerEl
+        if (container) {
+            container.style.removeProperty('transform')
+            container.style.removeProperty('cursor')
         }
         if (this.scrimEl) {
             this.scrimEl.style.removeProperty('opacity')
         }
+        // Flush the class rest values while `dragged` still suppresses the
+        // CSS transitions. Removing the inline styles changes the computed
+        // values from the settle end to the class rest; re-enabling the
+        // transitions first would let the browser animate that difference
+        // and REPLAY the whole settle — the drawer visibly animates twice.
+        // Mirrors the side-sheet's endDragSettle.
+        if (container) void container.offsetWidth
         this.removeAttribute('dragged')
         this.removeAttribute('touch-action')
     }
@@ -703,6 +751,15 @@ export abstract class BaseNavigationDrawer extends composeMixin(
         }
 
         if (target === 'closed') {
+            // Flip to the closed rest BEFORE the settle: the WAAPI then ends
+            // exactly on the closed class value, so the post-settle cleanup
+            // cannot start a replaying CSS transition. Leaving the class on
+            // `.open` (transform 0) while the WAAPI ends off-dock guarantees
+            // a second transition once the class flips. `isClosing` keeps
+            // updated() from starting its own close flow for this change.
+            this.isClosing = true
+            this.open = false
+            await this.updateComplete
             await this.animateDrawer(
                 NavigationDrawerDragCommitCloseAnimation(
                     this.getDockSide(),
@@ -710,6 +767,12 @@ export abstract class BaseNavigationDrawer extends composeMixin(
                     scrimCurrent,
                 ),
             )
+            this.isClosing = false
+            // A fresh grab during the settle aborts the animation above and
+            // owns the container now; it must not be cleaned up or closed.
+            // A programmatic show() during the settle re-opens the drawer —
+            // let it own the lifecycle instead of closing it underneath.
+            if (this.open || this.dragController.isDragging()) return
             this.cleanUpDragStyles()
             void this.hide('drag')
         } else {
@@ -719,6 +782,7 @@ export abstract class BaseNavigationDrawer extends composeMixin(
                     scrimCurrent,
                 ),
             )
+            if (this.dragController.isDragging()) return
             this.cleanUpDragStyles()
         }
     }
@@ -748,6 +812,32 @@ export abstract class BaseNavigationDrawer extends composeMixin(
 
         await Promise.all(
             animations.map((anim) => anim.finished.catch(() => {})),
+        )
+    }
+
+    /**
+     * Wait until every CSS transition started by the last open-state change
+     * is done. CSS transitions carry no awaitable handle of their own, so
+     * the live ones are gathered from the rendered dialog subtree and
+     * awaited through the Web Animations `finished` promises.
+     *
+     * A replaced or canceled transition (e.g. the state flipped again
+     * mid-way) rejects `finished`, which counts as "no longer animating".
+     * When nothing animates (`quick`, reduced motion, zero durations), this
+     * resolves immediately.
+     */
+    private async waitForTransitions(): Promise<void> {
+        const animations = [
+            ...(this.dialogEl?.getAnimations({ subtree: true }) ?? []),
+            ...(this.scrimEl?.getAnimations() ?? []),
+        ]
+        if (animations.length === 0) return
+        await Promise.all(
+            animations.map((animation) =>
+                animation.finished.catch(() => {
+                    // Ignore intentional interruptions (replace or cancel).
+                }),
+            ),
         )
     }
 }
