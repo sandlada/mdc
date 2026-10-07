@@ -10,7 +10,6 @@ lerna-debug.log*
 .smoke
 
 # Node dependencies
-package-lock.json
 node_modules
 
 # Build

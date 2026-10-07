@@ -1,0 +1,5 @@
+name = "mdc"
+compatibility_date = "2026-10-07"
+
+[assets]
+directory = "./packages/dev-app/dist"
