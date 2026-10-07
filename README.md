@@ -32,6 +32,10 @@ Don't know how to use MDC? Explore MDC with simple examples from [Github Wiki - 
 
 _If you want to showcase something you've created with MDC, please contact me._
 
+## :telescope: Dev Preview
+
+The component showcase (`packages/dev-app`) is deployed to [mdc.bre97-web.workers.dev](https://mdc.bre97-web.workers.dev) via Cloudflare Workers Builds. Every push gets a preview deployment, so the site always tracks the latest state of the repository.
+
 ## :ledger: Documents
 
 For more information about MDC, please visit [mdc.sandlada.com](https://mdc.sandlada.com).
