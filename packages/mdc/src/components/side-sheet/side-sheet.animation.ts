@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: MIT
  */
 import { Easing } from '@sandlada/mdk'
-import type { SideSheetPosition } from './side-sheet.interface'
 
 /**
  * A side-sheet animation's arguments. See `Element.prototype.animate`.
@@ -31,16 +30,15 @@ export interface SideSheetAnimation {
 // Centralised here so the WAAPI keyframes and the CSS rest state stay in sync.
 const SCRIM_OPACITY_PEAK = 0.32
 
-/**
- * Pixel resting offsets are token-driven so the keyframes stay in sync
- * with the CSS closed state. Percentage transforms must NOT be used on
- * the container: Chrome resolves a starting-style percentage transform
- * straight to the destination frame and never paints the slide.
+/*
+ * Docked-out keyframes take explicit pixel offsets from the host, which
+ * resolves them against the container's RENDERED width (capped at the
+ * viewport by its max-width) so the animated end state matches the CSS
+ * rest exactly — the width token alone overshoots on narrow viewports.
+ * Percentage transforms must NOT be used on the container: Chrome
+ * resolves a starting-style percentage transform straight to the
+ * destination frame and never paints the slide.
  */
-const dockOutOffset = (position: SideSheetPosition, extra = ''): string =>
-    position === 'left'
-        ? `translateX(calc(-1 * (var(--_enabled-container-width)${extra})))`
-        : `translateX(calc(var(--_enabled-container-width)${extra}))`
 
 /**
  * The programmatic open animation. Slides the container in from `fromDx`
@@ -73,22 +71,22 @@ export const SideSheetOpenAnimation = (fromDx: number): SideSheetAnimation => ({
 
 /**
  * The programmatic close animation. Mirror of `SideSheetOpenAnimation`
- * with shorter duration and the accelerating easing curve. The end offset
- * resolves against the container width token, exactly matching the CSS
- * closed resting value.
+ * with shorter duration and the accelerating easing curve. `toDx` is the
+ * signed closed resting offset resolved by the host (peek sliver for
+ * `handle-mode="peek"`, rendered width otherwise).
  *
- *  - Container: translateX(fromDx) -> token-width offset over 150ms,
+ *  - Container: translateX(fromDx) -> translateX(toDx) over 150ms,
  *    EmphasizedAccelerate.
  */
 export const SideSheetCloseAnimation = (
-    position: SideSheetPosition,
     fromDx: number,
+    toDx: number,
 ): SideSheetAnimation => ({
     container: [
         [
             [
                 { transform: `translateX(${fromDx}px)` },
-                { transform: dockOutOffset(position) },
+                { transform: `translateX(${toDx}px)` },
             ],
             { duration: 150, easing: Easing.EmphasizedAccelerate.ToCSSValue() },
         ],
@@ -97,15 +95,16 @@ export const SideSheetCloseAnimation = (
 
 /**
  * The drag-commit-close animation. Animates the container from the current
- * drag offset out the docked viewport edge, and fades the scrim to 0.
+ * drag offset to the signed closed resting offset (`toDx`, resolved by the
+ * host), and fades the scrim to 0.
  *
  *  - Scrim: opacity scrimCurrent -> 0 over 200ms, linear.
- *  - Container: translateX(fromDx) -> token-width offset over 200ms,
+ *  - Container: translateX(fromDx) -> translateX(toDx) over 200ms,
  *    EmphasizedAccelerate.
  */
 export const SideSheetDragCommitCloseAnimation = (
-    position: SideSheetPosition,
     fromDx: number,
+    toDx: number,
     scrimCurrent: number,
 ): SideSheetAnimation => ({
     scrim: [
@@ -121,7 +120,7 @@ export const SideSheetDragCommitCloseAnimation = (
         [
             [
                 { transform: `translateX(${fromDx}px)` },
-                { transform: dockOutOffset(position) },
+                { transform: `translateX(${toDx}px)` },
             ],
             { duration: 200, easing: Easing.EmphasizedAccelerate.ToCSSValue() },
         ],
@@ -163,21 +162,21 @@ export const SideSheetDragSnapBackAnimation = (
 
 /**
  * The drag-snap-to-peek animation (peek mode, closed sheet). Animates the
- * container from the current drag offset back to the peek sliver offset.
- * `restPx` is the container's push-out rest value (`W - peekWidth`).
+ * container from the current drag offset back to the peek sliver offset
+ * (`toDx`, resolved by the host as `rendered width - peek width`, signed).
  *
- *  - Container: translateX(fromDx) -> peek offset over 250ms,
+ *  - Container: translateX(fromDx) -> translateX(toDx) over 250ms,
  *    EmphasizedDecelerate.
  */
 export const SideSheetDragSnapToPeekAnimation = (
-    position: SideSheetPosition,
     fromDx: number,
+    toDx: number,
 ): SideSheetAnimation => ({
     container: [
         [
             [
                 { transform: `translateX(${fromDx}px)` },
-                { transform: dockOutOffset(position, ' - var(--_peeked-container-width)') },
+                { transform: `translateX(${toDx}px)` },
             ],
             { duration: 250, easing: Easing.EmphasizedDecelerate.ToCSSValue() },
         ],

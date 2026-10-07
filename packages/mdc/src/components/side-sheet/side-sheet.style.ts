@@ -151,7 +151,11 @@ export const sideSheetBaseStyles = css`
         pointer-events: auto;
         z-index: 1;
         will-change: transform;
-        touch-action: pan-x;
+        /* The sheet drag is horizontal: the browser may keep vertical
+        panning (content scroll), but the horizontal axis must stay with
+        the pointer handlers. pan-x here lets the UA claim the gesture
+        and fire pointercancel, which snaps the sheet back on touch. */
+        touch-action: pan-y;
     }
 
     /* Dock anchor: physical right (default dock) */
@@ -194,12 +198,15 @@ export const sideSheetBaseStyles = css`
             transform 150ms ${emphasizedAccelerateEasing};
     }
 
+    /* The offset resolves against the container's OWN rendered width (100%),
+    not the width token: the container is capped at 100% of the viewport, so
+    the token would push the sliver past the edge on narrow viewports. */
     dialog.right.peek:not(.open) .container {
-        transform: translateX(calc(var(--_enabled-container-width) - var(--_peeked-container-width)));
+        transform: translateX(calc(100% - var(--_peeked-container-width)));
     }
 
     dialog.left.peek:not(.open) .container {
-        transform: translateX(calc(-1 * (var(--_enabled-container-width) - var(--_peeked-container-width))));
+        transform: translateX(calc(-1 * (100% - var(--_peeked-container-width))));
     }
 
     dialog.peek.open .container {
@@ -263,7 +270,8 @@ export const sideSheetBaseStyles = css`
         cursor: grab;
         user-select: none;
         -webkit-user-select: none;
-        touch-action: pan-x;
+        /* Keep the horizontal axis for the drag (see .container). */
+        touch-action: pan-y;
     }
 
     .handle-grip {
@@ -301,7 +309,11 @@ export const sideSheetBaseStyles = css`
         cursor: grab;
         user-select: none;
         -webkit-user-select: none;
-        touch-action: pan-x;
+        /* Keep the horizontal axis for the drag (see .container). */
+        touch-action: pan-y;
+        /* Above the sibling layers (.content etc. share z-index 1 but sit
+        later in the DOM) — the sliver exists to be grabbed. */
+        z-index: 2;
     }
 
     dialog.right.peek:not(.open) .peek-grip {

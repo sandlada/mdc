@@ -224,7 +224,10 @@ export abstract class BaseSideSheet extends composeMixin(
     public getPosition(): SideSheetPosition { return this.position }
     public getHandleMode(): SideSheetHandleMode { return this.handleMode }
     public peekWidthPx(): number {
-        const raw = getComputedStyle(this)
+        // The token is declared on the dialog (see side-sheet.style.ts);
+        // custom properties inherit downwards only, so reading the host
+        // would always miss it.
+        const raw = getComputedStyle(this.dialogEl ?? this)
             .getPropertyValue('--_peeked-container-width')
         const parsed = parseFloat(raw)
         return Number.isFinite(parsed) ? parsed : 40
@@ -424,7 +427,9 @@ export abstract class BaseSideSheet extends composeMixin(
         if (session !== this.session) return
         if (!this.quick && container) {
             await Promise.all([
-                this.animateSideSheet(SideSheetCloseAnimation(this.position, fromTx)),
+                this.animateSideSheet(
+                    SideSheetCloseAnimation(fromTx, this.closedRestTranslateX()),
+                ),
                 this.waitForTransitions(),
             ])
         } else {
@@ -499,7 +504,7 @@ export abstract class BaseSideSheet extends composeMixin(
         await this.updateComplete
         await this.animateSideSheet(openNow
             ? SideSheetDragRelocateAnimation(newDx)
-            : SideSheetDragSnapToPeekAnimation(position, newDx))
+            : SideSheetDragSnapToPeekAnimation(newDx, this.peekRestTranslateX()))
         this.endDragSettle(container)
         this.dispatchRelocate(position)
     }
@@ -534,7 +539,11 @@ export abstract class BaseSideSheet extends composeMixin(
         this.open = false
         await this.updateComplete
         await this.animateSideSheet(
-            SideSheetDragCommitCloseAnimation(this.position, currentDx, scrimCurrent),
+            SideSheetDragCommitCloseAnimation(
+                currentDx,
+                this.closedRestTranslateX(),
+                scrimCurrent,
+            ),
         )
         this.endDragSettle(container)
         if (this.handleMode !== 'peek') this.closeDialog()
@@ -577,7 +586,7 @@ export abstract class BaseSideSheet extends composeMixin(
         if (container) container.style.removeProperty('cursor')
         if (this.handleEl) this.handleEl.style.removeProperty('cursor')
         await this.animateSideSheet(
-            SideSheetDragSnapToPeekAnimation(this.position, currentDx),
+            SideSheetDragSnapToPeekAnimation(currentDx, this.peekRestTranslateX()),
         )
         this.endDragSettle(container)
     }
@@ -633,20 +642,51 @@ export abstract class BaseSideSheet extends composeMixin(
     }
 
     /**
-     * The container's closed resting offset, derived from the docked width
-     * token (mirrors the `translateX(...)` of the CSS closed state). Needed
-     * because a container inside a `display: none` dialog computes
-     * `transform: none`, hiding the closed offset from `readTranslateX`.
+     * The container's rendered width in CSS px — capped at the viewport by
+     * its `max-width`/`100%` — or the width token while the dialog is not
+     * displayed and the rect measures 0.
      */
-    private readClosedTranslateX(): number {
+    private containerWidthPx(): number {
+        const rectWidth = this.containerEl?.getBoundingClientRect().width ?? 0
+        if (rectWidth > 0) return rectWidth
         const dialog = this.dialogEl
         const raw = dialog
             ? getComputedStyle(dialog)
                 .getPropertyValue('--_enabled-container-width')
             : ''
         const parsed = parseFloat(raw)
-        const width = Number.isFinite(parsed) ? parsed : 0
+        return Number.isFinite(parsed) ? parsed : 0
+    }
+
+    /**
+     * The container's closed resting offset, derived from the rendered
+     * width (mirrors the `translateX(...)` of the CSS closed state). Needed
+     * because a container inside a `display: none` dialog computes
+     * `transform: none`, hiding the closed offset from `readTranslateX`.
+     */
+    private readClosedTranslateX(): number {
+        const width = this.containerWidthPx()
         return this.position === 'left' ? -width : width
+    }
+
+    /**
+     * The signed peek resting offset of a closed peeked sheet (the sliver
+     * offset), resolved against the rendered width so it matches the CSS
+     * rest on viewports narrower than the width token.
+     */
+    private peekRestTranslateX(): number {
+        const offset = Math.max(0, this.containerWidthPx() - this.peekWidthPx())
+        return this.position === 'left' ? -offset : offset
+    }
+
+    /**
+     * Signed resting offset a close animation must end on: the peek sliver
+     * for `handle-mode="peek"`, the fully docked-out offset otherwise.
+     */
+    private closedRestTranslateX(): number {
+        return this.handleMode === 'peek'
+            ? this.peekRestTranslateX()
+            : this.readClosedTranslateX()
     }
 
     private handleDragEnd(event: Event): void {
