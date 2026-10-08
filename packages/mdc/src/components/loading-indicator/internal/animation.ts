@@ -67,8 +67,8 @@ export const INDICATOR_SIZE_PX = parseSizePx(LoadingIndicatorDefinition['indicat
 
 /**
  * Draw scale of the normalized shapes within the active indicator size: the
- * design reference renders every shape at 35dp inside the 38dp active size
- * (the shapes span ~73% of the 48dp container), which the video measurement
+ * design reference renders every shape at 35px inside the 38px active size
+ * (the shapes span ~73% of the 48px container), which the video measurement
  * of all settled shapes confirms (≈186px at the reference's 256px container).
  */
 export const SHAPE_DRAW_SCALE = 35 / 38
