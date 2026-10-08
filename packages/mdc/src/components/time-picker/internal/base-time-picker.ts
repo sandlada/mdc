@@ -28,7 +28,7 @@ const positionForAngle = (angle: number, radius: number): { x: number, y: number
 export abstract class BaseTimePicker extends composeMixin(
     mixinElevationOptions,
 )(LitElement) {
-    public static override readonly formAssociated = true
+    public static readonly formAssociated = true
 
     @property({ type: String, reflect: true })
     public variant: TimePickerVariant = 'dial'
