@@ -21,9 +21,9 @@ export type LoadingIndicatorVariant = 'primary' | 'secondary' | 'tertiary' | 'er
  * The indeterminate form (default) loops the MD3E shape sequence forever —
  * SoftBurst → Cookie9Sided → Pentagon → Pill → Sunny → Cookie4Sided → Oval —
  * with a spring-driven morph between consecutive shapes (stiffness 200,
- * damping ratio 0.6), a 650ms hold on each shape, an extra 90° spin per
- * completed morph and a continuous 360° rotation every 4666ms, mirroring the
- * Jetpack Compose `LoadingIndicator` / Android Views implementation.
+ * damping ratio 0.6) on a 4666/7 ms shape period, a constant 450/7° rotation
+ * per period plus an extra 90° per period driven by the spring (three full
+ * turns per seamless loop), mirroring the reference implementation.
  *
  * When `indeterminate` is not set, the element becomes a determinate
  * indicator: `progress` (0–1) drives a linear circle → SoftBurst morph while
