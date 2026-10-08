@@ -37,7 +37,7 @@ packages/docs/
     │   ├── base-imports.ts # side-effect import of every component barrel
     │   ├── theme.ts        # GlobalMDCContextProvider config
     │   └── demo-viewer.ts  # <mdc-demo> shadow-root renderer
-    ├── components/         # Sidebar, DemoPreview
+    ├── components/         # Sidebar, DemoPreview, ComponentTabs
     ├── layouts/            # Site (shell), Docs (shell + sidebar)
     └── pages/
         ├── index.astro              # landing page

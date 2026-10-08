@@ -23,6 +23,7 @@ const { title = 'MDC', description = 'Framework-agnostic Material Design 3 web c
         <title>{title}</title>
         <meta name="description" content={description} />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <slot name="head" />
 
         <!-- Init Sessions -->
         <script>

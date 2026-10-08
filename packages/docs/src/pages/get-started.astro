@@ -1,0 +1,246 @@
+---
+/**
+ * Get Started: install, load design tokens, register components, use them.
+ */
+import { Code } from 'astro:components';
+import DemoPreview from '../components/DemoPreview.astro';
+import Docs from '../layouts/Docs.astro';
+
+const codeProps = {
+    themes: { light: 'github-light', dark: 'github-dark' },
+    defaultColor: false,
+};
+
+const install = `npm i @sandlada/mdc @sandlada/material-design-css`;
+
+const tokens = `@import '@sandlada/material-design-css/preset.css';
+
+/* Pick a prebuilt color scheme (ships light and dark). */
+@import '@sandlada/material-design-css/prebuilt-colors/tonal-spot/h0-2025.css';
+
+/* Optional: Tailwind utilities such as bg-surface / text-on-surface. */
+@import '@sandlada/material-design-css/color/tw.css';`;
+
+const registerAll = `// Register every <mdc-*> custom element in a single import.
+import '@sandlada/mdc/all';`;
+
+const registerSome = `// Or import only what you need (tree-shakable).
+import '@sandlada/mdc/components/button/index';
+import '@sandlada/mdc/components/icon/index';`;
+
+const usageHtml = `<mdc-button variant="filled"><span>Save</span></mdc-button>
+<mdc-button variant="outlined"><span>Cancel</span></mdc-button>`;
+
+const globalConfig = `import { GlobalMDCContextProvider } from '@sandlada/mdc/utils';
+
+// Attach once, before your app renders.
+GlobalMDCContextProvider.attach();
+GlobalMDCContextProvider.setConfig({
+    ripple: { disableHoverStateLayer: false },
+    focusRing: {},
+    elevation: { disabled: false },
+});`;
+
+const vueConfig = `// vite.config.ts
+import vue from '@vitejs/plugin-vue';
+import { defineConfig } from 'vite';
+
+export default defineConfig({
+    plugins: [
+        vue({
+            template: {
+                compilerOptions: {
+                    isCustomElement: (tag) => tag.startsWith('mdc-'),
+                },
+            },
+        }),
+    ],
+});`;
+
+const angularConfig = `import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+
+@NgModule({
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
+})
+export class AppModule {}`;
+
+const demoHtml = `<mdc-button variant="filled"><span>Filled</span></mdc-button>
+<mdc-button variant="filled-tonal"><span>Filled tonal</span></mdc-button>
+<mdc-button variant="outlined"><span>Outlined</span></mdc-button>
+<mdc-button variant="text"><span>Text</span></mdc-button>`;
+---
+
+<Docs title="Get Started - @sandlada/mdc" active="get-started">
+    <h1 class="page-title">Get Started</h1>
+    <p class="page-subtitle">
+        <code>@sandlada/mdc</code> ships Material Design 3 and Material Expressive as framework-agnostic web components. Install the
+        library, load the design tokens, register the elements, then use plain <code>&lt;mdc-*&gt;</code> tags anywhere.
+    </p>
+
+    <div class="get-started">
+        <section>
+            <h2>Install</h2>
+            <p>
+                Add the component library and the CSS design tokens it is styled with. Both are plain ESM packages with no build step
+                required.
+            </p>
+            <div class="snippet"><Code code={install} lang="bash" {...codeProps} /></div>
+            <aside class="note">
+                <p>
+                    The library targets current evergreen browsers (Baseline 2026) and ships no polyfills or vendor-prefixed
+                    fallbacks.
+                </p>
+            </aside>
+        </section>
+
+        <section>
+            <h2>Load the design tokens</h2>
+            <p>
+                Every component is styled through <code>--md-sys-*</code> custom properties supplied by
+                <code>@sandlada/material-design-css</code>. Import the preset once, then choose a prebuilt color scheme.
+            </p>
+            <div class="snippet"><Code code={tokens} lang="css" {...codeProps} /></div>
+            <p>
+                Toggle the <code>dark</code> attribute on <code>&lt;html&gt;</code> to switch themes, and the
+                <code>low-contrast</code> / <code>high-contrast</code> attributes to adjust contrast.
+            </p>
+            <div class="snippet">
+                <Code code={`document.documentElement.toggleAttribute('dark', isDark);`} lang="js" {...codeProps} />
+            </div>
+        </section>
+
+        <section>
+            <h2>Register the components</h2>
+            <p>
+                Importing a component module registers its custom element as a side effect. Import the whole library for
+                convenience, or only the elements you use to keep the bundle small.
+            </p>
+            <div class="snippet"><Code code={registerAll} lang="ts" {...codeProps} /></div>
+            <div class="snippet"><Code code={registerSome} lang="ts" {...codeProps} /></div>
+            <aside class="note">
+                <p>Registration runs on the client. The bare tags upgrade automatically once the module has loaded.</p>
+            </aside>
+        </section>
+
+        <section>
+            <h2>Use the components</h2>
+            <p>
+                With the elements registered, use them like any other HTML tag - in plain HTML or inside any framework template.
+            </p>
+            <div class="snippet"><Code code={usageHtml} lang="html" {...codeProps} /></div>
+            <section class="demo-section">
+                <h2>Live example</h2>
+                <DemoPreview html={demoHtml} />
+            </section>
+        </section>
+
+        <section>
+            <h2>Configure global behaviors</h2>
+            <p>
+                Ripple, focus ring, and elevation behaviors can be tuned once for the whole document. Attach the provider before your
+                app renders; it is optional, and components fall back to sensible defaults without it.
+            </p>
+            <div class="snippet"><Code code={globalConfig} lang="ts" {...codeProps} /></div>
+        </section>
+
+        <section>
+            <h2>Framework notes</h2>
+            <p>
+                Web components work natively everywhere. A little configuration tells a compiler to leave <code>mdc-*</code> tags
+                alone rather than treating them as unknown components.
+            </p>
+
+            <h3>Vue</h3>
+            <div class="snippet"><Code code={vueConfig} lang="ts" {...codeProps} /></div>
+
+            <h3>Angular</h3>
+            <div class="snippet"><Code code={angularConfig} lang="ts" {...codeProps} /></div>
+
+            <h3>React</h3>
+            <p>
+                React 19 renders custom elements natively. On older versions, set properties through a ref instead of passing them
+                as attributes.
+            </p>
+        </section>
+
+        <section>
+            <h2>Next steps</h2>
+            <ul class="next-steps">
+                <li><a href="/components/button/">Browse the components</a></li>
+                <li><a href="/playground/">Try the live playground</a></li>
+                <li><a href="https://github.com/sandlada/mdc" rel="noopener" target="_blank">View the source on GitHub</a></li>
+            </ul>
+        </section>
+    </div>
+</Docs>
+
+<style>
+    @reference "../styles/global.css";
+
+    .get-started {
+        max-width: 78ch;
+    }
+
+    .get-started h2 {
+        @apply headline-medium;
+        margin-block: 44px 12px;
+    }
+
+    .get-started h3 {
+        @apply title-medium;
+        margin-block: 28px 8px;
+    }
+
+    .get-started > section:first-child h2 {
+        margin-block-start: 24px;
+    }
+
+    .get-started p,
+    .get-started li {
+        line-height: 1.7;
+    }
+
+    .get-started p {
+        margin-block: 12px;
+        color: var(--md-sys-color-on-surface-variant);
+    }
+
+    .get-started a {
+        @apply label-large;
+    }
+
+    .snippet {
+        margin-block: 16px;
+        border: 1px solid var(--md-sys-color-outline-variant);
+        border-radius: var(--md-sys-shape-corner-value-medium);
+        overflow: clip;
+    }
+
+    .snippet :global(.astro-code) {
+        margin: 0;
+        padding: 16px;
+        overflow-x: auto;
+        font-family: var(--global-font);
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .note {
+        margin-block: 16px;
+        padding: 12px 16px;
+        border-inline-start: 3px solid var(--md-sys-color-primary);
+        border-radius: var(--md-sys-shape-corner-value-extra-small);
+        background: var(--md-sys-color-surface-container);
+    }
+
+    .note p {
+        margin: 0;
+    }
+
+    .next-steps {
+        list-style: none;
+        padding-inline-start: 0;
+        display: grid;
+        gap: 8px;
+    }
+</style>

@@ -1,0 +1,52 @@
+---
+/**
+ * Component page preview. Groups the rendered README and the live demos behind
+ * a Material tab bar instead of stacking them. Components that ship no README
+ * expose a single `Demo` tab.
+ *
+ * Panel visibility is driven purely in CSS from the `mdc-tabs` reflected
+ * `active-tab-index`, so the initial panel is correct before the component
+ * upgrades (no flash) and no client script is required.
+ */
+interface Props {
+    /** Whether the component ships a README to expose as the first tab. */
+    hasReadme: boolean;
+}
+
+const { hasReadme } = Astro.props;
+---
+
+<div class="component-tabs" data-has-readme={hasReadme ? 'true' : undefined}>
+    <mdc-tabs active-tab-index="0">
+        {hasReadme && <mdc-tab id="tab-readme" aria-controls="panel-readme">README</mdc-tab>}
+        <mdc-tab id="tab-demo" aria-controls="panel-demo">Demo</mdc-tab>
+    </mdc-tabs>
+
+    {
+        hasReadme && (
+            <div class="tab-panel" id="panel-readme" role="tabpanel" aria-labelledby="tab-readme">
+                <slot name="readme" />
+            </div>
+        )
+    }
+
+    <div class="tab-panel" id="panel-demo" role="tabpanel" aria-labelledby="tab-demo">
+        <slot name="demo" />
+    </div>
+</div>
+
+<style>
+    .component-tabs {
+        margin-top: 24px;
+    }
+
+    .tab-panel {
+        padding-top: 24px;
+    }
+
+    /* README is tab 0 when present — hide whichever panel is not active. */
+    .component-tabs[data-has-readme]:has(mdc-tabs[active-tab-index='0']) #panel-demo,
+    .component-tabs[data-has-readme]:has(mdc-tabs[active-tab-index='1']) #panel-readme {
+        display: none;
+    }
+</style>

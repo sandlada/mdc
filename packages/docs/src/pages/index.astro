@@ -1,23 +1,315 @@
 ---
-import Header from 'src/components/Header.astro';
+import Header from '../components/Header.astro';
 import Site from '../layouts/Site.astro';
+
+const title = 'MDC · Material Design 3 Web Components for Any Framework';
+const description = '@sandlada/mdc is a framework-agnostic Material Design 3 and Material Expressive component library. Build once with native web components, use in React, Vue, Angular, Svelte, or plain HTML.';
+const canonical = 'https://mdc.sandlada.com/';
 ---
 
-<Site title="MDC · Material Design 3 web components">
+<Site title={title} description={description}>
+    <head slot="head">
+        <link rel="canonical" href={canonical} />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="MDC by Sandlada" />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={canonical} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+        <script
+            type="application/ld+json"
+            set:html={JSON.stringify({
+                '@context': 'https://schema.org',
+                '@type': 'SoftwareSourceCode',
+                name: '@sandlada/mdc',
+                description,
+                url: canonical,
+                programmingLanguage: 'TypeScript',
+                codeRepository: 'https://github.com/sandlada/mdc',
+                license: 'https://opensource.org/licenses/MIT',
+            })}
+        />
+    </head>
     <Header hideMenuToggleButton />
 
-    <section class="hero">
-        <h1>Material Design 3, as web components.</h1>
-        <p>
-            <code>@sandlada/mdc</code> is a framework-agnostic component library following the Material Design 3 and Material Expressive specifications. Build once, then use it in any framework - or plain HTML.
-        </p>
-        <div class="hero__actions">
-            <a href="/components/button/">
-                <mdc-button variant="filled"><span>Browse components</span></mdc-button>
-            </a>
-            <a href="/playground/">
-                <mdc-button variant="outlined"><span>Open playground</span></mdc-button>
-            </a>
-        </div>
-    </section>
+    <div class="full">
+        <span class="bg-helper"></span>
+        <section class="hero">
+            <h1><span class="md3">Material Design 3</span>,</h1>
+            <h1 class="">as <span class="rainbow-rock">web components</span>.</h1>
+            <p>
+                <code>@sandlada/mdc</code> is a framework-agnostic component library following the Material Design 3 and Material Expressive specifications. Build once, then use it in any framework - or plain HTML.
+            </p>
+            <div class="flex flex-col items-center justify-center gap-4">
+                <a href="/get-started/">
+                    <mdc-button size="extra-large" variant="filled"><span>Get Started</span></mdc-button>
+                </a>
+                <a href="/playground/">
+                    <mdc-button shape="square" size="large" variant="outlined"><span>Open Playground</span></mdc-button>
+                </a>
+            </div>
+            <section class="install-block" aria-labelledby="install">
+                <pre><code>npm i @sandlada/mdc</code></pre>
+            </section>
+        </section>
+        <video class="media-video object-cover absolute inset-0 z-[-1] h-full w-full" autoplay muted playsinline preload="metadata" loop>
+            <source type="video/webm" src="/gemini-audio__page-cover__speech-generation__light_K4z6b5f.webm" />
+        </video>
+    </div>
+
+    <main class="landing">
+        <section class="landing__section" aria-labelledby="why-mdc">
+            <h2 id="why-mdc">One library, every framework</h2>
+            <p>
+                MDC ships native custom elements built on Lit. No wrappers, no framework lock-in — the same
+                <code>&lt;mdc-button&gt;</code> works in React, Vue, Angular, Svelte, Astro, and plain HTML.
+            </p>
+            <ul class="landing__grid">
+                <li>
+                    <h3>Material Design 3 + Expressive</h3>
+                    <p>Follows M3 and Material Expressive specs, styled entirely through <code>--md-sys-*</code> design tokens.</p>
+                </li>
+                <li>
+                    <h3>Tree-shakable imports</h3>
+                    <p>Import <code>@sandlada/mdc/all</code> to prototype, or per-component modules to ship minimal bundles.</p>
+                </li>
+                <li>
+                    <h3>Accessible by default</h3>
+                    <p>Keyboard navigation, focus rings, ARIA semantics, forced-colors and reduced-motion support built in.</p>
+                </li>
+                <li>
+                    <h3>Modern baseline, zero polyfills</h3>
+                    <p>Targets Baseline 2026 evergreen browsers. Native CSS, no vendor prefixes, no legacy fallbacks.</p>
+                </li>
+            </ul>
+        </section>
+
+        <section class="landing__section" aria-labelledby="faq">
+            <h2 id="faq">FAQ</h2>
+            <dl>
+                <div>
+                    <dt>Does MDC work with React / Vue / Angular?</dt>
+                    <dd>Yes. They are standard web components. Vue needs <code>isCustomElement: tag =&gt; tag.startsWith('mdc-')</code>, Angular needs <code>CUSTOM_ELEMENTS_SCHEMA</code>, React 19 works natively.</dd>
+                </div>
+                <div>
+                    <dt>How is theming handled?</dt>
+                    <dd>Through <code>@sandlada/material-design-css</code> tokens. Import the preset plus a prebuilt color scheme, toggle <code>dark</code> on <code>&lt;html&gt;</code> for dark mode.</dd>
+                </div>
+                <div>
+                    <dt>How is this different from material-web?</dt>
+                    <dd>MDC continues the Material Web approach with Material Expressive coverage, strict token-driven styling, and a cross-framework-first docs and playground experience.</dd>
+                </div>
+            </dl>
+        </section>
+    </main>
 </Site>
+
+<style>
+    .rainbow-rock {
+        position: relative;
+        white-space: nowrap;
+
+        &::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            height: 12px;
+            width: 100%;
+            background-image: linear-gradient(
+                to right,
+                var(--md-sys-color-primary-container) 0%,
+                var(--md-sys-color-secondary-container) 12.5%,
+                var(--md-sys-color-tertiary-container) 25%,
+                var(--md-sys-color-error-container) 37.5%,
+                var(--md-sys-color-primary-container) 50%,
+                var(--md-sys-color-secondary-container) 62.5%,
+                var(--md-sys-color-tertiary-container) 75%,
+                var(--md-sys-color-error-container) 87.5%,
+                var(--md-sys-color-primary-container) 100%
+            );
+            background-size: 200% 100%;
+            animation: rock-flow 4000ms linear infinite;
+        }
+    }
+
+    @keyframes rock-flow {
+        from {
+            background-position: 0% 0;
+        }
+        to {
+            background-position: 100% 0;
+        }
+    }
+</style>
+
+<style>
+    @reference "../styles/global.css";
+    .full {
+        width: 100%;
+        height: fit-content;
+        position: relative;
+        z-index: 0;
+        overflow: clip;
+        display: flex;
+        flex-direction: column;
+    }
+    .hero {
+        position: relative;
+        z-index: 1;
+        flex-direction: column;
+        display: flex;
+        align-items: center;
+        padding-block: 96px;
+        text-align: center;
+        max-width: 960px;
+
+        & h1 {
+            @apply emphasized-display-large;
+        }
+
+        & .md3,
+        & .rainbow-rock {
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        & p {
+            @apply title-medium;
+            margin-block: 48px;
+            max-width: 640px;
+        }
+
+        .install-block {
+            @apply emphasized-body-large;
+            position: relative;
+            border-radius: var(--md-sys-shape-corner-value-large);
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-block-start: 24px;
+            color: var(--md-sys-color-on-surface-variant);
+        }
+    }
+
+    :root[compact] .hero {
+        & h1 {
+            @apply emphasized-display-small;
+        }
+
+        & p {
+            @apply title-small;
+        }
+    }
+
+    :root[medium] .hero {
+        & h1 {
+            @apply emphasized-display-medium;
+        }
+
+        & p {
+            @apply title-medium;
+        }
+    }
+
+    .bg-helper {
+        @apply absolute top-0 left-0 z-[1] flex h-[96px] w-full bg-linear-to-b from-surface from-5% to-transparent;
+    }
+
+    :root[extralarge] .full {
+        max-width: 1600px;
+        margin-left: auto;
+        margin-right: auto;
+        border-radius: var(--md-sys-shape-corner-value-extra-large);
+        margin-top: 48px;
+    }
+    :root[extralarge] .bg-helper {
+        display: none;
+    }
+
+    .hero__actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 24px;
+    }
+
+    .media-video {
+        @apply hue-rotate-300;
+    }
+    :root[dark] .media-video {
+        @apply invert hue-rotate-125;
+    }
+
+    .landing {
+        max-width: 1600px;
+        margin-inline: auto;
+        padding: 64px 24px 96px;
+        gap: 64px;
+        display: flex;
+        flex-direction: column;
+    }
+    .landing__section h2 {
+        @apply headline-medium;
+        margin-block: 0 12px;
+    }
+    .landing__section p,
+    .landing__section dt,
+    .landing__section dd {
+        color: var(--md-sys-color-on-surface-variant);
+    }
+    .landing__grid {
+        list-style: none;
+        padding: 0;
+        margin-block-start: 24px;
+        display: grid;
+        gap: 16px;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+    :root[compact] .landing__grid {
+        display: flex;
+        flex-direction: column;
+    }
+    :root[medium] .landing__grid,
+    :root[expanded] .landing__grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .landing__grid li {
+        border-radius: var(--md-sys-shape-corner-value-medium);
+        padding: 20px;
+        background-image: linear-gradient(to right, var(--md-sys-color-secondary-container), transparent);
+    }
+    .landing__grid h2 {
+        @apply title-small;
+        color: var(--md-sys-color-on-surface);
+    }
+    .landing__grid h3 {
+        @apply title-medium;
+        color: var(--md-sys-color-on-surface);
+    }
+    .landing__grid p {
+        @apply body-medium;
+    }
+    .landing pre {
+        border: 1px solid var(--md-sys-color-outline-variant);
+        border-radius: var(--md-sys-shape-corner-value-medium);
+        padding: 16px;
+        overflow-x: auto;
+        background: var(--md-sys-color-surface-container);
+    }
+    .landing dl {
+        display: grid;
+        gap: 16px;
+        margin-block-start: 16px;
+    }
+    .landing dt {
+        @apply title-small;
+        color: var(--md-sys-color-on-surface);
+    }
+    .landing dd {
+        @apply body-medium;
+    }
+</style>

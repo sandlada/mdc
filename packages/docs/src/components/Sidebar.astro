@@ -16,6 +16,18 @@ const { active } = Astro.props;
         <mdc-elevation></mdc-elevation>
         <div class="content">
             <div class="group">
+                <a class="tab" href={`/get-started/`} aria-current={active === 'get-started' ? 'page' : undefined}>
+                    <span>Get Started</span>
+                    <mdc-ripple></mdc-ripple>
+                    <mdc-focus-ring></mdc-focus-ring>
+                </a>
+                <a class="tab" href={`/playground/`} aria-current={active === 'playground' ? 'page' : undefined}>
+                    <span>Playground</span>
+                    <mdc-ripple></mdc-ripple>
+                    <mdc-focus-ring></mdc-focus-ring>
+                </a>
+            </div>
+            <div class="group">
                 <h3 class="header">Base Components</h3>
                 {
                     baseComponents.map((entry) => (
@@ -262,8 +274,11 @@ const { active } = Astro.props;
         display: flex;
         flex-direction: column;
     }
+    .group:first-child {
+        margin-block-start: 24px;
+    }
     .group:last-child {
-        padding-block-end: 48px;
+        margin-block-end: 48px;
     }
 
     .header {
@@ -271,6 +286,7 @@ const { active } = Astro.props;
         padding-inline: 16px;
         margin-block-start: 24px;
         margin-block-end: 12px;
+        color: var(--md-sys-color-on-surface-variant);
     }
 
     .tab {
@@ -285,6 +301,7 @@ const { active } = Astro.props;
         border-start-end-radius: 20px;
         border-end-start-radius: 0px;
         border-end-end-radius: 20px;
+        color: var(--md-sys-color-on-surface);
 
         & > .label {
             overflow: hidden;
@@ -294,6 +311,7 @@ const { active } = Astro.props;
         }
 
         &[aria-current='page'] {
+            font-weight: 700;
             background: var(--md-sys-color-primary);
             color: var(--md-sys-color-on-primary);
             --mdc-ripple-hovered-color: transparent;

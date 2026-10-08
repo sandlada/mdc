@@ -1,5 +1,6 @@
 ---
 import Docs from '../../layouts/Docs.astro'
+import ComponentTabs from '../../components/ComponentTabs.astro'
 import DemoPreview from '../../components/DemoPreview.astro'
 import { components, getComponent, getDemo, listDemos, demoLabel } from '../../lib/registry'
 
@@ -26,13 +27,24 @@ const demos = listDemos(name)
 
 <Docs title={`${entry.label} · MDC`} active={name}>
     <h1 class="page-title">{entry.label}</h1>
-    {entry.readmeHtml && <div class="prose" set:html={entry.readmeHtml} />}
-    {
-        demos.map((file) => (
-            <section class="demo-section">
-                <h2>{demoLabel(file)}</h2>
-                <DemoPreview html={getDemo(name, file)} />
-            </section>
-        ))
-    }
+    <ComponentTabs hasReadme={Boolean(entry.readmeHtml)}>
+        {entry.readmeHtml && <div slot="readme" class="prose" set:html={entry.readmeHtml} />}
+        <Fragment slot="demo">
+            {
+                demos.map((file) => (
+                    <section class="demo-section">
+                        <h2>{demoLabel(file)}</h2>
+                        <DemoPreview html={getDemo(name, file)} />
+                    </section>
+                ))
+            }
+        </Fragment>
+    </ComponentTabs>
 </Docs>
+
+<style>
+    /* The tab panel already supplies top spacing — drop the first demo's. */
+    .demo-section:first-child h2 {
+        margin-block-start: 0;
+    }
+</style>

@@ -1,8 +1,8 @@
 ---
-import Site from '../layouts/Site.astro'
-import { getIcon } from '../lib/icons'
+import Docs from 'src/layouts/Docs.astro';
+import { getIcon } from '../lib/icons';
 
-const notificationIcon = getIcon('notifications')
+const notificationIcon = getIcon('notifications');
 
 const sample = [
     '<mdc-button variant="filled"><span>Filled</span></mdc-button>',
@@ -10,10 +10,10 @@ const sample = [
     '',
     '<!-- Icons are plain SVG injected into <mdc-icon> - no icon font -->',
     `<mdc-icon>${notificationIcon}</mdc-icon>`,
-].join('\n')
+].join('\n');
 ---
 
-<Site title="Playground · MDC">
+<Docs title="Playground - @sandlada/mdc" active="playground">
     <div class="playground-intro">
         <h1 class="page-title">Playground</h1>
         <p class="page-subtitle">Edit the markup on the left; the preview updates live.</p>
@@ -22,5 +22,42 @@ const sample = [
         <textarea id="playground-source" class="playground__source" spellcheck="false">{sample}</textarea>
         <div id="playground-stage" class="playground__stage"></div>
     </div>
-    <script>import '../scripts/playground'</script>
-</Site>
+    <script>
+        import '../scripts/playground';
+    </script>
+</Docs>
+
+<style>
+    .playground {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 12px;
+    }
+    :root[compact] .playground,
+    :root[medium] .playground {
+        grid-template-columns: 1fr;
+        grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+    }
+
+    .playground__source {
+        width: 100%;
+        min-height: 320px;
+        padding: 12px;
+        border-radius: var(--md-sys-shape-corner-value-medium);
+        border: 1px solid var(--md-sys-color-outline-variant);
+        background: var(--md-sys-color-surface-container-lowest);
+        color: inherit;
+        font-family: var(--mdc-docs-font-code);
+        font-size: 13px;
+        resize: vertical;
+    }
+
+    .playground__stage {
+        min-height: 320px;
+        padding: 24px;
+        border-radius: var(--md-sys-shape-corner-value-medium);
+        border: 1px solid var(--md-sys-color-outline-variant);
+        background: var(--md-sys-color-surface-container-lowest);
+        overflow-x: auto;
+    }
+</style>
