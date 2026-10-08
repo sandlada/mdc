@@ -26,6 +26,11 @@ const { active } = Astro.props;
                     <mdc-ripple></mdc-ripple>
                     <mdc-focus-ring></mdc-focus-ring>
                 </a>
+                <a class="tab" href={`/for-ai/`} aria-current={active === 'for-ai' ? 'page' : undefined}>
+                    <span>For AI</span>
+                    <mdc-ripple></mdc-ripple>
+                    <mdc-focus-ring></mdc-focus-ring>
+                </a>
             </div>
             <div class="group">
                 <h3 class="header">Base Components</h3>

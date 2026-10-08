@@ -1,0 +1,590 @@
+---
+/**
+ * For AI: a machine-first reference answering the questions AI coding
+ * assistants get asked most about @sandlada/mdc. Rendered as static HTML (no
+ * client-side demos) so the full text is available to crawlers and LLM tools.
+ */
+import { Code } from 'astro:components';
+import Docs from '../layouts/Docs.astro';
+import { breadcrumbJsonLd } from '../lib/seo';
+
+const title = 'For AI · @sandlada/mdc Reference and Gotchas';
+const description =
+    'Machine-first reference for @sandlada/mdc: customize components with CSS, change the color scheme, fix the mdc-fab open / extended gotchas, understand default-checked vs checked and default-selected vs selected, use MDC in Vue / Angular / React, and read the npm package layout.';
+const path = '/for-ai/';
+const keywords = [
+    '@sandlada/mdc for AI',
+    'mdc-fab not showing open extended',
+    'default-checked vs checked mdc',
+    'default-selected vs selected mdc',
+    'mdc web components Vue Angular React',
+    'mdc npm package structure',
+    'material-design-css color scheme override',
+];
+const jsonLd = [
+    {
+        '@context': 'https://schema.org',
+        '@type': 'TechArticle',
+        headline: title,
+        description,
+        url: 'https://mdc.sandlada.com/for-ai/',
+        author: { '@type': 'Organization', name: 'Sandlada' },
+        about: 'Machine-readable reference for the @sandlada/mdc Material Design 3 web component library.',
+    },
+    breadcrumbJsonLd([
+        { name: 'Home', path: '/' },
+        { name: 'For AI', path: '/for-ai/' },
+    ]),
+];
+
+const codeProps = {
+    themes: { light: 'github-light', dark: 'github-dark' },
+    defaultColor: false,
+};
+
+const cssComponent = `/* Component tokens are public --mdc-<component>-* custom properties.
+   Set them on the element (or any ancestor); they inherit into the shadow root. */
+mdc-button {
+    --mdc-button-enabled-filled-container-color: #6750a4;
+    --mdc-button-enabled-filled-label-color: #ffffff;
+}
+
+/* Attribute selectors still target the host element. */
+mdc-button[variant="outlined"] {
+    --mdc-button-enabled-outlined-outline-color: #6750a4;
+}`;
+
+const cssParts = `/* Some components expose shadow parts for deeper styling. */
+mdc-field::part(input) {
+    letter-spacing: 0.02em;
+}
+
+/* mdc-field also exposes: container, leading-icon, content, prefix, suffix,
+   trailing-icon, label, supporting-wrapper, supporting-text, counter. */`;
+
+const cssSystem = `/* 1. The system contract (light/dark color-scheme) */
+@import '@sandlada/material-design-css/preset.css';
+
+/* 2. A prebuilt Material color scheme (light + dark + contrast in one file) */
+@import '@sandlada/material-design-css/prebuilt-colors/tonal-spot/h0-2025.css';`;
+
+const jsTheme = `// preset.css maps the dark attribute on :root to color-scheme.
+document.documentElement.toggleAttribute('dark', isDark);
+
+// Contrast: low-contrast | high-contrast on :root.
+document.documentElement.toggleAttribute('high-contrast', useHighContrast);`;
+
+const cssCustomScheme = `:root {
+    /* Override MD3 system color roles once - every component follows. */
+    --md-sys-color-primary: #6750a4;
+    --md-sys-color-on-primary: #ffffff;
+    --md-sys-color-primary-container: #eaddff;
+    --md-sys-color-on-primary-container: #21005d;
+    --md-sys-color-secondary: #625b71;
+    --md-sys-color-surface: #fffbfe;
+    --md-sys-color-on-surface: #1c1b1f;
+    --md-sys-color-outline: #79747e;
+    /* ...the remaining --md-sys-color-* roles */
+}
+
+/* Separate dark values when you do not rely on light-dark(). */
+:root[dark] {
+    --md-sys-color-primary: #d0bcff;
+    --md-sys-color-on-primary: #381e72;
+    /* ... */
+}`;
+
+const fabBasic = `<!-- The internal button stays hidden until open is set. -->
+<mdc-fab open>
+    <mdc-icon slot="icon">add</mdc-icon>
+</mdc-fab>`;
+
+const fabExtended = `<!-- The label is hidden unless extended is ALSO set. -->
+<mdc-fab open extended>
+    <mdc-icon slot="icon">add</mdc-icon>
+    <span>Label</span>
+</mdc-fab>
+
+<!-- trailing-icon puts the icon after the label. -->
+<mdc-fab open extended trailing-icon variant="primary" size="large">
+    <mdc-icon slot="icon">add</mdc-icon>
+    <span>Large primary</span>
+</mdc-fab>`;
+
+const fabJs = `const fab = document.querySelector('mdc-fab');
+fab.open = true; // runs the show animation and reveals the button`;
+
+const defaultsHtml = `<mdc-checkbox default-checked></mdc-checkbox>
+
+<mdc-radio-button name="plan" value="pro" default-checked></mdc-radio-button>
+
+<mdc-switch default-selected></mdc-switch>
+
+<mdc-toggle-button type="checkbox" value="on" default-checked>
+    <mdc-icon slot="icon">favorite</mdc-icon>
+</mdc-toggle-button>
+
+<mdc-navigation-tab name="nav" value="/home" label="Home" default-checked>
+    <mdc-icon slot="icon">home</mdc-icon>
+</mdc-navigation-tab>`;
+
+const vueConfig = `// vite.config.ts
+import vue from '@vitejs/plugin-vue';
+import { defineConfig } from 'vite';
+
+export default defineConfig({
+    plugins: [
+        vue({
+            template: {
+                compilerOptions: {
+                    isCustomElement: (tag) => tag.startsWith('mdc-'),
+                },
+            },
+        }),
+    ],
+});`;
+
+const vueUsage = `<template>
+    <mdc-button variant="filled"><span>Save</span></mdc-button>
+</template>
+
+<script setup lang="ts">
+import '@sandlada/mdc/components/button/index';
+</script>`;
+
+const angularUsage = `import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import '@sandlada/mdc/components/button/index';
+
+@Component({
+    selector: 'app-root',
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    template: \`<mdc-button variant="filled"><span>Save</span></mdc-button>\`,
+})
+export class AppComponent {}`;
+
+const angularModule = `import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
+
+@NgModule({
+    declarations: [AppComponent],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
+})
+export class AppModule {}`;
+
+const react19 = `import '@sandlada/mdc/components/button/index';
+
+export function App() {
+    return (
+        <mdc-button variant="filled">
+            <span>Save</span>
+        </mdc-button>
+    );
+}`;
+
+const reactTypes = `// Teach TypeScript's JSX checking about the mdc-* tags.
+import type { DetailedHTMLProps, HTMLAttributes } from 'react';
+
+declare module 'react' {
+    namespace JSX {
+        interface IntrinsicElements {
+            'mdc-button': DetailedHTMLProps<
+                HTMLAttributes<HTMLElement>,
+                HTMLElement
+            > & {
+                variant?: 'filled' | 'filled-tonal' | 'elevated' | 'outlined' | 'text';
+            };
+        }
+    }
+}`;
+
+const reactLegacy = `import { useEffect, useRef } from 'react';
+import '@sandlada/mdc/components/switch/index';
+
+export function Toggle() {
+    const ref = useRef<HTMLElement>(null);
+
+    useEffect(() => {
+        const el = ref.current as any;
+        if (!el) return;
+        el.selected = true; // booleans/objects: set as properties, not attributes
+        const onChange = () => console.log('toggled:', el.selected);
+        el.addEventListener('change', onChange); // custom events: addEventListener
+        return () => el.removeEventListener('change', onChange);
+    }, []);
+
+    return <mdc-switch ref={ref} />;
+}`;
+
+const packageImports = `// One entry point per component - import only what you use.
+import '@sandlada/mdc/components/button/index';
+import '@sandlada/mdc/components/icon/index';
+import '@sandlada/mdc/components/text-field/index';
+
+// Shared utilities have their own barrels.
+import { GlobalMDCContextProvider } from '@sandlada/mdc/utils/context-provider';`;
+
+const componentList =
+    'appbar, badge, bottom-sheet, button, card, carousel, checkbox, chip, date-picker, dialog, divider, dock-layout, draggable-modal, elevation, expressive-progress-indicator, expressive-slider, fab, field, focus-ring, icon, icon-button, list, loading-indicator, navigation-bar, navigation-drawer, navigation-rail, navigation-tab, on-this-page, popup-controller, progress-indicator, radio-button, ripple, scaffold, search, segmented-button, side-sheet, slider, snackbar, split-button, switch, tabs, text-field, time-picker, tooltip, tooltip-box, typography';
+---
+
+<Docs
+    title={title}
+    description={description}
+    path={path}
+    keywords={keywords}
+    ogType="article"
+    jsonLd={jsonLd}
+    active="for-ai"
+>
+    <h1 class="page-title">For AI</h1>
+    <p class="page-subtitle">
+        A machine-first reference for <code>@sandlada/mdc</code>. It answers the questions AI coding assistants get asked most:
+        styling components with CSS, re-theming the color scheme, the <code>mdc-fab</code> <code>open</code> / <code>extended</code>
+        gotchas, <code>default-checked</code> / <code>default-selected</code>, framework setup, and the npm package layout.
+    </p>
+
+    <aside class="note">
+        <p>
+            This page is static HTML - its full text is present in the initial response, so crawlers and LLM tools can read it
+            without executing JavaScript. A condensed plain-text version is served at
+            <a href="/llms.txt"><code>/llms.txt</code></a>.
+        </p>
+    </aside>
+
+    <div class="for-ai">
+        <section id="customize-with-css">
+            <h2>1. Customize a component with CSS</h2>
+            <p>
+                Every component is a custom element with a shadow root. Regular CSS selectors stop at the shadow boundary, so
+                content is styled through two layers of <strong>CSS custom properties</strong> (which inherit into the shadow
+                root) and, where exposed, <strong><code>::part()</code></strong>.
+            </p>
+            <ul>
+                <li>
+                    <strong>Component tokens</strong> - <code>--mdc-&lt;component&gt;-*</code>, for one component's internals.
+                    Set them on the element (or an ancestor) to override that component only.
+                </li>
+                <li>
+                    <strong>System tokens</strong> - <code>--md-sys-*</code> from <code>@sandlada/material-design-css</code>,
+                    shared by all components. Change these to re-theme the whole library (see section 2).
+                </li>
+            </ul>
+            <div class="snippet"><Code code={cssComponent} lang="css" {...codeProps} /></div>
+            <p>
+                Some components also expose shadow parts for styling internal nodes that never receive a token. For example,
+                <code>mdc-field</code> exposes <code>input</code>, <code>label</code>, <code>container</code>, and others.
+            </p>
+            <div class="snippet"><Code code={cssParts} lang="css" {...codeProps} /></div>
+            <aside class="note">
+                <p>
+                    Attribute selectors still work because attributes live on the host: <code>mdc-button[variant="outlined"]</code>,
+                    <code>mdc-fab[size="large"]</code>, and so on.
+                </p>
+            </aside>
+        </section>
+
+        <section id="color-scheme">
+            <h2>2. Change the color scheme systematically</h2>
+            <p>
+                Color is centralized in <code>@sandlada/material-design-css</code>. Import the preset first to establish the
+                <code>--md-sys-color-*</code> contract and the light/dark <code>color-scheme</code>, then import one prebuilt scheme.
+            </p>
+            <div class="snippet"><Code code={cssSystem} lang="css" {...codeProps} /></div>
+            <p>
+                Prebuilt schemes use <code>light-dark()</code>, so a single import covers both modes. Theme and contrast are driven
+                by attributes on <code>:root</code> (<code>&lt;html&gt;</code>): <code>dark</code>, <code>low-contrast</code>, and
+                <code>high-contrast</code>.
+            </p>
+            <div class="snippet"><Code code={jsTheme} lang="js" {...codeProps} /></div>
+            <h3>Built-in scheme variants</h3>
+            <p>
+                Schemes live under <code>prebuilt-colors/</code> and have 9 variants: <code>monochrome</code>, <code>neutral</code>,
+                <code>tonal-spot</code>, <code>vibrant</code>, <code>expressive</code>, <code>rainbow</code>, <code>fruit-salad</code>,
+                <code>content</code>, and <code>fidelity</code>. Filenames encode hue and spec year
+                (<code>{'h{hue}-{year}.css'}</code>, e.g. <code>tonal-spot/h0-2025.css</code>); <code>content</code> and
+                <code>fidelity</code> add chroma and tone (<code>{'h{hue}c{chroma}t{tone}-{year}.css'}</code>).
+            </p>
+            <h3>Fully custom scheme</h3>
+            <p>
+                To define your own colors instead of using a prebuilt scheme, override the <code>--md-sys-color-*</code> roles on
+                <code>:root</code>. Because every component consumes these semantic roles, overriding them re-colors the whole
+                library at once - that is the systematic approach.
+            </p>
+            <div class="snippet"><Code code={cssCustomScheme} lang="css" {...codeProps} /></div>
+            <p>
+                Raw tonal data is also available from <code>@sandlada/material-design-css/prebuilt-palettes/&hellip;</code> as
+                <code>{'--md-ref-palette-{primary|secondary|tertiary|error|neutral|neutral-variant}-{tone}'}</code> if you want to
+                build a scheme by hand.
+            </p>
+        </section>
+
+        <section id="fab-not-showing">
+            <h2>3. Why is my <code>mdc-fab</code> invisible?</h2>
+            <p>
+                <code>mdc-fab</code> keeps its internal <code>&lt;button&gt;</code> hidden until the <code>open</code> property
+                becomes <code>true</code>. Setting <code>open</code> runs the show animation and adds an internal
+                <code>show</code> attribute. <strong>A FAB does not render until you set <code>open</code></strong>.
+            </p>
+            <div class="snippet"><Code code={fabBasic} lang="html" {...codeProps} /></div>
+            <p>Programmatically, assign the property:</p>
+            <div class="snippet"><Code code={fabJs} lang="js" {...codeProps} /></div>
+            <p>
+                The lifecycle also emits <code>open</code> / <code>opened</code> and <code>close</code> / <code>closed</code>
+                events (<code>open</code> and <code>close</code> are cancelable).
+            </p>
+
+            <h3>Why is the FAB label / <code>&lt;span&gt;</code> not showing?</h3>
+            <p>
+                The label slot is hidden unless <code>extended</code> is also set. The internal rule hides the label unless the
+                button has <em>both</em> <code>extended</code> and a slotted label. Put the icon in
+                <code>&lt;mdc-icon slot="icon"&gt;</code> and the text in a default-slot <code>&lt;span&gt;</code>.
+            </p>
+            <div class="snippet"><Code code={fabExtended} lang="html" {...codeProps} /></div>
+            <aside class="note">
+                <p>
+                    Optional attributes: <code>variant</code> (<code>primary</code>, <code>secondary</code>, <code>tertiary</code>,
+                    <code>tonal-primary</code>, <code>tonal-secondary</code>, <code>tonal-tertiary</code>), <code>size</code>
+                    (<code>small</code>, <code>medium</code>, <code>large</code>), and <code>trailing-icon</code>.
+                </p>
+            </aside>
+        </section>
+
+        <section id="default-checked">
+            <h2>4. Configure <code>default-checked</code> / <code>default-selected</code></h2>
+            <p>
+                <code>default-checked</code> seeds the initial <code>checked</code> state; <code>default-selected</code> seeds the
+                <code>selected</code> state on the switch. Both are plain boolean attributes: include them to start checked, omit
+                them to start unchecked.
+            </p>
+            <div class="snippet"><Code code={defaultsHtml} lang="html" {...codeProps} /></div>
+            <table class="facts">
+                <thead>
+                    <tr><th>Component</th><th>Attribute</th><th>Live property</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>mdc-checkbox</code></td><td><code>default-checked</code></td><td><code>checked</code></td></tr>
+                    <tr><td><code>mdc-radio-button</code></td><td><code>default-checked</code></td><td><code>checked</code></td></tr>
+                    <tr><td><code>mdc-toggle-button</code></td><td><code>default-checked</code></td><td><code>checked</code></td></tr>
+                    <tr><td><code>mdc-toggle-icon-button</code></td><td><code>default-checked</code></td><td><code>checked</code></td></tr>
+                    <tr><td><code>mdc-navigation-tab</code></td><td><code>default-checked</code></td><td><code>checked</code></td></tr>
+                    <tr><td><code>mdc-switch</code></td><td><code>default-selected</code></td><td><code>selected</code></td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="default-vs-live">
+            <h2>5. <code>default-checked</code> vs <code>checked</code> (and <code>default-selected</code> vs <code>selected</code>)</h2>
+            <p>
+                They are two different things, mirroring native HTML. <code>checked</code> / <code>selected</code> is the
+                <strong>live current state</strong>; <code>default-checked</code> / <code>default-selected</code> is the
+                <strong>initial / default state</strong>.
+            </p>
+            <table class="facts">
+                <thead>
+                    <tr><th></th><th><code>checked</code> / <code>selected</code></th><th><code>default-checked</code> / <code>default-selected</code></th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Meaning</td><td>Current value</td><td>Initial / default value</td></tr>
+                    <tr><td>When read</td><td>Any time; updates reactively</td><td>Once when the element connects (and when the property flips true)</td></tr>
+                    <tr><td>Reflects to an attribute</td><td>Yes (<code>checked</code> / <code>selected</code>)</td><td>Yes, as authored</td></tr>
+                    <tr><td>User interaction changes it</td><td>Yes</td><td>No</td></tr>
+                    <tr><td>Used by form reset</td><td>No</td><td>Yes - reset returns to the default</td></tr>
+                    <tr><td>Native HTML analogue</td><td><code>input.checked</code></td><td><code>input.defaultChecked</code> / the <code>checked</code> content attribute</td></tr>
+                </tbody>
+            </table>
+            <p>
+                Practical guidance:
+            </p>
+            <ul>
+                <li>For an element's <strong>initial, declarative</strong> state (and correct <code>&lt;form&gt;</code> reset), use <code>default-checked</code> / <code>default-selected</code>.</li>
+                <li>For <strong>runtime control</strong> and reading the current state, use the <code>.checked</code> / <code>.selected</code> property (or the reflecting <code>checked</code> / <code>selected</code> attribute).</li>
+                <li>Both can appear together: <code>default-checked</code> seeds the state and <code>checked</code> reflects the current value.</li>
+                <li><code>default-checked</code> / <code>default-selected</code> can only ever mean "true" - there is no default-unchecked variant; omit the attribute for unchecked.</li>
+                <li>The default is applied <em>before</em> form state restoration, so a value restored by the browser can still override the authored default on load.</li>
+            </ul>
+        </section>
+
+        <section id="frameworks">
+            <h2>6. Use MDC in Vue, Angular, and React</h2>
+            <p>
+                MDC ships standard custom elements. Register a component by importing its entry point for side effects, then use
+                the bare <code>&lt;mdc-*&gt;</code> tag in your templates. Frameworks only need to be told to leave
+                <code>mdc-*</code> tags alone.
+            </p>
+
+            <h3>Vue</h3>
+            <p>Tell the Vue compiler that <code>mdc-*</code> tags are custom elements:</p>
+            <div class="snippet"><Code code={vueConfig} lang="ts" {...codeProps} /></div>
+            <p>Then import and use them:</p>
+            <div class="snippet"><Code code={vueUsage} lang="html" {...codeProps} /></div>
+
+            <h3>Angular</h3>
+            <p>Add <code>CUSTOM_ELEMENTS_SCHEMA</code> to the component or module that uses the tags:</p>
+            <div class="snippet"><Code code={angularUsage} lang="ts" {...codeProps} /></div>
+            <p>Alternatively, for an NgModule-based app:</p>
+            <div class="snippet"><Code code={angularModule} lang="ts" {...codeProps} /></div>
+
+            <h3>React</h3>
+            <p>
+                React 19 renders custom elements natively. Import the component and use the tag directly:
+            </p>
+            <div class="snippet"><Code code={react19} lang="tsx" {...codeProps} /></div>
+            <p>For TypeScript, augment <code>JSX.IntrinsicElements</code> so the tags type-check:</p>
+            <div class="snippet"><Code code={reactTypes} lang="ts" {...codeProps} /></div>
+            <p>
+                On React 18 and older, attributes are passed as strings, so booleans and objects must be set as <em>properties</em>
+                through a ref, and custom events must be wired with <code>addEventListener</code>:
+            </p>
+            <div class="snippet"><Code code={reactLegacy} lang="tsx" {...codeProps} /></div>
+        </section>
+
+        <section id="package-structure">
+            <h2>7. The npm package structure</h2>
+            <p>
+                <code>@sandlada/mdc</code> is a pure-ESM package (<code>"type": "module"</code>) built with rolldown using
+                <code>preserveModules</code> - there is no single bundle; each source module keeps its path under
+                <code>build/</code> with a matching <code>.d.ts</code>.
+            </p>
+            <table class="facts">
+                <thead>
+                    <tr><th>Subpath</th><th>Resolves to</th><th>Purpose</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>@sandlada/mdc/components/&lt;name&gt;/index</code></td>
+                        <td><code>build/components/&lt;name&gt;/index.js</code></td>
+                        <td>Registers <code>&lt;mdc-&lt;name&gt;&gt;</code> as a side effect; exports its class and interface. One entry point per component - tree-shakable.</td>
+                    </tr>
+                    <tr>
+                        <td><code>@sandlada/mdc/utils/&lt;name&gt;</code></td>
+                        <td><code>build/utils/&lt;name&gt;/index.js</code></td>
+                        <td>Shared utilities and providers, e.g. <code>utils/context-provider</code>.</td>
+                    </tr>
+                    <tr>
+                        <td><code>@sandlada/mdc/*</code></td>
+                        <td><code>./*</code></td>
+                        <td>Catch-all passthrough for any other file in the package.</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="snippet"><Code code={packageImports} lang="ts" {...codeProps} /></div>
+            <ul>
+                <li>
+                    <strong>No top-level barrel.</strong> There is no single "import everything" entry; import each component you
+                    need individually (the docs app registers them one by one).
+                </li>
+                <li>
+                    <strong>Runtime dependencies:</strong> <code>lit</code>, <code>@lit/context</code>,
+                    <code>@floating-ui/dom</code>, and <code>@sandlada/mdk</code>. Styling tokens come from the separate
+                    <code>@sandlada/material-design-css</code> package.
+                </li>
+                <li>
+                    <strong>Published files:</strong> <code>build/**</code> plus the license and README only.
+                </li>
+                <li>
+                    <strong>Shipped components:</strong> {componentList}.
+                </li>
+            </ul>
+        </section>
+    </div>
+</Docs>
+
+<style>
+    @reference "../styles/global.css";
+
+    .for-ai {
+        max-width: 84ch;
+    }
+
+    .for-ai h2 {
+        @apply headline-medium;
+        margin-block: 44px 12px;
+    }
+
+    .for-ai h3 {
+        @apply title-medium;
+        margin-block: 28px 8px;
+    }
+
+    .for-ai p,
+    .for-ai li {
+        line-height: 1.7;
+    }
+
+    .for-ai p {
+        margin-block: 12px;
+        color: var(--md-sys-color-on-surface-variant);
+    }
+
+    .for-ai ul {
+        margin-block: 12px;
+        padding-inline-start: 1.4em;
+        display: grid;
+        gap: 6px;
+    }
+
+    .for-ai li {
+        color: var(--md-sys-color-on-surface-variant);
+    }
+
+    .for-ai a {
+        @apply label-large;
+    }
+
+    .for-ai code {
+        font-family: var(--global-font);
+    }
+
+    .snippet {
+        margin-block: 16px;
+        border: 1px solid var(--md-sys-color-outline-variant);
+        border-radius: var(--md-sys-shape-corner-value-medium);
+        overflow: clip;
+    }
+
+    .snippet :global(.astro-code) {
+        margin: 0;
+        padding: 16px;
+        overflow-x: auto;
+        font-family: var(--global-font);
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .note {
+        margin-block: 16px;
+        padding: 12px 16px;
+        border-inline-start: 3px solid var(--md-sys-color-primary);
+        border-radius: var(--md-sys-shape-corner-value-extra-small);
+        background: var(--md-sys-color-surface-container);
+    }
+
+    .note p {
+        margin: 0;
+    }
+
+    .facts {
+        width: 100%;
+        margin-block: 16px;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+    .facts th,
+    .facts td {
+        border: 1px solid var(--md-sys-color-outline-variant);
+        padding: 8px 12px;
+        text-align: start;
+        vertical-align: top;
+        color: var(--md-sys-color-on-surface-variant);
+    }
+
+    .facts th {
+        @apply title-small;
+        color: var(--md-sys-color-on-surface);
+        background: var(--md-sys-color-surface-container);
+    }
+
+    .facts code {
+        font-family: var(--global-font);
+    }
+</style>

@@ -1,0 +1,29 @@
+# @sandlada/mdc
+
+> @sandlada/mdc is a framework-agnostic Material Design 3 / Material Expressive component library built with Lit and native Web Components. The same `<mdc-*>` elements work in React, Vue, Angular, Svelte, Astro, and plain HTML.
+
+> This file is a concise, machine-readable reference for AI assistants. The full, human-readable version with code examples is at https://mdc.sandlada.com/for-ai/ and is served as static HTML.
+
+## Common questions and gotchas
+
+- **A `mdc-fab` is invisible / does not render.** `mdc-fab` hides its internal button until the `open` property is `true`. Set the `open` attribute (or `.open = true`); `open` / `opened` and `close` / `closed` events are dispatched.
+- **A `mdc-fab` label / `<span>` is invisible.** The label slot is hidden unless `extended` is ALSO set. Use `<mdc-fab open extended>` with the icon in `<mdc-icon slot="icon">` and the text in a default-slot `<span>`. `trailing-icon` moves the icon after the label.
+- **Customize one component with CSS.** Components use shadow DOM; style them with component tokens `--mdc-<component>-*` (e.g. `--mdc-button-enabled-filled-container-color`) set on the element or an ancestor, plus `::part()` where exposed (e.g. `mdc-field::part(input)`). System tokens are `--md-sys-*`.
+- **Change the color scheme systematically.** Import `@sandlada/material-design-css/preset.css`, then a prebuilt scheme such as `@sandlada/material-design-css/prebuilt-colors/tonal-spot/h0-2025.css`, then override `--md-sys-color-*` roles on `:root` for a custom scheme. Toggle the `dark`, `low-contrast`, and `high-contrast` attributes on `:root`; every component follows.
+- **`default-checked` / `default-selected` vs `checked` / `selected`.** `checked` / `selected` is the live current state (reactive, reflects to an attribute, changes on user interaction). `default-checked` / `default-selected` is the initial default, read once when the element connects and re-applied by form reset, exactly like native `input.defaultChecked`. Use `default-checked` on `mdc-checkbox`, `mdc-radio-button`, `mdc-toggle-button`, `mdc-toggle-icon-button`, `mdc-navigation-tab`; use `default-selected` on `mdc-switch`. There is no default-unchecked variant; omit the attribute.
+- **Use MDC in Vue.** Set `isCustomElement: (tag) => tag.startsWith('mdc-')` in `@vitejs/plugin-vue`'s `template.compilerOptions`.
+- **Use MDC in Angular.** Add `CUSTOM_ELEMENTS_SCHEMA` to the component or NgModule `schemas`.
+- **Use MDC in React.** React 19 supports custom elements natively. React 18 and older: pass booleans/objects as properties via a ref and attach custom events with `addEventListener`.
+- **Package structure.** `@sandlada/mdc` is pure ESM with `preserveModules` (no single bundle). Import per-component entry points from `@sandlada/mdc/components/<name>/index`, and shared utilities from `@sandlada/mdc/utils/<name>`. There is no top-level barrel entry. Styling tokens live in the separate `@sandlada/material-design-css` package.
+
+## Docs
+
+- [For AI Reference](https://mdc.sandlada.com/for-ai/): full static-HTML reference with code examples for all of the above.
+- [Get Started](https://mdc.sandlada.com/get-started/): install, load tokens, register components, first usage.
+- [Components](https://mdc.sandlada.com/components/button/): one page per component with live demos and API notes. Replace `button` with any component name.
+- [Playground](https://mdc.sandlada.com/playground/): live markup editor for `<mdc-*>` tags.
+
+## Optional
+
+- [@sandlada/material-design-css](https://material-design-css.sandlada.com): the Material Design tokens package (color, palette, typography, shape, motion, space) that styles MDC.
+- [Source on GitHub](https://github.com/sandlada/mdc): repository, issues, and examples.
