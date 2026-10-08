@@ -1,0 +1,23 @@
+---
+import Header from 'src/components/Header.astro';
+import Site from '../layouts/Site.astro';
+---
+
+<Site title="MDC · Material Design 3 web components">
+    <Header hideMenuToggleButton />
+
+    <section class="hero">
+        <h1>Material Design 3, as web components.</h1>
+        <p>
+            <code>@sandlada/mdc</code> is a framework-agnostic component library following the Material Design 3 and Material Expressive specifications. Build once, then use it in any framework - or plain HTML.
+        </p>
+        <div class="hero__actions">
+            <a href="/components/button/">
+                <mdc-button variant="filled"><span>Browse components</span></mdc-button>
+            </a>
+            <a href="/playground/">
+                <mdc-button variant="outlined"><span>Open playground</span></mdc-button>
+            </a>
+        </div>
+    </section>
+</Site>

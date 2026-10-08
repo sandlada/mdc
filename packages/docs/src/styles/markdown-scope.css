@@ -1,0 +1,83 @@
+@reference "./global.css";
+
+@property --_bg {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: transparent;
+}
+
+.markdown-scope {
+    .page-title {
+        @apply emphasized-display-large;
+
+        --_bg: var(--md-sys-color-secondary-container);
+        width: fit-content;
+        padding-inline: 12px;
+        padding-block: 8px;
+        background-image: linear-gradient(to bottom, var(--_bg), transparent);
+
+        transition-property: --_bg;
+        transition-duration: 300ms;
+        transition-delay: 50ms;
+        transition-timing-function: var(--md-sys-motion-easing-standard);
+
+        @starting-style {
+            --_bg: transparent;
+        }
+    }
+
+    .page-subtitle {
+        margin: 0 0 28px;
+        color: var(--md-sys-color-on-surface-variant);
+    }
+
+    .demo-section {
+        --mdc-docs-font-code: var(--global-font);
+
+        h2 {
+            @apply headline-medium;
+            margin-block: 48px 24px;
+            margin-inline: 12px;
+        }
+
+        .demo {
+            border: 1px solid var(--md-sys-color-outline-variant);
+            border-radius: var(--md-sys-shape-corner-value-medium);
+            overflow: hidden;
+
+            .stage {
+                padding: 24px;
+                overflow-x: auto;
+                background: var(--md-sys-color-surface-container-lowest);
+            }
+
+            .code {
+
+                code {
+                    all: unset;
+                    font-size: 14px;
+                }
+
+                summary {
+                    @apply label-medium;
+                    cursor: pointer;
+                    padding: 8px 16px;
+                    text-transform: uppercase;
+                    color: var(--md-sys-color-on-surface-variant);
+                    background-image: linear-gradient(to bottom, var(--md-sys-color-surface-container-lowest), var(--md-sys-color-surface-container-low));
+                }
+
+                pre {
+                    margin: 0;
+                    padding: 16px;
+                    overflow-x: auto;
+                    font-family: var(--mdc-docs-font-code);
+                }
+            }
+
+
+        }
+    }
+
+
+}

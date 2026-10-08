@@ -1,0 +1,26 @@
+{
+    "extends": "astro/tsconfigs/strict",
+    "compilerOptions": {
+        "experimentalDecorators": true,
+        "useDefineForClassFields": false,
+        "erasableSyntaxOnly": true,
+        "verbatimModuleSyntax": true,
+        "types": [
+            "astro/client",
+            "vite/client"
+        ],
+        "baseUrl": ".",
+        "paths": {
+            "@sandlada/mdc/*": [
+                "../mdc/src/*"
+            ]
+        }
+    },
+    "include": [
+        ".astro/types.d.ts",
+        "**/*"
+    ],
+    "exclude": [
+        "dist"
+    ]
+}

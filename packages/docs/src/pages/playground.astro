@@ -1,0 +1,26 @@
+---
+import Site from '../layouts/Site.astro'
+import { getIcon } from '../lib/icons'
+
+const notificationIcon = getIcon('notifications')
+
+const sample = [
+    '<mdc-button variant="filled"><span>Filled</span></mdc-button>',
+    '<mdc-button variant="outlined"><span>Outlined</span></mdc-button>',
+    '',
+    '<!-- Icons are plain SVG injected into <mdc-icon> - no icon font -->',
+    `<mdc-icon>${notificationIcon}</mdc-icon>`,
+].join('\n')
+---
+
+<Site title="Playground · MDC">
+    <div class="playground-intro">
+        <h1 class="page-title">Playground</h1>
+        <p class="page-subtitle">Edit the markup on the left; the preview updates live.</p>
+    </div>
+    <div class="playground">
+        <textarea id="playground-source" class="playground__source" spellcheck="false">{sample}</textarea>
+        <div id="playground-stage" class="playground__stage"></div>
+    </div>
+    <script>import '../scripts/playground'</script>
+</Site>

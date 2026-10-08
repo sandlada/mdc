@@ -1,0 +1,57 @@
+---
+/**
+ * Base document shell: <head>, site header and the shared client bundle that
+ * registers the library and the demo viewer.
+ */
+import '@fontsource-variable/google-sans-code';
+import '../styles/global.css';
+import '../styles/shiki.css';
+
+interface Props {
+    title?: string;
+    description?: string;
+}
+
+const { title = 'MDC', description = 'Framework-agnostic Material Design 3 web components by Sandlada.' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+        <!-- Init Sessions -->
+        <script>
+            import { inject } from '@sandlada/document-context';
+            import { getBreakpointObserver, mountMainSession } from '../sessions';
+
+            // 单一主 session 挂载到 documentElement，子 session 以 scoped provider
+            // 形式暴露，消费者通过 inject('...:session') 解析。
+            document.__mainSession = mountMainSession(document.documentElement);
+
+            // 完整性自检：确保 provider 响应器已挂载（inject.js 的 mount 插件必须在挂载前求值，
+            // 否则按需分包后会出现 UnknownServiceError）。同时把 inject.js 留在当前 chunk 内。
+            if (inject('breakpoint:observer')(document.documentElement) !== getBreakpointObserver()) {
+                throw new Error('breakpoint:observer provider mismatch');
+            }
+
+            // Init theme
+            const theme = inject('theme:session')(document.documentElement);
+            theme.subscribe((state) => {
+                document.documentElement.toggleAttribute('dark', state.isDark);
+            });
+        </script>
+    </head>
+    <body>
+        <slot />
+        <script>
+            import '../scripts/theme';
+            import '../scripts/base-imports';
+            import '../scripts/demo-viewer';
+        </script>
+    </body>
+</html>

@@ -1,0 +1,133 @@
+---
+/**
+ * Docs page shell: base document + component sidebar.
+ */
+import Header from 'src/components/Header.astro';
+import Sidebar from '../components/Sidebar.astro';
+import Site from './Site.astro';
+import '../styles/markdown-scope.css';
+
+interface Props {
+    title: string;
+    active?: string;
+}
+
+const { title, active } = Astro.props;
+---
+
+<Site title={title}>
+    <div class="docs-layout quick" id="docs-layout">
+        <div class="header-contents-wrapper">
+            <Header />
+        </div>
+        <aside class="docs-sidebar">
+            <Sidebar active={active} />
+        </aside>
+        <main class="docs-main markdown-scope">
+            <slot />
+        </main>
+    </div>
+</Site>
+
+<script>
+    import { inject } from '@sandlada/document-context';
+
+    const layout = document.querySelector(`#docs-layout`);
+    const drawer = inject('drawer:session')(document.documentElement);
+
+    drawer.subscribe((state) => {
+        if (!state.isOpen) {
+            layout?.classList.add('drawer-hidden');
+        } else {
+            layout?.classList.remove('drawer-hidden');
+        }
+
+        if (state.isModal) {
+            layout?.classList.add('docs-main-full-span');
+        } else {
+            layout?.classList.remove('docs-main-full-span');
+        }
+
+        if (state.iSQuick) {
+            layout?.classList.add('quick');
+        } else {
+            layout?.classList.remove('quick');
+        }
+    });
+</script>
+
+<style>
+    .docs-layout {
+        --sidebar-width: 280px;
+        display: grid;
+        grid-template-columns: var(--sidebar-width) 1fr;
+        grid-template-rows: auto 1fr;
+        transition: grid-template-columns 500ms var(--md-sys-motion-easing-emphasized-decelerate);
+
+        max-height: 100dvh;
+        overflow: clip;
+
+        &.drawer-hidden {
+            grid-template-columns: 0px 1fr;
+            transition-duration: 250ms;
+            transition-timing-function: var(--md-sys-motion-easing-emphasized);
+        }
+    }
+
+    /* 首屏 quick：grid 列宽与侧栏显隐直接渲染，不跑过渡；与 Sidebar 共用同一 iSQuick 状态 */
+    .docs-layout.quick,
+    .docs-layout.quick .docs-sidebar {
+        transition: none !important;
+    }
+
+    /* 与 Sidebar 的 modal 判定保持一致：<840px 首屏按已关闭直出，避免整页被 280px 列挤开后再回弹 */
+    @media (width < 840px) {
+        .docs-layout.quick {
+            grid-template-columns: 0px 1fr;
+        }
+        .docs-layout.quick:not(:has(.drawer.open)) .docs-sidebar {
+            visibility: hidden;
+        }
+    }
+
+    .header-contents-wrapper {
+        grid-row: 1/2;
+        grid-column: 1/-1;
+    }
+    .docs-sidebar {
+        grid-row: 2/3;
+        grid-column: 1/2;
+        height: 100%;
+        min-width: 0;
+        overflow: auto;
+        transition: visibility 250ms allow-discrete;
+    }
+    .docs-layout.drawer-hidden .docs-sidebar {
+        visibility: hidden;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .docs-layout {
+            transition: none;
+        }
+    }
+
+    .docs-main {
+        grid-row: 2/3;
+        grid-column: 2/3;
+
+        width: 100%;
+        max-width: 1200px;
+        margin-left: auto;
+        margin-right: auto;
+        height: 100%;
+        overflow: auto;
+    }
+    .docs-layout.docs-main-full-span .docs-main {
+        grid-column: 1/-1;
+    }
+
+    .docs-main {
+        padding: 24px 32px 48px;
+    }
+</style>

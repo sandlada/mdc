@@ -9,7 +9,7 @@ indent_size = 4
 insert_final_newline = true
 trim_trailing_whitespace = true
 
-[*.{ts,js}]
+[*.{ts,js,astro}]
 max_line_length = 240
 quote_type = single
 

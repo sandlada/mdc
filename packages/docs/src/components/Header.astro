@@ -1,0 +1,149 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+    hideMenuToggleButton?: boolean;
+}
+const { hideMenuToggleButton = false } = Astro.props;
+---
+
+<header class="header">
+    {
+        !hideMenuToggleButton && (
+            <mdc-icon-button class="w-[52px]" width="wide" id="drawer-toggle-button">
+                <Icon class="opacity-0" id="drawer-toggle-button-icon-menu" name="menu" />
+                <Icon class="opacity-0" id="drawer-toggle-button-icon-menu-open" name="menu_open" />
+            </mdc-icon-button>
+        )
+    }
+    <a class="brand" href="/">MDC</a>
+    <nav class="nav">
+        <a href="/components/button/">Components</a>
+        <a href="/playground/">Playground</a>
+        <a href="https://github.com/sandlada/mdc" rel="noopener" target="_blank">GitHub</a>
+
+        <mdc-icon-button id="theme-toggle-button" class="w-[40px]">
+            <Icon class="opacity-0" id="theme-toggle-button-icon-dark-mode" name="dark_mode" />
+            <Icon class="opacity-0" id="theme-toggle-button-icon-light-mode" name="light_mode" />
+        </mdc-icon-button>
+    </nav>
+</header>
+
+<script>
+    import { inject } from '@sandlada/document-context';
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const iconOpen = document.querySelector('#drawer-toggle-button-icon-menu');
+        const iconClose = document.querySelector('#drawer-toggle-button-icon-menu-open');
+        const drawer = inject('drawer:session')(document.documentElement);
+
+        drawer.subscribe((state) => {
+            if ([iconOpen?.classList.contains('opacity-0'), iconClose?.classList.contains('opacity-0')].includes(true)) {
+                iconOpen?.classList.remove('opacity-0');
+                iconClose?.classList.remove('opacity-0');
+            }
+
+            if (state.isOpen) {
+                iconOpen?.classList.add('hidden');
+                iconClose?.classList.remove('hidden');
+            } else {
+                iconOpen?.classList.remove('hidden');
+                iconClose?.classList.add('hidden');
+            }
+        });
+
+        const menuToggle = document.querySelector('#drawer-toggle-button');
+        menuToggle?.addEventListener('click', () => {
+            drawer.update((state) => ({ isOpen: !state.isOpen }));
+        });
+
+        const theme = inject('theme:session')(document.documentElement);
+        const themeToggle = document.querySelector(`#theme-toggle-button`) as HTMLElement;
+        const themeToggleLightIcon = document.querySelector(`#theme-toggle-button>#theme-toggle-button-icon-light-mode`);
+        const themeToggleDarkIcon = document.querySelector(`#theme-toggle-button>#theme-toggle-button-icon-dark-mode`);
+        themeToggle.addEventListener('click', () => {
+            theme.update((state) => ({ isDark: !state.isDark }));
+        });
+
+        theme.subscribe((state) => {
+            if ([themeToggleLightIcon?.classList.contains('opacity-0'), themeToggleDarkIcon?.classList.contains('opacity-0')].includes(true)) {
+                themeToggleLightIcon?.classList.remove('opacity-0');
+                themeToggleDarkIcon?.classList.remove('opacity-0');
+            }
+
+            if (state.isDark) {
+                themeToggleLightIcon?.classList.remove('hidden');
+                themeToggleDarkIcon?.classList.add('hidden');
+            } else {
+                themeToggleLightIcon?.classList.add('hidden');
+                themeToggleDarkIcon?.classList.remove('hidden');
+            }
+        });
+    });
+</script>
+
+<style>
+    @reference "../styles/global.css";
+
+    .header {
+        height: 56px;
+        display: flex;
+        align-items: center;
+
+        background-image: linear-gradient(to bottom, color-mix(in srgb, var(--md-sys-color-primary-container) 15%, transparent), transparent);
+
+        & > #drawer-toggle-button {
+            margin-inline-start: 24px;
+
+            & #drawer-toggle-button-icon-menu,
+            & #drawer-toggle-button-icon-menu-open {
+                transition-property: opacity;
+                transition-duration: 250ms;
+            }
+        }
+        &:not(:has(#drawer-toggle-button)) > .brand {
+            margin-inline-start: 24px;
+        }
+
+        & > .brand {
+            @apply font-black title-medium;
+            margin-inline: 12px 24px;
+        }
+
+        & > .nav {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            flex-shrink: 1;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-inline-end: 32px;
+
+            & > a {
+                @apply label-large;
+            }
+        }
+
+        & #theme-toggle-button-icon-light-mode,
+        & #theme-toggle-button-icon-dark-mode {
+            transition-property: opacity;
+            transition-duration: 250ms;
+        }
+    }
+
+    .header {
+        #drawer-toggle-button,
+        .nav {
+            transition-property: margin;
+            transition-duration: 200ms;
+        }
+    }
+
+    :root[compact] .header > #drawer-toggle-button {
+        margin-inline-start: 12px;
+    }
+    :root[compact] .header > .nav {
+        margin-inline-end: 24px;
+    }
+</style>

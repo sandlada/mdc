@@ -1,0 +1,304 @@
+---
+/**
+ * Component navigation, grouped into Base Components and Components.
+ */
+import { baseComponents, regularComponents } from '../lib/registry';
+
+interface Props {
+    active?: string;
+}
+
+const { active } = Astro.props;
+---
+
+<nav class="drawer open quick" id="drawer">
+    <div class="scrollable">
+        <mdc-elevation></mdc-elevation>
+        <div class="content">
+            <div class="group">
+                <h3 class="header">Base Components</h3>
+                {
+                    baseComponents.map((entry) => (
+                        <a class="tab" href={`/components/${entry.name}/`} aria-current={active === entry.name ? 'page' : undefined}>
+                            <span class="label">{entry.label}</span>
+                            <mdc-ripple />
+                            <mdc-focus-ring />
+                        </a>
+                    ))
+                }
+            </div>
+            <div class="group">
+                <h3 class="header">Components</h3>
+                {
+                    regularComponents.map((entry) => (
+                        <a class="tab" href={`/components/${entry.name}/`} aria-current={active === entry.name ? 'page' : undefined}>
+                            <span class="label">{entry.label}</span>
+                            <mdc-ripple />
+                            <mdc-focus-ring />
+                        </a>
+                    ))
+                }
+            </div>
+        </div>
+    </div>
+</nav>
+<span class="scrim" aria-hidden="true"></span>
+
+<script>
+    import { inject } from '@sandlada/document-context';
+
+    const observer = inject('breakpoint:observer')(document.documentElement);
+    const drawer = inject('drawer:session')(document.documentElement);
+
+    let lastIsModal: boolean | null = null;
+    let breakpointSynced = false;
+    const clearQuick = () => drawer.update(() => ({ iSQuick: false }));
+    const clearQuickAfterPaint = () => requestAnimationFrame(() => requestAnimationFrame(clearQuick));
+    const tryClearQuick = () => {
+        if (!breakpointSynced) return;
+        if (document.readyState !== 'complete') return;
+        clearQuickAfterPaint();
+    };
+
+    observer.activeWidthBreakpoints$.subscribe((breakpoints) => {
+        const nextIsModal = breakpoints.includes('compact') || breakpoints.includes('medium');
+        if (nextIsModal === lastIsModal) return;
+        lastIsModal = nextIsModal;
+        drawer.update(() => ({ isModal: nextIsModal, isOpen: !nextIsModal }));
+        breakpointSynced = true;
+        tryClearQuick();
+    });
+
+    drawer.subscribe((state) => {
+        const drawer = document.querySelector('#drawer') as HTMLElement;
+
+        if (state.isModal) {
+            drawer?.classList.add('modal');
+        } else {
+            drawer?.classList.remove('modal');
+        }
+
+        if (state.isOpen) {
+            drawer?.classList.add('open');
+        } else {
+            drawer?.classList.remove('open');
+        }
+
+        if (state.iSQuick) {
+            drawer?.classList.add('quick');
+        } else {
+            drawer?.classList.remove('quick');
+        }
+    });
+
+    const scrim = document.querySelector(`#drawer+.scrim`) as HTMLElement;
+    scrim.addEventListener('click', () => {
+        drawer.update((state) => ({ isOpen: false }));
+    });
+
+    if (document.readyState === 'complete') {
+        tryClearQuick();
+    } else {
+        window.addEventListener('load', tryClearQuick, { once: true });
+    }
+</script>
+
+<style>
+    .drawer {
+        position: relative;
+        z-index: 1;
+        transition-property: transform, display;
+        transition-behavior: allow-discrete;
+
+        &.modal {
+            z-index: 1;
+            position: fixed;
+            inset: 0;
+            height: 100dvh;
+            max-height: 100dvh;
+            width: min(360px, 72dvw);
+
+            transition-property: transform, display;
+            transition-behavior: allow-discrete;
+        }
+        &.modal:not(.open) {
+            display: none;
+            transition-duration: 250ms;
+            transition-timing-function: var(--md-sys-motion-easing-emphasized);
+            transform: translateX(-100%);
+        }
+        &.modal.open {
+            display: flex;
+            transition-duration: 500ms;
+            transform: translateX(0%);
+            transition-timing-function: var(--md-sys-motion-easing-emphasized-decelerate);
+        }
+
+        &:not(.modal.open) {
+            display: none;
+            width: var(--sidebar-width, 280px);
+            transition-duration: 250ms;
+            transition-timing-function: var(--md-sys-motion-easing-emphasized);
+            transform: translateX(-100%);
+        }
+        &:not(.modal).open {
+            display: block;
+            width: var(--sidebar-width, 280px);
+            transition-duration: 500ms;
+            transition-timing-function: var(--md-sys-motion-easing-emphasized-decelerate);
+            transform: translateX(0%);
+        }
+    }
+
+    @starting-style {
+        .drawer.modal.open {
+            transform: translateX(-100%);
+        }
+        .drawer:not(.modal).open {
+            transform: translateX(-100%);
+        }
+    }
+
+    /* 首屏 quick 状态：直接渲染，不跑任何过渡；JS 在 load 后移除 .quick 恢复动效 */
+    .drawer.quick,
+    .drawer.quick .content,
+    .drawer.quick + .scrim {
+        transition: none !important;
+    }
+
+    /* SSR 无法感知视口，默认直出 open；在 modal 视口（<840px = compact/medium，与
+       DEFAULT_WIDTH_BREAKPOINTS 一致）首屏就按“已关闭”直出，避免先画出 open 再被 JS
+       关闭的闪现。JS 接管后 .quick 移除，此规则自然失效。 */
+    @media (width < 840px) {
+        .drawer.quick:not(.modal.open) {
+            display: none;
+        }
+    }
+
+    .scrim {
+        z-index: 0;
+        position: fixed;
+        display: none;
+        inset: 0;
+        background: var(--md-sys-color-scrim);
+        opacity: 0;
+        user-select: none;
+        pointer-events: none;
+        width: 100dvw;
+        height: 100dvh;
+
+        transition-property: opacity, display;
+        transition-duration: 250ms;
+        transition-behavior: allow-discrete;
+    }
+
+    .drawer.modal.open + .scrim {
+        display: flex;
+        opacity: 0.38;
+        pointer-events: auto;
+        transition-duration: 500ms;
+    }
+
+    @starting-style {
+        .drawer.modal.open + .scrim {
+            opacity: 0;
+        }
+    }
+
+    .scrollable {
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        border-start-start-radius: 0px;
+        border-end-start-radius: 0px;
+        border-start-end-radius: var(--md-sys-shape-corner-value-large-increased);
+        border-end-end-radius: var(--md-sys-shape-corner-value-large-increased);
+        background: var(--md-sys-color-surface);
+        overflow: auto;
+        height: 100%;
+        width: 100%;
+    }
+
+    .content {
+        opacity: 0;
+        transform: translateX(-48px);
+
+        transition-property: opacity, transform;
+    }
+    .drawer.open .content {
+        transition-duration: 500ms;
+        transition-delay: 50ms;
+        transform: translateX(0px);
+        opacity: 1;
+    }
+    .drawer:not(.open) .content {
+        transition-duration: 100ms;
+        transform: translateX(-48px);
+        opacity: 0;
+    }
+    @starting-style {
+        .drawer.open .content {
+            transform: translateX(-48px);
+            opacity: 0;
+        }
+        .drawer:not(.open) .content {
+            transform: translateX(0px);
+            opacity: 1;
+        }
+    }
+    .drawer.modal.open {
+        --mdc-elevation-level: 3;
+    }
+
+    .group-header {
+        position: sticky;
+        top: 0;
+    }
+</style>
+
+<style>
+    @reference "../styles/global.css";
+    .group {
+        display: flex;
+        flex-direction: column;
+    }
+    .group:last-child {
+        padding-block-end: 48px;
+    }
+
+    .header {
+        @apply title-medium;
+        padding-inline: 16px;
+        margin-block-start: 24px;
+        margin-block-end: 12px;
+    }
+
+    .tab {
+        @apply body-medium;
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        height: 40px;
+        padding-inline: 16px;
+        margin-inline-end: 16px;
+        border-start-start-radius: 0px;
+        border-start-end-radius: 20px;
+        border-end-start-radius: 0px;
+        border-end-end-radius: 20px;
+
+        & > .label {
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 1;
+        }
+
+        &[aria-current='page'] {
+            background: var(--md-sys-color-primary);
+            color: var(--md-sys-color-on-primary);
+            --mdc-ripple-hovered-color: transparent;
+            --mdc-ripple-pressed-color: transparent;
+            --mdc-ripple-focused-color: transparent;
+        }
+    }
+</style>

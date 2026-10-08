@@ -45,6 +45,7 @@ test-report
 .nuxt
 .nitro
 .cache
+.astro
 dist
 
 # Local env files

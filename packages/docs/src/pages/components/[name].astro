@@ -1,0 +1,38 @@
+---
+import Docs from '../../layouts/Docs.astro'
+import DemoPreview from '../../components/DemoPreview.astro'
+import { components, getComponent, getDemo, listDemos, demoLabel } from '../../lib/registry'
+
+interface Props {
+    name: string
+}
+
+export function getStaticPaths() {
+    return components.map((entry) => ({
+        params: { name: entry.name },
+        props: { name: entry.name },
+    }))
+}
+
+const { name } = Astro.props
+const entry = getComponent(name)
+
+if (!entry) {
+    throw new Error(`Unknown component: ${name}`)
+}
+
+const demos = listDemos(name)
+---
+
+<Docs title={`${entry.label} · MDC`} active={name}>
+    <h1 class="page-title">{entry.label}</h1>
+    {entry.readmeHtml && <div class="prose" set:html={entry.readmeHtml} />}
+    {
+        demos.map((file) => (
+            <section class="demo-section">
+                <h2>{demoLabel(file)}</h2>
+                <DemoPreview html={getDemo(name, file)} />
+            </section>
+        ))
+    }
+</Docs>

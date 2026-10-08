@@ -1,0 +1,27 @@
+---
+/**
+ * Live demo frame. The raw snippet is emitted twice: once inert inside a
+ * `<template>` (lifted into an isolated shadow root by `<mdc-demo>`) and once
+ * as a highlighted code block.
+ */
+import { Code } from 'astro:components';
+
+interface Props {
+    html: string;
+    lang?: string;
+}
+
+const { html, lang = 'html' } = Astro.props;
+---
+
+<div class="demo">
+    <div class="stage">
+        <mdc-demo>
+            <template data-demo set:html={html} />
+        </mdc-demo>
+    </div>
+    <details class="code">
+        <summary>Code</summary>
+        <Code code={html} lang={lang} themes={{ light: 'github-light', dark: 'github-dark' }} defaultColor={false} />
+    </details>
+</div>

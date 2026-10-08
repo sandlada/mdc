@@ -1,0 +1,35 @@
+---
+/**
+ * Icon renders an SVG from `@material-design-icons/svg` into an `<mdc-icon>`
+ * via `set:html`, so no icon font / CDN is required.
+ *
+ * @example
+ * ```astro
+ * <Icon name="notifications" />
+ * <Icon name="favorite" style="filled" label="Favorite" />
+ * ```
+ *
+ * The raw `<mdc-icon set:html={...}>` form is equivalent if you need to pass a
+ * custom SVG:
+ * ```astro
+ * <mdc-icon set:html={getIcon('menu')} />
+ * ```
+ */
+import { getIcon, type IconStyle } from '../lib/icons';
+
+interface Props {
+    /** lowercase snake_case icon name, e.g. `menu`. */
+    name: string;
+    id?: string;
+    /** defaults to `outlined`. */
+    style?: IconStyle;
+    /** accessible label; omit for a decorative (aria-hidden) icon. */
+    label?: string;
+    class?: string;
+}
+
+const { name, style = 'outlined', label, class: className, id } = Astro.props;
+const svg = getIcon(name, style);
+---
+
+<mdc-icon class={className} aria-label={label} set:html={svg} {...{ id }} />

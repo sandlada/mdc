@@ -1,0 +1,30 @@
+{
+    "name": "@sandlada/mdc-docs",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "description": "Official documentation site for @sandlada/mdc.",
+    "scripts": {
+        "dev": "astro dev",
+        "build": "astro build",
+        "preview": "astro preview"
+    },
+    "dependencies": {
+        "@fontsource-variable/google-sans-code": "^5.3.1",
+        "@material-design-icons/svg": "^0.14.15",
+        "@sandlada/breakpoint": "^0.0.1-20260831.a",
+        "@sandlada/document-context": "^0.0.1-20260822.a",
+        "@sandlada/material-design-css": "^3.0.1-20261004.a",
+        "@sandlada/mdc": "*",
+        "@sandlada/mdk": "^3.0.0-20260624.c",
+        "@tailwindcss/vite": "^4.3.3",
+        "marked": "^18.1.0",
+        "tailwindcss": "^4.3.3"
+    },
+    "devDependencies": {
+        "@astrojs/mdx": "^8.0.3",
+        "@astrojs/sitemap": "^3.7.4",
+        "astro": "^7.3.6",
+        "typescript": "~7.0.2"
+    }
+}
