@@ -51,17 +51,18 @@ const tokens = `@import '@sandlada/material-design-css/preset.css';
 /* Optional: Tailwind utilities such as bg-surface / text-on-surface. */
 @import '@sandlada/material-design-css/color/tw.css';`;
 
-const registerAll = `// Register every <mdc-*> custom element in a single import.
-import '@sandlada/mdc/all';`;
+const registerOne = `// Importing a component module registers its <mdc-*> element.
+import '@sandlada/mdc/components/button/index';`;
 
-const registerSome = `// Or import only what you need (tree-shakable).
+const registerSome = `// Import every element you need - each component is its own entry point.
 import '@sandlada/mdc/components/button/index';
-import '@sandlada/mdc/components/icon/index';`;
+import '@sandlada/mdc/components/icon/index';
+import '@sandlada/mdc/components/text-field/index';`;
 
 const usageHtml = `<mdc-button variant="filled"><span>Save</span></mdc-button>
 <mdc-button variant="outlined"><span>Cancel</span></mdc-button>`;
 
-const globalConfig = `import { GlobalMDCContextProvider } from '@sandlada/mdc/utils';
+const globalConfig = `import { GlobalMDCContextProvider } from '@sandlada/mdc/utils/context-provider';
 
 // Attach once, before your app renders.
 GlobalMDCContextProvider.attach();
@@ -150,10 +151,11 @@ const demoHtml = `<mdc-button variant="filled"><span>Filled</span></mdc-button>
         <section>
             <h2>Register the components</h2>
             <p>
-                Importing a component module registers its custom element as a side effect. Import the whole library for
-                convenience, or only the elements you use to keep the bundle small.
+                Importing a component module registers its custom element as a side effect. Each component is its own entry
+                point under <code>@sandlada/mdc/components/&lt;name&gt;/index</code>, so import exactly the elements you use -
+                nothing else is pulled into your bundle.
             </p>
-            <div class="snippet"><Code code={registerAll} lang="ts" {...codeProps} /></div>
+            <div class="snippet"><Code code={registerOne} lang="ts" {...codeProps} /></div>
             <div class="snippet"><Code code={registerSome} lang="ts" {...codeProps} /></div>
             <aside class="note">
                 <p>Registration runs on the client. The bare tags upgrade automatically once the module has loaded.</p>

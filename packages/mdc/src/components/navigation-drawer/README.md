@@ -28,9 +28,9 @@ Material Design 3 Navigation Drawer component (`<mdc-navigation-drawer>`) built 
 ## Installation & Import
 
 ```typescript
-import '@sandlada/mdc/components/navigation-drawer/navigation-drawer'
-import '@sandlada/mdc/components/navigation-tab/navigation-tab'
-import '@sandlada/mdc/components/icon/icon'
+import '@sandlada/mdc/components/navigation-drawer/index'
+import '@sandlada/mdc/components/navigation-tab/index'
+import '@sandlada/mdc/components/icon/index'
 ```
 
 ---

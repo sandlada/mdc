@@ -1,6 +1,6 @@
 {
     "name": "@sandlada/mdc",
-    "version": "0.1.1-20260822.b",
+    "version": "0.2.0-20261008.a",
     "author": "Kai-Orion & Sandlada",
     "description": "@sandlada/mdc is an open source component library that follows the Material Design 3 design specifications.",
     "license": "MIT",
@@ -56,14 +56,236 @@
         "README.md"
     ],
     "exports": {
-        "./components/*": {
-            "import": "./build/components/*.js",
-            "types": "./build/components/*.d.ts",
-            "default": "./build/components/*.js"
+        "./components/appbar/index": {
+            "types": "./build/components/appbar/index.d.ts",
+            "import": "./build/components/appbar/index.js",
+            "default": "./build/components/appbar/index.js"
+        },
+        "./components/badge/index": {
+            "types": "./build/components/badge/index.d.ts",
+            "import": "./build/components/badge/index.js",
+            "default": "./build/components/badge/index.js"
+        },
+        "./components/bottom-sheet/index": {
+            "types": "./build/components/bottom-sheet/index.d.ts",
+            "import": "./build/components/bottom-sheet/index.js",
+            "default": "./build/components/bottom-sheet/index.js"
+        },
+        "./components/button/index": {
+            "types": "./build/components/button/index.d.ts",
+            "import": "./build/components/button/index.js",
+            "default": "./build/components/button/index.js"
+        },
+        "./components/card/index": {
+            "types": "./build/components/card/index.d.ts",
+            "import": "./build/components/card/index.js",
+            "default": "./build/components/card/index.js"
+        },
+        "./components/carousel/index": {
+            "types": "./build/components/carousel/index.d.ts",
+            "import": "./build/components/carousel/index.js",
+            "default": "./build/components/carousel/index.js"
+        },
+        "./components/checkbox/index": {
+            "types": "./build/components/checkbox/index.d.ts",
+            "import": "./build/components/checkbox/index.js",
+            "default": "./build/components/checkbox/index.js"
+        },
+        "./components/chip/index": {
+            "types": "./build/components/chip/index.d.ts",
+            "import": "./build/components/chip/index.js",
+            "default": "./build/components/chip/index.js"
+        },
+        "./components/date-picker/index": {
+            "types": "./build/components/date-picker/index.d.ts",
+            "import": "./build/components/date-picker/index.js",
+            "default": "./build/components/date-picker/index.js"
+        },
+        "./components/dialog/index": {
+            "types": "./build/components/dialog/index.d.ts",
+            "import": "./build/components/dialog/index.js",
+            "default": "./build/components/dialog/index.js"
+        },
+        "./components/divider/index": {
+            "types": "./build/components/divider/index.d.ts",
+            "import": "./build/components/divider/index.js",
+            "default": "./build/components/divider/index.js"
+        },
+        "./components/dock-layout/index": {
+            "import": "./build/components/dock-layout/index.js",
+            "default": "./build/components/dock-layout/index.js"
+        },
+        "./components/draggable-modal/index": {
+            "import": "./build/components/draggable-modal/index.js",
+            "default": "./build/components/draggable-modal/index.js"
+        },
+        "./components/elevation/index": {
+            "types": "./build/components/elevation/index.d.ts",
+            "import": "./build/components/elevation/index.js",
+            "default": "./build/components/elevation/index.js"
+        },
+        "./components/expressive-progress-indicator/index": {
+            "types": "./build/components/expressive-progress-indicator/index.d.ts",
+            "import": "./build/components/expressive-progress-indicator/index.js",
+            "default": "./build/components/expressive-progress-indicator/index.js"
+        },
+        "./components/expressive-slider/index": {
+            "types": "./build/components/expressive-slider/index.d.ts",
+            "import": "./build/components/expressive-slider/index.js",
+            "default": "./build/components/expressive-slider/index.js"
+        },
+        "./components/fab/index": {
+            "types": "./build/components/fab/index.d.ts",
+            "import": "./build/components/fab/index.js",
+            "default": "./build/components/fab/index.js"
+        },
+        "./components/field/index": {
+            "types": "./build/components/field/index.d.ts",
+            "import": "./build/components/field/index.js",
+            "default": "./build/components/field/index.js"
+        },
+        "./components/focus-ring/index": {
+            "types": "./build/components/focus-ring/index.d.ts",
+            "import": "./build/components/focus-ring/index.js",
+            "default": "./build/components/focus-ring/index.js"
+        },
+        "./components/icon/index": {
+            "types": "./build/components/icon/index.d.ts",
+            "import": "./build/components/icon/index.js",
+            "default": "./build/components/icon/index.js"
+        },
+        "./components/icon-button/index": {
+            "types": "./build/components/icon-button/index.d.ts",
+            "import": "./build/components/icon-button/index.js",
+            "default": "./build/components/icon-button/index.js"
+        },
+        "./components/list/index": {
+            "types": "./build/components/list/index.d.ts",
+            "import": "./build/components/list/index.js",
+            "default": "./build/components/list/index.js"
+        },
+        "./components/loading-indicator/index": {
+            "types": "./build/components/loading-indicator/index.d.ts",
+            "import": "./build/components/loading-indicator/index.js",
+            "default": "./build/components/loading-indicator/index.js"
+        },
+        "./components/navigation-bar/index": {
+            "types": "./build/components/navigation-bar/index.d.ts",
+            "import": "./build/components/navigation-bar/index.js",
+            "default": "./build/components/navigation-bar/index.js"
+        },
+        "./components/navigation-drawer/index": {
+            "types": "./build/components/navigation-drawer/index.d.ts",
+            "import": "./build/components/navigation-drawer/index.js",
+            "default": "./build/components/navigation-drawer/index.js"
+        },
+        "./components/navigation-rail/index": {
+            "types": "./build/components/navigation-rail/index.d.ts",
+            "import": "./build/components/navigation-rail/index.js",
+            "default": "./build/components/navigation-rail/index.js"
+        },
+        "./components/navigation-tab/index": {
+            "types": "./build/components/navigation-tab/index.d.ts",
+            "import": "./build/components/navigation-tab/index.js",
+            "default": "./build/components/navigation-tab/index.js"
+        },
+        "./components/on-this-page/index": {
+            "types": "./build/components/on-this-page/index.d.ts",
+            "import": "./build/components/on-this-page/index.js",
+            "default": "./build/components/on-this-page/index.js"
+        },
+        "./components/popup-controller/index": {
+            "import": "./build/components/popup-controller/index.js",
+            "default": "./build/components/popup-controller/index.js"
+        },
+        "./components/progress-indicator/index": {
+            "types": "./build/components/progress-indicator/index.d.ts",
+            "import": "./build/components/progress-indicator/index.js",
+            "default": "./build/components/progress-indicator/index.js"
+        },
+        "./components/radio-button/index": {
+            "types": "./build/components/radio-button/index.d.ts",
+            "import": "./build/components/radio-button/index.js",
+            "default": "./build/components/radio-button/index.js"
+        },
+        "./components/ripple/index": {
+            "types": "./build/components/ripple/index.d.ts",
+            "import": "./build/components/ripple/index.js",
+            "default": "./build/components/ripple/index.js"
+        },
+        "./components/scaffold/index": {
+            "types": "./build/components/scaffold/index.d.ts",
+            "import": "./build/components/scaffold/index.js",
+            "default": "./build/components/scaffold/index.js"
+        },
+        "./components/search/index": {
+            "types": "./build/components/search/index.d.ts",
+            "import": "./build/components/search/index.js",
+            "default": "./build/components/search/index.js"
+        },
+        "./components/segmented-button/index": {
+            "types": "./build/components/segmented-button/index.d.ts",
+            "import": "./build/components/segmented-button/index.js",
+            "default": "./build/components/segmented-button/index.js"
+        },
+        "./components/side-sheet/index": {
+            "types": "./build/components/side-sheet/index.d.ts",
+            "import": "./build/components/side-sheet/index.js",
+            "default": "./build/components/side-sheet/index.js"
+        },
+        "./components/slider/index": {
+            "types": "./build/components/slider/index.d.ts",
+            "import": "./build/components/slider/index.js",
+            "default": "./build/components/slider/index.js"
+        },
+        "./components/snackbar/index": {
+            "types": "./build/components/snackbar/index.d.ts",
+            "import": "./build/components/snackbar/index.js",
+            "default": "./build/components/snackbar/index.js"
+        },
+        "./components/split-button/index": {
+            "types": "./build/components/split-button/index.d.ts",
+            "import": "./build/components/split-button/index.js",
+            "default": "./build/components/split-button/index.js"
+        },
+        "./components/switch/index": {
+            "types": "./build/components/switch/index.d.ts",
+            "import": "./build/components/switch/index.js",
+            "default": "./build/components/switch/index.js"
+        },
+        "./components/tabs/index": {
+            "types": "./build/components/tabs/index.d.ts",
+            "import": "./build/components/tabs/index.js",
+            "default": "./build/components/tabs/index.js"
+        },
+        "./components/text-field/index": {
+            "types": "./build/components/text-field/index.d.ts",
+            "import": "./build/components/text-field/index.js",
+            "default": "./build/components/text-field/index.js"
+        },
+        "./components/time-picker/index": {
+            "types": "./build/components/time-picker/index.d.ts",
+            "import": "./build/components/time-picker/index.js",
+            "default": "./build/components/time-picker/index.js"
+        },
+        "./components/tooltip/index": {
+            "types": "./build/components/tooltip/index.d.ts",
+            "import": "./build/components/tooltip/index.js",
+            "default": "./build/components/tooltip/index.js"
+        },
+        "./components/tooltip-box/index": {
+            "types": "./build/components/tooltip-box/index.d.ts",
+            "import": "./build/components/tooltip-box/index.js",
+            "default": "./build/components/tooltip-box/index.js"
+        },
+        "./components/typography/index": {
+            "types": "./build/components/typography/index.d.ts",
+            "import": "./build/components/typography/index.js",
+            "default": "./build/components/typography/index.js"
         },
         "./utils/*": {
-            "import": "./build/utils/*/index.js",
             "types": "./build/utils/*/index.d.ts",
+            "import": "./build/utils/*/index.js",
             "default": "./build/utils/*/index.js"
         },
         "./*": {

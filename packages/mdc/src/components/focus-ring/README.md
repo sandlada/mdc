@@ -49,7 +49,7 @@ Use `attach(control)` and `detach()` when you need to control the target imperat
 </style>
 
 <script type="module">
-  import { MDCFocusRing } from '@sandlada/mdc'
+  import { MDCFocusRing } from '@sandlada/mdc/components/focus-ring/index'
 
   const ring = document.querySelector('#ring')
   const target = document.querySelector('#target')
@@ -82,4 +82,4 @@ When a global `GlobalMDCContextProvider` is attached, `mdc-focus-ring` computes 
 
 - The control that the ring follows (the "host") should be focusable (e.g., `tabindex` not `-1`). For standalone rings or when the ring is not a direct child, ensure the container uses `position: relative` so the overlay positions correctly.
 - Calling `detach()` sets `for=""` to create an intentional detached state (the ring's `control` becomes `null`). Removing the `for` attribute returns control resolution to the ring's parent element.
-- The component is exported from the package root, so the import shown above is the preferred entry point.
+- The component is exported from `@sandlada/mdc/components/focus-ring/index`, so the import shown above is the preferred entry point.
