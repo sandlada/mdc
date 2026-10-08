@@ -4,34 +4,48 @@ import Site from '../layouts/Site.astro';
 
 const title = 'MDC · Material Design 3 Web Components for Any Framework';
 const description = '@sandlada/mdc is a framework-agnostic Material Design 3 and Material Expressive component library. Build once with native web components, use in React, Vue, Angular, Svelte, or plain HTML.';
+const path = '/';
 const canonical = 'https://mdc.sandlada.com/';
+const keywords = [
+    'Material Design 3',
+    'Material Expressive',
+    'web components',
+    '@sandlada/mdc',
+    'Lit components',
+    'React Vue Angular Svelte',
+    'design tokens',
+    'accessible UI components',
+];
+const jsonLd = [
+    {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: 'MDC by Sandlada',
+        url: canonical,
+        description,
+    },
+    {
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareSourceCode',
+        name: '@sandlada/mdc',
+        description,
+        url: canonical,
+        programmingLanguage: 'TypeScript',
+        codeRepository: 'https://github.com/sandlada/mdc',
+        license: 'https://opensource.org/licenses/MIT',
+    },
+];
 ---
 
-<Site title={title} description={description}>
-    <head slot="head">
-        <link rel="canonical" href={canonical} />
-        <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="MDC by Sandlada" />
-        <meta property="og:title" content={title} />
-        <meta property="og:description" content={description} />
-        <meta property="og:url" content={canonical} />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={title} />
-        <meta name="twitter:description" content={description} />
-        <script
-            type="application/ld+json"
-            set:html={JSON.stringify({
-                '@context': 'https://schema.org',
-                '@type': 'SoftwareSourceCode',
-                name: '@sandlada/mdc',
-                description,
-                url: canonical,
-                programmingLanguage: 'TypeScript',
-                codeRepository: 'https://github.com/sandlada/mdc',
-                license: 'https://opensource.org/licenses/MIT',
-            })}
-        />
-    </head>
+<Site
+    title={title}
+    description={description}
+    path={path}
+    canonical={canonical}
+    keywords={keywords}
+    ogType="website"
+    jsonLd={jsonLd}
+>
     <Header hideMenuToggleButton />
 
     <div class="full">

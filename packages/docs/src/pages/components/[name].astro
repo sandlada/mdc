@@ -3,6 +3,7 @@ import Docs from '../../layouts/Docs.astro'
 import ComponentTabs from '../../components/ComponentTabs.astro'
 import DemoPreview from '../../components/DemoPreview.astro'
 import { components, getComponent, getDemo, listDemos, demoLabel } from '../../lib/registry'
+import { breadcrumbJsonLd, componentDescription, excerptFromHtml } from '../../lib/seo'
 
 interface Props {
     name: string
@@ -23,9 +24,44 @@ if (!entry) {
 }
 
 const demos = listDemos(name)
+const tag = `mdc-${name}`
+const excerpt = excerptFromHtml(entry.readmeHtml)
+const title = `${entry.label} Component (<${tag}>) · MDC Material Design 3`
+const description = componentDescription(entry.label, tag, excerpt, demos.length)
+const path = `/components/${name}/`
+const keywords = [
+    `${entry.label} web component`,
+    tag,
+    `Material Design 3 ${entry.label.toLowerCase()}`,
+    '@sandlada/mdc',
+    ...demos.map((file) => `${entry.label} ${demoLabel(file)}`.toLowerCase()),
+]
+const jsonLd = [
+    {
+        '@context': 'https://schema.org',
+        '@type': 'TechArticle',
+        headline: title,
+        description,
+        url: `https://mdc.sandlada.com/components/${name}/`,
+        author: { '@type': 'Organization', name: 'Sandlada' },
+        about: `${entry.label} (${tag}) Material Design 3 web component: live demos, API reference, and usage examples.`,
+    },
+    breadcrumbJsonLd([
+        { name: 'Home', path: '/' },
+        { name: entry.label, path },
+    ]),
+]
 ---
 
-<Docs title={`${entry.label} · MDC`} active={name}>
+<Docs
+    title={title}
+    description={description}
+    path={path}
+    keywords={keywords}
+    ogType="article"
+    jsonLd={jsonLd}
+    active={name}
+>
     <h1 class="page-title">{entry.label}</h1>
     <ComponentTabs hasReadme={Boolean(entry.readmeHtml)}>
         {entry.readmeHtml && <div slot="readme" class="prose" set:html={entry.readmeHtml} />}

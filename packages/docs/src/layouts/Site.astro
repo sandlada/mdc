@@ -8,11 +8,43 @@ import '../styles/global.css';
 import '../styles/shiki.css';
 
 interface Props {
-    title?: string;
-    description?: string;
+    title: string;
+    description: string;
+    /** Path starting with `/`, used to derive the canonical URL. */
+    path?: string;
+    canonical?: string;
+    robots?: string;
+    keywords?: string[];
+    author?: string;
+    ogType?: 'website' | 'article';
+    ogImage?: string;
+    ogImageAlt?: string;
+    twitterCard?: string;
+    /** Extra structured-data blocks appended after the primary `jsonLd`. */
+    jsonLd?: Record<string, unknown> | Array<Record<string, unknown>>;
+    extraJsonLd?: Array<Record<string, unknown>>;
 }
 
-const { title = 'MDC', description = 'Framework-agnostic Material Design 3 web components by Sandlada.' } = Astro.props;
+const {
+    title,
+    description,
+    path = '/',
+    canonical: canonicalOverride,
+    robots = 'index, follow',
+    keywords = [],
+    author = 'Sandlada',
+    ogType = 'website',
+    ogImage = 'https://mdc.sandlada.com/mdc-cover.png',
+    ogImageAlt = 'MDC by Sandlada — Material Design 3 web components for any framework',
+    twitterCard = 'summary_large_image',
+    jsonLd,
+    extraJsonLd = [],
+} = Astro.props;
+
+const normalizePath = (value: string) => (value.startsWith('/') ? value : `/${value}`);
+const withTrailingSlash = (value: string) => (value.endsWith('/') ? value : `${value}/`);
+const canonical = canonicalOverride ?? `https://mdc.sandlada.com${withTrailingSlash(normalizePath(path))}`;
+const jsonLdBlocks = [...(jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : []), ...extraJsonLd];
 ---
 
 <!doctype html>
@@ -22,7 +54,32 @@ const { title = 'MDC', description = 'Framework-agnostic Material Design 3 web c
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>{title}</title>
         <meta name="description" content={description} />
+        <link rel="canonical" href={canonical} />
+        <meta name="robots" content={robots} />
+        {keywords.length > 0 && <meta name="keywords" content={keywords.join(', ')} />}
+        <meta name="author" content={author} />
+        <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#131316" media="(prefers-color-scheme: dark)" />
+        <meta name="color-scheme" content="light dark" />
+        <meta property="og:type" content={ogType} />
+        <meta property="og:site_name" content="MDC by Sandlada" />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:image" content={ogImage} />
+        <meta property="og:image:width" content="1280" />
+        <meta property="og:image:height" content="640" />
+        <meta property="og:image:alt" content={ogImageAlt} />
+        <meta name="twitter:card" content={twitterCard} />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content={ogImage} />
+        <meta name="twitter:image:alt" content={ogImageAlt} />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/favicon.svg" />
+        {jsonLdBlocks.map((block) => (
+            <script type="application/ld+json" set:html={JSON.stringify(block)} />
+        ))}
         <slot name="head" />
 
         <!-- Init Sessions -->

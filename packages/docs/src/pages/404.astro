@@ -1,0 +1,14 @@
+---
+import Site from '../layouts/Site.astro';
+
+const title = 'Page Not Found · MDC';
+const description = 'The page you requested does not exist. Browse MDC Material Design 3 web component docs, guides, and live demos.';
+---
+
+<Site title={title} description={description} path="/404/" robots="noindex, nofollow" ogType="website">
+    <main style="max-width: 640px; margin: 96px auto; padding: 0 24px; text-align: center;">
+        <h1>Page not found</h1>
+        <p>The page you requested does not exist or has moved.</p>
+        <p><a href="/">Back to home</a> · <a href="/get-started/">Get started</a></p>
+    </main>
+</Site>

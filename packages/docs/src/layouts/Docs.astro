@@ -9,13 +9,25 @@ import '../styles/markdown-scope.css';
 
 interface Props {
     title: string;
+    description: string;
+    path?: string;
+    canonical?: string;
+    robots?: string;
+    keywords?: string[];
+    author?: string;
+    ogType?: 'website' | 'article';
+    ogImage?: string;
+    ogImageAlt?: string;
+    twitterCard?: string;
+    jsonLd?: Record<string, unknown> | Array<Record<string, unknown>>;
+    extraJsonLd?: Array<Record<string, unknown>>;
     active?: string;
 }
 
-const { title, active } = Astro.props;
+const { title, active, ...seo } = Astro.props;
 ---
 
-<Site title={title}>
+<Site title={title} {...seo}>
     <div class="docs-layout quick" id="docs-layout">
         <div class="header-contents-wrapper">
             <Header />

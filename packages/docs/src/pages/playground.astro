@@ -1,6 +1,28 @@
 ---
 import Docs from 'src/layouts/Docs.astro';
 import { getIcon } from '../lib/icons';
+import { breadcrumbJsonLd } from '../lib/seo';
+
+const title = 'Playground · Try MDC Web Components Live';
+const description =
+    'Live MDC playground: edit <mdc-*> markup and preview Material Design 3 web components instantly. Experiment with buttons, icons, and layouts before adding them to your app.';
+const path = '/playground/';
+const keywords = ['MDC playground', 'Material Design 3 live demo', 'web component playground', 'mdc-button preview'];
+const jsonLd = [
+    {
+        '@context': 'https://schema.org',
+        '@type': 'WebApplication',
+        name: title,
+        description,
+        url: 'https://mdc.sandlada.com/playground/',
+        applicationCategory: 'DeveloperApplication',
+        operatingSystem: 'Any',
+    },
+    breadcrumbJsonLd([
+        { name: 'Home', path: '/' },
+        { name: 'Playground', path: '/playground/' },
+    ]),
+];
 
 const notificationIcon = getIcon('notifications');
 
@@ -13,7 +35,15 @@ const sample = [
 ].join('\n');
 ---
 
-<Docs title="Playground - @sandlada/mdc" active="playground">
+<Docs
+    title={title}
+    description={description}
+    path={path}
+    keywords={keywords}
+    ogType="website"
+    jsonLd={jsonLd}
+    active="playground"
+>
     <div class="playground-intro">
         <h1 class="page-title">Playground</h1>
         <p class="page-subtitle">Edit the markup on the left; the preview updates live.</p>

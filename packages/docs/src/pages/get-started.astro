@@ -5,6 +5,36 @@
 import { Code } from 'astro:components';
 import DemoPreview from '../components/DemoPreview.astro';
 import Docs from '../layouts/Docs.astro';
+import { breadcrumbJsonLd } from '../lib/seo';
+
+const title = 'Get Started with MDC · Install Material Design 3 Web Components';
+const description =
+    'Install @sandlada/mdc and @sandlada/material-design-css, load M3 design tokens, register framework-agnostic web components, and use plain <mdc-*> tags in React, Vue, Angular, Svelte, or HTML.';
+const path = '/get-started/';
+const keywords = [
+    'MDC get started',
+    '@sandlada/mdc install',
+    'Material Design 3 web components',
+    'material-design-css tokens',
+    'mdc-button usage',
+    'Vue isCustomElement mdc',
+    'Angular CUSTOM_ELEMENTS_SCHEMA',
+];
+const jsonLd = [
+    {
+        '@context': 'https://schema.org',
+        '@type': 'TechArticle',
+        headline: title,
+        description,
+        url: 'https://mdc.sandlada.com/get-started/',
+        author: { '@type': 'Organization', name: 'Sandlada' },
+        about: 'Installing and using @sandlada/mdc Material Design 3 web components',
+    },
+    breadcrumbJsonLd([
+        { name: 'Home', path: '/' },
+        { name: 'Get Started', path: '/get-started/' },
+    ]),
+];
 
 const codeProps = {
     themes: { light: 'github-light', dark: 'github-dark' },
@@ -70,7 +100,15 @@ const demoHtml = `<mdc-button variant="filled"><span>Filled</span></mdc-button>
 <mdc-button variant="text"><span>Text</span></mdc-button>`;
 ---
 
-<Docs title="Get Started - @sandlada/mdc" active="get-started">
+<Docs
+    title={title}
+    description={description}
+    path={path}
+    keywords={keywords}
+    ogType="article"
+    jsonLd={jsonLd}
+    active="get-started"
+>
     <h1 class="page-title">Get Started</h1>
     <p class="page-subtitle">
         <code>@sandlada/mdc</code> ships Material Design 3 and Material Expressive as framework-agnostic web components. Install the
