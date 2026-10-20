@@ -1,5 +1,5 @@
 import { stringifyTokens, overrideComponentTokens, stringTokens } from '../../utils/style'
-import { Easing } from '@sandlada/mdk'
+import { Duration, Easing } from '@sandlada/mdk'
 import { css, unsafeCSS } from 'lit'
 import type { IconDefinition } from '../icon/icon.definition'
 import type { RippleDefinition } from '../ripple/ripple.definition'
@@ -16,6 +16,8 @@ const railXRRS = stringifyTokens('--mdc-navigation-tab')(NavigationRailXRRoundTa
 const drawerS = stringifyTokens('--mdc-navigation-tab')(NavigationDrawerTabDefinition)
 
 const tabIndicatorGrowEasing = Easing.ExpressiveDefaultSpatial.ToCSSVariable()
+
+const labelFadeDuration = Duration.ExpressiveFastEffects.ToCSSValue()
 
 const overrideRipple = {
     unselected: stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>(
@@ -769,6 +771,9 @@ export const NavigationTabStyles = [
         display: -webkit-box;
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 1;
+        opacity: var(--_enabled-label-opacity);
+        visibility: var(--_enabled-label-visibility);
+        transition: opacity ${unsafeCSS(labelFadeDuration)};
     }
     :host(:not([checked])) .label {
         color: var(--_enabled-unselected-label-color);

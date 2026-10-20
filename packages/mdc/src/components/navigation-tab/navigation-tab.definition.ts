@@ -80,6 +80,13 @@ const DefaultScheme = {
     'unselected-label-weight'     : { enabled: Typescale.LabelMedium.FontWeight, hovered: Typescale.LabelMedium.FontWeight, focused: Typescale.LabelMedium.FontWeight, pressed: Typescale.LabelMedium.FontWeight, disabled: Typescale.LabelMedium.FontWeight },
     'selected-label-weight'       : { enabled: Typescale.LabelMedium.FontWeight, hovered: Typescale.LabelMedium.FontWeight, focused: Typescale.LabelMedium.FontWeight, pressed: Typescale.LabelMedium.FontWeight, disabled: Typescale.LabelMedium.FontWeight },
 
+    // The label sits below the icon in the collapsed rail layout and next to
+    // the icon in the expanded one. Containers that morph between those two
+    // layouts (e.g. the navigation rail) hide the label while morphing and
+    // reveal it again once the new layout has settled.
+    'label-opacity'               : { enabled: `1`, hovered: `1`, focused: `1`, pressed: `1`, disabled: `1` },
+    'label-visibility'            : { enabled: `visible`, hovered: `visible`, focused: `visible`, pressed: `visible`, disabled: `visible` },
+
     'badge-color'                     : { enabled: Color.Error, hovered: Color.Error, focused: Color.Error, pressed: Color.Error, disabled: Color.SurfaceVariant },
     'small-badge-height'              : { enabled: `6px`, hovered: `6px`, focused: `6px`, pressed: `6px`, disabled: `6px` },
     'small-badge-width'               : { enabled: `6px`, hovered: `6px`, focused: `6px`, pressed: `6px`, disabled: `6px` },

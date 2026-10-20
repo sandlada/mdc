@@ -6,17 +6,18 @@
  * @fileoverview
  * Material Design 3 Navigation Rail container.
  *
- * Supports two modes:
- * - **Standard** (`modal=false`): In-flow side rail that toggles between narrow (collapsed)
- *   and wide (expanded) via CSS transition on `width`.
- * - **Modal** (`modal=true`): Floating overlay above content with a scrim backdrop that enters/exits
- *   via WAAPI animation.
+ * The rail exposes a single `variant` property that describes its four
+ * possible visual states:
+ * - **`collapsed`** (default): docked, narrow rail with icon-above-label destinations.
+ * - **`expanded-docked`**: docked, wide rail with icon-next-to-label destinations.
+ * - **`expanded-floating`**: floating overlay above the content with a scrim backdrop.
+ * - **`xr`**: docked XR rail with XR destinations.
  *
  * Destinations can be aligned to top, center, or bottom via the `alignment` property.
  *
  * @example
  * ```html
- * <!-- Collapsed standard rail -->
+ * <!-- Collapsed rail -->
  * <mdc-navigation-rail navigation-scope="main-nav">
  *   <mdc-icon-button slot="menu"><mdc-icon>menu</mdc-icon></mdc-icon-button>
  *   <mdc-fab slot="fab" icon="edit" variant="primary"></mdc-fab>
@@ -30,8 +31,8 @@
  *   </mdc-navigation-tab>
  * </mdc-navigation-rail>
  *
- * <!-- Expanded standard rail -->
- * <mdc-navigation-rail expanded navigation-scope="main-nav-2">
+ * <!-- Expanded, docked rail -->
+ * <mdc-navigation-rail variant="expanded-docked" navigation-scope="main-nav-2">
  *   <mdc-icon-button slot="menu"><mdc-icon>menu_open</mdc-icon></mdc-icon-button>
  *   <mdc-navigation-tab name="rail-tabs" value="/home" label="Home" checked>
  *     <mdc-icon slot="inactive-icon">home</mdc-icon>
@@ -39,8 +40,8 @@
  *   </mdc-navigation-tab>
  * </mdc-navigation-rail>
  *
- * <!-- Modal rail -->
- * <mdc-navigation-rail modal open navigation-scope="modal-nav">
+ * <!-- Floating rail -->
+ * <mdc-navigation-rail variant="expanded-floating" open navigation-scope="modal-nav">
  *   <mdc-navigation-tab name="modal-tabs" value="/settings" label="Settings">
  *     <mdc-icon slot="inactive-icon">settings</mdc-icon>
  *   </mdc-navigation-tab>
@@ -61,16 +62,16 @@ import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import { mixinDelegatesAria } from '../../utils/aria/delegate'
 import { mixinElevationOptions } from '../elevation/elevation-options.mixin'
 import { mixinConnectedPromiseResolve, type IConnectedPromiseResolve } from '../../utils/behaviors/connected-promise-resolve'
-import { mixinXROptions } from '../../utils/xr/xr-options.mixin'
 import {
     NavigationRailAlignment,
-    NavigationRailCollapsedVariant,
+    NavigationRailCollapsedLayout,
+    NavigationRailVariant,
     type INavigationRail,
 } from './navigation-rail.interface'
 import type { NavigationTabVariant } from '../navigation-tab/navigation-tab.interface'
-import { html, nothing, type PropertyValues, type TemplateResult } from 'lit'
+import { html, type PropertyValues, type TemplateResult } from 'lit'
 import { classMap } from 'lit/directives/class-map.js'
-import { NavigationRailStyles } from './navigation-rail.style'
+import { NavigationRailStyles, NavigationRailTransitionDuration } from './navigation-rail.style'
 import '../divider/divider'
 import '../elevation/elevation'
 
@@ -84,71 +85,77 @@ type AnimationArgs = Parameters<Element['animate']>
 interface NavigationRailAnimation {
     dialog?: AnimationArgs[]
     container?: AnimationArgs[]
-    scrim?: AnimationArgs[]
 }
+
+const VALID_VARIANTS: readonly NavigationRailVariant[] = [
+    NavigationRailVariant.Collapsed,
+    NavigationRailVariant.ExpandedDocked,
+    NavigationRailVariant.ExpandedFloating,
+    NavigationRailVariant.XR,
+]
+
+const VALID_COLLAPSED_LAYOUTS: readonly NavigationRailCollapsedLayout[] = [
+    NavigationRailCollapsedLayout.Vertical,
+    NavigationRailCollapsedLayout.Round,
+]
 
 /**
  * Material Design 3 Navigation Rail.
  *
- * @emits expand — Cancelable. Fires before expansion starts (modal mode).
+ * @emits expand — Cancelable. Fires before the rail expands.
  * @emits expanded — Expansion complete.
- * @emits collapse — Cancelable. Fires before collapse starts (modal mode).
+ * @emits collapse — Cancelable. Fires before the rail collapses.
  * @emits collapsed — Collapse complete.
- * @emits open — Cancelable. Fires before opening modal rail.
- * @emits opened — Modal rail opened.
- * @emits close — Cancelable. Fires before closing modal rail.
- * @emits closed — Modal rail closed.
- * @emits cancel — Cancelable. Fires on backdrop click or Escape key (modal mode).
+ * @emits open — Cancelable. Fires before the floating rail opens.
+ * @emits opened — Floating rail opened.
+ * @emits close — Cancelable. Fires before the floating rail closes.
+ * @emits closed — Floating rail closed.
+ * @emits cancel — Cancelable. Fires on backdrop click or Escape key (floating variant).
  */
 @customElement('mdc-navigation-rail')
 export class NavigationRail extends composeMixin(
     mixinDelegatesAria,
     mixinElevationOptions,
     mixinConnectedPromiseResolve,
-    mixinXROptions,
 )(BaseNavigationContainer) implements INavigationRail, IConnectedPromiseResolve {
 
     public static override styles = NavigationRailStyles
 
     /**
      * When `true`, skips all animations:
-     * - Standard mode: CSS width `transition` is suppressed.
-     * - Modal mode: WAAPI entry/exit animations are skipped.
+     * - Docked variants: CSS width `transition` is suppressed.
+     * - Floating variant: WAAPI entry/exit animations are skipped.
      */
     @property({ type: Boolean, reflect: true })
     public quick: boolean = false
 
     /**
-     * Toggles between collapsed (narrow) and expanded (wide) visual states.
+     * The visual state of the rail.
      *
-     * - In **Standard mode** (`modal=false`), changes width via CSS transition.
-     * - In **Modal mode** (`modal=true`), expands or collapses the floating rail width.
+     * - `'collapsed'`: docked, narrow rail with icon-above-label destinations.
+     * - `'expanded-docked'`: docked, wide rail with icon-next-to-label destinations.
+     * - `'expanded-floating'`: floating overlay with scrim, always wide.
+     * - `'xr'`: docked XR rail with XR destinations.
      */
-    @property({ type: Boolean, reflect: true })
-    public expanded: boolean = false
+    @property({ type: String, reflect: true })
+    public variant: NavigationRailVariant = NavigationRailVariant.Collapsed
 
     /**
-     * When `true`, renders as a floating modal overlay with a scrim backdrop.
-     * When `false`, renders as an in-flow rail alongside content.
-     */
-    @property({ type: Boolean, reflect: true })
-    public modal: boolean = false
-
-    /**
-     * In modal mode, controls whether the modal dialog is open or closed.
+     * In the `expanded-floating` variant, controls whether the floating rail is
+     * shown or hidden. Ignored by every other variant.
      */
     @property({ type: Boolean, reflect: true })
     public open: boolean = false
 
     /**
-     * Determines the tab variant when the rail is collapsed.
+     * Determines the tab layout when the rail is collapsed.
      * - `'vertical'`: tabs use `rail-vertical` (icon on top, label underneath).
      * - `'round'`: tabs use `rail-round` (icon only in round container).
      *
-     * When expanded, tabs always use `rail-horizontal` regardless of this value.
+     * The expanded variants always use `rail-horizontal` regardless of this value.
      */
-    @property({ type: String, reflect: true, attribute: 'collapsed-variant' })
-    public collapsedVariant: NavigationRailCollapsedVariant = NavigationRailCollapsedVariant.Vertical
+    @property({ type: String, reflect: true, attribute: 'collapsed-layout' })
+    public collapsedLayout: NavigationRailCollapsedLayout = NavigationRailCollapsedLayout.Vertical
 
     /**
      * Vertical alignment of destination items within the rail.
@@ -160,13 +167,13 @@ export class NavigationRail extends composeMixin(
     public alignment: NavigationRailAlignment = NavigationRailAlignment.Top
 
     /**
-     * Dialog return value in modal mode.
+     * Dialog return value of the floating rail.
      */
     @property({ type: String, attribute: 'return-value' })
     public returnValue: string = ''
 
     /**
-     * When `true` in modal mode, disables automatic focus trapping.
+     * When `true`, disables the automatic focus trap of the floating rail.
      */
     @property({ type: Boolean, attribute: 'no-focus-trap' })
     public noFocusTrap: boolean = false
@@ -210,15 +217,21 @@ export class NavigationRail extends composeMixin(
     @query('.container')
     protected readonly container!: HTMLElement | null
 
-    @query('.scrim')
-    protected readonly scrimEl!: HTMLElement | null
-
     private handleStateChange: boolean = true
     protected isAnimating: boolean = false
     private previouslyFocused: Element | null = null
     protected cancelAnimations: AbortController | null = null
     protected intersectionObserver?: IntersectionObserver
-    protected escapePressedWithoutCancel: boolean = false
+    private hasCompletedInitialUpdate: boolean = false
+    private labelRevealTimer: ReturnType<typeof setTimeout> | null = null
+    private isFloatingShown: boolean = false
+
+    /**
+     * Whether the rail currently renders as the floating overlay variant.
+     */
+    protected get isFloating(): boolean {
+        return this.variant === NavigationRailVariant.ExpandedFloating
+    }
 
     public override connectedCallback(): void {
         super.connectedCallback()
@@ -229,16 +242,27 @@ export class NavigationRail extends composeMixin(
         super.firstUpdated()
         this.syncTabVariants()
         this.setUpScrollObserver()
+        this.container?.addEventListener('transitionend', this.handleContainerTransitionEnd)
+    }
+
+    protected override willUpdate(changedProperties: PropertyValues<this>): void {
+        super.willUpdate(changedProperties)
+        if (!VALID_VARIANTS.includes(this.variant)) {
+            throw new Error(`[mdc-navigation-rail] Unsupported variant "${String(this.variant)}". Navigation rails support only "collapsed" | "expanded-docked" | "expanded-floating" | "xr".`)
+        }
+        if (!VALID_COLLAPSED_LAYOUTS.includes(this.collapsedLayout)) {
+            throw new Error(`[mdc-navigation-rail] Unsupported collapsed layout "${String(this.collapsedLayout)}". Navigation rails support only "vertical" | "round".`)
+        }
     }
 
     protected override updated(changedProperties: PropertyValues<this>): void {
         super.updated(changedProperties)
 
-        if (changedProperties.has('modal') && this.modal && this.open && !this.dialog?.open) {
-            void this.show()
+        if (changedProperties.has('variant')) {
+            this.handleVariantChange()
         }
 
-        if (changedProperties.has('open') && this.handleStateChange && this.modal) {
+        if (changedProperties.has('open') && this.handleStateChange && this.isFloating) {
             if (this.open) {
                 void this.show()
             } else {
@@ -247,19 +271,22 @@ export class NavigationRail extends composeMixin(
         }
 
         if (
-            changedProperties.has('expanded') ||
-            changedProperties.has('collapsedVariant') ||
-            changedProperties.has('xr') ||
+            changedProperties.has('variant') ||
+            changedProperties.has('collapsedLayout') ||
             changedProperties.has('alignment')
         ) {
             this.syncTabVariants()
         }
+
+        this.hasCompletedInitialUpdate = true
     }
 
     public override disconnectedCallback(): void {
         this.cancelAnimations?.abort()
         this.intersectionObserver?.disconnect()
         this.intersectionObserver = undefined
+        this.clearLabelRevealTimer()
+        this.setTabLabelsHidden(false)
         super.disconnectedCallback()
     }
 
@@ -301,31 +328,101 @@ export class NavigationRail extends composeMixin(
     }
 
     private computeTargetVariant(): NavigationTabVariant {
-        if (this.expanded) {
+        if (this.variant === NavigationRailVariant.ExpandedDocked || this.variant === NavigationRailVariant.ExpandedFloating) {
             return 'rail-horizontal'
         }
-        if (this.collapsedVariant === 'round') {
-            return this.xr ? 'rail-xr-round' : 'rail-round'
+        if (this.variant === NavigationRailVariant.XR) {
+            return this.collapsedLayout === NavigationRailCollapsedLayout.Round ? 'rail-xr-round' : 'rail-xr-vertical'
         }
-        return this.xr ? 'rail-xr-vertical' : 'rail-vertical'
+        return this.collapsedLayout === NavigationRailCollapsedLayout.Round ? 'rail-round' : 'rail-vertical'
     }
 
-    public override getRenderClasses() {
+    /**
+     * Reconciles the floating overlay with the current variant: the floating
+     * rail is opened when the variant turns floating while `open` is set.
+     */
+    private handleVariantChange(): void {
+        if (this.isFloating && this.open && !this.isFloatingShown) {
+            void this.show()
+        }
+
+        this.handleLayoutChange()
+    }
+
+    /**
+     * The destination label sits below the icon in the collapsed layout and
+     * next to the icon in the expanded one. Both layouts are swapped in a
+     * single frame while the container width animates, so the label is hidden
+     * for the duration of the morph and revealed once the new layout settled.
+     */
+    private handleLayoutChange(): void {
+        if (!this.hasCompletedInitialUpdate) {
+            return
+        }
+        if (this.quick) {
+            return
+        }
+
+        this.setTabLabelsHidden(true)
+        this.scheduleLabelReveal()
+    }
+
+    private setTabLabelsHidden(hidden: boolean): void {
+        if (hidden) {
+            this.style.setProperty('--mdc-navigation-tab-enabled-label-opacity', '0')
+            this.style.setProperty('--mdc-navigation-tab-enabled-label-visibility', 'hidden')
+            return
+        }
+        this.style.removeProperty('--mdc-navigation-tab-enabled-label-opacity')
+        this.style.removeProperty('--mdc-navigation-tab-enabled-label-visibility')
+    }
+
+    /**
+     * Reveals the labels once the width transition finished. The timeout is a
+     * fallback for the cases where no transition runs at all (e.g. a hidden
+     * rail) and therefore no `transitionend` event is dispatched.
+     */
+    private scheduleLabelReveal(): void {
+        this.clearLabelRevealTimer()
+        this.labelRevealTimer = setTimeout(() => {
+            this.labelRevealTimer = null
+            this.setTabLabelsHidden(false)
+        }, NavigationRailTransitionDuration + 50)
+    }
+
+    private clearLabelRevealTimer(): void {
+        if (this.labelRevealTimer === null) {
+            return
+        }
+        clearTimeout(this.labelRevealTimer)
+        this.labelRevealTimer = null
+    }
+
+    private readonly handleContainerTransitionEnd = (event: TransitionEvent): void => {
+        if (event.target !== this.container) {
+            return
+        }
+        if (event.propertyName !== 'width') {
+            return
+        }
+        this.clearLabelRevealTimer()
+        this.setTabLabelsHidden(false)
+    }
+
+    public getRenderClasses(): Record<string, boolean> {
         const isScrollable = !(this.isAtScrollTop && this.isAtScrollBottom)
-        const isEffectiveOpen = this.modal ? this.open : true
+        const isEffectiveOpen = this.isFloating ? this.open : true
         return ({
-            ...super.getRenderClasses(),
             'dialog': true,
-            'modal': this.modal,
-            'standard': !this.modal,
             'open': isEffectiveOpen,
             'closed': !isEffectiveOpen,
-            'expanded': this.expanded,
-            'collapsed': !this.expanded,
-            'collapsed-xr': this.xr && !this.expanded,
-            'align-top': this.alignment === 'top',
-            'align-center': this.alignment === 'center',
-            'align-bottom': this.alignment === 'bottom',
+            'collapsed': this.variant === NavigationRailVariant.Collapsed,
+            'expanded-docked': this.variant === NavigationRailVariant.ExpandedDocked,
+            'expanded-floating': this.variant === NavigationRailVariant.ExpandedFloating,
+            'xr': this.variant === NavigationRailVariant.XR,
+            'align-top': this.alignment === NavigationRailAlignment.Top,
+            'align-center': this.alignment === NavigationRailAlignment.Center,
+            'align-bottom': this.alignment === NavigationRailAlignment.Bottom,
             'scrollable': isScrollable,
             'show-top-divider': isScrollable && !this.isAtScrollTop,
             'show-bottom-divider': isScrollable && !this.isAtScrollBottom,
@@ -345,12 +442,10 @@ export class NavigationRail extends composeMixin(
                 @click=${this.handleScrimClick}
             ></span>
             <dialog
-                ?open=${this.modal ? this.open : true}
+                ?open=${this.isFloating ? this.open : true}
                 class=${classMap(this.getRenderClasses())}
                 .returnValue=${this.returnValue}
-                @cancel=${this.handleCancel}
                 @click=${this.handleDialogClick}
-                @close=${this.handleClose}
                 @keydown=${this.handleKeydown}
             >
                 <div class="container" @click=${this.handleContentClick}>
@@ -445,52 +540,76 @@ export class NavigationRail extends composeMixin(
 
     /**
      * Expands the navigation rail.
+     *
+     * A floating rail stays floating, every other variant switches to
+     * `expanded-docked`. Fires the cancelable `expand` event before and the
+     * `expanded` event after the transition.
      */
     public async expand(): Promise<void> {
         await this.isConnectedPromise
 
-        if (!this.modal) {
-            this.expanded = true
-            await this.updateComplete
-            this.syncTabVariants()
-            this.dispatchEvent(new Event('expanded'))
+        const preventExpand = !this.dispatchEvent(
+            new Event('expand', { cancelable: true }),
+        )
+        if (preventExpand) {
             return
         }
 
-        // Modal mode
-        if (!this.open) {
-            await this.show()
+        if (this.isFloating) {
+            if (!this.open) {
+                await this.show()
+            }
+        } else {
+            this.variant = NavigationRailVariant.ExpandedDocked
+            await this.updateComplete
+            this.syncTabVariants()
         }
 
-        this.expanded = true
-        await this.updateComplete
-        this.syncTabVariants()
         this.dispatchEvent(new Event('expanded'))
     }
 
     /**
-     * Collapses the navigation rail.
+     * Collapses the navigation rail back to the `collapsed` variant.
+     *
+     * A floating rail is closed and turns into a docked, narrow rail. Fires
+     * the cancelable `collapse` event before and the `collapsed` event after
+     * the transition.
      */
     public async collapse(returnValue = this.returnValue): Promise<void> {
         await this.isConnectedPromise
 
-        this.expanded = false
+        const preventCollapse = !this.dispatchEvent(
+            new Event('collapse', { cancelable: true }),
+        )
+        if (preventCollapse) {
+            return
+        }
+
         this.returnValue = returnValue
+
+        if (this.isFloating) {
+            await this.hide(returnValue)
+        }
+
+        this.variant = NavigationRailVariant.Collapsed
         await this.updateComplete
         this.syncTabVariants()
         this.dispatchEvent(new Event('collapsed'))
     }
 
     /**
-     * Opens the navigation rail (modal mode).
+     * Opens the floating navigation rail.
+     *
+     * Only meaningful for the `expanded-floating` variant — on every other
+     * variant the call is forwarded to {@link expand}.
      */
     public async show(): Promise<void> {
-        if (!this.modal) {
+        if (!this.isFloating) {
             await this.expand()
             return
         }
 
-        if (this.isAnimating || (this.open && this.dialog?.open)) {
+        if (this.isAnimating || (this.open && this.isFloatingShown)) {
             return
         }
 
@@ -514,11 +633,6 @@ export class NavigationRail extends composeMixin(
         await this.isConnectedPromise
         await this.updateComplete
 
-        const dialog = this.dialog
-        if (dialog && !dialog.open) {
-            dialog.showModal()
-        }
-
         if (this.scroller) {
             this.scroller.scrollTop = 0
         }
@@ -538,20 +652,23 @@ export class NavigationRail extends composeMixin(
         }
 
         this.isAnimating = false
+        this.isFloatingShown = true
         this.dispatchEvent(new Event('opened'))
-        this.dispatchEvent(new Event('expanded'))
     }
 
     /**
-     * Closes the navigation rail (modal mode).
+     * Closes the floating navigation rail.
+     *
+     * Only meaningful for the `expanded-floating` variant — on every other
+     * variant the call is forwarded to {@link collapse}.
      */
     public async hide(returnValue = this.returnValue): Promise<void> {
-        if (!this.modal) {
+        if (!this.isFloating) {
             await this.collapse(returnValue)
             return
         }
 
-        if (this.isAnimating || (!this.open && !this.dialog?.open)) {
+        if (this.isAnimating || (!this.open && !this.isFloatingShown)) {
             return
         }
 
@@ -569,10 +686,6 @@ export class NavigationRail extends composeMixin(
             await this.animateRail(this.getClosingAnimation())
         }
 
-        if (this.dialog && this.dialog.open) {
-            this.dialog.close(returnValue)
-        }
-
         this.handleStateChange = false
         this.open = false
         this.handleStateChange = true
@@ -583,33 +696,37 @@ export class NavigationRail extends composeMixin(
         }
 
         this.isAnimating = false
+        this.isFloatingShown = false
         this.dispatchEvent(new Event('closed'))
-        this.dispatchEvent(new Event('collapsed'))
     }
 
     /**
-     * Convenience method to close modal rail.
+     * Convenience method to close the floating rail.
      */
     public async close(returnValue = this.returnValue): Promise<void> {
         await this.hide(returnValue)
     }
 
     /**
-     * Toggles the rail between expanded and collapsed (or show/hide).
+     * Toggles the rail.
+     *
+     * The floating variant toggles between shown and hidden, every other
+     * variant toggles between `collapsed` and `expanded-docked`.
      */
     public async toggle(): Promise<void> {
-        if (this.modal) {
+        if (this.isFloating) {
             if (this.open) {
                 await this.hide()
             } else {
                 await this.show()
             }
+            return
+        }
+
+        if (this.variant === NavigationRailVariant.ExpandedDocked) {
+            await this.collapse()
         } else {
-            if (this.expanded) {
-                await this.collapse()
-            } else {
-                await this.expand()
-            }
+            await this.expand()
         }
     }
 
@@ -622,15 +739,6 @@ export class NavigationRail extends composeMixin(
                         { transform: 'translateX(0)', opacity: '1' },
                     ],
                     { duration: 300, easing: 'cubic-bezier(0.05, 0.7, 0.1, 1.0)' },
-                ],
-            ],
-            scrim: [
-                [
-                    [
-                        { opacity: '0' },
-                        { opacity: '0.38' },
-                    ],
-                    { duration: 250, easing: 'linear' },
                 ],
             ],
         }
@@ -647,15 +755,6 @@ export class NavigationRail extends composeMixin(
                     { duration: 200, easing: 'cubic-bezier(0.3, 0.0, 0.8, 0.15)' },
                 ],
             ],
-            scrim: [
-                [
-                    [
-                        { opacity: '0.38' },
-                        { opacity: '0' },
-                    ],
-                    { duration: 200, easing: 'linear' },
-                ],
-            ],
         }
     }
 
@@ -664,10 +763,9 @@ export class NavigationRail extends composeMixin(
         this.cancelAnimations = new AbortController()
         if (this.quick) return
 
-        const { container, scrimEl } = this
+        const { container } = this
         const elementAndAnimations: Array<[Element | null, AnimationArgs[] | undefined]> = [
             [container, animation.container],
-            [scrimEl, animation.scrim],
         ]
 
         const animations: Animation[] = []
@@ -688,18 +786,13 @@ export class NavigationRail extends composeMixin(
     }
 
     protected handleScrimClick = (): void => {
-        if (!this.modal || !this.open) return
+        if (!this.isFloating || !this.open) return
 
-        const preventCancel = !this.dispatchEvent(
-            new Event('cancel', { cancelable: true }),
-        )
-        if (preventCancel) return
-
-        void this.hide('scrim')
+        this.requestCancel('scrim')
     }
 
     protected handleDialogClick = (event: MouseEvent): void => {
-        if (!this.modal) return
+        if (!this.isFloating) return
         if (event.target === this.dialog) {
             this.handleScrimClick()
         }
@@ -709,37 +802,26 @@ export class NavigationRail extends composeMixin(
         event.stopPropagation()
     }
 
-    protected handleCancel = (event: Event): void => {
-        if (!this.modal) return
-
-        event.preventDefault()
-        if (!this.open) return
-
-        const preventDefault = !this.dispatchEvent(
-            new Event('cancel', { cancelable: true }),
-        )
-        if (preventDefault) return
-
-        void this.hide('escape')
-    }
-
-    protected handleClose = (): void => {
-        if (!this.escapePressedWithoutCancel) {
-            return
-        }
-        this.escapePressedWithoutCancel = false
-        this.dialog?.dispatchEvent(new Event('cancel', { cancelable: true }))
-    }
-
     protected handleKeydown = (event: KeyboardEvent): void => {
-        if (!this.modal) return
-
+        if (!this.isFloating) return
         if (event.key !== 'Escape') return
 
-        this.escapePressedWithoutCancel = true
-        setTimeout(() => {
-            this.escapePressedWithoutCancel = false
-        })
+        event.preventDefault()
+        this.requestCancel('escape')
+    }
+
+    /**
+     * Dispatches the cancelable `cancel` event and closes the floating rail
+     * unless the event was prevented.
+     */
+    private requestCancel(reason: string): void {
+        if (!this.open) return
+
+        const preventCancel = !this.dispatchEvent(
+            new Event('cancel', { cancelable: true }),
+        )
+        if (preventCancel) return
+
+        void this.hide(reason)
     }
 }
-

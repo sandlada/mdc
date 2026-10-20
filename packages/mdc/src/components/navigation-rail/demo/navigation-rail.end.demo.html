@@ -1,6 +1,6 @@
 <div style="display: flex; gap: 32px; align-items: flex-start;">
     <mdc-navigation-rail style="height: 400px;">
-        <mdc-icon-button slot="menu" onclick="const rail = this.closest('mdc-navigation-rail'); rail.toggle(); this.querySelector('mdc-icon').textContent = rail.expanded ? 'menu_open' : 'menu';">
+        <mdc-icon-button slot="menu" onclick="const rail = this.closest('mdc-navigation-rail'); rail.toggle(); this.querySelector('mdc-icon').textContent = rail.variant === 'expanded-docked' ? 'menu_open' : 'menu';">
             <mdc-icon>menu</mdc-icon>
         </mdc-icon-button>
         <mdc-navigation-tab name="rail-end-1" value="/home" label="Home" checked>
@@ -14,8 +14,8 @@
         <mdc-icon-button slot="end"><mdc-icon>settings</mdc-icon></mdc-icon-button>
     </mdc-navigation-rail>
 
-    <mdc-navigation-rail expanded style="height: 400px;">
-        <mdc-icon-button slot="menu" onclick="const rail = this.closest('mdc-navigation-rail'); rail.toggle(); this.querySelector('mdc-icon').textContent = rail.expanded ? 'menu_open' : 'menu';">
+    <mdc-navigation-rail variant="expanded-docked" style="height: 400px;">
+        <mdc-icon-button slot="menu" onclick="const rail = this.closest('mdc-navigation-rail'); rail.toggle(); this.querySelector('mdc-icon').textContent = rail.variant === 'expanded-docked' ? 'menu_open' : 'menu';">
             <mdc-icon>menu_open</mdc-icon>
         </mdc-icon-button>
         <mdc-navigation-tab name="rail-end-2" value="/home" label="Home" checked>

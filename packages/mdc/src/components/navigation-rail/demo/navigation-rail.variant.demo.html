@@ -1,0 +1,161 @@
+<div style="display: flex; flex-direction: column; gap: 24px;">
+    <div style="display: flex; gap: 32px; align-items: flex-start; flex-wrap: wrap;">
+
+        <style>
+            mdc-navigation-rail {
+                --mdc-navigation-rail-collapsed-container-color: var(--md-sys-color-surface-container);
+                --mdc-navigation-rail-expanded-docked-container-color: var(--md-sys-color-surface-container);
+            }
+        </style>
+
+        <div>
+            <p style="margin: 0 0 8px 0;">variant="collapsed"</p>
+            <mdc-navigation-rail>
+                <mdc-icon-button slot="menu"><mdc-icon>menu</mdc-icon></mdc-icon-button>
+                <mdc-navigation-tab
+                    name="rail-variant-collapsed"
+                    value="/home"
+                    label="Home"
+                    checked
+                >
+                    <mdc-icon slot="inactive-icon">home</mdc-icon>
+                    <mdc-icon
+                        slot="active-icon"
+                        filled
+                    >home</mdc-icon>
+                </mdc-navigation-tab>
+                <mdc-navigation-tab
+                    name="rail-variant-collapsed"
+                    value="/search"
+                    label="Search"
+                >
+                    <mdc-icon slot="inactive-icon">search</mdc-icon>
+                    <mdc-icon
+                        slot="active-icon"
+                        filled
+                    >search</mdc-icon>
+                </mdc-navigation-tab>
+            </mdc-navigation-rail>
+        </div>
+
+        <div>
+            <p style="margin: 0 0 8px 0;">variant="expanded-docked"</p>
+            <mdc-navigation-rail variant="expanded-docked">
+                <mdc-icon-button slot="menu"><mdc-icon>menu_open</mdc-icon></mdc-icon-button>
+                <mdc-navigation-tab
+                    name="rail-variant-expanded-docked"
+                    value="/home"
+                    label="Home"
+                    checked
+                >
+                    <mdc-icon slot="inactive-icon">home</mdc-icon>
+                    <mdc-icon
+                        slot="active-icon"
+                        filled
+                    >home</mdc-icon>
+                </mdc-navigation-tab>
+                <mdc-navigation-tab
+                    name="rail-variant-expanded-docked"
+                    value="/search"
+                    label="Search"
+                >
+                    <mdc-icon slot="inactive-icon">search</mdc-icon>
+                    <mdc-icon
+                        slot="active-icon"
+                        filled
+                    >search</mdc-icon>
+                </mdc-navigation-tab>
+            </mdc-navigation-rail>
+        </div>
+
+        <div>
+            <p style="margin: 0 0 8px 0;">variant="xr"</p>
+            <mdc-navigation-rail variant="xr">
+                <mdc-navigation-tab
+                    name="rail-variant-xr"
+                    value="/home"
+                    label="Home"
+                    checked
+                >
+                    <mdc-icon slot="inactive-icon">home</mdc-icon>
+                    <mdc-icon
+                        slot="active-icon"
+                        filled
+                    >home</mdc-icon>
+                </mdc-navigation-tab>
+                <mdc-navigation-tab
+                    name="rail-variant-xr"
+                    value="/search"
+                    label="Search"
+                >
+                    <mdc-icon slot="inactive-icon">search</mdc-icon>
+                    <mdc-icon
+                        slot="active-icon"
+                        filled
+                    >search</mdc-icon>
+                </mdc-navigation-tab>
+            </mdc-navigation-rail>
+        </div>
+    </div>
+
+    <div>
+        <p style="margin: 0 0 8px 0;">variant="expanded-floating"</p>
+        <mdc-button onclick="this.getRootNode().querySelector('#demo-rail-floating').show()">
+            <span>Open Floating Navigation Rail</span>
+        </mdc-button>
+
+        <mdc-navigation-rail
+            id="demo-rail-floating"
+            variant="expanded-floating"
+            style="height: 480px;"
+        >
+            <mdc-icon-button
+                slot="menu"
+                onclick="this.closest('mdc-navigation-rail').hide()"
+            >
+                <mdc-icon>close</mdc-icon>
+            </mdc-icon-button>
+            <mdc-fab
+                slot="fab"
+                icon="edit"
+                variant="primary"
+            ></mdc-fab>
+            <mdc-navigation-tab
+                name="rail-variant-floating"
+                value="/inbox"
+                label="Inbox"
+                badge="3"
+                checked
+            >
+                <mdc-icon slot="inactive-icon">inbox</mdc-icon>
+                <mdc-icon
+                    slot="active-icon"
+                    filled
+                >inbox</mdc-icon>
+            </mdc-navigation-tab>
+            <mdc-navigation-tab
+                name="rail-variant-floating"
+                value="/chat"
+                label="Chat"
+            >
+                <mdc-icon slot="inactive-icon">chat</mdc-icon>
+                <mdc-icon
+                    slot="active-icon"
+                    filled
+                >chat</mdc-icon>
+            </mdc-navigation-tab>
+            <mdc-navigation-tab
+                name="rail-variant-floating"
+                value="/settings"
+                label="Settings"
+            >
+                <mdc-icon slot="inactive-icon">settings</mdc-icon>
+                <mdc-icon
+                    slot="active-icon"
+                    filled
+                >settings</mdc-icon>
+            </mdc-navigation-tab>
+            <mdc-icon-button slot="end"><mdc-icon>help</mdc-icon></mdc-icon-button>
+        </mdc-navigation-rail>
+    </div>
+</div>

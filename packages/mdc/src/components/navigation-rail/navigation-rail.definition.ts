@@ -11,167 +11,205 @@
  * https://m3.material.io/components/navigation-rail/overview
  * https://m3.material.io/components/navigation-rail/guidelines
  *
+ * The rail ships four variants:
+ * - `collapsed`: docked, narrow rail (80dp).
+ * - `expanded-docked`: docked, wide rail (220dp).
+ * - `expanded-floating`: floating overlay (220dp) above a scrim.
+ * - `xr`: docked XR rail (96dp).
+ *
+ * All four variants live in a single {@link NavigationRailDefinition}. Every
+ * container token carries one value per variant, so each variant can be
+ * themed on its own. `stringifyTokens` expands those records into the
+ * `--_<variant>-<token>` private tokens, backed by the public
+ * `--mdc-navigation-rail-<variant>-<token>` override variables.
+ *
+ * Tokens that do not depend on the variant (scrim, divider, shadow color)
+ * stay static and are shared by every variant.
+ *
+ * ```plaintext
+ * |-----------------------
+ * |
+ * |   Menu Icon Button Slot
+ * |
+ * |   Fab Slot
+ * |
+ * |   |---------------| |
+ * |   | SectionHeader | |
+ * |   | Tab Slot 1    | |
+ * |   |_______________| |
+ * |                     | Scrollable
+ * |   |---------------| |
+ * |   | SectionHeader | |
+ * |   | Tab Slot 2    | |
+ * |   |_______________| |
+ * |
+ * |   End Slot
+ * |_______________________
+ * ````
+ *
  * @version
  * Material Design 3 - Expressive
  */
 import { ElevationLevel, Shape, Space } from '@sandlada/mdk'
 import { Color } from '../../utils/color'
-import { createStyleDefinition } from '../../utils/style'
-import { expandShape } from '../../utils/style'
+import { createStyleDefinition, expandShape } from '../../utils/style'
+import { NavigationRailVariant } from './navigation-rail.interface'
 
+/**
+ * The value of a single token for every rail variant.
+ */
+interface NavigationRailVariantValues {
+    collapsed       : unknown
+    expandedDocked  : unknown
+    expandedFloating: unknown
+    xr              : unknown
+}
 
-type BaseNavigationProps
-     =  'scrim-color'
-    | 'divider-color'
-    | 'scrim-opacity'
-    | 'container-shadow-color'
+/**
+ * Builds the variant record of a token.
+ *
+ * Every variant keeps its own value type, so a token may hold a different
+ * kind of value per variant (e.g. a width in `px` and a shape token).
+ *
+ * @param values - The value of the token for every rail variant.
+ * @returns The variant record, keyed by the variant names.
+ */
+const variants = <T extends NavigationRailVariantValues>(values: T): {
+    'collapsed'        : T['collapsed']
+    'expanded-docked'  : T['expandedDocked']
+    'expanded-floating': T['expandedFloating']
+    'xr'               : T['xr']
+} => ({
+    [NavigationRailVariant.Collapsed]       : values.collapsed,
+    [NavigationRailVariant.ExpandedDocked]  : values.expandedDocked,
+    [NavigationRailVariant.ExpandedFloating]: values.expandedFloating,
+    [NavigationRailVariant.XR]              : values.xr,
+})
 
-type StandardNavigationRailProps
-     =  'standard-container-width'
-    | 'standard-container-shape-start-start'
-    | 'standard-container-shape-start-end'
-    | 'standard-container-shape-end-start'
-    | 'standard-container-shape-end-end'
-    | 'standard-container-color'
-    | 'standard-container-elevation'
-    | 'standard-container-item-gap'
-    | 'standard-container-block-leading-space'
-    | 'standard-container-block-trailing-space'
-    | 'standard-container-inline-leading-space'
-    | 'standard-container-inline-trailing-space'
-    | 'standard-segments-item-gap'
-    | 'standard-segments-block-leading-space'
-    | 'standard-segments-block-trailing-space'
-    | 'standard-segments-inline-leading-space'
-    | 'standard-segments-inline-trailing-space'
-    | 'standard-menu-and-fab-item-gap'
-    | 'standard-menu-and-fab-block-leading-space'
-    | 'standard-menu-and-fab-block-trailing-space'
-    | 'standard-menu-and-fab-inline-leading-space'
-    | 'standard-menu-and-fab-inline-trailing-space'
+export const NavigationRailDefinition = createStyleDefinition({
+    // Container
+    ...expandShape('container-shape')(variants({
+        collapsed       : Shape.None,
+        expandedDocked  : Shape.None,
+        expandedFloating: Shape.Large,
+        xr              : Shape.ExtraExtraLarge,
+    })),
+    'container-width': variants({
+        collapsed       : `96px`,
+        expandedDocked  : `220px`,
+        expandedFloating: `220px`,
+        xr              : `96px`,
+    }),
+    'container-color': variants({
+        collapsed       : `transparent`,
+        expandedDocked  : `transparent`,
+        expandedFloating: Color.SurfaceContainer,
+        xr              : Color.SurfaceContainer,
+    }),
+    'container-elevation-level': variants({
+        collapsed       : ElevationLevel.Level0,
+        expandedDocked  : ElevationLevel.Level0,
+        expandedFloating: ElevationLevel.Level0,
+        xr              : ElevationLevel.Level0,
+    }),
+    'container-item-gap': variants({
+        collapsed       : Space.Space400,
+        expandedDocked  : Space.Space400,
+        expandedFloating: Space.Space400,
+        xr              : Space.Space250,
+    }),
+    'container-padding-block-start': variants({
+        collapsed       : Space.Space500,
+        expandedDocked  : Space.Space500,
+        expandedFloating: Space.Space500,
+        xr              : Space.Space0,
+    }),
+    'container-padding-block-end': variants({
+        collapsed       : Space.Space700,
+        expandedDocked  : Space.Space250,
+        expandedFloating: Space.Space250,
+        xr              : Space.Space0,
+    }),
+    'container-padding-inline-start': variants({
+        collapsed       : Space.Space0,
+        expandedDocked  : Space.Space250,
+        expandedFloating: Space.Space250,
+        xr              : Space.Space0,
+    }),
+    'container-padding-inline-end': variants({
+        collapsed       : Space.Space0,
+        expandedDocked  : Space.Space250,
+        expandedFloating: Space.Space250,
+        xr              : Space.Space0,
+    }),
 
-type ModalNavigationRailProps
-     =  'modal-container-width'
-    | 'modal-container-shape-start-start'
-    | 'modal-container-shape-start-end'
-    | 'modal-container-shape-end-start'
-    | 'modal-container-shape-end-end'
-    | 'modal-container-color'
-    | 'modal-container-elevation'
-    | 'modal-container-item-gap'
-    | 'modal-container-block-leading-space'
-    | 'modal-container-block-trailing-space'
-    | 'modal-container-inline-leading-space'
-    | 'modal-container-inline-trailing-space'
-    | 'modal-segments-item-gap'
-    | 'modal-segments-block-leading-space'
-    | 'modal-segments-block-trailing-space'
-    | 'modal-segments-inline-leading-space'
-    | 'modal-segments-inline-trailing-space'
-    | 'modal-menu-and-fab-item-gap'
-    | 'modal-menu-and-fab-block-leading-space'
-    | 'modal-menu-and-fab-block-trailing-space'
-    | 'modal-menu-and-fab-inline-leading-space'
-    | 'modal-menu-and-fab-inline-trailing-space'
+    // Segments
+    'segments-item-gap': variants({
+        collapsed       : Space.Space50,
+        expandedDocked  : Space.Space0,
+        expandedFloating: Space.Space0,
+        xr              : Space.Space50,
+    }),
+    'segments-padding-block-start': variants({
+        collapsed       : Space.Space0,
+        expandedDocked  : Space.Space0,
+        expandedFloating: Space.Space0,
+        xr              : Space.Space0,
+    }),
+    'segments-padding-block-end': variants({
+        collapsed       : Space.Space0,
+        expandedDocked  : Space.Space0,
+        expandedFloating: Space.Space0,
+        xr              : Space.Space0,
+    }),
+    'segments-padding-inline-start': variants({
+        collapsed       : Space.Space0,
+        expandedDocked  : Space.Space0,
+        expandedFloating: Space.Space0,
+        xr              : Space.Space0,
+    }),
+    'segments-padding-inline-end': variants({
+        collapsed       : Space.Space0,
+        expandedDocked  : Space.Space0,
+        expandedFloating: Space.Space0,
+        xr              : Space.Space0,
+    }),
 
-export const NavigationRailCollapsedDefinition = createStyleDefinition({
-    'scrim-color'                                : Color.Scrim,
-    'divider-color'                              : Color.OutlineVariant,
-    'scrim-opacity'                              : `0.38`,
-    'container-shadow-color'                     : Color.Shadow,
-    'standard-container-elevation'               : ElevationLevel.Level0,
-    'standard-container-width'                   : `80px`,
-    ...expandShape('standard-container-shape')(Shape.None),
-    'standard-container-color'                   : `transparent`,
-    'standard-container-item-gap'                : Space.Space200,
-    'standard-container-block-leading-space'     : Space.Space150,
-    'standard-container-block-trailing-space'    : Space.Space150,
-    'standard-container-inline-leading-space'    : Space.Space0,
-    'standard-container-inline-trailing-space'   : Space.Space0,
-    'standard-segments-item-gap'                 : Space.Space150,
-    'standard-segments-block-leading-space'      : Space.Space0,
-    'standard-segments-block-trailing-space'     : Space.Space0,
-    'standard-segments-inline-leading-space'     : Space.Space0,
-    'standard-segments-inline-trailing-space'    : Space.Space0,
-    'standard-menu-and-fab-item-gap'             : Space.Space100,
-    'standard-menu-and-fab-block-leading-space'  : Space.Space0,
-    'standard-menu-and-fab-block-trailing-space' : Space.Space0,
-    'standard-menu-and-fab-inline-leading-space' : Space.Space0,
-    'standard-menu-and-fab-inline-trailing-space': Space.Space0,
-} satisfies Record<StandardNavigationRailProps & BaseNavigationProps, any>)
+    // Menu & Fab
+    'menu-and-fab-item-gap': variants({
+        collapsed       : Space.Space50,
+        expandedDocked  : Space.Space50,
+        expandedFloating: Space.Space50,
+        xr              : Space.Space50,
+    }),
+    'menu-and-fab-padding-block-start': variants({
+        collapsed       : Space.Space0,
+        expandedDocked  : Space.Space0,
+        expandedFloating: Space.Space0,
+        xr              : Space.Space0,
+    }),
+    'menu-and-fab-padding-block-end': variants({
+        collapsed       : Space.Space0,
+        expandedDocked  : Space.Space0,
+        expandedFloating: Space.Space0,
+        xr              : Space.Space0,
+    }),
+    'menu-and-fab-padding-inline-start': variants({
+        collapsed       : Space.Space0,
+        expandedDocked  : Space.Space0,
+        expandedFloating: Space.Space0,
+        xr              : Space.Space0,
+    }),
+    'menu-and-fab-padding-inline-end': variants({
+        collapsed       : Space.Space0,
+        expandedDocked  : Space.Space0,
+        expandedFloating: Space.Space0,
+        xr              : Space.Space0,
+    }),
 
-export const NavigationRailExpandedDefinition = createStyleDefinition({
-    'scrim-color'                                : Color.Scrim,
-    'divider-color'                              : Color.OutlineVariant,
-    'scrim-opacity'                              : `0.38`,
-    'container-shadow-color'                     : Color.Shadow,
-
-    'standard-container-elevation'               : ElevationLevel.Level0,
-    'standard-container-width'                   : `220px`,
-    ...expandShape('standard-container-shape')(Shape.None),
-    'standard-container-color'                   : `transparent`,
-    'standard-container-item-gap'                : Space.Space200,
-    'standard-container-block-leading-space'     : Space.Space150,
-    'standard-container-block-trailing-space'    : Space.Space150,
-    'standard-container-inline-leading-space'    : Space.Space150,
-    'standard-container-inline-trailing-space'   : Space.Space150,
-    'standard-segments-item-gap'                 : Space.Space50,
-    'standard-segments-block-leading-space'      : Space.Space0,
-    'standard-segments-block-trailing-space'     : Space.Space0,
-    'standard-segments-inline-leading-space'     : Space.Space0,
-    'standard-segments-inline-trailing-space'    : Space.Space0,
-    'standard-menu-and-fab-item-gap'             : Space.Space100,
-    'standard-menu-and-fab-block-leading-space'  : Space.Space0,
-    'standard-menu-and-fab-block-trailing-space' : Space.Space0,
-    'standard-menu-and-fab-inline-leading-space' : Space.Space0,
-    'standard-menu-and-fab-inline-trailing-space': Space.Space0,
-
-    'modal-container-elevation'                  : ElevationLevel.Level2,
-    'modal-container-width'                      : `220px`,
-    ...expandShape('modal-container-shape')(Shape.Large),
-    'modal-container-color'                      : Color.SurfaceContainer,
-    'modal-container-item-gap'                   : Space.Space200,
-    'modal-container-block-leading-space'        : Space.Space150,
-    'modal-container-block-trailing-space'       : Space.Space150,
-    'modal-container-inline-leading-space'       : Space.Space150,
-    'modal-container-inline-trailing-space'      : Space.Space150,
-    'modal-segments-item-gap'                    : Space.Space50,
-    'modal-segments-block-leading-space'         : Space.Space0,
-    'modal-segments-block-trailing-space'        : Space.Space0,
-    'modal-segments-inline-leading-space'        : Space.Space0,
-    'modal-segments-inline-trailing-space'       : Space.Space0,
-    'modal-menu-and-fab-item-gap'                : Space.Space100,
-    'modal-menu-and-fab-block-leading-space'     : Space.Space0,
-    'modal-menu-and-fab-block-trailing-space'    : Space.Space0,
-    'modal-menu-and-fab-inline-leading-space'    : Space.Space0,
-    'modal-menu-and-fab-inline-trailing-space': Space.Space0,
-} satisfies Record<StandardNavigationRailProps & BaseNavigationProps & ModalNavigationRailProps, any>)
-
-export const NavigationRailCollapsedXRDefinition = createStyleDefinition({
-    'scrim-color'                                : Color.Scrim,
-    'divider-color'                              : Color.OutlineVariant,
-    'scrim-opacity'                              : `0.38`,
-    'container-shadow-color'                     : Color.Shadow,
-    'standard-container-elevation'               : ElevationLevel.Level0,
-    'standard-container-width'                   : `96px`,
-    ...expandShape('standard-container-shape')(Shape.ExtraExtraLarge),
-    'standard-container-color'                   : `transparent`,
-    'standard-container-item-gap'                : Space.Space200,
-    'standard-container-block-leading-space'     : Space.Space150,
-    'standard-container-block-trailing-space'    : Space.Space150,
-    'standard-container-inline-leading-space'    : Space.Space0,
-    'standard-container-inline-trailing-space'   : Space.Space0,
-    'standard-segments-item-gap'                 : Space.Space150,
-    'standard-segments-block-leading-space'      : Space.Space0,
-    'standard-segments-block-trailing-space'     : Space.Space0,
-    'standard-segments-inline-leading-space'     : Space.Space0,
-    'standard-segments-inline-trailing-space'    : Space.Space0,
-    'standard-menu-and-fab-item-gap'             : Space.Space100,
-    'standard-menu-and-fab-block-leading-space'  : Space.Space0,
-    'standard-menu-and-fab-block-trailing-space' : Space.Space0,
-    'standard-menu-and-fab-inline-leading-space' : Space.Space0,
-    'standard-menu-and-fab-inline-trailing-space': Space.Space0,
-} satisfies Record<StandardNavigationRailProps & BaseNavigationProps, any>)
-
-/** Default definition — Collapsed variant */
-export const NavigationRailDefinition = NavigationRailCollapsedDefinition
+    // Variant independent chrome
+    'divider-color'         : Color.OutlineVariant,
+    'scrim-color'           : Color.Scrim,
+    'scrim-opacity'         : `0.38`,
+    'container-shadow-color': Color.Shadow,
+})
