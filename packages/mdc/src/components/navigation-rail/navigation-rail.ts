@@ -245,6 +245,7 @@ export class NavigationRail extends composeMixin(
     private hasCompletedInitialUpdate: boolean = false
     private labelRevealTimer: ReturnType<typeof setTimeout> | null = null
     private isFloatingShown: boolean = false
+    private hasContainerTransitionEndListener: boolean = false
     /**
      * Why the floating rail last started closing. Internal only — the public
      * `closed` event carries no detail yet. Kept separate from `returnValue`
@@ -270,16 +271,22 @@ export class NavigationRail extends composeMixin(
         return changedProperties.has('variant')
     }
 
-    protected override firstUpdated(): void {
-        super.firstUpdated()
-        this.setUpScrollObserver()
-        this.container?.addEventListener('transitionend', this.handleContainerTransitionEnd)
-        // An initially open floating rail must enter the modal state after
-        // the first render. `updated()` already covers the common path via
-        // the initial `variant` change; `show()` guards against a duplicate.
-        if (this.isFloating && this.open && !this.isFloatingShown) {
-            void this.show()
-        }
+    public override connectedCallback(): void {
+        super.connectedCallback()
+        // Rebuilt on every connection: the observer and the transition
+        // listener are torn down in `disconnectedCallback()`, so a rail that
+        // is moved or re-attached must rebind them to the current subtree.
+        void this.updateComplete.then(() => {
+            if (!this.isConnected) return
+            this.setUpScrollObserver()
+            this.bindContainerTransitionEnd()
+            // An initially open floating rail must enter the modal state after
+            // the first render, and a reconnected one lost its top-layer state
+            // while detached. `show()` guards against a duplicate.
+            if (this.isFloating && this.open && !this.isFloatingShown) {
+                void this.show()
+            }
+        })
     }
 
     protected override willUpdate(changedProperties: PropertyValues<this>): void {
@@ -329,12 +336,22 @@ export class NavigationRail extends composeMixin(
     public override disconnectedCallback(): void {
         this.intersectionObserver?.disconnect()
         this.intersectionObserver = undefined
+        this.container?.removeEventListener('transitionend', this.handleContainerTransitionEnd)
+        this.hasContainerTransitionEndListener = false
+        // Reset the transient lifecycle so a reconnected rail starts clean.
+        // The dialog itself is left untouched: closing it here would dispatch
+        // focus/close side effects; an open floating rail is re-shown modal in
+        // `connectedCallback()` instead.
+        this.isAnimating = false
+        this.isFloatingShown = false
         this.clearLabelRevealTimer()
         this.setTabLabelsHidden(false)
         super.disconnectedCallback()
     }
 
     private setUpScrollObserver(): void {
+        this.intersectionObserver?.disconnect()
+        this.intersectionObserver = undefined
         if (this.scroller && this.topAnchor && this.bottomAnchor) {
             this.intersectionObserver = new IntersectionObserver(
                 (entries) => {
@@ -347,6 +364,15 @@ export class NavigationRail extends composeMixin(
             this.intersectionObserver.observe(this.topAnchor)
             this.intersectionObserver.observe(this.bottomAnchor)
         }
+    }
+
+    private bindContainerTransitionEnd(): void {
+        const container = this.container
+        if (!container || this.hasContainerTransitionEndListener) {
+            return
+        }
+        container.addEventListener('transitionend', this.handleContainerTransitionEnd)
+        this.hasContainerTransitionEndListener = true
     }
 
     private handleAnchorIntersection(entry: IntersectionObserverEntry): void {

@@ -160,6 +160,8 @@ export class MDCNavigationTab extends composeMixin(
     private checkedBeforeControllerSelection: boolean = false
     private selectionHandledByController: boolean = false
     private suppressCheckedUpdatePublish: boolean = false
+    private labelObserver: MutationObserver | null = null
+    private autoAdoptedLabel: string = ''
 
     private readonly selectionController = new SelectionController(this, {
         multiple: false,
@@ -228,6 +230,7 @@ export class MDCNavigationTab extends composeMixin(
         if (!this.label) {
             const directLabel = readDirectLabel(this.childNodes)
             if (directLabel) {
+                this.autoAdoptedLabel = directLabel
                 this.label = directLabel
             }
         }
@@ -239,9 +242,12 @@ export class MDCNavigationTab extends composeMixin(
         }
 
         this.subscribeScope()
+        this.observeDirectLabel()
     }
 
     public override disconnectedCallback(): void {
+        this.labelObserver?.disconnect()
+        this.labelObserver = null
         this.unsubscribeScope?.()
         this.unsubscribeScope = null
         super.disconnectedCallback()
@@ -539,6 +545,49 @@ export class MDCNavigationTab extends composeMixin(
 
         this.unsubscribeScope = GlobalNavigationStateStore.subscribe(this.normalizedScope, this.handleScopeMutation)
         this.syncWithScopeState()
+    }
+
+    /**
+     * Keeps an auto-adopted label in sync with the tab's direct text content.
+     *
+     * `subtree` is required to observe in-place text edits (`node.data = ...`,
+     * how Lit updates interpolations); without it `characterData` never fires
+     * for a child text node. The callback filters those records down to the
+     * direct children, so mutations inside a slotted icon are ignored. Once the
+     * author assigns `label` explicitly, the observer stops for good.
+     */
+    private observeDirectLabel(): void {
+        this.labelObserver?.disconnect()
+        this.labelObserver = new MutationObserver((records) => {
+            if (!records.some((record) => this.isDirectLabelMutation(record))) {
+                return
+            }
+
+            const next = readDirectLabel(this.childNodes)
+            if (this.label !== this.autoAdoptedLabel) {
+                // Author has taken over the label; stop auto-updating.
+                this.labelObserver?.disconnect()
+                this.labelObserver = null
+                return
+            }
+
+            if (next !== this.autoAdoptedLabel) {
+                this.autoAdoptedLabel = next
+                this.label = next
+            }
+        })
+        this.labelObserver.observe(this, {
+            childList: true,
+            characterData: true,
+            subtree: true,
+        })
+    }
+
+    private isDirectLabelMutation(record: MutationRecord): boolean {
+        if (record.type === 'childList') {
+            return record.target === this
+        }
+        return record.target.parentNode === this
     }
 
     private syncWithScopeState(): void {

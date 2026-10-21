@@ -217,11 +217,26 @@ export abstract class BaseNavigationDrawer extends composeMixin(
             NAVIGATION_DRAWER_DRAG_END_EVENT,
             this.handleDragEnd,
         )
-    }
+        // Rebuilt on every connection: the scroll observer is torn down in
+        // `disconnectedCallback()`. An open modal drawer also loses its
+        // top-layer state while detached; the reattach path restores it below.
+        void this.updateComplete.then(() => {
+            if (!this.isConnected) return
+            this.setUpScrollObserver()
 
-    protected override firstUpdated(_changedProperties: PropertyValues): void {
-        super.firstUpdated(_changedProperties)
-        this.setUpScrollObserver()
+            const dialog = this.dialogEl
+            if (!this.open || !dialog) return
+
+            if (this.isModal && dialog.open && !dialog.matches(':modal')) {
+                // A modal dialog that left the document keeps its open
+                // attribute but loses the top layer. Re-enter modal state
+                // without replaying the public show lifecycle/events.
+                dialog.close()
+                dialog.showModal()
+            } else if (!dialog.open) {
+                void this.show()
+            }
+        })
     }
 
     protected override willUpdate(changedProperties: PropertyValues<this>): void {
@@ -285,6 +300,8 @@ export abstract class BaseNavigationDrawer extends composeMixin(
         this.cancelAnimations?.abort()
         this.intersectionObserver?.disconnect()
         this.intersectionObserver = undefined
+        this.isOpening = false
+        this.isClosing = false
         this.removeEventListener(
             NAVIGATION_DRAWER_DRAG_END_EVENT,
             this.handleDragEnd,
@@ -657,6 +674,8 @@ export abstract class BaseNavigationDrawer extends composeMixin(
     }
 
     private setUpScrollObserver(): void {
+        this.intersectionObserver?.disconnect()
+        this.intersectionObserver = undefined
         if (this.scroller && this.topAnchor && this.bottomAnchor) {
             this.intersectionObserver = new IntersectionObserver(
                 (entries) => {
