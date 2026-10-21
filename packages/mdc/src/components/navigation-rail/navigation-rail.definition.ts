@@ -59,10 +59,10 @@ import { NavigationRailVariant } from './navigation-rail.interface'
  * The value of a single token for every rail variant.
  */
 interface NavigationRailVariantValues {
-    collapsed       : unknown
-    expandedDocked  : unknown
+    collapsed: unknown
+    expandedDocked: unknown
     expandedFloating: unknown
-    xr              : unknown
+    xr: unknown
 }
 
 /**
@@ -75,141 +75,109 @@ interface NavigationRailVariantValues {
  * @returns The variant record, keyed by the variant names.
  */
 const variants = <T extends NavigationRailVariantValues>(values: T): {
-    'collapsed'        : T['collapsed']
-    'expanded-docked'  : T['expandedDocked']
+    'collapsed': T['collapsed']
+    'expanded-docked': T['expandedDocked']
     'expanded-floating': T['expandedFloating']
-    'xr'               : T['xr']
+    'xr': T['xr']
 } => ({
-    [NavigationRailVariant.Collapsed]       : values.collapsed,
-    [NavigationRailVariant.ExpandedDocked]  : values.expandedDocked,
+    [NavigationRailVariant.Collapsed]: values.collapsed,
+    [NavigationRailVariant.ExpandedDocked]: values.expandedDocked,
     [NavigationRailVariant.ExpandedFloating]: values.expandedFloating,
-    [NavigationRailVariant.XR]              : values.xr,
+    [NavigationRailVariant.XR]: values.xr,
 })
 
 export const NavigationRailDefinition = createStyleDefinition({
     // Container
     ...expandShape('container-shape')(variants({
-        collapsed       : Shape.None,
-        expandedDocked  : Shape.None,
+        collapsed: Shape.None,
+        expandedDocked: Shape.None,
         expandedFloating: Shape.Large,
-        xr              : Shape.ExtraExtraLarge,
+        xr: Shape.ExtraExtraLarge,
     })),
     'container-width': variants({
-        collapsed       : `96px`,
-        expandedDocked  : `220px`,
+        collapsed: `96px`,
+        expandedDocked: `220px`,
         expandedFloating: `220px`,
-        xr              : `96px`,
+        xr: `96px`,
     }),
     'container-color': variants({
-        collapsed       : `transparent`,
-        expandedDocked  : `transparent`,
+        collapsed: `transparent`,
+        expandedDocked: `transparent`,
         expandedFloating: Color.SurfaceContainer,
-        xr              : Color.SurfaceContainer,
+        xr: Color.SurfaceContainer,
     }),
     'container-elevation-level': variants({
-        collapsed       : ElevationLevel.Level0,
-        expandedDocked  : ElevationLevel.Level0,
+        collapsed: ElevationLevel.Level0,
+        expandedDocked: ElevationLevel.Level0,
         expandedFloating: ElevationLevel.Level0,
-        xr              : ElevationLevel.Level0,
+        xr: ElevationLevel.Level0,
     }),
     'container-item-gap': variants({
-        collapsed       : Space.Space400,
-        expandedDocked  : Space.Space400,
+        collapsed: Space.Space400,
+        expandedDocked: Space.Space400,
         expandedFloating: Space.Space400,
-        xr              : Space.Space250,
+        xr: Space.Space250,
     }),
     'container-padding-block-start': variants({
-        collapsed       : Space.Space500,
-        expandedDocked  : Space.Space500,
+        collapsed: Space.Space500,
+        expandedDocked: Space.Space500,
         expandedFloating: Space.Space500,
-        xr              : Space.Space0,
+        xr: Space.Space0,
     }),
     'container-padding-block-end': variants({
-        collapsed       : Space.Space700,
-        expandedDocked  : Space.Space250,
+        collapsed: Space.Space700,
+        expandedDocked: Space.Space250,
         expandedFloating: Space.Space250,
-        xr              : Space.Space0,
+        xr: Space.Space0,
     }),
     'container-padding-inline-start': variants({
-        collapsed       : Space.Space0,
-        expandedDocked  : Space.Space250,
+        collapsed: Space.Space0,
+        expandedDocked: Space.Space250,
         expandedFloating: Space.Space250,
-        xr              : Space.Space0,
+        xr: Space.Space0,
     }),
     'container-padding-inline-end': variants({
-        collapsed       : Space.Space0,
-        expandedDocked  : Space.Space250,
+        collapsed: Space.Space0,
+        expandedDocked: Space.Space250,
         expandedFloating: Space.Space250,
-        xr              : Space.Space0,
-    }),
-
-    // Segments
-    'segments-item-gap': variants({
-        collapsed       : Space.Space50,
-        expandedDocked  : Space.Space0,
-        expandedFloating: Space.Space0,
-        xr              : Space.Space50,
-    }),
-    'segments-padding-block-start': variants({
-        collapsed       : Space.Space0,
-        expandedDocked  : Space.Space0,
-        expandedFloating: Space.Space0,
-        xr              : Space.Space0,
-    }),
-    'segments-padding-block-end': variants({
-        collapsed       : Space.Space0,
-        expandedDocked  : Space.Space0,
-        expandedFloating: Space.Space0,
-        xr              : Space.Space0,
-    }),
-    'segments-padding-inline-start': variants({
-        collapsed       : Space.Space0,
-        expandedDocked  : Space.Space0,
-        expandedFloating: Space.Space0,
-        xr              : Space.Space0,
-    }),
-    'segments-padding-inline-end': variants({
-        collapsed       : Space.Space0,
-        expandedDocked  : Space.Space0,
-        expandedFloating: Space.Space0,
-        xr              : Space.Space0,
+        xr: Space.Space0,
     }),
 
     // Menu & Fab
     'menu-and-fab-item-gap': variants({
-        collapsed       : Space.Space50,
-        expandedDocked  : Space.Space50,
+        collapsed: Space.Space50,
+        expandedDocked: Space.Space50,
         expandedFloating: Space.Space50,
-        xr              : Space.Space50,
+        xr: Space.Space50,
     }),
     'menu-and-fab-padding-block-start': variants({
-        collapsed       : Space.Space0,
-        expandedDocked  : Space.Space0,
+        collapsed: Space.Space0,
+        expandedDocked: Space.Space0,
         expandedFloating: Space.Space0,
-        xr              : Space.Space0,
+        xr: Space.Space0,
     }),
     'menu-and-fab-padding-block-end': variants({
-        collapsed       : Space.Space0,
-        expandedDocked  : Space.Space0,
+        collapsed: Space.Space0,
+        expandedDocked: Space.Space0,
         expandedFloating: Space.Space0,
-        xr              : Space.Space0,
+        xr: Space.Space0,
     }),
     'menu-and-fab-padding-inline-start': variants({
-        collapsed       : Space.Space0,
-        expandedDocked  : Space.Space0,
+        collapsed: Space.Space0,
+        expandedDocked: Space.Space0,
         expandedFloating: Space.Space0,
-        xr              : Space.Space0,
+        xr: Space.Space0,
     }),
     'menu-and-fab-padding-inline-end': variants({
-        collapsed       : Space.Space0,
-        expandedDocked  : Space.Space0,
+        collapsed: Space.Space0,
+        expandedDocked: Space.Space0,
         expandedFloating: Space.Space0,
-        xr              : Space.Space0,
+        xr: Space.Space0,
     }),
 
     // Variant independent chrome
-    'divider-color'         : Color.OutlineVariant,
-    'scrim-color'           : Color.Scrim,
-    'scrim-opacity'         : `0.38`,
+    'divider-color': Color.OutlineVariant,
+    'scrim-color': Color.Scrim,
+    'scrim-opacity': `0.38`,
     'container-shadow-color': Color.Shadow,
 })

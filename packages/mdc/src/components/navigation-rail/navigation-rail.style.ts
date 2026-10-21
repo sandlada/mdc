@@ -55,7 +55,7 @@ export const NavigationRailStyles = [
                 opacity: 0;
                 display: none;
                 pointer-events: none;
-                z-index: 0;
+                z-index: 1;
                 background: var(--_scrim-color);
 
                 transition-property: display, opacity;
@@ -114,7 +114,7 @@ export const NavigationRailStyles = [
                 background: transparent;
                 max-height: 100%;
                 max-width: 100%;
-                z-index: 1000;
+                z-index: 1;
                 overflow: visible;
             }
             ::backdrop {
@@ -397,11 +397,6 @@ export const NavigationRailStyles = [
 
             dialog.collapsed .container .destination {
                 align-items: center;
-                gap: var(--_collapsed-segments-item-gap);
-                padding-block-start: var(--_collapsed-segments-padding-block-start);
-                padding-block-end: var(--_collapsed-segments-padding-block-end);
-                padding-inline-start: var(--_collapsed-segments-padding-inline-start);
-                padding-inline-end: var(--_collapsed-segments-padding-inline-end);
             }
 
             dialog.collapsed .container .end-section {
@@ -458,11 +453,6 @@ export const NavigationRailStyles = [
 
             dialog.expanded-docked .container .destination {
                 align-items: stretch;
-                gap: var(--_expanded-docked-segments-item-gap);
-                padding-block-start: var(--_expanded-docked-segments-padding-block-start);
-                padding-block-end: var(--_expanded-docked-segments-padding-block-end);
-                padding-inline-start: var(--_expanded-docked-segments-padding-inline-start);
-                padding-inline-end: var(--_expanded-docked-segments-padding-inline-end);
             }
 
             dialog.expanded-docked .container .end-section {
@@ -584,11 +574,6 @@ export const NavigationRailStyles = [
 
             dialog.expanded-floating .container .destination {
                 align-items: stretch;
-                gap: var(--_expanded-floating-segments-item-gap);
-                padding-block-start: var(--_expanded-floating-segments-padding-block-start);
-                padding-block-end: var(--_expanded-floating-segments-padding-block-end);
-                padding-inline-start: var(--_expanded-floating-segments-padding-inline-start);
-                padding-inline-end: var(--_expanded-floating-segments-padding-inline-end);
             }
 
             dialog.expanded-floating .container .end-section {
@@ -634,7 +619,6 @@ export const NavigationRailStyles = [
 
             dialog.xr .container .destination {
                 align-items: center;
-                gap: var(--_xr-segments-item-gap);
             }
 
             dialog.xr .container .end-section {
