@@ -34,7 +34,7 @@ import type { INavigationTab, NavigationTabVariant } from './navigation-tab.inte
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import { mixinRippleOptions } from '../ripple/ripple-options.mixin'
 import { mixinFocusRingOptions } from '../focus-ring/focus-ring-options.mixin'
-import { internals, mixinElementInternals } from '../../utils/behaviors/element-internals'
+import { mixinElementInternals } from '../../utils/behaviors/element-internals'
 import { mixinDelegatesAria } from '../../utils/aria/delegate'
 import { createValidator, getValidityAnchor, mixinConstraintValidation } from '../../utils/behaviors/constraint-validation'
 import { getFormState, getFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
@@ -191,8 +191,10 @@ export class MDCNavigationTab extends composeMixin(
         super()
         if (isServer) return
 
-        this[internals].role = 'tab'
-
+        // Navigation destinations are exposed through the inner native
+        // `<a>`/`<button>`, not through an ARIA `tab` role on the host. The
+        // host stays a form-associated custom element without an explicit
+        // role, so no `tablist`/`tab` pattern is implied.
         this.addEventListener('click', this.handleHostClick)
         this.addEventListener('pointerdown', this.handlePointerDownCapture, { capture: true })
         this.addEventListener('keydown', this.handleKeyDownCapture, { capture: true })
@@ -211,8 +213,8 @@ export class MDCNavigationTab extends composeMixin(
         }
 
         // Custom element constructors must not set attributes, so the initial
-        // ARIA state is applied once the element connects. Never override a
-        // `tabindex` the author set explicitly.
+        // roving `tabindex` is applied once the element connects. Never
+        // override a `tabindex` the author set explicitly.
         if (!this.hasAttribute('tabindex')) {
             this.tabIndex = 0
         }
@@ -232,9 +234,6 @@ export class MDCNavigationTab extends composeMixin(
         if (this.label.length > 0) {
             this.setAttribute('aria-label', this.label)
         }
-        this.setAttribute('aria-selected', String(this.checked))
-        this.setAttribute('aria-disabled', String(this.disabled))
-        this.setAttribute('aria-required', String(this.required))
 
         this.subscribeScope()
     }
@@ -275,16 +274,7 @@ export class MDCNavigationTab extends composeMixin(
         }
 
         if (changedProperties.has('checked')) {
-            this.setAttribute('aria-selected', String(this.checked))
             this.handleCheckedMutation()
-        }
-
-        if (changedProperties.has('disabled')) {
-            this.setAttribute('aria-disabled', String(this.disabled))
-        }
-
-        if (changedProperties.has('required')) {
-            this.setAttribute('aria-required', String(this.required))
         }
 
         if (changedProperties.has('navigationScope') && this.isConnected) {
@@ -347,10 +337,13 @@ export class MDCNavigationTab extends composeMixin(
 
     protected override render(): TemplateResult {
         const classes = classMap(this.getRenderClasses())
-        // The host owns the accessible name and the roving tabindex. Mirror the
-        // effective name (an author `aria-label` for icon-only tabs, otherwise
-        // the label) onto the inner control, and keep that control out of the
-        // tab order so it only serves as the focus delegation target.
+        // A navigation tab is a navigation destination, not an ARIA tab. The
+        // inner native `<a>`/`<button>` is the accessible control: it carries
+        // the name (an author `aria-label` for icon-only tabs, otherwise the
+        // label), marks the selected destination with `aria-current="page"`,
+        // and stays out of the tab order so it only serves as the focus
+        // delegation target. No `tablist`/`tab`/`aria-selected` relationship is
+        // implied.
         const accessibleLabel = this.getAttribute('aria-label') || this.label || nothing
         const content = html`
             <div aria-hidden="true" class="indicator">
@@ -383,7 +376,7 @@ export class MDCNavigationTab extends composeMixin(
                     href=${this.href}
                     target=${this.target || nothing}
                     aria-label=${accessibleLabel}
-                    aria-selected=${String(this.checked)}
+                    aria-current=${this.checked ? 'page' : nothing}
                     aria-disabled=${this.disabled ? 'true' : nothing}
                     tabindex="-1"
                     @click=${this.handleClick}
@@ -399,7 +392,7 @@ export class MDCNavigationTab extends composeMixin(
                 class="${classes}"
                 ?disabled=${this.disabled}
                 aria-label=${accessibleLabel}
-                aria-selected=${String(this.checked)}
+                aria-current=${this.checked ? 'page' : nothing}
                 aria-disabled=${this.disabled ? 'true' : nothing}
                 tabindex="-1"
                 @click=${this.handleClick}
