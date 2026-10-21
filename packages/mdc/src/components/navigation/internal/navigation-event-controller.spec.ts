@@ -207,6 +207,21 @@ describe('NavigationEventController', () => {
         ])
     })
 
+    it('dispatches composed events so they cross shadow boundaries', () => {
+        const scope = uniqueScope()
+        const { host } = createHost(scope)
+        const composedFlags: boolean[] = []
+        for (const type of ['input', 'change']) {
+            host.addEventListener(type, (event) => {
+                composedFlags.push(event.composed)
+            })
+        }
+
+        GlobalNavigationStateStore.setActive(scope, '/home', { source: 'user', trigger: 'pointer' })
+
+        expect(composedFlags).toEqual([true, true])
+    })
+
     it('stops dispatching after disconnect and resumes after reconnect', () => {
         const scope = uniqueScope()
         const { host, events } = createHost(scope)

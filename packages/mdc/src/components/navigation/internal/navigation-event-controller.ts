@@ -65,10 +65,10 @@ export class NavigationEventController implements ReactiveController {
             mutation.previousValue ?? undefined,
         ]
 
-        this.host.dispatchEvent(new CustomEvent<IMDCNavigationValueChangeDetail>('input', { bubbles: true, detail }))
+        this.host.dispatchEvent(new CustomEvent<IMDCNavigationValueChangeDetail>('input', { bubbles: true, composed: true, detail }))
 
         if (mutation.changed) {
-            this.host.dispatchEvent(new CustomEvent<IMDCNavigationValueChangeDetail>('change', { bubbles: true, detail }))
+            this.host.dispatchEvent(new CustomEvent<IMDCNavigationValueChangeDetail>('change', { bubbles: true, composed: true, detail }))
         }
     }
 }

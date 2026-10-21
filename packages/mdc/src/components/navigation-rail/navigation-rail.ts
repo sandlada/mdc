@@ -121,6 +121,12 @@ const VALID_VARIANTS: readonly NavigationRailVariant[] = [
     NavigationRailVariant.XR,
 ]
 
+const VALID_ALIGNMENTS: readonly NavigationRailAlignment[] = [
+    NavigationRailAlignment.Top,
+    NavigationRailAlignment.Center,
+    NavigationRailAlignment.Bottom,
+]
+
 /**
  * Material Design 3 Navigation Rail.
  *
@@ -280,6 +286,9 @@ export class NavigationRail extends composeMixin(
         super.willUpdate(changedProperties)
         if (!VALID_VARIANTS.includes(this.variant)) {
             throw new Error(`[mdc-navigation-rail] Unsupported variant "${String(this.variant)}". Navigation rails support only "collapsed" | "expanded-docked" | "expanded-floating" | "xr".`)
+        }
+        if (!VALID_ALIGNMENTS.includes(this.alignment)) {
+            throw new Error(`[mdc-navigation-rail] Unsupported alignment "${String(this.alignment)}". Navigation rails support only "top" | "center" | "bottom".`)
         }
 
         if (changedProperties.has('variant') && !this.isFloating) {

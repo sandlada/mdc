@@ -49,6 +49,17 @@ import {
 
 const SCRIM_OPACITY_PEAK = 0.38
 
+const VALID_DRAWER_VARIANTS: readonly NavigationDrawerVariant[] = [
+    NavigationDrawerVariant.Modal,
+    NavigationDrawerVariant.Standard,
+    NavigationDrawerVariant.Permanent,
+]
+
+const VALID_DRAWER_EDGES: readonly NavigationDrawerEdge[] = [
+    NavigationDrawerEdge.Start,
+    NavigationDrawerEdge.End,
+]
+
 /**
  * Abstract base for `mdc-navigation-drawer`.
  *
@@ -215,6 +226,13 @@ export abstract class BaseNavigationDrawer extends composeMixin(
 
     protected override willUpdate(changedProperties: PropertyValues<this>): void {
         super.willUpdate(changedProperties)
+
+        if (!VALID_DRAWER_VARIANTS.includes(this.variant)) {
+            throw new Error(`[mdc-navigation-drawer] Unsupported variant "${String(this.variant)}". Drawers support only "modal" | "standard" | "permanent".`)
+        }
+        if (!VALID_DRAWER_EDGES.includes(this.drawerEdge)) {
+            throw new Error(`[mdc-navigation-drawer] Unsupported drawer edge "${String(this.drawerEdge)}". Drawers support only "start" | "end".`)
+        }
 
         if (changedProperties.has('open')) {
             if (this.open) {

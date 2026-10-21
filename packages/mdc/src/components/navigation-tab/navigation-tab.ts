@@ -30,7 +30,8 @@ import {
     type NavigationEventTrigger,
     type NavigationScopeMutation,
 } from '../../utils/navigation/navigation-state-store'
-import type { INavigationTab, NavigationTabVariant } from './navigation-tab.interface'
+import type { INavigationTab } from './navigation-tab.interface'
+import { NavigationTabVariant } from './navigation-tab.interface'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import { mixinRippleOptions } from '../ripple/ripple-options.mixin'
 import { mixinFocusRingOptions } from '../focus-ring/focus-ring-options.mixin'
@@ -46,13 +47,12 @@ import { MeasuredDimensionController } from '../../utils/controller/measured-dim
 import { isActivationClick } from '../../utils/event/form-label-activation'
 import { readDirectLabel } from './internal/read-direct-label'
 
-const KEYBOARD_SELECTION_KEYS = new Set([' ', 'Enter', 'Spacebar'])
+const KEYBOARD_SELECTION_KEYS = new Set([' ', 'Enter'])
 
-function createNavigationTabId() {
-    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-        return crypto.randomUUID()
-    }
-    return `mdc-navigation-tab-${Math.random().toString(36).slice(2)}`
+const VALID_TAB_VARIANTS = new Set<string>(Object.values(NavigationTabVariant))
+
+function createNavigationTabId(): string {
+    return `mdc-navigation-tab-${crypto.randomUUID()}`
 }
 
 declare global {
@@ -248,6 +248,12 @@ export class MDCNavigationTab extends composeMixin(
     }
 
     protected override willUpdate(changedProperties: PropertyValues<this>): void {
+        super.willUpdate(changedProperties)
+
+        if (!VALID_TAB_VARIANTS.has(this.variant)) {
+            throw new Error(`[mdc-navigation-tab] Unsupported variant "${String(this.variant)}".`)
+        }
+
         // Before the first render there is no inner control yet, so the
         // controller would fall back to the host and make the wrapper an extra
         // Tab stop. The first render's roving tabindex is applied by the

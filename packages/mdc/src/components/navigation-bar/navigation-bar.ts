@@ -54,6 +54,13 @@ export class MDCNavigationBar extends BaseNavigationBar implements INavigationBa
     @property({ type: String, reflect: true, attribute: 'variant' })
     public variant: NavigationBarVariant = NavigationBarVariant.Horizontal
 
+    protected override willUpdate(changedProperties: PropertyValues<this>): void {
+        super.willUpdate(changedProperties)
+        if (!(this.variant in BAR_TAB_VARIANTS)) {
+            throw new Error(`[mdc-navigation-bar] Unsupported variant "${String(this.variant)}". Navigation bars support only "horizontal" | "vertical" | "vertical-xr".`)
+        }
+    }
+
     protected override resolveTabVariant(): NavigationTabVariant {
         const variant: NavigationTabVariant | undefined = BAR_TAB_VARIANTS[this.variant]
         if (variant === undefined) {
