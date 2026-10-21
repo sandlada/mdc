@@ -78,6 +78,7 @@ docs/.superpowers
 !SECURITY.md
 !docs/*.md
 !SPEC.md
+!TESTS.md
 !USAGE.md
 *.py
 .playwright
