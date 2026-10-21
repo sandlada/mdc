@@ -16,6 +16,7 @@ import {
 } from '../../../utils/docking'
 import { mixinElevationOptions } from '../../elevation/elevation-options.mixin'
 import { BaseNavigationContainer } from '../../navigation/internal/base-navigation-container'
+import { NavigationTabVariant } from '../../navigation-tab/navigation-tab.interface'
 import '../../typography/typography'
 import {
     NavigationDrawerDragCommitCloseAnimation,
@@ -74,6 +75,10 @@ export abstract class BaseNavigationDrawer extends composeMixin(
 
     public get isModal(): boolean {
         return this.variant === NavigationDrawerVariant.Modal
+    }
+
+    protected override resolveTabVariant(): NavigationTabVariant {
+        return NavigationTabVariant.Drawer
     }
 
     @property({ type: Boolean, reflect: true })
@@ -189,7 +194,6 @@ export abstract class BaseNavigationDrawer extends composeMixin(
 
     public override connectedCallback(): void {
         super.connectedCallback()
-        this.syncTabVariants()
         this.addEventListener(
             NAVIGATION_DRAWER_DRAG_END_EVENT,
             this.handleDragEnd,
@@ -199,7 +203,6 @@ export abstract class BaseNavigationDrawer extends composeMixin(
     protected override firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated(_changedProperties)
         this.setUpScrollObserver()
-        this.syncTabVariants()
     }
 
     protected override willUpdate(changedProperties: PropertyValues<this>): void {
@@ -233,7 +236,6 @@ export abstract class BaseNavigationDrawer extends composeMixin(
             if (this.variant === 'permanent') {
                 this.open = true
             }
-            this.syncTabVariants()
         }
 
         if (changedProperties.has('open')) {
@@ -626,10 +628,6 @@ export abstract class BaseNavigationDrawer extends composeMixin(
     }
 
     private setUpScrollObserver(): void {
-        this.shadowRoot?.querySelector('slot:not([name])')?.addEventListener('slotchange', () => {
-            this.syncTabVariants()
-        })
-
         if (this.scroller && this.topAnchor && this.bottomAnchor) {
             this.intersectionObserver = new IntersectionObserver(
                 (entries) => {
@@ -641,16 +639,6 @@ export abstract class BaseNavigationDrawer extends composeMixin(
             )
             this.intersectionObserver.observe(this.topAnchor)
             this.intersectionObserver.observe(this.bottomAnchor)
-        }
-    }
-
-    private syncTabVariants(): void {
-        const tabs = this.querySelectorAll<HTMLElement>('mdc-navigation-tab')
-        for (const tab of tabs) {
-            const explicitVariant = tab.getAttribute('variant')
-            if (!explicitVariant || explicitVariant.startsWith('bar') || explicitVariant.startsWith('rail')) {
-                (tab as any).variant = 'drawer'
-            }
         }
     }
 

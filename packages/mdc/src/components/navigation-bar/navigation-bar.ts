@@ -26,7 +26,13 @@ import { html, type CSSResultGroup, type PropertyValues, type TemplateResult } f
 import { type INavigationBar, NavigationBarVariant } from './navigation-bar.interface'
 import { NavigationBarStyles } from './navigation-bar.style'
 import { classMap } from 'lit/directives/class-map.js'
-import type { NavigationTabVariant } from '../navigation-tab/navigation-tab.interface'
+import { NavigationTabVariant } from '../navigation-tab/navigation-tab.interface'
+
+const BAR_TAB_VARIANTS = {
+    horizontal: NavigationTabVariant.BarHorizontal,
+    vertical: NavigationTabVariant.BarVertical,
+    'vertical-xr': NavigationTabVariant.BarXRVertical,
+} as const satisfies Record<NavigationBarVariant, NavigationTabVariant>
 
 declare global {
     interface HTMLElementTagNameMap {
@@ -48,20 +54,16 @@ export class MDCNavigationBar extends BaseNavigationBar implements INavigationBa
     @property({ type: String, reflect: true, attribute: 'variant' })
     public variant: NavigationBarVariant = NavigationBarVariant.Horizontal
 
-    protected override firstUpdated(): void {
-        super.firstUpdated()
-        this.syncTabVariants()
-
-        this.shadowRoot?.querySelector('slot')?.addEventListener('slotchange', () => {
-            this.syncTabVariants()
-        })
+    protected override resolveTabVariant(): NavigationTabVariant {
+        const variant: NavigationTabVariant | undefined = BAR_TAB_VARIANTS[this.variant]
+        if (variant === undefined) {
+            throw new Error(`[mdc-navigation-bar] Unsupported variant "${String(this.variant)}". Navigation bars support only "horizontal" | "vertical" | "vertical-xr".`)
+        }
+        return variant
     }
 
-    protected override updated(changedProperties: PropertyValues<this>): void {
-        super.updated(changedProperties)
-        if (changedProperties.has('variant')) {
-            this.syncTabVariants()
-        }
+    protected override shouldSyncTabVariants(changedProperties: PropertyValues<this>): boolean {
+        return changedProperties.has('variant')
     }
 
     protected override render(): TemplateResult {
@@ -84,25 +86,6 @@ export class MDCNavigationBar extends BaseNavigationBar implements INavigationBa
         return html`
             <div aria-hidden="true" class="background"></div>
         `
-    }
-
-    private syncTabVariants(): void {
-        const targetVariant = this.computeTargetVariant()
-        const tabs = this.querySelectorAll<HTMLElement>('mdc-navigation-tab')
-        for (const tab of tabs) {
-            (tab as any).variant = targetVariant
-        }
-    }
-
-    private computeTargetVariant(): NavigationTabVariant {
-        switch (this.variant) {
-            case 'vertical':
-                return 'bar-vertical'
-            case 'horizontal':
-                return 'bar-horizontal'
-            case 'vertical-xr':
-                return 'bar-xr-vertical'
-        }
     }
 
 }

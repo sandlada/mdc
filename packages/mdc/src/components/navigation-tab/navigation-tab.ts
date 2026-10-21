@@ -44,6 +44,7 @@ import { classMap } from 'lit/directives/class-map.js'
 import { OpacityTransitionController } from '../../utils/controller/opacity-transition-controller'
 import { MeasuredDimensionController } from '../../utils/controller/measured-dimension-controller'
 import { isActivationClick } from '../../utils/event/form-label-activation'
+import { readDirectLabel } from './internal/read-direct-label'
 
 const KEYBOARD_SELECTION_KEYS = new Set([' ', 'Enter', 'Spacebar'])
 
@@ -191,10 +192,6 @@ export class MDCNavigationTab extends composeMixin(
         if (isServer) return
 
         this[internals].role = 'tab'
-        this.tabIndex = 0
-        this.setAttribute('aria-label', this.label)
-        this.setAttribute('aria-selected', String(this.checked))
-        this.setAttribute('aria-disabled', String(this.disabled))
 
         this.addEventListener('click', this.handleHostClick)
         this.addEventListener('pointerdown', this.handlePointerDownCapture, { capture: true })
@@ -213,9 +210,31 @@ export class MDCNavigationTab extends composeMixin(
             this.checked = true
         }
 
-        if (!this.label && this.textContent?.trim()) {
-            this.label = this.textContent.trim()
+        // Custom element constructors must not set attributes, so the initial
+        // ARIA state is applied once the element connects. Never override a
+        // `tabindex` the author set explicitly.
+        if (!this.hasAttribute('tabindex')) {
+            this.tabIndex = 0
         }
+
+        // Only direct text nodes name the tab. A slotted
+        // `<mdc-icon>settings</mdc-icon>` carries the icon name as text and
+        // must not turn an icon-only destination into a labelled one.
+        if (!this.label) {
+            const directLabel = readDirectLabel(this.childNodes)
+            if (directLabel) {
+                this.label = directLabel
+            }
+        }
+
+        // An icon-only tab may rely on an author-supplied `aria-label`, so an
+        // empty label must not clear it or create an empty attribute.
+        if (this.label.length > 0) {
+            this.setAttribute('aria-label', this.label)
+        }
+        this.setAttribute('aria-selected', String(this.checked))
+        this.setAttribute('aria-disabled', String(this.disabled))
+        this.setAttribute('aria-required', String(this.required))
 
         this.subscribeScope()
     }
@@ -240,7 +259,19 @@ export class MDCNavigationTab extends composeMixin(
         }
 
         if (changedProperties.has('label')) {
-            this.setAttribute('aria-label', this.label)
+            // Mirror a non-empty label into the accessible name. An icon-only
+            // tab has no label of its own, so an empty label may only clear a
+            // name that was mirrored from the previous label; keep an
+            // author-supplied `aria-label`.
+            const previousLabel = changedProperties.get('label') ?? ''
+            if (this.label.length > 0) {
+                this.setAttribute('aria-label', this.label)
+            } else if (
+                previousLabel.length > 0
+                && this.getAttribute('aria-label') === previousLabel
+            ) {
+                this.removeAttribute('aria-label')
+            }
         }
 
         if (changedProperties.has('checked')) {
@@ -316,7 +347,11 @@ export class MDCNavigationTab extends composeMixin(
 
     protected override render(): TemplateResult {
         const classes = classMap(this.getRenderClasses())
-        const tabIndex = this.disabled ? -1 : 0
+        // The host owns the accessible name and the roving tabindex. Mirror the
+        // effective name (an author `aria-label` for icon-only tabs, otherwise
+        // the label) onto the inner control, and keep that control out of the
+        // tab order so it only serves as the focus delegation target.
+        const accessibleLabel = this.getAttribute('aria-label') || this.label || nothing
         const content = html`
             <div aria-hidden="true" class="indicator">
                 <div aria-hidden="true" class="ripple-layer">
@@ -347,10 +382,10 @@ export class MDCNavigationTab extends composeMixin(
                     class="${classes}"
                     href=${this.href}
                     target=${this.target || nothing}
-                    aria-label=${this.label || nothing}
+                    aria-label=${accessibleLabel}
                     aria-selected=${String(this.checked)}
                     aria-disabled=${this.disabled ? 'true' : nothing}
-                    tabindex=${tabIndex}
+                    tabindex="-1"
                     @click=${this.handleClick}
                 >
                     ${content}
@@ -363,10 +398,10 @@ export class MDCNavigationTab extends composeMixin(
                 type="button"
                 class="${classes}"
                 ?disabled=${this.disabled}
-                aria-label=${this.label || nothing}
+                aria-label=${accessibleLabel}
                 aria-selected=${String(this.checked)}
                 aria-disabled=${this.disabled ? 'true' : nothing}
-                tabindex=${tabIndex}
+                tabindex="-1"
                 @click=${this.handleClick}
             >
                 ${content}

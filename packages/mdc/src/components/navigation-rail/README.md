@@ -14,11 +14,11 @@ labels such a group.
 ## Features
 
 - **4 Variants** expressed by a single `variant` property:
-  - `collapsed` (default): docked, narrow rail, icon-above-label destinations.
+  - `collapsed` (default): docked, narrow rail; labeled destinations stack the icon above the label, icon-only destinations use a round container.
   - `expanded-docked`: docked, wide rail, icon-next-to-label destinations.
   - `expanded-floating`: floating overlay above the content with a scrim backdrop, always wide.
   - `xr`: docked XR rail with XR destinations.
-- **Collapsed Layout**: `collapsed-layout="vertical"` (icon on top, label underneath) or `collapsed-layout="round"` (icon only, inside a round container).
+- **Per-Tab Layouts**: The rail owns the layout of its destinations. A tab with a `label` uses the vertical layout (icon above label); a tab without a label uses the round layout (icon only, inside a round container). Both layouts may be mixed inside the same rail.
 - **Navigation Scope Synchronization**: Integrates with `GlobalNavigationStateStore` and `<mdc-navigation-tab>` to sync active destinations across bars, rails, and drawers sharing the same `navigation-scope`.
 - **Sections**: Destinations are grouped in `<mdc-navigation-rail-section>`. A section labels its group with an `<mdc-navigation-rail-section-header slot="header">`, which is an expanded-rail affordance — collapsed and XR rails group their destinations in headerless sections.
 - **Inner Anatomy & Slots**:
@@ -31,6 +31,24 @@ labels such a group.
   - Automatic top/bottom scroll dividers with intersection observer detection.
 - **Morphing Choreography**: The destination label is hidden while the rail morphs between the collapsed and the expanded layout and revealed once the new layout settled.
 - **CSS-driven Motion**: The floating rail slides in from the edge it is docked to and fades in; the exit motion is reversed and the rail stays painted until it finished. The motion is expressed in CSS (`@starting-style` + `transition`), enters from the correct edge under `dir="rtl"`, and is skipped by `quick` and `prefers-reduced-motion`.
+
+---
+
+## Destination Layouts
+
+The rail owns the layout of every `<mdc-navigation-tab>` it contains — a
+`variant` set on the tab itself is overwritten by the container.
+
+| Rail variant                            | Tab with `label`   | Tab without `label` |
+| --------------------------------------- | ------------------ | ------------------- |
+| `collapsed`                             | `rail-vertical`    | `rail-round`        |
+| `expanded-docked` / `expanded-floating` | `rail-horizontal`  | `rail-horizontal`   |
+| `xr`                                    | `rail-xr-vertical` | `rail-xr-round`     |
+
+- The label alone decides the layout: a tab with a label stays `rail-vertical`
+  even when it has no icon. A tab without a label becomes `rail-round`.
+- Vertical and round destinations may be mixed inside the same rail.
+- Icon-only destinations have no visible text, so give them an `aria-label`.
 
 ---
 
@@ -175,7 +193,6 @@ variants; a collapsed or XR rail groups its destinations in headerless sections.
 | Property          | Attribute          | Type                                                     | Default      | Description                                                                                              |
 | ----------------- | ------------------ | -------------------------------------------------------- | ------------ | -------------------------------------------------------------------------------------------------------- |
 | `variant`         | `variant`          | `'collapsed' \| 'expanded-docked' \| 'expanded-floating' \| 'xr'` | `'collapsed'` | The visual state of the rail. Reflected so it can be targeted with CSS selectors.               |
-| `collapsedLayout` | `collapsed-layout` | `'vertical' \| 'round'`                                  | `'vertical'`  | Destination layout while the rail is collapsed.                                                          |
 | `open`            | `open`             | `boolean`                                                | `false`       | Shows the floating rail. Only meaningful for the `expanded-floating` variant.                             |
 | `alignment`       | `alignment`        | `'top' \| 'center' \| 'bottom'`                          | `'top'`       | Vertical alignment of the destination items.                                                              |
 | `quick`           | `quick`            | `boolean`                                                | `false`       | Skips all animations.                                                                                      |

@@ -22,10 +22,13 @@ import {
     GlobalNavigationStateStore,
     type NavigationEventTrigger,
 } from '../../../utils/navigation/navigation-state-store'
+import type { NavigationTabVariant } from '../../navigation-tab/navigation-tab.interface'
 import { NavigationEventController } from './navigation-event-controller'
 
-interface INavigationTabScopeTarget extends HTMLElement {
+export interface INavigationTabTarget extends HTMLElement {
     navigationScope: string
+    label: string
+    variant: NavigationTabVariant
 }
 
 const NAVIGATION_TAB_SELECTOR = 'mdc-navigation-tab'
@@ -42,7 +45,7 @@ export abstract class BaseNavigationContainer extends LitElement {
      * Scope last inherited into each managed tab. A tab whose scope diverges
      * from the recorded value has opted out with its own scope.
      */
-    private readonly inheritedTabScopes = new WeakMap<INavigationTabScopeTarget, string>()
+    private readonly inheritedTabScopes = new WeakMap<INavigationTabTarget, string>()
 
     private mutationObserver: MutationObserver | null = null
 
@@ -67,12 +70,13 @@ export abstract class BaseNavigationContainer extends LitElement {
         if (isServer) return
 
         this.syncTabsScope()
+        this.syncTabVariants()
         this.mutationObserver = new MutationObserver(this.handleTabsMutation)
         this.mutationObserver.observe(this, {
             childList: true,
             subtree: true,
             attributes: true,
-            attributeFilter: ['navigation-scope'],
+            attributeFilter: ['navigation-scope', 'label'],
         })
     }
 
@@ -85,11 +89,15 @@ export abstract class BaseNavigationContainer extends LitElement {
     protected override firstUpdated(_changedProperties?: PropertyValues): void {
         super.firstUpdated(_changedProperties as PropertyValues)
         this.syncTabsScope()
+        this.syncTabVariants()
     }
 
     protected override updated(changedProperties: PropertyValues<this>): void {
         if (changedProperties.has('navigationScope')) {
             this.syncTabsScope()
+        }
+        if (this.shouldSyncTabVariants(changedProperties)) {
+            this.syncTabVariants()
         }
     }
 
@@ -107,22 +115,34 @@ export abstract class BaseNavigationContainer extends LitElement {
 
     private readonly handleSlotChange = () => {
         this.syncTabsScope()
+        this.syncTabVariants()
     }
 
     // Tabs may be added inside a slotted wrapper after the first render. Those
     // insertions never reach the container's `slotchange`, so observe the
     // light DOM subtree to pick them up. Scope attributes are observed as well
-    // so clearing an explicit tab scope restores inheritance.
+    // so clearing an explicit tab scope restores inheritance. Label changes
+    // re-resolve the container-owned tab variant.
     private readonly handleTabsMutation = (records: MutationRecord[]): void => {
-        if (records.some((record) =>
-            this.isTabScopeMutation(record) || this.addedNavigationTabs(record.addedNodes),
-        )) {
+        const tabsAdded = records.some((record) => this.addedNavigationTabs(record.addedNodes))
+        const scopeChanged = records.some((record) =>
+            this.isTabAttributeMutation(record, 'navigation-scope'),
+        )
+        const labelChanged = records.some((record) =>
+            this.isTabAttributeMutation(record, 'label'),
+        )
+
+        if (tabsAdded || scopeChanged) {
             this.syncTabsScope()
+        }
+        if (tabsAdded || labelChanged) {
+            this.syncTabVariants()
         }
     }
 
-    private isTabScopeMutation(record: MutationRecord): boolean {
+    private isTabAttributeMutation(record: MutationRecord, attributeName: string): boolean {
         return record.type === 'attributes'
+            && record.attributeName === attributeName
             && record.target instanceof Element
             && record.target.matches(NAVIGATION_TAB_SELECTOR)
     }
@@ -135,6 +155,29 @@ export abstract class BaseNavigationContainer extends LitElement {
             }
         }
         return false
+    }
+
+    /**
+     * Resolves the container-owned variant for a tab. Returning `null` means
+     * this container does not manage tab variants.
+     */
+    protected resolveTabVariant(_tab: INavigationTabTarget): NavigationTabVariant | null {
+        return null
+    }
+
+    /** Reactive properties that require re-projecting the tab variant. */
+    protected shouldSyncTabVariants(_changedProperties: PropertyValues<this>): boolean {
+        return false
+    }
+
+    protected syncTabVariants(): void {
+        for (const tab of this.tabs) {
+            const variant = this.resolveTabVariant(tab)
+            if (variant === null || variant === undefined) continue
+            if (tab.variant !== variant) {
+                tab.variant = variant
+            }
+        }
     }
 
     // Inherit scope to tabs that did not explicitly set their own scope.
@@ -166,8 +209,8 @@ export abstract class BaseNavigationContainer extends LitElement {
 
     // Tabs may sit inside slotted wrappers such as `mdc-navigation-rail-section`,
     // so collect light-DOM descendants and skip tabs owned by a nested container.
-    private get tabs(): INavigationTabScopeTarget[] {
-        return Array.from(this.querySelectorAll<INavigationTabScopeTarget>(NAVIGATION_TAB_SELECTOR))
+    private get tabs(): INavigationTabTarget[] {
+        return Array.from(this.querySelectorAll<INavigationTabTarget>(NAVIGATION_TAB_SELECTOR))
             .filter((tab) => tab.parentElement?.closest(NAVIGATION_CONTAINER_SELECTOR) === this)
     }
 

@@ -26,19 +26,8 @@ export const NavigationRailVariant = {
 } as const satisfies Record<string, NavigationRailVariant>
 
 /**
- * Layout of the destinations while the rail is collapsed.
- *
- * - `'vertical'`: icon on top, label underneath.
- * - `'round'`: icon only, inside a round container.
+ * Vertical alignment of destination items within the rail.
  */
-export type NavigationRailCollapsedLayout
-    = 'vertical'
-    | 'round'
-export const NavigationRailCollapsedLayout = {
-    Vertical: 'vertical',
-    Round   : 'round',
-} as const satisfies Record<string, NavigationRailCollapsedLayout>
-
 export type NavigationRailAlignment
     = 'top'
     | 'center'
@@ -54,7 +43,6 @@ export interface INavigationRail extends LitElement {
     variant         : NavigationRailVariant
     open            : boolean
     alignment       : NavigationRailAlignment
-    collapsedLayout : NavigationRailCollapsedLayout
     returnValue     : string
     noFocusTrap     : boolean
 

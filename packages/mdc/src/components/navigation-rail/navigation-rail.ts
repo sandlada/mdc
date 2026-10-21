@@ -87,14 +87,16 @@
  * https://m3.material.io/components/navigation-rail/guidelines
  */
 import { customElement, property, query, state } from 'lit/decorators.js'
-import { BaseNavigationContainer } from '../navigation/internal/base-navigation-container'
+import {
+    BaseNavigationContainer,
+    type INavigationTabTarget,
+} from '../navigation/internal/base-navigation-container'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import { mixinDelegatesAria } from '../../utils/aria/delegate'
 import { mixinElevationOptions } from '../elevation/elevation-options.mixin'
 import { mixinConnectedPromiseResolve, type IConnectedPromiseResolve } from '../../utils/behaviors/connected-promise-resolve'
 import {
     NavigationRailAlignment,
-    NavigationRailCollapsedLayout,
     NavigationRailVariant,
     type INavigationRail,
 } from './navigation-rail.interface'
@@ -102,6 +104,7 @@ import type { NavigationTabVariant } from '../navigation-tab/navigation-tab.inte
 import { html, type PropertyValues, type TemplateResult } from 'lit'
 import { classMap } from 'lit/directives/class-map.js'
 import { NavigationRailStyles, NavigationRailTransitionDuration } from './navigation-rail.style'
+import { resolveRailTabVariant } from './internal/resolve-rail-tab-variant'
 import '../divider/divider'
 import '../elevation/elevation'
 
@@ -116,11 +119,6 @@ const VALID_VARIANTS: readonly NavigationRailVariant[] = [
     NavigationRailVariant.ExpandedDocked,
     NavigationRailVariant.ExpandedFloating,
     NavigationRailVariant.XR,
-]
-
-const VALID_COLLAPSED_LAYOUTS: readonly NavigationRailCollapsedLayout[] = [
-    NavigationRailCollapsedLayout.Vertical,
-    NavigationRailCollapsedLayout.Round,
 ]
 
 /**
@@ -170,16 +168,6 @@ export class NavigationRail extends composeMixin(
      */
     @property({ type: Boolean, reflect: true })
     public open: boolean = false
-
-    /**
-     * Determines the tab layout when the rail is collapsed.
-     * - `'vertical'`: tabs use `rail-vertical` (icon on top, label underneath).
-     * - `'round'`: tabs use `rail-round` (icon only in round container).
-     *
-     * The expanded variants always use `rail-horizontal` regardless of this value.
-     */
-    @property({ type: String, reflect: true, attribute: 'collapsed-layout' })
-    public collapsedLayout: NavigationRailCollapsedLayout = NavigationRailCollapsedLayout.Vertical
 
     /**
      * Vertical alignment of destination items within the rail.
@@ -256,14 +244,19 @@ export class NavigationRail extends composeMixin(
         return this.variant === NavigationRailVariant.ExpandedFloating
     }
 
-    public override connectedCallback(): void {
-        super.connectedCallback()
-        this.syncTabVariants()
+    protected override resolveTabVariant(tab: INavigationTabTarget): NavigationTabVariant {
+        // A tab that has not upgraded yet (definition still loading, HMR, or
+        // early parsing) has no `label` property, so read it defensively.
+        const label = tab.label ?? ''
+        return resolveRailTabVariant(this.variant, label.trim().length > 0)
+    }
+
+    protected override shouldSyncTabVariants(changedProperties: PropertyValues<this>): boolean {
+        return changedProperties.has('variant')
     }
 
     protected override firstUpdated(): void {
         super.firstUpdated()
-        this.syncTabVariants()
         this.setUpScrollObserver()
         this.container?.addEventListener('transitionend', this.handleContainerTransitionEnd)
     }
@@ -272,9 +265,6 @@ export class NavigationRail extends composeMixin(
         super.willUpdate(changedProperties)
         if (!VALID_VARIANTS.includes(this.variant)) {
             throw new Error(`[mdc-navigation-rail] Unsupported variant "${String(this.variant)}". Navigation rails support only "collapsed" | "expanded-docked" | "expanded-floating" | "xr".`)
-        }
-        if (!VALID_COLLAPSED_LAYOUTS.includes(this.collapsedLayout)) {
-            throw new Error(`[mdc-navigation-rail] Unsupported collapsed layout "${String(this.collapsedLayout)}". Navigation rails support only "vertical" | "round".`)
         }
     }
 
@@ -293,14 +283,6 @@ export class NavigationRail extends composeMixin(
             }
         }
 
-        if (
-            changedProperties.has('variant') ||
-            changedProperties.has('collapsedLayout') ||
-            changedProperties.has('alignment')
-        ) {
-            this.syncTabVariants()
-        }
-
         this.hasCompletedInitialUpdate = true
     }
 
@@ -313,10 +295,6 @@ export class NavigationRail extends composeMixin(
     }
 
     private setUpScrollObserver(): void {
-        this.shadowRoot?.querySelector('slot:not([name])')?.addEventListener('slotchange', () => {
-            this.syncTabVariants()
-        })
-
         if (this.scroller && this.topAnchor && this.bottomAnchor) {
             this.intersectionObserver = new IntersectionObserver(
                 (entries) => {
@@ -339,24 +317,6 @@ export class NavigationRail extends composeMixin(
         if (target === this.bottomAnchor) {
             this.isAtScrollBottom = isIntersecting
         }
-    }
-
-    private syncTabVariants(): void {
-        const targetVariant = this.computeTargetVariant()
-        const tabs = this.querySelectorAll<HTMLElement>('mdc-navigation-tab')
-        for (const tab of tabs) {
-            (tab as any).variant = targetVariant
-        }
-    }
-
-    private computeTargetVariant(): NavigationTabVariant {
-        if (this.variant === NavigationRailVariant.ExpandedDocked || this.variant === NavigationRailVariant.ExpandedFloating) {
-            return 'rail-horizontal'
-        }
-        if (this.variant === NavigationRailVariant.XR) {
-            return this.collapsedLayout === NavigationRailCollapsedLayout.Round ? 'rail-xr-round' : 'rail-xr-vertical'
-        }
-        return this.collapsedLayout === NavigationRailCollapsedLayout.Round ? 'rail-round' : 'rail-vertical'
     }
 
     /**
@@ -584,7 +544,6 @@ export class NavigationRail extends composeMixin(
         } else {
             this.variant = NavigationRailVariant.ExpandedDocked
             await this.updateComplete
-            this.syncTabVariants()
         }
 
         this.dispatchEvent(new Event('expanded'))
@@ -615,7 +574,6 @@ export class NavigationRail extends composeMixin(
 
         this.variant = NavigationRailVariant.Collapsed
         await this.updateComplete
-        this.syncTabVariants()
         this.dispatchEvent(new Event('collapsed'))
     }
 

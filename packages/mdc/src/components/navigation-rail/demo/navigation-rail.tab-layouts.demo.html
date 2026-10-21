@@ -1,0 +1,119 @@
+<div style="display: flex; flex-direction: column; gap: 24px;">
+    <div style="display: flex; gap: 32px; align-items: flex-start; flex-wrap: wrap;">
+
+        <style>
+            mdc-navigation-rail {
+                --mdc-navigation-rail-collapsed-container-color: var(--md-sys-color-surface-container);
+                --mdc-navigation-rail-xr-container-color: var(--md-sys-color-surface-container);
+            }
+        </style>
+
+        <div>
+            <p style="margin: 0 0 8px 0;">collapsed: labeled tabs + icon-only tab</p>
+            <mdc-navigation-rail>
+                <mdc-navigation-rail-section>
+                    <mdc-navigation-tab
+                        name="rail-tab-layouts-collapsed"
+                        value="/home"
+                        label="Home"
+                        checked
+                    >
+                        <mdc-icon
+                            slot="inactive-icon"
+                            name="home"
+                        ></mdc-icon>
+                        <mdc-icon
+                            slot="active-icon"
+                            name="home"
+                            filled
+                        ></mdc-icon>
+                    </mdc-navigation-tab>
+                    <mdc-navigation-tab
+                        name="rail-tab-layouts-collapsed"
+                        value="/search"
+                        label="Search"
+                    >
+                        <mdc-icon
+                            slot="inactive-icon"
+                            name="search"
+                        ></mdc-icon>
+                        <mdc-icon
+                            slot="active-icon"
+                            name="search"
+                            filled
+                        ></mdc-icon>
+                    </mdc-navigation-tab>
+                    <mdc-navigation-tab
+                        name="rail-tab-layouts-collapsed"
+                        value="/settings"
+                        aria-label="Settings"
+                    >
+                        <mdc-icon
+                            slot="inactive-icon"
+                            name="settings"
+                        ></mdc-icon>
+                        <mdc-icon
+                            slot="active-icon"
+                            name="settings"
+                            filled
+                        ></mdc-icon>
+                    </mdc-navigation-tab>
+                </mdc-navigation-rail-section>
+            </mdc-navigation-rail>
+        </div>
+
+        <div>
+            <p style="margin: 0 0 8px 0;">xr: labeled tabs + icon-only tab</p>
+            <mdc-navigation-rail variant="xr">
+                <mdc-navigation-rail-section>
+                    <mdc-navigation-tab
+                        name="rail-tab-layouts-xr"
+                        value="/home"
+                        label="Home"
+                        checked
+                    >
+                        <mdc-icon
+                            slot="inactive-icon"
+                            name="home"
+                        ></mdc-icon>
+                        <mdc-icon
+                            slot="active-icon"
+                            name="home"
+                            filled
+                        ></mdc-icon>
+                    </mdc-navigation-tab>
+                    <mdc-navigation-tab
+                        name="rail-tab-layouts-xr"
+                        value="/search"
+                        label="Search"
+                    >
+                        <mdc-icon
+                            slot="inactive-icon"
+                            name="search"
+                        ></mdc-icon>
+                        <mdc-icon
+                            slot="active-icon"
+                            name="search"
+                            filled
+                        ></mdc-icon>
+                    </mdc-navigation-tab>
+                    <mdc-navigation-tab
+                        name="rail-tab-layouts-xr"
+                        value="/settings"
+                        aria-label="Settings"
+                    >
+                        <mdc-icon
+                            slot="inactive-icon"
+                            name="settings"
+                        ></mdc-icon>
+                        <mdc-icon
+                            slot="active-icon"
+                            name="settings"
+                            filled
+                        ></mdc-icon>
+                    </mdc-navigation-tab>
+                </mdc-navigation-rail-section>
+            </mdc-navigation-rail>
+        </div>
+    </div>
+</div>
