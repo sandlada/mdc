@@ -328,7 +328,6 @@ export const NavigationDrawerStyles = [
             padding-block-end: var(--_handle-container-padding-block-end);
             cursor: grab;
             user-select: none;
-            -webkit-user-select: none;
             touch-action: pan-y;
         }
         :host([variant="modal"]) .handle,
@@ -518,6 +517,82 @@ export const NavigationDrawerStyles = [
         }
         .bottom.anchor {
             bottom: 0;
+        }
+    `,
+    // Accessibility
+    css`
+        @media (prefers-reduced-motion: reduce) {
+            :host,
+            :host([variant]),
+            dialog,
+            dialog *,
+            .container,
+            .container *,
+            .scrim,
+            .handle {
+                transition: none;
+                animation: none;
+            }
+        }
+
+        @media (forced-colors: active) {
+            .container {
+                border: 1px solid CanvasText;
+            }
+
+            .container .background {
+                background: Canvas;
+            }
+
+            .scrim {
+                background: CanvasText;
+            }
+
+            :host([variant="permanent"]) {
+                border-inline-end-color: CanvasText;
+            }
+
+            mdc-divider {
+                --mdc-divider-color: CanvasText;
+            }
+
+            mdc-elevation {
+                display: none;
+            }
+        }
+
+        @media (prefers-contrast: more) {
+            .container {
+                border: 1px solid CanvasText;
+            }
+
+            :host([variant="permanent"]) {
+                border-inline-end-color: CanvasText;
+            }
+
+            mdc-divider {
+                --mdc-divider-color: CanvasText;
+            }
+        }
+
+        @media (prefers-contrast: less) {
+            .container {
+                border: 1px solid GrayText;
+            }
+
+            :host([variant="permanent"]) {
+                border-inline-end-color: GrayText;
+            }
+
+            mdc-divider {
+                --mdc-divider-color: GrayText;
+            }
+        }
+
+        @media (prefers-reduced-transparency: reduce) {
+            .scrim {
+                background: CanvasText;
+            }
         }
     `,
 ]

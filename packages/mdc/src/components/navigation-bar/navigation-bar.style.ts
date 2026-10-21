@@ -91,4 +91,46 @@ export const NavigationBarStyles = css`
        container slides along the X axis. The base class sets inline
        height/width + transform during/after animation, so no static hidden
        rules are needed here. */
+
+    @media (prefers-reduced-motion: reduce) {
+        .container,
+        .container * {
+            transition: none;
+            animation: none;
+        }
+    }
+
+    @media (forced-colors: active) {
+        .background {
+            background: Canvas;
+            border: 1px solid CanvasText;
+        }
+
+        .container {
+            outline: 1px solid CanvasText;
+            outline-offset: -1px;
+        }
+    }
+
+    @media (prefers-contrast: more) {
+        .background {
+            border: 1px solid CanvasText;
+        }
+
+        .container {
+            outline: 1px solid CanvasText;
+            outline-offset: -1px;
+        }
+    }
+
+    @media (prefers-contrast: less) {
+        .background {
+            border: 1px solid GrayText;
+        }
+
+        .container {
+            outline: 1px solid GrayText;
+            outline-offset: -1px;
+        }
+    }
 `

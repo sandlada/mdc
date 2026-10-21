@@ -280,10 +280,6 @@ export const NavigationRailStyles = [
                 scrollbar-width: none;
             }
 
-            .scroller::-webkit-scrollbar {
-                display: none;
-            }
-
             .destination {
                 flex: 1;
                 height: fit-content;
@@ -623,6 +619,64 @@ export const NavigationRailStyles = [
 
             dialog.xr .container .end-section {
                 align-items: center;
+            }
+        }
+    `,
+    // Accessibility
+    css`
+        @layer mdc.navigation-rail.a11y {
+            @media (prefers-reduced-motion: reduce) {
+                dialog,
+                dialog *,
+                .container,
+                .container *,
+                .scrim,
+                .scrim * {
+                    transition: none;
+                    animation: none;
+                }
+            }
+
+            @media (forced-colors: active) {
+                .container {
+                    border: 1px solid CanvasText;
+                }
+
+                .container .background {
+                    background: Canvas;
+                }
+
+                .scrim:has(~ dialog.expanded-floating.open) {
+                    background: CanvasText;
+                    opacity: var(--_scrim-opacity);
+                }
+
+                mdc-divider {
+                    --mdc-divider-color: CanvasText;
+                }
+
+                mdc-elevation {
+                    display: none;
+                }
+            }
+
+            @media (prefers-contrast: more) {
+                .container {
+                    border: 1px solid CanvasText;
+                }
+            }
+
+            @media (prefers-contrast: less) {
+                .container {
+                    border: 1px solid GrayText;
+                }
+            }
+
+            @media (prefers-reduced-transparency: reduce) {
+                .scrim:has(~ dialog.expanded-floating.open) {
+                    background: CanvasText;
+                    opacity: var(--_scrim-opacity);
+                }
             }
         }
     `,

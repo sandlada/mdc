@@ -781,4 +781,125 @@ export const NavigationTabStyles = [
     :host([checked]) .label {
         color: var(--_enabled-selected-label-color);
     }
+`,
+    // Accessibility
+    css`
+    @media (prefers-reduced-motion: reduce) {
+        :host([variant]),
+        :host([variant]) *,
+        :host([variant]) .container,
+        :host([variant]) .container *,
+        :host([variant]) .indicator,
+        :host([variant]) .label,
+        :host([variant]) .icon {
+            transition: none;
+            animation: none;
+        }
+    }
+
+    @media (prefers-contrast: more) {
+        :host:has(.container.disabled) {
+            --_disabled-selected-icon-color: GrayText;
+            --_disabled-unselected-icon-color: GrayText;
+            --_disabled-selected-label-color: GrayText;
+            --_disabled-unselected-label-color: GrayText;
+        }
+
+        :host([checked]) .container .label,
+        :host(:not([checked])) .container .label,
+        :host([checked]) .container .icon,
+        :host(:not([checked])) .container .icon {
+            color: CanvasText;
+        }
+
+        :host([checked]) .container .indicator {
+            outline: 1px solid CanvasText;
+            outline-offset: -1px;
+        }
+
+        :host([variant="rail-vertical"]) .container,
+        :host([variant="rail-xr-vertical"]) .container,
+        :host([variant="bar-vertical"]) .container,
+        :host([variant="bar-xr-vertical"]) .container,
+        :host([variant="rail-round"]) .container,
+        :host([variant="rail-xr-round"]) .container {
+            outline: 1px solid CanvasText;
+            outline-offset: -1px;
+        }
+    }
+
+    @media (prefers-contrast: less) {
+        :host([variant="rail-vertical"]) .container,
+        :host([variant="rail-xr-vertical"]) .container,
+        :host([variant="bar-vertical"]) .container,
+        :host([variant="bar-xr-vertical"]) .container,
+        :host([variant="rail-round"]) .container,
+        :host([variant="rail-xr-round"]) .container {
+            outline: 1px solid GrayText;
+            outline-offset: -1px;
+        }
+    }
+
+    /* Forced colors is declared last so it wins over the contrast fallbacks
+       when the platform reports both (Windows High Contrast). */
+    @media (forced-colors: active) {
+        :host:has(.container.disabled) {
+            --_disabled-selected-icon-color: GrayText;
+            --_disabled-unselected-icon-color: GrayText;
+            --_disabled-selected-label-color: GrayText;
+            --_disabled-unselected-label-color: GrayText;
+            --_disabled-selected-indicator-color: GrayText;
+            --_disabled-unselected-indicator-color: ButtonFace;
+        }
+
+        :host([checked]) .container .label,
+        :host(:not([checked])) .container .label,
+        :host([checked]) .container .icon,
+        :host(:not([checked])) .container .icon {
+            color: CanvasText;
+        }
+
+        :host([checked]) .container .icon {
+            color: HighlightText;
+        }
+
+        :host([checked]) .container.rail-horizontal .label,
+        :host([checked]) .container.bar-horizontal .label,
+        :host([checked]) .container.drawer .label,
+        :host([checked]) .container.drawer-horizontal .label {
+            color: HighlightText;
+        }
+
+        :host([checked]) .container.disabled .label,
+        :host(:not([checked])) .container.disabled .label,
+        :host([checked]) .container.disabled .icon,
+        :host(:not([checked])) .container.disabled .icon {
+            color: GrayText;
+        }
+
+        :host([checked]) .container .indicator {
+            background: Highlight;
+            background-color: Highlight;
+        }
+
+        :host(:not([checked])) .container .indicator {
+            background: ButtonFace;
+            background-color: ButtonFace;
+        }
+
+        :host([variant="rail-vertical"]) .container,
+        :host([variant="rail-xr-vertical"]) .container,
+        :host([variant="bar-vertical"]) .container,
+        :host([variant="bar-xr-vertical"]) .container,
+        :host([variant="rail-round"]) .container,
+        :host([variant="rail-xr-round"]) .container {
+            outline: 1px solid CanvasText;
+            outline-offset: -1px;
+        }
+
+        .ripple-layer,
+        mdc-ripple {
+            display: none;
+        }
+    }
 `]
