@@ -71,6 +71,7 @@ export abstract class BaseNavigationContainer extends LitElement {
         super.connectedCallback()
         if (isServer) return
 
+        this.validateTabSelection()
         this.syncTabsScope()
         this.syncTabVariants()
         this.mutationObserver = new MutationObserver(this.handleTabsMutation)
@@ -78,7 +79,7 @@ export abstract class BaseNavigationContainer extends LitElement {
             childList: true,
             subtree: true,
             attributes: true,
-            attributeFilter: ['navigation-scope', 'label'],
+            attributeFilter: ['navigation-scope', 'label', 'name', 'value'],
         })
     }
 
@@ -90,6 +91,7 @@ export abstract class BaseNavigationContainer extends LitElement {
 
     protected override firstUpdated(_changedProperties?: PropertyValues): void {
         super.firstUpdated(_changedProperties as PropertyValues)
+        this.validateTabSelection()
         this.syncTabsScope()
         this.syncTabVariants()
     }
@@ -124,7 +126,8 @@ export abstract class BaseNavigationContainer extends LitElement {
     // insertions never reach the container's `slotchange`, so observe the
     // light DOM subtree to pick them up. Scope attributes are observed as well
     // so clearing an explicit tab scope restores inheritance. Label changes
-    // re-resolve the container-owned tab variant.
+    // re-resolve the container-owned tab variant. `name`/`value` changes are
+    // observed only to re-check per-container value uniqueness.
     private readonly handleTabsMutation = (records: MutationRecord[]): void => {
         const tabsAdded = records.some((record) => this.addedNavigationTabs(record.addedNodes))
         const scopeChanged = records.some((record) =>
@@ -133,12 +136,43 @@ export abstract class BaseNavigationContainer extends LitElement {
         const labelChanged = records.some((record) =>
             this.isTabAttributeMutation(record, 'label'),
         )
+        const selectionChanged = records.some((record) =>
+            this.isTabAttributeMutation(record, 'name')
+            || this.isTabAttributeMutation(record, 'value'),
+        )
 
+        if (tabsAdded || selectionChanged) {
+            this.validateTabSelection()
+        }
         if (tabsAdded || scopeChanged) {
             this.syncTabsScope()
         }
         if (tabsAdded || labelChanged) {
             this.syncTabVariants()
+        }
+    }
+
+    /**
+     * Rejects duplicate `value`s inside one `name` group of this container.
+     * The navigation store tracks state by `(scope, value)` and the selection
+     * controller groups tabs by `name`, so two tabs sharing both would fight
+     * over the same active state. Tabs in different containers are validated
+     * separately, which keeps cross-container scope sync legal.
+     */
+    private validateTabSelection(): void {
+        const groups = new Map<string, Set<string>>()
+        for (const tab of this.tabs) {
+            const name = tab.getAttribute('name')
+            if (!name) continue
+            const value = tab.getAttribute('value') ?? ''
+            const values = groups.get(name) ?? new Set<string>()
+            if (values.has(value)) {
+                throw new Error(
+                    `[mdc-navigation] Duplicate value "${value}" in navigation group "${name}". Values must be unique within one navigation container.`,
+                )
+            }
+            values.add(value)
+            groups.set(name, values)
         }
     }
 

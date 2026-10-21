@@ -31,22 +31,31 @@ interface ITestTab {
     navigationScope: string
     label: string
     variant: NavigationTabVariant
+    name?: string
+    value?: string
     parentElement: { closest: (selector: string) => Element | null }
+    getAttribute(name: string): string | null
 }
 
 function createTab(
     container: BaseNavigationContainer,
-    overrides: Partial<Omit<ITestTab, 'parentElement'>> = {},
+    overrides: Partial<Omit<ITestTab, 'parentElement' | 'getAttribute'>> = {},
 ): ITestTab {
-    return {
+    const tab: ITestTab = {
         navigationScope: '',
         label: '',
         variant: 'bar-vertical',
         parentElement: {
             closest: () => container as unknown as Element,
         },
+        getAttribute(name: string): string | null {
+            if (name === 'name') return tab.name ?? null
+            if (name === 'value') return tab.value ?? null
+            return null
+        },
         ...overrides,
     }
+    return tab
 }
 
 function createTabs(container: BaseNavigationContainer, ...scopes: string[]): ITestTab[] {
@@ -71,6 +80,68 @@ function syncTabsScope(container: BaseNavigationContainer): void {
 function syncTabVariants(container: BaseNavigationContainer): void {
     ;(container as unknown as { syncTabVariants: () => void }).syncTabVariants()
 }
+
+function validateTabSelection(container: BaseNavigationContainer): void {
+    ;(container as unknown as { validateTabSelection: () => void }).validateTabSelection()
+}
+
+describe('BaseNavigationContainer tab selection validation', () => {
+    it('rejects a duplicate value inside one name group', () => {
+        const container = new TestNavigationContainer()
+        const tabs = [
+            createTab(container, { name: 'nav', value: '/inbox' }),
+            createTab(container, { name: 'nav', value: '/inbox' }),
+        ]
+        mountTabs(container, tabs)
+
+        expect(() => validateTabSelection(container)).toThrowError(
+            /Duplicate value "\/inbox" in navigation group "nav"/,
+        )
+    })
+
+    it('accepts distinct values inside one name group', () => {
+        const container = new TestNavigationContainer()
+        const tabs = [
+            createTab(container, { name: 'nav', value: '/inbox' }),
+            createTab(container, { name: 'nav', value: '/chat' }),
+        ]
+        mountTabs(container, tabs)
+
+        expect(() => validateTabSelection(container)).not.toThrow()
+    })
+
+    it('accepts the same value in different name groups', () => {
+        const container = new TestNavigationContainer()
+        const tabs = [
+            createTab(container, { name: 'nav-primary', value: '/inbox' }),
+            createTab(container, { name: 'nav-secondary', value: '/inbox' }),
+        ]
+        mountTabs(container, tabs)
+
+        expect(() => validateTabSelection(container)).not.toThrow()
+    })
+
+    it('accepts the same name and value in different containers', () => {
+        const firstContainer = new TestNavigationContainer()
+        const secondContainer = new TestNavigationContainer()
+        mountTabs(firstContainer, [createTab(firstContainer, { name: 'nav', value: '/inbox' })])
+        mountTabs(secondContainer, [createTab(secondContainer, { name: 'nav', value: '/inbox' })])
+
+        expect(() => validateTabSelection(firstContainer)).not.toThrow()
+        expect(() => validateTabSelection(secondContainer)).not.toThrow()
+    })
+
+    it('skips tabs without a name', () => {
+        const container = new TestNavigationContainer()
+        const tabs = [
+            createTab(container, { value: '/inbox' }),
+            createTab(container, { value: '/inbox' }),
+        ]
+        mountTabs(container, tabs)
+
+        expect(() => validateTabSelection(container)).not.toThrow()
+    })
+})
 
 describe('BaseNavigationContainer navigation scope inheritance', () => {
     it('inherits the container scope into a tab nested in a wrapper', () => {
