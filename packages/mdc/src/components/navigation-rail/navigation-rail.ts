@@ -15,36 +15,66 @@
  *
  * Destinations can be aligned to top, center, or bottom via the `alignment` property.
  *
+ * The destinations are grouped in `<mdc-navigation-rail-section>`. A section
+ * labels its group with an `<mdc-navigation-rail-section-header>` assigned to
+ * the `header` slot of the section:
+ *
+ * ```plaintext
+ * |-------------------------
+ * | <mdc-navigation-rail>
+ * |  |--------------------|
+ * |  | Section Header     |
+ * |  |--------------------|
+ * |  | Destination 1      |
+ * |  | Destination 2      |
+ * |  |--------------------|
+ * |  | Section Header     |
+ * |  |--------------------|
+ * |  | Destination 3      |
+ * |  |--------------------|
+ * |-------------------------
+ * ```
+ *
+ * The section header is an expanded-rail affordance — a collapsed or XR rail
+ * groups its destinations in sections without a header.
+ *
  * @example
  * ```html
  * <!-- Collapsed rail -->
  * <mdc-navigation-rail navigation-scope="main-nav">
  *   <mdc-icon-button slot="menu"><mdc-icon>menu</mdc-icon></mdc-icon-button>
  *   <mdc-fab slot="fab" icon="edit" variant="primary"></mdc-fab>
- *   <mdc-navigation-tab name="rail-tabs" value="/home" label="Home" checked>
- *     <mdc-icon slot="inactive-icon">home</mdc-icon>
- *     <mdc-icon slot="active-icon" filled>home</mdc-icon>
- *   </mdc-navigation-tab>
- *   <mdc-navigation-tab name="rail-tabs" value="/search" label="Search">
- *     <mdc-icon slot="inactive-icon">search</mdc-icon>
- *     <mdc-icon slot="active-icon" filled>search</mdc-icon>
- *   </mdc-navigation-tab>
+ *   <mdc-navigation-rail-section>
+ *     <mdc-navigation-tab name="rail-tabs" value="/home" label="Home" checked>
+ *       <mdc-icon slot="inactive-icon">home</mdc-icon>
+ *       <mdc-icon slot="active-icon" filled>home</mdc-icon>
+ *     </mdc-navigation-tab>
+ *     <mdc-navigation-tab name="rail-tabs" value="/search" label="Search">
+ *       <mdc-icon slot="inactive-icon">search</mdc-icon>
+ *       <mdc-icon slot="active-icon" filled>search</mdc-icon>
+ *     </mdc-navigation-tab>
+ *   </mdc-navigation-rail-section>
  * </mdc-navigation-rail>
  *
  * <!-- Expanded, docked rail -->
  * <mdc-navigation-rail variant="expanded-docked" navigation-scope="main-nav-2">
  *   <mdc-icon-button slot="menu"><mdc-icon>menu_open</mdc-icon></mdc-icon-button>
- *   <mdc-navigation-tab name="rail-tabs" value="/home" label="Home" checked>
- *     <mdc-icon slot="inactive-icon">home</mdc-icon>
- *     <mdc-icon slot="active-icon" filled>home</mdc-icon>
- *   </mdc-navigation-tab>
+ *   <mdc-navigation-rail-section>
+ *     <mdc-navigation-rail-section-header slot="header">Main</mdc-navigation-rail-section-header>
+ *     <mdc-navigation-tab name="rail-tabs" value="/home" label="Home" checked>
+ *       <mdc-icon slot="inactive-icon">home</mdc-icon>
+ *       <mdc-icon slot="active-icon" filled>home</mdc-icon>
+ *     </mdc-navigation-tab>
+ *   </mdc-navigation-rail-section>
  * </mdc-navigation-rail>
  *
  * <!-- Floating rail -->
  * <mdc-navigation-rail variant="expanded-floating" open navigation-scope="modal-nav">
- *   <mdc-navigation-tab name="modal-tabs" value="/settings" label="Settings">
- *     <mdc-icon slot="inactive-icon">settings</mdc-icon>
- *   </mdc-navigation-tab>
+ *   <mdc-navigation-rail-section>
+ *     <mdc-navigation-tab name="modal-tabs" value="/settings" label="Settings">
+ *       <mdc-icon slot="inactive-icon">settings</mdc-icon>
+ *     </mdc-navigation-tab>
+ *   </mdc-navigation-rail-section>
  * </mdc-navigation-rail>
  * ```
  *

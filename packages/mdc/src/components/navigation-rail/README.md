@@ -2,6 +2,10 @@
 
 Material Design 3 Navigation Rail component (`<mdc-navigation-rail>`) built with Lit and Web Components.
 
+The rail ships with two companion components: `<mdc-navigation-rail-section>`
+groups the destinations of the rail, and `<mdc-navigation-rail-section-header>`
+labels such a group.
+
 - [Overview & Guidelines](https://m3.material.io/components/navigation-rail/overview)
 - [Design Specs](https://m3.material.io/components/navigation-rail/specs)
 
@@ -16,11 +20,12 @@ Material Design 3 Navigation Rail component (`<mdc-navigation-rail>`) built with
   - `xr`: docked XR rail with XR destinations.
 - **Collapsed Layout**: `collapsed-layout="vertical"` (icon on top, label underneath) or `collapsed-layout="round"` (icon only, inside a round container).
 - **Navigation Scope Synchronization**: Integrates with `GlobalNavigationStateStore` and `<mdc-navigation-tab>` to sync active destinations across bars, rails, and drawers sharing the same `navigation-scope`.
+- **Sections**: Destinations are grouped in `<mdc-navigation-rail-section>`. A section labels its group with an `<mdc-navigation-rail-section-header slot="header">`, which is an expanded-rail affordance — collapsed and XR rails group their destinations in headerless sections.
 - **Inner Anatomy & Slots**:
   - `menu` slot: Menu button (typically toggles the rail).
   - `fab` slot: Floating action button pinned below the menu.
   - `header` slot: Optional rail header.
-  - Default slot: Navigation destinations (`<mdc-navigation-tab>`).
+  - Default slot: Navigation destinations, grouped in `<mdc-navigation-rail-section>` (`<mdc-navigation-tab>`).
   - `end` slot: Trailing actions (e.g. settings).
   - `footer` slot: Bottom pinned actions.
   - Automatic top/bottom scroll dividers with intersection observer detection.
@@ -37,6 +42,38 @@ import '@sandlada/mdc/components/navigation-tab/index'
 import '@sandlada/mdc/components/icon/index'
 ```
 
+The navigation rail entry registers `<mdc-navigation-rail>` together with
+`<mdc-navigation-rail-section>` and `<mdc-navigation-rail-section-header>`.
+
+---
+
+## Anatomy
+
+```plaintext
+|-----------------------
+|
+|   Menu Icon Button Slot
+|
+|   Fab Slot
+|
+|   |---------------| |
+|   | SectionHeader | |
+|   | Tab Slot 1    | |
+|   |_______________| |
+|                     | Scrollable
+|   |---------------| |
+|   | SectionHeader | |
+|   | Tab Slot 2    | |
+|   |_______________| |
+|
+|   End Slot
+|_______________________
+```
+
+Every group of destinations lives in an `<mdc-navigation-rail-section>`. The
+`SectionHeader` rows are `<mdc-navigation-rail-section-header>` elements
+assigned to the `header` slot of their section.
+
 ---
 
 ## Usage
@@ -46,10 +83,12 @@ import '@sandlada/mdc/components/icon/index'
 ```html
 <mdc-navigation-rail navigation-scope="main-nav">
     <mdc-icon-button slot="menu"><mdc-icon>menu</mdc-icon></mdc-icon-button>
-    <mdc-navigation-tab name="rail" value="/home" checked label="Home">
-        <mdc-icon slot="inactive-icon">home</mdc-icon>
-        <mdc-icon slot="active-icon" filled>home</mdc-icon>
-    </mdc-navigation-tab>
+    <mdc-navigation-rail-section>
+        <mdc-navigation-tab name="rail" value="/home" checked label="Home">
+            <mdc-icon slot="inactive-icon">home</mdc-icon>
+            <mdc-icon slot="active-icon" filled>home</mdc-icon>
+        </mdc-navigation-tab>
+    </mdc-navigation-rail-section>
 </mdc-navigation-rail>
 ```
 
@@ -58,12 +97,43 @@ import '@sandlada/mdc/components/icon/index'
 ```html
 <mdc-navigation-rail variant="expanded-docked" navigation-scope="main-nav">
     <mdc-icon-button slot="menu"><mdc-icon>menu_open</mdc-icon></mdc-icon-button>
-    <mdc-navigation-tab name="rail" value="/home" checked label="Home">
-        <mdc-icon slot="inactive-icon">home</mdc-icon>
-        <mdc-icon slot="active-icon" filled>home</mdc-icon>
-    </mdc-navigation-tab>
+    <mdc-navigation-rail-section>
+        <mdc-navigation-tab name="rail" value="/home" checked label="Home">
+            <mdc-icon slot="inactive-icon">home</mdc-icon>
+            <mdc-icon slot="active-icon" filled>home</mdc-icon>
+        </mdc-navigation-tab>
+    </mdc-navigation-rail-section>
 </mdc-navigation-rail>
 ```
+
+### Sections
+
+Destinations are grouped in `<mdc-navigation-rail-section>`. An expanded rail
+labels every group with an `<mdc-navigation-rail-section-header slot="header">`.
+
+```html
+<mdc-navigation-rail variant="expanded-docked">
+    <mdc-navigation-rail-section>
+        <mdc-navigation-rail-section-header slot="header">Main</mdc-navigation-rail-section-header>
+        <mdc-navigation-tab name="rail" value="/home" checked label="Home">
+            <mdc-icon slot="inactive-icon">home</mdc-icon>
+            <mdc-icon slot="active-icon" filled>home</mdc-icon>
+        </mdc-navigation-tab>
+    </mdc-navigation-rail-section>
+
+    <mdc-navigation-rail-section>
+        <mdc-navigation-rail-section-header slot="header">Library</mdc-navigation-rail-section-header>
+        <mdc-navigation-tab name="rail" value="/inbox" label="Inbox">
+            <mdc-icon slot="inactive-icon">inbox</mdc-icon>
+            <mdc-icon slot="active-icon" filled>inbox</mdc-icon>
+        </mdc-navigation-tab>
+    </mdc-navigation-rail-section>
+</mdc-navigation-rail>
+```
+
+The section header is optional — a section without one is a plain group of
+destinations. Section headers label a group, so they are meant for the expanded
+variants; a collapsed or XR rail groups its destinations in headerless sections.
 
 ### Floating Rail
 
@@ -74,10 +144,12 @@ import '@sandlada/mdc/components/icon/index'
     <mdc-icon-button slot="menu" onclick="this.closest('mdc-navigation-rail').hide()">
         <mdc-icon>close</mdc-icon>
     </mdc-icon-button>
-    <mdc-navigation-tab name="rail" value="/settings" checked label="Settings">
-        <mdc-icon slot="inactive-icon">settings</mdc-icon>
-        <mdc-icon slot="active-icon" filled>settings</mdc-icon>
-    </mdc-navigation-tab>
+    <mdc-navigation-rail-section>
+        <mdc-navigation-tab name="rail" value="/settings" checked label="Settings">
+            <mdc-icon slot="inactive-icon">settings</mdc-icon>
+            <mdc-icon slot="active-icon" filled>settings</mdc-icon>
+        </mdc-navigation-tab>
+    </mdc-navigation-rail-section>
 </mdc-navigation-rail>
 ```
 
@@ -85,10 +157,12 @@ import '@sandlada/mdc/components/icon/index'
 
 ```html
 <mdc-navigation-rail variant="xr">
-    <mdc-navigation-tab name="rail" value="/home" checked label="Home">
-        <mdc-icon slot="inactive-icon">home</mdc-icon>
-        <mdc-icon slot="active-icon" filled>home</mdc-icon>
-    </mdc-navigation-tab>
+    <mdc-navigation-rail-section>
+        <mdc-navigation-tab name="rail" value="/home" checked label="Home">
+            <mdc-icon slot="inactive-icon">home</mdc-icon>
+            <mdc-icon slot="active-icon" filled>home</mdc-icon>
+        </mdc-navigation-tab>
+    </mdc-navigation-rail-section>
 </mdc-navigation-rail>
 ```
 
@@ -134,6 +208,28 @@ import '@sandlada/mdc/components/icon/index'
 | `closed`   | No         | Fires after the floating rail closed.                    |
 | `cancel`   | Yes        | Fires on backdrop click or Escape key (floating variant).|
 
+### `<mdc-navigation-rail-section>`
+
+A group of destinations inside the rail. It has no properties of its own — it
+only structures the destinations it holds.
+
+| Slot          | Description                                                                       |
+| ------------- | --------------------------------------------------------------------------------- |
+| Default slot  | The destinations of the section (`<mdc-navigation-tab>`).                          |
+| `header` slot | The label of the section (`<mdc-navigation-rail-section-header>`). Optional.      |
+
+### `<mdc-navigation-rail-section-header>`
+
+The label of a section.
+
+| Slot         | Description                     |
+| ------------ | ------------------------------- |
+| Default slot | The label text of the section.  |
+
+| Property | Attribute | Type     | Default | Description                                                                                                                                                  |
+| -------- | --------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `header` | `header`  | `string` | `null`  | Reserved for an attribute-driven label. The rendered label comes from the default slot, so this property has no effect yet.                                   |
+
 ---
 
 ## Design Tokens
@@ -160,6 +256,26 @@ The container tokens are defined once per variant, so every variant can be theme
 | `scrim-opacity`                         | Shared              |
 | `divider-color`                         | Shared              |
 | `container-shadow-color`                | Shared              |
+
+The section and the section header expose their own token families:
+
+| Token family                                                 | Applies to                            |
+| ------------------------------------------------------------ | ------------------------------------- |
+| `section-{variant}-item-between`                              | `<mdc-navigation-rail-section>`       |
+| `section-{variant}-padding-*`                                 | `<mdc-navigation-rail-section>`       |
+| `section-header-color`                                        | `<mdc-navigation-rail-section-header>` |
+| `section-header-{font,size,leading,weight,tracking}`          | `<mdc-navigation-rail-section-header>` |
+| `section-header-padding-*`                                    | `<mdc-navigation-rail-section-header>` |
+
+The section tokens carry one value per rail variant, the variant being the
+prefix of the token name (`collapsed`, `expandedDocked`, `expandedFloating`,
+`xr`). The section header tokens are variant independent.
+
+```css
+mdc-navigation-rail-section-header {
+    --mdc-navigation-rail-section-header-color: var(--md-sys-color-primary);
+}
+```
 
 ```css
 mdc-navigation-rail[variant='expanded-floating'] {

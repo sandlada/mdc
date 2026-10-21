@@ -1,0 +1,74 @@
+<div style="display: flex; gap: 32px; align-items: flex-start; flex-wrap: wrap;">
+    <div>
+        <p style="margin: 0 0 8px 0;">Section headers</p>
+        <mdc-navigation-rail variant="expanded-docked" style="height: 480px;">
+            <mdc-navigation-rail-section>
+                <mdc-navigation-rail-section-header slot="header">Main</mdc-navigation-rail-section-header>
+                <mdc-navigation-tab name="rail-section" value="/home" label="Home" checked>
+                    <mdc-icon slot="inactive-icon">home</mdc-icon>
+                    <mdc-icon slot="active-icon" filled>home</mdc-icon>
+                </mdc-navigation-tab>
+                <mdc-navigation-tab name="rail-section" value="/search" label="Search">
+                    <mdc-icon slot="inactive-icon">search</mdc-icon>
+                    <mdc-icon slot="active-icon" filled>search</mdc-icon>
+                </mdc-navigation-tab>
+                <mdc-navigation-tab name="rail-section" value="/favorites" label="Favorites" badge="3">
+                    <mdc-icon slot="inactive-icon">favorite</mdc-icon>
+                    <mdc-icon slot="active-icon" filled>favorite</mdc-icon>
+                </mdc-navigation-tab>
+            </mdc-navigation-rail-section>
+
+            <mdc-navigation-rail-section>
+                <mdc-navigation-rail-section-header slot="header">Library</mdc-navigation-rail-section-header>
+                <mdc-navigation-tab name="rail-section" value="/inbox" label="Inbox">
+                    <mdc-icon slot="inactive-icon">inbox</mdc-icon>
+                    <mdc-icon slot="active-icon" filled>inbox</mdc-icon>
+                </mdc-navigation-tab>
+                <mdc-navigation-tab name="rail-section" value="/settings" label="Settings">
+                    <mdc-icon slot="inactive-icon">settings</mdc-icon>
+                    <mdc-icon slot="active-icon" filled>settings</mdc-icon>
+                </mdc-navigation-tab>
+            </mdc-navigation-rail-section>
+        </mdc-navigation-rail>
+    </div>
+
+    <div>
+        <p style="margin: 0 0 8px 0;">Headerless section</p>
+        <mdc-navigation-rail variant="expanded-docked" style="height: 480px;">
+            <mdc-navigation-rail-section>
+                <mdc-navigation-tab name="rail-section-headerless" value="/home" label="Home" checked>
+                    <mdc-icon slot="inactive-icon">home</mdc-icon>
+                    <mdc-icon slot="active-icon" filled>home</mdc-icon>
+                </mdc-navigation-tab>
+                <mdc-navigation-tab name="rail-section-headerless" value="/search" label="Search">
+                    <mdc-icon slot="inactive-icon">search</mdc-icon>
+                    <mdc-icon slot="active-icon" filled>search</mdc-icon>
+                </mdc-navigation-tab>
+                <mdc-navigation-tab name="rail-section-headerless" value="/favorites" label="Favorites" badge="3">
+                    <mdc-icon slot="inactive-icon">favorite</mdc-icon>
+                    <mdc-icon slot="active-icon" filled>favorite</mdc-icon>
+                </mdc-navigation-tab>
+            </mdc-navigation-rail-section>
+        </mdc-navigation-rail>
+    </div>
+
+    <div>
+        <p style="margin: 0 0 8px 0;">Collapsed rail</p>
+        <mdc-navigation-rail style="height: 480px;">
+            <mdc-navigation-rail-section>
+                <mdc-navigation-tab name="rail-section-collapsed" value="/home" label="Home" checked>
+                    <mdc-icon slot="inactive-icon">home</mdc-icon>
+                    <mdc-icon slot="active-icon" filled>home</mdc-icon>
+                </mdc-navigation-tab>
+                <mdc-navigation-tab name="rail-section-collapsed" value="/search" label="Search">
+                    <mdc-icon slot="inactive-icon">search</mdc-icon>
+                    <mdc-icon slot="active-icon" filled>search</mdc-icon>
+                </mdc-navigation-tab>
+                <mdc-navigation-tab name="rail-section-collapsed" value="/favorites" label="Favorites">
+                    <mdc-icon slot="inactive-icon">favorite</mdc-icon>
+                    <mdc-icon slot="active-icon" filled>favorite</mdc-icon>
+                </mdc-navigation-tab>
+            </mdc-navigation-rail-section>
+        </mdc-navigation-rail>
+    </div>
+</div>
