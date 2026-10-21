@@ -34,18 +34,20 @@ export interface INavigationTabTarget extends HTMLElement {
 const NAVIGATION_TAB_SELECTOR = 'mdc-navigation-tab'
 const NAVIGATION_CONTAINER_SELECTOR = 'mdc-navigation-bar, mdc-navigation-rail, mdc-navigation-drawer'
 
+/**
+ * Scope last inherited into each tab. Module-level so a tab moved between
+ * containers can be recognized as inherited and re-scoped by its new owner.
+ * A tab whose scope diverges from the recorded value has opted out with its
+ * own scope.
+ */
+const inheritedTabScopes = new WeakMap<INavigationTabTarget, string>()
+
 export abstract class BaseNavigationContainer extends LitElement {
 
     @property({ type: String, reflect: true, attribute: 'navigation-scope' })
     public navigationScope = 'global'
 
     protected readonly navigationEventController = new NavigationEventController(this)
-
-    /**
-     * Scope last inherited into each managed tab. A tab whose scope diverges
-     * from the recorded value has opted out with its own scope.
-     */
-    private readonly inheritedTabScopes = new WeakMap<INavigationTabTarget, string>()
 
     private mutationObserver: MutationObserver | null = null
 
@@ -185,25 +187,25 @@ export abstract class BaseNavigationContainer extends LitElement {
         const navigationScope = this.normalizeScope(this.navigationScope)
 
         for (const tab of this.tabs) {
-            const inheritedScope = this.inheritedTabScopes.get(tab)
+            const inheritedScope = inheritedTabScopes.get(tab)
             const tabScope = tab.navigationScope?.trim() ?? ''
 
             if (inheritedScope === undefined) {
-                // A non-empty tab scope set before the container saw the tab
+                // A non-empty tab scope set before any container saw the tab
                 // is an explicit override.
                 if (tabScope.length > 0) {
                     continue
                 }
             } else if (tabScope.length > 0 && tabScope !== inheritedScope) {
                 // The tab scope changed after inheritance, so stop managing it.
-                this.inheritedTabScopes.delete(tab)
+                inheritedTabScopes.delete(tab)
                 continue
             }
 
             if (tabScope !== navigationScope) {
                 tab.navigationScope = navigationScope
             }
-            this.inheritedTabScopes.set(tab, navigationScope)
+            inheritedTabScopes.set(tab, navigationScope)
         }
     }
 

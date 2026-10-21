@@ -57,6 +57,13 @@ function mountTabs(container: BaseNavigationContainer, tabs: ITestTab[]): void {
     ;(container as unknown as { querySelectorAll: () => ITestTab[] }).querySelectorAll = () => tabs
 }
 
+function moveTab(tab: ITestTab, container: BaseNavigationContainer): void {
+    tab.parentElement = {
+        closest: () => container as unknown as Element,
+    }
+    mountTabs(container, [tab])
+}
+
 function syncTabsScope(container: BaseNavigationContainer): void {
     ;(container as unknown as { syncTabsScope: () => void }).syncTabsScope()
 }
@@ -126,6 +133,39 @@ describe('BaseNavigationContainer navigation scope inheritance', () => {
         syncTabsScope(container)
 
         expect(tabs[0].navigationScope).toBe('global')
+    })
+
+    it('re-scopes an inherited tab when it moves to another container', () => {
+        const firstContainer = new TestNavigationContainer()
+        firstContainer.navigationScope = 'scope-a'
+        const tab = createTab(firstContainer)
+        mountTabs(firstContainer, [tab])
+
+        syncTabsScope(firstContainer)
+        expect(tab.navigationScope).toBe('scope-a')
+
+        const secondContainer = new TestNavigationContainer()
+        secondContainer.navigationScope = 'scope-b'
+        moveTab(tab, secondContainer)
+        syncTabsScope(secondContainer)
+
+        expect(tab.navigationScope).toBe('scope-b')
+    })
+
+    it('keeps an explicit tab scope when the tab moves to another container', () => {
+        const firstContainer = new TestNavigationContainer()
+        firstContainer.navigationScope = 'scope-a'
+        const tab = createTab(firstContainer, { navigationScope: 'explicit' })
+        mountTabs(firstContainer, [tab])
+
+        syncTabsScope(firstContainer)
+
+        const secondContainer = new TestNavigationContainer()
+        secondContainer.navigationScope = 'scope-b'
+        moveTab(tab, secondContainer)
+        syncTabsScope(secondContainer)
+
+        expect(tab.navigationScope).toBe('explicit')
     })
 })
 
