@@ -185,7 +185,10 @@ export class NavigationRail extends composeMixin(
     public returnValue: string = ''
 
     /**
-     * When `true`, disables the automatic focus trap of the floating rail.
+     * When `true`, the floating rail is shown non-modally (`dialog.show()`),
+     * so focus can leave the overlay. When `false` (default), the rail is
+     * shown with `dialog.showModal()`, which keeps it in the top layer, makes
+     * the rest of the page inert and traps focus inside.
      */
     @property({ type: Boolean, attribute: 'no-focus-trap' })
     public noFocusTrap: boolean = false
@@ -236,6 +239,12 @@ export class NavigationRail extends composeMixin(
     private hasCompletedInitialUpdate: boolean = false
     private labelRevealTimer: ReturnType<typeof setTimeout> | null = null
     private isFloatingShown: boolean = false
+    /**
+     * Why the floating rail last started closing. Internal only — the public
+     * `closed` event carries no detail yet. Kept separate from `returnValue`
+     * so a scrim click / Escape never leaks into the dialog return value.
+     */
+    private lastCloseReason: string = 'programmatic'
 
     /**
      * Whether the rail currently renders as the floating overlay variant.
@@ -259,12 +268,30 @@ export class NavigationRail extends composeMixin(
         super.firstUpdated()
         this.setUpScrollObserver()
         this.container?.addEventListener('transitionend', this.handleContainerTransitionEnd)
+        // An initially open floating rail must enter the modal state after
+        // the first render. `updated()` already covers the common path via
+        // the initial `variant` change; `show()` guards against a duplicate.
+        if (this.isFloating && this.open && !this.isFloatingShown) {
+            void this.show()
+        }
     }
 
     protected override willUpdate(changedProperties: PropertyValues<this>): void {
         super.willUpdate(changedProperties)
         if (!VALID_VARIANTS.includes(this.variant)) {
             throw new Error(`[mdc-navigation-rail] Unsupported variant "${String(this.variant)}". Navigation rails support only "collapsed" | "expanded-docked" | "expanded-floating" | "xr".`)
+        }
+
+        if (changedProperties.has('variant') && !this.isFloating) {
+            // Leaving the floating layout: a modal dialog would keep the page
+            // inert and trap focus in what is now a docked rail. Close it
+            // before the render below re-adds the native `open` attribute for
+            // the docked variants, so that attribute stays non-modal.
+            this.isFloatingShown = false
+            const dialog = this.dialog
+            if (dialog?.open && dialog.matches(':modal')) {
+                dialog.close(this.returnValue)
+            }
         }
     }
 
@@ -273,6 +300,10 @@ export class NavigationRail extends composeMixin(
 
         if (changedProperties.has('variant')) {
             this.handleVariantChange()
+        }
+
+        if (changedProperties.has('noFocusTrap') && this.isFloating && this.open && this.isFloatingShown) {
+            this.syncDialogModality()
         }
 
         if (changedProperties.has('open') && this.handleStateChange && this.isFloating) {
@@ -329,6 +360,33 @@ export class NavigationRail extends composeMixin(
         }
 
         this.handleLayoutChange()
+    }
+
+    /**
+     * Converts the already shown floating dialog between modal and non-modal
+     * when `no-focus-trap` changes while the rail is open. A modal dialog
+     * cannot be demoted in place and `showModal()` throws on an open dialog,
+     * so the dialog is closed and re-opened in the requested mode.
+     */
+    private syncDialogModality(): void {
+        const dialog = this.dialog
+        if (!dialog?.open) {
+            return
+        }
+
+        const shouldBeModal = !this.noFocusTrap
+        if (dialog.matches(':modal') === shouldBeModal) {
+            return
+        }
+
+        dialog.close(this.returnValue)
+        if (shouldBeModal) {
+            dialog.showModal()
+        } else {
+            // `show()` would run the focusing steps and pull focus back into
+            // the rail, defeating the point of disabling the trap.
+            dialog.open = true
+        }
     }
 
     /**
@@ -424,11 +482,13 @@ export class NavigationRail extends composeMixin(
                 @click=${this.handleScrimClick}
             ></span>
             <dialog
-                ?open=${this.isFloating ? this.open : true}
+                ?open=${this.isFloating ? nothing : true}
                 ?inert=${this.isFloating && !this.open}
                 aria-label=${this.getAttribute('aria-label') || nothing}
+                aria-modal=${this.isFloating && this.open && !this.noFocusTrap ? 'true' : nothing}
                 class=${classMap(this.getRenderClasses())}
                 .returnValue=${this.returnValue}
+                @cancel=${this.handleDialogCancel}
                 @click=${this.handleDialogClick}
                 @keydown=${this.handleKeydown}
             >
@@ -615,6 +675,35 @@ export class NavigationRail extends composeMixin(
         await this.isConnectedPromise
         await this.updateComplete
 
+        // A state flip during the await means this show request was
+        // superseded; do not put a closed (or docked) rail into the top layer.
+        if (!this.open || !this.isFloating) {
+            this.isAnimating = false
+            return
+        }
+
+        // The floating dialog's native `open` attribute is command-managed
+        // (see render()), so it is shown here, after the `.open` class landed
+        // in the same update — showing it earlier would skip the entrance
+        // transition. `showModal()` adds the rail to the top layer, makes the
+        // page inert and installs the native focus trap. `show()` keeps it
+        // non-modal for `no-focus-trap`; both throw when the dialog is
+        // already open, hence the guard.
+        const dialog = this.dialog
+        const shouldBeModal = !this.noFocusTrap
+        if (dialog?.isConnected && dialog.open && dialog.matches(':modal') !== shouldBeModal) {
+            // The dialog can be left open in the other mode (e.g. it was
+            // docked before); close it so the requested mode applies below.
+            dialog.close()
+        }
+        if (dialog?.isConnected && !dialog.open) {
+            if (this.noFocusTrap) {
+                dialog.show()
+            } else {
+                dialog.showModal()
+            }
+        }
+
         if (this.scroller) {
             this.scroller.scrollTop = 0
         }
@@ -680,6 +769,21 @@ export class NavigationRail extends composeMixin(
 
         if (!this.quick) {
             await this.waitForTransitions()
+        }
+
+        // A re-open (or a switch to a docked variant) during the exit owns the
+        // lifecycle now. Leaving the dialog open keeps the fresh state intact;
+        // for a docked variant `willUpdate()` already demoted it from modal.
+        if (this.open || !this.isFloating) {
+            this.isAnimating = false
+            return
+        }
+
+        // The dialog stayed in the top layer for the whole exit transition;
+        // only now is it safe to close it without cutting the motion short.
+        const dialog = this.dialog
+        if (dialog?.open) {
+            dialog.close(returnValue)
         }
 
         if (this.previouslyFocused instanceof HTMLElement && document.contains(this.previouslyFocused)) {
@@ -762,9 +866,136 @@ export class NavigationRail extends composeMixin(
     }
 
     protected handleKeydown = (event: KeyboardEvent): void => {
-        if (!this.isFloating) return
+        if (!this.isFloating || !this.open) return
+
+        if (event.key === 'Tab' && !this.noFocusTrap) {
+            this.trapTabKey(event)
+            return
+        }
+
         if (event.key !== 'Escape') return
 
+        // This runs before the browser turns Escape into a `<dialog>` close
+        // request, so it owns the primary path. Canceling the keydown also
+        // suppresses the native `cancel` event, which keeps the exit
+        // animation in charge instead of closing the dialog immediately.
+        event.preventDefault()
+        this.requestCancel('escape')
+    }
+
+    /**
+     * Cycles Tab / Shift+Tab at the edges of the floating rail.
+     *
+     * The rail's content is light DOM slotted into the `<dialog>`'s shadow
+     * tree. The native modal focus trap only walks the dialog's own DOM
+     * containment, so slotted destinations are not recognized as "inside"
+     * and the browser would move focus past them (to the body / browser
+     * chrome). Wrapping the two edges explicitly keeps the cycle inside the
+     * rail without touching the middle of the native tab order.
+     */
+    private trapTabKey(event: KeyboardEvent): void {
+        const focusables = this.getFocusableElements()
+        if (focusables.length === 0) {
+            event.preventDefault()
+            return
+        }
+
+        const currentIndex = this.resolveFocusableIndex(
+            focusables,
+            this.getDeepActiveElement(),
+        )
+        // The focus is not on a tracked rail focusable (e.g. programmatic
+        // focus inside an unrelated shadow root). Leave the native behavior
+        // alone rather than guessing a direction.
+        if (currentIndex === -1) return
+
+        if (!event.shiftKey && currentIndex === focusables.length - 1) {
+            event.preventDefault()
+            focusables[0].focus()
+            return
+        }
+
+        if (event.shiftKey && currentIndex === 0) {
+            event.preventDefault()
+            focusables[focusables.length - 1].focus()
+        }
+    }
+
+    /**
+     * Tabbable elements of the rail's light DOM, in DOM order.
+     *
+     * Roving hosts (`mdc-navigation-tab` with `tabindex="-1"`) are excluded;
+     * a host without `tabindex` that delegates focus to a tabbable shadow
+     * control (`mdc-icon-button`) is included, because that inner control is
+     * the actual tab stop.
+     */
+    private getFocusableElements(): HTMLElement[] {
+        return Array.from(this.querySelectorAll<HTMLElement>(
+            'mdc-navigation-tab, mdc-icon-button, button, a[href], [tabindex]:not([tabindex="-1"])',
+        )).filter((element) => {
+            if (element.hasAttribute('disabled')) return false
+            if (element.closest('[inert]')) return false
+            if (element.getClientRects().length === 0) return false
+            if (element.tabIndex >= 0) return true
+            return this.hasTabbableShadowControl(element)
+        })
+    }
+
+    /**
+     * Whether the element is a delegate-focus host whose shadow control is a
+     * real tab stop. `delegatesFocus` is an init-only option, so the inner
+     * control is inspected instead; a `tabindex="-1"` control (navigation
+     * tab) must not count.
+     */
+    private hasTabbableShadowControl(element: HTMLElement): boolean {
+        const controls = element.shadowRoot?.querySelectorAll<HTMLElement>(
+            'button, a[href], [tabindex]',
+        )
+        if (!controls) return false
+
+        return Array.from(controls).some(
+            (control) => !control.hasAttribute('disabled') && control.tabIndex >= 0,
+        )
+    }
+
+    /**
+     * The actually focused element, crossing open shadow boundaries. In a
+     * shadow-DOM host page `document.activeElement` only reports the outer
+     * host, which would make every rail element look unfocusable.
+     */
+    private getDeepActiveElement(): Element | null {
+        let active = this.ownerDocument?.activeElement ?? null
+        while (active?.shadowRoot?.activeElement) {
+            active = active.shadowRoot.activeElement
+        }
+        return active
+    }
+
+    /**
+     * Maps the deep active element back to the rail-level focusable that owns
+     * it (e.g. the inner `<button>` of `mdc-icon-button` -> the host). The
+     * light-DOM order is what `getFocusableElements()` returned.
+     */
+    private resolveFocusableIndex(focusables: HTMLElement[], active: Element | null): number {
+        let candidate: Element | null = active
+        while (candidate) {
+            const index = focusables.indexOf(candidate as HTMLElement)
+            if (index !== -1) return index
+
+            const root = candidate.getRootNode()
+            candidate = root instanceof ShadowRoot ? root.host : candidate.parentElement
+        }
+        return -1
+    }
+
+    /**
+     * Native `cancel` event of the `<dialog>`. `showModal()` makes Escape a
+     * browser close request, so this is the fallback for close requests that
+     * did not originate from the keydown handler above (e.g. a platform back
+     * gesture). The event is always prevented — the dialog must stay open
+     * until the CSS exit transition finished.
+     */
+    protected handleDialogCancel = (event: Event): void => {
         event.preventDefault()
         this.requestCancel('escape')
     }
@@ -774,13 +1005,19 @@ export class NavigationRail extends composeMixin(
      * unless the event was prevented.
      */
     private requestCancel(reason: string): void {
-        if (!this.open) return
+        // Closing already started: the keydown handler and the native
+        // `cancel` event can both observe the same Escape press, but only the
+        // first one may dispatch `cancel` / start a close.
+        if (!this.open || this.isAnimating) return
 
         const preventCancel = !this.dispatchEvent(
             new Event('cancel', { cancelable: true }),
         )
         if (preventCancel) return
 
-        void this.hide(reason)
+        this.lastCloseReason = reason
+        // `hide()` takes the dialog return value, never the close reason —
+        // scrim/Escape must not leak into `returnValue`/`dialog.returnValue`.
+        void this.hide(this.returnValue)
     }
 }
