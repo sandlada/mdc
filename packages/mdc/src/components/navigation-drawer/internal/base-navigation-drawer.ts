@@ -77,6 +77,14 @@ export abstract class BaseNavigationDrawer extends composeMixin(
         return this.variant === NavigationDrawerVariant.Modal
     }
 
+    /**
+     * Whether the drawer paints its open state. A permanent drawer is always
+     * open regardless of `open`.
+     */
+    protected get isEffectiveOpen(): boolean {
+        return this.variant === NavigationDrawerVariant.Permanent || this.open
+    }
+
     protected override resolveTabVariant(): NavigationTabVariant {
         return NavigationTabVariant.Drawer
     }
@@ -498,7 +506,7 @@ export abstract class BaseNavigationDrawer extends composeMixin(
 
     protected getRenderClasses() {
         const isScrollable = !(this.isAtScrollTop && this.isAtScrollBottom)
-        const isEffectiveOpen = this.variant === 'permanent' || this.open
+        const isEffectiveOpen = this.isEffectiveOpen
         const isModal = this.isModal
         return {
             'dialog': true,
@@ -523,6 +531,9 @@ export abstract class BaseNavigationDrawer extends composeMixin(
         return html`
             <dialog
                 class=${classMap(this.getRenderClasses())}
+                ?inert=${!this.isEffectiveOpen}
+                aria-label=${this.getAttribute('aria-label') || this.headline || nothing}
+                aria-modal=${this.isModal && this.isEffectiveOpen ? 'true' : nothing}
                 .returnValue=${this.returnValue}
                 @cancel=${this.handleCancel}
                 @click=${this.handleDialogClick}

@@ -101,7 +101,7 @@ import {
     type INavigationRail,
 } from './navigation-rail.interface'
 import type { NavigationTabVariant } from '../navigation-tab/navigation-tab.interface'
-import { html, type PropertyValues, type TemplateResult } from 'lit'
+import { html, nothing, type PropertyValues, type TemplateResult } from 'lit'
 import { classMap } from 'lit/directives/class-map.js'
 import { NavigationRailStyles, NavigationRailTransitionDuration } from './navigation-rail.style'
 import { resolveRailTabVariant } from './internal/resolve-rail-tab-variant'
@@ -425,6 +425,8 @@ export class NavigationRail extends composeMixin(
             ></span>
             <dialog
                 ?open=${this.isFloating ? this.open : true}
+                ?inert=${this.isFloating && !this.open}
+                aria-label=${this.getAttribute('aria-label') || nothing}
                 class=${classMap(this.getRenderClasses())}
                 .returnValue=${this.returnValue}
                 @click=${this.handleDialogClick}
