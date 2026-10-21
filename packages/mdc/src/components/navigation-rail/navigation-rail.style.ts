@@ -3,7 +3,8 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { css } from 'lit'
+import { Easing } from '@sandlada/mdk'
+import { css, unsafeCSS } from 'lit'
 import { overrideComponentTokens, stringifyTokens, stringTokens } from '../../utils/style'
 import type { NavigationRailVerticalTabDefinition } from '../navigation-tab/navigation-tab.definition'
 import { NavigationRailDefinition } from './navigation-rail.definition'
@@ -11,6 +12,15 @@ import { NavigationRailDefinition } from './navigation-rail.definition'
 const railString = stringifyTokens('--mdc-navigation-rail')(NavigationRailDefinition)
 
 export const NavigationRailTransitionDuration: number = 300
+
+/**
+ * Duration of the floating rail exit motion. It is shorter than the entrance
+ * motion — an exit should never outlast the interaction that started it.
+ */
+const NavigationRailFloatingExitDuration: number = 200
+
+const emphasizedDecelerateEasing = unsafeCSS(Easing.EmphasizedDecelerate.ToCSSValue())
+const emphasizedAccelerateEasing = unsafeCSS(Easing.EmphasizedAccelerate.ToCSSValue())
 
 const overrideTab = {
     collapsed: stringTokens(overrideComponentTokens<keyof typeof NavigationRailVerticalTabDefinition>('--mdc-navigation-tab', {
@@ -28,11 +38,10 @@ const overrideTab = {
 }
 
 /*
- * Every component rule lives in the `mdc.navigation-rail.component` layer, the
- * token injection in `mdc.navigation-rail.variables`. Reopening the same layer
- * in every block keeps the cascade predictable: the layer order follows the
- * order of the blocks below, so a rule that is moved into another block must
- * not rely on the source order to win — it has to win on specificity.
+ * 1. dialog.collapsed[.open|.closed]
+ * 2. dialog.expanded-docked[.open|.closed]
+ * 3. dialog.expanded-floating[.open|.closed]
+ * 4. dialog.xr[.open|.closed]
  */
 export const NavigationRailStyles = [
     // Token injection
@@ -51,30 +60,27 @@ export const NavigationRailStyles = [
 
                 transition-property: display, opacity;
                 transition-behavior: allow-discrete;
-                transition-duration: 500ms;
+                transition-duration: 150ms;
                 transition-timing-function: linear;
 
                 @starting-style {
                     opacity: var(--_scrim-opacity);
                 }
             }
-            :host(:not([variant="expanded-floating"][open])) {
-                .scrim {
-                    display: none;
-                    pointer-events: none;
-                }
-            }
-            :host([variant="expanded-floating"][open]) {
-                .scrim {
-                    display: flex;
-                    opacity: var(--_scrim-opacity);
-                    pointer-events: auto;
-                    @starting-style {
-                        opacity: 0;
-                    }
+            .scrim:has(~ dialog.expanded-floating.open) {
+                transition-duration: 500ms;
+                display: flex;
+                opacity: var(--_scrim-opacity);
+                pointer-events: auto;
+                @starting-style {
+                    opacity: 0;
                 }
             }
 
+            .scrim:has(~ dialog:not(.expanded-floating)) {
+                display: none;
+                pointer-events: none;
+            }
             :host([quick]) {
                 .scrim {
                     transition-duration: 0ms;
@@ -111,10 +117,37 @@ export const NavigationRailStyles = [
                 z-index: 1000;
                 overflow: visible;
             }
+            ::backdrop {
+                background: none;
+            }
 
-            dialog.expanded-floating:not([open]),
+            /*
+             * The floating rail is painted only while it is open. The
+             * display transition uses allow-discrete so the dialog stays
+             * rendered until the exit motion finished — without it the rail
+             * would vanish before the slide-out could be seen. The duration
+             * follows the motion of the container (see the expanded floating
+             * state block below), the dialog must not outlast it.
+             */
             dialog.expanded-floating.closed {
                 display: none;
+                transition: display ${NavigationRailFloatingExitDuration}ms allow-discrete;
+            }
+
+            dialog.expanded-floating.open {
+                display: flex;
+                transition: display ${NavigationRailTransitionDuration}ms allow-discrete;
+            }
+
+            :host([quick]) dialog.expanded-floating {
+                transition: none !important;
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                dialog.expanded-floating.closed,
+                dialog.expanded-floating.open {
+                    transition: none;
+                }
             }
         }
     `,
@@ -462,6 +495,71 @@ export const NavigationRailStyles = [
                 padding-block-end: var(--_expanded-floating-container-padding-block-end);
                 padding-inline-start: var(--_expanded-floating-container-padding-inline-start);
                 padding-inline-end: var(--_expanded-floating-container-padding-inline-end);
+
+                /*
+                 * Floating rail motion: the container parks one container
+                 * width off the docked edge and slides in when the rail
+                 * opens. The off-dock direction is PHYSICAL (sign * width) —
+                 * the rail is docked to the inline-start edge, so it enters
+                 * from the left under ltr and from the right under rtl.
+                 * Pixel offsets are mandatory — Chrome resolves a
+                 * starting-style percentage transform against the
+                 * destination frame and never paints the slide.
+                 *
+                 * The width transition of the base rule is kept so the
+                 * container can still morph when the variant changes.
+                 */
+                --_rail-off-dock-sign: -1;
+                transform: translateX(calc(var(--_rail-off-dock-sign) * var(--_expanded-floating-container-width)));
+                opacity: 0.6;
+                transition-property: width, transform, opacity;
+                transition-duration:
+                    ${NavigationRailTransitionDuration}ms,
+                    ${NavigationRailFloatingExitDuration}ms,
+                    ${NavigationRailFloatingExitDuration}ms;
+                transition-timing-function:
+                    cubic-bezier(0.2, 0, 0, 1),
+                    ${emphasizedAccelerateEasing},
+                    ${emphasizedAccelerateEasing};
+            }
+
+            :host(:dir(rtl)) dialog.expanded-floating .container {
+                --_rail-off-dock-sign: 1;
+            }
+
+            dialog.expanded-floating.open .container {
+                transform: translateX(0);
+                opacity: 1;
+                transition-property: width, transform, opacity;
+                transition-duration:
+                    ${NavigationRailTransitionDuration}ms,
+                    ${NavigationRailTransitionDuration}ms,
+                    ${NavigationRailTransitionDuration}ms;
+                transition-timing-function:
+                    cubic-bezier(0.2, 0, 0, 1),
+                    ${emphasizedDecelerateEasing},
+                    ${emphasizedDecelerateEasing};
+            }
+
+            /*
+             * Starting styles for the open transition. Declared after the
+             * main rules: starting-style declarations take part in the
+             * normal cascade, so a block placed earlier would lose to the
+             * matching open-state rules and the before-change value would
+             * equal the open value, killing the transition.
+             */
+            @starting-style {
+                dialog.expanded-floating.open .container {
+                    transform: translateX(calc(var(--_rail-off-dock-sign) * var(--_expanded-floating-container-width)));
+                    opacity: 0.6;
+                }
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                dialog.expanded-floating .container,
+                dialog.expanded-floating.open .container {
+                    transition: none;
+                }
             }
 
             dialog.expanded-floating .container .background {

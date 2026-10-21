@@ -81,12 +81,6 @@ declare global {
     }
 }
 
-type AnimationArgs = Parameters<Element['animate']>
-interface NavigationRailAnimation {
-    dialog?: AnimationArgs[]
-    container?: AnimationArgs[]
-}
-
 const VALID_VARIANTS: readonly NavigationRailVariant[] = [
     NavigationRailVariant.Collapsed,
     NavigationRailVariant.ExpandedDocked,
@@ -124,7 +118,7 @@ export class NavigationRail extends composeMixin(
     /**
      * When `true`, skips all animations:
      * - Docked variants: CSS width `transition` is suppressed.
-     * - Floating variant: WAAPI entry/exit animations are skipped.
+     * - Floating variant: the CSS entry/exit transitions are suppressed.
      */
     @property({ type: Boolean, reflect: true })
     public quick: boolean = false
@@ -220,7 +214,6 @@ export class NavigationRail extends composeMixin(
     private handleStateChange: boolean = true
     protected isAnimating: boolean = false
     private previouslyFocused: Element | null = null
-    protected cancelAnimations: AbortController | null = null
     protected intersectionObserver?: IntersectionObserver
     private hasCompletedInitialUpdate: boolean = false
     private labelRevealTimer: ReturnType<typeof setTimeout> | null = null
@@ -282,7 +275,6 @@ export class NavigationRail extends composeMixin(
     }
 
     public override disconnectedCallback(): void {
-        this.cancelAnimations?.abort()
         this.intersectionObserver?.disconnect()
         this.intersectionObserver = undefined
         this.clearLabelRevealTimer()
@@ -637,8 +629,12 @@ export class NavigationRail extends composeMixin(
             this.scroller.scrollTop = 0
         }
 
+        // The container slide-in and the scrim fade are CSS transitions
+        // started by the open state that was applied above. They carry no
+        // awaitable handle of their own, so the live ones are gathered from
+        // the rendered dialog and awaited.
         if (!this.quick) {
-            await this.animateRail(this.getOpeningAnimation())
+            await this.waitForTransitions()
         }
 
         if (!this.noFocusTrap) {
@@ -682,13 +678,19 @@ export class NavigationRail extends composeMixin(
         this.isAnimating = true
         this.returnValue = returnValue
 
-        if (!this.quick && this.dialog?.open) {
-            await this.animateRail(this.getClosingAnimation())
-        }
-
+        // Flip the state first: the CSS transition runs towards the closed
+        // values (the container slides out, the dialog is hidden once the
+        // transition ended). The dialog must stay displayed until the motion
+        // finished — the `display` transition uses `allow-discrete` for it.
         this.handleStateChange = false
         this.open = false
         this.handleStateChange = true
+
+        await this.updateComplete
+
+        if (!this.quick) {
+            await this.waitForTransitions()
+        }
 
         if (this.previouslyFocused instanceof HTMLElement && document.contains(this.previouslyFocused)) {
             this.previouslyFocused.focus()
@@ -730,56 +732,23 @@ export class NavigationRail extends composeMixin(
         }
     }
 
-    protected getOpeningAnimation(): NavigationRailAnimation {
-        return {
-            container: [
-                [
-                    [
-                        { transform: 'translateX(-100%)', opacity: '0.6' },
-                        { transform: 'translateX(0)', opacity: '1' },
-                    ],
-                    { duration: 300, easing: 'cubic-bezier(0.05, 0.7, 0.1, 1.0)' },
-                ],
-            ],
-        }
-    }
-
-    protected getClosingAnimation(): NavigationRailAnimation {
-        return {
-            container: [
-                [
-                    [
-                        { transform: 'translateX(0)', opacity: '1' },
-                        { transform: 'translateX(-100%)', opacity: '0.6' },
-                    ],
-                    { duration: 200, easing: 'cubic-bezier(0.3, 0.0, 0.8, 0.15)' },
-                ],
-            ],
-        }
-    }
-
-    private async animateRail(animation: NavigationRailAnimation): Promise<void> {
-        this.cancelAnimations?.abort()
-        this.cancelAnimations = new AbortController()
-        if (this.quick) return
-
-        const { container } = this
-        const elementAndAnimations: Array<[Element | null, AnimationArgs[] | undefined]> = [
-            [container, animation.container],
+    /**
+     * Waits until every CSS transition started by the last open-state change
+     * is done. CSS transitions carry no awaitable handle of their own, so
+     * the live ones are gathered from the rendered dialog and awaited
+     * through the Web Animations `finished` promises.
+     *
+     * A replaced or canceled transition (e.g. the state flipped again
+     * mid-way) rejects `finished`, which counts as "no longer animating".
+     * When nothing animates (`quick`, reduced motion, zero durations), this
+     * resolves immediately.
+     */
+    private async waitForTransitions(): Promise<void> {
+        const animations = [
+            ...(this.dialog?.getAnimations() ?? []),
+            ...(this.container?.getAnimations() ?? []),
         ]
-
-        const animations: Animation[] = []
-        for (const [element, animList] of elementAndAnimations) {
-            if (!element || !animList) continue
-            for (const args of animList) {
-                const anim = element.animate(...args)
-                this.cancelAnimations.signal.addEventListener('abort', () => {
-                    anim.cancel()
-                })
-                animations.push(anim)
-            }
-        }
-
+        if (animations.length === 0) return
         await Promise.all(
             animations.map((anim) => anim.finished.catch(() => {})),
         )

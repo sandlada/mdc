@@ -25,6 +25,7 @@ Material Design 3 Navigation Rail component (`<mdc-navigation-rail>`) built with
   - `footer` slot: Bottom pinned actions.
   - Automatic top/bottom scroll dividers with intersection observer detection.
 - **Morphing Choreography**: The destination label is hidden while the rail morphs between the collapsed and the expanded layout and revealed once the new layout settled.
+- **CSS-driven Motion**: The floating rail slides in from the edge it is docked to and fades in; the exit motion is reversed and the rail stays painted until it finished. The motion is expressed in CSS (`@starting-style` + `transition`), enters from the correct edge under `dir="rtl"`, and is skipped by `quick` and `prefers-reduced-motion`.
 
 ---
 
