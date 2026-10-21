@@ -87,7 +87,8 @@ export interface ISelectionControllerOptions {
 
     /**
      * Returns the root in which sibling controls are discovered. Defaults to the
-     * host's root node. Return null to disable group discovery (host only).
+     * host's root node when not configured. Return null to disable group
+     * discovery (host only) — an explicit null is not treated as "unset".
      */
     getGroupRoot: (host: ISelectionControllerHost) => ParentNode | null
 
@@ -228,12 +229,17 @@ export class SelectionController implements ReactiveController {
      * returned by `getGroupRoot` – by default the host's root node (shadow root
      * or document).
      *
-     * When the host has no `name`, is not connected, or `getGroupRoot` returns
-     * `null`, returns `[host]`.
+     * When the host has no `name`, is not connected, `getGroupRoot` is not
+     * configured and the host has no root node, or `getGroupRoot` explicitly
+     * returns `null`, returns `[host]`.
      */
     public get controls(): ISelectionControllerHost[] {
         const name = this.host.getAttribute('name')
-        const root = this.getGroupRoot?.(this.host) ?? this.root
+        // An explicitly configured resolver wins even when it returns null:
+        // null means "no group discovery", not "fall back to the root node".
+        const root = this.getGroupRoot
+            ? this.getGroupRoot(this.host)
+            : this.root
         if (!name || !root || !this.host.isConnected) return [this.host]
         return Array.from(
             root.querySelectorAll<ISelectionControllerHost>(`[name="${CSS.escape(name)}"]`),
