@@ -15,9 +15,9 @@
  * </mdc-navigation-bar>
  *
  * <script>
- *   const tab = document.querySelector('mdc-navigation-tab')
- *   tab?.addEventListener('change', (event) => {
- *     console.log(event.detail.value, event.detail.source, event.detail.trigger)
+ *   const bar = document.querySelector('mdc-navigation-bar')
+ *   bar?.addEventListener('change', (event) => {
+ *     const [newValue, oldValue] = event.detail
  *   })
  * </script>
  * ```
@@ -27,7 +27,6 @@ import { customElement, property, query, state } from 'lit/decorators.js'
 import { SelectionController } from '../../utils/controller/selection-controller'
 import {
     GlobalNavigationStateStore,
-    type NavigationEventSource,
     type NavigationEventTrigger,
     type NavigationScopeMutation,
 } from '../../utils/navigation/navigation-state-store'
@@ -53,15 +52,6 @@ function createNavigationTabId() {
         return crypto.randomUUID()
     }
     return `mdc-navigation-tab-${Math.random().toString(36).slice(2)}`
-}
-
-export interface NavigationTabEventDetail {
-    /** Business navigation key for this tab, used for cross-container sync. */
-    value: string
-    /** Whether the event originated from user interaction or external sync. */
-    source: NavigationEventSource
-    /** Interaction trigger that caused this event. */
-    trigger: NavigationEventTrigger
 }
 
 declare global {
@@ -176,7 +166,7 @@ export class MDCNavigationTab extends composeMixin(
         preventSelectionDuringInitialFocus: true,
         preventSelectionDuringSwitching: true,
         dispatchNavigationClick: false,
-        dispatchInputChangeEvents: true,
+        dispatchInputChangeEvents: false,
         getFocusableElement: (host) => host,
         onBeforeSelect: () => {
             this.selectionHandledByController = true
@@ -432,7 +422,16 @@ export class MDCNavigationTab extends composeMixin(
     private readonly handleKeyDownCapture = (event: KeyboardEvent) => {
         if (this.disabled) return
         if (!KEYBOARD_SELECTION_KEYS.has(event.key)) return
+
+        // Activate through the inner control exactly once; the selection
+        // controller would otherwise toggle on keydown and again on the
+        // forwarded click.
+        event.preventDefault()
+        event.stopImmediatePropagation()
+        if (event.repeat) return
+
         this.pendingUserTrigger = 'keyboard'
+        this.rootElement?.click()
     }
 
     // Apply store mutations from other tabs/containers in the same scope.
@@ -453,14 +452,6 @@ export class MDCNavigationTab extends composeMixin(
             this.suppressCheckedUpdatePublish = true
             this.checked = shouldActivate
         }
-
-        if (!shouldActivate) return
-
-        this.dispatchNavigationInput('external', mutation.trigger)
-
-        if (mutation.changed) {
-            this.dispatchNavigationChange('external', mutation.trigger)
-        }
     }
 
     private handleControllerSelection(changed: boolean): void {
@@ -468,17 +459,11 @@ export class MDCNavigationTab extends composeMixin(
         this.pendingUserTrigger = null
 
         if (this.checked && !this.disabled && this.normalizedScope) {
-            const mutation = GlobalNavigationStateStore.setActive(this.normalizedScope, this.value, {
+            GlobalNavigationStateStore.setActive(this.normalizedScope, this.value, {
                 source: 'user',
                 trigger,
                 originId: this.tabId,
             })
-
-            this.dispatchNavigationInput('user', trigger)
-
-            if (mutation.changed) {
-                this.dispatchNavigationChange('user', trigger)
-            }
         }
 
         if (!changed) {
@@ -502,17 +487,11 @@ export class MDCNavigationTab extends composeMixin(
             return
         }
 
-        const mutation = GlobalNavigationStateStore.setActive(this.normalizedScope, this.value, {
+        GlobalNavigationStateStore.setActive(this.normalizedScope, this.value, {
             source: 'external',
             trigger: 'programmatic',
             originId: this.tabId,
         })
-
-        this.dispatchNavigationInput('external', 'programmatic')
-
-        if (mutation.changed) {
-            this.dispatchNavigationChange('external', 'programmatic')
-        }
     }
 
     private subscribeScope(): void {
@@ -545,30 +524,6 @@ export class MDCNavigationTab extends composeMixin(
 
         this.suppressCheckedUpdatePublish = true
         this.checked = shouldBeChecked
-    }
-
-    private dispatchNavigationInput(source: NavigationEventSource, trigger: NavigationEventTrigger): void {
-        this.dispatchEvent(new CustomEvent<NavigationTabEventDetail>('input', {
-            bubbles: true,
-            composed: true,
-            detail: {
-                value: this.value,
-                source,
-                trigger,
-            },
-        }))
-    }
-
-    private dispatchNavigationChange(source: NavigationEventSource, trigger: NavigationEventTrigger): void {
-        this.dispatchEvent(new CustomEvent<NavigationTabEventDetail>('change', {
-            bubbles: true,
-            composed: true,
-            detail: {
-                value: this.value,
-                source,
-                trigger,
-            },
-        }))
     }
 
     private get normalizedScope(): string {

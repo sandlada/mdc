@@ -17,23 +17,25 @@
  * ```
  */
 import { html, LitElement, type PropertyValues, type TemplateResult } from 'lit'
-import { property, query } from 'lit/decorators.js'
+import { property } from 'lit/decorators.js'
 import {
     GlobalNavigationStateStore,
     type NavigationEventTrigger,
 } from '../../../utils/navigation/navigation-state-store'
+import { NavigationEventController } from './navigation-event-controller'
 
 interface INavigationTabScopeTarget extends HTMLElement {
     navigationScope: string
 }
+
+const NAVIGATION_CONTAINER_SELECTOR = 'mdc-navigation-bar, mdc-navigation-rail, mdc-navigation-drawer'
 
 export abstract class BaseNavigationContainer extends LitElement {
 
     @property({ type: String, reflect: true, attribute: 'navigation-scope' })
     public navigationScope = 'global'
 
-    @query('slot')
-    private readonly slotElement!: HTMLSlotElement | null
+    protected readonly navigationEventController = new NavigationEventController(this)
 
     /** Current active navigation value in this container scope. */
     public get activeValue(): string | null {
@@ -90,12 +92,11 @@ export abstract class BaseNavigationContainer extends LitElement {
         }
     }
 
+    // Tabs may sit inside slotted wrappers such as `mdc-navigation-rail-section`,
+    // so collect light-DOM descendants and skip tabs owned by a nested container.
     private get tabs(): INavigationTabScopeTarget[] {
-        if (!this.slotElement) return []
-
-        return this.slotElement
-            .assignedElements({ flatten: true })
-            .filter((element) => element.tagName === 'MDC-NAVIGATION-TAB') as INavigationTabScopeTarget[]
+        return Array.from(this.querySelectorAll<INavigationTabScopeTarget>('mdc-navigation-tab'))
+            .filter((tab) => tab.parentElement?.closest(NAVIGATION_CONTAINER_SELECTOR) === this)
     }
 
     private normalizeScope(scope: string): string {
