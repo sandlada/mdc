@@ -168,7 +168,10 @@ export class MDCNavigationTab extends composeMixin(
         preventSelectionDuringSwitching: true,
         dispatchNavigationClick: false,
         dispatchInputChangeEvents: false,
-        getFocusableElement: (host) => host,
+        // The inner native `<a>`/`<button>` is the only focusable control;
+        // the host is a wrapper and must not be a Tab stop of its own.
+        getFocusableElement: (host) =>
+            (host as MDCNavigationTab).rootElement ?? host,
         // Scope group discovery to the nearest navigation container so that
         // independent containers reusing the same `name` do not share arrow-key
         // navigation, mutex enforcement, or roving tabindex. A tab outside any
@@ -219,13 +222,6 @@ export class MDCNavigationTab extends composeMixin(
             this.checked = true
         }
 
-        // Custom element constructors must not set attributes, so the initial
-        // roving `tabindex` is applied once the element connects. Never
-        // override a `tabindex` the author set explicitly.
-        if (!this.hasAttribute('tabindex')) {
-            this.tabIndex = 0
-        }
-
         // Only direct text nodes name the tab. A slotted
         // `<mdc-icon>settings</mdc-icon>` carries the icon name as text and
         // must not turn an icon-only destination into a labelled one.
@@ -252,7 +248,11 @@ export class MDCNavigationTab extends composeMixin(
     }
 
     protected override willUpdate(changedProperties: PropertyValues<this>): void {
-        if (changedProperties.has('checked')) {
+        // Before the first render there is no inner control yet, so the
+        // controller would fall back to the host and make the wrapper an extra
+        // Tab stop. The first render's roving tabindex is applied by the
+        // controller's `hostUpdated` once the inner control exists.
+        if (changedProperties.has('checked') && this.hasUpdated) {
             this.selectionController.handleCheckedChange()
         }
     }
@@ -348,9 +348,8 @@ export class MDCNavigationTab extends composeMixin(
         // inner native `<a>`/`<button>` is the accessible control: it carries
         // the name (an author `aria-label` for icon-only tabs, otherwise the
         // label), marks the selected destination with `aria-current="page"`,
-        // and stays out of the tab order so it only serves as the focus
-        // delegation target. No `tablist`/`tab`/`aria-selected` relationship is
-        // implied.
+        // and owns the roving tab stop within its selection group. No
+        // `tablist`/`tab`/`aria-selected` relationship is implied.
         const accessibleLabel = this.getAttribute('aria-label') || this.label || nothing
         const content = html`
             <div aria-hidden="true" class="indicator">
@@ -385,7 +384,6 @@ export class MDCNavigationTab extends composeMixin(
                     aria-label=${accessibleLabel}
                     aria-current=${this.checked ? 'page' : nothing}
                     aria-disabled=${this.disabled ? 'true' : nothing}
-                    tabindex="-1"
                     @click=${this.handleClick}
                 >
                     ${content}
@@ -401,7 +399,6 @@ export class MDCNavigationTab extends composeMixin(
                 aria-label=${accessibleLabel}
                 aria-current=${this.checked ? 'page' : nothing}
                 aria-disabled=${this.disabled ? 'true' : nothing}
-                tabindex="-1"
                 @click=${this.handleClick}
             >
                 ${content}
