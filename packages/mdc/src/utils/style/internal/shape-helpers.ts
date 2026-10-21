@@ -35,20 +35,19 @@ export function isCSSResult(value: unknown): value is CSSLike {
     return typeof value === 'object' && value !== null && ('_$cssResult$' in (value as object) || 'cssText' in (value as object))
 }
 
+/**
+ * Normalizes the user-provided prefix into the `-shape` base.
+ *
+ * An empty prefix is a valid input: it yields the bare `shape` base, which
+ * produces `shape-*` keys (e.g. `shape-start-start`).
+ */
 export function normalizePrefix(prefix: unknown): string {
     if (typeof prefix !== 'string') {
-        throw new Error('[expandShape] Prefix must be a non-empty string.')
+        throw new Error('[expandShape] Prefix must be a string.')
     }
-    const trimmed = prefix.trim()
-    if (trimmed.length === 0) {
-        throw new Error('[expandShape] Prefix must be a non-empty string.')
-    }
-    const clean = trimmed.replace(/^--/, '').replace(/-+$/, '')
-    if (clean.length === 0) {
-        throw new Error('[expandShape] Prefix must be a non-empty string.')
-    }
+    const clean = prefix.trim().replace(/^--/, '').replace(/-+$/, '')
     if (clean === 'shape' || clean.endsWith('-shape')) {
         return clean
     }
-    return `${clean}-shape`
+    return clean.length === 0 ? 'shape' : `${clean}-shape`
 }

@@ -107,13 +107,19 @@ export type CleanPaddingPrefix<T extends string> =
 
 /**
  * Type-level normalization of prefix to ensure uniform `-padding` base.
+ *
+ * An empty prefix yields the bare `padding` base (e.g. `padding-block-start`).
  */
 export type NormalizePaddingPrefix<TPrefix extends string> =
-    CleanPaddingPrefix<TPrefix> extends `${infer Base}-padding`
-        ? `${Base}-padding`
-        : CleanPaddingPrefix<TPrefix> extends 'padding'
-            ? 'padding'
-            : `${CleanPaddingPrefix<TPrefix>}-padding`
+    CleanPaddingPrefix<TPrefix> extends infer TBase extends string
+        ? TBase extends `${infer Base}-padding`
+            ? `${Base}-padding`
+            : TBase extends 'padding'
+                ? 'padding'
+                : TBase extends ''
+                    ? 'padding'
+                    : `${TBase}-padding`
+        : never
 
 /**
  * 4 logical padding edge suffixes.
@@ -173,10 +179,12 @@ export type ExpandedPaddingResult<TPrefix extends string, TValue = PrimitivePadd
  *
  * @template TPrefix - String literal type of the token prefix.
  *
- * @param prefix - Base token prefix (e.g. `'container'`, `'container-padding'`, `'padding'`, `'extra-small-container'`).
+ * @param prefix - Base token prefix (e.g. `'container'`, `'container-padding'`, `'padding'`, `'extra-small-container'`, `''`).
  * @returns A curried function accepting a padding value and returning a record containing the 4 expanded logical padding token properties.
  *
- * @throws {Error} If prefix is empty or invalid.
+ * An empty prefix yields the bare `padding` base (e.g. `padding-block-start`).
+ *
+ * @throws {Error} If prefix is not a string.
  * @throws {Error} If padding value is null, undefined, or contains an invalid array length (not 2 or 4).
  *
  * @example
@@ -221,20 +229,19 @@ export type ExpandedPaddingResult<TPrefix extends string, TValue = PrimitivePadd
  * ```
  */
 export function expandPadding<const TPrefix extends string>(prefix: TPrefix) {
-    if (typeof prefix !== 'string' || prefix.trim().length === 0) {
-        throw new Error('[expandPadding] Prefix must be a non-empty string.')
+    if (typeof prefix !== 'string') {
+        throw new Error('[expandPadding] Prefix must be a string.')
     }
 
     const cleanPrefix = prefix.trim().replace(/^--/, '').replace(/-+$/, '')
-    if (cleanPrefix.length === 0) {
-        throw new Error('[expandPadding] Prefix must be a non-empty string.')
-    }
 
-    const basePrefix = cleanPrefix.endsWith('-padding')
-        ? cleanPrefix
-        : cleanPrefix === 'padding'
-            ? 'padding'
-            : `${cleanPrefix}-padding`
+    const basePrefix = cleanPrefix.length === 0
+        ? 'padding'
+        : cleanPrefix.endsWith('-padding')
+            ? cleanPrefix
+            : cleanPrefix === 'padding'
+                ? 'padding'
+                : `${cleanPrefix}-padding`
 
     const keyBlockStart = `${basePrefix}-block-start`
     const keyBlockEnd = `${basePrefix}-block-end`

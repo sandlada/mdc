@@ -82,13 +82,19 @@ export type CleanShapePrefix<T extends string> =
 
 /**
  * Type-level normalization of prefix to ensure uniform `-shape` base.
+ *
+ * An empty prefix yields the bare `shape` base (e.g. `shape-start-start`).
  */
 export type NormalizeShapePrefix<TPrefix extends string> =
-    CleanShapePrefix<TPrefix> extends `${infer Base}-shape`
-        ? `${Base}-shape`
-        : CleanShapePrefix<TPrefix> extends 'shape'
-            ? 'shape'
-            : `${CleanShapePrefix<TPrefix>}-shape`
+    CleanShapePrefix<TPrefix> extends infer TBase extends string
+        ? TBase extends `${infer Base}-shape`
+            ? `${Base}-shape`
+            : TBase extends 'shape'
+                ? 'shape'
+                : TBase extends ''
+                    ? 'shape'
+                    : `${TBase}-shape`
+        : never
 
 /**
  * 4 standard logical corner suffixes.
@@ -120,11 +126,12 @@ export type ExpandedShapeResult<TPrefix extends string, TValue> = {
  *
  * Expands tokens to `${prefix}-shape-start-start`, `${prefix}-shape-start-end`, `${prefix}-shape-end-start`, and `${prefix}-shape-end-end`.
  * Automatically normalizes prefix to avoid redundant `-shape-shape-*` suffixes.
+ * An empty prefix yields the bare `shape` base (e.g. `shape-start-start`).
  *
- * @param prefix - The base token prefix (e.g. `'container'`, `'container-shape'`, `'extra-small-container'`).
+ * @param prefix - The base token prefix (e.g. `'container'`, `'container-shape'`, `'extra-small-container'`, `''`).
  * @returns A curried function accepting scalar values, corner objects, multi-state tuples, or multi-state records with strict return type inference.
  *
- * @throws {Error} If prefix is empty, non-string, or only hyphens/whitespace.
+ * @throws {Error} If prefix is not a string.
  * @throws {Error} If shapeValue is invalid, empty, NaN, or contains no defined corners/states.
  */
 export function expandShape<const TPrefix extends string>(prefix: TPrefix) {

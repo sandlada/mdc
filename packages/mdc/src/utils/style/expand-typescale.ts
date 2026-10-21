@@ -15,6 +15,7 @@
 import {
     extractTypography,
     normalizePrefix,
+    typescaleTokenKey,
     validateTypescaleInput,
     type ExtractedTypography
 } from './internal/typescale-helpers'
@@ -112,9 +113,16 @@ export type TypescalePropSuffix = 'font' | 'leading' | 'size' | 'tracking' | 'we
 
 /**
  * 5 typographic token property keys generated from a given prefix.
+ *
+ * An empty prefix yields the bare suffix (e.g. `font`) instead of a
+ * leading-hyphen key (e.g. `-font`).
  */
 export type TypescaleTokenKey<TPrefix extends string, TSuffix extends TypescalePropSuffix = TypescalePropSuffix> =
-    `${NormalizeTypescalePrefix<TPrefix>}-${TSuffix}`
+    NormalizeTypescalePrefix<TPrefix> extends infer TBase extends string
+        ? TBase extends ''
+            ? TSuffix
+            : `${TBase}-${TSuffix}`
+        : never
 
 export type ExtractFont<T> =
     T extends { Font: infer V } ? V :
@@ -157,39 +165,39 @@ export type ExtractWeight<T> =
 export type ExpandedTypescaleResult<TPrefix extends string, TValue> =
     TValue extends readonly (infer Item)[]
         ? {
-            readonly [K in `${NormalizeTypescalePrefix<TPrefix>}-font`]: { readonly [I in keyof TValue]: ExtractFont<TValue[I]> }
+            readonly [K in TypescaleTokenKey<TPrefix, 'font'>]: { readonly [I in keyof TValue]: ExtractFont<TValue[I]> }
         } & {
-            readonly [K in `${NormalizeTypescalePrefix<TPrefix>}-leading`]: { readonly [I in keyof TValue]: ExtractLeading<TValue[I]> }
+            readonly [K in TypescaleTokenKey<TPrefix, 'leading'>]: { readonly [I in keyof TValue]: ExtractLeading<TValue[I]> }
         } & {
-            readonly [K in `${NormalizeTypescalePrefix<TPrefix>}-size`]: { readonly [I in keyof TValue]: ExtractSize<TValue[I]> }
+            readonly [K in TypescaleTokenKey<TPrefix, 'size'>]: { readonly [I in keyof TValue]: ExtractSize<TValue[I]> }
         } & {
-            readonly [K in `${NormalizeTypescalePrefix<TPrefix>}-tracking`]: { readonly [I in keyof TValue]: ExtractTracking<TValue[I]> }
+            readonly [K in TypescaleTokenKey<TPrefix, 'tracking'>]: { readonly [I in keyof TValue]: ExtractTracking<TValue[I]> }
         } & {
-            readonly [K in `${NormalizeTypescalePrefix<TPrefix>}-weight`]: { readonly [I in keyof TValue]: ExtractWeight<TValue[I]> }
+            readonly [K in TypescaleTokenKey<TPrefix, 'weight'>]: { readonly [I in keyof TValue]: ExtractWeight<TValue[I]> }
         }
         : TValue extends MDKTypescaleLike | TypographyObject
             ? {
-                readonly [K in `${NormalizeTypescalePrefix<TPrefix>}-font`]: ExtractFont<TValue>
+                readonly [K in TypescaleTokenKey<TPrefix, 'font'>]: ExtractFont<TValue>
             } & {
-                readonly [K in `${NormalizeTypescalePrefix<TPrefix>}-leading`]: ExtractLeading<TValue>
+                readonly [K in TypescaleTokenKey<TPrefix, 'leading'>]: ExtractLeading<TValue>
             } & {
-                readonly [K in `${NormalizeTypescalePrefix<TPrefix>}-size`]: ExtractSize<TValue>
+                readonly [K in TypescaleTokenKey<TPrefix, 'size'>]: ExtractSize<TValue>
             } & {
-                readonly [K in `${NormalizeTypescalePrefix<TPrefix>}-tracking`]: ExtractTracking<TValue>
+                readonly [K in TypescaleTokenKey<TPrefix, 'tracking'>]: ExtractTracking<TValue>
             } & {
-                readonly [K in `${NormalizeTypescalePrefix<TPrefix>}-weight`]: ExtractWeight<TValue>
+                readonly [K in TypescaleTokenKey<TPrefix, 'weight'>]: ExtractWeight<TValue>
             }
             : TValue extends Record<string, any>
                 ? {
-                    readonly [K in `${NormalizeTypescalePrefix<TPrefix>}-font`]: { readonly [S in keyof TValue]: ExtractFont<TValue[S]> }
+                    readonly [K in TypescaleTokenKey<TPrefix, 'font'>]: { readonly [S in keyof TValue]: ExtractFont<TValue[S]> }
                 } & {
-                    readonly [K in `${NormalizeTypescalePrefix<TPrefix>}-leading`]: { readonly [S in keyof TValue]: ExtractLeading<TValue[S]> }
+                    readonly [K in TypescaleTokenKey<TPrefix, 'leading'>]: { readonly [S in keyof TValue]: ExtractLeading<TValue[S]> }
                 } & {
-                    readonly [K in `${NormalizeTypescalePrefix<TPrefix>}-size`]: { readonly [S in keyof TValue]: ExtractSize<TValue[S]> }
+                    readonly [K in TypescaleTokenKey<TPrefix, 'size'>]: { readonly [S in keyof TValue]: ExtractSize<TValue[S]> }
                 } & {
-                    readonly [K in `${NormalizeTypescalePrefix<TPrefix>}-tracking`]: { readonly [S in keyof TValue]: ExtractTracking<TValue[S]> }
+                    readonly [K in TypescaleTokenKey<TPrefix, 'tracking'>]: { readonly [S in keyof TValue]: ExtractTracking<TValue[S]> }
                 } & {
-                    readonly [K in `${NormalizeTypescalePrefix<TPrefix>}-weight`]: { readonly [S in keyof TValue]: ExtractWeight<TValue[S]> }
+                    readonly [K in TypescaleTokenKey<TPrefix, 'weight'>]: { readonly [S in keyof TValue]: ExtractWeight<TValue[S]> }
                 }
                 : {
                     readonly [K in TypescaleTokenKey<TPrefix>]: unknown
@@ -211,11 +219,14 @@ export type ExpandedTypescaleTokens<TPrefix extends string = string, TValue = an
  * - `${prefix}-tracking`: Letter spacing / tracking
  * - `${prefix}-weight`: Font weight
  *
- * @param prefix - The token key prefix (e.g. `'label'`, `'headline'`, `'extra-small-label'`).
+ * An empty prefix drops the separator, yielding unprefixed keys
+ * (`font`, `leading`, `size`, `tracking`, `weight`).
+ *
+ * @param prefix - The token key prefix (e.g. `'label'`, `'headline'`, `'extra-small-label'`, `''`).
  * @returns A data-last function accepting a Typescale instance, object, tuple, or state record with full type inference.
  *
- * @throws {TypeError} If prefix is invalid or empty.
- * @throws {TypeError} If typescaleValue is null, undefined, or not an object.
+ * @throws {Error} If prefix is not a string.
+ * @throws {Error} If typescaleValue is null, undefined, or not an object.
  * @throws {Error} If tuple is empty or object has no properties.
  *
  * @example Single MDK Typescale instance
@@ -231,6 +242,22 @@ export type ExpandedTypescaleTokens<TPrefix extends string = string, TValue = an
  * //     readonly 'label-size': string
  * //     readonly 'label-tracking': string
  * //     readonly 'label-weight': number
+ * // }
+ * ```
+ *
+ * @example Empty prefix (unprefixed keys)
+ * ```typescript
+ * import { Typescale } from '@sandlada/mdk'
+ * import { expandTypescale } from '../../utils/style'
+ *
+ * const tokens = expandTypescale('')(Typescale.LabelLarge)
+ * // Inferred Type:
+ * // {
+ * //     readonly 'font': string
+ * //     readonly 'leading': string
+ * //     readonly 'size': string
+ * //     readonly 'tracking': string
+ * //     readonly 'weight': number
  * // }
  * ```
  *
@@ -277,11 +304,11 @@ export const expandTypescale = <const TPrefix extends string>(prefix: TPrefix) =
         const projectLeaf = (pick: (extracted: ExtractedTypography) => unknown) =>
             mapTypescaleLeaves(typescaleValue, item => pick(extractTypography(item)))
         return {
-            [`${cleanPrefix}-font`]: projectLeaf(e => e.font),
-            [`${cleanPrefix}-leading`]: projectLeaf(e => e.leading),
-            [`${cleanPrefix}-size`]: projectLeaf(e => e.size),
-            [`${cleanPrefix}-tracking`]: projectLeaf(e => e.tracking),
-            [`${cleanPrefix}-weight`]: projectLeaf(e => e.weight)
+            [typescaleTokenKey(cleanPrefix, 'font')]: projectLeaf(e => e.font),
+            [typescaleTokenKey(cleanPrefix, 'leading')]: projectLeaf(e => e.leading),
+            [typescaleTokenKey(cleanPrefix, 'size')]: projectLeaf(e => e.size),
+            [typescaleTokenKey(cleanPrefix, 'tracking')]: projectLeaf(e => e.tracking),
+            [typescaleTokenKey(cleanPrefix, 'weight')]: projectLeaf(e => e.weight)
         } as unknown as ExpandedTypescaleResult<TPrefix, TValue>
     }
 
@@ -295,11 +322,11 @@ export const expandTypescale = <const TPrefix extends string>(prefix: TPrefix) =
 
     if (hasTypographyProp) {
         return {
-            [`${cleanPrefix}-font`]: extracted.font,
-            [`${cleanPrefix}-leading`]: extracted.leading,
-            [`${cleanPrefix}-size`]: extracted.size,
-            [`${cleanPrefix}-tracking`]: extracted.tracking,
-            [`${cleanPrefix}-weight`]: extracted.weight
+            [typescaleTokenKey(cleanPrefix, 'font')]: extracted.font,
+            [typescaleTokenKey(cleanPrefix, 'leading')]: extracted.leading,
+            [typescaleTokenKey(cleanPrefix, 'size')]: extracted.size,
+            [typescaleTokenKey(cleanPrefix, 'tracking')]: extracted.tracking,
+            [typescaleTokenKey(cleanPrefix, 'weight')]: extracted.weight
         } as unknown as ExpandedTypescaleResult<TPrefix, TValue>
     }
 
@@ -333,10 +360,10 @@ export const expandTypescale = <const TPrefix extends string>(prefix: TPrefix) =
     }
 
     return {
-        [`${cleanPrefix}-font`]: fontRecord,
-        [`${cleanPrefix}-leading`]: leadingRecord,
-        [`${cleanPrefix}-size`]: sizeRecord,
-        [`${cleanPrefix}-tracking`]: trackingRecord,
-        [`${cleanPrefix}-weight`]: weightRecord
+        [typescaleTokenKey(cleanPrefix, 'font')]: fontRecord,
+        [typescaleTokenKey(cleanPrefix, 'leading')]: leadingRecord,
+        [typescaleTokenKey(cleanPrefix, 'size')]: sizeRecord,
+        [typescaleTokenKey(cleanPrefix, 'tracking')]: trackingRecord,
+        [typescaleTokenKey(cleanPrefix, 'weight')]: weightRecord
     } as unknown as ExpandedTypescaleResult<TPrefix, TValue>
 }

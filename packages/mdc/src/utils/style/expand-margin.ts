@@ -107,13 +107,19 @@ export type CleanMarginPrefix<T extends string> =
 
 /**
  * Type-level normalization of prefix to ensure uniform `-margin` base.
+ *
+ * An empty prefix yields the bare `margin` base (e.g. `margin-block-start`).
  */
 export type NormalizeMarginPrefix<TPrefix extends string> =
-    CleanMarginPrefix<TPrefix> extends `${infer Base}-margin`
-        ? `${Base}-margin`
-        : CleanMarginPrefix<TPrefix> extends 'margin'
-            ? 'margin'
-            : `${CleanMarginPrefix<TPrefix>}-margin`
+    CleanMarginPrefix<TPrefix> extends infer TBase extends string
+        ? TBase extends `${infer Base}-margin`
+            ? `${Base}-margin`
+            : TBase extends 'margin'
+                ? 'margin'
+                : TBase extends ''
+                    ? 'margin'
+                    : `${TBase}-margin`
+        : never
 
 /**
  * 4 logical margin edge suffixes.
@@ -173,10 +179,12 @@ export type ExpandedMarginResult<TPrefix extends string, TValue = PrimitiveMargi
  *
  * @template TPrefix - String literal type of the token prefix.
  *
- * @param prefix - Base token prefix (e.g. `'container'`, `'container-margin'`, `'margin'`).
+ * @param prefix - Base token prefix (e.g. `'container'`, `'container-margin'`, `'margin'`, `''`).
  * @returns A curried function accepting a margin value and returning a record containing the 4 expanded logical margin token properties.
  *
- * @throws {Error} If prefix is empty or invalid.
+ * An empty prefix yields the bare `margin` base (e.g. `margin-block-start`).
+ *
+ * @throws {Error} If prefix is not a string.
  * @throws {Error} If margin value is null, undefined, or contains an invalid array length (not 2 or 4).
  *
  * @example
@@ -194,20 +202,19 @@ export type ExpandedMarginResult<TPrefix extends string, TValue = PrimitiveMargi
  * ```
  */
 export function expandMargin<const TPrefix extends string>(prefix: TPrefix) {
-    if (typeof prefix !== 'string' || prefix.trim().length === 0) {
-        throw new Error('[expandMargin] Prefix must be a non-empty string.')
+    if (typeof prefix !== 'string') {
+        throw new Error('[expandMargin] Prefix must be a string.')
     }
 
     const cleanPrefix = prefix.trim().replace(/^--/, '').replace(/-+$/, '')
-    if (cleanPrefix.length === 0) {
-        throw new Error('[expandMargin] Prefix must be a non-empty string.')
-    }
 
-    const basePrefix = cleanPrefix.endsWith('-margin')
-        ? cleanPrefix
-        : cleanPrefix === 'margin'
-            ? 'margin'
-            : `${cleanPrefix}-margin`
+    const basePrefix = cleanPrefix.length === 0
+        ? 'margin'
+        : cleanPrefix.endsWith('-margin')
+            ? cleanPrefix
+            : cleanPrefix === 'margin'
+                ? 'margin'
+                : `${cleanPrefix}-margin`
 
     const keyBlockStart = `${basePrefix}-block-start`
     const keyBlockEnd = `${basePrefix}-block-end`
