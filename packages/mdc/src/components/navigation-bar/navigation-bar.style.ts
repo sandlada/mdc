@@ -14,15 +14,15 @@ const Directions = {
 const createContainerStyle = (d: Direction) => {
     return unsafeCSS(`
         height: var(--_${d}-container-height);
-        padding-inline-start: var(--_${d}-container-block-leading-space);
-        padding-inline-end: var(--_${d}-container-block-trailing-space);
-        padding-block-start: var(--_${d}-container-inline-leading-space);
-        padding-block-end: var(--_${d}-container-inline-trailing-space);
+        padding-inline-start: var(--_${d}-container-inline-leading-space);
+        padding-inline-end: var(--_${d}-container-inline-trailing-space);
+        padding-block-start: var(--_${d}-container-block-leading-space);
+        padding-block-end: var(--_${d}-container-block-trailing-space);
         gap: var(--_${d}-tab-between-space);
-        border-top-left-radius: var(--_${d}-container-shape-radius-start-start);
-        border-top-right-radius: var(--_${d}-container-shape-radius-start-end);
-        border-bottom-right-radius: var(--_${d}-container-shape-radius-end-end);
-        border-bottom-left-radius: var(--_${d}-container-shape-radius-end-start);
+        border-top-left-radius: var(--_${d}-container-shape-start-start);
+        border-top-right-radius: var(--_${d}-container-shape-start-end);
+        border-bottom-right-radius: var(--_${d}-container-shape-end-end);
+        border-bottom-left-radius: var(--_${d}-container-shape-end-start);
     `)
 }
 const createBackgroundStyle = (d: Direction) => {
