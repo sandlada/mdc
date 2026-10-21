@@ -1,0 +1,27 @@
+packages:
+    - 'packages/*'
+
+allowBuilds:
+    esbuild: true
+    workerd: true
+
+minimumReleaseAgeExclude:
+    - '@rolldown/binding-android-arm-eabi@1.2.14'
+    - '@rolldown/binding-android-arm64@1.2.14'
+    - '@rolldown/binding-darwin-arm64@1.2.14'
+    - '@rolldown/binding-darwin-x64@1.2.14'
+    - '@rolldown/binding-freebsd-x64@1.2.14'
+    - '@rolldown/binding-linux-arm-gnueabihf@1.2.14'
+    - '@rolldown/binding-linux-arm64-gnu@1.2.14'
+    - '@rolldown/binding-linux-arm64-musl@1.2.14'
+    - '@rolldown/binding-linux-ppc64-gnu@1.2.14'
+    - '@rolldown/binding-linux-s390x-gnu@1.2.14'
+    - '@rolldown/binding-linux-x64-gnu@1.2.14'
+    - '@rolldown/binding-linux-x64-musl@1.2.14'
+    - '@rolldown/binding-openharmony-arm64@1.2.14'
+    - '@rolldown/binding-win32-arm64-msvc@1.2.14'
+    - '@rolldown/binding-win32-x64-msvc@1.2.14'
+    - miniflare@5.20261012.0-beta || 5.20261019.0-beta
+    - rolldown@1.2.14
+    - wrangler@4.151.0 || 4.151.2
+    - astro@7.4.1

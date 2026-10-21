@@ -21,16 +21,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version-file: .node-version
+          cache: pnpm
 
       - name: Install dependencies
-        run: npm i
+        run: pnpm install --frozen-lockfile
 
       - name: Build package
-        run: npm run build:all
+        run: pnpm run build:all
 
       - name: Build TypeScript declarations
-        run: npm run build:dts:all
+        run: pnpm run build:dts:all

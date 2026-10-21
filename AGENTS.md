@@ -58,7 +58,7 @@ packages/mdc/src/components/{name}/
 
 - 黑盒先行：期望值依規格獨立推導，禁以實際輸出回填；失敗時只修源碼不改斷言（除非規格變更）；流程 Red → Green → 重構。
 - 快速失敗：非法輸入顯性失敗（`throw new Error(...)`），禁靜默透傳、修復、吞異常。token 值只允許靜態量與普通 record，數組直接拋錯（無 schema 可命名位置項）；樣式是原生 CSS，禁止自創 at-rule。
-- 驗證：`npm test` 目標全綠；僅容忍已知基線清單，清单外新增失敗必須清零。
+- 驗證：`pnpm test` 目標全綠；僅容忍已知基線清單，清单外新增失敗必須清零。
 - token 層唯一源：`packages/mdc/src/utils/style/`（`createStyleDefinition` 單參數、`expandShape`／`expandPadding`／`expandMargin`／`expandTypescale`、`stringifyTokens`／`overrideTokens`）；深層 `internal/` 禁外部直引。
 - `@version`：僅對外契約在檔頭 docblock 首行標 CalVer；agent 禁 bump 或改寫。
 
@@ -66,7 +66,7 @@ packages/mdc/src/components/{name}/
 
 ## 5. 構建、提交與避坑
 
-- 指令（根目錄執行）：`npm run build` / `npm run build:dts` / `npm test`；細節見 `package.json`。
+- 指令（根目錄執行）：`pnpm run build` / `pnpm run build:dts` / `pnpm test`；細節見 `package.json`。
 - 入口：`mdc/all`（全量自動註冊）、`definitions`（手動註冊）、`utils`、`mdc/*` 子路徑；token 層經 `src/utils/style` 本地引用，禁外部包。
 - 提交 / 分支：`{type}: {message}`（`feat | chore | docs | refactor | fix | ai | test | extension`，可加範圍如 `feat(button)`）；分支 `type/name`。
 - 避坑：

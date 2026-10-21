@@ -1,5 +1,5 @@
 {
-    "name": "@sandlada/mdc-dev",
+    "name": "@sandlada/dev-app",
     "version": "0.1.0-20250909.b",
     "private": true,
     "type": "module",
@@ -12,11 +12,12 @@
     "devDependencies": {
         "@lit/context": "^1.1.6",
         "lit": "^3.3.3",
-        "vite": "^8.2.1"
+        "vite": "^8.3.4"
     },
     "dependencies": {
         "@sandlada/breakpoint": "^0.0.1-20260831.a",
-        "@sandlada/mdk": "^3.0.0-20260624.c",
+        "@sandlada/mdk": "^3.0.1-20261014.a",
+        "material-symbols": "^0.48.0",
         "rxjs": "^7.8.2"
     }
 }

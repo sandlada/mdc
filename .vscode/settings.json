@@ -19,7 +19,7 @@
         "*.d.ts": "$(capture).d.ts.map, $(capture).js.map",
         "*.js": "$(capture).js.map, $(capture).d.ts",
         "tsconfig.json": "tsconfig.*.json",
-        "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, bun.lockb, bun.lock",
+        "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, bun.lockb, bun.lock, pnpm-workspace.yaml, .yarnrc.yml, .yarnrc, .npmrc",
         "README.md": "SECURITY.md, LICENSE, CONTRIBUTING.md, CODE_OF_CONDUCT.md",
         "index.ts": "README.md, *.ts",
         "AGENTS.md": "AGENTS.md, GEMINI.md, CLAUDE.md",

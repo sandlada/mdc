@@ -8,10 +8,10 @@ from `packages/mdc/src/` via Vite alias — no pre-build step required.
 From the workspace root (`E:\projects\sandlada\mdc`):
 
 ```bash
-npm install          # install all workspaces
-npm run dev          # vite dev server on http://localhost:5173
-npm run build:dev    # production build into packages/dev-app/dist/
-npm run preview:dev  # preview the production build
+pnpm install         # install all workspaces
+pnpm run dev         # vite dev server on http://localhost:5173
+pnpm run build:dev   # production build into packages/dev-app/dist/
+pnpm run preview:dev # preview the production build
 ```
 
 ## Structure

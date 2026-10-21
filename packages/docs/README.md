@@ -18,10 +18,10 @@ pre-build step required - and mirrors the dev-app showcase's loading model:
 From the workspace root (`E:\projects\sandlada\mdc`):
 
 ```bash
-npm install          # install all workspaces
-npm run dev:docs     # astro dev server
-npm run build:docs   # production build into packages/docs/dist/
-npm run preview:docs # preview the production build
+pnpm install          # install all workspaces
+pnpm run dev:docs     # astro dev server
+pnpm run build:docs   # production build into packages/docs/dist/
+pnpm run preview:docs # preview the production build
 ```
 
 ## Structure
@@ -84,6 +84,6 @@ supports `filled | outlined | round | sharp | two-tone`. `Icon.astro` is the
 Static output. Deploy with the standalone config:
 
 ```bash
-npm run build:docs
+pnpm run build:docs
 wrangler deploy --config packages/docs/wrangler.toml
 ```

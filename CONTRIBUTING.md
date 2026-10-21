@@ -6,7 +6,7 @@
 
 ## 專案結構
 
-本倉庫採用 npm workspaces 管理 monorepo，所有套件位於 `packages/`：
+本倉庫採用 pnpm workspace 管理 monorepo，所有套件位於 `packages/`：
 
 | 資料夾 | 套件名稱 | 用途 |
 | --- | --- | --- |
@@ -20,24 +20,24 @@
 於倉庫根目錄執行：
 
 ```bash
-npm install
+pnpm install
 ```
 
-npm 會自動解析所有 workspace 的相依套件，無需逐一套件安裝。
+pnpm 會自動解析所有 workspace 的相依套件，無需逐一套件安裝。
 
 ---
 
-## npm 指令
+## pnpm 指令
 
 所有指令皆於**倉庫根目錄**執行：
 
 | 用途 | 指令 |
 | --- | --- |
-| 啟動 dev-app 開發伺服器（熱重載） | `npm run dev` |
-| 構建 dev-app | `npm run build:dev` |
-| 預覽 dev-app 構建結果 | `npm run preview:dev` |
-| 構建 `@sandlada/mdc` 套件（輸出至 `packages/mdc/build/`） | `npm run build` |
-| 產出 `@sandlada/mdc` 的 `.d.ts` 型別宣告 | `npm run build:dts` |
+| 啟動 dev-app 開發伺服器（熱重載） | `pnpm run dev` |
+| 構建 dev-app | `pnpm run build:dev` |
+| 預覽 dev-app 構建結果 | `pnpm run preview:dev` |
+| 構建 `@sandlada/mdc` 套件（輸出至 `packages/mdc/build/`） | `pnpm run build` |
+| 產出 `@sandlada/mdc` 的 `.d.ts` 型別宣告 | `pnpm run build:dts` |
 
 ---
 
@@ -48,8 +48,8 @@ npm 會自動解析所有 workspace 的相依套件，無需逐一套件安裝�
 ```bash
 git clone https://github.com/sandlada/mdc.git
 cd mdc
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 dev-app 啟動後可用於：瀏覽所有元件、即時預覽修改效果、查看各元件的 demo 用法。
@@ -61,12 +61,12 @@ dev-app 啟動後可用於：瀏覽所有元件、即時預覽修改效果、查
 發佈前於倉庫根目錄執行：
 
 ```bash
-npm run build
-npm run build:dts
+pnpm run build
+pnpm run build:dts
 ```
 
-- `npm run build`：透過 [rolldown](https://rolldown.rs/) 打包，產出 ESM 模組至 `packages/mdc/build/`
-- `npm run build:dts`：透過 `tsc` 產出型別宣告檔至 `packages/mdc/build/`
+- `pnpm run build`：透過 [rolldown](https://rolldown.rs/) 打包，產出 ESM 模組至 `packages/mdc/build/`
+- `pnpm run build:dts`：透過 `tsc` 產出型別宣告檔至 `packages/mdc/build/`
 
 ---
 

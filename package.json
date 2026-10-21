@@ -3,25 +3,23 @@
     "version": "0.0.1",
     "private": true,
     "type": "module",
-    "workspaces": [
-        "packages/*"
-    ],
+    "packageManager": "pnpm@12.14.0",
     "scripts": {
-        "build": "npm run build -w @sandlada/mdc",
-        "build:dts": "npm run build:dts -w @sandlada/mdc",
-        "dev": "npm run dev -w @sandlada/mdc-dev",
-        "build:dev": "npm run build -w @sandlada/mdc-dev",
-        "preview:dev": "npm run preview -w @sandlada/mdc-dev",
-        "dev:docs": "npm run dev -w @sandlada/mdc-docs",
-        "build:docs": "npm run build -w @sandlada/mdc-docs",
-        "preview:docs": "npm run preview -w @sandlada/mdc-docs",
-        "test": "npm run test -w @sandlada/mdc",
-        "test:all": "npm run test -w @sandlada/mdc && npm run test -w @sandlada/mdc-dev --if-present",
-        "build:all": "npm run build -w @sandlada/mdc && npm run build -w @sandlada/mdc-dev",
-        "build:dts:all": "npm run build:dts -w @sandlada/mdc && npm run build:dts -w @sandlada/mdc-dev --if-present"
+        "build": "pnpm --filter @sandlada/mdc run build",
+        "build:dts": "pnpm --filter @sandlada/mdc run build:dts",
+        "dev": "pnpm --filter @sandlada/dev-app run dev",
+        "build:dev": "pnpm --filter @sandlada/dev-app run build",
+        "preview:dev": "pnpm --filter @sandlada/dev-app run preview",
+        "dev:docs": "pnpm --filter @sandlada/mdc-docs run dev",
+        "build:docs": "pnpm --filter @sandlada/mdc-docs run build",
+        "preview:docs": "pnpm --filter @sandlada/mdc-docs run preview",
+        "test": "pnpm --filter @sandlada/mdc run test",
+        "test:all": "pnpm --filter @sandlada/mdc run test && pnpm --filter @sandlada/dev-app run --if-present test",
+        "build:all": "pnpm --filter @sandlada/mdc run build && pnpm --filter @sandlada/dev-app run build",
+        "build:dts:all": "pnpm --filter @sandlada/mdc run build:dts && pnpm --filter @sandlada/dev-app run --if-present build:dts"
     },
     "devDependencies": {
         "typescript": "~7.0.2",
-        "wrangler": "^4.148.0"
+        "wrangler": "^4.151.2"
     }
 }

@@ -38,16 +38,16 @@
     "dependencies": {
         "@floating-ui/dom": "^1.8.0",
         "@lit/context": "^1.1.6",
-        "@sandlada/mdk": "^3.0.0-20260624.c",
+        "@sandlada/mdk": "^3.0.1-20261014.a",
         "lit": "^3.3.3"
     },
     "devDependencies": {
-        "rolldown": "^1.2.4",
+        "rolldown": "^1.2.14",
         "rollup-plugin-html-literals": "^2.0.1",
         "tslib": "^2.8.1",
-        "type-fest": "^5.8.0",
+        "type-fest": "^5.10.0",
         "typescript": "~7.0.2",
-        "vitest": "^4.1.11"
+        "vitest": "^5.0.5"
     },
     "files": [
         "build/**/*",
@@ -159,6 +159,11 @@
             "import": "./build/components/icon-button/index.js",
             "default": "./build/components/icon-button/index.js"
         },
+        "./components/legacy-menu/index": {
+            "types": "./build/components/legacy-menu/index.d.ts",
+            "import": "./build/components/legacy-menu/index.js",
+            "default": "./build/components/legacy-menu/index.js"
+        },
         "./components/list/index": {
             "types": "./build/components/list/index.d.ts",
             "import": "./build/components/list/index.js",
@@ -168,6 +173,11 @@
             "types": "./build/components/loading-indicator/index.d.ts",
             "import": "./build/components/loading-indicator/index.js",
             "default": "./build/components/loading-indicator/index.js"
+        },
+        "./components/menu/index": {
+            "types": "./build/components/menu/index.d.ts",
+            "import": "./build/components/menu/index.js",
+            "default": "./build/components/menu/index.js"
         },
         "./components/navigation-bar/index": {
             "types": "./build/components/navigation-bar/index.d.ts",
