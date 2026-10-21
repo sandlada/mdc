@@ -169,6 +169,13 @@ export class MDCNavigationTab extends composeMixin(
         dispatchNavigationClick: false,
         dispatchInputChangeEvents: false,
         getFocusableElement: (host) => host,
+        // Scope group discovery to the nearest navigation container so that
+        // independent containers reusing the same `name` do not share arrow-key
+        // navigation, mutex enforcement, or roving tabindex. A tab outside any
+        // container returns null and only manages itself.
+        getGroupRoot: (host) => host.closest(
+            'mdc-navigation-bar, mdc-navigation-rail, mdc-navigation-drawer',
+        ),
         onBeforeSelect: () => {
             this.selectionHandledByController = true
             this.checkedBeforeControllerSelection = this.checked

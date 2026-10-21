@@ -85,6 +85,12 @@ export interface ISelectionControllerOptions {
      */
     getFocusableElement: (host: ISelectionControllerHost) => HTMLElement
 
+    /**
+     * Returns the root in which sibling controls are discovered. Defaults to the
+     * host's root node. Return null to disable group discovery (host only).
+     */
+    getGroupRoot: (host: ISelectionControllerHost) => ParentNode | null
+
     /** Called once after `hostConnected()` completes. */
     onConnected: (host: ISelectionControllerHost) => void
 
@@ -122,6 +128,10 @@ export interface ISelectionControllerOptions {
  * element with the same `name` – regardless of tag name – belongs to the
  * same logical group.
  *
+ * Provide `getGroupRoot` to scope discovery to a narrower container, so that
+ * independent composite widgets reusing the same `name` do not share a group.
+ * Returning `null` disables group discovery entirely (host only).
+ *
  * ### Usage
  * ```ts
  * class MyToggle extends LitElement {
@@ -155,6 +165,8 @@ export class SelectionController implements ReactiveController {
     public dispatchInputChangeEvents         : boolean                                          = true
     /** @see ISelectionControllerOptions.getFocusableElement */
     public getFocusableElement               : (host: ISelectionControllerHost) => HTMLElement  = (host) => host
+    /** @see ISelectionControllerOptions.getGroupRoot */
+    public getGroupRoot                      : ((host: ISelectionControllerHost) => ParentNode | null) | null = null
     /** @see ISelectionControllerOptions.onConnected */
     public onConnected                       : (host: ISelectionControllerHost) => void         = () => {}
     /** @see ISelectionControllerOptions.onDisconnected */
@@ -200,6 +212,7 @@ export class SelectionController implements ReactiveController {
         if (options.dispatchNavigationClick            !== undefined) this.dispatchNavigationClick            = options.dispatchNavigationClick
         if (options.dispatchInputChangeEvents          !== undefined) this.dispatchInputChangeEvents          = options.dispatchInputChangeEvents
         if (options.getFocusableElement                !== undefined) this.getFocusableElement                = options.getFocusableElement
+        if (options.getGroupRoot                       !== undefined) this.getGroupRoot                       = options.getGroupRoot
         if (options.onConnected                        !== undefined) this.onConnected                        = options.onConnected
         if (options.onDisconnected                     !== undefined) this.onDisconnected                     = options.onDisconnected
         if (options.onBeforeSelect                     !== undefined) this.onBeforeSelect                     = options.onBeforeSelect
@@ -211,16 +224,19 @@ export class SelectionController implements ReactiveController {
 
     /**
      * Returns all controls that belong to the same selection group as the host.
-     * A group is defined by matching `name` attribute values within the host's
-     * root node (shadow root or document).
+     * A group is defined by matching `name` attribute values within the root
+     * returned by `getGroupRoot` – by default the host's root node (shadow root
+     * or document).
      *
-     * When the host has no `name`, or is not connected, returns `[host]`.
+     * When the host has no `name`, is not connected, or `getGroupRoot` returns
+     * `null`, returns `[host]`.
      */
     public get controls(): ISelectionControllerHost[] {
         const name = this.host.getAttribute('name')
-        if (!name || !this.root || !this.host.isConnected) return [this.host]
+        const root = this.getGroupRoot?.(this.host) ?? this.root
+        if (!name || !root || !this.host.isConnected) return [this.host]
         return Array.from(
-            this.root.querySelectorAll<ISelectionControllerHost>(`[name="${CSS.escape(name)}"]`),
+            root.querySelectorAll<ISelectionControllerHost>(`[name="${CSS.escape(name)}"]`),
         )
     }
 
