@@ -1,0 +1,22 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">skip-restore-focus — prevents returning focus to anchor element when menu closes:</span>
+    <mdc-legacy-menu id="m-menu-78d00579-0c7d-47bd-97ca-e108ee1ac2e7" anchor="m-btn-78d00579-0c7d-47bd-97ca-e108ee1ac2e7" open skip-restore-focus label="Skip restore menu">
+        <button id="m-btn-78d00579-0c7d-47bd-97ca-e108ee1ac2e7" slot="trigger" onclick="const m = this.getRootNode().querySelector('#m-menu-78d00579-0c7d-47bd-97ca-e108ee1ac2e7'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">Open (Skip Restore Focus)</button>
+        <mdc-legacy-menu-item type="button">Close Action</mdc-legacy-menu-item>
+    </mdc-legacy-menu>
+</div>

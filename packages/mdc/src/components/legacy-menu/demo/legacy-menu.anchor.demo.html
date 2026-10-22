@@ -1,0 +1,24 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">anchor — links the menu to an external element by ID:</span>
+    <button id="m-btn-50ccaeb0-8b15-42a0-92f4-77b662ba4184" onclick="const m = this.getRootNode().querySelector('#m-menu-50ccaeb0-8b15-42a0-92f4-77b662ba4184'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">External Anchor Button</button>
+    <mdc-legacy-menu id="m-menu-50ccaeb0-8b15-42a0-92f4-77b662ba4184" anchor="m-btn-50ccaeb0-8b15-42a0-92f4-77b662ba4184" label="Anchored menu">
+        <mdc-legacy-menu-item type="button">Action 1</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button">Action 2</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button">Action 3</mdc-legacy-menu-item>
+    </mdc-legacy-menu>
+</div>

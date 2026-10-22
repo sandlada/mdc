@@ -1,0 +1,45 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">type="text" — non-interactive label row, skipped by roving navigation:</span>
+    <mdc-legacy-menu id="m-menu-8f4218b8-11fd-475c-a216-479e05832d86" anchor="m-btn-8f4218b8-11fd-475c-a216-479e05832d86" open label="Text items">
+        <button id="m-btn-8f4218b8-11fd-475c-a216-479e05832d86" slot="trigger" onclick="const m = this.getRootNode().querySelector('#m-menu-8f4218b8-11fd-475c-a216-479e05832d86'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">Open menu</button>
+        <mdc-legacy-menu-item type="text">Read-only label one</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="text">Read-only label two</mdc-legacy-menu-item>
+    </mdc-legacy-menu>
+</div>
+
+<div class="demo-column">
+    <span class="demo-caption">type="button" — native button root, activates on Enter / Space / click (default):</span>
+    <mdc-legacy-menu id="m-menu-2d31be6a-7fc2-488f-9008-e381942e3bbf" anchor="m-btn-2d31be6a-7fc2-488f-9008-e381942e3bbf" open label="Button items">
+        <button id="m-btn-2d31be6a-7fc2-488f-9008-e381942e3bbf" slot="trigger" onclick="const m = this.getRootNode().querySelector('#m-menu-2d31be6a-7fc2-488f-9008-e381942e3bbf'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">Open menu</button>
+        <mdc-legacy-menu-item type="button">Cut</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button">Copy</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button">Paste</mdc-legacy-menu-item>
+    </mdc-legacy-menu>
+</div>
+
+<div class="demo-column">
+    <span class="demo-caption">Mixed types — text rows render as labels between interactive rows:</span>
+    <mdc-legacy-menu id="m-menu-182b5a43-ed4e-4f4f-903c-b5a364f5bddf" anchor="m-btn-182b5a43-ed4e-4f4f-903c-b5a364f5bddf" open label="Mixed types">
+        <button id="m-btn-182b5a43-ed4e-4f4f-903c-b5a364f5bddf" slot="trigger" onclick="const m = this.getRootNode().querySelector('#m-menu-182b5a43-ed4e-4f4f-903c-b5a364f5bddf'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">Open menu</button>
+        <mdc-legacy-menu-item type="text">Clipboard</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button">Cut</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button">Copy</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="text">History</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button">Paste</mdc-legacy-menu-item>
+    </mdc-legacy-menu>
+</div>

@@ -1,0 +1,24 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">radio — renders with the `menuitemradio` role, one selection per group:</span>
+    <mdc-legacy-menu id="m-menu-e00b1666-eb49-450c-8b74-5591a2e11815" anchor="m-btn-e00b1666-eb49-450c-8b74-5591a2e11815" open label="Radio items">
+        <button id="m-btn-e00b1666-eb49-450c-8b74-5591a2e11815" slot="trigger" onclick="const m = this.getRootNode().querySelector('#m-menu-e00b1666-eb49-450c-8b74-5591a2e11815'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">Open menu</button>
+        <mdc-legacy-menu-item type="button" radio value="small">Small</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button" radio value="medium">Medium</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button" radio value="large">Large</mdc-legacy-menu-item>
+    </mdc-legacy-menu>
+</div>

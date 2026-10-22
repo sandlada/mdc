@@ -1,0 +1,50 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">selected — secondary-container highlight (set the `selected` attribute):</span>
+    <mdc-legacy-menu id="m-menu-642a87e1-9029-478f-b3c5-acde57aebea8" anchor="m-btn-642a87e1-9029-478f-b3c5-acde57aebea8" open label="Selected item">
+        <button id="m-btn-642a87e1-9029-478f-b3c5-acde57aebea8" slot="trigger" onclick="const m = this.getRootNode().querySelector('#m-menu-642a87e1-9029-478f-b3c5-acde57aebea8'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">Open menu</button>
+        <mdc-legacy-menu-item type="button">
+            <mdc-icon slot="leading">inbox</mdc-icon>
+            <span>Inbox</span>
+        </mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button" selected>
+            <mdc-icon slot="leading">outbox</mdc-icon>
+            <span>Outbox</span>
+        </mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button">
+            <mdc-icon slot="leading">star</mdc-icon>
+            <span>Starred</span>
+        </mdc-legacy-menu-item>
+    </mdc-legacy-menu>
+</div>
+
+<div class="demo-column">
+    <span class="demo-caption">Selected item with supporting text:</span>
+    <mdc-legacy-menu id="m-menu-3e65cfdd-e34a-45b8-a443-006d9f9e724d" anchor="m-btn-3e65cfdd-e34a-45b8-a443-006d9f9e724d" open label="Selected two-line">
+        <button id="m-btn-3e65cfdd-e34a-45b8-a443-006d9f9e724d" slot="trigger" onclick="const m = this.getRootNode().querySelector('#m-menu-3e65cfdd-e34a-45b8-a443-006d9f9e724d'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">Open menu</button>
+        <mdc-legacy-menu-item type="button" selected>
+            <mdc-icon slot="leading">folder</mdc-icon>
+            <span>Documents</span>
+            <span slot="supporting">12 files</span>
+        </mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button">
+            <mdc-icon slot="leading">photo</mdc-icon>
+            <span>Images</span>
+            <span slot="supporting">8 files</span>
+        </mdc-legacy-menu-item>
+    </mdc-legacy-menu>
+</div>

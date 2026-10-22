@@ -1,0 +1,23 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">no-horizontal-flip — prevents horizontal axis flipping when viewport overflows:</span>
+    <mdc-legacy-menu id="m-menu-81fd20de-b21c-4a33-9668-0d2ce0d1345c" anchor="m-btn-81fd20de-b21c-4a33-9668-0d2ce0d1345c" open no-horizontal-flip placement="right-start" label="No horizontal flip menu">
+        <button id="m-btn-81fd20de-b21c-4a33-9668-0d2ce0d1345c" slot="trigger" onclick="const m = this.getRootNode().querySelector('#m-menu-81fd20de-b21c-4a33-9668-0d2ce0d1345c'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">No Horizontal Flip</button>
+        <mdc-legacy-menu-item type="button">Fixed Axis Item 1</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button">Fixed Axis Item 2</mdc-legacy-menu-item>
+    </mdc-legacy-menu>
+</div>

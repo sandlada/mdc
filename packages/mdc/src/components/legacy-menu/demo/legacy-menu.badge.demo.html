@@ -1,0 +1,33 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">badge — trailing badge text:</span>
+    <mdc-legacy-menu id="m-menu-9bf41150-7736-4b39-b475-eef0ca362532" anchor="m-btn-9bf41150-7736-4b39-b475-eef0ca362532" open label="Badged items">
+        <button id="m-btn-9bf41150-7736-4b39-b475-eef0ca362532" slot="trigger" onclick="const m = this.getRootNode().querySelector('#m-menu-9bf41150-7736-4b39-b475-eef0ca362532'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">Open menu</button>
+        <mdc-legacy-menu-item type="button" badge="3">
+            <mdc-icon slot="leading">inbox</mdc-icon>
+            <span>Inbox</span>
+        </mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button" badge="12">
+            <mdc-icon slot="leading">mail</mdc-icon>
+            <span>Unread</span>
+        </mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button">
+            <mdc-icon slot="leading">drafts</mdc-icon>
+            <span>Drafts (no badge)</span>
+        </mdc-legacy-menu-item>
+    </mdc-legacy-menu>
+</div>

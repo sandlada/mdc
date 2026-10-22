@@ -1,0 +1,26 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">open-delay — hover-intent delay in ms before the submenu opens (default 120):</span>
+    <mdc-legacy-menu id="m-menu-9e5fa153-c1fe-433f-983e-c50b6d5d860b" anchor="m-btn-9e5fa153-c1fe-433f-983e-c50b6d5d860b" open label="Submenu open delay">
+        <button id="m-btn-9e5fa153-c1fe-433f-983e-c50b6d5d860b" slot="trigger" onclick="const m = this.getRootNode().querySelector('#m-menu-9e5fa153-c1fe-433f-983e-c50b6d5d860b'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">Open menu</button>
+        <mdc-legacy-menu-item type="button">New file</mdc-legacy-menu-item>
+        <mdc-legacy-menu-submenu label="Share" placement="right-start" open-delay="300">
+            <mdc-legacy-menu-item type="button">Email</mdc-legacy-menu-item>
+            <mdc-legacy-menu-item type="button">Copy link</mdc-legacy-menu-item>
+        </mdc-legacy-menu-submenu>
+    </mdc-legacy-menu>
+</div>

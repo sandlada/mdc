@@ -1,0 +1,24 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">label — accessible label of the menu:</span>
+    <mdc-legacy-menu id="m-menu-1202397c-c55a-4baa-bfce-a9961b323ccd" anchor="m-btn-1202397c-c55a-4baa-bfce-a9961b323ccd" open label="Edit actions">
+        <button id="m-btn-1202397c-c55a-4baa-bfce-a9961b323ccd" slot="trigger" onclick="const m = this.getRootNode().querySelector('#m-menu-1202397c-c55a-4baa-bfce-a9961b323ccd'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">Open menu</button>
+        <mdc-legacy-menu-item type="button">Cut</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button">Copy</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button">Paste</mdc-legacy-menu-item>
+    </mdc-legacy-menu>
+</div>

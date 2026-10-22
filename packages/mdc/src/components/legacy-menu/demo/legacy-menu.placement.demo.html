@@ -1,0 +1,41 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">placement="bottom-start" — surface below the anchor, aligned to the start edge:</span>
+    <mdc-legacy-menu id="m-menu-875356cc-7422-45f1-ac91-afecf43769c6" anchor="m-btn-875356cc-7422-45f1-ac91-afecf43769c6" open placement="bottom-start" label="Bottom-start menu">
+        <button id="m-btn-875356cc-7422-45f1-ac91-afecf43769c6" slot="trigger" onclick="const m = this.getRootNode().querySelector('#m-menu-875356cc-7422-45f1-ac91-afecf43769c6'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">Open menu</button>
+        <mdc-legacy-menu-item type="button">Cut</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button">Copy</mdc-legacy-menu-item>
+    </mdc-legacy-menu>
+</div>
+
+<div class="demo-column">
+    <span class="demo-caption">placement="top" — surface above the anchor, centered:</span>
+    <mdc-legacy-menu id="m-menu-84ef1b77-d7fa-440e-b6b0-7c97c1a0c6b2" anchor="m-btn-84ef1b77-d7fa-440e-b6b0-7c97c1a0c6b2" open placement="top" label="Top menu">
+        <button id="m-btn-84ef1b77-d7fa-440e-b6b0-7c97c1a0c6b2" slot="trigger" onclick="const m = this.getRootNode().querySelector('#m-menu-84ef1b77-d7fa-440e-b6b0-7c97c1a0c6b2'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">Open menu</button>
+        <mdc-legacy-menu-item type="button">Cut</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button">Copy</mdc-legacy-menu-item>
+    </mdc-legacy-menu>
+</div>
+
+<div class="demo-column">
+    <span class="demo-caption">placement="right-start" — surface to the side, flipped/shifted on overflow:</span>
+    <mdc-legacy-menu id="m-menu-c3f725ac-6831-4798-8412-3f470c910d9f" anchor="m-btn-c3f725ac-6831-4798-8412-3f470c910d9f" open placement="right-start" label="Right-start menu">
+        <button id="m-btn-c3f725ac-6831-4798-8412-3f470c910d9f" slot="trigger" onclick="const m = this.getRootNode().querySelector('#m-menu-c3f725ac-6831-4798-8412-3f470c910d9f'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">Open menu</button>
+        <mdc-legacy-menu-item type="button">Cut</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button">Copy</mdc-legacy-menu-item>
+    </mdc-legacy-menu>
+</div>

@@ -1,0 +1,33 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">color-style="standard" — MD3 Baseline SurfaceContainer container (legacy supports only `standard`; any other value throws):</span>
+    <mdc-legacy-menu id="m-menu-b2d78c9a-aa55-4118-b832-f00710d5bf9d" anchor="m-btn-b2d78c9a-aa55-4118-b832-f00710d5bf9d" color-style="standard" open label="Standard legacy menu">
+        <button id="m-btn-b2d78c9a-aa55-4118-b832-f00710d5bf9d" slot="trigger" onclick="const m = this.getRootNode().querySelector('#m-menu-b2d78c9a-aa55-4118-b832-f00710d5bf9d'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">Open standard</button>
+        <mdc-legacy-menu-item type="button">
+            <mdc-icon slot="leading">content_cut</mdc-icon>
+            <span>Cut</span>
+        </mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button">
+            <mdc-icon slot="leading">content_copy</mdc-icon>
+            <span>Copy</span>
+        </mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button">
+            <mdc-icon slot="leading">content_paste</mdc-icon>
+            <span>Paste</span>
+        </mdc-legacy-menu-item>
+    </mdc-legacy-menu>
+</div>

@@ -1,0 +1,25 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">typeahead-delay — buffer reset window in ms (defaults to 500ms):</span>
+    <mdc-legacy-menu id="m-menu-13b947a3-0bce-4945-811f-c77136a27103" anchor="m-btn-13b947a3-0bce-4945-811f-c77136a27103" open typeahead-delay="1000" label="Extended typeahead menu">
+        <button id="m-btn-13b947a3-0bce-4945-811f-c77136a27103" slot="trigger" onclick="const m = this.getRootNode().querySelector('#m-menu-13b947a3-0bce-4945-811f-c77136a27103'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">Typeahead (1000ms delay)</button>
+        <mdc-legacy-menu-item type="button">Apple</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button">Apricot</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button">Banana</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button">Blueberry</mdc-legacy-menu-item>
+    </mdc-legacy-menu>
+</div>

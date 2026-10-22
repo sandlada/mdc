@@ -1,0 +1,44 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">Submenu nesting — nested surface at `right-start` (mirrored in RTL), Right / Enter opens, Left / Escape closes:</span>
+    <mdc-legacy-menu id="m-menu-666157be-19f2-4309-acf1-ae79ce3eddc5" anchor="m-btn-666157be-19f2-4309-acf1-ae79ce3eddc5" open label="Menu with submenu">
+        <button id="m-btn-666157be-19f2-4309-acf1-ae79ce3eddc5" slot="trigger" onclick="const m = this.getRootNode().querySelector('#m-menu-666157be-19f2-4309-acf1-ae79ce3eddc5'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">Open menu</button>
+        <mdc-legacy-menu-item type="button">New file</mdc-legacy-menu-item>
+        <mdc-legacy-menu-submenu label="Share" placement="right-start">
+            <mdc-legacy-menu-item type="button">Email</mdc-legacy-menu-item>
+            <mdc-legacy-menu-item type="button">Copy link</mdc-legacy-menu-item>
+            <mdc-legacy-menu-item type="button">Embed</mdc-legacy-menu-item>
+        </mdc-legacy-menu-submenu>
+        <mdc-legacy-menu-item type="button">Download</mdc-legacy-menu-item>
+    </mdc-legacy-menu>
+</div>
+
+<div class="demo-column">
+    <span class="demo-caption">Open submenu — `open` shows the nested surface; `disabled` disables the trigger:</span>
+    <mdc-legacy-menu id="m-menu-7985739a-6960-446b-bfcc-cdb27c8d28bf" anchor="m-btn-7985739a-6960-446b-bfcc-cdb27c8d28bf" open label="Open submenu">
+        <button id="m-btn-7985739a-6960-446b-bfcc-cdb27c8d28bf" slot="trigger" onclick="const m = this.getRootNode().querySelector('#m-menu-7985739a-6960-446b-bfcc-cdb27c8d28bf'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">Open menu</button>
+        <mdc-legacy-menu-item type="button">New file</mdc-legacy-menu-item>
+        <mdc-legacy-menu-submenu label="Share" placement="right-start" open>
+            <mdc-legacy-menu-item type="button">Email</mdc-legacy-menu-item>
+            <mdc-legacy-menu-item type="button">Copy link</mdc-legacy-menu-item>
+        </mdc-legacy-menu-submenu>
+        <mdc-legacy-menu-submenu label="Export (unavailable)" disabled>
+            <mdc-legacy-menu-item type="button">PDF</mdc-legacy-menu-item>
+            <mdc-legacy-menu-item type="button">PNG</mdc-legacy-menu-item>
+        </mdc-legacy-menu-submenu>
+    </mdc-legacy-menu>
+</div>

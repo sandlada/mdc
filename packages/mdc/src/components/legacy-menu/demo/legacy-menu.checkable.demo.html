@@ -1,0 +1,24 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">checkable — renders with the `menuitemcheckbox` role:</span>
+    <mdc-legacy-menu id="m-menu-c344848d-e3db-4af7-b69b-a301c86d26e3" anchor="m-btn-c344848d-e3db-4af7-b69b-a301c86d26e3" open label="Checkable items">
+        <button id="m-btn-c344848d-e3db-4af7-b69b-a301c86d26e3" slot="trigger" onclick="const m = this.getRootNode().querySelector('#m-menu-c344848d-e3db-4af7-b69b-a301c86d26e3'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">Open menu</button>
+        <mdc-legacy-menu-item type="button" checkable value="wifi">Wi-Fi</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button" checkable value="bluetooth">Bluetooth</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button" checkable value="airplane">Airplane mode</mdc-legacy-menu-item>
+    </mdc-legacy-menu>
+</div>

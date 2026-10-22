@@ -1,0 +1,24 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">shortcut — trailing keyboard-shortcut hint:</span>
+    <mdc-legacy-menu id="m-menu-4cde1f6f-8675-4d38-bcb1-f2bdbe086199" anchor="m-btn-4cde1f6f-8675-4d38-bcb1-f2bdbe086199" open label="Shortcut hints">
+        <button id="m-btn-4cde1f6f-8675-4d38-bcb1-f2bdbe086199" slot="trigger" onclick="const m = this.getRootNode().querySelector('#m-menu-4cde1f6f-8675-4d38-bcb1-f2bdbe086199'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">Open menu</button>
+        <mdc-legacy-menu-item type="button" shortcut="Ctrl+X">Cut</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button" shortcut="Ctrl+C">Copy</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button" shortcut="Ctrl+V">Paste</mdc-legacy-menu-item>
+    </mdc-legacy-menu>
+</div>

@@ -1,0 +1,32 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">default-focus="first-item" (default):</span>
+    <mdc-legacy-menu id="m-menu-a9f8effc-abed-452c-9a3e-527f504adcaa" anchor="m-btn-a9f8effc-abed-452c-9a3e-527f504adcaa" open default-focus="first-item" label="Default focus first item">
+        <button id="m-btn-a9f8effc-abed-452c-9a3e-527f504adcaa" slot="trigger" onclick="const m = this.getRootNode().querySelector('#m-menu-a9f8effc-abed-452c-9a3e-527f504adcaa'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">First Item Focused</button>
+        <mdc-legacy-menu-item type="button">Alpha (focused)</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button">Beta</mdc-legacy-menu-item>
+    </mdc-legacy-menu>
+</div>
+
+<div class="demo-column">
+    <span class="demo-caption">default-focus="last-item":</span>
+    <mdc-legacy-menu id="m-menu-df5cb4a3-bfa7-4584-a353-734203274c8a" anchor="m-btn-df5cb4a3-bfa7-4584-a353-734203274c8a" open default-focus="last-item" label="Default focus last item">
+        <button id="m-btn-df5cb4a3-bfa7-4584-a353-734203274c8a" slot="trigger" onclick="const m = this.getRootNode().querySelector('#m-menu-df5cb4a3-bfa7-4584-a353-734203274c8a'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">Last Item Focused</button>
+        <mdc-legacy-menu-item type="button">Alpha</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button">Beta (focused)</mdc-legacy-menu-item>
+    </mdc-legacy-menu>
+</div>

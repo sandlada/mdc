@@ -1,0 +1,24 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">has-overflow — sets surface overflow to visible for nested flyout menus:</span>
+    <mdc-legacy-menu id="m-menu-3c6d6cf2-d6eb-433a-9f15-ca124d8a01d2" anchor="m-btn-3c6d6cf2-d6eb-433a-9f15-ca124d8a01d2" open has-overflow label="Overflow menu">
+        <button id="m-btn-3c6d6cf2-d6eb-433a-9f15-ca124d8a01d2" slot="trigger" onclick="const m = this.getRootNode().querySelector('#m-menu-3c6d6cf2-d6eb-433a-9f15-ca124d8a01d2'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">Menu with Overflow</button>
+        <mdc-legacy-menu-item type="button">Item 1</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button">Item 2</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button">Item 3</mdc-legacy-menu-item>
+    </mdc-legacy-menu>
+</div>

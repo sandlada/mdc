@@ -1,0 +1,23 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">no-vertical-flip — prevents vertical axis flipping when viewport overflows:</span>
+    <mdc-legacy-menu id="m-menu-6ece2ceb-9126-422e-909e-5f69b5618b20" anchor="m-btn-6ece2ceb-9126-422e-909e-5f69b5618b20" open no-vertical-flip placement="bottom-start" label="No vertical flip menu">
+        <button id="m-btn-6ece2ceb-9126-422e-909e-5f69b5618b20" slot="trigger" onclick="const m = this.getRootNode().querySelector('#m-menu-6ece2ceb-9126-422e-909e-5f69b5618b20'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">No Vertical Flip</button>
+        <mdc-legacy-menu-item type="button">Fixed Vertical Item 1</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button">Fixed Vertical Item 2</mdc-legacy-menu-item>
+    </mdc-legacy-menu>
+</div>

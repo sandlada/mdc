@@ -1,0 +1,27 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">target — link target, e.g. `_blank` opens a new tab:</span>
+    <mdc-legacy-menu id="m-menu-c9b08ba7-d0d0-4152-a873-88d5b0c4e38e" anchor="m-btn-c9b08ba7-d0d0-4152-a873-88d5b0c4e38e" open label="Link targets">
+        <button id="m-btn-c9b08ba7-d0d0-4152-a873-88d5b0c4e38e" slot="trigger" onclick="const m = this.getRootNode().querySelector('#m-menu-c9b08ba7-d0d0-4152-a873-88d5b0c4e38e'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">Open menu</button>
+        <mdc-legacy-menu-item href="https://m3.material.io/components/menus/overview" target="_blank">
+            <span>Menus spec (new tab)</span>
+        </mdc-legacy-menu-item>
+        <mdc-legacy-menu-item href="#legacy-menu-target-demo">
+            <span>Same-page anchor (default target)</span>
+        </mdc-legacy-menu-item>
+    </mdc-legacy-menu>
+</div>

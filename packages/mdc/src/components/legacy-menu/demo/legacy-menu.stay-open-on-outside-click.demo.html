@@ -1,0 +1,23 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">stay-open-on-outside-click — disables closing when clicking outside the menu:</span>
+    <mdc-legacy-menu id="m-menu-ae253feb-888a-4d65-a301-192bde9f8598" anchor="m-btn-ae253feb-888a-4d65-a301-192bde9f8598" open stay-open-on-outside-click label="Persistent menu">
+        <button id="m-btn-ae253feb-888a-4d65-a301-192bde9f8598" slot="trigger" onclick="const m = this.getRootNode().querySelector('#m-menu-ae253feb-888a-4d65-a301-192bde9f8598'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">Stay Open Outside Click</button>
+        <mdc-legacy-menu-item type="button">Persistent Item 1</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button">Persistent Item 2</mdc-legacy-menu-item>
+    </mdc-legacy-menu>
+</div>

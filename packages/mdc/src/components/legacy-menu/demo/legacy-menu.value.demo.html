@@ -1,0 +1,24 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">value — selection value reported on activation:</span>
+    <mdc-legacy-menu id="m-menu-71392574-7124-4ae0-ae2a-dffcc0a183c5" anchor="m-btn-71392574-7124-4ae0-ae2a-dffcc0a183c5" open label="Valued items">
+        <button id="m-btn-71392574-7124-4ae0-ae2a-dffcc0a183c5" slot="trigger" onclick="const m = this.getRootNode().querySelector('#m-menu-71392574-7124-4ae0-ae2a-dffcc0a183c5'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">Open menu</button>
+        <mdc-legacy-menu-item type="button" value="copy">Copy</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button" value="cut">Cut</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button" value="paste">Paste</mdc-legacy-menu-item>
+    </mdc-legacy-menu>
+</div>

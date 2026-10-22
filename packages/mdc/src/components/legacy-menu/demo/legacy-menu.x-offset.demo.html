@@ -1,0 +1,23 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">x-offset — horizontal displacement (in px) relative to anchor:</span>
+    <mdc-legacy-menu id="m-menu-f9a8fe2d-d1ad-4a14-9dc1-06eae5e507bf" anchor="m-btn-f9a8fe2d-d1ad-4a14-9dc1-06eae5e507bf" open x-offset="24" label="X offset menu">
+        <button id="m-btn-f9a8fe2d-d1ad-4a14-9dc1-06eae5e507bf" slot="trigger" onclick="const m = this.getRootNode().querySelector('#m-menu-f9a8fe2d-d1ad-4a14-9dc1-06eae5e507bf'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">Menu with x-offset=24</button>
+        <mdc-legacy-menu-item type="button">Shifted Item 1</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button">Shifted Item 2</mdc-legacy-menu-item>
+    </mdc-legacy-menu>
+</div>

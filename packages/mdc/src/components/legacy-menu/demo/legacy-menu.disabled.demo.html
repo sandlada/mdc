@@ -1,0 +1,39 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">disabled — skipped by roving navigation, dimmed, no interaction:</span>
+    <mdc-legacy-menu id="m-menu-aadfa2d4-7bca-402b-95ac-057afa15f5a0" anchor="m-btn-aadfa2d4-7bca-402b-95ac-057afa15f5a0" open label="Disabled items">
+        <button id="m-btn-aadfa2d4-7bca-402b-95ac-057afa15f5a0" slot="trigger" onclick="const m = this.getRootNode().querySelector('#m-menu-aadfa2d4-7bca-402b-95ac-057afa15f5a0'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">Open menu</button>
+        <mdc-legacy-menu-item type="button">Cut</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button" disabled>Paste (unavailable)</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button">Copy</mdc-legacy-menu-item>
+    </mdc-legacy-menu>
+</div>
+
+<div class="demo-column">
+    <span class="demo-caption">Disabled item with leading icon:</span>
+    <mdc-legacy-menu id="m-menu-c00dc4da-06b4-4c39-820d-c77c5c8bcb77" anchor="m-btn-c00dc4da-06b4-4c39-820d-c77c5c8bcb77" open label="Disabled with icon">
+        <button id="m-btn-c00dc4da-06b4-4c39-820d-c77c5c8bcb77" slot="trigger" onclick="const m = this.getRootNode().querySelector('#m-menu-c00dc4da-06b4-4c39-820d-c77c5c8bcb77'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">Open menu</button>
+        <mdc-legacy-menu-item type="button">
+            <mdc-icon slot="leading">cloud</mdc-icon>
+            <span>Cloud sync</span>
+        </mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button" disabled>
+            <mdc-icon slot="leading">wifi_off</mdc-icon>
+            <span>Offline</span>
+        </mdc-legacy-menu-item>
+    </mdc-legacy-menu>
+</div>

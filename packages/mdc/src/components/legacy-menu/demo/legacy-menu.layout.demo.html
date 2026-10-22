@@ -1,0 +1,35 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">layout="standard" — MD3 Baseline single-surface menu (legacy supports only `standard`; any other value throws):</span>
+    <mdc-legacy-menu id="m-menu-8cda13b8-b538-4dfa-8cde-865b42b5e683" anchor="m-btn-8cda13b8-b538-4dfa-8cde-865b42b5e683" layout="standard" open label="Standard layout">
+        <button id="m-btn-8cda13b8-b538-4dfa-8cde-865b42b5e683" slot="trigger" onclick="const m = this.getRootNode().querySelector('#m-menu-8cda13b8-b538-4dfa-8cde-865b42b5e683'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">Open menu</button>
+        <mdc-legacy-menu-item type="button">Cut</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button">Copy</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button">Paste</mdc-legacy-menu-item>
+    </mdc-legacy-menu>
+</div>
+
+<div class="demo-column">
+    <span class="demo-caption">Baseline standard baseline — 4dp corners, SurfaceContainer, Level2, 8dp block padding:</span>
+    <mdc-legacy-menu id="m-menu-691bdf38-9828-464d-8755-fa9c59a06bbc" anchor="m-btn-691bdf38-9828-464d-8755-fa9c59a06bbc" open label="Baseline standard">
+        <button id="m-btn-691bdf38-9828-464d-8755-fa9c59a06bbc" slot="trigger" onclick="const m = this.getRootNode().querySelector('#m-menu-691bdf38-9828-464d-8755-fa9c59a06bbc'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">Open baseline</button>
+        <mdc-legacy-menu-item type="button">Cut</mdc-legacy-menu-item>
+        <mdc-divider></mdc-divider>
+        <mdc-legacy-menu-item type="button">Copy</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button">Paste</mdc-legacy-menu-item>
+    </mdc-legacy-menu>
+</div>

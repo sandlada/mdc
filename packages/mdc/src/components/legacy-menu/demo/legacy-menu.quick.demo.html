@@ -1,0 +1,32 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">Default — open/close plays the transition:</span>
+    <mdc-legacy-menu id="m-menu-336a9e89-1677-4c0c-86ac-9712497387a8" anchor="m-btn-336a9e89-1677-4c0c-86ac-9712497387a8" open label="Animated menu">
+        <button id="m-btn-336a9e89-1677-4c0c-86ac-9712497387a8" slot="trigger" onclick="const m = this.getRootNode().querySelector('#m-menu-336a9e89-1677-4c0c-86ac-9712497387a8'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">Open menu</button>
+        <mdc-legacy-menu-item type="button">Cut</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button">Copy</mdc-legacy-menu-item>
+    </mdc-legacy-menu>
+</div>
+
+<div class="demo-column">
+    <span class="demo-caption">quick — reduces motion for open / close transitions:</span>
+    <mdc-legacy-menu id="m-menu-03e50aaa-76f2-42be-9bc8-e83d10c8aa56" anchor="m-btn-03e50aaa-76f2-42be-9bc8-e83d10c8aa56" open quick label="Quick menu">
+        <button id="m-btn-03e50aaa-76f2-42be-9bc8-e83d10c8aa56" slot="trigger" onclick="const m = this.getRootNode().querySelector('#m-menu-03e50aaa-76f2-42be-9bc8-e83d10c8aa56'); if (m) { typeof m.toggle === 'function' ? m.toggle() : (m.open ? m.close() : m.show()); }">Open menu</button>
+        <mdc-legacy-menu-item type="button">Cut</mdc-legacy-menu-item>
+        <mdc-legacy-menu-item type="button">Copy</mdc-legacy-menu-item>
+    </mdc-legacy-menu>
+</div>
