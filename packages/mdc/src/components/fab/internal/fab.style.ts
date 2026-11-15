@@ -20,10 +20,10 @@ const Tes = stringifyTokens('--mdc-fab')(TertiaryExtendedFabDefinition)
 
 const getElevationStyles = () => {
     const getSingleStateLevelStyles = (state: 'enabled-' | 'hovered-' | 'pressed-' | 'focused-') => overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
-        "enabled-level": `var(--_${state}container-elevation)`,
+        'level': `var(--_${state}container-elevation)`,
     })()
     const getShadowColorStyles = () => overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
-        "enabled-shadow-color": `var(--_enabled-container-shadow-color)`,
+        'shadow-color': `var(--_enabled-container-shadow-color)`,
     })()
     return css`
         mdc-elevation {

@@ -3,7 +3,7 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { ElevationLevel, Shape, State, Typescale } from '@sandlada/mdk'
+import { Shape, State, Typescale } from '@sandlada/mdk'
 import { Color } from '../../utils/color'
 import { createStyleDefinition, type PrimitiveTokenValue } from '../../utils/style'
 import { expandPadding, expandShape, expandTypescale } from '../../utils/style'
@@ -39,10 +39,10 @@ const FabSharedTokens = {
 
     // Shadow & elevation (MD3 FAB: level 3 at rest, raised to level 4 on hover)
     'enabled-container-shadow-color': Color.Shadow,
-    'enabled-container-elevation'   : ElevationLevel.Level3,
-    'hovered-container-elevation'   : ElevationLevel.Level4,
-    'focused-container-elevation'   : ElevationLevel.Level3,
-    'pressed-container-elevation'   : ElevationLevel.Level3,
+    'enabled-container-elevation'   : '3',
+    'hovered-container-elevation'   : '4',
+    'focused-container-elevation'   : '3',
+    'pressed-container-elevation'   : '3',
 
     // State layer opacities
     'hovered-state-layer-opacity': State.HoveredStateLayerOpacity,
