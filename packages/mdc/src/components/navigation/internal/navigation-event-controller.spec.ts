@@ -42,10 +42,10 @@ interface IRecordedEvent {
     detail: readonly [string, string | undefined]
 }
 
-let scopeCounter = 0
-const uniqueScope = () => `event-controller-scope-${++scopeCounter}`
+let ScopeCounter = 0
+const uniqueScope = () => `event-controller-scope-${++ScopeCounter}`
 
-const hosts: FakeHost[] = []
+const Hosts: FakeHost[] = []
 
 function createHost(scope: string): { host: FakeHost, events: IRecordedEvent[] } {
     const host = new FakeHost()
@@ -64,12 +64,12 @@ function createHost(scope: string): { host: FakeHost, events: IRecordedEvent[] }
 
     host.connect()
     host.update()
-    hosts.push(host)
+    Hosts.push(host)
     return { host, events }
 }
 
 afterEach(() => {
-    for (const host of hosts.splice(0)) host.disconnect()
+    for (const host of Hosts.splice(0)) host.disconnect()
 })
 
 describe('NavigationEventController', () => {

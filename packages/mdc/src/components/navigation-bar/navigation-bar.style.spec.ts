@@ -6,12 +6,12 @@
 import { describe, expect, it } from 'vitest'
 import { NavigationBarStyles } from './navigation-bar.style'
 
-const cssText = NavigationBarStyles.cssText
+const CssText = NavigationBarStyles.cssText
 
 const Directions = ['vertical', 'horizontal', 'vertical-xr'] as const
 
 const getContainerBlock = (direction: string): string => {
-    const match = new RegExp(`\\.${direction}\\.container\\s*\\{([^}]*)\\}`).exec(cssText)
+    const match = new RegExp(`\\.${direction}\\.container\\s*\\{([^}]*)\\}`).exec(CssText)
 
     if (match === null) {
         throw new Error(`[navigation-bar.style.spec] Missing .${direction}.container rule`)
@@ -63,7 +63,7 @@ describe('NavigationBarStyles container axes', () => {
     })
 
     it('never references non-existent shape-radius tokens', () => {
-        expect(cssText).not.toContain('shape-radius')
+        expect(CssText).not.toContain('shape-radius')
     })
 
     it('maps vertical-xr corners to the full-shape tokens', () => {

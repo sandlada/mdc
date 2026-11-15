@@ -5,7 +5,7 @@
  */
 import { describe, expect, it } from 'vitest'
 import { MDCLoadingIndicator } from './loading-indicator'
-import { LOADING_INDICATOR_COMPLETE_EVENT } from './loading-indicator.interface'
+import { LoadingIndicatorCompleteEvent } from './loading-indicator.interface'
 
 describe('MDCLoadingIndicator', () => {
     it('has correct default properties', () => {
@@ -32,7 +32,7 @@ describe('MDCLoadingIndicator', () => {
     })
 
     it('exposes the complete event name as part of the contract', () => {
-        expect(LOADING_INDICATOR_COMPLETE_EVENT).toBe('loading-indicator-complete')
+        expect(LoadingIndicatorCompleteEvent).toBe('loading-indicator-complete')
     })
 
     it('resolves the very first determinate frame before the first render', () => {

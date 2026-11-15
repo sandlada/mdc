@@ -11,7 +11,7 @@ import {
 } from '../navigation-rail.interface'
 import { resolveRailTabVariant } from './resolve-rail-tab-variant'
 
-const CASES: ReadonlyArray<
+const Cases: ReadonlyArray<
     readonly [NavigationRailVariantType, boolean, NavigationTabVariant]
 > = [
     [NavigationRailVariant.Collapsed, true, 'rail-vertical'],
@@ -25,7 +25,7 @@ const CASES: ReadonlyArray<
 ]
 
 describe('resolveRailTabVariant', () => {
-    it.each(CASES)(
+    it.each(Cases)(
         'resolves %s with hasLabel=%s to %s',
         (variant, hasLabel, expected) => {
             expect(resolveRailTabVariant(variant, hasLabel)).toBe(expected)

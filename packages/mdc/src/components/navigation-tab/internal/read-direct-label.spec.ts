@@ -6,15 +6,15 @@
 import { describe, expect, it } from 'vitest'
 import { readDirectLabel, type IDirectLabelNode } from './read-direct-label'
 
-const TEXT_NODE_TYPE = 3
-const ELEMENT_NODE_TYPE = 1
+const TextNodeType = 3
+const ElementNodeType = 1
 
 function text(textContent: string | null): IDirectLabelNode {
-    return { nodeType: TEXT_NODE_TYPE, textContent }
+    return { nodeType: TextNodeType, textContent }
 }
 
 function element(textContent: string | null): IDirectLabelNode {
-    return { nodeType: ELEMENT_NODE_TYPE, textContent }
+    return { nodeType: ElementNodeType, textContent }
 }
 
 describe('readDirectLabel', () => {
