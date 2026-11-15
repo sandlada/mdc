@@ -10,6 +10,10 @@
 //
 // Each folder barrel (`src/components/<name>/index.ts`) re-exports the
 // component itself plus its interface, replacing the removed `src/all.ts`.
+import '@fontsource/noto-sans/400.css'
+import '@fontsource/noto-sans/500.css'
+import '@fontsource/noto-sans/700.css'
+import 'material-symbols/index.css'
 import '@sandlada/mdc/components/appbar/index'
 import '@sandlada/mdc/components/badge/index'
 import '@sandlada/mdc/components/bottom-sheet/index'
