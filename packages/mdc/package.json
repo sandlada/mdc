@@ -76,6 +76,11 @@
             "import": "./build/components/button/index.js",
             "default": "./build/components/button/index.js"
         },
+        "./components/button-group/index": {
+            "types": "./build/components/button-group/index.d.ts",
+            "import": "./build/components/button-group/index.js",
+            "default": "./build/components/button-group/index.js"
+        },
         "./components/card/index": {
             "types": "./build/components/card/index.d.ts",
             "import": "./build/components/card/index.js",
@@ -277,6 +282,11 @@
             "types": "./build/components/time-picker/index.d.ts",
             "import": "./build/components/time-picker/index.js",
             "default": "./build/components/time-picker/index.js"
+        },
+        "./components/toolbar/index": {
+            "types": "./build/components/toolbar/index.d.ts",
+            "import": "./build/components/toolbar/index.js",
+            "default": "./build/components/toolbar/index.js"
         },
         "./components/tooltip/index": {
             "types": "./build/components/tooltip/index.d.ts",

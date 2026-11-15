@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Toolbars — MDC Docs</title>
+    <script type="module" src="/shared/base-imports.ts"></script>
+    <script type="module" src="/shared/theme.ts"></script>
+    <script type="module" src="/shared/docs-page.ts"></script>
+    <link rel="stylesheet" href="/shared/styles.css" />
+    <style>
+        .interactive-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding: 24px;
+            border-radius: 12px;
+            background: var(--md-sys-color-surface-container-low);
+            border: 1px solid var(--md-sys-color-outline-variant);
+        }
+        .controls-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+        .controls-row button {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--md-sys-color-outline);
+            background: var(--md-sys-color-surface-container);
+            color: var(--md-sys-color-on-surface);
+            cursor: pointer;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <mdc-docs-page
+        component="toolbar"
+        title="Toolbars"
+        subtitle="Material 3 Expressive Docked and Floating Toolbars provide contextual and persistent action containers with Standard and Vibrant color roles, expandable motion, and paired FAB support."
+        demo-files="toolbar.docked.demo.html,toolbar.floating.demo.html,toolbar.floating-fab.demo.html,toolbar.vertical.demo.html"
+    >
+        <section>
+            <h2>Interactive Floating Toolbar</h2>
+            <div class="interactive-container">
+                <div class="controls-row">
+                    <button id="btn-toggle-expand">Toggle Expanded</button>
+                    <button id="btn-toggle-variant">Toggle Variant (Standard / Vibrant)</button>
+                    <button id="btn-toggle-orientation">Toggle Orientation (Horizontal / Vertical)</button>
+                </div>
+                <div style="padding: 16px 0;">
+                    <mdc-floating-toolbar id="interactive-toolbar" variant="standard" aria-label="Interactive toolbar">
+                        <mdc-icon-button aria-label="Edit"><mdc-icon>edit</mdc-icon></mdc-icon-button>
+                        <mdc-icon-button variant="filled-tonal" togglable selected aria-label="Star"><mdc-icon>star</mdc-icon></mdc-icon-button>
+                        <mdc-icon-button aria-label="Share"><mdc-icon>share</mdc-icon></mdc-icon-button>
+                        <mdc-fab slot="fab" open aria-label="Add"><mdc-icon slot="icon">add</mdc-icon></mdc-fab>
+                    </mdc-floating-toolbar>
+                </div>
+            </div>
+        </section>
+    </mdc-docs-page>
+
+    <script type="module">
+        const toolbar = document.getElementById('interactive-toolbar');
+        document.getElementById('btn-toggle-expand').addEventListener('click', () => {
+            toolbar.toggle();
+        });
+        document.getElementById('btn-toggle-variant').addEventListener('click', () => {
+            toolbar.variant = toolbar.variant === 'standard' ? 'vibrant' : 'standard';
+        });
+        document.getElementById('btn-toggle-orientation').addEventListener('click', () => {
+            toolbar.orientation = toolbar.orientation === 'horizontal' ? 'vertical' : 'horizontal';
+        });
+    </script>
+</body>
+</html>
