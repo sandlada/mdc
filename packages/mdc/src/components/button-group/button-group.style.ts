@@ -9,34 +9,57 @@ import {
     ConnectedButtonGroupDefinition,
     StandardButtonGroupDefinition,
 } from './button-group.definition'
+import { ButtonGroupSizes, type ButtonGroupSize } from './button-group.interface'
 
 const StandardTokenString = stringifyTokens('--mdc-standard-button-group')(StandardButtonGroupDefinition)
 
 const ConnectedTokenString = stringifyTokens('--mdc-connected-button-group')(ConnectedButtonGroupDefinition)
 
-type TSize = 'extra-small' | 'small' | 'medium' | 'large' | 'extra-large'
+/**
+ * Emits the 4 logical-corner overrides for `--mdc-button`, `--mdc-toggle-button`,
+ * and `--mdc-icon-button` for a given prefix + state suffix.
+ */
+function emitCornerTokens(
+    size: ButtonGroupSize,
+    state: string,
+    ss: string,
+    se: string,
+    es: string,
+    ee: string,
+): string {
+    return `
+        --mdc-button-${size}-container-shape-${state}-start-start: ${ss};
+        --mdc-button-${size}-container-shape-${state}-start-end: ${se};
+        --mdc-button-${size}-container-shape-${state}-end-start: ${es};
+        --mdc-button-${size}-container-shape-${state}-end-end: ${ee};
 
-const Sizes: TSize[] = ['extra-small', 'small', 'medium', 'large', 'extra-large']
+        --mdc-toggle-button-${size}-container-shape-${state}-start-start: ${ss};
+        --mdc-toggle-button-${size}-container-shape-${state}-start-end: ${se};
+        --mdc-toggle-button-${size}-container-shape-${state}-end-start: ${es};
+        --mdc-toggle-button-${size}-container-shape-${state}-end-end: ${ee};
+
+        --mdc-icon-button-${size}-container-shape-${state}-start-start: ${ss};
+        --mdc-icon-button-${size}-container-shape-${state}-start-end: ${se};
+        --mdc-icon-button-${size}-container-shape-${state}-end-start: ${es};
+        --mdc-icon-button-${size}-container-shape-${state}-end-end: ${ee};
+    `
+}
 
 /**
  * Build the per-position CSS overrides that morph a connected group's slotted
- * children's border radii. The connected outer corners use the group's round or
- * square corner radii; sides that meet a sibling use the inner-shape (squared)
- * so the buttons visually dock into a single pill shape.
+ * children's border radii.
  *
- * For each position we also mirror the same values into the toggle-selected
- * shape tokens so that a SELECTED toggle button still respects the group's
- * position-based shape (overriding its default selected pill).
+ * - Unselected outer corners use the group's round (`Shape.Full`) or square corner radii;
+ *   sides that meet a sibling use the size-scaled inner-shape (`4px`..`20px`).
+ * - Selected (`checked`) items morph all four corners to `Shape.Full` (pill) per M3 Expressive
+ *   Connected Button Group spec.
+ * - Pressed items morph to the size-scaled pressed corner radius.
  */
 function getConnectedShapeTokensString(
-    size: TSize,
+    size: ButtonGroupSize,
     position: 'start' | 'middle' | 'end' | 'single',
     orientation: 'horizontal' | 'vertical',
 ): string {
-    // `inner-shape` keys are expanded in `button-group.definition.ts` via
-    // `expandShape(...)` into 4 logical-corner CSS variables on :host (the
-    // shorthand var itself is NOT emitted). Read each corner individually so
-    // the CSS resolves.
     const innerShapeStartStart = `var(--_enabled-${size}-inner-shape-start-start)`
     const innerShapeStartEnd = `var(--_enabled-${size}-inner-shape-start-end)`
     const innerShapeEndStart = `var(--_enabled-${size}-inner-shape-end-start)`
@@ -44,6 +67,8 @@ function getConnectedShapeTokensString(
 
     const outerRound = `var(--_enabled-${size}-outer-shape-round)`
     const outerSquare = `var(--_enabled-${size}-outer-shape-square)`
+    const selectedShape = `var(--_enabled-selected-shape)`
+    const pressedShape = `var(--_enabled-${size}-pressed-shape)`
 
     let roundStartStart = outerRound
     let roundStartEnd = outerRound
@@ -86,212 +111,166 @@ function getConnectedShapeTokensString(
             roundStartStart = innerShapeStartStart
             roundStartEnd = innerShapeStartEnd
             squareStartStart = innerShapeStartStart
-            squareEndStart = innerShapeEndStart
+            squareStartEnd = innerShapeStartEnd
         }
     }
 
-    return `
-        --mdc-button-${size}-container-shape-round-start-start: ${roundStartStart};
-        --mdc-button-${size}-container-shape-round-start-end: ${roundStartEnd};
-        --mdc-button-${size}-container-shape-round-end-start: ${roundEndStart};
-        --mdc-button-${size}-container-shape-round-end-end: ${roundEndEnd};
-
-        --mdc-button-${size}-container-shape-round-toggle-selected-start-start: ${roundStartStart};
-        --mdc-button-${size}-container-shape-round-toggle-selected-start-end: ${roundStartEnd};
-        --mdc-button-${size}-container-shape-round-toggle-selected-end-start: ${roundEndStart};
-        --mdc-button-${size}-container-shape-round-toggle-selected-end-end: ${roundEndEnd};
-
-        --mdc-button-${size}-container-shape-square-start-start: ${squareStartStart};
-        --mdc-button-${size}-container-shape-square-start-end: ${squareStartEnd};
-        --mdc-button-${size}-container-shape-square-end-start: ${squareEndStart};
-        --mdc-button-${size}-container-shape-square-end-end: ${squareEndEnd};
-
-        --mdc-button-${size}-container-shape-square-toggle-selected-start-start: ${squareStartStart};
-        --mdc-button-${size}-container-shape-square-toggle-selected-start-end: ${squareStartEnd};
-        --mdc-button-${size}-container-shape-square-toggle-selected-end-start: ${squareEndStart};
-        --mdc-button-${size}-container-shape-square-toggle-selected-end-end: ${squareEndEnd};
-
-        --mdc-icon-button-${size}-container-shape-round-start-start: ${roundStartStart};
-        --mdc-icon-button-${size}-container-shape-round-start-end: ${roundStartEnd};
-        --mdc-icon-button-${size}-container-shape-round-end-start: ${roundEndStart};
-        --mdc-icon-button-${size}-container-shape-round-end-end: ${roundEndEnd};
-
-        --mdc-icon-button-${size}-container-shape-round-selected-start-start: ${roundStartStart};
-        --mdc-icon-button-${size}-container-shape-round-selected-start-end: ${roundStartEnd};
-        --mdc-icon-button-${size}-container-shape-round-selected-end-start: ${roundEndStart};
-        --mdc-icon-button-${size}-container-shape-round-selected-end-end: ${roundEndEnd};
-
-        --mdc-icon-button-${size}-container-shape-square-start-start: ${squareStartStart};
-        --mdc-icon-button-${size}-container-shape-square-start-end: ${squareStartEnd};
-        --mdc-icon-button-${size}-container-shape-square-end-start: ${squareEndStart};
-        --mdc-icon-button-${size}-container-shape-square-end-end: ${squareEndEnd};
-
-        --mdc-icon-button-${size}-container-shape-square-selected-start-start: ${squareStartStart};
-        --mdc-icon-button-${size}-container-shape-square-selected-start-end: ${squareStartEnd};
-        --mdc-icon-button-${size}-container-shape-square-selected-end-start: ${squareEndStart};
-        --mdc-icon-button-${size}-container-shape-square-selected-end-end: ${squareEndEnd};
-    `
+    return [
+        emitCornerTokens(size, 'round', roundStartStart, roundStartEnd, roundEndStart, roundEndEnd),
+        emitCornerTokens(size, 'square', squareStartStart, squareStartEnd, squareEndStart, squareEndEnd),
+        emitCornerTokens(size, 'round-selected', selectedShape, selectedShape, selectedShape, selectedShape),
+        emitCornerTokens(size, 'square-selected', selectedShape, selectedShape, selectedShape, selectedShape),
+        emitCornerTokens(size, 'pressed-morph', pressedShape, pressedShape, pressedShape, pressedShape),
+    ].join('\n')
 }
 
 function getConnectedShapeStyles() {
     const rules: string[] = []
 
-    for (const size of Sizes) {
-        // Horizontal
-        rules.push(`
-            .container.connected.horizontal.${size} ::slotted([data-group-position="single"]),
-            .container.connected.horizontal.${size} ::slotted(.single) {
-                ${getConnectedShapeTokensString(size, 'single', 'horizontal')}
-            }
+    for (const size of ButtonGroupSizes) {
+        for (const orientation of ['horizontal', 'vertical'] as const) {
+            rules.push(`
+                .container.connected.${orientation}.${size} ::slotted([data-group-position="single"]),
+                .container.connected.${orientation}.${size} ::slotted(.single) {
+                    ${getConnectedShapeTokensString(size, 'single', orientation)}
+                }
 
-            .container.connected.horizontal.${size} ::slotted([data-group-position="start"]),
-            .container.connected.horizontal.${size} ::slotted(.start-side) {
-                ${getConnectedShapeTokensString(size, 'start', 'horizontal')}
-            }
+                .container.connected.${orientation}.${size} ::slotted([data-group-position="start"]),
+                .container.connected.${orientation}.${size} ::slotted(.start-side) {
+                    ${getConnectedShapeTokensString(size, 'start', orientation)}
+                }
 
-            .container.connected.horizontal.${size} ::slotted([data-group-position="middle"]),
-            .container.connected.horizontal.${size} ::slotted(.middle) {
-                ${getConnectedShapeTokensString(size, 'middle', 'horizontal')}
-            }
+                .container.connected.${orientation}.${size} ::slotted([data-group-position="middle"]),
+                .container.connected.${orientation}.${size} ::slotted(.middle) {
+                    ${getConnectedShapeTokensString(size, 'middle', orientation)}
+                }
 
-            .container.connected.horizontal.${size} ::slotted([data-group-position="end"]),
-            .container.connected.horizontal.${size} ::slotted(.end-side) {
-                ${getConnectedShapeTokensString(size, 'end', 'horizontal')}
-            }
-        `)
-
-        // Vertical
-        rules.push(`
-            .container.connected.vertical.${size} ::slotted([data-group-position="single"]),
-            .container.connected.vertical.${size} ::slotted(.single) {
-                ${getConnectedShapeTokensString(size, 'single', 'vertical')}
-            }
-
-            .container.connected.vertical.${size} ::slotted([data-group-position="start"]),
-            .container.connected.vertical.${size} ::slotted(.start-side) {
-                ${getConnectedShapeTokensString(size, 'start', 'vertical')}
-            }
-
-            .container.connected.vertical.${size} ::slotted([data-group-position="middle"]),
-            .container.connected.vertical.${size} ::slotted(.middle) {
-                ${getConnectedShapeTokensString(size, 'middle', 'vertical')}
-            }
-
-            .container.connected.vertical.${size} ::slotted([data-group-position="end"]),
-            .container.connected.vertical.${size} ::slotted(.end-side) {
-                ${getConnectedShapeTokensString(size, 'end', 'vertical')}
-            }
-        `)
+                .container.connected.${orientation}.${size} ::slotted([data-group-position="end"]),
+                .container.connected.${orientation}.${size} ::slotted(.end-side) {
+                    ${getConnectedShapeTokensString(size, 'end', orientation)}
+                }
+            `)
+        }
     }
 
     return unsafeCSS(rules.join('\n'))
 }
 
 export const ButtonGroupStyles = css`
-    :host {
-        ${StandardTokenString}
-        ${ConnectedTokenString}
+    @layer mdc.button-group {
+        :host {
+            ${StandardTokenString}
+            ${ConnectedTokenString}
 
-        display: inline-flex;
-        vertical-align: middle;
-        max-width: 100%;
-    }
+            display: inline-flex;
+            vertical-align: middle;
+            max-width: 100%;
+        }
 
-    :host([hidden]) {
-        display: none !important;
-    }
+        :host([hidden]) {
+            display: none !important;
+        }
 
-    .container {
-        display: inline-flex;
-        flex-direction: row;
-        align-items: center;
-        position: relative;
-        box-sizing: border-box;
-    }
+        .container {
+            display: inline-flex;
+            flex-direction: row;
+            align-items: center;
+            position: relative;
+            box-sizing: border-box;
+        }
 
-    .container.vertical {
-        flex-direction: column;
-    }
+        .container.vertical {
+            flex-direction: column;
+            align-items: stretch;
+        }
 
-    /* ── Standard Variant Spacing (Accessible minimum touch target) ─ */
+        /* ── Standard Variant Spacing (Accessible minimum touch target) ─ */
 
-    .container.standard {
-        gap: var(--_enabled-space-between);
-    }
-    .container.standard.extra-small {
-        gap: var(--_enabled-extra-small-space-between);
-    }
-    .container.standard.small {
-        gap: var(--_enabled-small-space-between);
-    }
-    .container.standard.medium {
-        gap: var(--_enabled-medium-space-between);
-    }
-    .container.standard.large {
-        gap: var(--_enabled-large-space-between);
-    }
-    .container.standard.extra-large {
-        gap: var(--_enabled-extra-large-space-between);
-    }
+        .container.standard {
+            gap: var(--_enabled-space-between);
+        }
+        .container.standard.extra-small {
+            gap: var(--_enabled-extra-small-space-between);
+        }
+        .container.standard.small {
+            gap: var(--_enabled-small-space-between);
+        }
+        .container.standard.medium {
+            gap: var(--_enabled-medium-space-between);
+        }
+        .container.standard.large {
+            gap: var(--_enabled-large-space-between);
+        }
+        .container.standard.extra-large {
+            gap: var(--_enabled-extra-large-space-between);
+        }
 
-    /* ── Connected Variant Spacing (2dp inner padding) ───────────── */
+        /* ── Connected Variant Spacing (2dp inner padding) ───────────── */
 
-    .container.connected {
-        gap: var(--_enabled-space-between);
-    }
-    .container.connected.extra-small {
-        gap: var(--_enabled-extra-small-space-between);
-    }
-    .container.connected.small {
-        gap: var(--_enabled-small-space-between);
-    }
-    .container.connected.medium {
-        gap: var(--_enabled-medium-space-between);
-    }
-    .container.connected.large {
-        gap: var(--_enabled-large-space-between);
-    }
-    .container.connected.extra-large {
-        gap: var(--_enabled-extra-large-space-between);
-    }
+        .container.connected {
+            gap: var(--_enabled-space-between);
+        }
+        .container.connected.extra-small {
+            gap: var(--_enabled-extra-small-space-between);
+        }
+        .container.connected.small {
+            gap: var(--_enabled-small-space-between);
+        }
+        .container.connected.medium {
+            gap: var(--_enabled-medium-space-between);
+        }
+        .container.connected.large {
+            gap: var(--_enabled-large-space-between);
+        }
+        .container.connected.extra-large {
+            gap: var(--_enabled-extra-large-space-between);
+        }
 
-    /* ── Minimum Widths for Touch Targets (48dp for XS & S) ──────── */
+        /* ── Minimum Widths for Touch Targets (48dp for XS & S) ──────── */
 
-    .container.connected.extra-small ::slotted(*) {
-        min-width: var(--_enabled-extra-small-min-width);
-    }
-    .container.connected.small ::slotted(*) {
-        min-width: var(--_enabled-small-min-width);
-    }
+        .container.connected.extra-small ::slotted(*) {
+            min-width: var(--_enabled-extra-small-min-width);
+        }
+        .container.connected.small ::slotted(*) {
+            min-width: var(--_enabled-small-min-width);
+        }
 
-    /* ── Slotted Button Transitions ─────────────────────────────── */
+        /* ── Slotted Button Transitions ─────────────────────────────── */
 
-    ::slotted(*) {
-        transition:
-            border-radius 250ms cubic-bezier(0.2, 0, 0, 1),
-            flex-grow 250ms cubic-bezier(0.2, 0, 0, 1),
-            transform 200ms cubic-bezier(0.2, 0, 0, 1),
-            background-color 200ms ease,
-            color 200ms ease;
-    }
+        ::slotted(*) {
+            transition:
+                width 250ms cubic-bezier(0.38, 1.21, 0.22, 1),
+                min-width 250ms cubic-bezier(0.38, 1.21, 0.22, 1),
+                flex-basis 250ms cubic-bezier(0.38, 1.21, 0.22, 1),
+                flex-grow 250ms cubic-bezier(0.38, 1.21, 0.22, 1),
+                border-radius 250ms cubic-bezier(0.2, 0, 0, 1),
+                background-color 200ms ease,
+                color 200ms ease;
+        }
 
-    /* ── Expressive Width Expansion ──────────────────────────────── */
-    /*
-       The actual flex-grow morph is applied via inline style by
-       base-button-group.ts.applyExpandOnActiveMorph on press / selection
-       change. CSS rules here are a baseline that visually agrees with
-       inline-style overrides; the :has() pseudo-class cannot be used
-       with ::slotted() (silently dropped by Chromium).
-    */
+        /* ── Connected Shape Distributions ───────────────────────────── */
 
-    /* ── Connected Shape Distributions ───────────────────────────── */
+        ${getConnectedShapeStyles()}
 
-    ${getConnectedShapeStyles()}
+        /* ── Disabled Container ──────────────────────────────────────── */
 
-    /* ── Disabled Container ──────────────────────────────────────── */
+        .container.disabled {
+            pointer-events: none;
+            opacity: 0.38;
+        }
 
-    .container.disabled {
-        pointer-events: none;
-        opacity: 0.38;
+        /* ── Accessibility ───────────────────────────────────────────── */
+
+        @media (prefers-reduced-motion: reduce) {
+            ::slotted(*) {
+                transition: none;
+            }
+        }
+
+        @media (forced-colors: active) {
+            .container {
+                forced-color-adjust: auto;
+            }
+        }
     }
 `

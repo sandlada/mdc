@@ -18,15 +18,18 @@ import {
     type ButtonGroupShape,
     type ButtonGroupSize,
     type ButtonGroupVariant,
-    type IButtonGroup,
+    type IButtonGroupInteractionEventDetail,
     type IButtonGroupSelectionEventDetail,
+    type IMDCButtonGroup,
 } from '../button-group.interface'
 import { ButtonGroupStyles } from '../button-group.style'
+
+const ExpandedRatio = 0.15
 
 export abstract class BaseButtonGroup extends composeMixin(
     mixinDelegatesAria,
     mixinElementInternals,
-)(LitElement) implements IButtonGroup {
+)(LitElement) implements IMDCButtonGroup {
 
     public static override styles = ButtonGroupStyles
 
@@ -35,6 +38,9 @@ export abstract class BaseButtonGroup extends composeMixin(
 
     @property({ type: String, attribute: 'selection-mode', reflect: true })
     public selectionMode: ButtonGroupSelectionMode = 'none'
+
+    @property({ type: Boolean, attribute: 'selection-required', reflect: true })
+    public selectionRequired: boolean = false
 
     @property({ type: String, reflect: true })
     public size: ButtonGroupSize = 'small'
@@ -61,6 +67,8 @@ export abstract class BaseButtonGroup extends composeMixin(
     protected items: HTMLElement[] = []
 
     private mutationObserver: MutationObserver | null = null
+    private changedItemInTick: HTMLElement | null = null
+    private isSyncing = false
 
     constructor() {
         super()
@@ -68,20 +76,19 @@ export abstract class BaseButtonGroup extends composeMixin(
         this.addEventListener('click', this.handleClick.bind(this))
         this.addEventListener('keydown', this.handleKeyDown.bind(this))
         this.addEventListener('change', this.handleChildChange.bind(this))
-        this.addEventListener('input', this.handleChildInput.bind(this))
-        this.addEventListener('mousedown', this.handlePressStart.bind(this))
-        this.addEventListener('mouseup', this.handlePressEnd.bind(this))
-        this.addEventListener('mouseleave', this.handlePressEnd.bind(this))
-        this.addEventListener('touchstart', this.handlePressStart.bind(this), { passive: true })
-        this.addEventListener('touchend', this.handlePressEnd.bind(this), { passive: true })
-        this.addEventListener('touchcancel', this.handlePressEnd.bind(this), { passive: true })
+        this.addEventListener('pointerdown', this.handlePressStart.bind(this))
+        this.addEventListener('pointerup', this.handlePressEnd.bind(this))
+        this.addEventListener('pointercancel', this.handlePressEnd.bind(this))
+        this.addEventListener('pointerleave', this.handlePressEnd.bind(this))
     }
 
     public override connectedCallback(): void {
         super.connectedCallback()
         if (!isServer) {
             this.mutationObserver = new MutationObserver(() => {
-                this.syncItems()
+                if (!this.isSyncing) {
+                    this.syncItems()
+                }
             })
             this.mutationObserver.observe(this, {
                 childList: true,
@@ -106,11 +113,12 @@ export abstract class BaseButtonGroup extends composeMixin(
             changedProperties.has('shape') ||
             changedProperties.has('orientation') ||
             changedProperties.has('disabled') ||
+            changedProperties.has('disableMorph') ||
             changedProperties.has('selectionMode') ||
+            changedProperties.has('selectionRequired') ||
             changedProperties.has('expandOnActive')
         ) {
             this.syncItems()
-            // Re-apply morph with the latest flag value (no pressed item)
             this.applyExpandOnActiveMorph(null)
         }
     }
@@ -143,15 +151,15 @@ export abstract class BaseButtonGroup extends composeMixin(
                 for (let i = 0; i < this.items.length; i++) {
                     this.setItemSelected(this.items[i], i === index)
                 }
-            } else {
+            } else if (!this.selectionRequired) {
                 this.setItemSelected(item, false)
             }
-        } else if (this.selectionMode === 'multiple') {
-            this.setItemSelected(item, selected)
         } else {
             this.setItemSelected(item, selected)
         }
 
+        this.syncActiveAttributes()
+        this.updateRovingTabindex()
         this.emitSelectionChange(item, index)
     }
 
@@ -214,103 +222,132 @@ export abstract class BaseButtonGroup extends composeMixin(
     }
 
     private syncItems(): void {
-        const elements = this.slottedElements.filter((el) => el instanceof HTMLElement)
-        this.items = elements
-        const count = elements.length
+        this.isSyncing = true
+        try {
+            const elements = this.slottedElements.filter((el) => el instanceof HTMLElement)
+            this.items = elements
+            const count = elements.length
 
-        elements.forEach((el, index) => {
-            // Positional markers for connected corner radii
-            let position: 'start' | 'middle' | 'end' | 'single' = 'single'
-            if (count > 1) {
-                if (index === 0) {
-                    position = 'start'
-                } else if (index === count - 1) {
-                    position = 'end'
-                } else {
-                    position = 'middle'
+            elements.forEach((el, index) => {
+                let position: 'start' | 'middle' | 'end' | 'single' = 'single'
+                if (count > 1) {
+                    if (index === 0) {
+                        position = 'start'
+                    } else if (index === count - 1) {
+                        position = 'end'
+                    } else {
+                        position = 'middle'
+                    }
                 }
-            }
 
-            el.setAttribute('data-group-position', position)
-            el.classList.toggle('start-side', position === 'start')
-            el.classList.toggle('middle', position === 'middle')
-            el.classList.toggle('end-side', position === 'end')
-            el.classList.toggle('single', position === 'single')
+                el.setAttribute('data-group-position', position)
+                el.classList.toggle('start-side', position === 'start')
+                el.classList.toggle('middle', position === 'middle')
+                el.classList.toggle('end-side', position === 'end')
+                el.classList.toggle('single', position === 'single')
 
-            // Cascade size / shape / disabled to MDC elements if not explicitly set
-            const mdcEl = el as HTMLElement & {
-                size?: string
-                shape?: string
-                disabled?: boolean
-            }
-            if (mdcEl.size !== undefined && !el.hasAttribute('size')) {
-                mdcEl.size = this.size
-            }
-            if (mdcEl.shape !== undefined && !el.hasAttribute('shape')) {
-                mdcEl.shape = this.shape
-            }
-            if (this.disabled) {
-                mdcEl.disabled = true
-            }
+                const mdcEl = el as HTMLElement & {
+                    size?: string
+                    shape?: string
+                    disabled?: boolean
+                    disableMorph?: boolean
+                }
+                if (mdcEl.size !== undefined && !el.hasAttribute('size')) {
+                    mdcEl.size = this.size
+                }
+                if (mdcEl.shape !== undefined && !el.hasAttribute('shape')) {
+                    mdcEl.shape = this.shape
+                }
+                if (mdcEl.disableMorph !== undefined && !el.hasAttribute('disable-morph')) {
+                    mdcEl.disableMorph = this.disableMorph
+                }
+                if (this.disabled) {
+                    mdcEl.disabled = true
+                }
+            })
 
-            // Reflect selection state as `data-group-item-active` so CSS can
-            // apply variant-conditional expand-on-active morphs without
-            // relying on :has() — `::slotted()` is not a valid argument to
-            // `:has()` in current Chromium.
+            this.syncActiveAttributes()
+            this.updateRovingTabindex()
+        } finally {
+            this.isSyncing = false
+        }
+    }
+
+    private syncActiveAttributes(): void {
+        for (const el of this.items) {
             const isActive = this.isItemSelected(el)
             if (isActive) {
                 el.setAttribute('data-group-item-active', '')
             } else {
                 el.removeAttribute('data-group-item-active')
             }
-
-            // Sync selection mode semantics if child is a toggle button
-            if (this.selectionMode === 'single') {
-                const toggleEl = el as HTMLElement & { type?: string }
-                if (toggleEl.type !== undefined && !el.hasAttribute('type')) {
-                    toggleEl.type = 'radio'
-                }
-            }
-        })
-
-        this.updateRovingTabindex()
+        }
     }
 
-    private updateRovingTabindex(): void {
+    private updateRovingTabindex(preferredItem?: HTMLElement): void {
         const enabledItems = this.items.filter((item) => !this.isItemDisabled(item))
-        if (enabledItems.length === 0) return
+        if (enabledItems.length === 0) {
+            for (const item of this.items) {
+                this.setItemTabIndex(item, -1)
+            }
+            return
+        }
 
-        let activeItem = enabledItems.find((item) => this.isItemSelected(item))
+        let activeItem: HTMLElement | undefined =
+            preferredItem && enabledItems.includes(preferredItem) ? preferredItem : undefined
+
         if (!activeItem) {
-            activeItem = enabledItems[0]
+            activeItem = enabledItems.find((item) => {
+                if (typeof document !== 'undefined' && document.activeElement === item) return true
+                return item.matches?.(':focus-within') ?? false
+            })
+        }
+
+        if (!activeItem) {
+            activeItem = enabledItems.find((item) => this.isItemSelected(item)) ?? enabledItems[0]
         }
 
         for (const item of this.items) {
-            if (item === activeItem) {
-                item.tabIndex = 0
-            } else {
-                item.tabIndex = -1
+            this.setItemTabIndex(item, item === activeItem ? 0 : -1)
+        }
+    }
+
+    private setItemTabIndex(item: HTMLElement, tabIndex: number): void {
+        item.tabIndex = tabIndex
+        if (item.shadowRoot && !item.shadowRoot.delegatesFocus) {
+            const inner = item.shadowRoot.querySelector<HTMLElement>('button, a[href], input')
+            if (inner) {
+                inner.tabIndex = tabIndex
             }
         }
     }
 
-    private handlePressStart = (e: Event): void => {
+    private focusGroupItem(item: HTMLElement): void {
+        if (item.shadowRoot && !item.shadowRoot.delegatesFocus) {
+            const inner = item.shadowRoot.querySelector<HTMLElement>(
+                'button:not([disabled]), a[href], input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+            )
+            if (inner) {
+                inner.focus()
+                return
+            }
+        }
+        item.focus()
+    }
+
+    private handlePressStart = (e: PointerEvent): void => {
         if (this.disabled) return
-        const target = (e.composedPath?.()[0] ?? e.target) as HTMLElement
-        const item = this.findGroupItem(target)
+        if (e.button !== 0 && e.pointerType === 'mouse') return
+        const item = this.findGroupItemFromEvent(e)
         if (!item || this.isItemDisabled(item)) return
-        // Reflect transient press as an attribute so CSS can match
-        // without `:has( ::slotted() )`, which Chromium drops. The actual
-        // flex-grow morph is applied by inline style here because
-        // CSS attribute selectors with `:not()` are unreliable across
-        // vendor versions for the priorities this morph needs.
+
         for (const other of this.items) {
             other.toggleAttribute('data-group-item-pressing', other === item)
         }
         this.applyExpandOnActiveMorph(item)
     }
 
-    private handlePressEnd = (_e: Event): void => {
+    private handlePressEnd = (): void => {
         for (const other of this.items) {
             other.removeAttribute('data-group-item-pressing')
         }
@@ -318,43 +355,51 @@ export abstract class BaseButtonGroup extends composeMixin(
     }
 
     /**
-     * Per spec, the standard variant morphs the pressed item AND its
-     * adjacent siblings (width + shape), while the connected variant
-     * morphs only the pressed item. We apply the flex-grow inline so we
-     * can avoid the `:has( ::slotted(...) )` selector (silently dropped
-     * by Chromium) and reliability across attribute-selector specificity.
+     * Per Material 3 Expressive Button Group spec (`ButtonGroupDefaults.ExpandedRatio = 0.15`),
+     * pressing an item expands its primary-axis size by 15% and, in the `standard` variant,
+     * compresses adjacent neighbors proportionally so total group size remains stable.
      */
     private applyExpandOnActiveMorph(pressedItem: HTMLElement | null): void {
-        if (!this.expandOnActive) {
-            // Clear inline morph styles when the flag is off
+        const prop = this.orientation === 'horizontal' ? 'width' : 'height'
+
+        if (!this.expandOnActive || !pressedItem) {
             for (const item of this.items) {
-                item.style.removeProperty('flex-grow')
+                item.style.removeProperty('width')
+                item.style.removeProperty('height')
             }
             return
         }
 
-        const variant = this.variant
-        const pressedIndex = pressedItem ? this.items.indexOf(pressedItem) : -1
+        const pressedIndex = this.items.indexOf(pressedItem)
+        if (pressedIndex < 0) return
+
+        // Measure natural dimensions before applying inline overrides
+        const sizes = this.items.map((item) => {
+            const rect = item.getBoundingClientRect()
+            return this.orientation === 'horizontal' ? rect.width : rect.height
+        })
+
+        const pressedSize = sizes[pressedIndex]
+        if (pressedSize <= 0) return
+
+        const delta = Math.round(pressedSize * ExpandedRatio * 10) / 10
+
+        const neighbors: number[] = []
+        if (this.variant === 'standard') {
+            if (pressedIndex - 1 >= 0) neighbors.push(pressedIndex - 1)
+            if (pressedIndex + 1 < this.items.length) neighbors.push(pressedIndex + 1)
+        }
+
+        const neighborShrink = neighbors.length > 0 ? delta / neighbors.length : 0
 
         for (let i = 0; i < this.items.length; i++) {
             const item = this.items[i]
-            if (pressedIndex < 0) {
-                item.style.removeProperty('flex-grow')
-                continue
-            }
-            if (variant === 'standard') {
-                if (i === pressedIndex) {
-                    item.style.setProperty('flex-grow', '1.2')
-                } else {
-                    item.style.setProperty('flex-grow', '0.92')
-                }
+            if (i === pressedIndex) {
+                item.style.setProperty(prop, `${pressedSize + delta}px`)
+            } else if (neighbors.includes(i) && sizes[i] > neighborShrink) {
+                item.style.setProperty(prop, `${sizes[i] - neighborShrink}px`)
             } else {
-                // Connected: only the pressed item grows
-                if (i === pressedIndex) {
-                    item.style.setProperty('flex-grow', '1.2')
-                } else {
-                    item.style.removeProperty('flex-grow')
-                }
+                item.style.removeProperty(prop)
             }
         }
     }
@@ -366,54 +411,98 @@ export abstract class BaseButtonGroup extends composeMixin(
             return
         }
 
-        const target = (e.composedPath?.()[0] ?? e.target) as HTMLElement
-        const item = this.findGroupItem(target)
+        const item = this.findGroupItemFromEvent(e)
         if (!item || this.isItemDisabled(item)) return
 
         const index = this.items.indexOf(item)
 
+        // If `change` already handled this item in the same event tick, avoid double-toggling/emitting.
+        if (this.changedItemInTick === item) {
+            this.changedItemInTick = null
+            this.updateRovingTabindex(item)
+            return
+        }
+
+        const selfToggling = this.isSelfTogglingItem(item)
+
         if (this.selectionMode === 'single') {
-            // Radio button semantics: select clicked, deselect siblings
-            for (let i = 0; i < this.items.length; i++) {
-                this.setItemSelected(this.items[i], i === index)
+            if (selfToggling) {
+                const nowSelected = this.isItemSelected(item)
+                if (nowSelected) {
+                    for (let i = 0; i < this.items.length; i++) {
+                        if (i !== index) {
+                            this.setItemSelected(this.items[i], false)
+                        }
+                    }
+                } else if (this.selectionRequired) {
+                    this.setItemSelected(item, true)
+                    this.syncActiveAttributes()
+                    this.updateRovingTabindex(item)
+                    return
+                }
+            } else {
+                const currentlySelected = this.isItemSelected(item)
+                if (currentlySelected && this.selectionRequired) {
+                    this.updateRovingTabindex(item)
+                    return
+                }
+                for (let i = 0; i < this.items.length; i++) {
+                    this.setItemSelected(this.items[i], i === index ? !currentlySelected : false)
+                }
             }
+            this.syncActiveAttributes()
             this.emitSelectionChange(item, index)
         } else if (this.selectionMode === 'multiple') {
-            // Checkbox semantics: toggle clicked item
-            const current = this.isItemSelected(item)
-            this.setItemSelected(item, !current)
+            if (!selfToggling) {
+                const current = this.isItemSelected(item)
+                this.setItemSelected(item, !current)
+            }
+            this.syncActiveAttributes()
             this.emitSelectionChange(item, index)
         } else {
-            // Action group interaction
-            this.dispatchEvent(new CustomEvent(ButtonGroupInteractionEvent, {
+            this.dispatchEvent(new CustomEvent<IButtonGroupInteractionEventDetail>(ButtonGroupInteractionEvent, {
                 detail: { item, index },
                 bubbles: true,
                 composed: true,
             }))
         }
 
-        this.updateRovingTabindex()
+        this.updateRovingTabindex(item)
     }
 
     private handleChildChange(e: Event): void {
-        const target = e.target as HTMLElement
-        const item = this.findGroupItem(target)
+        if (this.selectionMode === 'none') return
+        const item = this.findGroupItemFromEvent(e)
         if (!item) return
+
+        this.changedItemInTick = item
+        queueMicrotask(() => {
+            if (this.changedItemInTick === item) {
+                this.changedItemInTick = null
+            }
+        })
+
         const index = this.items.indexOf(item)
+        const nowSelected = this.isItemSelected(item)
+
         if (this.selectionMode === 'single') {
-            if (this.isItemSelected(item)) {
+            if (nowSelected) {
                 for (let i = 0; i < this.items.length; i++) {
                     if (i !== index) {
                         this.setItemSelected(this.items[i], false)
                     }
                 }
+            } else if (this.selectionRequired) {
+                this.setItemSelected(item, true)
+                this.syncActiveAttributes()
+                this.updateRovingTabindex(item)
+                return
             }
         }
-        this.emitSelectionChange(item, index)
-    }
 
-    private handleChildInput(e: Event): void {
-        // Forwarded / handled via change event
+        this.syncActiveAttributes()
+        this.updateRovingTabindex(item)
+        this.emitSelectionChange(item, index)
     }
 
     private handleKeyDown(e: KeyboardEvent): void {
@@ -428,8 +517,7 @@ export abstract class BaseButtonGroup extends composeMixin(
         const enabledItems = this.items.filter((item) => !this.isItemDisabled(item))
         if (enabledItems.length === 0) return
 
-        const target = (e.composedPath?.()[0] ?? e.target) as HTMLElement
-        const currentItem = this.findGroupItem(target)
+        const currentItem = this.findGroupItemFromEvent(e)
         const currentIndex = currentItem ? enabledItems.indexOf(currentItem) : 0
 
         e.preventDefault()
@@ -452,11 +540,33 @@ export abstract class BaseButtonGroup extends composeMixin(
         }
 
         if (nextItem) {
-            nextItem.focus()
-            for (const item of this.items) {
-                item.tabIndex = item === nextItem ? 0 : -1
+            this.updateRovingTabindex(nextItem)
+            this.focusGroupItem(nextItem)
+        }
+    }
+
+    private findGroupItemFromEvent(e: Event): HTMLElement | null {
+        const path = e.composedPath?.() ?? []
+        for (const node of path) {
+            if (this.items.includes(node as HTMLElement)) {
+                return node as HTMLElement
             }
         }
+        const target = e.target as HTMLElement | null
+        return target ? this.findGroupItem(target) : null
+    }
+
+    private isSelfTogglingItem(item: HTMLElement): boolean {
+        const tag = item.tagName?.toLowerCase()
+        if (tag === 'mdc-toggle-button') return true
+        if (tag === 'mdc-icon-button' && (item.hasAttribute('togglable') || (item as HTMLElement & { togglable?: boolean }).togglable)) {
+            return true
+        }
+        if (tag === 'input') {
+            const type = (item as HTMLInputElement).type
+            return type === 'checkbox' || type === 'radio'
+        }
+        return false
     }
 
     private findGroupItem(target: HTMLElement): HTMLElement | null {
@@ -472,12 +582,9 @@ export abstract class BaseButtonGroup extends composeMixin(
 
     private isItemSelected(item: HTMLElement): boolean {
         const toggleEl = item as HTMLElement & { checked?: boolean; selected?: boolean }
-        return Boolean(
-            toggleEl.checked ??
-            toggleEl.selected ??
-            item.hasAttribute('checked') ??
-            item.hasAttribute('selected')
-        )
+        if (typeof toggleEl.checked === 'boolean') return toggleEl.checked
+        if (typeof toggleEl.selected === 'boolean') return toggleEl.selected
+        return item.hasAttribute('checked') || item.hasAttribute('selected')
     }
 
     private setItemSelected(item: HTMLElement, selected: boolean): void {

@@ -4,9 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 import { Shape } from '@sandlada/mdk'
-import { createStyleDefinition } from '../../utils/style'
-import { expandShape } from '../../utils/style'
-
+import { createStyleDefinition, expandShape } from '../../utils/style'
 
 /**
  * Style definition for `mdc-button-group` — standard variant.
@@ -26,13 +24,13 @@ import { expandShape } from '../../utils/style'
  * https://m3.material.io/components/button-groups/specs
  */
 export const StandardButtonGroupDefinition = createStyleDefinition({
-    'enabled-space-between': `8px`,
+    'enabled-space-between': '8px',
 
-    'enabled-extra-small-space-between': `18px`,
-    'enabled-small-space-between'      : `12px`,
-    'enabled-medium-space-between'     : `8px`,
-    'enabled-large-space-between'      : `8px`,
-    'enabled-extra-large-space-between': `8px`,
+    'enabled-extra-small-space-between': '18px',
+    'enabled-small-space-between'      : '12px',
+    'enabled-medium-space-between'     : '8px',
+    'enabled-large-space-between'      : '8px',
+    'enabled-extra-large-space-between': '8px',
 })
 
 /**
@@ -48,6 +46,7 @@ export const StandardButtonGroupDefinition = createStyleDefinition({
  * - XL: 20dp (20px)
  *
  * Extra small and small buttons have a minimum width of 48dp (48px).
+ * Selected items in a connected group morph to a full pill (`Shape.Full`).
  *
  * @version
  * Material Design 3 Expressive
@@ -56,24 +55,24 @@ export const StandardButtonGroupDefinition = createStyleDefinition({
  * https://m3.material.io/components/button-groups/specs
  */
 export const ConnectedButtonGroupDefinition = createStyleDefinition({
-    'enabled-space-between': `2px`,
+    'enabled-space-between': '2px',
 
-    'enabled-extra-small-space-between': `2px`,
-    'enabled-small-space-between'      : `2px`,
-    'enabled-medium-space-between'     : `2px`,
-    'enabled-large-space-between'      : `2px`,
-    'enabled-extra-large-space-between': `2px`,
+    'enabled-extra-small-space-between': '2px',
+    'enabled-small-space-between'      : '2px',
+    'enabled-medium-space-between'     : '2px',
+    'enabled-large-space-between'      : '2px',
+    'enabled-extra-large-space-between': '2px',
 
     // Minimum widths for accessible touch target
-    'enabled-extra-small-min-width': `48px`,
-    'enabled-small-min-width'      : `48px`,
+    'enabled-extra-small-min-width': '48px',
+    'enabled-small-min-width'      : '48px',
 
     // Inner corner shapes — squared with size-scaled rounding (the "inner" of the connected group)
-    ...expandShape('enabled-extra-small-inner-shape')(`4px`),
-    ...expandShape('enabled-small-inner-shape')(`8px`),
-    ...expandShape('enabled-medium-inner-shape')(`8px`),
-    ...expandShape('enabled-large-inner-shape')(`16px`),
-    ...expandShape('enabled-extra-large-inner-shape')(`20px`),
+    ...expandShape('enabled-extra-small-inner-shape')('4px'),
+    ...expandShape('enabled-small-inner-shape')('8px'),
+    ...expandShape('enabled-medium-inner-shape')('8px'),
+    ...expandShape('enabled-large-inner-shape')('16px'),
+    ...expandShape('enabled-extra-large-inner-shape')('20px'),
 
     // Outer corner shape — round: fully pill on all sizes
     'enabled-extra-small-outer-shape-round': Shape.Full,
@@ -83,9 +82,19 @@ export const ConnectedButtonGroupDefinition = createStyleDefinition({
     'enabled-extra-large-outer-shape-round': Shape.Full,
 
     // Outer corner shape — square: size-scaled corner radius
-    'enabled-extra-small-outer-shape-square': `4px`,
-    'enabled-small-outer-shape-square'      : `8px`,
-    'enabled-medium-outer-shape-square'     : `8px`,
-    'enabled-large-outer-shape-square'      : `16px`,
-    'enabled-extra-large-outer-shape-square': `20px`,
+    'enabled-extra-small-outer-shape-square': '4px',
+    'enabled-small-outer-shape-square'      : '8px',
+    'enabled-medium-outer-shape-square'     : '8px',
+    'enabled-large-outer-shape-square'      : '16px',
+    'enabled-extra-large-outer-shape-square': '20px',
+
+    // Selected corner shape in connected group: pill (Shape.Full)
+    'enabled-selected-shape': Shape.Full,
+
+    // Pressed morph corner shape in connected group
+    'enabled-extra-small-pressed-shape': '4px',
+    'enabled-small-pressed-shape'      : '8px',
+    'enabled-medium-pressed-shape'     : '8px',
+    'enabled-large-pressed-shape'      : '16px',
+    'enabled-extra-large-pressed-shape': '20px',
 })

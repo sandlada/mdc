@@ -6,34 +6,39 @@
 import type { LitElement } from 'lit'
 
 /**
- * Visual variant of the button group.
+ * Visual variants of the button group.
  * - `connected`: Buttons are visually docked side-by-side with 2px spacing and cohesive corner radii.
- * - `standard`: Buttons are separated with standard spacing (8px) and independent shapes.
+ * - `standard`: Buttons are separated with size-scaled spacing and independent shapes.
  */
-export type ButtonGroupVariant = 'connected' | 'standard'
+export const ButtonGroupVariants = ['connected', 'standard'] as const
+export type ButtonGroupVariant = (typeof ButtonGroupVariants)[number]
 
 /**
- * Selection model enforced by the button group:
+ * Selection models enforced by the button group:
  * - `none`: Action group without selection management.
  * - `single`: Radio semantics (at most one item selected).
  * - `multiple`: Checkbox semantics (multiple items can be selected).
  */
-export type ButtonGroupSelectionMode = 'none' | 'single' | 'multiple'
+export const ButtonGroupSelectionModes = ['none', 'single', 'multiple'] as const
+export type ButtonGroupSelectionMode = (typeof ButtonGroupSelectionModes)[number]
 
 /**
  * Size scale matching Material 3 Expressive buttons.
  */
-export type ButtonGroupSize = 'extra-small' | 'small' | 'medium' | 'large' | 'extra-large'
+export const ButtonGroupSizes = ['extra-small', 'small', 'medium', 'large', 'extra-large'] as const
+export type ButtonGroupSize = (typeof ButtonGroupSizes)[number]
 
 /**
- * Corner shape variant for button group.
+ * Corner shape variants for button group.
  */
-export type ButtonGroupShape = 'round' | 'square'
+export const ButtonGroupShapes = ['round', 'square'] as const
+export type ButtonGroupShape = (typeof ButtonGroupShapes)[number]
 
 /**
- * Layout orientation for the button group.
+ * Layout orientations for the button group.
  */
-export type ButtonGroupOrientation = 'horizontal' | 'vertical'
+export const ButtonGroupOrientations = ['horizontal', 'vertical'] as const
+export type ButtonGroupOrientation = (typeof ButtonGroupOrientations)[number]
 
 /**
  * Event fired when a selection change occurs within the button group.
@@ -64,14 +69,27 @@ export interface IButtonGroupSelectionEventDetail {
 }
 
 /**
- * Public interface contract for `mdc-button-group`.
+ * Detail payload for the `button-group-interaction` event.
  */
-export interface IButtonGroup extends LitElement {
+export interface IButtonGroupInteractionEventDetail {
+    /** The interacted element. */
+    item: HTMLElement
+    /** Zero-based index of the item within the button group. */
+    index: number
+}
+
+/**
+ * Pure input attributes contract for `mdc-button-group`.
+ */
+export interface IMDCButtonGroupAttributes {
     /** Visual variant: 'connected' | 'standard'. */
     variant: ButtonGroupVariant
 
     /** Selection mode: 'none' | 'single' | 'multiple'. */
     selectionMode: ButtonGroupSelectionMode
+
+    /** When true in single-selection mode, prevents deselecting the last selected item. */
+    selectionRequired: boolean
 
     /** Size applied to the button group. */
     size: ButtonGroupSize
@@ -85,12 +103,25 @@ export interface IButtonGroup extends LitElement {
     /** When true, disables expressive shape morphing on active/selected items. */
     disableMorph: boolean
 
-    /** When true, active/pressed items dynamically expand in width. */
+    /** When true, active/pressed items dynamically expand in width (with neighbor compression in standard variant). */
     expandOnActive: boolean
 
     /** When true, disables all buttons in the group. */
     disabled: boolean
+}
 
+/**
+ * Events map for `mdc-button-group`.
+ */
+export interface IMDCButtonGroupEvents {
+    [ButtonGroupSelectionEvent]: CustomEvent<IButtonGroupSelectionEventDetail>
+    [ButtonGroupInteractionEvent]: CustomEvent<IButtonGroupInteractionEventDetail>
+}
+
+/**
+ * Public interface contract for `mdc-button-group`.
+ */
+export interface IMDCButtonGroup extends LitElement, IMDCButtonGroupAttributes {
     /** Returns all interactive child buttons in the group. */
     getItems(): HTMLElement[]
 
@@ -109,3 +140,5 @@ export interface IButtonGroup extends LitElement {
     /** Sets the disabled state of a child at a given index. */
     setIndexDisabled(index: number, disabled: boolean): void
 }
+
+export type IButtonGroup = IMDCButtonGroup
