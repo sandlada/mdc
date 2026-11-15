@@ -19,7 +19,7 @@ import { createStyleDefinition, expandPadding, expandShape, expandTypescale } fr
  */
 const MenuGroupSharedTokens = {
     ...expandShape('enabled-container-shape')('4px'),
-    ...expandShape('enabled-container-shape-outer')('16px'),
+    ...expandShape('enabled-outer-container-shape')('16px'),
     ...expandPadding('enabled-container-padding')({ block: '2px', inline: '0px' }),
 
     'enabled-container-elevation': ElevationLevel.Level3,

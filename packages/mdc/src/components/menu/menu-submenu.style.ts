@@ -7,6 +7,8 @@ import { Easing } from '@sandlada/mdk'
 import { css, unsafeCSS } from 'lit'
 import { overrideTokens, stringifyTokens } from '../../utils/style'
 import type { ElevationDefinition } from '../elevation/elevation.definition'
+import type { IconDefinition } from '../icon/icon.definition'
+import type { RippleDefinition } from '../ripple/ripple.definition'
 import { StandardMenuSubmenuDefinition, VibrantMenuSubmenuDefinition } from './menu-submenu.definition'
 
 const EmphasizedEasing = unsafeCSS(Easing.Emphasized.ToCSSValue())
@@ -20,9 +22,29 @@ const ElevationBridge = overrideTokens<typeof ElevationDefinition>('--mdc-elevat
     'level': `var(--_enabled-container-elevation)`,
 })()
 
+const RippleBridge = overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
+    'hovered-color': `var(--_hovered-state-layer-color)`,
+    'focused-color': `var(--_focused-state-layer-color)`,
+    'pressed-color': `var(--_pressed-state-layer-color)`,
+    'hovered-opacity': `var(--_hovered-state-layer-opacity)`,
+    'focused-opacity': `var(--_focused-state-layer-opacity)`,
+    'pressed-opacity': `var(--_pressed-state-layer-opacity)`,
+})()
+
+const OpenRippleBridge = overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
+    'hovered-color': `var(--_open-state-layer-color)`,
+    'focused-color': `var(--_open-state-layer-color)`,
+    'pressed-color': `var(--_open-state-layer-color)`,
+})()
+
+const LeadingIconBridge = overrideTokens<typeof IconDefinition>('--mdc-icon')({
+    'size': `var(--_enabled-leading-icon-size)`,
+})()
+
 const VariablePart = css`
     @layer mdc.menu-submenu.variable {
-        :host([variant='standard']) {
+        :host([variant='standard']),
+        :host(:not([variant])) {
             ${StandardTokens};
         }
         :host([variant='vibrant']) {
@@ -36,6 +58,9 @@ const ComponentPart = css`
         :host {
             position: relative;
             display: block;
+            box-sizing: border-box;
+            padding-block: var(--_enabled-trigger-inset-block);
+            padding-inline: var(--_enabled-trigger-inset-inline);
             outline: none;
             -webkit-tap-highlight-color: transparent;
         }
@@ -47,15 +72,76 @@ const ComponentPart = css`
             display: flex;
             align-items: center;
             width: 100%;
-            min-height: 48px;
-            padding-inline: 16px;
+            min-height: var(--_enabled-trigger-height);
+            padding-inline: 12px;
+            gap: var(--_enabled-icon-label-space);
+            border-start-start-radius: var(--_enabled-trigger-shape-start-start);
+            border-start-end-radius: var(--_enabled-trigger-shape-start-end);
+            border-end-end-radius: var(--_enabled-trigger-shape-end-end);
+            border-end-start-radius: var(--_enabled-trigger-shape-end-start);
+            background-color: var(--_enabled-trigger-container-color);
             cursor: pointer;
             outline: none;
             color: var(--_enabled-trigger-label-color);
             -webkit-tap-highlight-color: transparent;
+            transition: border-radius 200ms cubic-bezier(0.2, 0, 0, 1);
+        }
+
+        .trigger:not(.disabled):hover {
+            border-start-start-radius: var(--_hovered-trigger-shape-start-start);
+            border-start-end-radius: var(--_hovered-trigger-shape-start-end);
+            border-end-end-radius: var(--_hovered-trigger-shape-end-end);
+            border-end-start-radius: var(--_hovered-trigger-shape-end-start);
+        }
+
+        .trigger:not(.disabled):active {
+            border-start-start-radius: var(--_pressed-trigger-shape-start-start);
+            border-start-end-radius: var(--_pressed-trigger-shape-start-end);
+            border-end-end-radius: var(--_pressed-trigger-shape-end-end);
+            border-end-start-radius: var(--_pressed-trigger-shape-end-start);
+        }
+
+        .trigger.open,
+        .trigger.open:hover,
+        .trigger.open:active {
+            border-start-start-radius: var(--_enabled-open-trigger-shape-start-start);
+            border-start-end-radius: var(--_enabled-open-trigger-shape-start-end);
+            border-end-end-radius: var(--_enabled-open-trigger-shape-end-end);
+            border-end-start-radius: var(--_enabled-open-trigger-shape-end-start);
+            background-color: var(--_open-trigger-container-color);
+            color: var(--_open-trigger-label-color);
+        }
+
+        .trigger.open .trigger-label,
+        .trigger.open .trigger-chevron {
+            color: var(--_open-trigger-label-color);
+        }
+
+        .trigger.open ::slotted([slot='leading']) {
+            color: var(--_open-leading-icon-color);
+        }
+
+        .trigger.open mdc-ripple {
+            ${OpenRippleBridge};
+        }
+
+        ::slotted([slot='leading']) {
+            position: relative;
+            z-index: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            inline-size: var(--_enabled-leading-icon-size);
+            block-size: var(--_enabled-leading-icon-size);
+            font-size: var(--_enabled-leading-icon-size);
+            color: var(--_enabled-leading-icon-color);
+            ${LeadingIconBridge};
         }
 
         .trigger-label {
+            position: relative;
+            z-index: 1;
             display: block;
             flex: 1 1 auto;
             min-width: 0;
@@ -71,6 +157,8 @@ const ComponentPart = css`
         }
 
         .trigger-chevron {
+            position: relative;
+            z-index: 1;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -80,24 +168,12 @@ const ComponentPart = css`
             color: var(--_enabled-trigger-label-color);
         }
 
-        /* Cascading-menu indicator: a chevron pointing to the nested surface;
-           hidden when a trailing icon is supplied. */
+        /* Cascading-menu indicator: a filled right-pointing triangle per MD3E. */
         .trigger-indicator {
-            position: relative;
-            inline-size: 100%;
-            block-size: 100%;
-        }
-
-        .trigger-indicator::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            inset-inline-start: 40%;
-            inline-size: 7px;
-            block-size: 7px;
-            border-block-start: 2px solid currentColor;
-            border-inline-end: 2px solid currentColor;
-            transform: translate(-40%, -50%) rotate(45deg);
+            display: block;
+            inline-size: 20px;
+            block-size: 20px;
+            fill: currentColor;
         }
 
         :dir(rtl) .trigger-chevron {
@@ -116,7 +192,8 @@ const ComponentPart = css`
 
         .surface {
             position: absolute;
-            inset-inline-start: 100%;
+            z-index: 1001;
+            left: 0;
             top: 0;
             display: flex;
             flex-direction: column;
@@ -124,7 +201,6 @@ const ComponentPart = css`
             min-width: var(--_enabled-container-min-width);
             max-width: var(--_enabled-container-max-width);
             max-height: var(--_enabled-container-max-height);
-            overflow-y: auto;
             padding-block-start: var(--_enabled-container-padding-block-start);
             padding-block-end: var(--_enabled-container-padding-block-end);
             padding-inline-start: var(--_enabled-container-padding-inline-start);
@@ -144,6 +220,15 @@ const ComponentPart = css`
             display: flex;
             flex-direction: column;
             min-width: 0;
+            max-height: inherit;
+            overflow-y: auto;
+        }
+
+        slot::slotted(mdc-divider) {
+            display: block;
+            height: var(--_enabled-divider-thickness);
+            margin-block: 4px;
+            background-color: var(--_enabled-divider-color);
         }
 
         slot[name='section-label']::slotted(*) {
@@ -171,6 +256,21 @@ const CompositePart = css`
             border-radius: inherit;
             z-index: 0;
             ${ElevationBridge};
+        }
+    }
+
+    @layer mdc.menu-submenu.composite.ripple {
+        .trigger mdc-ripple {
+            border-radius: inherit;
+            z-index: 0;
+            ${RippleBridge};
+        }
+    }
+
+    @layer mdc.menu-submenu.composite.focus-ring {
+        .trigger mdc-focus-ring {
+            border-radius: inherit;
+            z-index: 1;
         }
     }
 `

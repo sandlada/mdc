@@ -14,25 +14,32 @@ const StandardTokens = Stringify(StandardMenuItemDefinition)
 const VibrantTokens = Stringify(VibrantMenuItemDefinition)
 
 const RippleBridge = overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
-    'enabled-hovered-color': `var(--_hovered-state-layer-color)`,
-    'enabled-focused-color': `var(--_focused-state-layer-color)`,
-    'enabled-pressed-color': `var(--_pressed-state-layer-color)`,
-    'enabled-hovered-opacity': `var(--_hovered-state-layer-opacity)`,
-    'enabled-focused-opacity': `var(--_focused-state-layer-opacity)`,
-    'enabled-pressed-opacity': `var(--_pressed-state-layer-opacity)`,
+    'hovered-color': `var(--_hovered-state-layer-color)`,
+    'focused-color': `var(--_focused-state-layer-color)`,
+    'pressed-color': `var(--_pressed-state-layer-color)`,
+    'hovered-opacity': `var(--_hovered-state-layer-opacity)`,
+    'focused-opacity': `var(--_focused-state-layer-opacity)`,
+    'pressed-opacity': `var(--_pressed-state-layer-opacity)`,
+})()
+
+const SelectedRippleBridge = overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
+    'hovered-color': `var(--_hovered-state-layer-color-selected)`,
+    'focused-color': `var(--_focused-state-layer-color-selected)`,
+    'pressed-color': `var(--_pressed-state-layer-color-selected)`,
 })()
 
 const LeadingIconBridge = overrideTokens<typeof IconDefinition>('--mdc-icon')({
-    'enabled-size': `var(--_enabled-leading-icon-size)`,
+    'size': `var(--_enabled-leading-icon-size)`,
 })()
 
 const TrailingIconBridge = overrideTokens<typeof IconDefinition>('--mdc-icon')({
-    'enabled-size': `var(--_enabled-trailing-icon-size)`,
+    'size': `var(--_enabled-trailing-icon-size)`,
 })()
 
 const VariablePart = css`
     @layer mdc.menu-item.variable {
-        :host([variant='standard']) {
+        :host([variant='standard']),
+        :host(:not([variant])) {
             ${StandardTokens};
         }
         :host([variant='vibrant']) {
@@ -62,7 +69,7 @@ const ComponentPart = css`
             display: flex;
             align-items: center;
             width: 100%;
-            height: var(--_enabled-container-height);
+            min-height: var(--_enabled-container-height);
             padding-block-start: var(--_enabled-container-padding-block-start);
             padding-block-end: var(--_enabled-container-padding-block-end);
             padding-inline-start: var(--_enabled-container-padding-inline-start);
@@ -77,15 +84,32 @@ const ComponentPart = css`
             cursor: pointer;
             outline: none;
             -webkit-tap-highlight-color: transparent;
+            transition: border-radius 200ms cubic-bezier(0.2, 0, 0, 1);
         }
 
-        .container:hover {
+        .container.text {
+            cursor: default;
+        }
+
+        .container.has-supporting {
+            padding-block: 8px;
+        }
+
+        .container:not(.text):not(.disabled):hover {
+            border-start-start-radius: var(--_hovered-container-shape-start-start);
+            border-start-end-radius: var(--_hovered-container-shape-start-end);
+            border-end-end-radius: var(--_hovered-container-shape-end-end);
+            border-end-start-radius: var(--_hovered-container-shape-end-start);
             background-color: var(--_hovered-container-color);
         }
-        .container:focus-visible {
+        .container:not(.text):not(.disabled):focus-visible {
             background-color: var(--_focused-container-color);
         }
-        .container:active {
+        .container:not(.text):not(.disabled):active {
+            border-start-start-radius: var(--_pressed-container-shape-start-start);
+            border-start-end-radius: var(--_pressed-container-shape-start-end);
+            border-end-end-radius: var(--_pressed-container-shape-end-end);
+            border-end-start-radius: var(--_pressed-container-shape-end-start);
             background-color: var(--_pressed-container-color);
         }
 
@@ -94,6 +118,8 @@ const ComponentPart = css`
             pointer-events: none;
             background-color: var(--_disabled-container-color);
             color: var(--_disabled-label-color);
+        }
+        .container.disabled .item {
             opacity: var(--_disabled-label-opacity);
         }
     }
@@ -119,7 +145,12 @@ const ComponentPart = css`
             ${LeadingIconBridge};
         }
 
-        ::slotted([slot='leading']) {
+        .container:not(.has-leading) .leading {
+            display: none;
+        }
+
+        ::slotted([slot='leading']),
+        .check-icon {
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -127,6 +158,7 @@ const ComponentPart = css`
             inline-size: var(--_enabled-leading-icon-size);
             block-size: var(--_enabled-leading-icon-size);
             font-size: var(--_enabled-leading-icon-size);
+            fill: currentColor;
         }
 
         .content {
@@ -146,6 +178,10 @@ const ComponentPart = css`
             gap: var(--_enabled-icon-label-space);
             color: var(--_enabled-trailing-icon-color);
             ${TrailingIconBridge};
+        }
+
+        .container:not(.has-trailing) .trailing {
+            display: none;
         }
 
         ::slotted([slot='trailing']) {
@@ -199,13 +235,21 @@ const ComponentPart = css`
             color: var(--_enabled-supporting-text-color);
         }
 
-        :is(.shortcut, .badge) {
+        .container:not(.has-supporting) .supporting {
+            display: none;
+        }
+
+        .shortcut {
             font-family: var(--_enabled-label-font);
             font-size: var(--_enabled-label-size);
             font-weight: var(--_enabled-label-weight);
             letter-spacing: var(--_enabled-label-tracking);
             line-height: var(--_enabled-label-leading);
             color: var(--_enabled-shortcut-color);
+        }
+
+        .badge {
+            flex-shrink: 0;
         }
     }
 `
@@ -227,9 +271,21 @@ const CompositePart = css`
     }
 
     @layer mdc.menu-item.composite.selected {
+        .container.selected,
+        .container.selected:hover,
+        .container.selected:focus-visible,
+        .container.selected:active {
+            border-start-start-radius: var(--_enabled-selected-container-shape-start-start);
+            border-start-end-radius: var(--_enabled-selected-container-shape-start-end);
+            border-end-end-radius: var(--_enabled-selected-container-shape-end-end);
+            border-end-start-radius: var(--_enabled-selected-container-shape-end-start);
+        }
         .container.selected {
             background-color: var(--_enabled-container-color-selected);
             color: var(--_enabled-label-color-selected);
+        }
+        .container.selected mdc-ripple {
+            ${SelectedRippleBridge};
         }
         .container.selected:hover {
             background-color: var(--_hovered-container-color-selected);
@@ -240,7 +296,9 @@ const CompositePart = css`
         .container.selected:active {
             background-color: var(--_pressed-container-color-selected);
         }
-        .container.selected .label {
+        .container.selected .label,
+        .container.selected .supporting,
+        .container.selected .shortcut {
             color: var(--_enabled-label-color-selected);
         }
         .container.selected .leading {

@@ -22,7 +22,8 @@ const ElevationBridge = overrideTokens<typeof ElevationDefinition>('--mdc-elevat
 
 const VariablePart = css`
     @layer mdc.menu.variable {
-        :host([variant='standard']) {
+        :host([variant='standard']),
+        :host(:not([variant])) {
             ${StandardTokens};
         }
         :host([variant='vibrant']) {
@@ -34,7 +35,8 @@ const VariablePart = css`
 const ComponentPart = css`
     @layer mdc.menu.component {
         :host {
-            display: block;
+            position: relative;
+            display: inline-block;
             outline: none;
             -webkit-tap-highlight-color: transparent;
         }
@@ -48,14 +50,16 @@ const ComponentPart = css`
         }
 
         .container {
-            position: relative;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1000;
             display: flex;
             flex-direction: column;
             box-sizing: border-box;
             min-width: var(--_enabled-container-min-width);
             max-width: var(--_enabled-container-max-width);
             max-height: var(--_enabled-container-max-height);
-            overflow-y: auto;
             padding-block-start: var(--_enabled-container-padding-block-start);
             padding-block-end: var(--_enabled-container-padding-block-end);
             padding-inline-start: var(--_enabled-container-padding-inline-start);
@@ -74,11 +78,14 @@ const ComponentPart = css`
             display: flex;
             flex-direction: column;
             min-width: 0;
+            max-height: inherit;
+            overflow-y: auto;
         }
 
         slot::slotted(mdc-divider) {
             display: block;
             height: var(--_enabled-divider-thickness);
+            margin-block: 4px;
             background-color: var(--_enabled-divider-color);
         }
 
@@ -106,11 +113,27 @@ const ComponentPart = css`
     }
 
     @layer mdc.menu.grouped {
-        :host([layout='grouped']) .container {
+        :host([layout='grouped']) .container:not(.has-groups) {
             border-start-start-radius: var(--_enabled-grouped-first-container-shape-start-start);
             border-start-end-radius: var(--_enabled-grouped-first-container-shape-start-end);
             border-end-end-radius: var(--_enabled-grouped-last-container-shape-end-end);
             border-end-start-radius: var(--_enabled-grouped-last-container-shape-end-start);
+        }
+
+        .container.has-groups {
+            background-color: transparent;
+            padding: 0;
+            border-radius: 0;
+            overflow: visible;
+        }
+
+        .container.has-groups > mdc-elevation {
+            display: none;
+        }
+
+        .container.has-groups > .content {
+            gap: var(--_enabled-group-gap);
+            overflow-y: visible;
         }
     }
 `

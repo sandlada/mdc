@@ -30,7 +30,9 @@ import { createStyleDefinition, expandPadding, expandShape, expandTypescale } fr
  */
 const MenuItemSharedTokens = {
     ...expandShape('enabled-container-shape')('4px'),
-    ...expandShape('enabled-container-shape-selected')('12px'),
+    ...expandShape('hovered-container-shape')('8px'),
+    ...expandShape('pressed-container-shape')('12px'),
+    ...expandShape('enabled-selected-container-shape')('12px'),
 
     ...expandPadding('enabled-container-padding')({ block: '0px', inlineStart: '12px', inlineEnd: '12px' }),
 

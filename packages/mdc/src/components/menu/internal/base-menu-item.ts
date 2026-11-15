@@ -28,6 +28,7 @@ import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
 import { mixinFocusRingOptions } from '../../focus-ring/focus-ring-options.mixin'
 import { mixinRippleOptions } from '../../ripple/ripple-options.mixin'
+import '../../badge/badge'
 import type {
     IMDCMenuItem,
     IMDCMenuItemActivatedDetail,
@@ -195,8 +196,8 @@ export abstract class BaseMenuItem extends composeMixin(
             'selected': this.selected,
             'checkable': this.checkable,
             'radio': this.radio,
-            'has-leading': this.hasLeading,
-            'has-trailing': this.hasTrailing || this.shortcut !== null || this.badge !== null,
+            'has-leading': this.hasLeading || ((this.checkable || this.radio) && this.selected),
+            'has-trailing': this.hasTrailing || (this.shortcut !== null && this.shortcut !== '') || (this.badge !== null && this.badge !== undefined && this.badge !== ''),
             'has-supporting': this.hasSupporting,
             [`variant-${this.variant}`]: true,
         }
@@ -287,9 +288,13 @@ export abstract class BaseMenuItem extends composeMixin(
 
     /** Leading / content / trailing body of the 48dp expressive row. */
     protected renderBody(): TemplateResult {
+        const showDefaultCheck = (this.checkable || this.radio) && this.selected && !this.hasLeading
         return html`
             <div class="item">
                 <span class="leading">
+                    ${showDefaultCheck
+                        ? html`<svg class="check-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.55 18.2 3.65 12.3l1.425-1.425L9.55 15.35l9.175-9.175L20.15 7.6Z"/></svg>`
+                        : nothing}
                     <slot name="leading" @slotchange=${this.handleLeadingSlotChange}></slot>
                 </span>
                 <span class="content">
@@ -298,8 +303,8 @@ export abstract class BaseMenuItem extends composeMixin(
                 </span>
                 <span class="trailing">
                     <slot name="trailing" @slotchange=${this.handleTrailingSlotChange}></slot>
-                    ${this.shortcut !== null ? html`<span class="shortcut">${this.shortcut}</span>` : nothing}
-                    ${this.badge !== null ? html`<span class="badge">${this.badge}</span>` : nothing}
+                    ${this.shortcut !== null && this.shortcut !== '' ? html`<span class="shortcut">${this.shortcut}</span>` : nothing}
+                    ${this.badge !== null && this.badge !== undefined && this.badge !== '' ? html`<mdc-badge class="badge" size="large" .value=${this.badge}></mdc-badge>` : nothing}
                 </span>
             </div>
         `
@@ -335,6 +340,11 @@ export abstract class BaseMenuItem extends composeMixin(
         }
         if (!this.isInteractive) {
             return
+        }
+        if (this.checkable) {
+            this.selected = !this.selected
+        } else if (this.radio) {
+            this.selected = true
         }
         this.dispatchEvent(new CustomEvent<IMDCMenuItemRequestActivationDetail>(
             'request-activation',

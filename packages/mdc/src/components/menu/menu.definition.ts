@@ -35,6 +35,7 @@ const MenuContainerTokens = {
 
     ...expandPadding('enabled-container-padding')({ block: '2px', inline: '0px' }),
 
+    'enabled-group-gap'            : `4px`,
     'enabled-container-elevation'  : ElevationLevel.Level3,
     'enabled-container-min-width'  : `112px`,
     'enabled-container-max-width'  : `280px`,

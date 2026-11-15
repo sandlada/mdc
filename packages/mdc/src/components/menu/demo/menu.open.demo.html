@@ -16,19 +16,19 @@
 <div class="demo-column">
     <span class="demo-caption">Closed — no `open` attribute, only the trigger anchor is visible:</span>
     <mdc-menu label="Closed menu">
-        <button slot="trigger">Open menu</button>
+        <mdc-button variant="outlined" slot="trigger"><span>Open menu</span></mdc-button>
         <mdc-menu-item type="button">Cut</mdc-menu-item>
         <mdc-menu-item type="button">Copy</mdc-menu-item>
         <mdc-menu-item type="button">Paste</mdc-menu-item>
     </mdc-menu>
 </div>
 
-<div class="demo-column">
-    <span class="demo-caption">open — surface is visible, positioned relative to the trigger anchor:</span>
-    <mdc-menu open label="Open menu">
-        <button slot="trigger">Close menu</button>
-        <mdc-menu-item type="button">Cut</mdc-menu-item>
-        <mdc-menu-item type="button">Copy</mdc-menu-item>
-        <mdc-menu-item type="button">Paste</mdc-menu-item>
-    </mdc-menu>
-</div>
+    <div class="demo-column" style="min-height: 220px;">
+        <span class="demo-caption">open — surface is visible, positioned relative to the trigger anchor:</span>
+        <mdc-menu open label="Open menu">
+            <mdc-button variant="outlined" slot="trigger"><span>Toggle menu</span></mdc-button>
+            <mdc-menu-item type="button">Cut</mdc-menu-item>
+            <mdc-menu-item type="button">Copy</mdc-menu-item>
+            <mdc-menu-item type="button">Paste</mdc-menu-item>
+        </mdc-menu>
+    </div>

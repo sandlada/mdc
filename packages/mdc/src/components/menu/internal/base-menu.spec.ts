@@ -5,6 +5,8 @@
  */
 import { describe, it, expect, vi } from 'vitest'
 import { BaseMenu } from './base-menu'
+import { StandardMenuGroupDefinition } from '../menu-group.definition'
+import { MenuStyles } from '../menu.style'
 import type { IMDCMenuItem } from '../menu.interface'
 
 vi.mock('@floating-ui/dom', () => ({
@@ -767,5 +769,124 @@ describe('BaseMenu Escape double-hiding (F8)', () => {
         expect(events.hiding).toHaveLength(1)
         expect(events.closed).toHaveLength(1)
         expect(menu.open).toBe(false)
+    })
+})
+
+describe('BaseMenu expressive grouped, radio, variant & submenu cascade', () => {
+    it('collects items inside mdc-menu-group and sets has-groups render class', () => {
+        const menu = makeMenu()
+        const item1 = { tagName: 'MDC-MENU-ITEM', isInteractive: true, isDisabled: false, listTabIndex: -1, variant: 'standard' }
+        const item2 = { tagName: 'MDC-MENU-ITEM', isInteractive: true, isDisabled: false, listTabIndex: -1, variant: 'standard' }
+        const group = { tagName: 'MDC-MENU-GROUP', variant: 'standard', children: [item1, item2] }
+        Object.defineProperty(menu, 'defaultSlotElements', { get: () => [group], configurable: true })
+        menu.variant = 'vibrant'
+        ;(menu as unknown as { handleSlotChange(): void })['handleSlotChange']()
+        expect(menu.items).toHaveLength(2)
+        expect(menu.items[0]).toBe(item1)
+        expect(menu.items[1]).toBe(item2)
+        expect(group.variant).toBe('vibrant')
+        expect((menu as unknown as { getRenderClasses(): Record<string, boolean> }).getRenderClasses()['has-groups']).toBe(true)
+    })
+
+    it('deselects sibling radio items when a radio item is activated', async () => {
+        const menu = makeMenu()
+        const r1 = { ...makeItem({ radio: true }), selected: true }
+        const r2 = { ...makeItem({ radio: true }), selected: true }
+        const c1 = { ...makeItem({ checkable: true }), selected: true }
+        setItems(menu, [r1, r2, c1])
+        await menu.show()
+        fireItemActivated(menu, r2)
+        expect(r2.selected).toBe(true)
+        expect(r1.selected).toBe(false)
+        expect(c1.selected).toBe(true)
+        expect(menu.open).toBe(true)
+    })
+
+    it('closes open mdc-menu-submenu descendants on hide', async () => {
+        const menu = makeMenu()
+        menu.quick = true
+        const submenuHide = vi.fn(async () => undefined)
+        const submenu = {
+            tagName: 'MDC-MENU-SUBMENU',
+            open: true,
+            hide: submenuHide,
+            focus: vi.fn(),
+            matches: () => false,
+        }
+        setItems(menu, [submenu as unknown as MockMenuItem])
+        await menu.show()
+        await menu.hide()
+        expect(submenuHide).toHaveBeenCalledTimes(1)
+    })
+
+    it('deselects sibling radios within the same scope even without reflected [radio] attribute', () => {
+        const menu = makeMenu()
+        const group = {
+            querySelectorAll: (selector: string) => {
+                expect(selector).toBe('mdc-menu-item')
+                return [itemA, itemB, nonRadio]
+            },
+        }
+        const makeScopedRadio = (selected: boolean) => {
+            const item = {
+                radio: true,
+                checkable: false,
+                selected,
+                closest: () => group,
+            }
+            return item
+        }
+        const itemA = makeScopedRadio(true)
+        const itemB = makeScopedRadio(false)
+        const nonRadio = { radio: false, selected: true, closest: () => group }
+
+        itemB.selected = true
+        fireItemActivated(menu, itemB as unknown as MockMenuItem)
+
+        expect(itemA.selected).toBe(false)
+        expect(itemB.selected).toBe(true)
+        expect(nonRadio.selected).toBe(true)
+    })
+
+    it('preserves initial colorStyle="vibrant" when variant is still at default', () => {
+        const menu = makeMenu()
+        menu.colorStyle = 'vibrant'
+        ;(menu as unknown as { willUpdate(m: Map<unknown, unknown>): void }).willUpdate(
+            new Map<unknown, unknown>([['variant', undefined], ['colorStyle', undefined]]),
+        )
+        expect(menu.variant).toBe('vibrant')
+        expect(menu.colorStyle).toBe('vibrant')
+    })
+
+    it('moves focus from trigger into items on ArrowDown when open', async () => {
+        const menu = makeMenu()
+        menu.quick = true
+        const items = [makeItem(), makeItem()]
+        setItems(menu, items)
+        const anchor = { focus: vi.fn(), contains: () => false }
+        patchAnchor(menu, anchor)
+        await menu.show()
+        const keydown = (menu as unknown as { handleKeydown(e: KeyboardEvent): void }).handleKeydown
+        keydown({
+            key: 'ArrowDown',
+            target: anchor,
+            ctrlKey: false,
+            metaKey: false,
+            altKey: false,
+            preventDefault: vi.fn(),
+        } as unknown as KeyboardEvent)
+        expect(items[0].focus).toHaveBeenCalledTimes(1)
+    })
+
+    it('defines outer container shape tokens on StandardMenuGroupDefinition', () => {
+        expect(StandardMenuGroupDefinition['enabled-outer-container-shape-start-start']).toBe('16px')
+        expect(StandardMenuGroupDefinition['enabled-outer-container-shape-start-end']).toBe('16px')
+        expect(StandardMenuGroupDefinition['enabled-outer-container-shape-end-end']).toBe('16px')
+        expect(StandardMenuGroupDefinition['enabled-outer-container-shape-end-start']).toBe('16px')
+    })
+
+    it('positions the floating menu container absolutely over content', () => {
+        const cssText = MenuStyles.map((s) => s.cssText).join('\n')
+        expect(cssText).toMatch(/\.container\s*\{[^}]*position:\s*absolute/)
     })
 })

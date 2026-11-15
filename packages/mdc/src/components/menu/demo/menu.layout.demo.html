@@ -15,8 +15,8 @@
 
 <div class="demo-column">
     <span class="demo-caption">layout="standard" — single flat item list (default):</span>
-    <mdc-menu layout="standard" open label="Standard layout">
-        <button slot="trigger">Open menu</button>
+    <mdc-menu layout="standard" label="Standard layout">
+        <mdc-button variant="outlined" slot="trigger"><span>Open menu</span></mdc-button>
         <mdc-menu-item type="button">Cut</mdc-menu-item>
         <mdc-menu-item type="button">Copy</mdc-menu-item>
         <mdc-menu-item type="button">Paste</mdc-menu-item>
@@ -24,15 +24,28 @@
 </div>
 
 <div class="demo-column">
-    <span class="demo-caption">layout="grouped" — single surface with section-label + divider slots (no gap surfaces on web):</span>
-    <mdc-menu layout="grouped" open label="Grouped layout">
-        <button slot="trigger">Open grouped</button>
-        <span slot="section-label">Recent</span>
-        <mdc-menu-item type="button">Report.docx</mdc-menu-item>
-        <mdc-menu-item type="button">Notes.txt</mdc-menu-item>
-        <mdc-divider></mdc-divider>
-        <span slot="section-label">Shared</span>
-        <mdc-menu-item type="button">Budget.xlsx</mdc-menu-item>
-        <mdc-menu-item type="button">Deck.pptx</mdc-menu-item>
+    <span class="demo-caption">layout="grouped" — grouped surfaces using `mdc-menu-group` with 4dp gap separation and outer/inner corner radii:</span>
+    <mdc-menu layout="grouped" label="Grouped layout">
+        <mdc-button variant="outlined" slot="trigger"><span>Open grouped</span></mdc-button>
+        <mdc-menu-group label="Recent">
+            <mdc-menu-item type="button">
+                <mdc-icon slot="leading">description</mdc-icon>
+                <span>Report.docx</span>
+            </mdc-menu-item>
+            <mdc-menu-item type="button">
+                <mdc-icon slot="leading">notes</mdc-icon>
+                <span>Notes.txt</span>
+            </mdc-menu-item>
+        </mdc-menu-group>
+        <mdc-menu-group label="Shared">
+            <mdc-menu-item type="button">
+                <mdc-icon slot="leading">table_chart</mdc-icon>
+                <span>Budget.xlsx</span>
+            </mdc-menu-item>
+            <mdc-menu-item type="button">
+                <mdc-icon slot="leading">slideshow</mdc-icon>
+                <span>Deck.pptx</span>
+            </mdc-menu-item>
+        </mdc-menu-group>
     </mdc-menu>
 </div>

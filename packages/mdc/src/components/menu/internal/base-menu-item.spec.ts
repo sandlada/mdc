@@ -5,6 +5,7 @@
  */
 import { describe, it, expect } from 'vitest'
 import { BaseMenuItem } from './base-menu-item'
+import { MenuItemStyles } from '../menu-item.style'
 
 class TestMenuItem extends BaseMenuItem {}
 
@@ -306,6 +307,15 @@ describe('BaseMenuItem value / badge', () => {
         expect(item.badge).toBe(3)
     })
 
+    it('treats empty badge string as absent for has-trailing and zero as present', () => {
+        const item = makeItem()
+        const getRender = () => (item as unknown as { getRenderClasses(): Record<string, boolean> }).getRenderClasses()
+        item.badge = ''
+        expect(getRender()['has-trailing']).toBe(false)
+        item.badge = 0
+        expect(getRender()['has-trailing']).toBe(true)
+    })
+
     it('reflects state in host and render classes', () => {
         const item = makeItem()
         item.selected = true
@@ -314,5 +324,68 @@ describe('BaseMenuItem value / badge', () => {
         expect(host['selected']).toBe(true)
         expect(render['selected']).toBe(true)
         expect(render['container']).toBe(true)
+    })
+})
+
+describe('BaseMenuItem expressive checkable / radio selection', () => {
+    it('toggles selected on activation when checkable', () => {
+        const item = makeItem()
+        item.checkable = true
+        expect(item.selected).toBe(false)
+        activate(item)
+        expect(item.selected).toBe(true)
+        activate(item)
+        expect(item.selected).toBe(false)
+    })
+
+    it('sets selected to true on activation when radio and keeps it true on repeat', () => {
+        const item = makeItem()
+        item.radio = true
+        expect(item.selected).toBe(false)
+        activate(item)
+        expect(item.selected).toBe(true)
+        activate(item)
+        expect(item.selected).toBe(true)
+    })
+
+    it('does not toggle selected when disabled', () => {
+        const item = makeItem()
+        item.checkable = true
+        item.disabled = true
+        activate(item)
+        expect(item.selected).toBe(false)
+    })
+
+    it('sets has-leading when checkable or radio is selected without a leading slot', () => {
+        const item = makeItem()
+        item.checkable = true
+        expect((item as unknown as { getRenderClasses(): Record<string, boolean> }).getRenderClasses()['has-leading']).toBe(false)
+        item.selected = true
+        expect((item as unknown as { getRenderClasses(): Record<string, boolean> }).getRenderClasses()['has-leading']).toBe(true)
+    })
+
+    it('does not set has-trailing when badge is undefined', () => {
+        const item = makeItem()
+        item.badge = undefined as unknown as null
+        expect((item as unknown as { getRenderClasses(): Record<string, boolean> }).getRenderClasses()['has-trailing']).toBe(false)
+    })
+})
+
+describe('MenuItemStyles token bridges and state selectors', () => {
+    const cssText = MenuItemStyles.map((s) => s.cssText).join('\n')
+
+    it('bridges ripple tokens without an enabled- prefix and icon size via --mdc-icon-size', () => {
+        expect(cssText).toContain('--mdc-ripple-hovered-color')
+        expect(cssText).toContain('--mdc-ripple-focused-color')
+        expect(cssText).toContain('--mdc-ripple-pressed-color')
+        expect(cssText).toContain('--mdc-ripple-hovered-opacity')
+        expect(cssText).not.toContain('--mdc-ripple-enabled-')
+        expect(cssText).toContain('--mdc-icon-size')
+        expect(cssText).not.toContain('--mdc-icon-enabled-size')
+    })
+
+    it('excludes text and disabled items from hover/active shape morphing', () => {
+        expect(cssText).toContain('.container:not(.text):not(.disabled):hover')
+        expect(cssText).toContain('.container:not(.text):not(.disabled):active')
     })
 })

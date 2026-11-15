@@ -59,9 +59,6 @@ const TypeaheadResetMs = 500
 const isHTMLElement = (value: unknown): value is HTMLElement =>
     typeof HTMLElement !== 'undefined' && value instanceof HTMLElement
 
-/** Selector covering the roving set: items plus submenu triggers (F1). */
-const MenuRovingSelector = 'mdc-menu-item, mdc-menu-submenu'
-
 /**
  * Structural roving member: an `mdc-menu-item` or an `mdc-menu-submenu`
  * trigger, coordinated via `focus()` / `isInteractive` duck-typing (the
@@ -121,8 +118,8 @@ export abstract class BaseMenu extends composeMixin(
     @property({ type: String })
     public label: string | null = null
 
-    @queryAssignedElements({ selector: MenuRovingSelector, flatten: true })
-    private readonly assignedItems!: MenuRovingChild[]
+    @queryAssignedElements({ flatten: true })
+    private readonly defaultSlotElements!: HTMLElement[]
 
     @queryAssignedElements({ slot: 'trigger', flatten: true })
     private readonly triggerElements!: HTMLElement[]
@@ -144,6 +141,10 @@ export abstract class BaseMenu extends composeMixin(
     @state()
     protected hasSectionLabel = false
 
+    /** Set when `mdc-menu-group` children are slotted. */
+    @state()
+    protected hasGroups = false
+
     /** The slotted `mdc-menu-item` / `mdc-menu-submenu` children, flattened. */
     public get items(): IMDCMenuItem[] {
         return this.cachedItems as unknown as IMDCMenuItem[]
@@ -159,6 +160,7 @@ export abstract class BaseMenu extends composeMixin(
         this.addEventListener('request-activation', this.handleRequestActivation)
         this.addEventListener('item-activated', this.handleItemActivated)
         this.addEventListener('focusin', this.handleFocusIn)
+        this.addEventListener('menu-group-slotchange', this.handleSlotChange)
     }
 
     public override connectedCallback(): void {
@@ -177,7 +179,14 @@ export abstract class BaseMenu extends composeMixin(
 
     protected override willUpdate(changedProperties: PropertyValues<this>): void {
         super.willUpdate(changedProperties)
-        if (changedProperties.has('variant') && this.variant !== this.colorStyle) {
+        const isInitial = changedProperties.get('variant') === undefined && changedProperties.get('colorStyle') === undefined
+        if (isInitial) {
+            if (this.colorStyle !== 'standard' && this.variant === 'standard') {
+                this.variant = this.colorStyle
+            } else if (this.variant !== this.colorStyle) {
+                this.colorStyle = this.variant
+            }
+        } else if (changedProperties.has('variant') && this.variant !== this.colorStyle) {
             this.colorStyle = this.variant
         } else if (changedProperties.has('colorStyle') && this.colorStyle !== this.variant) {
             this.variant = this.colorStyle
@@ -195,6 +204,9 @@ export abstract class BaseMenu extends composeMixin(
         const hostClasses = this.getHostClasses()
         for (const [name, active] of Object.entries(hostClasses)) {
             this.classList.toggle(name, active)
+        }
+        if (changedProperties.has('variant') || changedProperties.has('colorStyle')) {
+            this.propagateVariantToChildren()
         }
         if (changedProperties.has('open')) {
             this.syncOpenSideEffects(false)
@@ -217,6 +229,7 @@ export abstract class BaseMenu extends composeMixin(
             'container': true,
             'open': this.open,
             'quick': this.quick,
+            'has-groups': this.hasGroups,
             [`variant-${this.variant}`]: true,
             [`layout-${this.layout}`]: true,
         }
@@ -236,8 +249,8 @@ export abstract class BaseMenu extends composeMixin(
             >
                 ${this.renderElevation()}
                 <div class="content">
-                    <slot @slotchange=${this.handleSlotChange}></slot>
                     <slot name="section-label" @slotchange=${this.handleSectionLabelSlotChange}></slot>
+                    <slot @slotchange=${this.handleSlotChange}></slot>
                     <slot name="surface"></slot>
                 </div>
             </div>
@@ -276,7 +289,9 @@ export abstract class BaseMenu extends composeMixin(
         if (generation !== this.lifecycle) {
             return
         }
-        this.startPositionTracking()
+        if (!this.isPositionTracking()) {
+            this.startPositionTracking()
+        }
         this.attachDismissListeners()
         this.updateTabIndices()
         if (!this.quick && !this.prefersReducedMotion()) {
@@ -322,6 +337,7 @@ export abstract class BaseMenu extends composeMixin(
         // Close first: the close transition only starts once the `open`
         // attribute is removed. `allow-discrete` keeps the surface rendered
         // until the transition ends (dialog.base idiom).
+        this.closeOpenSubmenus()
         this.open = false
         this.stopPositionTracking()
         this.detachDismissListeners()
@@ -464,6 +480,7 @@ export abstract class BaseMenu extends composeMixin(
 
     private syncOpenSideEffects(restart: boolean): void {
         if (!this.open) {
+            this.closeOpenSubmenus()
             this.stopPositionTracking()
             this.detachDismissListeners()
             return
@@ -565,8 +582,40 @@ export abstract class BaseMenu extends composeMixin(
     }
 
     private readonly handleSlotChange = (): void => {
-        this.cachedItems = [...(this.assignedItems ?? [])]
+        const assigned = this.defaultSlotElements ?? []
+        this.hasGroups = assigned.some((el) => el.tagName === 'MDC-MENU-GROUP')
+        const items: MenuRovingChild[] = []
+        for (const el of assigned) {
+            if (el.tagName === 'MDC-MENU-ITEM' || el.tagName === 'MDC-MENU-SUBMENU') {
+                items.push(el as unknown as MenuRovingChild)
+            } else if (el.tagName === 'MDC-MENU-GROUP') {
+                for (const child of Array.from(el.children ?? [])) {
+                    if (child.tagName === 'MDC-MENU-ITEM' || child.tagName === 'MDC-MENU-SUBMENU') {
+                        items.push(child as unknown as MenuRovingChild)
+                    }
+                }
+            }
+        }
+        this.cachedItems = items
+        this.propagateVariantToChildren()
         this.updateTabIndices()
+    }
+
+    private propagateVariantToChildren(): void {
+        for (const el of this.defaultSlotElements ?? []) {
+            const tag = el.tagName
+            if (tag === 'MDC-MENU-ITEM' || tag === 'MDC-MENU-GROUP' || tag === 'MDC-MENU-SUBMENU') {
+                (el as HTMLElement & { variant: MenuColorStyle }).variant = this.variant
+            }
+        }
+    }
+
+    private closeOpenSubmenus(): void {
+        for (const item of this.cachedItems) {
+            if (isMenuSubmenuNode(item as unknown as EventTarget) && (item as unknown as IMDCMenuSubmenu).open) {
+                void (item as unknown as IMDCMenuSubmenu).hide()
+            }
+        }
     }
 
     private readonly handleSectionLabelSlotChange = (event: Event): void => {
@@ -598,6 +647,9 @@ export abstract class BaseMenu extends composeMixin(
         if (!item) {
             return
         }
+        if (item.radio === true) {
+            this.deselectSiblingRadios(item)
+        }
         this.dispatchEvent(new CustomEvent<IMDCMenuSelectDetail>(
             'select',
             {
@@ -609,6 +661,28 @@ export abstract class BaseMenu extends composeMixin(
         const keepOpen = item.checkable === true || item.radio === true
         if (!keepOpen) {
             void this.hide()
+        }
+    }
+
+    private deselectSiblingRadios(activatedItem: IMDCMenuItem): void {
+        const itemEl = activatedItem as unknown as Element
+        const scope = typeof itemEl.closest === 'function'
+            ? itemEl.closest('mdc-menu-group, mdc-menu-submenu, mdc-menu')
+            : null
+        if (scope && typeof scope.querySelectorAll === 'function') {
+            for (const candidate of Array.from(scope.querySelectorAll('mdc-menu-item'))) {
+                const radioItem = candidate as unknown as IMDCMenuItem
+                if (radioItem.radio === true && radioItem !== activatedItem && candidate.closest('mdc-menu-group, mdc-menu-submenu, mdc-menu') === scope) {
+                    radioItem.selected = false
+                }
+            }
+            return
+        }
+        for (const candidate of this.cachedItems) {
+            const radioItem = candidate as unknown as IMDCMenuItem
+            if (radioItem !== activatedItem && radioItem.radio === true) {
+                radioItem.selected = false
+            }
         }
     }
 
@@ -670,7 +744,10 @@ export abstract class BaseMenu extends composeMixin(
             return
         }
         const target = event.target as MenuRovingChild | null
-        if (target === null || !items.includes(target)) {
+        const anchor = this.getAnchorElement()
+        const isFromTrigger = target !== null && anchor !== null &&
+            (target === (anchor as unknown) || (typeof anchor.contains === 'function' && anchor.contains(target as unknown as Node)))
+        if (target === null || (!items.includes(target) && !(this.open && isFromTrigger))) {
             return
         }
 

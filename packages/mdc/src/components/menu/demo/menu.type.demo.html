@@ -15,8 +15,8 @@
 
 <div class="demo-column">
     <span class="demo-caption">type="text" — non-interactive label row, skipped by roving navigation:</span>
-    <mdc-menu open label="Text items">
-        <button slot="trigger">Open menu</button>
+    <mdc-menu label="Text items">
+        <mdc-button variant="outlined" slot="trigger"><span>Open menu</span></mdc-button>
         <mdc-menu-item type="text">Read-only label one</mdc-menu-item>
         <mdc-menu-item type="text">Read-only label two</mdc-menu-item>
     </mdc-menu>
@@ -24,8 +24,8 @@
 
 <div class="demo-column">
     <span class="demo-caption">type="button" — native button root, activates on Enter / Space / click (default):</span>
-    <mdc-menu open label="Button items">
-        <button slot="trigger">Open menu</button>
+    <mdc-menu label="Button items">
+        <mdc-button variant="outlined" slot="trigger"><span>Open menu</span></mdc-button>
         <mdc-menu-item type="button">Cut</mdc-menu-item>
         <mdc-menu-item type="button">Copy</mdc-menu-item>
         <mdc-menu-item type="button">Paste</mdc-menu-item>
@@ -34,8 +34,8 @@
 
 <div class="demo-column">
     <span class="demo-caption">Mixed types — text rows render as labels between interactive rows:</span>
-    <mdc-menu open label="Mixed types">
-        <button slot="trigger">Open menu</button>
+    <mdc-menu label="Mixed types">
+        <mdc-button variant="outlined" slot="trigger"><span>Open menu</span></mdc-button>
         <mdc-menu-item type="text">Clipboard</mdc-menu-item>
         <mdc-menu-item type="button">Cut</mdc-menu-item>
         <mdc-menu-item type="button">Copy</mdc-menu-item>

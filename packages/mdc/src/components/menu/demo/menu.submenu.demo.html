@@ -15,8 +15,8 @@
 
 <div class="demo-column">
     <span class="demo-caption">Submenu nesting — nested surface at `right-start` (mirrored in RTL), Right / Enter opens, Left / Escape closes:</span>
-    <mdc-menu open label="Menu with submenu">
-        <button slot="trigger">Open menu</button>
+    <mdc-menu label="Menu with submenu">
+        <mdc-button variant="outlined" slot="trigger"><span>Open menu</span></mdc-button>
         <mdc-menu-item type="button">New file</mdc-menu-item>
         <mdc-menu-submenu label="Share" placement="right-start">
             <mdc-menu-item type="button">Email</mdc-menu-item>
@@ -29,10 +29,10 @@
 
 <div class="demo-column">
     <span class="demo-caption">Open submenu — `open` shows the nested surface; `disabled` disables the trigger:</span>
-    <mdc-menu open label="Open submenu">
-        <button slot="trigger">Open menu</button>
+    <mdc-menu label="Open submenu">
+        <mdc-button variant="outlined" slot="trigger"><span>Open menu</span></mdc-button>
         <mdc-menu-item type="button">New file</mdc-menu-item>
-        <mdc-menu-submenu label="Share" placement="right-start" open>
+        <mdc-menu-submenu label="Share" placement="right-start">
             <mdc-menu-item type="button">Email</mdc-menu-item>
             <mdc-menu-item type="button">Copy link</mdc-menu-item>
         </mdc-menu-submenu>

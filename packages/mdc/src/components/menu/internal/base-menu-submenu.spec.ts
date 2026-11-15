@@ -10,6 +10,7 @@ import {
     type MenuSubmenuFocusableChild,
 } from './base-menu-submenu'
 import { MDCMenuSubmenu } from '../menu-submenu'
+import { MenuSubmenuStyles } from '../menu-submenu.style'
 import type { IMDCMenuSubmenu } from '../menu.interface'
 
 vi.mock('@floating-ui/dom', () => ({
@@ -83,11 +84,12 @@ class TestMenuSubmenu extends MDCMenuSubmenu {
         return this.getTriggerAriaExpanded()
     }
 
-    public sendKey(key: string, path: EventTarget[] = []): { preventDefault: () => void, stopPropagation: () => void } {
+    public sendKey(key: string, path: EventTarget[] = [], target: EventTarget = this): { preventDefault: () => void, stopPropagation: () => void } {
         const preventDefault = vi.fn()
         const stopPropagation = vi.fn()
         const event = {
             key,
+            target,
             preventDefault,
             stopPropagation,
             composedPath: (): EventTarget[] => path,
@@ -440,5 +442,88 @@ describe('MDCMenuSubmenu quick (animation skip)', () => {
         await flush()
         expect(focused).toEqual(['first'])
         expect(submenu.animateCalls).toEqual([])
+    })
+
+    it('propagates variant to nested children on slotchange', () => {
+        const submenu = new TestMenuSubmenu()
+        submenu.variant = 'vibrant'
+        const childItem = { tagName: 'MDC-MENU-ITEM', variant: 'standard' }
+        const childGroup = { tagName: 'MDC-MENU-GROUP', variant: 'standard' }
+        Object.defineProperty(submenu, 'defaultSlotElements', {
+            get: () => [childItem, childGroup],
+            configurable: true,
+        })
+        ;(submenu as unknown as { handleSlotChange(): void })['handleSlotChange']()
+        expect(childItem.variant).toBe('vibrant')
+        expect(childGroup.variant).toBe('vibrant')
+    })
+
+    it('exposes rippleControl and focusRingControl only when not disabled', () => {
+        const submenu = new TestMenuSubmenu()
+        const trigger = {} as HTMLElement
+        Object.defineProperty(submenu, 'triggerElement', { get: () => trigger, configurable: true })
+        expect(submenu.rippleControl).toBe(trigger)
+        expect(submenu.focusRingControl).toBe(trigger)
+        submenu.disabled = true
+        expect(submenu.rippleControl).toBeNull()
+        expect(submenu.focusRingControl).toBeNull()
+    })
+
+    it('navigates nested items with ArrowDown, ArrowUp, Home, and End when open', async () => {
+        const submenu = new TestMenuSubmenu()
+        const focused: string[] = []
+        const item1 = stubItem(() => { focused.push('item1') })
+        const disabledItem = stubItem(() => { focused.push('disabled') }, true)
+        const item2 = stubItem(() => { focused.push('item2') })
+        submenu.stubItems = [item1, disabledItem, item2]
+        await submenu.show()
+
+        const down = submenu.sendKey('ArrowDown', [], item1 as unknown as EventTarget)
+        expect(down.preventDefault).toHaveBeenCalled()
+        expect(down.stopPropagation).toHaveBeenCalled()
+        expect(focused).toEqual(['item2'])
+
+        const wrapDown = submenu.sendKey('ArrowDown', [], item2 as unknown as EventTarget)
+        expect(wrapDown.stopPropagation).toHaveBeenCalled()
+        expect(focused).toEqual(['item2', 'item1'])
+
+        const up = submenu.sendKey('ArrowUp', [], item1 as unknown as EventTarget)
+        expect(up.stopPropagation).toHaveBeenCalled()
+        expect(focused).toEqual(['item2', 'item1', 'item2'])
+
+        submenu.sendKey('Home', [], item2 as unknown as EventTarget)
+        expect(focused).toEqual(['item2', 'item1', 'item2', 'item1'])
+
+        submenu.sendKey('End', [], item1 as unknown as EventTarget)
+        expect(focused).toEqual(['item2', 'item1', 'item2', 'item1', 'item2'])
+    })
+
+    it('does not intercept ArrowDown when focus is on the submenu trigger itself', async () => {
+        const submenu = new TestMenuSubmenu()
+        const focused: string[] = []
+        submenu.stubItems = [stubItem(() => { focused.push('item1') })]
+        await submenu.show()
+
+        const result = submenu.sendKey('ArrowDown', [], submenu)
+        expect(result.preventDefault).not.toHaveBeenCalled()
+        expect(result.stopPropagation).not.toHaveBeenCalled()
+        expect(focused).toEqual([])
+    })
+
+    it('renders trigger with role="menuitem" and section-label slot before default slot', () => {
+        const submenu = new TestMenuSubmenu()
+        const tpl = (submenu as unknown as { render(): { strings: TemplateStringsArray } })['render']()
+        const markup = tpl.strings.join('')
+        expect(markup).toContain('role="menuitem"')
+        expect(markup.indexOf('name="section-label"')).toBeLessThan(markup.indexOf('<slot @slotchange'))
+    })
+
+    it('avoids inset-inline-start on floating surface and uses valid ripple/icon token bridges', () => {
+        const cssText = MenuSubmenuStyles.map((s) => s.cssText).join('\n')
+        expect(cssText).not.toContain('inset-inline-start: 100%')
+        expect(cssText).toContain('--mdc-ripple-hovered-color')
+        expect(cssText).not.toContain('--mdc-ripple-enabled-')
+        expect(cssText).toContain('--mdc-icon-size')
+        expect(cssText).not.toContain('--mdc-icon-enabled-size')
     })
 })

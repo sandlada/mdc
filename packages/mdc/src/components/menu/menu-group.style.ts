@@ -47,13 +47,13 @@ const ComponentPart = css`
         }
 
         :host(:first-of-type) {
-            border-start-start-radius: var(--_enabled-container-shape-outer-start-start);
-            border-start-end-radius: var(--_enabled-container-shape-outer-start-end);
+            border-start-start-radius: var(--_enabled-outer-container-shape-start-start);
+            border-start-end-radius: var(--_enabled-outer-container-shape-start-end);
         }
 
         :host(:last-of-type) {
-            border-end-end-radius: var(--_enabled-container-shape-outer-end-end);
-            border-end-start-radius: var(--_enabled-container-shape-outer-end-start);
+            border-end-end-radius: var(--_enabled-outer-container-shape-end-end);
+            border-end-start-radius: var(--_enabled-outer-container-shape-end-start);
         }
 
         .content {
@@ -62,6 +62,10 @@ const ComponentPart = css`
             display: flex;
             flex-direction: column;
             min-width: 0;
+        }
+
+        slot::slotted(mdc-divider) {
+            margin-block: 4px;
         }
 
         .group-label {

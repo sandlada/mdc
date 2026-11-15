@@ -15,8 +15,8 @@
 
 <div class="demo-column">
     <span class="demo-caption">disabled — skipped by roving navigation, dimmed, no interaction:</span>
-    <mdc-menu open label="Disabled items">
-        <button slot="trigger">Open menu</button>
+    <mdc-menu label="Disabled items">
+        <mdc-button variant="outlined" slot="trigger"><span>Open menu</span></mdc-button>
         <mdc-menu-item type="button">Cut</mdc-menu-item>
         <mdc-menu-item type="button" disabled>Paste (unavailable)</mdc-menu-item>
         <mdc-menu-item type="button">Copy</mdc-menu-item>
@@ -25,8 +25,8 @@
 
 <div class="demo-column">
     <span class="demo-caption">Disabled item with leading icon:</span>
-    <mdc-menu open label="Disabled with icon">
-        <button slot="trigger">Open menu</button>
+    <mdc-menu label="Disabled with icon">
+        <mdc-button variant="outlined" slot="trigger"><span>Open menu</span></mdc-button>
         <mdc-menu-item type="button">
             <mdc-icon slot="leading">cloud</mdc-icon>
             <span>Cloud sync</span>

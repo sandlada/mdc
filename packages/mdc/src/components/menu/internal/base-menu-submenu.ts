@@ -31,6 +31,8 @@ import type { AriaMixinStrict } from '../../../utils/aria/aria'
 import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
 import { mixinElevationOptions } from '../../elevation/elevation-options.mixin'
+import { mixinFocusRingOptions } from '../../focus-ring/focus-ring-options.mixin'
+import { mixinRippleOptions } from '../../ripple/ripple-options.mixin'
 import type {
     IMDCMenuSubmenu,
     IMDCMenuSubmenuClosedDetail,
@@ -42,8 +44,8 @@ import { MenuSubmenuStyles } from '../menu-submenu.style'
 
 const ValidVariants: readonly string[] = ['standard', 'vibrant']
 
-/** Gap in pixels between the trigger and the nested surface (menu-container idiom). */
-const PositionOffset = 6
+/** Gap in pixels between the trigger and the nested surface. */
+const PositionOffset = 4
 /** Viewport padding in pixels for the floating-ui shift middleware. */
 const PositionShiftPadding = 8
 
@@ -115,7 +117,9 @@ const isMenuSubmenuNode = (node: EventTarget): boolean =>
 
 export abstract class BaseMenuSubmenu extends composeMixin(
     mixinDelegatesAria,
-    mixinElevationOptions
+    mixinElevationOptions,
+    mixinRippleOptions,
+    mixinFocusRingOptions
 )(LitElement) implements IMDCMenuSubmenu {
 
     static override styles = MenuSubmenuStyles
@@ -176,16 +180,26 @@ export abstract class BaseMenuSubmenu extends composeMixin(
     protected readonly triggerElement!: HTMLElement | null
     @query('.surface')
     protected readonly surfaceElement!: HTMLElement | null
+    @queryAssignedElements({ flatten: true })
+    private readonly defaultSlotElements!: HTMLElement[]
 
     private openTimer: ReturnType<typeof setTimeout> | undefined
     private closeTimer: ReturnType<typeof setTimeout> | undefined
     private cleanupAutoUpdate: (() => void) | null = null
+
+    public override get rippleControl(): HTMLElement | null {
+        return this.disabled ? null : this.triggerElement
+    }
+    public override get focusRingControl(): HTMLElement | null {
+        return this.disabled ? null : this.triggerElement
+    }
 
     public constructor() {
         super()
         if (isServer) {
             return
         }
+        this.focusRingInward = true
     }
 
     public override connectedCallback(): void {
@@ -213,6 +227,9 @@ export abstract class BaseMenuSubmenu extends composeMixin(
 
     protected override updated(changedProperties: PropertyValues<this>): void {
         super.updated(changedProperties)
+        if (changedProperties.has('variant')) {
+            this.propagateVariantToChildren()
+        }
         if (changedProperties.has('disabled') && this.disabled && this.open) {
             void this.hide()
         }
@@ -278,18 +295,21 @@ export abstract class BaseMenuSubmenu extends composeMixin(
             <button
                 class="${classMap(this.getTriggerClasses())}"
                 type="button"
+                role="menuitem"
                 aria-haspopup="menu"
                 aria-expanded=${this.getTriggerAriaExpanded()}
                 aria-label=${label || nothing}
                 ?disabled=${this.disabled}
                 @click=${this.handleTriggerClick}
             >
+                ${this.renderFocusRing()}
+                ${this.renderRipple()}
                 <slot name="leading"></slot>
                 <span class="trigger-label">${this.label}</span>
                 <span class="trigger-chevron">
                     ${this.hasTrailing
                         ? nothing
-                        : html`<span class="trigger-indicator" aria-hidden="true"></span>`}
+                        : html`<svg class="trigger-indicator" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5v10z"/></svg>`}
                     <slot name="trailing" @slotchange=${this.handleTrailingSlotChange}></slot>
                 </span>
             </button>
@@ -300,8 +320,8 @@ export abstract class BaseMenuSubmenu extends composeMixin(
             >
                 ${this.renderElevation()}
                 <div class="content">
-                    <slot></slot>
                     <slot name="section-label" @slotchange=${this.handleSectionLabelSlotChange}></slot>
+                    <slot @slotchange=${this.handleSlotChange}></slot>
                 </div>
             </div>
         `
@@ -466,8 +486,8 @@ export abstract class BaseMenuSubmenu extends composeMixin(
 
     /** Focuses the first interactive nested child (item or submenu). */
     public focusFirstItem(): void {
-        const target = this.getNestedFocusableItems().find((item) =>
-            (item.isInteractive ?? true) && !(item.isDisabled ?? item.disabled ?? false))
+        const items = this.getNestedFocusableItems()
+        const target = items.find((item) => this.isNestedItemFocusable(item))
         target?.focus()
     }
 
@@ -552,21 +572,82 @@ export abstract class BaseMenuSubmenu extends composeMixin(
             disabled: this.disabled,
             isRtl: this.isRtl(),
         })
-        if (action === null) {
+        if (action !== null) {
+            event.preventDefault()
+            if (action === 'open') {
+                event.stopPropagation()
+                void this.show()
+                if (this.isConnected) {
+                    void this.updateComplete.then(() => {
+                        if (this.open) {
+                            this.focusFirstItem()
+                        }
+                    })
+                } else {
+                    this.focusFirstItem()
+                }
+            } else {
+                event.stopPropagation()
+                void this.hide().then(() => {
+                    this.focus()
+                })
+            }
+            return
+        }
+        if (!this.open || event.target === this) {
+            return
+        }
+        const items = this.getNestedFocusableItems()
+        if (items.length === 0) {
+            return
+        }
+        const target = event.target as MenuSubmenuFocusableChild | null
+        if (target === null || !items.includes(target)) {
+            return
+        }
+        const isUp = event.key === 'ArrowUp'
+        const isDown = event.key === 'ArrowDown'
+        const isHome = event.key === 'Home'
+        const isEnd = event.key === 'End'
+        if (!isUp && !isDown && !isHome && !isEnd) {
             return
         }
         event.preventDefault()
-        if (action === 'open') {
-            event.stopPropagation()
-            void this.show().then(() => {
-                this.focusFirstItem()
-            })
+        event.stopPropagation()
+        let nextItem: MenuSubmenuFocusableChild | undefined
+        if (isHome) {
+            nextItem = this.findNextFocusableItem(items, 0, 1)
+        } else if (isEnd) {
+            nextItem = this.findNextFocusableItem(items, items.length - 1, -1)
         } else {
-            event.stopPropagation()
-            void this.hide().then(() => {
-                this.focus()
-            })
+            const focusedIndex = items.indexOf(target)
+            const delta: 1 | -1 = isUp ? -1 : 1
+            const startIndex = focusedIndex === -1
+                ? (delta > 0 ? 0 : items.length - 1)
+                : focusedIndex + delta
+            nextItem = this.findNextFocusableItem(items, startIndex, delta)
         }
+        nextItem?.focus()
+    }
+
+    private isNestedItemFocusable(item: MenuSubmenuFocusableChild): boolean {
+        return (item.isInteractive ?? true) && !(item.isDisabled ?? item.disabled ?? false)
+    }
+
+    private findNextFocusableItem(
+        items: MenuSubmenuFocusableChild[],
+        startIndex: number,
+        step: 1 | -1,
+    ): MenuSubmenuFocusableChild | undefined {
+        for (let i = 0; i < items.length; i++) {
+            let index = startIndex + i * step
+            index = ((index % items.length) + items.length) % items.length
+            const item = items[index]
+            if (this.isNestedItemFocusable(item)) {
+                return item
+            }
+        }
+        return undefined
     }
 
     private clearTimer(timer: ReturnType<typeof setTimeout> | undefined): void {
@@ -627,6 +708,19 @@ export abstract class BaseMenuSubmenu extends composeMixin(
                 animation.finished.catch(() => undefined),
             ),
         )
+    }
+
+    private readonly handleSlotChange = (): void => {
+        this.propagateVariantToChildren()
+    }
+
+    private propagateVariantToChildren(): void {
+        for (const el of this.defaultSlotElements ?? []) {
+            const tag = el.tagName
+            if (tag === 'MDC-MENU-ITEM' || tag === 'MDC-MENU-GROUP' || tag === 'MDC-MENU-SUBMENU') {
+                (el as HTMLElement & { variant: MenuColorStyle }).variant = this.variant
+            }
+        }
     }
 
     private readonly handleSectionLabelSlotChange = (event: Event): void => {
