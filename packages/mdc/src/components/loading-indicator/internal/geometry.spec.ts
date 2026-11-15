@@ -8,6 +8,7 @@ import {
     Morph,
     SHAPE_PERIOD_MS,
     calculateScaleFactor,
+    cubicsAreaCentroid,
     determinateFrameAt,
     estimateAnimationDurationMillis,
     getDeterminateMorphs,
@@ -167,5 +168,16 @@ describe('loading-indicator geometry', () => {
         expect(frame.path).toContain('C')
         expect(Number.isFinite(frame.centerX)).toBe(true)
         expect(Number.isFinite(frame.centerY)).toBe(true)
+    })
+
+    it('keeps every morph frame centered at its area centroid without rotational drift', () => {
+        const morphs = getIndeterminateMorphs()
+        for (const morph of morphs) {
+            for (const progress of [0, 0.25, 0.5, 0.75, 1]) {
+                const center = morph.centerAt(progress)
+                const centroid = cubicsAreaCentroid(morph.asCubics(progress))
+                expect(Math.hypot(center.x - centroid.x, center.y - centroid.y)).toBeLessThan(0.005)
+            }
+        }
     })
 })

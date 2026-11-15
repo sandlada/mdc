@@ -31,14 +31,29 @@ import type { RoundedPolygon } from './rounded-polygon'
  */
 export class Morph {
     private readonly morphMatch: ReadonlyArray<[Cubic, Cubic]>
+    private readonly startCenter: Point
+    private readonly endCenter: Point
 
     public constructor(start: RoundedPolygon, end: RoundedPolygon) {
         this.morphMatch = matchCubics(start, end)
+        this.startCenter = cubicsAreaCentroid(start.cubics)
+        this.endCenter = cubicsAreaCentroid(end.cubics)
     }
 
     /** Number of matched curve pairs. */
     public get curveCount(): number {
         return this.morphMatch.length
+    }
+
+    /**
+     * Interpolated rotational/design center of the morphed shape at
+     * `progress`, matching the linear interpolation of {@link asCubics}.
+     */
+    public centerAt(progress: number): Point {
+        return point(
+            interpolate(this.startCenter.x, this.endCenter.x, progress),
+            interpolate(this.startCenter.y, this.endCenter.y, progress),
+        )
     }
 
     /**
@@ -185,4 +200,33 @@ export const cubicsBoundsCenter = (cubics: readonly Cubic[]): Point => {
         maxY = Math.max(maxY, cubic.anchor0Y, cubic.control0Y, cubic.control1Y, cubic.anchor1Y)
     }
     return point((minX + maxX) / 2, (minY + maxY) / 2)
+}
+
+/**
+ * Area centroid of a closed cubic outline (computed via Green's theorem on a
+ * subdivided polyline). Unlike the control-point bounding-box center, the
+ * area centroid stays invariant under rotation and prevents odd-symmetric
+ * shapes (such as Pentagon and Cookie9Sided) from orbiting when spun.
+ */
+export const cubicsAreaCentroid = (cubics: readonly Cubic[], stepsPerCubic = 8): Point => {
+    if (cubics.length === 0) throw new Error('Cannot compute centroid of an empty cubic list')
+    let twiceArea = 0
+    let cx = 0
+    let cy = 0
+    for (const cubic of cubics) {
+        let prevX = cubic.anchor0X
+        let prevY = cubic.anchor0Y
+        for (let step = 1; step <= stepsPerCubic; step++) {
+            const p = cubic.pointOnCurve(step / stepsPerCubic)
+            const cross = prevX * p.y - p.x * prevY
+            twiceArea += cross
+            cx += (prevX + p.x) * cross
+            cy += (prevY + p.y) * cross
+            prevX = p.x
+            prevY = p.y
+        }
+    }
+    if (Math.abs(twiceArea) < 1e-12) return cubicsBoundsCenter(cubics)
+    const factor = 1 / (3 * twiceArea)
+    return point(cx * factor, cy * factor)
 }

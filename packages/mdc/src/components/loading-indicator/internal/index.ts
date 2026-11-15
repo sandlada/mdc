@@ -41,7 +41,7 @@ export {
     circle,
 } from './material-shapes'
 
-export { Morph, cubicsBoundsCenter, cubicsToPathData } from './morph'
+export { Morph, cubicsAreaCentroid, cubicsBoundsCenter, cubicsToPathData } from './morph'
 
 export { estimateAnimationDurationMillis, springMotionAt, type SpringDurationEstimate, type SpringParameters } from './spring'
 

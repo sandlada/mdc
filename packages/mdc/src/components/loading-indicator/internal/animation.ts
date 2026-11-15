@@ -23,7 +23,7 @@
  */
 
 import { LoadingIndicatorDefinition } from '../loading-indicator.definition'
-import { cubicsBoundsCenter, cubicsToPathData, type Morph } from './morph'
+import { cubicsToPathData, type Morph } from './morph'
 import { getDeterminateMorphs, getIndeterminateMorphs } from './material-shapes'
 import { springMotionAt, type SpringParameters } from './spring'
 
@@ -95,9 +95,14 @@ export interface LoadingIndicatorFrame {
     readonly centerY: number
 }
 
-const frameFromCubics = (cubics: ReturnType<Morph['asCubics']>, rotation: number): LoadingIndicatorFrame => {
-    const center = cubicsBoundsCenter(cubics)
-    return { path: cubicsToPathData(cubics), rotation, centerX: center.x, centerY: center.y }
+const frameFromMorph = (morph: Morph, progress: number, rotation: number): LoadingIndicatorFrame => {
+    const center = morph.centerAt(progress)
+    return {
+        path: cubicsToPathData(morph.asCubics(progress)),
+        rotation,
+        centerX: center.x,
+        centerY: center.y,
+    }
 }
 
 /**
@@ -127,7 +132,7 @@ export const indeterminateFrameAt = (timelineMs: number): LoadingIndicatorFrame 
         (ConstantRotationPerPeriod + SpringRotationPerPeriod) * cycle +
         ConstantRotationPerPeriod * (elapsed / ShapePeriodMs) +
         SpringRotationPerPeriod * (morphFactor - cycle)
-    return frameFromCubics(morphs[shapeIndex].asCubics(progress), rotation)
+    return frameFromMorph(morphs[shapeIndex], progress, rotation)
 }
 
 /**
@@ -138,6 +143,5 @@ export const indeterminateFrameAt = (timelineMs: number): LoadingIndicatorFrame 
 export const determinateFrameAt = (progress: number): LoadingIndicatorFrame => {
     if (!Number.isFinite(progress)) throw new Error('Progress must be a finite number')
     const clamped = Math.min(1, Math.max(0, progress))
-    const cubics = getDeterminateMorphs()[0].asCubics(clamped)
-    return frameFromCubics(cubics, -clamped * 180)
+    return frameFromMorph(getDeterminateMorphs()[0], clamped, -clamped * 180)
 }
