@@ -1,25 +1,30 @@
 <style>
     .demo-row {
         display: flex;
-        gap: 16px;
+        gap: 12px;
         align-items: center;
-        padding: 16px;
+        flex-wrap: wrap;
     }
 </style>
 
 <div class="demo-row">
     <mdc-chip variant="input">
         <span slot="avatar">A</span>
-        <span>Input with Avatar</span>
+        <span>Alex Morgan</span>
     </mdc-chip>
 
     <mdc-chip variant="input">
-        <span slot="avatar">B</span>
-        <span>Another Input</span>
+        <mdc-icon slot="avatar">person</mdc-icon>
+        <span>Icon Avatar</span>
     </mdc-chip>
 
     <mdc-chip variant="input" selected>
         <span slot="avatar">C</span>
-        <span>Selected Input</span>
+        <span>Selected Avatar</span>
+    </mdc-chip>
+
+    <mdc-chip variant="input" avatar no-remove>
+        <span slot="icon">M</span>
+        <span>Avatar Attr</span>
     </mdc-chip>
 </div>

@@ -3,269 +3,265 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { Shape, Typescale } from '@sandlada/mdk'
+import { Shape, State, Typescale } from '@sandlada/mdk'
 import { Color } from '../../utils/color'
-import { createStyleDefinition } from '../../utils/style'
-
+import { createStyleDefinition, expandShape, expandTypescale } from '../../utils/style'
 
 /**
- * Style definition for `mdc-chip`.
+ * Style definitions for `mdc-chip` across all 4 Material Design 3 variants.
  *
- * Based on Material Components for Android `Widget.Material3.Chip.*` styles:
+ * Metrics aligned with Material Design 3 Figma specs, Jetpack Compose Material 3
+ * (`AssistChipTokens`, `FilterChipTokens`, `InputChipTokens`, `SuggestionChipTokens`),
+ * Flutter Material 3 (`_ActionChipDefaultsM3`, `_FilterChipDefaultsM3`, `_InputChipDefaultsM3`),
+ * and Material Components for Android (`Widget.Material3.Chip.*`):
  *
- * - Container: 32dp height, 8dp corner, 1dp outline
- * - Label: label-large (14sp)
- * - Icon: 18dp
- * - Avatar (input): 24dp, full shape
- * - Trailing icon (input): 18dp
- * - Touch target: 48dp min
+ * - Container: 32dp height, 8dp (`Shape.Small`) corners, 1dp outline (`OutlineVariant`)
+ * - Typography: Label Large (14sp / 20sp, 500 weight, 0.1sp tracking)
+ * - Icons: 18dp leading icon / checkmark / trailing icon
+ * - Avatar: 24dp circular (`Shape.Full`)
+ * - Horizontal spacing: 16dp text-only edges (12dp on input), 8dp when leading/trailing
+ *   icon present, 4dp when avatar present; 8dp gap between adjacent elements
+ * - Minimum touch target: 48dp height
  *
- * Padding per variant (from Android styles.xml):
- * - Assist: start=8, end=8, textStart=8, textEnd=8
- * - Filter: start=8, end=10, textStart=8, textEnd=6
- * - Input: start=4, end=4, textStart=8, textEnd=8
- * - Suggestion: start=8, end=10, textStart=8, textEnd=6
+ * @link
+ * https://m3.material.io/components/chips/specs
  */
 
-// Shared tokens — Base.Widget.Material3.Chip
 const Shared = {
-    'enabled-label-font'          : Typescale.LabelLarge.Font,
-    'enabled-label-size'          : Typescale.LabelLarge.FontSize,
-    'enabled-label-weight'        : Typescale.LabelLarge.FontWeight,
-    'enabled-label-tracking'      : Typescale.LabelLarge.Tracking,
-    'enabled-label-line-height'   : Typescale.LabelLarge.LineHeight,
+    ...expandTypescale('enabled-label')(Typescale.LabelLarge),
+    ...expandShape('container-shape')(Shape.Small),
+    ...expandShape('avatar-shape')(Shape.Full),
 
-    'container-height'            : `32px`,
-    'container-shape-start-start' : Shape.Small,
-    'container-shape-start-end'   : Shape.Small,
-    'container-shape-end-start'   : Shape.Small,
-    'container-shape-end-end'     : Shape.Small,
-    'outline-width'               : `1px`,
+    'container-height'                  : `32px`,
+    'outline-width'                     : `1px`,
 
-    'icon-size'                   : `18px`,
-    'avatar-size'                 : `24px`,
-    'avatar-shape-start-start'    : Shape.Full,
-    'avatar-shape-start-end'      : Shape.Full,
-    'avatar-shape-end-start'      : Shape.Full,
-    'avatar-shape-end-end'        : Shape.Full,
-    'trailing-icon-size'          : `18px`,
+    'icon-size'                         : `18px`,
+    'avatar-size'                       : `24px`,
+    'trailing-icon-size'                : `18px`,
+    'trailing-action-size'              : `24px`,
+    'min-touch-target-size'             : `48px`,
 
-    'min-touch-target-size'       : `48px`,
+    'leading-space'                     : `16px`,
+    'trailing-space'                    : `16px`,
+    'with-leading-icon-leading-space'   : `8px`,
+    'with-avatar-leading-space'         : `4px`,
+    'with-trailing-icon-trailing-space' : `8px`,
+    'icon-label-space'                  : `8px`,
 
-    'hovered-state-layer-opacity'  : `0.08`,
-    'focused-state-layer-opacity'  : `0.1`,
-    'pressed-state-layer-opacity'  : `0.1`,
+    'hovered-state-layer-opacity'       : State.HoveredStateLayerOpacity,
+    'focused-state-layer-opacity'       : State.FocusedStateLayerOpacity,
+    'pressed-state-layer-opacity'       : State.PressedStateLayerOpacity,
+    'dragged-state-layer-opacity'       : State.DraggedStateLayerOpacity,
 
-    'disabled-label-opacity'      : `0.38`,
-    'disabled-icon-opacity'       : `0.38`,
-    'disabled-outline-opacity'    : `0.12`,
+    'disabled-container-opacity'        : `0.12`,
+    'disabled-outline-opacity'          : `0.12`,
+    'disabled-label-opacity'            : `0.38`,
+    'disabled-icon-opacity'             : `0.38`,
 
-    // Elevated surface (MD3 elevated assist chip, toggled via `elevated`)
-    'enabled-container-color-elevated'   : Color.SurfaceContainerLow,
-    'hovered-container-color-elevated'   : Color.SurfaceContainerLow,
-    'focused-container-color-elevated'   : Color.SurfaceContainerLow,
-    'pressed-container-color-elevated'   : Color.SurfaceContainerLow,
-    'disabled-container-color-elevated'  : Color.SurfaceContainerLow,
-    'enabled-outline-color-elevated'     : `transparent`,
-    'enabled-container-elevation'        : `1`,
-    'hovered-container-elevation'        : `1`,
-    'focused-container-elevation'        : `1`,
-    'pressed-container-elevation'        : `1`,
-    'disabled-container-elevation'       : `0`,
-    'enabled-container-shadow-color'     : Color.Shadow,
+    // Elevated surface tokens (level indices 0..5 for `mdc-elevation`)
+    'enabled-container-color-elevated'  : Color.SurfaceContainerLow,
+    'hovered-container-color-elevated'  : Color.SurfaceContainerLow,
+    'focused-container-color-elevated'  : Color.SurfaceContainerLow,
+    'pressed-container-color-elevated'  : Color.SurfaceContainerLow,
+    'dragged-container-color-elevated'  : Color.SurfaceContainerLow,
+    'disabled-container-color-elevated' : Color.OnSurface,
+    'enabled-outline-color-elevated'    : `transparent`,
+
+    'enabled-container-elevation'       : `1`,
+    'hovered-container-elevation'       : `2`,
+    'focused-container-elevation'       : `1`,
+    'pressed-container-elevation'       : `1`,
+    'dragged-container-elevation'       : `4`,
+    'disabled-container-elevation'      : `0`,
+    'enabled-container-shadow-color'    : Color.Shadow,
+
+    // Fallback selected / avatar / checkmark defaults (specialized per variant below)
+    'enabled-avatar-container-color'          : Color.OnSurfaceVariant,
+    'enabled-avatar-label-color'              : Color.Surface,
+    'enabled-avatar-container-color-selected' : Color.OnSecondaryContainer,
+    'enabled-avatar-checkmark-color'          : Color.Surface,
+
+    'enabled-container-color-selected'        : Color.SecondaryContainer,
+    'hovered-container-color-selected'        : Color.SecondaryContainer,
+    'focused-container-color-selected'        : Color.SecondaryContainer,
+    'pressed-container-color-selected'        : Color.SecondaryContainer,
+    'dragged-container-color-selected'        : Color.SecondaryContainer,
+    'disabled-container-color-selected'       : Color.OnSurface,
+
+    'enabled-label-color-selected'            : Color.OnSecondaryContainer,
+    'hovered-label-color-selected'            : Color.OnSecondaryContainer,
+    'focused-label-color-selected'            : Color.OnSecondaryContainer,
+    'pressed-label-color-selected'            : Color.OnSecondaryContainer,
+    'disabled-label-color-selected'           : Color.OnSurface,
+
+    'enabled-icon-color-selected'             : Color.OnSecondaryContainer,
+    'hovered-icon-color-selected'             : Color.OnSecondaryContainer,
+    'focused-icon-color-selected'             : Color.OnSecondaryContainer,
+    'pressed-icon-color-selected'             : Color.OnSecondaryContainer,
+    'disabled-icon-color-selected'            : Color.OnSurface,
+
+    'enabled-checkmark-color'                 : Color.OnSecondaryContainer,
+    'enabled-checkmark-color-selected'        : Color.OnSecondaryContainer,
+    'disabled-checkmark-color'                : Color.OnSurface,
+
+    'enabled-trailing-icon-color'             : Color.OnSurfaceVariant,
+    'hovered-trailing-icon-color'             : Color.OnSurfaceVariant,
+    'focused-trailing-icon-color'             : Color.OnSurfaceVariant,
+    'pressed-trailing-icon-color'             : Color.OnSurfaceVariant,
+    'disabled-trailing-icon-color'            : Color.OnSurface,
+
+    'enabled-trailing-icon-color-selected'    : Color.OnSecondaryContainer,
+    'hovered-trailing-icon-color-selected'    : Color.OnSecondaryContainer,
+    'focused-trailing-icon-color-selected'    : Color.OnSecondaryContainer,
+    'pressed-trailing-icon-color-selected'    : Color.OnSecondaryContainer,
+    'disabled-trailing-icon-color-selected'   : Color.OnSurface,
+
+    'enabled-outline-color-selected'          : `transparent`,
+    'hovered-outline-color-selected'          : `transparent`,
+    'focused-outline-color-selected'          : `transparent`,
+    'pressed-outline-color-selected'          : `transparent`,
+    'disabled-outline-color-selected'         : `transparent`,
+
+    'hovered-state-layer-color-selected'      : Color.OnSecondaryContainer,
+    'focused-state-layer-color-selected'      : Color.OnSecondaryContainer,
+    'pressed-state-layer-color-selected'      : Color.OnSecondaryContainer,
 } as const
 
-// Assist Chip — Widget.Material3.Chip.Assist
+/** Assist Chip — MD3 AssistChipTokens / Widget.Material3.Chip.Assist */
 export const AssistChipDefinition = createStyleDefinition({
     ...Shared,
-    'container-padding-inline-start': `8px`,
-    'container-padding-inline-end'  : `8px`,
-    'container-padding-block-start' : `0px`,
-    'container-padding-block-end'   : `0px`,
-    'text-padding-inline-start'     : `8px`,
-    'text-padding-inline-end'       : `8px`,
-    'text-padding-block-start'      : `0px`,
-    'text-padding-block-end'        : `0px`,
 
-    'enabled-container-color'     : `transparent`,
-    'enabled-label-color'         : Color.OnSurface,
-    'enabled-outline-color'       : Color.Outline,
-    'enabled-icon-color'          : Color.Primary,
-    'hovered-state-layer-color'   : Color.OnSurface,
-    'focused-state-layer-color'   : Color.OnSurface,
-    'pressed-state-layer-color'   : Color.OnSurface,
+    'enabled-container-color'   : `transparent`,
+    'hovered-container-color'   : `transparent`,
+    'focused-container-color'   : `transparent`,
+    'pressed-container-color'   : `transparent`,
+    'dragged-container-color'   : `transparent`,
+    'disabled-container-color'  : `transparent`,
 
-    'hovered-container-color'     : `transparent`,
-    'hovered-label-color'         : Color.OnSurface,
-    'hovered-icon-color'          : Color.Primary,
-    'hovered-outline-color'       : Color.Outline,
+    'enabled-label-color'       : Color.OnSurface,
+    'hovered-label-color'       : Color.OnSurface,
+    'focused-label-color'       : Color.OnSurface,
+    'pressed-label-color'       : Color.OnSurface,
+    'disabled-label-color'      : Color.OnSurface,
 
-    'focused-container-color'     : `transparent`,
-    'focused-label-color'         : Color.OnSurface,
-    'focused-icon-color'          : Color.Primary,
-    'focused-outline-color'       : Color.Outline,
+    'enabled-icon-color'        : Color.Primary,
+    'hovered-icon-color'        : Color.Primary,
+    'focused-icon-color'        : Color.Primary,
+    'pressed-icon-color'        : Color.Primary,
+    'disabled-icon-color'       : Color.OnSurface,
 
-    'pressed-container-color'     : `transparent`,
-    'pressed-label-color'         : Color.OnSurface,
-    'pressed-icon-color'          : Color.Primary,
-    'pressed-outline-color'       : Color.Outline,
+    'enabled-outline-color'     : Color.OutlineVariant,
+    'hovered-outline-color'     : Color.OutlineVariant,
+    'focused-outline-color'     : Color.OnSurface,
+    'pressed-outline-color'     : Color.OutlineVariant,
+    'disabled-outline-color'    : Color.OnSurface,
 
-    'disabled-container-color'    : `transparent`,
-    'disabled-label-color'        : Color.OnSurface,
-    'disabled-icon-color'         : Color.OnSurface,
-    'disabled-outline-color'      : Color.OnSurface,
+    'hovered-state-layer-color' : Color.OnSurface,
+    'focused-state-layer-color' : Color.OnSurface,
+    'pressed-state-layer-color' : Color.OnSurface,
 })
 
-// Filter Chip — Widget.Material3.Chip.Filter
+/** Filter Chip — MD3 FilterChipTokens / Widget.Material3.Chip.Filter */
 export const FilterChipDefinition = createStyleDefinition({
     ...Shared,
-    'container-padding-inline-start': `8px`,
-    'container-padding-inline-end'  : `10px`,
-    'container-padding-block-start' : `0px`,
-    'container-padding-block-end'   : `0px`,
-    'text-padding-inline-start'     : `8px`,
-    'text-padding-inline-end'       : `6px`,
-    'text-padding-block-start'      : `0px`,
-    'text-padding-block-end'        : `0px`,
 
-    'enabled-container-color'     : `transparent`,
-    'enabled-label-color'         : Color.OnSurface,
-    'enabled-outline-color'       : Color.Outline,
-    'enabled-icon-color'          : Color.OnSurface,
-    'enabled-checkmark-color'     : Color.OnSecondaryContainer,
-    'hovered-state-layer-color'   : Color.OnSurface,
-    'focused-state-layer-color'   : Color.OnSurface,
-    'pressed-state-layer-color'   : Color.OnSurface,
+    'enabled-container-color'   : `transparent`,
+    'hovered-container-color'   : `transparent`,
+    'focused-container-color'   : `transparent`,
+    'pressed-container-color'   : `transparent`,
+    'dragged-container-color'   : `transparent`,
+    'disabled-container-color'  : `transparent`,
 
-    'hovered-container-color'     : `transparent`,
-    'hovered-label-color'         : Color.OnSurface,
-    'hovered-icon-color'          : Color.OnSurface,
-    'hovered-outline-color'       : Color.Outline,
+    'enabled-label-color'       : Color.OnSurfaceVariant,
+    'hovered-label-color'       : Color.OnSurfaceVariant,
+    'focused-label-color'       : Color.OnSurfaceVariant,
+    'pressed-label-color'       : Color.OnSurfaceVariant,
+    'disabled-label-color'      : Color.OnSurface,
 
-    'focused-container-color'     : `transparent`,
-    'focused-label-color'         : Color.OnSurface,
-    'focused-icon-color'          : Color.OnSurface,
-    'focused-outline-color'       : Color.Outline,
+    'enabled-icon-color'        : Color.Primary,
+    'hovered-icon-color'        : Color.Primary,
+    'focused-icon-color'        : Color.Primary,
+    'pressed-icon-color'        : Color.Primary,
+    'disabled-icon-color'       : Color.OnSurface,
 
-    'pressed-container-color'     : `transparent`,
-    'pressed-label-color'         : Color.OnSurface,
-    'pressed-icon-color'          : Color.OnSurface,
-    'pressed-outline-color'       : Color.Outline,
+    'enabled-outline-color'     : Color.OutlineVariant,
+    'hovered-outline-color'     : Color.OutlineVariant,
+    'focused-outline-color'     : Color.OnSurfaceVariant,
+    'pressed-outline-color'     : Color.OutlineVariant,
+    'disabled-outline-color'    : Color.OnSurface,
 
-    'enabled-container-color-selected'    : Color.SecondaryContainer,
-    'enabled-label-color-selected'   : Color.OnSecondaryContainer,
-    'enabled-icon-color-selected'     : Color.OnSecondaryContainer,
-    'enabled-outline-color-selected'  : `transparent`,
-
-    'hovered-container-color-selected'    : Color.SecondaryContainer,
-    'hovered-label-color-selected'   : Color.OnSecondaryContainer,
-    'hovered-icon-color-selected'         : Color.OnSecondaryContainer,
-    'hovered-outline-color-selected'      : `transparent`,
-
-    'focused-container-color-selected'    : Color.SecondaryContainer,
-    'focused-label-color-selected'   : Color.OnSecondaryContainer,
-    'focused-icon-color-selected'         : Color.OnSecondaryContainer,
-    'focused-outline-color-selected'      : `transparent`,
-
-    'pressed-container-color-selected'    : Color.SecondaryContainer,
-    'pressed-label-color-selected'   : Color.OnSecondaryContainer,
-    'pressed-icon-color-selected'         : Color.OnSecondaryContainer,
-    'pressed-outline-color-selected'      : `transparent`,
-
-    'disabled-container-color'    : `transparent`,
-    'disabled-label-color'        : Color.OnSurface,
-    'disabled-icon-color'         : Color.OnSurface,
-    'disabled-outline-color'      : Color.OnSurface,
-
-    'disabled-container-color-selected'    : `transparent`,
-    'disabled-label-color-selected'   : Color.OnSurface,
-    'disabled-icon-color-selected'         : Color.OnSurface,
-    'disabled-outline-color-selected'      : Color.OnSurface,
+    'hovered-state-layer-color' : Color.OnSurfaceVariant,
+    'focused-state-layer-color' : Color.OnSurfaceVariant,
+    'pressed-state-layer-color' : Color.OnSurfaceVariant,
 })
 
-// Input Chip — Widget.Material3.Chip.Input
+/** Input Chip — MD3 InputChipTokens / Widget.Material3.Chip.Input */
 export const InputChipDefinition = createStyleDefinition({
     ...Shared,
-    'container-padding-inline-start': `4px`,
-    'container-padding-inline-end'  : `4px`,
-    'container-padding-block-start' : `0px`,
-    'container-padding-block-end'   : `0px`,
-    'text-padding-inline-start'     : `8px`,
-    'text-padding-inline-end'       : `8px`,
-    'text-padding-block-start'      : `0px`,
-    'text-padding-block-end'        : `0px`,
 
-    'enabled-container-color'     : `transparent`,
-    'enabled-label-color'         : Color.OnSurface,
-    'enabled-outline-color'       : Color.Outline,
-    'enabled-icon-color'          : Color.OnSurfaceVariant,
-    'enabled-avatar-color'        : Color.OnSurfaceVariant,
-    'enabled-trailing-icon-color' : Color.OnSurfaceVariant,
-    'hovered-state-layer-color'   : Color.OnSurface,
-    'focused-state-layer-color'   : Color.OnSurface,
-    'pressed-state-layer-color'   : Color.OnSurface,
+    'leading-space'             : `12px`,
+    'trailing-space'            : `12px`,
 
-    'hovered-container-color'     : `transparent`,
-    'hovered-label-color'         : Color.OnSurface,
-    'hovered-icon-color'          : Color.OnSurfaceVariant,
-    'hovered-avatar-color'        : Color.OnSurfaceVariant,
-    'hovered-trailing-icon-color' : Color.OnSurfaceVariant,
-    'hovered-outline-color'       : Color.Outline,
+    'enabled-container-color'   : `transparent`,
+    'hovered-container-color'   : `transparent`,
+    'focused-container-color'   : `transparent`,
+    'pressed-container-color'   : `transparent`,
+    'dragged-container-color'   : `transparent`,
+    'disabled-container-color'  : `transparent`,
 
-    'focused-container-color'     : `transparent`,
-    'focused-label-color'         : Color.OnSurface,
-    'focused-icon-color'          : Color.OnSurfaceVariant,
-    'focused-avatar-color'        : Color.OnSurfaceVariant,
-    'focused-trailing-icon-color' : Color.OnSurfaceVariant,
-    'focused-outline-color'       : Color.Outline,
+    'enabled-label-color'       : Color.OnSurfaceVariant,
+    'hovered-label-color'       : Color.OnSurfaceVariant,
+    'focused-label-color'       : Color.OnSurfaceVariant,
+    'pressed-label-color'       : Color.OnSurfaceVariant,
+    'disabled-label-color'      : Color.OnSurface,
 
-    'pressed-container-color'     : `transparent`,
-    'pressed-label-color'         : Color.OnSurface,
-    'pressed-icon-color'          : Color.OnSurfaceVariant,
-    'pressed-avatar-color'        : Color.OnSurfaceVariant,
-    'pressed-trailing-icon-color' : Color.OnSurfaceVariant,
-    'pressed-outline-color'       : Color.Outline,
+    'enabled-icon-color'        : Color.OnSurfaceVariant,
+    'hovered-icon-color'        : Color.OnSurfaceVariant,
+    'focused-icon-color'        : Color.OnSurfaceVariant,
+    'pressed-icon-color'        : Color.OnSurfaceVariant,
+    'disabled-icon-color'       : Color.OnSurface,
 
-    'disabled-container-color'    : `transparent`,
-    'disabled-label-color'        : Color.OnSurface,
-    'disabled-icon-color'         : Color.OnSurface,
-    'disabled-avatar-color'       : Color.OnSurface,
-    'disabled-trailing-icon-color': Color.OnSurface,
-    'disabled-outline-color'      : Color.OnSurface,
+    'enabled-outline-color'     : Color.OutlineVariant,
+    'hovered-outline-color'     : Color.OutlineVariant,
+    'focused-outline-color'     : Color.OnSurfaceVariant,
+    'pressed-outline-color'     : Color.OutlineVariant,
+    'disabled-outline-color'    : Color.OnSurface,
+
+    'hovered-state-layer-color' : Color.OnSurfaceVariant,
+    'focused-state-layer-color' : Color.OnSurfaceVariant,
+    'pressed-state-layer-color' : Color.OnSurfaceVariant,
 })
 
-// Suggestion Chip — Widget.Material3.Chip.Suggestion
+/** Suggestion Chip — MD3 SuggestionChipTokens / Widget.Material3.Chip.Suggestion */
 export const SuggestionChipDefinition = createStyleDefinition({
     ...Shared,
-    'container-padding-inline-start': `8px`,
-    'container-padding-inline-end'  : `10px`,
-    'container-padding-block-start' : `0px`,
-    'container-padding-block-end'   : `0px`,
-    'text-padding-inline-start'     : `8px`,
-    'text-padding-inline-end'       : `6px`,
-    'text-padding-block-start'      : `0px`,
-    'text-padding-block-end'        : `0px`,
 
-    'enabled-container-color'     : `transparent`,
-    'enabled-label-color'         : Color.OnSurface,
-    'enabled-outline-color'       : Color.Outline,
-    'hovered-state-layer-color'   : Color.OnSurface,
-    'focused-state-layer-color'   : Color.OnSurface,
-    'pressed-state-layer-color'   : Color.OnSurface,
+    'enabled-container-color'   : `transparent`,
+    'hovered-container-color'   : `transparent`,
+    'focused-container-color'   : `transparent`,
+    'pressed-container-color'   : `transparent`,
+    'dragged-container-color'   : `transparent`,
+    'disabled-container-color'  : `transparent`,
 
-    'hovered-container-color'     : `transparent`,
-    'hovered-label-color'         : Color.OnSurface,
-    'hovered-outline-color'       : Color.Outline,
+    'enabled-label-color'       : Color.OnSurfaceVariant,
+    'hovered-label-color'       : Color.OnSurfaceVariant,
+    'focused-label-color'       : Color.OnSurfaceVariant,
+    'pressed-label-color'       : Color.OnSurfaceVariant,
+    'disabled-label-color'      : Color.OnSurface,
 
-    'focused-container-color'     : `transparent`,
-    'focused-label-color'         : Color.OnSurface,
-    'focused-outline-color'       : Color.Outline,
+    'enabled-icon-color'        : Color.Primary,
+    'hovered-icon-color'        : Color.Primary,
+    'focused-icon-color'        : Color.Primary,
+    'pressed-icon-color'        : Color.Primary,
+    'disabled-icon-color'       : Color.OnSurface,
 
-    'pressed-container-color'     : `transparent`,
-    'pressed-label-color'         : Color.OnSurface,
-    'pressed-outline-color'       : Color.Outline,
+    'enabled-outline-color'     : Color.OutlineVariant,
+    'hovered-outline-color'     : Color.OutlineVariant,
+    'focused-outline-color'     : Color.OnSurfaceVariant,
+    'pressed-outline-color'     : Color.OutlineVariant,
+    'disabled-outline-color'    : Color.OnSurface,
 
-    'disabled-container-color'    : `transparent`,
-    'disabled-label-color'        : Color.OnSurface,
-    'disabled-outline-color'      : Color.OnSurface,
+    'hovered-state-layer-color' : Color.OnSurfaceVariant,
+    'focused-state-layer-color' : Color.OnSurfaceVariant,
+    'pressed-state-layer-color' : Color.OnSurfaceVariant,
 })

@@ -1,0 +1,25 @@
+<style>
+    .demo-row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+</style>
+
+<div class="demo-row">
+    <mdc-chip variant="filter">
+        <span>Sort by</span>
+        <mdc-icon slot="trailing-icon">arrow_drop_down</mdc-icon>
+    </mdc-chip>
+
+    <mdc-chip variant="filter" selected>
+        <mdc-icon slot="icon">directions_car</mdc-icon>
+        <span>Driving</span>
+        <mdc-icon slot="trailing-icon">arrow_drop_down</mdc-icon>
+    </mdc-chip>
+
+    <mdc-chip variant="input" label="Removable (default)"></mdc-chip>
+
+    <mdc-chip variant="input" no-remove label="Non-removable"></mdc-chip>
+</div>

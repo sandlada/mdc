@@ -1,28 +1,32 @@
 <style>
     .demo-row {
         display: flex;
-        gap: 16px;
+        gap: 12px;
         align-items: center;
-        padding: 16px;
         flex-wrap: wrap;
     }
 </style>
 
 <div class="demo-row">
     <mdc-chip variant="assist" elevated>
-        <span>Elevated Assist</span>
+        <mdc-icon slot="icon">event</mdc-icon>
+        <span>Add to calendar</span>
     </mdc-chip>
 
-    <mdc-chip variant="assist" elevated>
-        <mdc-icon slot="icon">add</mdc-icon>
-        <span>Elevated Assist with Icon</span>
+    <mdc-chip variant="filter" elevated>
+        <span>Vegetarian</span>
     </mdc-chip>
 
     <mdc-chip variant="filter" elevated selected>
-        <span>Elevated Filter</span>
+        <span>In stock</span>
+    </mdc-chip>
+
+    <mdc-chip variant="suggestion" elevated>
+        <mdc-icon slot="icon">auto_awesome</mdc-icon>
+        <span>Try asking</span>
     </mdc-chip>
 
     <mdc-chip variant="assist" elevated disabled>
-        <span>Elevated Disabled</span>
+        <span>Elevated disabled</span>
     </mdc-chip>
 </div>

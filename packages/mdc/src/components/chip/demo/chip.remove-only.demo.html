@@ -1,14 +1,13 @@
 <style>
     .demo-row {
         display: flex;
-        gap: 16px;
+        gap: 12px;
         align-items: center;
-        padding: 16px;
         flex-wrap: wrap;
     }
 </style>
 
-<div class="demo-row">
+<div class="demo-row" id="remove-demo">
     <mdc-chip variant="input" remove-only aria-label-remove="Remove john@example.com">
         <mdc-icon slot="avatar">face</mdc-icon>
         <span>john@example.com</span>
@@ -18,7 +17,14 @@
         <span>Disabled Remove-Only</span>
     </mdc-chip>
 
-    <mdc-chip variant="input" aria-label-remove="Remove standard">
-        <span>Standard Input (for comparison)</span>
+    <mdc-chip variant="input" aria-label-remove="Remove selectable input chip">
+        <span>Standard Input (click body or close button)</span>
     </mdc-chip>
 </div>
+
+<script type="module">
+    const host = document.getElementById('remove-demo')
+    host?.addEventListener('chip-close', (e) => {
+        e.detail.chip.remove()
+    })
+</script>

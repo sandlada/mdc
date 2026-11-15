@@ -3,56 +3,64 @@
         display: flex;
         flex-direction: column;
         gap: 8px;
-        padding: 16px;
+        margin-bottom: 20px;
+    }
+
+    .demo-column:last-child {
+        margin-bottom: 0;
     }
 
     .demo-caption {
         font-size: 12px;
-        color: #757575;
+        color: var(--md-sys-color-on-surface-variant);
+    }
+
+    .scroll-box {
+        max-width: 380px;
     }
 </style>
 
 <div class="demo-column">
-    <span class="demo-caption">Multi-select set (ArrowLeft / ArrowRight / Home / End to rove):</span>
+    <span class="demo-caption">Multi-select wrap group (ArrowLeft / ArrowRight / Home / End to rove):</span>
     <mdc-chip-set aria-label="Filter options">
-        <mdc-chip variant="filter">
-            <span>Extras</span>
-        </mdc-chip>
-        <mdc-chip variant="filter">
-            <span>Sea View</span>
-        </mdc-chip>
-        <mdc-chip variant="filter" selected>
-            <span>Wi-Fi</span>
-        </mdc-chip>
+        <mdc-chip variant="filter" label="Extras"></mdc-chip>
+        <mdc-chip variant="filter" label="Sea View"></mdc-chip>
+        <mdc-chip variant="filter" selected label="Wi-Fi"></mdc-chip>
+        <mdc-chip variant="filter" label="Breakfast"></mdc-chip>
+        <mdc-chip variant="filter" label="Free Parking"></mdc-chip>
+        <mdc-chip variant="filter" label="Pet Friendly"></mdc-chip>
     </mdc-chip-set>
 </div>
 
 <div class="demo-column">
-    <span class="demo-caption">Single-select set (single-select keeps at most one selected):</span>
-    <mdc-chip-set single-select aria-label="Travel method">
-        <mdc-chip variant="filter">
-            <span>Car</span>
-        </mdc-chip>
-        <mdc-chip variant="filter">
-            <span>Train</span>
-        </mdc-chip>
-        <mdc-chip variant="filter" selected>
-            <span>Flight</span>
-        </mdc-chip>
+    <span class="demo-caption">Single-select + selection-required group (at least one remains selected):</span>
+    <mdc-chip-set single-select selection-required aria-label="Travel method">
+        <mdc-chip variant="filter" label="Car"></mdc-chip>
+        <mdc-chip variant="filter" label="Train"></mdc-chip>
+        <mdc-chip variant="filter" selected label="Flight"></mdc-chip>
     </mdc-chip-set>
+</div>
+
+<div class="demo-column">
+    <span class="demo-caption">Single-line scrollable chip group (single-line inside 380px container):</span>
+    <div class="scroll-box">
+        <mdc-chip-set single-line aria-label="Categories">
+            <mdc-chip variant="suggestion" label="Nearby"></mdc-chip>
+            <mdc-chip variant="suggestion" label="Open now"></mdc-chip>
+            <mdc-chip variant="suggestion" label="Top rated"></mdc-chip>
+            <mdc-chip variant="suggestion" label="Coffee"></mdc-chip>
+            <mdc-chip variant="suggestion" label="Parks"></mdc-chip>
+            <mdc-chip variant="suggestion" label="Museums"></mdc-chip>
+            <mdc-chip variant="suggestion" label="Live music"></mdc-chip>
+        </mdc-chip-set>
+    </div>
 </div>
 
 <div class="demo-column">
     <span class="demo-caption">Set with a disabled chip — arrow keys skip it:</span>
     <mdc-chip-set aria-label="With disabled">
-        <mdc-chip variant="filter">
-            <span>One</span>
-        </mdc-chip>
-        <mdc-chip variant="filter" disabled>
-            <span>Disabled</span>
-        </mdc-chip>
-        <mdc-chip variant="filter">
-            <span>Two</span>
-        </mdc-chip>
+        <mdc-chip variant="filter" label="One"></mdc-chip>
+        <mdc-chip variant="filter" disabled label="Disabled"></mdc-chip>
+        <mdc-chip variant="filter" label="Two"></mdc-chip>
     </mdc-chip-set>
 </div>

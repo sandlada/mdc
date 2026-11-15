@@ -16,7 +16,9 @@ declare global {
  * @element mdc-chip-set
  *
  * A container that groups `mdc-chip` elements, roves focus with arrow keys
- * (Home / End included, RTL-aware), and optionally enforces single-select.
+ * (Home / End included, RTL-aware), optionally enforces `single-select` and
+ * `selection-required`, and supports wrapping multi-row or scrollable
+ * `single-line` layouts.
  *
  * @slot - The `mdc-chip` children.
  *

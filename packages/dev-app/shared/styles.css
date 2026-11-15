@@ -11,10 +11,10 @@
     --md-sys-color-tertiary-palette-key-color: light-dark(#527e86, #527e86);
     --md-sys-color-neutral-palette-key-color: light-dark(#777777, #777777);
     --md-sys-color-neutral-variant-palette-key-color: light-dark(#777777, #777777);
-    --md-sys-color-background: light-dark(#f9f9f9, 000000);
+    --md-sys-color-background: light-dark(#f9f9f9, #000000);
     --md-sys-color-on-background: light-dark(#1b1b1b, #e2e2e2);
-    --md-sys-color-surface: light-dark(#f9f9f9, 000000);
-    --md-sys-color-surface-dim: light-dark(#dadada, 000000);
+    --md-sys-color-surface: light-dark(#f9f9f9, #000000);
+    --md-sys-color-surface-dim: light-dark(#dadada, #000000);
     --md-sys-color-surface-bright: light-dark(#f9f9f9, #393939);
     --md-sys-color-surface-container-lowest: light-dark(#ffffff, #0e0e0e);
     --md-sys-color-surface-container-low: light-dark(#f3f3f3, #1b1b1b);
