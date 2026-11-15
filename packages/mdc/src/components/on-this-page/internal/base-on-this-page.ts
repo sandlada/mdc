@@ -18,7 +18,7 @@ import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
 import type { IOnThisPage, OnThisPageChangeEventDetail, OnThisPageIndicatorFit } from '../on-this-page.interface'
 import { BaseOnThisPageItem } from './base-on-this-page-item'
 
-const ITEM_SELECTOR = 'mdc-on-this-page-item, [mdc-on-this-page-item]'
+const ItemSelector = 'mdc-on-this-page-item, [mdc-on-this-page-item]'
 
 function slugify(text: string): string {
     return text
@@ -79,7 +79,7 @@ export abstract class BaseOnThisPage extends composeMixin(
     @query('.indicator')
     protected readonly indicatorElement!: HTMLElement | null
 
-    @queryAssignedElements({ selector: ITEM_SELECTOR, flatten: true })
+    @queryAssignedElements({ selector: ItemSelector, flatten: true })
     private readonly assignedItems!: BaseOnThisPageItem[]
 
     @state()
@@ -276,7 +276,7 @@ export abstract class BaseOnThisPage extends composeMixin(
         } else {
             // Query internal rendered elements if auto-discovered
             const internal = Array.from(
-                this.renderRoot.querySelectorAll<BaseOnThisPageItem>(ITEM_SELECTOR)
+                this.renderRoot.querySelectorAll<BaseOnThisPageItem>(ItemSelector)
             )
             this.items = internal
         }

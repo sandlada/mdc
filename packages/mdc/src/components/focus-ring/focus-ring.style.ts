@@ -8,9 +8,9 @@ import { css, unsafeCSS } from 'lit'
 import { stringifyTokens } from '../../utils/style'
 import { FocusRingDefinition } from './focus-ring.definition'
 
-const tokens = stringifyTokens('--mdc-focus-ring')(FocusRingDefinition)
+const Tokens = stringifyTokens('--mdc-focus-ring')(FocusRingDefinition)
 
-const stylePart = css`
+const StylePart = css`
     @layer mdc.focus-ring.component {
         :host {
             border-style: solid;
@@ -170,6 +170,6 @@ export const FocusRingStyle = [
             @layer variable, component, hcm, contrast, motion;
         }
     `,
-    css`@layer mdc.focus-ring.variable {:host {${tokens};}}`,
-    stylePart,
+    css`@layer mdc.focus-ring.variable {:host {${Tokens};}}`,
+    StylePart,
 ]

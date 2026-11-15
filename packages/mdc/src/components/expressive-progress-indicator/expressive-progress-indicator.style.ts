@@ -7,25 +7,25 @@ import { stringifyTokens } from '../../utils/style'
 import { css, unsafeCSS } from 'lit'
 import { ExpressiveProgressIndicatorDefinition } from './expressive-progress-indicator.definition'
 
-const tokens = stringifyTokens('--mdc-expressive-progress-indicator')(ExpressiveProgressIndicatorDefinition)
+const Tokens = stringifyTokens('--mdc-expressive-progress-indicator')(ExpressiveProgressIndicatorDefinition)
 
 // Determinate motion approximates Compose's `ProgressAnimationSpec`
 // (SpringSpec dampingRatio = NoBouncy, stiffness = VeryLow): a smooth,
 // non-overshooting settle. `cubic-bezier(0.16, 1, 0.3, 1)` gives a springy
 // burst that decelerates without bouncing past the target.
-const determinateDuration = unsafeCSS(`650ms`)
-const determinateEasing = unsafeCSS(`cubic-bezier(0.16, 1, 0.3, 1)`)
+const DeterminateDuration = unsafeCSS(`650ms`)
+const DeterminateEasing = unsafeCSS(`cubic-bezier(0.16, 1, 0.3, 1)`)
 
 // Indeterminate linear: Compose `LinearAnimationDuration = 1750`.
-const indeterminateLinearDuration = unsafeCSS(`1750ms`)
+const IndeterminateLinearDuration = unsafeCSS(`1750ms`)
 
 // Indeterminate circular: Compose `CircularAnimationDuration = 6000`, arc
 // sweeps between 0.1 (36deg) and 0.87 (313deg) with `EasingStandardCubicBezier`
 // while rotating 1440deg total (1080 global + 360 additional).
-const indeterminateCircularDuration = unsafeCSS(`6000ms`)
-const indeterminateCircularEasing = unsafeCSS(`cubic-bezier(0.4, 0, 0.2, 1)`)
+const IndeterminateCircularDuration = unsafeCSS(`6000ms`)
+const IndeterminateCircularEasing = unsafeCSS(`cubic-bezier(0.4, 0, 0.2, 1)`)
 
-const stylePart = css`
+const StylePart = css`
     @layer mdc.expressive-progress-indicator.base {
         :host([variant='linear']) {
             border-start-start-radius: var(--_track-shape-start-start);
@@ -105,7 +105,7 @@ const stylePart = css`
             border-end-start-radius: var(--_active-indicator-shape-end-start);
             border-end-end-radius: var(--_active-indicator-shape-end-end);
             background: var(--_enabled-active-indicator-color);
-            transition: width ${determinateDuration} ${determinateEasing};
+            transition: width ${DeterminateDuration} ${DeterminateEasing};
         }
 
         /*
@@ -125,7 +125,7 @@ const stylePart = css`
             border-end-start-radius: var(--_track-shape-end-start);
             border-end-end-radius: var(--_track-shape-end-end);
             background: var(--_enabled-track-color);
-            transition: inset-inline-start ${determinateDuration} ${determinateEasing};
+            transition: inset-inline-start ${DeterminateDuration} ${DeterminateEasing};
         }
 
         /* Round stop indicator at the trailing edge of the track. */
@@ -160,18 +160,18 @@ const stylePart = css`
 
         :host([variant='linear'][indeterminate]) .primary-bar {
             inset-inline-start: -145.167%;
-            animation: linear infinite expressive-primary-translate ${indeterminateLinearDuration};
+            animation: linear infinite expressive-primary-translate ${IndeterminateLinearDuration};
         }
         :host([variant='linear'][indeterminate]) .primary-bar > .bar-inner {
-            animation: linear infinite expressive-primary-scale ${indeterminateLinearDuration};
+            animation: linear infinite expressive-primary-scale ${IndeterminateLinearDuration};
         }
         :host([variant='linear'][indeterminate]) .secondary-bar {
             inset-inline-start: -54.8889%;
             display: block;
-            animation: linear infinite expressive-secondary-translate ${indeterminateLinearDuration};
+            animation: linear infinite expressive-secondary-translate ${IndeterminateLinearDuration};
         }
         :host([variant='linear'][indeterminate]) .secondary-bar > .bar-inner {
-            animation: linear infinite expressive-secondary-scale ${indeterminateLinearDuration};
+            animation: linear infinite expressive-secondary-scale ${IndeterminateLinearDuration};
         }
 
         /* The track stays full-width while indeterminate (Flutter behavior),
@@ -233,7 +233,7 @@ const stylePart = css`
         /* ── Circular: determinate ─────────────────────────────────────────── */
         .active-circle {
             stroke: var(--_enabled-active-indicator-color);
-            transition: stroke-dashoffset ${determinateDuration} ${determinateEasing};
+            transition: stroke-dashoffset ${DeterminateDuration} ${DeterminateEasing};
         }
 
         /*
@@ -244,20 +244,20 @@ const stylePart = css`
         .track-circle {
             stroke: var(--_enabled-track-color);
             transition:
-                stroke-dashoffset ${determinateDuration} ${determinateEasing},
-                stroke-dasharray ${determinateDuration} ${determinateEasing};
+                stroke-dashoffset ${DeterminateDuration} ${DeterminateEasing},
+                stroke-dasharray ${DeterminateDuration} ${DeterminateEasing};
         }
 
         /* ── Circular: indeterminate spinner ───────────────────────────────── */
         .circular-spinner {
-            animation: expressive-circular-rotate ${indeterminateCircularDuration}
+            animation: expressive-circular-rotate ${IndeterminateCircularDuration}
                 linear infinite;
         }
 
         .spinner-arc {
             stroke: var(--_enabled-active-indicator-color);
-            animation: expressive-circular-sweep ${indeterminateCircularDuration}
-                ${indeterminateCircularEasing} infinite;
+            animation: expressive-circular-sweep ${IndeterminateCircularDuration}
+                ${IndeterminateCircularEasing} infinite;
         }
 
         :host([variant='circular']:not([indeterminate])) .circular-spinner {
@@ -421,6 +421,6 @@ export const ExpressiveProgressIndicatorStyles = [
             @layer variable, base;
         }
     `,
-    css`@layer mdc.expressive-progress-indicator.variable {:host {${tokens};}}`,
-    stylePart
+    css`@layer mdc.expressive-progress-indicator.variable {:host {${Tokens};}}`,
+    StylePart
 ]

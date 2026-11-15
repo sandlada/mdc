@@ -1,17 +1,6 @@
 import type { LitElement } from 'lit'
 import type { FormAssociated } from '../../utils/form/form-associated'
 
-export type NavigationTabVariant
-    = 'bar-vertical'
-    | 'bar-horizontal'
-    | 'bar-xr-vertical'
-    | 'rail-vertical'
-    | 'rail-horizontal'
-    | 'rail-round'
-    | 'rail-xr-vertical'
-    | 'rail-xr-round'
-    | 'drawer'
-    | 'drawer-horizontal'
 export const NavigationTabVariant = {
     BarVertical: 'bar-vertical',
     BarHorizontal: 'bar-horizontal',
@@ -23,7 +12,8 @@ export const NavigationTabVariant = {
     RailXRRound: 'rail-xr-round',
     Drawer: 'drawer',
     DrawerHorizontal: 'drawer-horizontal',
-} as const satisfies Record<string, NavigationTabVariant>
+} as const
+export type NavigationTabVariant = (typeof NavigationTabVariant)[keyof typeof NavigationTabVariant]
 
 export interface INavigationTab extends LitElement, FormAssociated {
     name           : string

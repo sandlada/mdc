@@ -16,7 +16,7 @@ import { mixinFocusRingOptions } from '../../focus-ring/focus-ring-options.mixin
 import { mixinRippleOptions } from '../../ripple/ripple-options.mixin'
 import type { IOnThisPageItem } from '../on-this-page.interface'
 
-export const ON_THIS_PAGE_ITEM_REQUEST_ACTIVATE = Symbol('onThisPageItemRequestActivate')
+export const OnThisPageItemRequestActivate = Symbol('onThisPageItemRequestActivate')
 
 export abstract class BaseOnThisPageItem extends composeMixin(
     mixinDelegatesAria,

@@ -17,8 +17,8 @@ import '../../button/index'
 import '../../icon-button/index'
 import '../../ripple/index'
 
-const HANDLE_SIZE = 48
-const RADIUS = 104
+const HandleSize = 48
+const Radius = 104
 
 const positionForAngle = (angle: number, radius: number): { x: number, y: number } => {
     const theta = (angle * Math.PI) / 180
@@ -298,7 +298,7 @@ export abstract class BaseTimePicker extends composeMixin(
             this.syncTexts()
         } else {
             if (this.is24Hour) {
-                const isInner = dist < RADIUS * 0.72
+                const isInner = dist < Radius * 0.72
                 this.pendingHour = hourFromAngle(angle)(true, isInner)
             } else {
                 this.pendingHour = withHourOfPeriod({ hour: this.pendingHour, minute: this.pendingMinute })(hourFromAngle(angle)(false, false)).hour
@@ -357,10 +357,10 @@ export abstract class BaseTimePicker extends composeMixin(
             for (let m = 0; m < 60; m += 5) labels.push(m)
             return labels.map((m) => {
                 const angle = angleForMinute(m)
-                const pos = positionForAngle(angle, RADIUS)
+                const pos = positionForAngle(angle, Radius)
                 const selected = m === this.pendingMinute
                 return html`
-                    <button class=${classMap({ 'dial-label': true, 'selected': selected })} style=${styleMap({ left: `calc(50% + ${pos.x}px - ${HANDLE_SIZE / 2}px)`, top: `calc(50% + ${pos.y}px - ${HANDLE_SIZE / 2}px)` })} @click=${() => { this.pendingMinute = m; this.syncTexts(); this.requestUpdate() }} aria-label=${`${m} minutes`} aria-pressed=${selected ? 'true' : 'false'}>
+                    <button class=${classMap({ 'dial-label': true, 'selected': selected })} style=${styleMap({ left: `calc(50% + ${pos.x}px - ${HandleSize / 2}px)`, top: `calc(50% + ${pos.y}px - ${HandleSize / 2}px)` })} @click=${() => { this.pendingMinute = m; this.syncTexts(); this.requestUpdate() }} aria-label=${`${m} minutes`} aria-pressed=${selected ? 'true' : 'false'}>
                         <mdc-ripple></mdc-ripple>
                         ${pad2(m)}
                     </button>
@@ -373,10 +373,10 @@ export abstract class BaseTimePicker extends composeMixin(
             return html`
                 ${outer.map((h) => {
                     const angle = angleForHour(h)(true, false)
-                    const pos = positionForAngle(angle, RADIUS)
+                    const pos = positionForAngle(angle, Radius)
                     const selected = h === this.pendingHour
                     return html`
-                        <button class=${classMap({ 'dial-label': true, 'selected': selected })} style=${styleMap({ left: `calc(50% + ${pos.x}px - ${HANDLE_SIZE / 2}px)`, top: `calc(50% + ${pos.y}px - ${HANDLE_SIZE / 2}px)` })} @click=${() => { this.pendingHour = h; this.period = periodOf(h); this.selection = 'minute'; this.syncTexts(); this.requestUpdate() }} aria-label=${`${h} hours`} aria-pressed=${selected ? 'true' : 'false'}>
+                        <button class=${classMap({ 'dial-label': true, 'selected': selected })} style=${styleMap({ left: `calc(50% + ${pos.x}px - ${HandleSize / 2}px)`, top: `calc(50% + ${pos.y}px - ${HandleSize / 2}px)` })} @click=${() => { this.pendingHour = h; this.period = periodOf(h); this.selection = 'minute'; this.syncTexts(); this.requestUpdate() }} aria-label=${`${h} hours`} aria-pressed=${selected ? 'true' : 'false'}>
                             <mdc-ripple></mdc-ripple>
                             ${h}
                         </button>
@@ -384,10 +384,10 @@ export abstract class BaseTimePicker extends composeMixin(
                 })}
                 ${inner.map((h) => {
                     const angle = angleForHour(h)(true, true)
-                    const pos = positionForAngle(angle, RADIUS * 0.55)
+                    const pos = positionForAngle(angle, Radius * 0.55)
                     const selected = h === this.pendingHour
                     return html`
-                        <button class=${classMap({ 'dial-label': true, 'selected': selected })} style=${styleMap({ left: `calc(50% + ${pos.x}px - ${HANDLE_SIZE / 2}px)`, top: `calc(50% + ${pos.y}px - ${HANDLE_SIZE / 2}px)` })} @click=${() => { this.pendingHour = h; this.period = periodOf(h); this.selection = 'minute'; this.syncTexts(); this.requestUpdate() }} aria-label=${`${h} hours`} aria-pressed=${selected ? 'true' : 'false'}>
+                        <button class=${classMap({ 'dial-label': true, 'selected': selected })} style=${styleMap({ left: `calc(50% + ${pos.x}px - ${HandleSize / 2}px)`, top: `calc(50% + ${pos.y}px - ${HandleSize / 2}px)` })} @click=${() => { this.pendingHour = h; this.period = periodOf(h); this.selection = 'minute'; this.syncTexts(); this.requestUpdate() }} aria-label=${`${h} hours`} aria-pressed=${selected ? 'true' : 'false'}>
                             <mdc-ripple></mdc-ripple>
                             ${h}
                         </button>
@@ -398,10 +398,10 @@ export abstract class BaseTimePicker extends composeMixin(
         const hours = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
         return hours.map((h) => {
             const angle = angleForHour(h)(false)
-            const pos = positionForAngle(angle, RADIUS)
+            const pos = positionForAngle(angle, Radius)
             const selected = hourOfPeriod(this.pendingHour) === h
             return html`
-                <button class=${classMap({ 'dial-label': true, 'selected': selected })} style=${styleMap({ left: `calc(50% + ${pos.x}px - ${HANDLE_SIZE / 2}px)`, top: `calc(50% + ${pos.y}px - ${HANDLE_SIZE / 2}px)` })} @click=${() => { this.pendingHour = withHourOfPeriod({ hour: this.pendingHour, minute: this.pendingMinute })(h).hour; this.selection = 'minute'; this.syncTexts(); this.requestUpdate() }} aria-label=${`${h} o'clock`} aria-pressed=${selected ? 'true' : 'false'}>
+                <button class=${classMap({ 'dial-label': true, 'selected': selected })} style=${styleMap({ left: `calc(50% + ${pos.x}px - ${HandleSize / 2}px)`, top: `calc(50% + ${pos.y}px - ${HandleSize / 2}px)` })} @click=${() => { this.pendingHour = withHourOfPeriod({ hour: this.pendingHour, minute: this.pendingMinute })(h).hour; this.selection = 'minute'; this.syncTexts(); this.requestUpdate() }} aria-label=${`${h} o'clock`} aria-pressed=${selected ? 'true' : 'false'}>
                     <mdc-ripple></mdc-ripple>
                     ${h}
                 </button>
@@ -417,7 +417,7 @@ export abstract class BaseTimePicker extends composeMixin(
         // 24h inner-ring hours (1..12) sit closer to the center: the hand
         // must stop at the handle instead of poking out to the outer ring.
         const isInner = this.is24Hour && this.selection === 'hour' && this.pendingHour >= 1 && this.pendingHour <= 12
-        const trackLength = isInner ? RADIUS * 0.55 : RADIUS
+        const trackLength = isInner ? Radius * 0.55 : Radius
         return html`
             <div class=${classMap({ 'dial': true, 'dragging': this.dragging })} role="radiogroup" aria-label=${this.selection === 'minute' ? 'Select minutes' : 'Select hours'} tabindex="0"
                 @pointerdown=${this.handleDialPointerDown} @pointermove=${this.handleDialPointerMove} @pointerup=${this.handleDialPointerUp} @keydown=${this.handleDialKeydown}>

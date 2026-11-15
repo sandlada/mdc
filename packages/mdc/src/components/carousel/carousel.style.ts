@@ -17,9 +17,9 @@ import { css } from 'lit'
 import { stringifyTokens } from '../../utils/style'
 import { CarouselDefinition } from './carousel.definition'
 
-const tokens = stringifyTokens('--mdc-carousel')(CarouselDefinition)
+const Tokens = stringifyTokens('--mdc-carousel')(CarouselDefinition)
 
-const stylePart = css`
+const StylePart = css`
     @layer mdc.carousel.component {
         :host {
             display: flex;
@@ -77,6 +77,6 @@ export const CarouselStyles = [
             @layer variable, component, motion;
         }
     `,
-    css`@layer mdc.carousel.variable { :host { ${tokens}; } }`,
-    stylePart,
+    css`@layer mdc.carousel.variable { :host { ${Tokens}; } }`,
+    StylePart,
 ]

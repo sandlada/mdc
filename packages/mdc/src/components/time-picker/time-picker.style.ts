@@ -10,10 +10,10 @@ import { RippleDefinition } from '../ripple/ripple.definition'
 import { TimePickerDialDefinition, TimePickerInputDefinition } from './time-picker.definition'
 import { overrideTokens, stringifyTokens } from '../../utils/style'
 
-const dialTokens = stringifyTokens('--mdc-time-picker')(TimePickerDialDefinition)
-const inputTokens = stringifyTokens('--mdc-time-picker')(TimePickerInputDefinition)
+const DialTokens = stringifyTokens('--mdc-time-picker')(TimePickerDialDefinition)
+const InputTokens = stringifyTokens('--mdc-time-picker')(TimePickerInputDefinition)
 
-const elevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
+const ElevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
     'level': `var(--_enabled-container-elevation)`,
 })()
 
@@ -30,14 +30,14 @@ const rippleBridge = (group: 'dial' | 'time-selector' | 'period') => overrideTok
     'pressed-opacity': `var(--_pressed-${group}-state-layer-opacity)`,
 })()
 
-const dialRippleStyles = rippleBridge('dial')
-const timeSelectorRippleStyles = rippleBridge('time-selector')
-const periodRippleStyles = rippleBridge('period')
+const DialRippleStyles = rippleBridge('dial')
+const TimeSelectorRippleStyles = rippleBridge('time-selector')
+const PeriodRippleStyles = rippleBridge('period')
 
-const stylePart = css`
+const StylePart = css`
     @layer mdc.time-picker.component {
         .container > mdc-elevation {
-            ${elevationStyles};
+            ${ElevationStyles};
             position: absolute;
             inset: 0;
             border-radius: inherit;
@@ -180,7 +180,7 @@ const stylePart = css`
         .time-cell mdc-ripple {
             border-radius: inherit;
             position: absolute;
-            ${timeSelectorRippleStyles};
+            ${TimeSelectorRippleStyles};
         }
 
         .time-cell.selected {
@@ -240,7 +240,7 @@ const stylePart = css`
         .period-button mdc-ripple {
             border-radius: inherit;
             position: absolute;
-            ${periodRippleStyles};
+            ${PeriodRippleStyles};
         }
 
         .period-button.selected {
@@ -278,7 +278,7 @@ const stylePart = css`
         .dial-label mdc-ripple {
             border-radius: inherit;
             position: absolute;
-            ${dialRippleStyles};
+            ${DialRippleStyles};
         }
 
         .dial-label:focus-visible {
@@ -457,7 +457,7 @@ export const TimePickerStyles = [
             @layer variable, component, motion, hcm, contrast, transparency;
         }
     `,
-    css`@layer mdc.time-picker.variable {:host {${dialTokens};}}`,
-    css`@layer mdc.time-picker.variable {:host([variant='input']) {${inputTokens};}}`,
-    stylePart,
+    css`@layer mdc.time-picker.variable {:host {${DialTokens};}}`,
+    css`@layer mdc.time-picker.variable {:host([variant='input']) {${InputTokens};}}`,
+    StylePart,
 ]

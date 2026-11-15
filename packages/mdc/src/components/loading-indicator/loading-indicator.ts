@@ -29,7 +29,7 @@ import type { AriaMixinStrict } from '../../utils/aria/aria'
 import { mixinDelegatesAria } from '../../utils/aria/delegate'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import {
-    LOADING_INDICATOR_COMPLETE_EVENT,
+    LoadingIndicatorCompleteEvent,
     type ILoadingIndicator,
     type ILoadingIndicatorCompleteDetail,
     type LoadingIndicatorVariant,
@@ -149,7 +149,7 @@ export class MDCLoadingIndicator
         if (!this.indeterminate && !this.completeFired && this.progress >= 1) {
             this.completeFired = true
             this.dispatchEvent(new CustomEvent<ILoadingIndicatorCompleteDetail>(
-                LOADING_INDICATOR_COMPLETE_EVENT,
+                LoadingIndicatorCompleteEvent,
                 { detail: { value: 1 }, bubbles: true, composed: true },
             ))
         }

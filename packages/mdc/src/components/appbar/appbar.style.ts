@@ -7,11 +7,11 @@ import { css } from 'lit'
 import { stringifyTokens } from '../../utils/style'
 import { AppBarDefinition } from './appbar.definition'
 
-const tokenString = stringifyTokens('--mdc-appbar')(AppBarDefinition)
+const TokenString = stringifyTokens('--mdc-appbar')(AppBarDefinition)
 
 export const AppBarStyles = css`
     :host {
-        ${tokenString};
+        ${TokenString};
     }
 
     :host {

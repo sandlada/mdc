@@ -58,10 +58,10 @@ export interface ITooltipBoxEventDetail {
 }
 
 /** Name of the event fired when the tooltip starts showing. */
-export const TOOLTIP_BOX_SHOWING_EVENT = 'tooltip-box-showing'
+export const TooltipBoxShowingEvent = 'tooltip-box-showing'
 /** Name of the event fired when the tooltip is fully visible. */
-export const TOOLTIP_BOX_SHOWN_EVENT = 'tooltip-box-shown'
+export const TooltipBoxShownEvent = 'tooltip-box-shown'
 /** Name of the event fired when the tooltip starts hiding. */
-export const TOOLTIP_BOX_HIDING_EVENT = 'tooltip-box-hiding'
+export const TooltipBoxHidingEvent = 'tooltip-box-hiding'
 /** Name of the event fired when the tooltip is fully hidden. */
-export const TOOLTIP_BOX_HIDDEN_EVENT = 'tooltip-box-hidden'
+export const TooltipBoxHiddenEvent = 'tooltip-box-hidden'

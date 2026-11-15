@@ -5,7 +5,7 @@
  */
 import { css } from 'lit'
 
-export const baseTextFieldStyles = css`
+export const BaseTextFieldStyles = css`
     @layer mdc.text-field.base {
         :host {
             display: inline-flex;
@@ -71,5 +71,5 @@ export const baseTextFieldStyles = css`
     }
 `
 
-export const textFieldStyles = [baseTextFieldStyles]
+export const TextFieldStyles = [BaseTextFieldStyles]
 

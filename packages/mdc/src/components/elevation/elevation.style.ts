@@ -7,15 +7,15 @@ import { css } from 'lit'
 import { ElevationDefinition } from './elevation.definition'
 import { stringifyTokens } from '../../utils/style'
 
-const tokens = stringifyTokens('--mdc-elevation')(ElevationDefinition)
+const Tokens = stringifyTokens('--mdc-elevation')(ElevationDefinition)
 
-export const styles = [
+export const Styles = [
     css`
         @layer mdc.elevation {
             @layer variable, component, motion, hcm, contrast, transparency;
         }
     `,
-    css`@layer mdc.elevation.variable {:host {${tokens};}}`,
+    css`@layer mdc.elevation.variable {:host {${Tokens};}}`,
     css`
         @layer mdc.elevation.component {
             :host {
@@ -138,4 +138,4 @@ export const styles = [
     `
 ]
 
-export const ElevationStyles = styles
+export const ElevationStyles = Styles

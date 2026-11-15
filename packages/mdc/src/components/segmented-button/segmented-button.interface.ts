@@ -53,6 +53,6 @@ export interface ISegmentedButtonSetSelectionEventDetail {
 }
 
 /** Name of the event a segment dispatches on activation. */
-export const SEGMENTED_BUTTON_INTERACTION_EVENT = 'segmented-button-interaction'
+export const SegmentedButtonInteractionEvent = 'segmented-button-interaction'
 /** Name of the event the set dispatches when a selection changes. */
-export const SEGMENTED_BUTTON_SET_SELECTION_EVENT = 'segmented-button-set-selection'
+export const SegmentedButtonSetSelectionEvent = 'segmented-button-set-selection'

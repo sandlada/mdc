@@ -9,8 +9,8 @@ import { live } from 'lit/directives/live.js'
 import type { AriaMixinStrict } from '../../../utils/aria/aria'
 import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import {
-    createValidator,
-    getValidityAnchor,
+    CreateValidator,
+    GetValidityAnchor,
     mixinConstraintValidation,
 } from '../../../utils/behaviors/constraint-validation'
 import { mixinElementInternals } from '../../../utils/behaviors/element-internals'
@@ -22,8 +22,8 @@ import {
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
 import { redispatchEvent } from '../../../utils/event/redispatch-event'
 import {
-    getFormState,
-    getFormValue,
+    GetFormState,
+    GetFormValue,
     mixinFormAssociated,
 } from '../../../utils/form/form-associated'
 import { mixinFocusRingOptions } from '../../focus-ring/focus-ring-options.mixin'
@@ -35,7 +35,7 @@ import {
     type ITextField,
     type TextFieldType,
 } from '../text-field.interface'
-import { textFieldStyles } from '../text-field.style'
+import { TextFieldStyles } from '../text-field.style'
 
 /**
  * Abstract base for `mdc-text-field`.
@@ -65,7 +65,7 @@ export abstract class BaseTextField extends composeMixin(
     mixinFocusRingOptions,
 )(LitElement) implements ITextField {
 
-    public static override styles = textFieldStyles
+    public static override styles = TextFieldStyles
 
     public static override shadowRootOptions: ShadowRootInit = {
         mode: 'open',
@@ -314,11 +314,11 @@ export abstract class BaseTextField extends composeMixin(
 
     // ── Form Association ────────────────────────────────────────────────────
 
-    public override [getFormValue](): string | null {
+    public override [GetFormValue](): string | null {
         return this.value
     }
 
-    public override [getFormState](): string {
+    public override [GetFormState](): string {
         return this.value
     }
 
@@ -336,14 +336,14 @@ export abstract class BaseTextField extends composeMixin(
 
     // ── Constraint Validation ───────────────────────────────────────────────
 
-    public override [createValidator](): TextFieldValidator {
+    public override [CreateValidator](): TextFieldValidator {
         return new TextFieldValidator(() => ({
             state: this.getValidationState(),
             renderedControl: this.inputElement,
         }))
     }
 
-    public override [getValidityAnchor](): HTMLElement | null {
+    public override [GetValidityAnchor](): HTMLElement | null {
         return this.inputElement
     }
 

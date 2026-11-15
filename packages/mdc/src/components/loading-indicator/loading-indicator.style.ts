@@ -7,13 +7,13 @@ import { css } from 'lit'
 import { LoadingIndicatorDefinition } from './loading-indicator.definition'
 import { stringifyTokens } from '../../utils/style'
 
-const tokenString = stringifyTokens('--mdc-loading-indicator')(LoadingIndicatorDefinition)
+const TokenString = stringifyTokens('--mdc-loading-indicator')(LoadingIndicatorDefinition)
 
 export const LoadingIndicatorStyles = css`
     @layer mdc.loading-indicator {
         @layer variable {
             :host {
-                ${tokenString}
+                ${TokenString}
             }
 
             /* Per-variant color-role selection via the variant-{v} class on

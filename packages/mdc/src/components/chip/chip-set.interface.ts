@@ -27,4 +27,4 @@ export interface IChipSetSelectionEventDetail {
 }
 
 /** Name of the event fired when a chip's selection changes within the set. */
-export const CHIP_SET_SELECTION_EVENT = 'chip-set-selection'
+export const ChipSetSelectionEvent = 'chip-set-selection'

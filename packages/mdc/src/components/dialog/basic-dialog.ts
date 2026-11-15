@@ -5,7 +5,7 @@
  */
 import { customElement } from 'lit/decorators.js'
 import { BaseDialog } from './internal/dialog.base'
-import { basicDialogStyle } from './internal/dialog.style'
+import { BasicDialogStyle } from './internal/dialog.style'
 
 declare global {
     interface HTMLElementTagNameMap {
@@ -15,5 +15,5 @@ declare global {
 
 @customElement('mdc-basic-dialog')
 export class BasicDialog extends BaseDialog {
-    static override styles = basicDialogStyle
+    static override styles = BasicDialogStyle
 }

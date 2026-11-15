@@ -10,9 +10,9 @@ import type { IconDefinition } from '../icon/icon.definition'
 import type { RippleDefinition } from '../ripple/ripple.definition'
 import { overrideTokens, stringifyTokens } from '../../utils/style'
 
-const tokenString = stringifyTokens('--mdc-search-bar')(SearchBarDefinition)
+const TokenString = stringifyTokens('--mdc-search-bar')(SearchBarDefinition)
 
-const focusRingStyles = overrideTokens<typeof FocusRingDefinition>('--mdc-focus-ring')({
+const FocusRingStyles = overrideTokens<typeof FocusRingDefinition>('--mdc-focus-ring')({
     'shape-start-start': `var(--_enabled-container-shape-start-start)`,
     'shape-start-end': `var(--_enabled-container-shape-start-end)`,
     'shape-end-start': `var(--_enabled-container-shape-end-start)`,
@@ -23,59 +23,59 @@ const focusRingStyles = overrideTokens<typeof FocusRingDefinition>('--mdc-focus-
     'inward-offset': `var(--_focused-indicator-offset)`,
 })()
 
-const avatarFocusRingStyles = overrideTokens<typeof FocusRingDefinition>('--mdc-focus-ring')({
+const AvatarFocusRingStyles = overrideTokens<typeof FocusRingDefinition>('--mdc-focus-ring')({
     'shape-start-start': `var(--_enabled-avatar-container-shape-start-start)`,
     'shape-start-end': `var(--_enabled-avatar-container-shape-start-end)`,
     'shape-end-start': `var(--_enabled-avatar-container-shape-end-start)`,
     'shape-end-end': `var(--_enabled-avatar-container-shape-end-end)`,
 })()
 
-const rippleStyles = overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
+const RippleStyles = overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
     'enabled-hovered-color': `var(--_hovered-state-layer-color)`,
     'enabled-pressed-color': `var(--_pressed-state-layer-color)`,
     'enabled-hovered-opacity': `var(--_hovered-state-layer-opacity)`,
     'enabled-pressed-opacity': `var(--_pressed-state-layer-opacity)`,
 })()
 
-const leadingIconTokens = overrideTokens<typeof IconDefinition>('--mdc-icon')({
+const LeadingIconTokens = overrideTokens<typeof IconDefinition>('--mdc-icon')({
     'enabled-size': `var(--_enabled-leading-icon-size)`,
 })()
 
-const trailingIconTokens = overrideTokens<typeof IconDefinition>('--mdc-icon')({
+const TrailingIconTokens = overrideTokens<typeof IconDefinition>('--mdc-icon')({
     'enabled-size': `var(--_enabled-trailing-icon-size)`,
 })()
 
-export const searchBarStyle = css`
+export const SearchBarStyle = css`
     @layer mdc.search-bar.variable {
         :host {
-            ${tokenString};
+            ${TokenString};
         }
     }
 
     @layer mdc.search-bar.composite.focus-ring {
         .search > mdc-focus-ring {
             border-radius: inherit;
-            ${focusRingStyles};
+            ${FocusRingStyles};
         }
         .avatar mdc-focus-ring {
             border-radius: inherit;
-            ${avatarFocusRingStyles};
+            ${AvatarFocusRingStyles};
         }
     }
 
     @layer mdc.search-bar.composite.ripple {
         mdc-ripple {
             border-radius: inherit;
-            ${rippleStyles};
+            ${RippleStyles};
         }
     }
 
     @layer mdc.search-bar.composite.icon {
         .leading-icon {
-            ${leadingIconTokens};
+            ${LeadingIconTokens};
         }
         .trailing-icon {
-            ${trailingIconTokens};
+            ${TrailingIconTokens};
         }
     }
 

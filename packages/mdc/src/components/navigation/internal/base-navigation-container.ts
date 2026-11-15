@@ -31,8 +31,8 @@ export interface INavigationTabTarget extends HTMLElement {
     variant: NavigationTabVariant
 }
 
-const NAVIGATION_TAB_SELECTOR = 'mdc-navigation-tab'
-const NAVIGATION_CONTAINER_SELECTOR = 'mdc-navigation-bar, mdc-navigation-rail, mdc-navigation-drawer'
+const NavigationTabSelector = 'mdc-navigation-tab'
+const NavigationContainerSelector = 'mdc-navigation-bar, mdc-navigation-rail, mdc-navigation-drawer'
 
 /**
  * Scope last inherited into each tab. Module-level so a tab moved between
@@ -40,7 +40,7 @@ const NAVIGATION_CONTAINER_SELECTOR = 'mdc-navigation-bar, mdc-navigation-rail, 
  * A tab whose scope diverges from the recorded value has opted out with its
  * own scope.
  */
-const inheritedTabScopes = new WeakMap<INavigationTabTarget, string>()
+const InheritedTabScopes = new WeakMap<INavigationTabTarget, string>()
 
 export abstract class BaseNavigationContainer extends LitElement {
 
@@ -180,13 +180,13 @@ export abstract class BaseNavigationContainer extends LitElement {
         return record.type === 'attributes'
             && record.attributeName === attributeName
             && record.target instanceof Element
-            && record.target.matches(NAVIGATION_TAB_SELECTOR)
+            && record.target.matches(NavigationTabSelector)
     }
 
     private addedNavigationTabs(nodes: NodeList): boolean {
         for (const node of nodes) {
             if (!(node instanceof Element)) continue
-            if (node.matches(NAVIGATION_TAB_SELECTOR) || node.querySelector(NAVIGATION_TAB_SELECTOR) !== null) {
+            if (node.matches(NavigationTabSelector) || node.querySelector(NavigationTabSelector) !== null) {
                 return true
             }
         }
@@ -221,7 +221,7 @@ export abstract class BaseNavigationContainer extends LitElement {
         const navigationScope = this.normalizeScope(this.navigationScope)
 
         for (const tab of this.tabs) {
-            const inheritedScope = inheritedTabScopes.get(tab)
+            const inheritedScope = InheritedTabScopes.get(tab)
             const tabScope = tab.navigationScope?.trim() ?? ''
 
             if (inheritedScope === undefined) {
@@ -232,22 +232,22 @@ export abstract class BaseNavigationContainer extends LitElement {
                 }
             } else if (tabScope.length > 0 && tabScope !== inheritedScope) {
                 // The tab scope changed after inheritance, so stop managing it.
-                inheritedTabScopes.delete(tab)
+                InheritedTabScopes.delete(tab)
                 continue
             }
 
             if (tabScope !== navigationScope) {
                 tab.navigationScope = navigationScope
             }
-            inheritedTabScopes.set(tab, navigationScope)
+            InheritedTabScopes.set(tab, navigationScope)
         }
     }
 
     // Tabs may sit inside slotted wrappers such as `mdc-navigation-rail-section`,
     // so collect light-DOM descendants and skip tabs owned by a nested container.
     private get tabs(): INavigationTabTarget[] {
-        return Array.from(this.querySelectorAll<INavigationTabTarget>(NAVIGATION_TAB_SELECTOR))
-            .filter((tab) => tab.parentElement?.closest(NAVIGATION_CONTAINER_SELECTOR) === this)
+        return Array.from(this.querySelectorAll<INavigationTabTarget>(NavigationTabSelector))
+            .filter((tab) => tab.parentElement?.closest(NavigationContainerSelector) === this)
     }
 
     private normalizeScope(scope: string): string {

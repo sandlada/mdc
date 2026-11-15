@@ -21,7 +21,7 @@ export interface NavigationDrawerAnimation {
     container?: NavigationDrawerAnimationArgs[]
 }
 
-const SCRIM_OPACITY_PEAK = 0.38
+const ScrimOpacityPeak = 0.38
 
 /**
  * Pixel-keyframe for the container's off-dock resting offset on a physical
@@ -51,7 +51,7 @@ export const NavigationDrawerDragSnapBackAnimation = (
         [
             [
                 { opacity: scrimCurrent },
-                { opacity: SCRIM_OPACITY_PEAK },
+                { opacity: ScrimOpacityPeak },
             ],
             { duration: 250, easing: 'linear' },
         ],

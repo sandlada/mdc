@@ -10,13 +10,13 @@ import {
     StandardButtonGroupDefinition,
 } from './button-group.definition'
 
-const standardTokenString = stringifyTokens('--mdc-standard-button-group')(StandardButtonGroupDefinition)
+const StandardTokenString = stringifyTokens('--mdc-standard-button-group')(StandardButtonGroupDefinition)
 
-const connectedTokenString = stringifyTokens('--mdc-connected-button-group')(ConnectedButtonGroupDefinition)
+const ConnectedTokenString = stringifyTokens('--mdc-connected-button-group')(ConnectedButtonGroupDefinition)
 
 type TSize = 'extra-small' | 'small' | 'medium' | 'large' | 'extra-large'
 
-const SIZES: TSize[] = ['extra-small', 'small', 'medium', 'large', 'extra-large']
+const Sizes: TSize[] = ['extra-small', 'small', 'medium', 'large', 'extra-large']
 
 /**
  * Build the per-position CSS overrides that morph a connected group's slotted
@@ -136,7 +136,7 @@ function getConnectedShapeTokensString(
 function getConnectedShapeStyles() {
     const rules: string[] = []
 
-    for (const size of SIZES) {
+    for (const size of Sizes) {
         // Horizontal
         rules.push(`
             .container.connected.horizontal.${size} ::slotted([data-group-position="single"]),
@@ -187,10 +187,10 @@ function getConnectedShapeStyles() {
     return unsafeCSS(rules.join('\n'))
 }
 
-export const buttonGroupStyles = css`
+export const ButtonGroupStyles = css`
     :host {
-        ${standardTokenString}
-        ${connectedTokenString}
+        ${StandardTokenString}
+        ${ConnectedTokenString}
 
         display: inline-flex;
         vertical-align: middle;

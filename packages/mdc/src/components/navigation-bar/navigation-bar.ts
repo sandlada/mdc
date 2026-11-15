@@ -28,10 +28,22 @@ import { NavigationBarStyles } from './navigation-bar.style'
 import { classMap } from 'lit/directives/class-map.js'
 import { NavigationTabVariant } from '../navigation-tab/navigation-tab.interface'
 
-const BAR_TAB_VARIANTS = {
-    horizontal: NavigationTabVariant.BarHorizontal,
-    vertical: NavigationTabVariant.BarVertical,
-    'vertical-xr': NavigationTabVariant.BarXRVertical,
+const BarTabVariants = {
+    Horizontal: NavigationTabVariant.BarHorizontal,
+    Vertical  : NavigationTabVariant.BarVertical,
+    VerticalXR: NavigationTabVariant.BarXRVertical,
+} as const satisfies Record<keyof typeof NavigationBarVariant, NavigationTabVariant>
+
+/**
+ * Maps a navigation-bar `variant` value to its {@link BarTabVariants} entry.
+ *
+ * The public `variant` attribute carries the slug (`horizontal`), while
+ * `BarTabVariants` is keyed by the variant name — this index bridges the two.
+ */
+const BarTabVariantByValue = {
+    [NavigationBarVariant.Horizontal]: BarTabVariants.Horizontal,
+    [NavigationBarVariant.Vertical]  : BarTabVariants.Vertical,
+    [NavigationBarVariant.VerticalXR]: BarTabVariants.VerticalXR,
 } as const satisfies Record<NavigationBarVariant, NavigationTabVariant>
 
 declare global {
@@ -56,14 +68,14 @@ export class MDCNavigationBar extends BaseNavigationBar implements INavigationBa
 
     protected override willUpdate(changedProperties: PropertyValues<this>): void {
         super.willUpdate(changedProperties)
-        if (!Object.hasOwn(BAR_TAB_VARIANTS, this.variant)) {
+        if (!Object.hasOwn(BarTabVariantByValue, this.variant)) {
             throw new Error(`[mdc-navigation-bar] Unsupported variant "${String(this.variant)}". Navigation bars support only "horizontal" | "vertical" | "vertical-xr".`)
         }
     }
 
     protected override resolveTabVariant(): NavigationTabVariant {
-        const variant: NavigationTabVariant | undefined = Object.hasOwn(BAR_TAB_VARIANTS, this.variant)
-            ? BAR_TAB_VARIANTS[this.variant]
+        const variant: NavigationTabVariant | undefined = Object.hasOwn(BarTabVariantByValue, this.variant)
+            ? BarTabVariantByValue[this.variant]
             : undefined
         if (variant === undefined) {
             throw new Error(`[mdc-navigation-bar] Unsupported variant "${String(this.variant)}". Navigation bars support only "horizontal" | "vertical" | "vertical-xr".`)

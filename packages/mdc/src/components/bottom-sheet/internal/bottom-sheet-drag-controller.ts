@@ -5,9 +5,9 @@
  */
 import type { ReactiveController, ReactiveControllerHost } from 'lit'
 import {
-    BOTTOM_SHEET_DRAG_END_EVENT,
-    BOTTOM_SHEET_DRAG_EVENT,
-    BOTTOM_SHEET_DRAG_START_EVENT,
+    BottomSheetDragEndEvent,
+    BottomSheetDragEvent,
+    BottomSheetDragStartEvent,
     type BottomSheetDetent,
     type BottomSheetDragTarget,
     type BottomSheetVariant,
@@ -17,33 +17,33 @@ import {
 } from '../bottom-sheet.interface'
 
 /** Distance (CSS px) the pointer must travel from the down point before a drag engages. */
-const ENGAGE_THRESHOLD_PX = 4
+const EngageThresholdPx = 4
 
 /**
  * Snap-decision distance: drag must exceed this fraction of container height to
  * commit close or transition detent.
  */
-const DISTANCE_COMMIT_FRACTION = 0.25
+const DistanceCommitFraction = 0.25
 
 /**
  * Snap-decision velocity: release must exceed this px/ms downward or upward to commit
  * state transition (per Material Design spec).
  */
-const VELOCITY_COMMIT_PX_PER_MS = 0.5
+const VelocityCommitPxPerMs = 0.5
 
 /**
  * Window over which to compute release velocity (ms). We track the last
  * move's timestamp and dy and divide (currentDy - lastMoveDy) by
  * (performance.now() - lastMoveT).
  */
-const VELOCITY_WINDOW_MS = 80
+const VelocityWindowMs = 80
 
 /**
  * Max horizontal movement (px) allowed during a drag, expressed as a multiple
  * of the vertical movement. Beyond this, the drag is canceled (horizontal
  * scroll gesture likely).
  */
-const MAX_HORIZONTAL_RATIO = 2
+const MaxHorizontalRatio = 2
 
 /**
  * Host contract for {@link BottomSheetDragController}.
@@ -195,14 +195,14 @@ export class BottomSheetDragController implements ReactiveController {
         const deltaX = Math.abs(event.clientX - this.startX)
 
         // Horizontal-dominant motion before engagement → cancel drag (user is scrolling horizontally).
-        if (!this.engaged && deltaX > MAX_HORIZONTAL_RATIO * Math.max(Math.abs(deltaY), 1)) {
+        if (!this.engaged && deltaX > MaxHorizontalRatio * Math.max(Math.abs(deltaY), 1)) {
             this.canceled = true
             this.handlePointerUp(event)
             return
         }
 
         if (!this.engaged) {
-            if (Math.abs(deltaY) < ENGAGE_THRESHOLD_PX) return
+            if (Math.abs(deltaY) < EngageThresholdPx) return
             // Engage: take pointer capture so we keep getting moves off the container.
             const container = this.host.containerRef()
             if (!container) return
@@ -249,7 +249,7 @@ export class BottomSheetDragController implements ReactiveController {
             this.host.setAttribute('touch-action', 'none')
             container.style.cursor = 'grabbing'
             this.host.dispatchEvent(new CustomEvent<IBottomSheetDragStartEventDetail>(
-                BOTTOM_SHEET_DRAG_START_EVENT,
+                BottomSheetDragStartEvent,
                 {
                     bubbles: true,
                     composed: true,
@@ -306,9 +306,9 @@ export class BottomSheetDragController implements ReactiveController {
         const prevDy = this.lastMoveDy
         this.lastMoveT = now
         this.lastMoveDy = dy
-        if (prevT > 0 && now - prevT < VELOCITY_WINDOW_MS) {
+        if (prevT > 0 && now - prevT < VelocityWindowMs) {
             this.releaseVelocity = (dy - prevDy) / (now - prevT)
-        } else if (now - prevT >= VELOCITY_WINDOW_MS) {
+        } else if (now - prevT >= VelocityWindowMs) {
             this.releaseVelocity = 0
         }
 
@@ -348,7 +348,7 @@ export class BottomSheetDragController implements ReactiveController {
         const progress = Math.min(1, Math.max(0, dy / totalH))
 
         this.host.dispatchEvent(new CustomEvent<IBottomSheetDragEventDetail>(
-            BOTTOM_SHEET_DRAG_EVENT,
+            BottomSheetDragEvent,
             {
                 bubbles: true,
                 composed: true,
@@ -381,7 +381,7 @@ export class BottomSheetDragController implements ReactiveController {
             this.host.removeAttribute('touch-action')
             try { container?.releasePointerCapture(event.pointerId) } catch {}
             this.host.dispatchEvent(new CustomEvent<IBottomSheetDragEndEventDetail>(
-                BOTTOM_SHEET_DRAG_END_EVENT,
+                BottomSheetDragEndEvent,
                 {
                     bubbles: true,
                     composed: true,
@@ -402,33 +402,33 @@ export class BottomSheetDragController implements ReactiveController {
 
         if (!multiDetent) {
             // When there is no lower content (or no header), dragging down closes directly in one step!
-            const closeThreshold = Math.max(30, this.containerHeight * DISTANCE_COMMIT_FRACTION)
-            if (this.releaseVelocity > VELOCITY_COMMIT_PX_PER_MS || this.currentDy > closeThreshold) {
+            const closeThreshold = Math.max(30, this.containerHeight * DistanceCommitFraction)
+            if (this.releaseVelocity > VelocityCommitPxPerMs || this.currentDy > closeThreshold) {
                 target = 'closed'
-                commitReason = this.releaseVelocity > VELOCITY_COMMIT_PX_PER_MS ? 'velocity' : 'distance'
+                commitReason = this.releaseVelocity > VelocityCommitPxPerMs ? 'velocity' : 'distance'
             } else {
                 target = this.initialDetent
             }
         } else if (this.initialDetent === 'full') {
             // In 3-state 'full': can only transition down to 'peek', NEVER directly to 'closed'
-            const collapseThreshold = Math.max(40, this.deltaH * DISTANCE_COMMIT_FRACTION)
-            if (this.releaseVelocity > VELOCITY_COMMIT_PX_PER_MS || this.currentDy >= collapseThreshold) {
+            const collapseThreshold = Math.max(40, this.deltaH * DistanceCommitFraction)
+            if (this.releaseVelocity > VelocityCommitPxPerMs || this.currentDy >= collapseThreshold) {
                 target = 'peek'
-                commitReason = this.releaseVelocity > VELOCITY_COMMIT_PX_PER_MS ? 'velocity' : 'distance'
+                commitReason = this.releaseVelocity > VelocityCommitPxPerMs ? 'velocity' : 'distance'
             } else {
                 target = 'full'
             }
         } else {
             // In 3-state 'peek': can transition up to 'full' or down to 'closed'
-            const expandThreshold = Math.max(40, this.deltaH * DISTANCE_COMMIT_FRACTION)
-            const closeThreshold = Math.max(30, this.peekHeight * DISTANCE_COMMIT_FRACTION)
+            const expandThreshold = Math.max(40, this.deltaH * DistanceCommitFraction)
+            const closeThreshold = Math.max(30, this.peekHeight * DistanceCommitFraction)
 
-            if (this.releaseVelocity < -VELOCITY_COMMIT_PX_PER_MS || this.currentDy < -expandThreshold) {
+            if (this.releaseVelocity < -VelocityCommitPxPerMs || this.currentDy < -expandThreshold) {
                 target = 'full'
-                commitReason = this.releaseVelocity < -VELOCITY_COMMIT_PX_PER_MS ? 'velocity' : 'distance'
-            } else if (this.releaseVelocity > VELOCITY_COMMIT_PX_PER_MS || this.currentDy > closeThreshold) {
+                commitReason = this.releaseVelocity < -VelocityCommitPxPerMs ? 'velocity' : 'distance'
+            } else if (this.releaseVelocity > VelocityCommitPxPerMs || this.currentDy > closeThreshold) {
                 target = 'closed'
-                commitReason = this.releaseVelocity > VELOCITY_COMMIT_PX_PER_MS ? 'velocity' : 'distance'
+                commitReason = this.releaseVelocity > VelocityCommitPxPerMs ? 'velocity' : 'distance'
             } else {
                 target = 'peek'
             }
@@ -437,7 +437,7 @@ export class BottomSheetDragController implements ReactiveController {
         const isClosing = target === 'closed'
 
         this.host.dispatchEvent(new CustomEvent<IBottomSheetDragEndEventDetail>(
-            BOTTOM_SHEET_DRAG_END_EVENT,
+            BottomSheetDragEndEvent,
             {
                 bubbles: true,
                 composed: true,

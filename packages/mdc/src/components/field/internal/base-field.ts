@@ -10,12 +10,12 @@ import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import { mixinElementInternals } from '../../../utils/behaviors/element-internals'
 import { mixinFocusRingOptions } from '../../focus-ring/focus-ring-options.mixin'
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
-import { fieldStyles } from '../field.style'
+import { FieldStyles } from '../field.style'
 import {
     type FieldVariant,
     type FloatingLabelBehavior,
     type IField,
-    FIELD_LABEL_POINTER_EVENT,
+    FieldLabelPointerEvent,
 } from '../field.interface'
 
 /**
@@ -45,7 +45,7 @@ export abstract class BaseField extends composeMixin(
     mixinFocusRingOptions
 )(LitElement) implements IField {
 
-    public static override styles = fieldStyles
+    public static override styles = FieldStyles
 
     @property({ type: String, reflect: true })
     public variant: FieldVariant = 'filled'
@@ -308,7 +308,7 @@ export abstract class BaseField extends composeMixin(
     }
 
     private readonly handleLabelClick = (event: MouseEvent): void => {
-        this.dispatchEvent(new Event(FIELD_LABEL_POINTER_EVENT, {
+        this.dispatchEvent(new Event(FieldLabelPointerEvent, {
             bubbles: true,
             composed: true,
         }))

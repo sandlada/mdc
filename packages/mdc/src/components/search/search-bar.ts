@@ -8,7 +8,7 @@ import { customElement, property, query, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import { live } from 'lit/directives/live.js'
 import { redispatchEvent } from '../../utils/event/redispatch-event'
-import { searchBarStyle } from './search-bar.style'
+import { SearchBarStyle } from './search-bar.style'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import { mixinFocusRingOptions } from '../focus-ring/focus-ring-options.mixin'
 import { mixinRippleOptions } from '../ripple/ripple-options.mixin'
@@ -30,7 +30,7 @@ export class MDCSearchBar extends composeMixin(
         delegatesFocus: true,
     }
 
-    static override styles = searchBarStyle
+    static override styles = SearchBarStyle
 
     public override focusRingInward: boolean = true
     public override get focusRingControl(): HTMLElement | null { return this.inputElement }

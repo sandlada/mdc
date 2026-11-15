@@ -5,7 +5,7 @@
  */
 import { customElement } from 'lit/decorators.js'
 import { BaseExtendedFab } from './internal/base-extended-fab'
-import { fabStyles } from './internal/fab.style'
+import { FabStyles } from './internal/fab.style'
 
 declare global {
     interface HTMLElementTagNameMap {
@@ -34,5 +34,5 @@ declare global {
  */
 @customElement('mdc-fab')
 export class MDCFab extends BaseExtendedFab {
-    static override styles = fabStyles
+    static override styles = FabStyles
 }

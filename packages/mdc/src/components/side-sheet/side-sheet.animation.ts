@@ -28,7 +28,7 @@ export interface SideSheetAnimation {
 
 // Mirror --_enabled-container-opacity-modal (see side-sheet.definition.ts).
 // Centralised here so the WAAPI keyframes and the CSS rest state stay in sync.
-const SCRIM_OPACITY_PEAK = 0.32
+const ScrimOpacityPeak = 0.32
 
 /*
  * Docked-out keyframes take explicit pixel offsets from the host, which
@@ -144,7 +144,7 @@ export const SideSheetDragSnapBackAnimation = (
         [
             [
                 { opacity: scrimCurrent },
-                { opacity: SCRIM_OPACITY_PEAK },
+                { opacity: ScrimOpacityPeak },
             ],
             { duration: 250, easing: 'linear' },
         ],

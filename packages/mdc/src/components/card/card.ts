@@ -17,7 +17,7 @@ import {
     type CardVariant,
     type IMDCCard,
 } from './card.interface'
-import { cardStyles } from './card.style'
+import { CardStyles } from './card.style'
 
 export * from './card.interface'
 
@@ -70,7 +70,7 @@ export class MDCCard extends composeMixin(
     mixinFocusRingOptions
 )(LitElement) implements IMDCCard {
 
-    static override styles = cardStyles
+    static override styles = CardStyles
 
     static override shadowRootOptions: ShadowRootInit = {
         mode: 'open',

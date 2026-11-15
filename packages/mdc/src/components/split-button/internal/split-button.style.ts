@@ -15,13 +15,13 @@ import {
 } from '../split-button.definition'
 import { overrideTokens, stringifyTokens } from '../../../utils/style'
 
-const filledTokenString = stringifyTokens('--mdc-split-button')(FilledSplitButtonDefinition)
+const FilledTokenString = stringifyTokens('--mdc-split-button')(FilledSplitButtonDefinition)
 
-const filledTonalTokenString = stringifyTokens('--mdc-split-button')(FilledTonalSplitButtonDefinition)
+const FilledTonalTokenString = stringifyTokens('--mdc-split-button')(FilledTonalSplitButtonDefinition)
 
-const elevatedTokenString = stringifyTokens('--mdc-split-button')(ElevatedSplitButtonDefinition)
+const ElevatedTokenString = stringifyTokens('--mdc-split-button')(ElevatedSplitButtonDefinition)
 
-const outlinedTokenString = stringifyTokens('--mdc-split-button')(OutlinedSplitButtonDefinition)
+const OutlinedTokenString = stringifyTokens('--mdc-split-button')(OutlinedSplitButtonDefinition)
 
 type TSize = 'extra-small' | 'small' | 'medium' | 'large' | 'extra-large'
 type TPart = 'leading-button' | 'trailing-button'
@@ -217,7 +217,7 @@ const getExpandedStyles = () => css`
     }
 `
 
-const ripple = css`
+const Ripple = css`
     .leading-button mdc-ripple,
     .trailing-button mdc-ripple {
         border-radius: inherit;
@@ -233,7 +233,7 @@ const ripple = css`
     }
 `
 
-const elevation = css`
+const Elevation = css`
     .leading-button mdc-elevation,
     .trailing-button mdc-elevation {
         transition-duration: 0ms;
@@ -251,14 +251,14 @@ const elevation = css`
     }
 `
 
-const focusRing = css`
+const FocusRing = css`
     .leading-button mdc-focus-ring,
     .trailing-button mdc-focus-ring {
         z-index: 1;
     }
 `
 
-const shared = css`
+const Shared = css`
     :host {
         display: inline-flex;
         outline: none;
@@ -403,11 +403,11 @@ const shared = css`
     }
 `
 
-const colorVariants = css`
-    :host:has(.container.filled) {${filledTokenString};}
-    :host:has(.container.filled-tonal) {${filledTonalTokenString};}
-    :host:has(.container.elevated) {${elevatedTokenString};}
-    :host:has(.container.outlined) {${outlinedTokenString};}
+const ColorVariants = css`
+    :host:has(.container.filled) {${FilledTokenString};}
+    :host:has(.container.filled-tonal) {${FilledTonalTokenString};}
+    :host:has(.container.elevated) {${ElevatedTokenString};}
+    :host:has(.container.outlined) {${OutlinedTokenString};}
 `
 
 export const SplitButtonStyles = [
@@ -420,9 +420,9 @@ export const SplitButtonStyles = [
     getOutlineStyles(),
     getTouchTargetStyles(),
     getExpandedStyles(),
-    ripple,
-    elevation,
-    focusRing,
-    shared,
-    colorVariants,
+    Ripple,
+    Elevation,
+    FocusRing,
+    Shared,
+    ColorVariants,
 ]

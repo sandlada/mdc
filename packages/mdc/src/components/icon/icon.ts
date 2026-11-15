@@ -8,7 +8,7 @@ import { customElement, property } from 'lit/decorators.js'
 import { styleMap } from 'lit/directives/style-map.js'
 import { mixinDelegatesAria } from '../../utils/aria/delegate'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
-import { styles } from './icon.style'
+import { Styles } from './icon.style'
 import type { IMDCIcon } from './icon.interface'
 
 
@@ -50,7 +50,7 @@ export class MDCIcon extends composeMixin(
     mixinDelegatesAria
 )(LitElement) implements IMDCIcon {
 
-    static override styles = styles
+    static override styles = Styles
 
     /**
      * The name of the icon (ligature text).

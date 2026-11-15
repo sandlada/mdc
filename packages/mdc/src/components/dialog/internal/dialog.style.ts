@@ -9,14 +9,14 @@ import { Color } from '../../../utils/color'
 import { stringifyTokens } from '../../../utils/style'
 import { BasicDialogDefinition } from '../dialog.definition'
 
-const basicDialogTokenString = stringifyTokens('--mdc-basic-dialog')(BasicDialogDefinition)
+const BasicDialogTokenString = stringifyTokens('--mdc-basic-dialog')(BasicDialogDefinition)
 
-const scrimColor = unsafeCSS(Color.Scrim)
-const emphasizedEasing = unsafeCSS(Easing.Emphasized.ToCSSValue())
-const emphasizedAccelerateEasing = unsafeCSS(Easing.EmphasizedAccelerate.ToCSSValue())
+const ScrimColor = unsafeCSS(Color.Scrim)
+const EmphasizedEasing = unsafeCSS(Easing.Emphasized.ToCSSValue())
+const EmphasizedAccelerateEasing = unsafeCSS(Easing.EmphasizedAccelerate.ToCSSValue())
 
-export const basicDialogStyle = css`
-    @layer mdc.basic-dialog.variable { :host{${basicDialogTokenString};} }
+export const BasicDialogStyle = css`
+    @layer mdc.basic-dialog.variable { :host{${BasicDialogTokenString};} }
     @layer mdc.basic-dialog.base {
 
     }
@@ -47,7 +47,7 @@ export const basicDialogStyle = css`
         transition:
             display 150ms allow-discrete,
             overlay 150ms allow-discrete,
-            transform 150ms ${emphasizedAccelerateEasing};
+            transform 150ms ${EmphasizedAccelerateEasing};
     }
     dialog[open] {
         display: flex;
@@ -55,7 +55,7 @@ export const basicDialogStyle = css`
         transition:
             display 500ms allow-discrete,
             overlay 500ms allow-discrete,
-            transform 500ms ${emphasizedEasing};
+            transform 500ms ${EmphasizedEasing};
     }
     ::backdrop {
         background: none;
@@ -72,7 +72,7 @@ export const basicDialogStyle = css`
      * every cycle.
      */
     .scrim {
-        background: ${scrimColor};
+        background: ${ScrimColor};
         visibility: hidden;
         inset: 0;
         opacity: 0;
@@ -173,14 +173,14 @@ export const basicDialogStyle = css`
         height: 35%;
         opacity: 0;
         transition:
-            height 150ms ${emphasizedAccelerateEasing},
+            height 150ms ${EmphasizedAccelerateEasing},
             opacity 50ms linear 100ms;
     }
     dialog[open] .container::before {
         height: 100%;
         opacity: 1;
         transition:
-            height 500ms ${emphasizedEasing},
+            height 500ms ${EmphasizedEasing},
             opacity 50ms linear;
     }
 

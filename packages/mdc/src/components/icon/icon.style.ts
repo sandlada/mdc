@@ -7,9 +7,9 @@ import { css } from 'lit'
 import { IconDefinition } from './icon.definition'
 import { stringifyTokens } from '../../utils/style'
 
-const tokens = stringifyTokens('--mdc-icon')(IconDefinition)
+const Tokens = stringifyTokens('--mdc-icon')(IconDefinition)
 
-const stylePart = css`
+const StylePart = css`
     @layer mdc.icon.component {
         :host {
             font-size: var(--_size);
@@ -20,14 +20,14 @@ const stylePart = css`
     }
 `
 
-export const styles = [
+export const Styles = [
     css`
         @layer mdc.icon {
             @layer variable, component, motion, hcm, contrast, transparency;
         }
     `,
-    css`@layer mdc.icon.variant {:host {${tokens};}}`,
-    stylePart,
+    css`@layer mdc.icon.variant {:host {${Tokens};}}`,
+    StylePart,
     css`
     @layer mdc.icon.component {
         :host {

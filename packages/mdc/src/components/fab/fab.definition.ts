@@ -14,7 +14,7 @@ import { expandPadding, expandShape, expandTypescale } from '../../utils/style'
  * `enabled-` / `hovered-` / `focused-` / `pressed-` keys (the element drives
  * state styling with plain selectors, not through a state schema).
  */
-const fabSharedTokens = {
+const FabSharedTokens = {
     ...expandShape('container-shape')({
         small : Shape.Large,
         medium: Shape.LargeIncreased,
@@ -60,7 +60,7 @@ const fabVariantTokens = (
     containerColor: PrimitiveTokenValue,
     onContainerColor: PrimitiveTokenValue
 ) => ({
-    ...fabSharedTokens,
+    ...FabSharedTokens,
 
     // Enabled
     'enabled-container-color'       : containerColor,
@@ -109,7 +109,7 @@ export const TertiaryFabDefinition = createStyleDefinition(
     fabVariantTokens(Color.Tertiary, Color.OnTertiary)
 )
 
-const fabExtendedSharedTokens = {
+const FabExtendedSharedTokens = {
     ...expandTypescale('label')({
         small : Typescale.TitleMedium,
         medium: Typescale.TitleLarge,
@@ -124,34 +124,34 @@ const fabExtendedSharedTokens = {
 
 export const TonalPrimaryExtendedFabDefinition = createStyleDefinition({
     ...fabVariantTokens(Color.PrimaryContainer, Color.OnPrimaryContainer),
-    ...fabExtendedSharedTokens
+    ...FabExtendedSharedTokens
 })
 export const TonalSecondaryExtendedFabDefinition = createStyleDefinition({
     ...fabVariantTokens(Color.SecondaryContainer, Color.OnSecondaryContainer),
-    ...fabExtendedSharedTokens
+    ...FabExtendedSharedTokens
 })
 export const TonalTertiaryExtendedFabDefinition = createStyleDefinition({
     ...fabVariantTokens(Color.TertiaryContainer, Color.OnTertiaryContainer),
-    ...fabExtendedSharedTokens
+    ...FabExtendedSharedTokens
 })
 export const PrimaryExtendedFabDefinition = createStyleDefinition({
     ...fabVariantTokens(Color.Primary, Color.OnPrimary),
-    ...fabExtendedSharedTokens
+    ...FabExtendedSharedTokens
 })
 export const SecondaryExtendedFabDefinition = createStyleDefinition({
     ...fabVariantTokens(Color.Secondary, Color.OnSecondary),
-    ...fabExtendedSharedTokens
+    ...FabExtendedSharedTokens
 })
 export const TertiaryExtendedFabDefinition = createStyleDefinition({
     ...fabVariantTokens(Color.Tertiary, Color.OnTertiary),
-    ...fabExtendedSharedTokens
+    ...FabExtendedSharedTokens
 })
 
 export const FabVariants = {
-    'primary': PrimaryExtendedFabDefinition,
-    'secondary': SecondaryExtendedFabDefinition,
-    'tertiary': TertiaryExtendedFabDefinition,
-    'tonal-primary': TonalPrimaryExtendedFabDefinition,
-    'tonal-secondary': TonalSecondaryExtendedFabDefinition,
-    'tonal-tertiary': TonalTertiaryExtendedFabDefinition,
+    Primary: PrimaryExtendedFabDefinition,
+    Secondary: SecondaryExtendedFabDefinition,
+    Tertiary: TertiaryExtendedFabDefinition,
+    TonalPrimary: TonalPrimaryExtendedFabDefinition,
+    TonalSecondary: TonalSecondaryExtendedFabDefinition,
+    TonalTertiary: TonalTertiaryExtendedFabDefinition,
 } as const

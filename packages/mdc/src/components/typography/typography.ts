@@ -6,7 +6,7 @@
 import { html, LitElement } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import type { ITypography, TypographyVariant } from './typography.interface'
-import { typographyStyles } from './typography.styles'
+import { TypographyStyles } from './typography.styles'
 
 declare global {
     interface HTMLElementTagNameMap {
@@ -41,7 +41,7 @@ declare global {
 @customElement('mdc-typography')
 export class MDCTypography extends LitElement implements ITypography {
 
-    static override styles = typographyStyles
+    static override styles = TypographyStyles
 
     @property({ type: Boolean, reflect: true })
     public emphasized: boolean = false

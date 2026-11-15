@@ -5,15 +5,6 @@
  */
 import type { LitElement } from 'lit'
 
-export type AppBarVariant =
-    | 'small'
-    | 'center-aligned'
-    | 'medium-flexible'
-    | 'large-flexible'
-    | 'medium'
-    | 'large'
-    | 'search'
-
 export const AppBarVariant = {
     Small         : 'small',
     CenterAligned : 'center-aligned',
@@ -22,14 +13,14 @@ export const AppBarVariant = {
     Medium        : 'medium',
     Large         : 'large',
     Search        : 'search',
-} as const satisfies Record<string, AppBarVariant>
-
-export type AppBarAlignment = 'start' | 'center'
+} as const
+export type AppBarVariant = (typeof AppBarVariant)[keyof typeof AppBarVariant]
 
 export const AppBarAlignment = {
     Start : 'start',
     Center: 'center',
-} as const satisfies Record<string, AppBarAlignment>
+} as const
+export type AppBarAlignment = (typeof AppBarAlignment)[keyof typeof AppBarAlignment]
 
 export interface IAppBar extends LitElement {
     variant: AppBarVariant

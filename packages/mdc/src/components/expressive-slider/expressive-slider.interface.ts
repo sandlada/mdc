@@ -11,11 +11,11 @@ import type { FormAssociated } from '../../utils/form/form-associated'
  * Slider orientation. `'horizontal'` lays the track left-to-right;
  * `'vertical'` lays it top-to-bottom.
  */
-export type ExpressiveSliderDirection = 'horizontal' | 'vertical'
 export const ExpressiveSliderDirection = {
     Horizontal: 'horizontal',
     Vertical: 'vertical',
-} as const satisfies Record<string, ExpressiveSliderDirection>
+} as const
+export type ExpressiveSliderDirection = (typeof ExpressiveSliderDirection)[keyof typeof ExpressiveSliderDirection]
 
 /**
  * Five-step size scale locked to the Figma prototype (node-id `58008:10353`):
@@ -28,14 +28,14 @@ export const ExpressiveSliderDirection = {
  * | `large`       | 56px         | 68px          | 16px        |
  * | `extra-large` | 96px         | 108px         | 28px        |
  */
-export type ExpressiveSliderSize = 'extra-small' | 'small' | 'medium' | 'large' | 'extra-large'
 export const ExpressiveSliderSize = {
     ExtraSmall: 'extra-small',
     Small: 'small',
     Medium: 'medium',
     Large: 'large',
     ExtraLarge: 'extra-large',
-} as const satisfies Record<string, ExpressiveSliderSize>
+} as const
+export type ExpressiveSliderSize = (typeof ExpressiveSliderSize)[keyof typeof ExpressiveSliderSize]
 
 /**
  * Behavioral type of the slider.
@@ -47,12 +47,12 @@ export const ExpressiveSliderSize = {
  *   `min` is `-max`, `max` is `+max`.
  * - `range` — two handles symmetric about the center with a track-dot marker.
  */
-export type ExpressiveSliderType = 'standard' | 'centered' | 'range'
 export const ExpressiveSliderType = {
     Standard: 'standard',
     Centered: 'centered',
     Range: 'range',
-} as const satisfies Record<string, ExpressiveSliderType>
+} as const
+export type ExpressiveSliderType = (typeof ExpressiveSliderType)[keyof typeof ExpressiveSliderType]
 
 /**
  * `mdc-expressive-slider` — Material Design 3 Expressive slider.

@@ -11,22 +11,22 @@ import type { LitElement } from 'lit'
  * - `standard`: in-flow collapsible drawer sharing screen space with content.
  * - `permanent`: persistent fixed drawer always visible in flow (desktop/large screen).
  */
-export type NavigationDrawerVariant = 'modal' | 'standard' | 'permanent'
 export const NavigationDrawerVariant = {
     Modal: 'modal',
     Standard: 'standard',
     Permanent: 'permanent',
-} as const satisfies Record<string, NavigationDrawerVariant>
+} as const
+export type NavigationDrawerVariant = (typeof NavigationDrawerVariant)[keyof typeof NavigationDrawerVariant]
 
 /**
  * Viewport edge the drawer docks to. RTL-aware: in `dir="rtl"`, the visual
  * mapping follows `inset-inline-start` / `inset-inline-end` automatically.
  */
-export type NavigationDrawerEdge = 'start' | 'end'
 export const NavigationDrawerEdge = {
     Start: 'start',
     End: 'end',
-} as const satisfies Record<string, NavigationDrawerEdge>
+} as const
+export type NavigationDrawerEdge = (typeof NavigationDrawerEdge)[keyof typeof NavigationDrawerEdge]
 
 /**
  * Reason why the drawer is closing.
@@ -156,20 +156,20 @@ export interface INavigationDrawer extends LitElement {
 }
 
 /** Fired when the drawer begins to open. */
-export const NAVIGATION_DRAWER_OPENING_EVENT = 'navigation-drawer-opening'
+export const NavigationDrawerOpeningEvent = 'navigation-drawer-opening'
 /** Fired when the drawer has finished opening. */
-export const NAVIGATION_DRAWER_OPENED_EVENT = 'navigation-drawer-opened'
+export const NavigationDrawerOpenedEvent = 'navigation-drawer-opened'
 /** Fired when the drawer begins to close. */
-export const NAVIGATION_DRAWER_CLOSING_EVENT = 'navigation-drawer-closing'
+export const NavigationDrawerClosingEvent = 'navigation-drawer-closing'
 /** Fired when the drawer has finished closing. */
-export const NAVIGATION_DRAWER_CLOSED_EVENT = 'navigation-drawer-closed'
+export const NavigationDrawerClosedEvent = 'navigation-drawer-closed'
 /** Modal only — fired when Esc or scrim tap occurs. Cancelable. */
-export const NAVIGATION_DRAWER_CANCEL_EVENT = 'navigation-drawer-cancel'
+export const NavigationDrawerCancelEvent = 'navigation-drawer-cancel'
 /** Fired when a pointer drag gesture engages. */
-export const NAVIGATION_DRAWER_DRAG_START_EVENT = 'navigation-drawer-drag-start'
+export const NavigationDrawerDragStartEvent = 'navigation-drawer-drag-start'
 /** Fired on pointer movement during drag. */
-export const NAVIGATION_DRAWER_DRAG_EVENT = 'navigation-drawer-drag'
+export const NavigationDrawerDragEvent = 'navigation-drawer-drag'
 /** Fired when the drag gesture is released. */
-export const NAVIGATION_DRAWER_DRAG_END_EVENT = 'navigation-drawer-drag-end'
+export const NavigationDrawerDragEndEvent = 'navigation-drawer-drag-end'
 /** Fired after a handle drag re-docked the drawer to the opposite edge. */
-export const NAVIGATION_DRAWER_RELOCATE_EVENT = 'navigation-drawer-relocate'
+export const NavigationDrawerRelocateEvent = 'navigation-drawer-relocate'

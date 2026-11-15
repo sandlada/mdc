@@ -73,8 +73,8 @@ export interface IChipCloseEventDetail {
 }
 
 /** Name of the event fired when selection changes (filter/input). */
-export const CHIP_TOGGLE_EVENT = 'chip-toggle'
+export const ChipToggleEvent = 'chip-toggle'
 /** Name of the event fired on assist/suggestion click. */
-export const CHIP_NAVIGATE_EVENT = 'chip-navigate'
+export const ChipNavigateEvent = 'chip-navigate'
 /** Name of the event fired when close icon is clicked (input). */
-export const CHIP_CLOSE_EVENT = 'chip-close'
+export const ChipCloseEvent = 'chip-close'

@@ -12,8 +12,8 @@ import type { RippleDefinition } from '../ripple/ripple.definition'
 import { ButtonSizeDefinition, ButtonSizes } from './button-size.definition'
 import { ButtonDefinition, ButtonVariants } from './button.definition'
 
-const buttonTokens = stringifyTokens('--mdc-button')(ButtonDefinition)
-const sizeTokens = stringifyTokens('--mdc-button')(ButtonSizeDefinition)
+const ButtonTokens = stringifyTokens('--mdc-button')(ButtonDefinition)
+const SizeTokens = stringifyTokens('--mdc-button')(ButtonSizeDefinition)
 
 export const elevationBridge = (levelVar: string, shadowColorVar: string) => overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
     'level': `var(${levelVar})`,
@@ -85,7 +85,7 @@ export const rippleBridge = (variant: string) => overrideTokens<typeof RippleDef
     'pressed-opacity': `var(--_pressed-state-layer-opacity)`
 })()
 
-export const buttonLayoutStyles = css`
+export const ButtonLayoutStyles = css`
     :host {
         display: inline-flex;
         outline: none;
@@ -188,9 +188,9 @@ export const buttonLayoutStyles = css`
     }
 `
 
-const buttonElevationVariants = ['filled', 'filled-tonal', 'elevated'] as const
+const ButtonElevationVariants = ['filled', 'filled-tonal', 'elevated'] as const
 
-const buttonVariantRules = ButtonVariants.map((variant) => `
+const ButtonVariantRules = ButtonVariants.map((variant) => `
     .container.${variant} .background {
         background-color: var(--_enabled-${variant}-container-color);
     }
@@ -214,21 +214,21 @@ const buttonVariantRules = ButtonVariants.map((variant) => `
     }
 `).join('\n\n')
 
-const buttonElevationRules = buttonElevationVariants.map((variant) => `
+const ButtonElevationRules = ButtonElevationVariants.map((variant) => `
     .container.${variant} mdc-elevation {
         transition-duration: 0ms;
         ${elevationBridge(`--_enabled-${variant}-container-elevation`, `--_enabled-${variant}-container-shadow-color`).cssText};
     }
 `).join('\n\n')
 
-const buttonPart = css`
-    ${unsafeCSS(buttonVariantRules)}
+const ButtonPart = css`
+    ${unsafeCSS(ButtonVariantRules)}
 
     .container.outlined .outline {
         border-color: var(--_enabled-outlined-outline-color);
     }
 
-    ${unsafeCSS(buttonElevationRules)}
+    ${unsafeCSS(ButtonElevationRules)}
     .container.disabled.elevated mdc-elevation {
         ${elevationBridge('--_disabled-elevated-container-elevation', '--_disabled-elevated-container-shadow-color')};
     }
@@ -240,7 +240,7 @@ const buttonPart = css`
     .container.text mdc-ripple {${rippleBridge('text')};}
 `
 
-const sizeVariantRules = ButtonSizes.map((size) => `
+const SizeVariantRules = ButtonSizes.map((size) => `
     .container.${size} {
         height: var(--_${size}-container-height);
         min-width: calc(64px - var(--_${size}-container-padding-inline-start) - var(--_${size}-container-padding-inline-end));
@@ -270,11 +270,11 @@ const sizeVariantRules = ButtonSizes.map((size) => `
     }
 `).join('\n\n')
 
-export const sizePart = css`
-    ${unsafeCSS(sizeVariantRules)}
+export const SizePart = css`
+    ${unsafeCSS(SizeVariantRules)}
 `
 
-export const a11y = css`
+export const A11y = css`
     @media (forced-colors: active) {
         .background {
             border: 1px solid CanvasText;
@@ -345,13 +345,13 @@ export const a11y = css`
     }
 `
 
-export const buttonStyles = [
-    css`:host {${buttonTokens}${sizeTokens};}`,
+export const ButtonStyles = [
+    css`:host {${ButtonTokens}${SizeTokens};}`,
     getContainerShapeStyles(),
     getFocusRingStyles(),
     getIconSizeStyle(),
-    buttonLayoutStyles,
-    buttonPart,
-    sizePart,
-    a11y
+    ButtonLayoutStyles,
+    ButtonPart,
+    SizePart,
+    A11y
 ]

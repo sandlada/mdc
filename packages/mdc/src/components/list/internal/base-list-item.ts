@@ -31,7 +31,7 @@ import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
 import { mixinFocusRingOptions } from '../../focus-ring/focus-ring-options.mixin'
 import { mixinRippleOptions } from '../../ripple/ripple-options.mixin'
 import {
-    LIST_ITEM_REQUEST_ACTIVATION_EVENT,
+    ListItemRequestActivationEvent,
     type IListItem,
     type IListItemRequestActivationEventDetail,
 } from '../list.interface'
@@ -298,7 +298,7 @@ export abstract class BaseListItem extends composeMixin(
             return
         }
         this.dispatchEvent(new CustomEvent<IListItemRequestActivationEventDetail>(
-            LIST_ITEM_REQUEST_ACTIVATION_EVENT,
+            ListItemRequestActivationEvent,
             {
                 detail: { item: this },
                 bubbles: true,

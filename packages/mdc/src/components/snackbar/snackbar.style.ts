@@ -22,46 +22,46 @@ import {
 import { overrideTokens, stringifyTokens } from '../../utils/style'
 
 // ─── Base token record (used for variable layer default) ────────────────────
-const tokenString = stringifyTokens('--mdc-snackbar')(SnackbarDefinition)
+const TokenString = stringifyTokens('--mdc-snackbar')(SnackbarDefinition)
 
 // ─── Per-variant token records ──────────────────────────────────────────────
 
-const surfaceTokenString = stringifyTokens('--mdc-snackbar')(SurfaceSnackbarDefinition)
+const SurfaceTokenString = stringifyTokens('--mdc-snackbar')(SurfaceSnackbarDefinition)
 
-const inverseSurfaceTokenString = stringifyTokens('--mdc-snackbar')(InverseSurfaceSnackbarDefinition)
+const InverseSurfaceTokenString = stringifyTokens('--mdc-snackbar')(InverseSurfaceSnackbarDefinition)
 
-const primaryTokenString = stringifyTokens('--mdc-snackbar')(PrimarySnackbarDefinition)
+const PrimaryTokenString = stringifyTokens('--mdc-snackbar')(PrimarySnackbarDefinition)
 
-const secondaryTokenString = stringifyTokens('--mdc-snackbar')(SecondarySnackbarDefinition)
+const SecondaryTokenString = stringifyTokens('--mdc-snackbar')(SecondarySnackbarDefinition)
 
-const tertiaryTokenString = stringifyTokens('--mdc-snackbar')(TertiarySnackbarDefinition)
+const TertiaryTokenString = stringifyTokens('--mdc-snackbar')(TertiarySnackbarDefinition)
 
-const errorTokenString = stringifyTokens('--mdc-snackbar')(ErrorSnackbarDefinition)
+const ErrorTokenString = stringifyTokens('--mdc-snackbar')(ErrorSnackbarDefinition)
 
-const primaryContainerTokenString = stringifyTokens('--mdc-snackbar')(PrimaryContainerSnackbarDefinition)
+const PrimaryContainerTokenString = stringifyTokens('--mdc-snackbar')(PrimaryContainerSnackbarDefinition)
 
-const secondaryContainerTokenString = stringifyTokens('--mdc-snackbar')(SecondaryContainerSnackbarDefinition)
+const SecondaryContainerTokenString = stringifyTokens('--mdc-snackbar')(SecondaryContainerSnackbarDefinition)
 
-const tertiaryContainerTokenString = stringifyTokens('--mdc-snackbar')(TertiaryContainerSnackbarDefinition)
+const TertiaryContainerTokenString = stringifyTokens('--mdc-snackbar')(TertiaryContainerSnackbarDefinition)
 
-const errorContainerTokenString = stringifyTokens('--mdc-snackbar')(ErrorContainerSnackbarDefinition)
+const ErrorContainerTokenString = stringifyTokens('--mdc-snackbar')(ErrorContainerSnackbarDefinition)
 
 // ─── Easings ────────────────────────────────────────────────────────────────
 
-const emphasizedDecelerateEasing = unsafeCSS(Easing.EmphasizedDecelerate.ToCSSValue())
-const emphasizedAccelerateEasing = unsafeCSS(Easing.EmphasizedAccelerate.ToCSSValue())
+const EmphasizedDecelerateEasing = unsafeCSS(Easing.EmphasizedDecelerate.ToCSSValue())
+const EmphasizedAccelerateEasing = unsafeCSS(Easing.EmphasizedAccelerate.ToCSSValue())
 
 // ─── Icon override styles ───────────────────────────────────────────────────
 
-const iconStyles = overrideTokens<typeof IconDefinition>('--mdc-icon')({
+const IconStyles = overrideTokens<typeof IconDefinition>('--mdc-icon')({
     'enabled-size': `var(--_icon-size)`,
 })()
 
 // ─── Base styles ────────────────────────────────────────────────────────────
 
-const base = css`
+const Base = css`
     @layer mdc.snackbar.variable {
-        :host { ${tokenString}; }
+        :host { ${TokenString}; }
     }
 
     @layer mdc.snackbar.base {
@@ -134,7 +134,7 @@ const base = css`
             justify-content: center;
             flex-shrink: 0;
             color: var(--_enabled-icon-color);
-            ${iconStyles};
+            ${IconStyles};
         }
 
         .container:not(.has-icon) .icon {
@@ -242,15 +242,15 @@ const base = css`
         :host([animation-mode="fade"][open]) .container {
             opacity: 1;
             transform: scale(1);
-            transition: transform 250ms ${emphasizedDecelerateEasing},
-                        opacity 150ms ${emphasizedDecelerateEasing};
+            transition: transform 250ms ${EmphasizedDecelerateEasing},
+                        opacity 150ms ${EmphasizedDecelerateEasing};
         }
 
         :host([animation-mode="fade"].closing) .container {
             opacity: 0;
             transform: scale(0.8);
-            transition: transform 150ms ${emphasizedAccelerateEasing},
-                        opacity 150ms ${emphasizedAccelerateEasing};
+            transition: transform 150ms ${EmphasizedAccelerateEasing},
+                        opacity 150ms ${EmphasizedAccelerateEasing};
         }
 
         /* Slide animation */
@@ -262,15 +262,15 @@ const base = css`
         :host([animation-mode="slide"][open]) .container {
             transform: translateY(0);
             opacity: 1;
-            transition: transform 250ms ${emphasizedDecelerateEasing},
-                        opacity 150ms ${emphasizedDecelerateEasing};
+            transition: transform 250ms ${EmphasizedDecelerateEasing},
+                        opacity 150ms ${EmphasizedDecelerateEasing};
         }
 
         :host([animation-mode="slide"].closing) .container {
             transform: translateY(100%);
             opacity: 0;
-            transition: transform 150ms ${emphasizedAccelerateEasing},
-                        opacity 150ms ${emphasizedAccelerateEasing};
+            transition: transform 150ms ${EmphasizedAccelerateEasing},
+                        opacity 150ms ${EmphasizedAccelerateEasing};
         }
     }
 
@@ -283,20 +283,20 @@ const base = css`
 
 // ─── Color variant styles ───────────────────────────────────────────────────
 
-const colorVariants = css`
-    :host:has(.container.variant-surface)             {${surfaceTokenString};}
-    :host:has(.container.variant-inverse-surface)     {${inverseSurfaceTokenString};}
-    :host:has(.container.variant-primary)             {${primaryTokenString};}
-    :host:has(.container.variant-secondary)           {${secondaryTokenString};}
-    :host:has(.container.variant-tertiary)            {${tertiaryTokenString};}
-    :host:has(.container.variant-error)               {${errorTokenString};}
-    :host:has(.container.variant-primary-container)   {${primaryContainerTokenString};}
-    :host:has(.container.variant-secondary-container) {${secondaryContainerTokenString};}
-    :host:has(.container.variant-tertiary-container)  {${tertiaryContainerTokenString};}
-    :host:has(.container.variant-error-container)     {${errorContainerTokenString};}
+const ColorVariants = css`
+    :host:has(.container.variant-surface)             {${SurfaceTokenString};}
+    :host:has(.container.variant-inverse-surface)     {${InverseSurfaceTokenString};}
+    :host:has(.container.variant-primary)             {${PrimaryTokenString};}
+    :host:has(.container.variant-secondary)           {${SecondaryTokenString};}
+    :host:has(.container.variant-tertiary)            {${TertiaryTokenString};}
+    :host:has(.container.variant-error)               {${ErrorTokenString};}
+    :host:has(.container.variant-primary-container)   {${PrimaryContainerTokenString};}
+    :host:has(.container.variant-secondary-container) {${SecondaryContainerTokenString};}
+    :host:has(.container.variant-tertiary-container)  {${TertiaryContainerTokenString};}
+    :host:has(.container.variant-error-container)     {${ErrorContainerTokenString};}
 `
 
 export const SnackbarStyles = [
-    base,
-    colorVariants,
+    Base,
+    ColorVariants,
 ]

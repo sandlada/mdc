@@ -17,7 +17,7 @@
  */
 
 import {
-    DISTANCE_EPSILON,
+    DistanceEpsilon,
     directionVector,
     distance,
     dotProduct,
@@ -30,7 +30,7 @@ import {
 /** Transforms (rotate / scale / translate / …) a point, returning a new point. */
 export type PointTransformer = (p: Point) => Point
 
-const ZERO_ISH = (value: number): boolean => Math.abs(value) < DISTANCE_EPSILON
+const zeroIsh = (value: number): boolean => Math.abs(value) < DistanceEpsilon
 
 /**
  * A single cubic Bézier curve with anchor points `(anchor0X, anchor0Y)` /
@@ -109,8 +109,8 @@ export class Cubic {
     /** Whether both anchors coincide (within epsilon). */
     public zeroLength(): boolean {
         return (
-            Math.abs(this.anchor0X - this.anchor1X) < DISTANCE_EPSILON &&
-            Math.abs(this.anchor0Y - this.anchor1Y) < DISTANCE_EPSILON
+            Math.abs(this.anchor0X - this.anchor1X) < DistanceEpsilon &&
+            Math.abs(this.anchor0Y - this.anchor1Y) < DistanceEpsilon
         )
     }
 
@@ -151,7 +151,7 @@ export class Cubic {
         const xb = 2 * this.anchor0X - 4 * this.control0X + 2 * this.control1X
         const xc = -this.anchor0X + this.control0X
 
-        if (ZERO_ISH(xa)) {
+        if (zeroIsh(xa)) {
             // When a is 0 the formula degenerates to a linear root.
             if (xb !== 0) {
                 const t = (2 * xc) / (-2 * xb)
@@ -184,7 +184,7 @@ export class Cubic {
         const yb = 2 * this.anchor0Y - 4 * this.control0Y + 2 * this.control1Y
         const yc = -this.anchor0Y + this.control0Y
 
-        if (ZERO_ISH(ya)) {
+        if (zeroIsh(ya)) {
             if (yb !== 0) {
                 const t = (2 * yc) / (-2 * yb)
                 if (t >= 0 && t <= 1) {

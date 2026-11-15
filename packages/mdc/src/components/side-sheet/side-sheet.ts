@@ -7,7 +7,7 @@ import { customElement } from 'lit/decorators.js'
 import '../elevation/elevation'
 import '../divider/divider'
 import { BaseSideSheet } from './internal/base-side-sheet'
-import { sideSheetStyles } from './side-sheet.style'
+import { SideSheetStyles } from './side-sheet.style'
 
 declare global {
     interface HTMLElementTagNameMap {
@@ -64,5 +64,5 @@ declare global {
  */
 @customElement('mdc-side-sheet')
 export class SideSheet extends BaseSideSheet {
-    public static override styles = sideSheetStyles
+    public static override styles = SideSheetStyles
 }

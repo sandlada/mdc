@@ -11,12 +11,12 @@ import type { RippleDefinition } from '../../ripple/ripple.definition'
 import type { ElevationDefinition } from '../../elevation/elevation.definition'
 import { FocusRingDefinition } from '../../focus-ring/focus-ring.definition'
 
-const tpes = stringifyTokens('--mdc-fab')(TonalPrimaryExtendedFabDefinition)
-const tses = stringifyTokens('--mdc-fab')(TonalSecondaryExtendedFabDefinition)
-const ttes = stringifyTokens('--mdc-fab')(TonalTertiaryExtendedFabDefinition)
-const pes = stringifyTokens('--mdc-fab')(PrimaryExtendedFabDefinition)
-const ses = stringifyTokens('--mdc-fab')(SecondaryExtendedFabDefinition)
-const tes = stringifyTokens('--mdc-fab')(TertiaryExtendedFabDefinition)
+const Tpes = stringifyTokens('--mdc-fab')(TonalPrimaryExtendedFabDefinition)
+const Tses = stringifyTokens('--mdc-fab')(TonalSecondaryExtendedFabDefinition)
+const Ttes = stringifyTokens('--mdc-fab')(TonalTertiaryExtendedFabDefinition)
+const Pes = stringifyTokens('--mdc-fab')(PrimaryExtendedFabDefinition)
+const Ses = stringifyTokens('--mdc-fab')(SecondaryExtendedFabDefinition)
+const Tes = stringifyTokens('--mdc-fab')(TertiaryExtendedFabDefinition)
 
 const getElevationStyles = () => {
     const getSingleStateLevelStyles = (state: 'enabled-' | 'hovered-' | 'pressed-' | 'focused-') => overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
@@ -101,7 +101,7 @@ const getIconStyles = () => {
     `
 }
 
-const shapeStyles = css`
+const ShapeStyles = css`
     button.small {
         border-end-end-radius: min(var(--_small-container-shape-end-end), calc(var(--_small-container-height) / 2));
         border-end-start-radius: min(var(--_small-container-shape-end-start), calc(var(--_small-container-height) / 2));
@@ -121,7 +121,7 @@ const shapeStyles = css`
         border-start-start-radius: min(var(--_large-container-shape-start-start), calc(var(--_large-container-height) / 2));
     }
 `
-const labelStyles = css`
+const LabelStyles = css`
     button.small .label {
         font-family: var(--_small-label-font);
         line-height: var(--_small-label-line-height);
@@ -171,15 +171,15 @@ const labelStyles = css`
         opacity: 0;
     }
 `
-const colorVariants = css`
-    :host([variant="primary"]) {${pes};}
-    :host([variant="secondary"]) {${ses};}
-    :host([variant="tertiary"]) {${tes};}
-    :host([variant="tonal-primary"]) {${tpes};}
-    :host([variant="tonal-secondary"]) {${tses};}
-    :host([variant="tonal-tertiary"]) {${ttes};}
+const ColorVariants = css`
+    :host([variant="primary"]) {${Pes};}
+    :host([variant="secondary"]) {${Ses};}
+    :host([variant="tertiary"]) {${Tes};}
+    :host([variant="tonal-primary"]) {${Tpes};}
+    :host([variant="tonal-secondary"]) {${Tses};}
+    :host([variant="tonal-tertiary"]) {${Ttes};}
 `
-const containerStyles = css`
+const ContainerStyles = css`
     button {
         all: unset;
         cursor: pointer;
@@ -244,15 +244,15 @@ const containerStyles = css`
     }
 `
 
-export const fabStyles = [
+export const FabStyles = [
     getElevationStyles(),
     getFocusRingStyles(),
     getRippleStyles(),
     getIconStyles(),
-    shapeStyles,
-    labelStyles,
-    colorVariants,
-    containerStyles,
+    ShapeStyles,
+    LabelStyles,
+    ColorVariants,
+    ContainerStyles,
     css`
         @layer mdc.extended-fab.base {
             :host {

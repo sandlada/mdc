@@ -11,19 +11,19 @@ import type { RippleDefinition } from '../../ripple/ripple.definition'
 import { OutlinedSegmentedButtonDefinition } from '../segmented-button.definition'
 import { overrideTokens, stringifyTokens } from '../../../utils/style'
 
-const tokenString = stringifyTokens('--mdc-segmented-button')(OutlinedSegmentedButtonDefinition)
+const TokenString = stringifyTokens('--mdc-segmented-button')(OutlinedSegmentedButtonDefinition)
 
 /**
  * Length of the MD3 checkmark path (viewBox `0 0 24 24`), used to drive the
  * draw-in / draw-out stroke animation.
  */
-const CHECKMARK_LENGTH = 29.7833385
+const CheckmarkLength = 29.7833385
 
-const short1Duration = unsafeCSS(Duration.Short1.ToCSSVariable())
-const short3Duration = unsafeCSS(Duration.Short3.ToCSSVariable())
-const emphasizedEasing = unsafeCSS(Easing.Emphasized.ToCSSVariable())
+const Short1Duration = unsafeCSS(Duration.Short1.ToCSSVariable())
+const Short3Duration = unsafeCSS(Duration.Short3.ToCSSVariable())
+const EmphasizedEasing = unsafeCSS(Easing.Emphasized.ToCSSVariable())
 
-const ripple = css`
+const Ripple = css`
     .container mdc-ripple {
         border-radius: inherit;
         z-index: 0;
@@ -45,13 +45,13 @@ const ripple = css`
     }
 `
 
-const focusRing = css`
+const FocusRing = css`
     .container mdc-focus-ring {
         z-index: 1;
     }
 `
 
-const icon = css`
+const Icon = css`
     .icon {
         align-items: center;
         display: inline-flex;
@@ -62,7 +62,7 @@ const icon = css`
     }
 `
 
-const shared = css`
+const Shared = css`
     :host {
         display: inline-flex;
         flex: 1;
@@ -72,7 +72,7 @@ const shared = css`
     }
 
     .container {
-        ${tokenString};
+        ${TokenString};
 
         align-items: center;
         background: var(--_enabled-container-color-unselected);
@@ -142,7 +142,7 @@ const shared = css`
     .graphic {
         overflow: hidden;
         position: relative;
-        transition: inline-size ${short3Duration} ${emphasizedEasing};
+        transition: inline-size ${Short3Duration} ${EmphasizedEasing};
     }
 
     .graphic,
@@ -201,7 +201,7 @@ const shared = css`
     /* Checkmark */
     .checkmark-path {
         stroke: var(--_enabled-icon-color-selected);
-        stroke-dasharray: ${CHECKMARK_LENGTH};
+        stroke-dasharray: ${CheckmarkLength};
         stroke-width: 2px;
     }
     .container.selected:enabled:hover .checkmark-path { stroke: var(--_hovered-icon-color-selected); }
@@ -210,22 +210,22 @@ const shared = css`
     .container.disabled .checkmark-path { stroke: var(--_disabled-icon-color); }
 
     .container.selecting .checkmark-path {
-        stroke-dashoffset: ${CHECKMARK_LENGTH};
-        animation: checkmark-draw-in ${short3Duration} ${short1Duration} ${emphasizedEasing} forwards;
+        stroke-dashoffset: ${CheckmarkLength};
+        animation: checkmark-draw-in ${Short3Duration} ${Short1Duration} ${EmphasizedEasing} forwards;
     }
     .container.selecting.with-label .icon {
         animation: simple-fade-out 75ms linear forwards;
     }
     .container.deselecting .checkmark {
-        animation: simple-fade-out ${short1Duration} linear forwards;
+        animation: simple-fade-out ${Short1Duration} linear forwards;
     }
     .container.deselecting.with-label .icon {
         opacity: 0;
-        animation: simple-fade-in ${short3Duration} ${short1Duration} linear forwards;
+        animation: simple-fade-in ${Short3Duration} ${Short1Duration} linear forwards;
     }
 
     @keyframes checkmark-draw-in {
-        from { stroke-dashoffset: ${CHECKMARK_LENGTH}; }
+        from { stroke-dashoffset: ${CheckmarkLength}; }
         to { stroke-dashoffset: 0; }
     }
     @keyframes simple-fade-out {
@@ -268,7 +268,7 @@ const shared = css`
     }
 `
 
-const outline = css`
+const Outline = css`
     .outline {
         border-color: var(--_enabled-outline-color);
         border-radius: inherit;
@@ -291,9 +291,9 @@ const outline = css`
 `
 
 export const SegmentedButtonStyles = [
-    ripple,
-    focusRing,
-    icon,
-    shared,
-    outline,
+    Ripple,
+    FocusRing,
+    Icon,
+    Shared,
+    Outline,
 ]

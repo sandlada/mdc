@@ -1,13 +1,13 @@
 import { Typescale } from '@sandlada/mdk'
 import { createStyleDefinition, type PrimitiveTokenValue } from '../../utils/style'
 
-export const typographyRoles = ['display', 'headline', 'title', 'label', 'body'] as const
-export const typographySizes = ['small', 'medium', 'large'] as const
-export const typographyEmphases = ['regular', 'emphasized'] as const
+export const TypographyRoles = ['display', 'headline', 'title', 'label', 'body'] as const
+export const TypographySizes = ['small', 'medium', 'large'] as const
+export const TypographyEmphases = ['regular', 'emphasized'] as const
 
-export type TypographyRole = (typeof typographyRoles)[number]
-export type TypographySize = (typeof typographySizes)[number]
-export type TypographyEmphasis = (typeof typographyEmphases)[number]
+export type TypographyRoles = (typeof TypographyRoles)[number]
+export type TypographySizes = (typeof TypographySizes)[number]
+export type TypographyEmphases = (typeof TypographyEmphases)[number]
 
 /**
  * Joint `[role][size][emphasis]` scale pairs in dimension order.
@@ -15,7 +15,7 @@ export type TypographyEmphasis = (typeof typographyEmphases)[number]
  * token map below addresses every combination by an explicit
  * `${role}-${size}-${emphasis}-${prop}` key instead of positional arrays.
  */
-const scalePairs = [
+const ScalePairs = [
     [[Typescale.DisplaySmall, Typescale.EmphasizedDisplaySmall], [Typescale.DisplayMedium, Typescale.EmphasizedDisplayMedium], [Typescale.DisplayLarge, Typescale.EmphasizedDisplayLarge]],
     [[Typescale.HeadlineSmall, Typescale.EmphasizedHeadlineSmall], [Typescale.HeadlineMedium, Typescale.EmphasizedHeadlineMedium], [Typescale.HeadlineLarge, Typescale.EmphasizedHeadlineLarge]],
     [[Typescale.TitleSmall, Typescale.EmphasizedTitleSmall], [Typescale.TitleMedium, Typescale.EmphasizedTitleMedium], [Typescale.TitleLarge, Typescale.EmphasizedTitleLarge]],
@@ -23,7 +23,7 @@ const scalePairs = [
     [[Typescale.BodySmall, Typescale.EmphasizedBodySmall], [Typescale.BodyMedium, Typescale.EmphasizedBodyMedium], [Typescale.BodyLarge, Typescale.EmphasizedBodyLarge]]
 ] as const
 
-const propMap = [
+const PropMap = [
     ['font', 'Font'],
     ['size', 'FontSize'],
     ['weight', 'FontWeight'],
@@ -33,14 +33,14 @@ const propMap = [
 
 const buildFlatTokens = (): Record<string, PrimitiveTokenValue> => {
     const flat: Record<string, PrimitiveTokenValue> = {}
-    for (let r = 0; r < typographyRoles.length; r++) {
-        for (let s = 0; s < typographySizes.length; s++) {
-            for (let e = 0; e < typographyEmphases.length; e++) {
-                const row = scalePairs[r] as readonly unknown[]
+    for (let r = 0; r < TypographyRoles.length; r++) {
+        for (let s = 0; s < TypographySizes.length; s++) {
+            for (let e = 0; e < TypographyEmphases.length; e++) {
+                const row = ScalePairs[r] as readonly unknown[]
                 const cell = row[s] as readonly unknown[]
                 const instance = cell[e] as Record<string, unknown>
-                const infix = `${typographyRoles[r]}-${typographySizes[s]}-${typographyEmphases[e]}`
-                for (const [suffix, prop] of propMap) {
+                const infix = `${TypographyRoles[r]}-${TypographySizes[s]}-${TypographyEmphases[e]}`
+                for (const [suffix, prop] of PropMap) {
                     flat[`${infix}-${suffix}`] = instance[prop] as PrimitiveTokenValue
                 }
             }

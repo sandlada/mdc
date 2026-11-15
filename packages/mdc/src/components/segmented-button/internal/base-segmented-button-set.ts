@@ -19,8 +19,8 @@ import type { AriaMixinStrict } from '../../../utils/aria/aria'
 import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
 import {
-    SEGMENTED_BUTTON_INTERACTION_EVENT,
-    SEGMENTED_BUTTON_SET_SELECTION_EVENT,
+    SegmentedButtonInteractionEvent,
+    SegmentedButtonSetSelectionEvent,
     type ISegmentedButtonSet,
     type ISegmentedButtonSetSelectionEventDetail,
 } from '../segmented-button.interface'
@@ -28,7 +28,7 @@ import type { BaseSegmentedButton } from './base-segmented-button'
 import { SegmentedButtonSetStyles } from './segmented-button-set.style'
 
 /** Only `mdc-segmented-button` children take part in selection. */
-const SEGMENT_SELECTOR = 'mdc-segmented-button'
+const SegmentSelector = 'mdc-segmented-button'
 
 export abstract class BaseSegmentedButtonSet extends composeMixin(
     mixinDelegatesAria
@@ -44,7 +44,7 @@ export abstract class BaseSegmentedButtonSet extends composeMixin(
     @property({ type: Boolean, reflect: true })
     public multiselect = false
 
-    @queryAssignedElements({ selector: SEGMENT_SELECTOR, flatten: true })
+    @queryAssignedElements({ selector: SegmentSelector, flatten: true })
     private readonly assignedButtons!: BaseSegmentedButton[]
 
     private buttons: BaseSegmentedButton[] = []
@@ -133,7 +133,7 @@ export abstract class BaseSegmentedButtonSet extends composeMixin(
     private emitSelectionEvent(index: number): void {
         const button = this.buttons[index]
         this.dispatchEvent(new CustomEvent<ISegmentedButtonSetSelectionEventDetail>(
-            SEGMENTED_BUTTON_SET_SELECTION_EVENT,
+            SegmentedButtonSetSelectionEvent,
             {
                 detail: { button, selected: button.selected, index },
                 bubbles: true,

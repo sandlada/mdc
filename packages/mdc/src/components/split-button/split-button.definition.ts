@@ -96,7 +96,7 @@ function sized(
     } as const
 }
 
-const shared = {
+const Shared = {
     ...corners('extra-small', Shape.ExtraSmall, Shape.Medium),
     ...sized('extra-small', {
         height: `32px`,
@@ -185,7 +185,7 @@ const shared = {
  * Material Design 3
  */
 export const FilledSplitButtonDefinition = createStyleDefinition({
-    ...shared,
+    ...Shared,
 
     // Enabled
     'enabled-container-color'         : Color.Primary,
@@ -220,7 +220,7 @@ export const FilledSplitButtonDefinition = createStyleDefinition({
  * Material Design 3
  */
 export const FilledTonalSplitButtonDefinition = createStyleDefinition({
-    ...shared,
+    ...Shared,
 
     // Enabled
     'enabled-container-color'         : Color.SecondaryContainer,
@@ -255,7 +255,7 @@ export const FilledTonalSplitButtonDefinition = createStyleDefinition({
  * Material Design 3
  */
 export const ElevatedSplitButtonDefinition = createStyleDefinition({
-    ...shared,
+    ...Shared,
 
     // Enabled
     'enabled-container-color'         : Color.SurfaceContainerLow,
@@ -290,7 +290,7 @@ export const ElevatedSplitButtonDefinition = createStyleDefinition({
  * Material Design 3
  */
 export const OutlinedSplitButtonDefinition = createStyleDefinition({
-    ...shared,
+    ...Shared,
 
     // Enabled
     'enabled-outline-color'          : Color.OutlineVariant,

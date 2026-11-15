@@ -8,12 +8,12 @@ import { createStyleDefinition, expandPadding, expandTypescale, type PrimitiveTo
 
 export const ButtonSizes = ['extra-small', 'small', 'medium', 'large', 'extra-large'] as const
 
-export type ButtonSize = (typeof ButtonSizes)[number]
+export type ButtonSizes = (typeof ButtonSizes)[number]
 
-const SHAPES = ['round', 'square'] as const
+const Shapes = ['round', 'square'] as const
 
-type SizeName = ButtonSize
-type ShapeName = (typeof SHAPES)[number]
+type SizeName = ButtonSizes
+type ShapeName = (typeof Shapes)[number]
 
 const toSizeTuple = (pick: (size: SizeName) => PrimitiveTokenValue): PrimitiveTokenValue[] =>
     ButtonSizes.map((size) => pick(size))
@@ -40,7 +40,7 @@ const shapeSizeFamily = (
     }
 }
 
-const shapeTable: Record<SizeName, Record<ShapeName, PrimitiveTokenValue>> = {
+const ShapeTable: Record<SizeName, Record<ShapeName, PrimitiveTokenValue>> = {
     'extra-small': { round: Shape.Full, square: Shape.Medium },
     small: { round: Shape.Full, square: Shape.Medium },
     medium: { round: Shape.Full, square: Shape.Large },
@@ -48,7 +48,7 @@ const shapeTable: Record<SizeName, Record<ShapeName, PrimitiveTokenValue>> = {
     'extra-large': { round: Shape.Full, square: Shape.ExtraLarge }
 }
 
-const selectedShapeTable: Record<SizeName, Record<ShapeName, PrimitiveTokenValue>> = {
+const SelectedShapeTable: Record<SizeName, Record<ShapeName, PrimitiveTokenValue>> = {
     'extra-small': { round: Shape.Medium, square: Shape.Full },
     small: { round: Shape.Medium, square: Shape.Full },
     medium: { round: Shape.Large, square: Shape.Full },
@@ -56,7 +56,7 @@ const selectedShapeTable: Record<SizeName, Record<ShapeName, PrimitiveTokenValue
     'extra-large': { round: Shape.ExtraLarge, square: Shape.Full }
 }
 
-const morphShapeTable: Record<SizeName, PrimitiveTokenValue> = {
+const MorphShapeTable: Record<SizeName, PrimitiveTokenValue> = {
     'extra-small': Shape.Small,
     small: Shape.Small,
     medium: Shape.Medium,
@@ -64,7 +64,7 @@ const morphShapeTable: Record<SizeName, PrimitiveTokenValue> = {
     'extra-large': Shape.Large
 }
 
-const buttonSizeTokens = {
+const ButtonSizeTokens = {
     ...expandTypescale('label')([
         Typescale.LabelLarge,
         Typescale.LabelLarge,
@@ -81,11 +81,11 @@ const buttonSizeTokens = {
         { block: `0px`, inlineStart: `64px`, inlineEnd: `64px` }
     ]),
 
-    ...shapeSizeFamily('container-shape-round', (size) => shapeTable[size].round),
-    ...shapeSizeFamily('container-shape-square', (size) => shapeTable[size].square),
-    ...shapeSizeFamily('container-shape-round-selected', (size) => selectedShapeTable[size].round),
-    ...shapeSizeFamily('container-shape-square-selected', (size) => selectedShapeTable[size].square),
-    ...shapeSizeFamily('container-shape-pressed-morph', (size) => morphShapeTable[size]),
+    ...shapeSizeFamily('container-shape-round', (size) => ShapeTable[size].round),
+    ...shapeSizeFamily('container-shape-square', (size) => ShapeTable[size].square),
+    ...shapeSizeFamily('container-shape-round-selected', (size) => SelectedShapeTable[size].round),
+    ...shapeSizeFamily('container-shape-square-selected', (size) => SelectedShapeTable[size].square),
+    ...shapeSizeFamily('container-shape-pressed-morph', (size) => MorphShapeTable[size]),
 
     'container-height': [`32px`, `40px`, `56px`, `96px`, `136px`],
 
@@ -97,7 +97,7 @@ const buttonSizeTokens = {
 } as const
 
 export const ButtonSizeDefinition = createStyleDefinition(Object.fromEntries(
-    Object.entries(buttonSizeTokens).map(([key, value]) => [
+    Object.entries(ButtonSizeTokens).map(([key, value]) => [
         key,
         Array.isArray(value) ? toSizeRecord(value) : value
     ])

@@ -59,12 +59,12 @@ export interface ISnackbarActionEventDetail {
 }
 
 /** Name of the event fired when the snackbar starts opening. */
-export const SNACKBAR_OPENING_EVENT = 'snackbar-opening'
+export const SnackbarOpeningEvent = 'snackbar-opening'
 /** Name of the event fired when the snackbar is fully open. */
-export const SNACKBAR_OPENED_EVENT = 'snackbar-opened'
+export const SnackbarOpenedEvent = 'snackbar-opened'
 /** Name of the event fired when the snackbar starts closing. */
-export const SNACKBAR_CLOSING_EVENT = 'snackbar-closing'
+export const SnackbarClosingEvent = 'snackbar-closing'
 /** Name of the event fired when the snackbar is fully closed. */
-export const SNACKBAR_CLOSED_EVENT = 'snackbar-closed'
+export const SnackbarClosedEvent = 'snackbar-closed'
 /** Name of the event fired when the action button is clicked. */
-export const SNACKBAR_ACTION_EVENT = 'snackbar-action'
+export const SnackbarActionEvent = 'snackbar-action'

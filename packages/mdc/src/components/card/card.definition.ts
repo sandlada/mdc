@@ -8,7 +8,7 @@ import { ElevationLevel, Shape, State } from '@sandlada/mdk'
 import { Color } from '../../utils/color'
 import { createStyleDefinition, expandPadding, expandShape } from '../../utils/style'
 
-const shared = {
+const Shared = {
     ...expandShape('container-shape')({
         round: Shape.Medium,
         square: Shape.None,
@@ -26,7 +26,7 @@ const shared = {
 } as const
 
 export const ElevatedCardDefinition = createStyleDefinition({
-    ...shared,
+    ...Shared,
 
     'container-color': {
         enabled: Color.SurfaceContainerLow,
@@ -74,7 +74,7 @@ export const ElevatedCardDefinition = createStyleDefinition({
 })
 
 export const FilledCardDefinition = createStyleDefinition({
-    ...shared,
+    ...Shared,
 
     'container-color': {
         enabled: Color.SurfaceContainerHighest,
@@ -122,7 +122,7 @@ export const FilledCardDefinition = createStyleDefinition({
 })
 
 export const OutlinedCardDefinition = createStyleDefinition({
-    ...shared,
+    ...Shared,
 
     'container-color': {
         enabled: Color.Surface,
@@ -183,7 +183,7 @@ export const OutlinedCardDefinition = createStyleDefinition({
 })
 
 export const CardDefinitionVariants = {
-    'elevated': ElevatedCardDefinition,
-    'filled': FilledCardDefinition,
-    'outlined': OutlinedCardDefinition,
+    Elevated: ElevatedCardDefinition,
+    Filled: FilledCardDefinition,
+    Outlined: OutlinedCardDefinition,
 } as const

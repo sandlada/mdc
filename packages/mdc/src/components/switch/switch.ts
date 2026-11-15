@@ -6,14 +6,14 @@
 import { html, isServer, LitElement, nothing, type PropertyValues } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
-import { createValidator, getValidityAnchor, mixinConstraintValidation } from '../../utils/behaviors/constraint-validation'
+import { CreateValidator, GetValidityAnchor, mixinConstraintValidation } from '../../utils/behaviors/constraint-validation'
 import { mixinElementInternals } from '../../utils/behaviors/element-internals'
 import { CheckboxValidator } from '../../utils/behaviors/validators/checkbox-validator'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import { OpacityTransitionController } from '../../utils/controller'
 import { dispatchActivationClick, isActivationClick } from '../../utils/event/form-label-activation'
 import { redispatchEvent } from '../../utils/event/redispatch-event'
-import { getFormState, getFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
+import { GetFormState, GetFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
 import { mixinFocusRingOptions } from '../focus-ring/focus-ring-options.mixin'
 import { mixinRippleOptions } from '../ripple/ripple-options.mixin'
 import type { ISwitch } from './switch.interface'
@@ -25,23 +25,23 @@ declare global {
     }
 }
 
-const KEYBOARD_VISUAL_KEYS = new Set(['Tab', ' ', 'Enter'])
-const KEYBOARD_PRESS_KEYS = new Set([' ', 'Enter'])
-const POINTER_MODALITY_EVENTS = ['pointerdown', 'mousedown', 'touchstart'] as const
+const KeyboardVisualKeys = new Set(['Tab', ' ', 'Enter'])
+const KeyboardPressKeys = new Set([' ', 'Enter'])
+const PointerModalityEvents = ['pointerdown', 'mousedown', 'touchstart'] as const
 
-let keyboardInteractionMode = false
-let keyboardModalityTrackingInstalled = false
+let KeyboardInteractionMode = false
+let KeyboardModalityTrackingInstalled = false
 
 function installKeyboardModalityTracking() {
-    if (isServer || keyboardModalityTrackingInstalled) return
-    keyboardModalityTrackingInstalled = true
+    if (isServer || KeyboardModalityTrackingInstalled) return
+    KeyboardModalityTrackingInstalled = true
     document.addEventListener('keydown', (e) => {
         if (e.altKey || e.ctrlKey || e.metaKey) return
-        keyboardInteractionMode = true
+        KeyboardInteractionMode = true
     }, true)
-    for (const eventName of POINTER_MODALITY_EVENTS) {
+    for (const eventName of PointerModalityEvents) {
         document.addEventListener(eventName, () => {
-            keyboardInteractionMode = false
+            KeyboardInteractionMode = false
         }, true)
     }
 }
@@ -233,13 +233,13 @@ export class MDCSwitch extends composeMixin(
     }
 
     private handleVisualKeyDown(event: KeyboardEvent) {
-        if (this.disabled || !KEYBOARD_VISUAL_KEYS.has(event.key)) return
-        keyboardInteractionMode = true
-        this.queueKeyboardVisualSync(KEYBOARD_PRESS_KEYS.has(event.key))
+        if (this.disabled || !KeyboardVisualKeys.has(event.key)) return
+        KeyboardInteractionMode = true
+        this.queueKeyboardVisualSync(KeyboardPressKeys.has(event.key))
     }
 
     private shouldShowKeyboardVisuals() {
-        return keyboardInteractionMode || (this.inputElement?.matches(':focus-visible') ?? false)
+        return KeyboardInteractionMode || (this.inputElement?.matches(':focus-visible') ?? false)
     }
 
     private queueKeyboardVisualSync(pressRipple: boolean) {
@@ -309,11 +309,11 @@ export class MDCSwitch extends composeMixin(
         dispatchActivationClick(this.inputElement)
     }
 
-    override [getFormValue]() {
+    override [GetFormValue]() {
         return this.selected ? this.value : null
     }
 
-    override [getFormState]() {
+    override [GetFormState]() {
         return String(this.selected)
     }
 
@@ -325,14 +325,14 @@ export class MDCSwitch extends composeMixin(
         this.selected = state === 'true'
     }
 
-    override [createValidator]() {
+    override [CreateValidator]() {
         return new CheckboxValidator(() => ({
             checked: this.selected,
             required: this.required,
         }))
     }
 
-    override [getValidityAnchor]() {
+    override [GetValidityAnchor]() {
         return this.inputElement
     }
 }

@@ -7,24 +7,24 @@ import { css, unsafeCSS } from 'lit'
 import { ProgressIndicatorDefinition } from './progress-indicator.definition'
 import { stringifyTokens } from '../../utils/style'
 
-const tokenString = stringifyTokens('--mdc-progress-indicator')(ProgressIndicatorDefinition)
+const TokenString = stringifyTokens('--mdc-progress-indicator')(ProgressIndicatorDefinition)
 
 // ── Animation constants (match @material/web / MDC) ─────────────────────────
-const determinateDuration = unsafeCSS(`250ms`)
-const determinateEasing = unsafeCSS(`cubic-bezier(0.4, 0, 0.6, 1)`)
-const indeterminateDuration = unsafeCSS(`2s`)
-const circularDeterminateDuration = unsafeCSS(`500ms`)
-const circularDeterminateEasing = unsafeCSS(`cubic-bezier(0, 0, 0.2, 1)`)
+const DeterminateDuration = unsafeCSS(`250ms`)
+const DeterminateEasing = unsafeCSS(`cubic-bezier(0.4, 0, 0.6, 1)`)
+const IndeterminateDuration = unsafeCSS(`2s`)
+const CircularDeterminateDuration = unsafeCSS(`500ms`)
+const CircularDeterminateEasing = unsafeCSS(`cubic-bezier(0, 0, 0.2, 1)`)
 
 // Circular indeterminate: three composed animations (from @material/web).
-const arcExpandDuration = unsafeCSS(`1333ms`)
-const arcCycleDuration = unsafeCSS(`5332ms`)     // 4 × 1333ms
-const linearRotateDuration = unsafeCSS(`1568ms`) // 1333ms × 360 / 306
-const indeterminateEasing = unsafeCSS(`cubic-bezier(0.4, 0, 0.2, 1)`)
+const ArcExpandDuration = unsafeCSS(`1333ms`)
+const ArcCycleDuration = unsafeCSS(`5332ms`)     // 4 × 1333ms
+const LinearRotateDuration = unsafeCSS(`1568ms`) // 1333ms × 360 / 306
+const IndeterminateEasing = unsafeCSS(`cubic-bezier(0.4, 0, 0.2, 1)`)
 
 export const ProgressIndicatorStyles = css`
     @layer mdc.progress-indicator.variable {
-        :host { ${tokenString}; }
+        :host { ${TokenString}; }
     }
 
     @layer mdc.progress-indicator.base {
@@ -110,7 +110,7 @@ export const ProgressIndicatorStyles = css`
             width: 100%;
             height: var(--_linear-active-indicator-thickness);
             transform-origin: left center;
-            transition: transform ${determinateDuration} ${determinateEasing};
+            transition: transform ${DeterminateDuration} ${DeterminateEasing};
         }
 
         .secondary-bar {
@@ -125,7 +125,7 @@ export const ProgressIndicatorStyles = css`
 
         .inactive-track {
             background: var(--_enabled-track-color);
-            transition: transform ${determinateDuration} ${determinateEasing};
+            transition: transform ${DeterminateDuration} ${DeterminateEasing};
             transform-origin: left center;
         }
 
@@ -134,18 +134,18 @@ export const ProgressIndicatorStyles = css`
         }
         :host([variant='linear'][indeterminate]) .primary-bar {
             inset-inline-start: -145.167%;
-            animation: linear infinite primary-indeterminate-translate ${indeterminateDuration};
+            animation: linear infinite primary-indeterminate-translate ${IndeterminateDuration};
         }
         :host([variant='linear'][indeterminate]) .primary-bar > .bar-inner {
-            animation: linear infinite primary-indeterminate-scale ${indeterminateDuration};
+            animation: linear infinite primary-indeterminate-scale ${IndeterminateDuration};
         }
         :host([variant='linear'][indeterminate]) .secondary-bar {
             inset-inline-start: -54.8889%;
             display: block;
-            animation: linear infinite secondary-indeterminate-translate ${indeterminateDuration};
+            animation: linear infinite secondary-indeterminate-translate ${IndeterminateDuration};
         }
         :host([variant='linear'][indeterminate]) .secondary-bar > .bar-inner {
-            animation: linear infinite secondary-indeterminate-scale ${indeterminateDuration};
+            animation: linear infinite secondary-indeterminate-scale ${IndeterminateDuration};
         }
 
         /* RTL: flip the whole indicator instead of mirroring each keyframe */
@@ -176,7 +176,7 @@ export const ProgressIndicatorStyles = css`
         }
 
         .active-track {
-            transition: stroke-dashoffset ${circularDeterminateDuration} ${circularDeterminateEasing};
+            transition: stroke-dashoffset ${CircularDeterminateDuration} ${CircularDeterminateEasing};
             stroke: var(--_enabled-active-indicator-color);
         }
 
@@ -205,11 +205,11 @@ export const ProgressIndicatorStyles = css`
            an ungated rule would spin the whole linear bar (576x4 rotated
            ~90deg renders as a 4x576 sliver). */
         :host([variant='circular']) .progress.indeterminate {
-            animation: linear infinite linear-rotate ${linearRotateDuration};
+            animation: linear infinite linear-rotate ${LinearRotateDuration};
         }
 
         .spinner {
-            animation: infinite both rotate-arc ${arcCycleDuration} ${indeterminateEasing};
+            animation: infinite both rotate-arc ${ArcCycleDuration} ${IndeterminateEasing};
         }
 
         .left {
@@ -228,7 +228,7 @@ export const ProgressIndicatorStyles = css`
             border-style: solid;
             border-color: var(--_enabled-active-indicator-color)
                 var(--_enabled-active-indicator-color) transparent transparent;
-            animation: expand-arc ${arcExpandDuration} ${indeterminateEasing}
+            animation: expand-arc ${ArcExpandDuration} ${IndeterminateEasing}
                 infinite both;
         }
 
@@ -252,7 +252,7 @@ export const ProgressIndicatorStyles = css`
         .right .circle {
             rotate: 100deg;
             inset: 0 0 0 -100%;
-            animation-delay: calc(-0.5 * ${arcExpandDuration});
+            animation-delay: calc(-0.5 * ${ArcExpandDuration});
         }
 
         /* Show only the active rendering mode */

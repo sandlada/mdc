@@ -149,18 +149,18 @@ export interface IBottomSheet extends LitElement, IMixinElevationAttributes {
 }
 
 /** Fired when the sheet begins to open. */
-export const BOTTOM_SHEET_OPENING_EVENT = 'bottom-sheet-opening'
+export const BottomSheetOpeningEvent = 'bottom-sheet-opening'
 /** Fired when the sheet has finished opening. */
-export const BOTTOM_SHEET_OPENED_EVENT = 'bottom-sheet-opened'
+export const BottomSheetOpenedEvent = 'bottom-sheet-opened'
 /** Fired when the sheet begins to close. */
-export const BOTTOM_SHEET_CLOSING_EVENT = 'bottom-sheet-closing'
+export const BottomSheetClosingEvent = 'bottom-sheet-closing'
 /** Fired when the sheet has finished closing. */
-export const BOTTOM_SHEET_CLOSED_EVENT = 'bottom-sheet-closed'
+export const BottomSheetClosedEvent = 'bottom-sheet-closed'
 /** Modal only — fired before `closing` when Esc or scrim is invoked. */
-export const BOTTOM_SHEET_CANCEL_EVENT = 'bottom-sheet-cancel'
+export const BottomSheetCancelEvent = 'bottom-sheet-cancel'
 /** Fired when a drag gesture engages. Only when `draggable=true`. */
-export const BOTTOM_SHEET_DRAG_START_EVENT = 'bottom-sheet-drag-start'
+export const BottomSheetDragStartEvent = 'bottom-sheet-drag-start'
 /** Fired (throttled to rAF) during an active drag. Only when `draggable=true`. */
-export const BOTTOM_SHEET_DRAG_EVENT = 'bottom-sheet-drag'
+export const BottomSheetDragEvent = 'bottom-sheet-drag'
 /** Fired when a drag gesture ends. Only when `draggable=true`. */
-export const BOTTOM_SHEET_DRAG_END_EVENT = 'bottom-sheet-drag-end'
+export const BottomSheetDragEndEvent = 'bottom-sheet-drag-end'

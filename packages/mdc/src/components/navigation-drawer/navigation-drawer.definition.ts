@@ -27,7 +27,7 @@ import { createStyleDefinition } from '../../utils/style'
  * - Inner Destinations: 336px width, 12px inline padding, 4px gap
  */
 
-const sharedStructural = {
+const SharedStructural = {
     // Container size
     'enabled-container-width'                                : `360px`,
 
@@ -87,7 +87,7 @@ const sharedStructural = {
  * Modal navigation drawer — overlay with scrim, `surface-container-low` background.
  */
 export const ModalNavigationDrawerDefinition = createStyleDefinition({
-    ...sharedStructural,
+    ...SharedStructural,
     'enabled-container-color'           : Color.SurfaceContainerLow,
     'enabled-headline-color'            : Color.OnSurfaceVariant,
     'enabled-divider-color'             : Color.OutlineVariant,
@@ -108,7 +108,7 @@ export const ModalNavigationDrawerDefinition = createStyleDefinition({
  * Standard / dismissible navigation drawer — in-flow, `surface` background, no scrim.
  */
 export const StandardNavigationDrawerDefinition = createStyleDefinition({
-    ...sharedStructural,
+    ...SharedStructural,
     'enabled-container-shape-start-start': Shape.None,
     'enabled-container-shape-start-end'  : Shape.None,
     'enabled-container-shape-end-end'    : Shape.None,
@@ -123,7 +123,7 @@ export const StandardNavigationDrawerDefinition = createStyleDefinition({
  * Permanent navigation drawer — persistent fixed in-flow panel.
  */
 export const PermanentNavigationDrawerDefinition = createStyleDefinition({
-    ...sharedStructural,
+    ...SharedStructural,
     'enabled-container-shape-start-start': Shape.None,
     'enabled-container-shape-start-end'  : Shape.None,
     'enabled-container-shape-end-end'    : Shape.None,

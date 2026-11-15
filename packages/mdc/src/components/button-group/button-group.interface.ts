@@ -38,12 +38,12 @@ export type ButtonGroupOrientation = 'horizontal' | 'vertical'
 /**
  * Event fired when a selection change occurs within the button group.
  */
-export const BUTTON_GROUP_SELECTION_EVENT = 'button-group-selection-change'
+export const ButtonGroupSelectionEvent = 'button-group-selection-change'
 
 /**
  * Event fired on any user click / interaction with a child button in the group.
  */
-export const BUTTON_GROUP_INTERACTION_EVENT = 'button-group-interaction'
+export const ButtonGroupInteractionEvent = 'button-group-interaction'
 
 /**
  * Detail payload for the `button-group-selection-change` event.

@@ -1,22 +1,5 @@
 import type { LitElement } from 'lit'
 
-export type TypographyVariant
-    = 'display-large'
-    | 'display-medium'
-    | 'display-small'
-    | 'headline-large'
-    | 'headline-medium'
-    | 'headline-small'
-    | 'title-large'
-    | 'title-medium'
-    | 'title-small'
-    | 'body-large'
-    | 'body-medium'
-    | 'body-small'
-    | 'label-large'
-    | 'label-medium'
-    | 'label-small'
-
 export const TypographyVariant = {
     DisplayLarge: 'display-large',
     DisplayMedium: 'display-medium',
@@ -37,7 +20,8 @@ export const TypographyVariant = {
     LabelLarge: 'label-large',
     LabelMedium: 'label-medium',
     LabelSmall: 'label-small',
-} as const satisfies Record<string, TypographyVariant>
+} as const
+export type TypographyVariant = (typeof TypographyVariant)[keyof typeof TypographyVariant]
 
 export interface ITypography extends LitElement {
     emphasized: boolean

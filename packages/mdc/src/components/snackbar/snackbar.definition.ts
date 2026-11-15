@@ -21,7 +21,7 @@ import { createStyleDefinition } from '../../utils/style'
  * - Margin: 8dp, padding: 8dp horizontal, 14dp vertical (single line)
  * - Max width: 344dp
  */
-const shared = {
+const Shared = {
     // Container shape & layout
     'container-shape-start-start'        : Shape.ExtraSmall,
     'container-shape-start-end'          : Shape.ExtraSmall,
@@ -85,7 +85,7 @@ const shared = {
 // ─── Variant Definitions ────────────────────────────────────────────────────
 
 export const SurfaceSnackbarDefinition = createStyleDefinition({
-    ...shared,
+    ...Shared,
     'enabled-container-color'                    : Color.SurfaceContainerHigh,
     'enabled-label-color'                   : Color.OnSurfaceVariant,
     'enabled-action-text-color'                  : Color.Primary,
@@ -100,7 +100,7 @@ export const SurfaceSnackbarDefinition = createStyleDefinition({
 })
 
 export const InverseSurfaceSnackbarDefinition = createStyleDefinition({
-    ...shared,
+    ...Shared,
     'enabled-container-color'                    : Color.InverseSurface,
     'enabled-label-color'                   : Color.InverseOnSurface,
     'enabled-action-text-color'                  : Color.InversePrimary,
@@ -115,7 +115,7 @@ export const InverseSurfaceSnackbarDefinition = createStyleDefinition({
 })
 
 export const PrimarySnackbarDefinition = createStyleDefinition({
-    ...shared,
+    ...Shared,
     'enabled-container-color'                    : Color.Primary,
     'enabled-label-color'                   : Color.OnPrimary,
     'enabled-action-text-color'                  : Color.OnPrimary,
@@ -130,7 +130,7 @@ export const PrimarySnackbarDefinition = createStyleDefinition({
 })
 
 export const SecondarySnackbarDefinition = createStyleDefinition({
-    ...shared,
+    ...Shared,
     'enabled-container-color'                    : Color.Secondary,
     'enabled-label-color'                   : Color.OnSecondary,
     'enabled-action-text-color'                  : Color.OnSecondary,
@@ -145,7 +145,7 @@ export const SecondarySnackbarDefinition = createStyleDefinition({
 })
 
 export const TertiarySnackbarDefinition = createStyleDefinition({
-    ...shared,
+    ...Shared,
     'enabled-container-color'                    : Color.Tertiary,
     'enabled-label-color'                   : Color.OnTertiary,
     'enabled-action-text-color'                  : Color.OnTertiary,
@@ -160,7 +160,7 @@ export const TertiarySnackbarDefinition = createStyleDefinition({
 })
 
 export const ErrorSnackbarDefinition = createStyleDefinition({
-    ...shared,
+    ...Shared,
     'enabled-container-color'                    : Color.Error,
     'enabled-label-color'                   : Color.OnError,
     'enabled-action-text-color'                  : Color.OnError,
@@ -175,7 +175,7 @@ export const ErrorSnackbarDefinition = createStyleDefinition({
 })
 
 export const PrimaryContainerSnackbarDefinition = createStyleDefinition({
-    ...shared,
+    ...Shared,
     'enabled-container-color'                    : Color.PrimaryContainer,
     'enabled-label-color'                   : Color.OnPrimaryContainer,
     'enabled-action-text-color'                  : Color.Primary,
@@ -190,7 +190,7 @@ export const PrimaryContainerSnackbarDefinition = createStyleDefinition({
 })
 
 export const SecondaryContainerSnackbarDefinition = createStyleDefinition({
-    ...shared,
+    ...Shared,
     'enabled-container-color'                    : Color.SecondaryContainer,
     'enabled-label-color'                   : Color.OnSecondaryContainer,
     'enabled-action-text-color'                  : Color.Secondary,
@@ -205,7 +205,7 @@ export const SecondaryContainerSnackbarDefinition = createStyleDefinition({
 })
 
 export const TertiaryContainerSnackbarDefinition = createStyleDefinition({
-    ...shared,
+    ...Shared,
     'enabled-container-color'                    : Color.TertiaryContainer,
     'enabled-label-color'                   : Color.OnTertiaryContainer,
     'enabled-action-text-color'                  : Color.Tertiary,
@@ -220,7 +220,7 @@ export const TertiaryContainerSnackbarDefinition = createStyleDefinition({
 })
 
 export const ErrorContainerSnackbarDefinition = createStyleDefinition({
-    ...shared,
+    ...Shared,
     'enabled-container-color'                    : Color.ErrorContainer,
     'enabled-label-color'                   : Color.OnErrorContainer,
     'enabled-action-text-color'                  : Color.Error,

@@ -100,4 +100,4 @@ export interface ILoadingIndicatorCompleteDetail {
 }
 
 /** Name of the event dispatched when a determinate indicator reaches 1. */
-export const LOADING_INDICATOR_COMPLETE_EVENT = 'loading-indicator-complete'
+export const LoadingIndicatorCompleteEvent = 'loading-indicator-complete'

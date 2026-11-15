@@ -21,7 +21,7 @@
 import { Cubic } from './cubic'
 import { featureMapper } from './feature-mapping'
 import { LengthMeasurer, MeasuredPolygon, type MeasuredCubic } from './measure'
-import { ANGLE_EPSILON, interpolate, point, positiveModulo, type Point } from './point'
+import { AngleEpsilon, interpolate, point, positiveModulo, type Point } from './point'
 import type { RoundedPolygon } from './rounded-polygon'
 
 /**
@@ -124,7 +124,7 @@ const matchCubics = (p1: RoundedPolygon, p2: RoundedPolygon): Array<[Cubic, Cubi
 
         let seg1: MeasuredCubic
         let nextB1: MeasuredCubic | null
-        if (b1a > minb + ANGLE_EPSILON) {
+        if (b1a > minb + AngleEpsilon) {
             const cut = b1.cutAtProgress(minb)
             seg1 = cut[0]
             nextB1 = cut[1]
@@ -135,7 +135,7 @@ const matchCubics = (p1: RoundedPolygon, p2: RoundedPolygon): Array<[Cubic, Cubi
 
         let seg2: MeasuredCubic
         let nextB2: MeasuredCubic | null
-        if (b2a > minb + ANGLE_EPSILON) {
+        if (b2a > minb + AngleEpsilon) {
             const cut = b2.cutAtProgress(positiveModulo(doubleMapper.map(minb) - polygon2CutPoint, 1))
             seg2 = cut[0]
             nextB2 = cut[1]

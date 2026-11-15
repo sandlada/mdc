@@ -12,11 +12,11 @@ import { ListItemDefinition } from '../list.definition'
 import { overrideTokens, stringifyTokens } from '../../../utils/style'
 
 // Token injection for `mdc-list-item`
-const listItemTokens = stringifyTokens('--mdc-list-item')(ListItemDefinition)
+const ListItemTokens = stringifyTokens('--mdc-list-item')(ListItemDefinition)
 
-const emphasizedEasing = unsafeCSS(Easing.Emphasized.ToCSSValue())
+const EmphasizedEasing = unsafeCSS(Easing.Emphasized.ToCSSValue())
 
-const rippleStyles = overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
+const RippleStyles = overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
     'enabled-hovered-color': `var(--_hovered-state-layer-color)`,
     'enabled-focused-color': `var(--_focused-state-layer-color)`,
     'enabled-pressed-color': `var(--_pressed-state-layer-color)`,
@@ -25,13 +25,13 @@ const rippleStyles = overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
     'enabled-pressed-opacity': `var(--_pressed-state-layer-opacity)`,
 })()
 
-const iconStyles = overrideTokens<typeof IconDefinition>('--mdc-icon')({
+const IconStyles = overrideTokens<typeof IconDefinition>('--mdc-icon')({
     'enabled-size': `var(--_leading-icon-size)`,
 })()
 
 export const ListItemStyles = css`
     @layer mdc.list-item.variable {
-        :host { ${listItemTokens}; }
+        :host { ${ListItemTokens}; }
     }
 
     @layer mdc.list-item.base {
@@ -63,7 +63,7 @@ export const ListItemStyles = css`
             cursor: pointer;
             outline: none;
             -webkit-tap-highlight-color: transparent;
-            transition: background-color 200ms ${emphasizedEasing};
+            transition: background-color 200ms ${EmphasizedEasing};
         }
 
         .container.one-line {
@@ -113,7 +113,7 @@ export const ListItemStyles = css`
             flex-shrink: 0;
             min-width: 0;
             color: var(--_enabled-leading-icon-color);
-            ${iconStyles};
+            ${IconStyles};
         }
 
         ::slotted([slot='start']),
@@ -205,7 +205,7 @@ export const ListItemStyles = css`
         .container mdc-ripple {
             border-radius: inherit;
             z-index: 0;
-            ${rippleStyles};
+            ${RippleStyles};
         }
     }
 

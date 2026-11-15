@@ -9,10 +9,10 @@ import { customElement, property, queryAssignedElements, state } from 'lit/decor
 import { mixinDelegatesAria } from '../../utils/aria/delegate'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import {
-    TOOLTIP_BOX_HIDDEN_EVENT,
-    TOOLTIP_BOX_HIDING_EVENT,
-    TOOLTIP_BOX_SHOWN_EVENT,
-    TOOLTIP_BOX_SHOWING_EVENT,
+    TooltipBoxHiddenEvent,
+    TooltipBoxHidingEvent,
+    TooltipBoxShownEvent,
+    TooltipBoxShowingEvent,
     type ITooltipBox,
     type ITooltipBoxEventDetail,
     type TooltipBoxPlacement,
@@ -150,7 +150,7 @@ export class MDCTooltipBox extends composeMixin(
         const gen = ++this.generation
 
         const showingEvent = new CustomEvent<ITooltipBoxEventDetail>(
-            TOOLTIP_BOX_SHOWING_EVENT,
+            TooltipBoxShowingEvent,
             {
                 bubbles: true,
                 composed: true,
@@ -183,7 +183,7 @@ export class MDCTooltipBox extends composeMixin(
         if (gen !== this.generation) return
 
         this.dispatchEvent(new CustomEvent<ITooltipBoxEventDetail>(
-            TOOLTIP_BOX_SHOWN_EVENT,
+            TooltipBoxShownEvent,
             {
                 bubbles: true,
                 composed: true,
@@ -201,7 +201,7 @@ export class MDCTooltipBox extends composeMixin(
         const gen = ++this.generation
 
         const hidingEvent = new CustomEvent<ITooltipBoxEventDetail>(
-            TOOLTIP_BOX_HIDING_EVENT,
+            TooltipBoxHidingEvent,
             {
                 bubbles: true,
                 composed: true,
@@ -232,7 +232,7 @@ export class MDCTooltipBox extends composeMixin(
         this.stopPositionTracking()
 
         this.dispatchEvent(new CustomEvent<ITooltipBoxEventDetail>(
-            TOOLTIP_BOX_HIDDEN_EVENT,
+            TooltipBoxHiddenEvent,
             {
                 bubbles: true,
                 composed: true,

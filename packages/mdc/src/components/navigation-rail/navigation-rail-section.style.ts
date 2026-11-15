@@ -2,10 +2,10 @@ import { css } from 'lit'
 import { stringifyTokens } from '../../utils/style'
 import { NavigationRailSectionDefinition } from './navigation-rail-section.definition'
 
-const tokens = stringifyTokens('--mdc-navigation-rail-section')(NavigationRailSectionDefinition)
+const Tokens = stringifyTokens('--mdc-navigation-rail-section')(NavigationRailSectionDefinition)
 
 export const NavigationRailSectionStyles = [
-    css`@layer mdc.navigation-rail-section.variables{:host{${tokens};}}`,
+    css`@layer mdc.navigation-rail-section.variables{:host{${Tokens};}}`,
     css`
         @layer mdc.navigation-rail-section.base {
             :host {

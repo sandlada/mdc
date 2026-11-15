@@ -10,12 +10,11 @@ import type { LitElement } from 'lit'
  * - `filled`   : filled background with a bottom-indicator underline.
  * - `outlined` : transparent background with a 4-sided outline and a notch for the label.
  */
-export type FieldVariant = 'filled' | 'outlined'
-
 export const FieldVariant = {
     Filled: 'filled',
     Outlined: 'outlined',
-} as const satisfies Record<string, FieldVariant>
+} as const
+export type FieldVariant = (typeof FieldVariant)[keyof typeof FieldVariant]
 
 /**
  * Controls when the label floats.
@@ -23,13 +22,12 @@ export const FieldVariant = {
  * - `always`: label always floats (even when empty and unfocused).
  * - `never` : label never floats; rendered as a placeholder inside the input area.
  */
-export type FloatingLabelBehavior = 'auto' | 'always' | 'never'
-
 export const FloatingLabelBehavior = {
     Auto: 'auto',
     Always: 'always',
     Never: 'never',
-} as const satisfies Record<string, FloatingLabelBehavior>
+} as const
+export type FloatingLabelBehavior = (typeof FloatingLabelBehavior)[keyof typeof FloatingLabelBehavior]
 
 /**
  * Field component contract.
@@ -94,5 +92,5 @@ export interface IField extends LitElement {
 }
 
 /** Fired when the user clicks / touches the floating label. */
-export const FIELD_LABEL_POINTER_EVENT = 'field-label-pointer'
+export const FieldLabelPointerEvent = 'field-label-pointer'
 

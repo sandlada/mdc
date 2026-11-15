@@ -15,29 +15,29 @@ import {
 import { NavigationDrawerTabDefinition } from '../navigation-tab/navigation-tab.definition'
 import type { TypographyDefinition } from '../typography/typography.definition'
 
-const modalString = stringifyTokens('--mdc-navigation-drawer')(ModalNavigationDrawerDefinition)
+const ModalString = stringifyTokens('--mdc-navigation-drawer')(ModalNavigationDrawerDefinition)
 
-const standardString = stringifyTokens('--mdc-navigation-drawer')(StandardNavigationDrawerDefinition)
+const StandardString = stringifyTokens('--mdc-navigation-drawer')(StandardNavigationDrawerDefinition)
 
-const permanentString = stringifyTokens('--mdc-navigation-drawer')(PermanentNavigationDrawerDefinition)
+const PermanentString = stringifyTokens('--mdc-navigation-drawer')(PermanentNavigationDrawerDefinition)
 
-const emphasizedEasing = unsafeCSS(Easing.Emphasized.ToCSSValue())
-const emphasizedAccelerateEasing = unsafeCSS(Easing.EmphasizedAccelerate.ToCSSValue())
+const EmphasizedEasing = unsafeCSS(Easing.Emphasized.ToCSSValue())
+const EmphasizedAccelerateEasing = unsafeCSS(Easing.EmphasizedAccelerate.ToCSSValue())
 
-const overrideTab = overrideTokens<typeof NavigationDrawerTabDefinition>(
+const OverrideTab = overrideTokens<typeof NavigationDrawerTabDefinition>(
     '--mdc-navigation-tab'
 )({
     'enabled-container-width': 'calc(var(--_enabled-container-width) - var(--_content-container-padding-inline-start) - var(--_content-container-padding-inline-end))',
 })()
 
-const overrideElevation = overrideTokens<typeof ElevationDefinition>(
+const OverrideElevation = overrideTokens<typeof ElevationDefinition>(
     '--mdc-elevation'
 )({
     'enabled-level': 'var(--_enabled-container-elevation)',
     'enabled-shadow-color': 'var(--_container-shadow-color)',
 })()
 
-const overrideTypography = overrideTokens<typeof TypographyDefinition>(
+const OverrideTypography = overrideTokens<typeof TypographyDefinition>(
     '--mdc-typography'
 )({
     'title-small-regular-font': 'var(--_enabled-headline-font)',
@@ -51,19 +51,19 @@ export const NavigationDrawerStyles = [
     // Token injection
     css`
         :host {
-            ${overrideTab};
-            ${overrideElevation};
-            ${overrideTypography};
-            ${modalString};
+            ${OverrideTab};
+            ${OverrideElevation};
+            ${OverrideTypography};
+            ${ModalString};
         }
         :host([variant="modal"]) {
-            ${modalString};
+            ${ModalString};
         }
         :host([variant="standard"]) {
-            ${standardString};
+            ${StandardString};
         }
         :host([variant="permanent"]) {
-            ${permanentString};
+            ${PermanentString};
         }
     `,
     // Base structural layout
@@ -264,7 +264,7 @@ export const NavigationDrawerStyles = [
         dialog.modal .container {
             --_drawer-off-dock-sign: -1;
             transform: translateX(calc(var(--_drawer-off-dock-sign) * var(--_enabled-container-width)));
-            transition: transform 200ms ${emphasizedAccelerateEasing};
+            transition: transform 200ms ${EmphasizedAccelerateEasing};
         }
         dialog.modal.edge-end .container {
             --_drawer-off-dock-sign: 1;
@@ -277,7 +277,7 @@ export const NavigationDrawerStyles = [
         }
         dialog.open.modal .container {
             transform: translateX(0);
-            transition: transform 400ms ${emphasizedEasing};
+            transition: transform 400ms ${EmphasizedEasing};
         }
 
         /* "quick" skips all transitions. Must stay after the open-state

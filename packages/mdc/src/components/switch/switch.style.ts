@@ -11,9 +11,9 @@ import { SwitchDefinition } from './switch.definition'
 import { FocusRingDefinition } from '../focus-ring/focus-ring.definition'
 import type { IconDefinition } from '../icon/icon.definition'
 
-const tokens = stringifyTokens('--mdc-switch')(SwitchDefinition)
+const Tokens = stringifyTokens('--mdc-switch')(SwitchDefinition)
 
-const focusRingShape = overrideTokens<typeof FocusRingDefinition>('--mdc-focus-ring')({
+const FocusRingShape = overrideTokens<typeof FocusRingDefinition>('--mdc-focus-ring')({
     "shape-end-end": `var(--_track-shape-end-end)`,
     "shape-end-start": `var(--_track-shape-end-start)`,
     "shape-start-end": `var(--_track-shape-start-end)`,
@@ -26,17 +26,17 @@ const rippleStyles = (state: 'selected' | 'unselected') => overrideTokens<typeof
     "pressed-opacity": `var(--_pressed-state-layer-opacity-${state})`,
 })()
 
-const handleContainerEasing = unsafeCSS(Easing.ExpressiveFastSpatial.ToCSSValue())
-const handleEasing = unsafeCSS(Easing.Standard.ToCSSValue())
+const HandleContainerEasing = unsafeCSS(Easing.ExpressiveFastSpatial.ToCSSValue())
+const HandleEasing = unsafeCSS(Easing.Standard.ToCSSValue())
 
 
 export const SwitchStyles = css`
     @layer mdc.switch.variable {
-        :host { ${tokens}; }
+        :host { ${Tokens}; }
     }
 
     @layer mdc.switch.composite.focus-ring {
-        mdc-focus-ring { ${focusRingShape}; }
+        mdc-focus-ring { ${FocusRingShape}; }
     }
 
     @layer mdc.switch.composite.ripple {
@@ -282,7 +282,7 @@ export const SwitchStyles = css`
             position: relative;
             height: 100%;
             width: 100%;
-            transition: margin 350ms ${handleContainerEasing};
+            transition: margin 350ms ${HandleContainerEasing};
         }
         .disabled .handle-container {
             transition: none;
@@ -303,7 +303,7 @@ export const SwitchStyles = css`
             transform-origin: center;
             transition-property: height, width;
             transition-duration: 250ms, 250ms;
-            transition-timing-function: ${handleEasing};
+            transition-timing-function: ${HandleEasing};
             z-index: 0;
             display: grid;
             place-content: center;

@@ -14,12 +14,12 @@ import type { ElevationDefinition } from '../elevation/elevation.definition'
 import type { RippleDefinition } from '../ripple/ripple.definition'
 import { overrideTokens, stringifyTokens } from '../../utils/style'
 
-const stringify = stringifyTokens('--mdc-card')
-const filled = stringify(FilledCardDefinition)
-const outlined = stringify(OutlinedCardDefinition)
-const elevated = stringify(ElevatedCardDefinition)
+const Stringify = stringifyTokens('--mdc-card')
+const Filled = Stringify(FilledCardDefinition)
+const Outlined = Stringify(OutlinedCardDefinition)
+const Elevated = Stringify(ElevatedCardDefinition)
 
-const stylePart = css`
+const StylePart = css`
     @layer mdc.card.component {
         :host {
             display: inline-flex;
@@ -188,7 +188,7 @@ const stylePart = css`
     }
 `
 
-const rippleStyles = overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
+const RippleStyles = overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
     'hovered-color': `var(--_hovered-state-layer-color)`,
     'focused-color': `var(--_focused-state-layer-color)`,
     'pressed-color': `var(--_pressed-state-layer-color)`,
@@ -197,41 +197,41 @@ const rippleStyles = overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
     'pressed-opacity': `var(--_pressed-state-layer-opacity)`,
 })()
 
-const elevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
+const ElevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
     'level': `var(--_enabled-container-elevation)`,
     'shadow-color': `var(--_enabled-container-shadow-color)`,
 })()
 
-const hoveredElevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
+const HoveredElevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
     'level': `var(--_hovered-container-elevation)`,
 })()
 
-const focusedElevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
+const FocusedElevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
     'level': `var(--_focused-container-elevation)`,
 })()
 
-const pressedElevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
+const PressedElevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
     'level': `var(--_pressed-container-elevation)`,
 })()
 
-const disabledElevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
+const DisabledElevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
     'level': `var(--_disabled-container-elevation)`,
 })()
 
-export const cardStyles = [
-    stylePart,
+export const CardStyles = [
+    StylePart,
     css`
     @layer mdc.card.variable {
-        :host([variant="filled"]){${filled};}
-        :host([variant="outlined"]){${outlined};}
-        :host([variant="elevated"]){${elevated};}
+        :host([variant="filled"]){${Filled};}
+        :host([variant="outlined"]){${Outlined};}
+        :host([variant="elevated"]){${Elevated};}
     }
 
     @layer mdc.card.composite.ripple {
         .container mdc-ripple {
             border-radius: inherit;
             z-index: 1;
-            ${rippleStyles};
+            ${RippleStyles};
         }
     }
 
@@ -247,19 +247,19 @@ export const cardStyles = [
             border-radius: inherit;
             z-index: 0;
             transition-duration: 200ms;
-            ${elevationStyles};
+            ${ElevationStyles};
         }
         .container.interactive:hover mdc-elevation {
-            ${hoveredElevationStyles};
+            ${HoveredElevationStyles};
         }
         .container.interactive:focus-visible mdc-elevation {
-            ${focusedElevationStyles};
+            ${FocusedElevationStyles};
         }
         .container.interactive:active mdc-elevation {
-            ${pressedElevationStyles};
+            ${PressedElevationStyles};
         }
         .container.disabled mdc-elevation {
-            ${disabledElevationStyles};
+            ${DisabledElevationStyles};
         }
     }
 `

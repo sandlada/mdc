@@ -48,14 +48,14 @@ const RippleState = {
 }
 
 const RippleConfiguration = {
-    pressGrowMs: 450,
-    minimumPressMs: 225,
-    initialOriginScale: 0.2,
-    padding: 10,
-    softEdgeMinimumSize: 75,
-    softEdgeContainerRadio: 0.35,
-    animationFill: 'forwards' as FillMode,
-    touchDelayMs: 150,
+    PressGrowMs: 450,
+    MinimumPressMs: 225,
+    InitialOriginScale: 0.2,
+    Padding: 10,
+    SoftEdgeMinimumSize: 75,
+    SoftEdgeContainerRadio: 0.35,
+    AnimationFill: 'forwards' as FillMode,
+    TouchDelayMs: 150,
 } as const
 
 /**
@@ -154,7 +154,7 @@ export class RippleAction {
         // Wait for a hold after touch delay
         this.state = RippleState.TouchDelay
         await new Promise((resolve) => {
-            setTimeout(resolve, RippleConfiguration.touchDelayMs)
+            setTimeout(resolve, RippleConfiguration.TouchDelayMs)
         })
         if (this.state !== RippleState.TouchDelay) return
         this.state = RippleState.Holding
@@ -221,9 +221,9 @@ export class RippleAction {
                 ],
             },
             {
-                duration: RippleConfiguration.pressGrowMs,
+                duration: RippleConfiguration.PressGrowMs,
                 easing: Easing.Standard.ToCSSValue(),
-                fill: RippleConfiguration.animationFill,
+                fill: RippleConfiguration.AnimationFill,
             },
         )
     }
@@ -272,13 +272,13 @@ export class RippleAction {
             pressAnimationPlayState = animation.currentTime.to('ms').value
         }
 
-        if (pressAnimationPlayState >= RippleConfiguration.minimumPressMs) {
+        if (pressAnimationPlayState >= RippleConfiguration.MinimumPressMs) {
             this.host.pressed = false
             return
         }
 
         await new Promise((resolve) => {
-            setTimeout(resolve, RippleConfiguration.minimumPressMs - pressAnimationPlayState)
+            setTimeout(resolve, RippleConfiguration.MinimumPressMs - pressAnimationPlayState)
         })
 
         if (this.growAnimation !== animation) {
@@ -294,13 +294,13 @@ export class RippleAction {
         const { height, width } = this.host.getBoundingClientRect()
         const maxDim = Math.max(height, width)
         const softEdgeSize = Math.max(
-            RippleConfiguration.softEdgeContainerRadio * maxDim,
-            RippleConfiguration.softEdgeMinimumSize,
+            RippleConfiguration.SoftEdgeContainerRadio * maxDim,
+            RippleConfiguration.SoftEdgeMinimumSize,
         )
 
-        const initialSizeNew = Math.floor(maxDim * RippleConfiguration.initialOriginScale)
+        const initialSizeNew = Math.floor(maxDim * RippleConfiguration.InitialOriginScale)
         const hypotenuse = Math.sqrt(width ** 2 + height ** 2)
-        const maxRadius = hypotenuse + RippleConfiguration.padding
+        const maxRadius = hypotenuse + RippleConfiguration.Padding
 
         this.initialSize = initialSizeNew
         this.rippleScale = `${(maxRadius + softEdgeSize) / this.initialSize}`

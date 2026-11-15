@@ -23,15 +23,15 @@ import { IconDefinition } from '../icon/icon.definition'
 import { RippleDefinition } from '../ripple/ripple.definition'
 import { overrideTokens, stringifyTokens } from '../../utils/style'
 
-const primaryTokens = stringifyTokens('--mdc-tab')(PrimaryTabDefinition)
+const PrimaryTokens = stringifyTokens('--mdc-tab')(PrimaryTabDefinition)
 
-const secondaryTokens = stringifyTokens('--mdc-tab')(SecondaryTabDefinition)
+const SecondaryTokens = stringifyTokens('--mdc-tab')(SecondaryTabDefinition)
 
-const floatingTokens = stringifyTokens('--mdc-tab')(FloatingTabDefinition)
+const FloatingTokens = stringifyTokens('--mdc-tab')(FloatingTabDefinition)
 
 // Wire the tab's state-layer tokens into the ripple, so the ripple draws the
 // MD3 hover / focus / press state layer with the tab's colors & opacities.
-const overrideRipple = {
+const OverrideRipple = {
     unselected: overrideTokens<typeof RippleDefinition>(
         '--mdc-ripple'
     )({
@@ -55,7 +55,7 @@ const overrideRipple = {
 }
 
 // Sized icons (e.g. `mdc-icon`) fill the tab's icon slot.
-const overrideIcon = overrideTokens<typeof IconDefinition>('--mdc-icon')({
+const OverrideIcon = overrideTokens<typeof IconDefinition>('--mdc-icon')({
     'enabled-size': 'var(--_icon-size)',
 })()
 
@@ -63,13 +63,13 @@ export const TabStyles = [
     // ── Variant token blocks ────────────────────────────────────────────────
     css`
     :host([variant="primary"]) {
-        ${primaryTokens};
+        ${PrimaryTokens};
     }
     :host([variant="secondary"]) {
-        ${secondaryTokens};
+        ${SecondaryTokens};
     }
     :host([variant="floating"]) {
-        ${floatingTokens};
+        ${FloatingTokens};
     }
     `,
     // ── Shared host / container ─────────────────────────────────────────────
@@ -157,7 +157,7 @@ export const TabStyles = [
         width: var(--_icon-size);
         height: var(--_icon-size);
         color: var(--_enabled-icon-color-unselected);
-        ${overrideIcon};
+        ${OverrideIcon};
         pointer-events: none;
     }
     :host(:hover:not([active])) .icon {

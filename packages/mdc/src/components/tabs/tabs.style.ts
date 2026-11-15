@@ -10,11 +10,11 @@ import { css } from 'lit'
 import { TabsDefinition } from './tabs.definition'
 import { stringifyTokens } from '../../utils/style'
 
-const tokenString = stringifyTokens('--mdc-tabs')(TabsDefinition)
+const TokenString = stringifyTokens('--mdc-tabs')(TabsDefinition)
 
 export const TabsStyles = css`
     :host {
-        ${tokenString};
+        ${TokenString};
     }
     :host {
         display: inline-flex;

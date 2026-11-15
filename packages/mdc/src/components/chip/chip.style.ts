@@ -18,18 +18,18 @@ import {
 import { overrideTokens, stringifyTokens } from '../../utils/style'
 
 // Token injection per variant
-const assistTokens = stringifyTokens('--mdc-chip')(AssistChipDefinition)
+const AssistTokens = stringifyTokens('--mdc-chip')(AssistChipDefinition)
 
-const filterTokens = stringifyTokens('--mdc-chip')(FilterChipDefinition)
+const FilterTokens = stringifyTokens('--mdc-chip')(FilterChipDefinition)
 
-const inputTokens = stringifyTokens('--mdc-chip')(InputChipDefinition)
+const InputTokens = stringifyTokens('--mdc-chip')(InputChipDefinition)
 
-const suggestionTokens = stringifyTokens('--mdc-chip')(SuggestionChipDefinition)
+const SuggestionTokens = stringifyTokens('--mdc-chip')(SuggestionChipDefinition)
 
-const emphasizedEasing = unsafeCSS(Easing.Emphasized.ToCSSValue())
-const CHECKMARK_LENGTH = 29.7833385
+const EmphasizedEasing = unsafeCSS(Easing.Emphasized.ToCSSValue())
+const CheckmarkLength = 29.7833385
 
-const rippleStyles = overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
+const RippleStyles = overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
     'enabled-hovered-color': `var(--_hovered-state-layer-color)`,
     'enabled-focused-color': `var(--_focused-state-layer-color)`,
     'enabled-pressed-color': `var(--_pressed-state-layer-color)`,
@@ -38,40 +38,40 @@ const rippleStyles = overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
     'enabled-pressed-opacity': `var(--_pressed-state-layer-opacity)`,
 })()
 
-const iconStyles = overrideTokens<typeof IconDefinition>('--mdc-icon')({
+const IconStyles = overrideTokens<typeof IconDefinition>('--mdc-icon')({
     'enabled-size': `var(--_icon-size)`,
 })()
 
-const elevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
+const ElevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
     'enabled-level': `var(--_enabled-container-elevation)`,
     'enabled-shadow-color': `var(--_enabled-container-shadow-color)`,
 })()
-const hoveredElevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
+const HoveredElevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
     'enabled-level': `var(--_hovered-container-elevation)`,
 })()
-const focusedElevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
+const FocusedElevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
     'enabled-level': `var(--_focused-container-elevation)`,
 })()
-const pressedElevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
+const PressedElevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
     'enabled-level': `var(--_pressed-container-elevation)`,
 })()
-const disabledElevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
+const DisabledElevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
     'enabled-level': `var(--_disabled-container-elevation)`,
 })()
 
 export const ChipStyles = css`
     @layer mdc.chip.variable {
-        :host([variant="assist"]) { ${assistTokens}; }
-        :host([variant="filter"]) { ${filterTokens}; }
-        :host([variant="input"]) { ${inputTokens}; }
-        :host([variant="suggestion"]) { ${suggestionTokens}; }
+        :host([variant="assist"]) { ${AssistTokens}; }
+        :host([variant="filter"]) { ${FilterTokens}; }
+        :host([variant="input"]) { ${InputTokens}; }
+        :host([variant="suggestion"]) { ${SuggestionTokens}; }
     }
 
     @layer mdc.chip.composite.ripple {
         .container mdc-ripple {
             border-radius: inherit;
             z-index: 0;
-            ${rippleStyles};
+            ${RippleStyles};
         }
     }
 
@@ -86,20 +86,20 @@ export const ChipStyles = css`
             border-radius: inherit;
             z-index: 0;
             transition-duration: 0ms;
-            ${elevationStyles};
+            ${ElevationStyles};
         }
         .container:hover mdc-elevation {
-            ${hoveredElevationStyles};
+            ${HoveredElevationStyles};
         }
         .container:focus-visible mdc-elevation {
-            ${focusedElevationStyles};
+            ${FocusedElevationStyles};
         }
         .container:active mdc-elevation {
-            ${pressedElevationStyles};
+            ${PressedElevationStyles};
         }
         .container.disabled mdc-elevation {
             transition: none;
-            ${disabledElevationStyles};
+            ${DisabledElevationStyles};
         }
     }
 
@@ -132,9 +132,9 @@ export const ChipStyles = css`
             gap: 8px;
             outline: none;
             -webkit-tap-highlight-color: transparent;
-            transition: background-color 200ms ${emphasizedEasing},
-                        border-color 200ms ${emphasizedEasing},
-                        color 200ms ${emphasizedEasing};
+            transition: background-color 200ms ${EmphasizedEasing},
+                        border-color 200ms ${EmphasizedEasing},
+                        color 200ms ${EmphasizedEasing};
         }
 
         .container:hover {
@@ -223,7 +223,7 @@ export const ChipStyles = css`
             justify-content: center;
             flex-shrink: 0;
             color: var(--_enabled-icon-color);
-            ${iconStyles};
+            ${IconStyles};
         }
 
         .container:not(.has-icon) .icon {
@@ -330,14 +330,14 @@ export const ChipStyles = css`
 
         .checkmark-path {
             stroke: var(--_enabled-checkmark-color);
-            stroke-dasharray: ${CHECKMARK_LENGTH};
+            stroke-dasharray: ${CheckmarkLength};
             stroke-width: 2px;
             fill: none;
         }
 
         .container.selecting .checkmark-path {
-            stroke-dashoffset: ${CHECKMARK_LENGTH};
-            animation: chip-checkmark-draw-in 150ms 150ms ${emphasizedEasing} forwards;
+            stroke-dashoffset: ${CheckmarkLength};
+            animation: chip-checkmark-draw-in 150ms 150ms ${EmphasizedEasing} forwards;
         }
 
         .container.deselecting .checkmark {
@@ -345,7 +345,7 @@ export const ChipStyles = css`
         }
 
         @keyframes chip-checkmark-draw-in {
-            from { stroke-dashoffset: ${CHECKMARK_LENGTH}; }
+            from { stroke-dashoffset: ${CheckmarkLength}; }
             to { stroke-dashoffset: 0; }
         }
 

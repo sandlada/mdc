@@ -23,7 +23,7 @@ import { createStyleDefinition } from '../../utils/style'
  */
 
 // Tokens shared by both variants.
-const shared = {
+const Shared = {
     // Container height — 56dp per MD3 spec.
     'container-height': `56px`,
 
@@ -96,7 +96,7 @@ const shared = {
  * the error color when `invalid`.
  */
 export const FilledFieldDefinition = createStyleDefinition({
-    ...shared,
+    ...Shared,
     'container-shape-start-start': Shape.ExtraSmall,
     'container-shape-start-end':   Shape.ExtraSmall,
     'container-shape-end-start':   `0`,
@@ -153,7 +153,7 @@ export const FilledFieldDefinition = createStyleDefinition({
  * break at the label position.
  */
 export const OutlinedFieldDefinition = createStyleDefinition({
-    ...shared,
+    ...Shared,
     'container-shape-start-start': Shape.ExtraSmall,
     'container-shape-start-end':   Shape.ExtraSmall,
     'container-shape-end-start':   Shape.ExtraSmall,

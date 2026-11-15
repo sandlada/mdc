@@ -175,22 +175,22 @@ export interface ISideSheet extends LitElement {
 }
 
 /** Fired when the sheet begins to open. */
-export const SIDE_SHEET_OPENING_EVENT = 'side-sheet-opening'
+export const SideSheetOpeningEvent = 'side-sheet-opening'
 /** Fired when the sheet has finished opening. */
-export const SIDE_SHEET_OPENED_EVENT = 'side-sheet-opened'
+export const SideSheetOpenedEvent = 'side-sheet-opened'
 /** Fired when the sheet begins to close. */
-export const SIDE_SHEET_CLOSING_EVENT = 'side-sheet-closing'
+export const SideSheetClosingEvent = 'side-sheet-closing'
 /** Fired when the sheet has finished closing. */
-export const SIDE_SHEET_CLOSED_EVENT = 'side-sheet-closed'
+export const SideSheetClosedEvent = 'side-sheet-closed'
 /** Modal only — fired before `closing` when Esc or scrim is invoked. */
-export const SIDE_SHEET_CANCEL_EVENT = 'side-sheet-cancel'
+export const SideSheetCancelEvent = 'side-sheet-cancel'
 /** Fired when the default close or back icon-button is clicked. */
-export const SIDE_SHEET_ACTION_EVENT = 'side-sheet-action'
+export const SideSheetActionEvent = 'side-sheet-action'
 /** Fired when a pointer drag engages. */
-export const SIDE_SHEET_DRAG_START_EVENT = 'side-sheet-drag-start'
+export const SideSheetDragStartEvent = 'side-sheet-drag-start'
 /** Fired on every pointer move while a drag is active. */
-export const SIDE_SHEET_DRAG_EVENT = 'side-sheet-drag'
+export const SideSheetDragEvent = 'side-sheet-drag'
 /** Fired when the pointer is released after an active drag. */
-export const SIDE_SHEET_DRAG_END_EVENT = 'side-sheet-drag-end'
+export const SideSheetDragEndEvent = 'side-sheet-drag-end'
 /** Fired after a handle drag relocated the sheet to the opposite edge. */
-export const SIDE_SHEET_RELOCATE_EVENT = 'side-sheet-relocate'
+export const SideSheetRelocateEvent = 'side-sheet-relocate'

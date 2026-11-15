@@ -5,21 +5,21 @@ import type { IconDefinition } from '../icon/icon.definition'
 import type { RippleDefinition } from '../ripple/ripple.definition'
 import { NavigationBarHorizontalTabDefinition, NavigationBarVerticalTabDefinition, NavigationBarXRVerticalTabDefinition, NavigationDrawerTabDefinition, NavigationRailHorizontalTabDefinition, NavigationRailRoundTabDefinition, NavigationRailVerticalTabDefinition, NavigationRailXRRoundTabDefinition, NavigationRailXRVerticalTabDefinition } from './navigation-tab.definition'
 
-const barVS = stringifyTokens('--mdc-navigation-tab')(NavigationBarVerticalTabDefinition)
-const barHS = stringifyTokens('--mdc-navigation-tab')(NavigationBarHorizontalTabDefinition)
-const barXRVS = stringifyTokens('--mdc-navigation-tab')(NavigationBarXRVerticalTabDefinition)
-const railVS = stringifyTokens('--mdc-navigation-tab')(NavigationRailVerticalTabDefinition)
-const railHS = stringifyTokens('--mdc-navigation-tab')(NavigationRailHorizontalTabDefinition)
-const railRS = stringifyTokens('--mdc-navigation-tab')(NavigationRailRoundTabDefinition)
-const railXRVS = stringifyTokens('--mdc-navigation-tab')(NavigationRailXRVerticalTabDefinition)
-const railXRRS = stringifyTokens('--mdc-navigation-tab')(NavigationRailXRRoundTabDefinition)
-const drawerS = stringifyTokens('--mdc-navigation-tab')(NavigationDrawerTabDefinition)
+const BarVS = stringifyTokens('--mdc-navigation-tab')(NavigationBarVerticalTabDefinition)
+const BarHS = stringifyTokens('--mdc-navigation-tab')(NavigationBarHorizontalTabDefinition)
+const BarXRVS = stringifyTokens('--mdc-navigation-tab')(NavigationBarXRVerticalTabDefinition)
+const RailVS = stringifyTokens('--mdc-navigation-tab')(NavigationRailVerticalTabDefinition)
+const RailHS = stringifyTokens('--mdc-navigation-tab')(NavigationRailHorizontalTabDefinition)
+const RailRS = stringifyTokens('--mdc-navigation-tab')(NavigationRailRoundTabDefinition)
+const RailXRVS = stringifyTokens('--mdc-navigation-tab')(NavigationRailXRVerticalTabDefinition)
+const RailXRRS = stringifyTokens('--mdc-navigation-tab')(NavigationRailXRRoundTabDefinition)
+const DrawerS = stringifyTokens('--mdc-navigation-tab')(NavigationDrawerTabDefinition)
 
-const tabIndicatorGrowEasing = Easing.ExpressiveDefaultSpatial.ToCSSVariable()
+const TabIndicatorGrowEasing = Easing.ExpressiveDefaultSpatial.ToCSSVariable()
 
-const labelFadeDuration = Duration.ExpressiveFastEffects.ToCSSValue()
+const LabelFadeDuration = Duration.ExpressiveFastEffects.ToCSSValue()
 
-const overrideRipple = {
+const OverrideRipple = {
     unselected: stringTokens(overrideComponentTokens<keyof typeof RippleDefinition>(
         '--mdc-ripple',
         {
@@ -51,32 +51,32 @@ const overrideIcon = (value: string = 'var(--_enabled-icon-size)') => stringToke
 export const NavigationTabStyles = [
     css`
     :host([variant="bar-vertical"]) {
-        ${barVS};
+        ${BarVS};
     }
     :host([variant="bar-horizontal"]) {
-        ${barHS};
+        ${BarHS};
     }
     :host([variant="bar-xr-vertical"]) {
-        ${barXRVS};
+        ${BarXRVS};
     }
     :host([variant="rail-vertical"]) {
-        ${railVS};
+        ${RailVS};
     }
     :host([variant="rail-horizontal"]) {
-        ${railHS};
+        ${RailHS};
     }
     :host([variant="rail-round"]) {
-        ${railRS};
+        ${RailRS};
     }
     :host([variant="rail-xr-vertical"]) {
-        ${railXRVS};
+        ${RailXRVS};
     }
     :host([variant="rail-xr-round"]) {
-        ${railXRRS};
+        ${RailXRRS};
     }
     :host([variant="drawer"]),
     :host([variant="drawer-horizontal"]) {
-        ${drawerS};
+        ${DrawerS};
     }
     `,
     // Disabled
@@ -134,7 +134,7 @@ export const NavigationTabStyles = [
         transform-origin: center;
         transition-property: opacity, background, transform;
         transition-duration: 400ms;
-        transition-timing-function: ${unsafeCSS(tabIndicatorGrowEasing)};
+        transition-timing-function: ${unsafeCSS(TabIndicatorGrowEasing)};
     }
 
     .label {
@@ -632,10 +632,10 @@ export const NavigationTabStyles = [
     // Ripple
     css`
         :host(:not([checked])) {
-            ${overrideRipple.unselected};
+            ${OverrideRipple.unselected};
         }
         :host([checked]) {
-            ${overrideRipple.selected};
+            ${OverrideRipple.selected};
         }
         .ripple-layer {
             position: absolute;
@@ -773,7 +773,7 @@ export const NavigationTabStyles = [
         -webkit-line-clamp: 1;
         opacity: var(--_enabled-label-opacity);
         visibility: var(--_enabled-label-visibility);
-        transition: opacity ${unsafeCSS(labelFadeDuration)};
+        transition: opacity ${unsafeCSS(LabelFadeDuration)};
     }
     :host(:not([checked])) .label {
         color: var(--_enabled-unselected-label-color);

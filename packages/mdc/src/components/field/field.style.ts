@@ -10,11 +10,11 @@ import {
 } from './field.definition'
 import { stringifyTokens } from '../../utils/style'
 
-const filledTokens = stringifyTokens('--mdc-field')(FilledFieldDefinition)
+const FilledTokens = stringifyTokens('--mdc-field')(FilledFieldDefinition)
 
-const outlinedTokens = stringifyTokens('--mdc-field')(OutlinedFieldDefinition)
+const OutlinedTokens = stringifyTokens('--mdc-field')(OutlinedFieldDefinition)
 
-export const baseFieldStyles = css`
+export const BaseFieldStyles = css`
     @layer mdc.field.base {
         :host {
             display: inline-flex;
@@ -581,14 +581,14 @@ export const baseFieldStyles = css`
     }
 `
 
-export const fieldVariantStyles = css`
+export const FieldVariantStyles = css`
     @layer mdc.field.variant {
-        :host([variant="filled"])   { ${filledTokens}; }
-        :host([variant="outlined"]) { ${outlinedTokens}; }
+        :host([variant="filled"])   { ${FilledTokens}; }
+        :host([variant="outlined"]) { ${OutlinedTokens}; }
     }
 `
 
-export const fieldStyles = [
-    baseFieldStyles,
-    fieldVariantStyles,
+export const FieldStyles = [
+    BaseFieldStyles,
+    FieldVariantStyles,
 ]

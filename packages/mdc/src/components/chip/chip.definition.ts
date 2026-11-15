@@ -28,7 +28,7 @@ import { createStyleDefinition } from '../../utils/style'
  */
 
 // Shared tokens — Base.Widget.Material3.Chip
-const shared = {
+const Shared = {
     'enabled-label-font'          : Typescale.LabelLarge.Font,
     'enabled-label-size'          : Typescale.LabelLarge.FontSize,
     'enabled-label-weight'        : Typescale.LabelLarge.FontWeight,
@@ -77,7 +77,7 @@ const shared = {
 
 // Assist Chip — Widget.Material3.Chip.Assist
 export const AssistChipDefinition = createStyleDefinition({
-    ...shared,
+    ...Shared,
     'container-padding-inline-start': `8px`,
     'container-padding-inline-end'  : `8px`,
     'container-padding-block-start' : `0px`,
@@ -118,7 +118,7 @@ export const AssistChipDefinition = createStyleDefinition({
 
 // Filter Chip — Widget.Material3.Chip.Filter
 export const FilterChipDefinition = createStyleDefinition({
-    ...shared,
+    ...Shared,
     'container-padding-inline-start': `8px`,
     'container-padding-inline-end'  : `10px`,
     'container-padding-block-start' : `0px`,
@@ -185,7 +185,7 @@ export const FilterChipDefinition = createStyleDefinition({
 
 // Input Chip — Widget.Material3.Chip.Input
 export const InputChipDefinition = createStyleDefinition({
-    ...shared,
+    ...Shared,
     'container-padding-inline-start': `4px`,
     'container-padding-inline-end'  : `4px`,
     'container-padding-block-start' : `0px`,
@@ -236,7 +236,7 @@ export const InputChipDefinition = createStyleDefinition({
 
 // Suggestion Chip — Widget.Material3.Chip.Suggestion
 export const SuggestionChipDefinition = createStyleDefinition({
-    ...shared,
+    ...Shared,
     'container-padding-inline-start': `8px`,
     'container-padding-inline-end'  : `10px`,
     'container-padding-block-start' : `0px`,

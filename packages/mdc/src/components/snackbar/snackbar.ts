@@ -9,11 +9,11 @@ import { classMap } from 'lit/directives/class-map.js'
 import { mixinDelegatesAria } from '../../utils/aria/delegate'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import {
-    SNACKBAR_ACTION_EVENT,
-    SNACKBAR_CLOSED_EVENT,
-    SNACKBAR_CLOSING_EVENT,
-    SNACKBAR_OPENED_EVENT,
-    SNACKBAR_OPENING_EVENT,
+    SnackbarActionEvent,
+    SnackbarClosedEvent,
+    SnackbarClosingEvent,
+    SnackbarOpenedEvent,
+    SnackbarOpeningEvent,
     type ISnackbar,
     type ISnackbarActionEventDetail,
     type SnackbarAnimationMode,
@@ -218,22 +218,22 @@ export class MDCSnackbar extends composeMixin(
     }
 
     private handleOpen(): void {
-        this.dispatchEvent(new Event(SNACKBAR_OPENING_EVENT, { bubbles: true, composed: true }))
+        this.dispatchEvent(new Event(SnackbarOpeningEvent, { bubbles: true, composed: true }))
         this.startAutoHideTimer()
         // Emit opened event after animation
         setTimeout(() => {
-            this.dispatchEvent(new Event(SNACKBAR_OPENED_EVENT, { bubbles: true, composed: true }))
+            this.dispatchEvent(new Event(SnackbarOpenedEvent, { bubbles: true, composed: true }))
         }, 300)
     }
 
     private handleClose(): void {
         this.clearAutoHideTimer()
         this.containerElement?.classList.add('closing')
-        this.dispatchEvent(new Event(SNACKBAR_CLOSING_EVENT, { bubbles: true, composed: true }))
+        this.dispatchEvent(new Event(SnackbarClosingEvent, { bubbles: true, composed: true }))
         // Emit closed event after animation
         setTimeout(() => {
             this.containerElement?.classList.remove('closing')
-            this.dispatchEvent(new Event(SNACKBAR_CLOSED_EVENT, { bubbles: true, composed: true }))
+            this.dispatchEvent(new Event(SnackbarClosedEvent, { bubbles: true, composed: true }))
         }, 300)
     }
 
@@ -264,7 +264,7 @@ export class MDCSnackbar extends composeMixin(
     private handleActionClick(event: MouseEvent): void {
         const actionText = this.actionButton?.textContent?.trim() ?? ''
         this.dispatchEvent(new CustomEvent<ISnackbarActionEventDetail>(
-            SNACKBAR_ACTION_EVENT,
+            SnackbarActionEvent,
             {
                 detail: { action: actionText },
                 bubbles: true,

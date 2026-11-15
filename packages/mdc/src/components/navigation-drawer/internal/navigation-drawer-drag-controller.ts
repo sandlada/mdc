@@ -12,9 +12,9 @@ import {
     type TextDirection,
 } from '../../../utils/docking'
 import {
-    NAVIGATION_DRAWER_DRAG_END_EVENT,
-    NAVIGATION_DRAWER_DRAG_EVENT,
-    NAVIGATION_DRAWER_DRAG_START_EVENT,
+    NavigationDrawerDragEndEvent,
+    NavigationDrawerDragEvent,
+    NavigationDrawerDragStartEvent,
     type INavigationDrawerDragEndEventDetail,
     type INavigationDrawerDragEventDetail,
     type INavigationDrawerDragStartEventDetail,
@@ -24,31 +24,31 @@ import {
 } from '../navigation-drawer.interface'
 
 /** Distance (CSS px) the pointer must travel from the down point before a drag engages. */
-const ENGAGE_THRESHOLD_PX = 4
+const EngageThresholdPx = 4
 
 /**
  * Snap-decision distance: drag must exceed this fraction of container
  * width to commit a dismissal.
  */
-const DISTANCE_COMMIT_FRACTION = 0.25
+const DistanceCommitFraction = 0.25
 
 /**
  * Snap-decision velocity: release must exceed this px/ms outward to commit
  * a dismissal.
  */
-const VELOCITY_COMMIT_PX_PER_MS = 0.5
+const VelocityCommitPxPerMs = 0.5
 
 /** Window over which to compute release velocity (ms). */
-const VELOCITY_WINDOW_MS = 80
+const VelocityWindowMs = 80
 
 /**
  * Max vertical movement (px) allowed during a drag, expressed as a
  * multiple of the horizontal movement. Beyond this, the drag is canceled.
  */
-const MAX_VERTICAL_RATIO = 2
+const MaxVerticalRatio = 2
 
 /** Resistance factor applied to movement beyond a drag's hard boundary. */
-const RUBBER_BAND_FACTOR = 0.2
+const RubberBandFactor = 0.2
 
 /**
  * Host contract for {@link NavigationDrawerDragController}.
@@ -217,14 +217,14 @@ export class NavigationDrawerDragController implements ReactiveController {
         const deltaY = Math.abs(event.clientY - this.startY)
 
         // Vertical-dominant motion before engagement → cancel drag.
-        if (!this.engaged && deltaY > MAX_VERTICAL_RATIO * Math.max(Math.abs(deltaX), 1)) {
+        if (!this.engaged && deltaY > MaxVerticalRatio * Math.max(Math.abs(deltaX), 1)) {
             this.canceled = true
             this.handlePointerUp(event)
             return
         }
 
         if (!this.engaged) {
-            if (Math.abs(deltaX) < ENGAGE_THRESHOLD_PX) return
+            if (Math.abs(deltaX) < EngageThresholdPx) return
             const container = this.host.containerRef()
             if (!container) return
             try {
@@ -247,7 +247,7 @@ export class NavigationDrawerDragController implements ReactiveController {
 
             this.host.setAttribute('dragged', '')
             this.host.dispatchEvent(new CustomEvent<INavigationDrawerDragStartEventDetail>(
-                NAVIGATION_DRAWER_DRAG_START_EVENT,
+                NavigationDrawerDragStartEvent,
                 {
                     bubbles: true,
                     composed: true,
@@ -278,9 +278,9 @@ export class NavigationDrawerDragController implements ReactiveController {
             ? translate < inwardHard
             : translate > inwardHard
         if (beyondOutward) {
-            translate = outwardHard + (translate - outwardHard) * RUBBER_BAND_FACTOR
+            translate = outwardHard + (translate - outwardHard) * RubberBandFactor
         } else if (beyondInward) {
-            translate = inwardHard + (translate - inwardHard) * RUBBER_BAND_FACTOR
+            translate = inwardHard + (translate - inwardHard) * RubberBandFactor
         }
 
         this.currentValue = movement
@@ -292,9 +292,9 @@ export class NavigationDrawerDragController implements ReactiveController {
         const prevValue = this.lastMoveValue
         this.lastMoveT = now
         this.lastMoveValue = movement
-        if (prevT > 0 && now - prevT < VELOCITY_WINDOW_MS) {
+        if (prevT > 0 && now - prevT < VelocityWindowMs) {
             this.releaseVelocity = (movement - prevValue) / (now - prevT)
-        } else if (now - prevT >= VELOCITY_WINDOW_MS) {
+        } else if (now - prevT >= VelocityWindowMs) {
             this.releaseVelocity = 0
         }
 
@@ -322,7 +322,7 @@ export class NavigationDrawerDragController implements ReactiveController {
 
         const lastValue = this.currentValue
         const width = this.containerWidth > 0 ? this.containerWidth : 1
-        const commitDistance = Math.max(40, width * DISTANCE_COMMIT_FRACTION)
+        const commitDistance = Math.max(40, width * DistanceCommitFraction)
 
         let target: NavigationDrawerDragTarget = 'open'
         let reason: 'distance' | 'velocity' | undefined = undefined
@@ -337,10 +337,10 @@ export class NavigationDrawerDragController implements ReactiveController {
             : currentSide
 
         if (lastValue > commitDistance
-            || this.releaseVelocity > VELOCITY_COMMIT_PX_PER_MS
+            || this.releaseVelocity > VelocityCommitPxPerMs
         ) {
             target = 'closed'
-            reason = this.releaseVelocity > VELOCITY_COMMIT_PX_PER_MS
+            reason = this.releaseVelocity > VelocityCommitPxPerMs
                 ? 'velocity'
                 : 'distance'
         } else if (sideByCenter !== currentSide) {
@@ -364,7 +364,7 @@ export class NavigationDrawerDragController implements ReactiveController {
         relocateTo?: NavigationDrawerEdge,
     ): void {
         this.host.dispatchEvent(new CustomEvent<INavigationDrawerDragEndEventDetail>(
-            NAVIGATION_DRAWER_DRAG_END_EVENT,
+            NavigationDrawerDragEndEvent,
             {
                 bubbles: true,
                 composed: true,
@@ -388,7 +388,7 @@ export class NavigationDrawerDragController implements ReactiveController {
         const width = this.containerWidth > 0 ? this.containerWidth : 1
         const progress = Math.min(1, Math.max(0, movement / width))
         this.host.dispatchEvent(new CustomEvent<INavigationDrawerDragEventDetail>(
-            NAVIGATION_DRAWER_DRAG_EVENT,
+            NavigationDrawerDragEvent,
             {
                 bubbles: true,
                 composed: true,

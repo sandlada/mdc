@@ -5,7 +5,7 @@
  */
 import { customElement } from 'lit/decorators.js'
 import { BaseField } from './internal/base-field'
-import { fieldStyles } from './field.style'
+import { FieldStyles } from './field.style'
 
 declare global {
     interface HTMLElementTagNameMap {
@@ -106,5 +106,5 @@ declare global {
  */
 @customElement('mdc-field')
 export class MDCField extends BaseField {
-    public static override styles = fieldStyles
+    public static override styles = FieldStyles
 }

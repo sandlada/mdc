@@ -6,7 +6,7 @@
 import { customElement } from 'lit/decorators.js'
 import '../elevation/elevation'
 import { BaseBottomSheet } from './internal/base-bottom-sheet'
-import { bottomSheetStyles } from './bottom-sheet.style'
+import { BottomSheetStyles } from './bottom-sheet.style'
 
 declare global {
     interface HTMLElementTagNameMap {
@@ -54,5 +54,5 @@ declare global {
  */
 @customElement('mdc-bottom-sheet')
 export class BottomSheet extends BaseBottomSheet {
-    public static override styles = bottomSheetStyles
+    public static override styles = BottomSheetStyles
 }

@@ -10,18 +10,18 @@
  */
 
 export {
-    CONSTANT_ROTATION_PER_PERIOD,
-    CONTAINER_SIZE_PX,
-    INDICATOR_SIZE_PX,
+    ConstantRotationPerPeriod as CONSTANT_ROTATION_PER_PERIOD,
+    ContainerSizePx as CONTAINER_SIZE_PX,
+    IndicatorSizePx as INDICATOR_SIZE_PX,
     indeterminateFrameAt,
     determinateFrameAt,
     getDeterminateShapeScale,
     getIndeterminateShapeScale,
-    LOOP_DURATION_MS,
-    MORPH_SPRING,
-    ROTATION_PER_PERIOD,
-    SHAPE_PERIOD_MS,
-    SPRING_ROTATION_PER_PERIOD,
+    LoopDurationMs as LOOP_DURATION_MS,
+    MorphSpring as MORPH_SPRING,
+    RotationPerPeriod as ROTATION_PER_PERIOD,
+    ShapePeriodMs as SHAPE_PERIOD_MS,
+    SpringRotationPerPeriod as SPRING_ROTATION_PER_PERIOD,
     type LoadingIndicatorFrame,
 } from './animation'
 

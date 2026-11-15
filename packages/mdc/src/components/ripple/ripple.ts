@@ -9,7 +9,7 @@ import { ContextConsumer } from '@lit/context'
 import { GlobalMDCContext, type GlobalMDCContextRippleConfig } from '../../utils/context-provider'
 import { AttachableController } from '../../utils/controller/attachable-controller'
 import { RippleAction } from './ripple-action'
-import { styles } from './ripple.style'
+import { Styles } from './ripple.style'
 import type { IMDCRipple } from './ripple.interface'
 
 declare global {
@@ -33,7 +33,7 @@ declare global {
 @customElement('mdc-ripple')
 export class MDCRipple extends LitElement implements IMDCRipple {
 
-    static override styles = styles
+    static override styles = Styles
 
     private _ignoreGlobalConfig: boolean = false
     private _hasLocalConfig: boolean = false

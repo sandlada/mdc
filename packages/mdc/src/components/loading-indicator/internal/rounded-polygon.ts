@@ -21,7 +21,7 @@
 import { Cubic, type PointTransformer } from './cubic'
 import { Feature, FeatureCorner, FeatureEdge } from './feature'
 import {
-    DISTANCE_EPSILON,
+    DistanceEpsilon,
     addPoints,
     convex,
     directionVector,
@@ -51,7 +51,7 @@ export interface RoundedCornerSpec {
 }
 
 /** Sharp corner (radius 0, no smoothing). */
-export const UNROUNDED: RoundedCornerSpec = { radius: 0, smoothing: 0 }
+export const Unrounded: RoundedCornerSpec = { radius: 0, smoothing: 0 }
 
 /** Creates a corner rounding spec. */
 export const cornerRounding = (radius: number, smoothing = 0): RoundedCornerSpec => ({ radius, smoothing })
@@ -251,7 +251,7 @@ const flattenCubics = (features: readonly Feature[], center: Point): readonly Cu
  */
 export const roundedPolygonFromVertices = (
     vertices: readonly number[],
-    rounding: RoundedCornerSpec = UNROUNDED,
+    rounding: RoundedCornerSpec = Unrounded,
     perVertexRounding: readonly RoundedCornerSpec[] | null = null,
     centerX: number | null = null,
     centerY: number | null = null,
@@ -347,7 +347,7 @@ export const roundedPolygonFromNumVertices = (
     radius: number,
     centerX: number,
     centerY: number,
-    rounding: RoundedCornerSpec = UNROUNDED,
+    rounding: RoundedCornerSpec = Unrounded,
 ): RoundedPolygon => {
     const vertices: number[] = []
     for (let i = 0; i < numVertices; i++) {
@@ -378,7 +378,7 @@ export const starPolygon = (
     numVerticesPerRadius: number,
     radius = 1,
     innerRadius = 0.5,
-    rounding: RoundedCornerSpec = UNROUNDED,
+    rounding: RoundedCornerSpec = Unrounded,
     centerX = 0,
     centerY = 0,
 ): RoundedPolygon => {
@@ -472,9 +472,9 @@ class RoundedCorner {
         // side is used for smoothing.
         const allowedCut = Math.min(allowedCut0, allowedCut1)
         if (
-            this.expectedRoundCut < DISTANCE_EPSILON ||
-            allowedCut < DISTANCE_EPSILON ||
-            this.cornerRadius < DISTANCE_EPSILON
+            this.expectedRoundCut < DistanceEpsilon ||
+            allowedCut < DistanceEpsilon ||
+            this.cornerRadius < DistanceEpsilon
         ) {
             this.center = this.p1
             return [Cubic.straightLine(this.p1.x, this.p1.y, this.p1.x, this.p1.y)]
@@ -591,10 +591,10 @@ class RoundedCorner {
     private lineIntersection(p0: Point, d0: Point, p1: Point, d1: Point): Point | null {
         const rotatedD1 = rotate90(d1)
         const den = dotProduct(d0, rotatedD1)
-        if (Math.abs(den) < DISTANCE_EPSILON) return null
+        if (Math.abs(den) < DistanceEpsilon) return null
         const num = dotProduct(subtractPoints(p1, p0), rotatedD1)
         // Equivalent to `|den / num| < DistanceEpsilon` without dividing.
-        if (Math.abs(den) < DISTANCE_EPSILON * Math.abs(num)) return null
+        if (Math.abs(den) < DistanceEpsilon * Math.abs(num)) return null
         const k = num / den
         return addPoints(p0, scalePoint(d0, k))
     }

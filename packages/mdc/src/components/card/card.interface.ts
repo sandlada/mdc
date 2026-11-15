@@ -10,13 +10,13 @@ export const CardVariant = {
     Filled: 'filled',
     Outlined: 'outlined',
 } as const
-export type CardVariant = typeof CardVariant[keyof typeof CardVariant]
+export type CardVariant = (typeof CardVariant)[keyof typeof CardVariant]
 
 export const CardShape = {
     Round: 'round',
     Square: 'square',
 } as const
-export type CardShape = typeof CardShape[keyof typeof CardShape]
+export type CardShape = (typeof CardShape)[keyof typeof CardShape]
 
 export interface IMDCCardAttributes {
     variant: CardVariant

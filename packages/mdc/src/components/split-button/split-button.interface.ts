@@ -67,6 +67,6 @@ export interface ISplitButton extends LitElement {
 }
 
 /** Name of the event dispatched when the leading button is activated. */
-export const SPLIT_BUTTON_LEADING_INTERACTION_EVENT = 'leading-button-interaction'
+export const SplitButtonLeadingInteractionEvent = 'leading-button-interaction'
 /** Name of the event dispatched when the trailing button is activated. */
-export const SPLIT_BUTTON_TRAILING_INTERACTION_EVENT = 'trailing-button-interaction'
+export const SplitButtonTrailingInteractionEvent = 'trailing-button-interaction'

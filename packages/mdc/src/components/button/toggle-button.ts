@@ -5,15 +5,15 @@
  */
 import { isServer, type PropertyValues } from "lit"
 import { customElement, property } from "lit/decorators.js"
-import { createValidator, getValidityAnchor, mixinConstraintValidation } from '../../utils/behaviors/constraint-validation'
-import { internals } from '../../utils/behaviors/element-internals'
+import { CreateValidator, GetValidityAnchor, mixinConstraintValidation } from '../../utils/behaviors/constraint-validation'
+import { Internals } from '../../utils/behaviors/element-internals'
 import { CheckboxValidator } from '../../utils/behaviors/validators/checkbox-validator'
 import { RadioValidator } from '../../utils/behaviors/validators/radio-validator'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import { SelectionController } from '../../utils/controller/selection-controller'
-import { getFormState, getFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
+import { GetFormState, GetFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
 import { BaseButton } from './button.base'
-import { toggleButtonStyles } from './toggle-button.style'
+import { ToggleButtonStyles } from './toggle-button.style'
 
 declare global {
     interface HTMLElementTagNameMap {
@@ -44,7 +44,7 @@ export class MDCTogglableButton extends composeMixin(
     mixinFormAssociated,
 )(BaseButton) {
 
-    static override styles = toggleButtonStyles
+    static override styles = ToggleButtonStyles
     static override shadowRootOptions: ShadowRootInit = {
         mode: 'open',
         delegatesFocus: true,
@@ -84,7 +84,7 @@ export class MDCTogglableButton extends composeMixin(
             return
         }
         this.tabIndex = 0
-        this[internals].role = this.type
+        this[Internals].role = this.type
     }
 
     public override connectedCallback(): void {
@@ -109,13 +109,13 @@ export class MDCTogglableButton extends composeMixin(
                 preventSelectionDuringInitialFocus: isCheckbox,
                 preventSelectionDuringSwitching: isCheckbox,
             })
-            this[internals].role = this.type
+            this[Internals].role = this.type
         }
         if (changedProperties.has('checked')) {
-            this[internals].ariaChecked = String(this.checked)
+            this[Internals].ariaChecked = String(this.checked)
         }
         if (changedProperties.has('required')) {
-            this[internals].ariaRequired = String(this.required)
+            this[Internals].ariaRequired = String(this.required)
         }
     }
 
@@ -132,11 +132,11 @@ export class MDCTogglableButton extends composeMixin(
     // implementation. An <input> inside a <button> is invalid HTML and is not
     // needed because ElementInternals handles form association.
 
-    override[getFormValue]() {
+    override[GetFormValue]() {
         return this.checked ? this.value : null
     }
 
-    override[getFormState]() {
+    override[GetFormState]() {
         return String(this.checked)
     }
 
@@ -148,7 +148,7 @@ export class MDCTogglableButton extends composeMixin(
         this.checked = state === 'true'
     }
 
-    override[createValidator]() {
+    override[CreateValidator]() {
         // Guard: during the super-class constructor chain, `this.type` is
         // undefined (class fields have not yet initialised). Using `!== 'radio'`
         // ensures undefined falls through to CheckboxValidator, which matches
@@ -166,7 +166,7 @@ export class MDCTogglableButton extends composeMixin(
         })
     }
 
-    override[getValidityAnchor]() {
+    override[GetValidityAnchor]() {
         return this.buttonElement
     }
 

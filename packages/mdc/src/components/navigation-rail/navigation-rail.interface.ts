@@ -13,30 +13,23 @@ import type { LitElement } from 'lit'
  * - `'expanded-floating'`: floating overlay with scrim, always wide.
  * - `'xr'`: docked XR rail with XR destinations.
  */
-export type NavigationRailVariant
-    = 'collapsed'
-    | 'expanded-docked'
-    | 'expanded-floating'
-    | 'xr'
 export const NavigationRailVariant = {
     Collapsed       : 'collapsed',
     ExpandedDocked  : 'expanded-docked',
     ExpandedFloating: 'expanded-floating',
     XR              : 'xr',
-} as const satisfies Record<string, NavigationRailVariant>
+} as const
+export type NavigationRailVariant = (typeof NavigationRailVariant)[keyof typeof NavigationRailVariant]
 
 /**
  * Vertical alignment of destination items within the rail.
  */
-export type NavigationRailAlignment
-    = 'top'
-    | 'center'
-    | 'bottom'
 export const NavigationRailAlignment = {
     Top   : 'top',
     Center: 'center',
     Bottom: 'bottom',
-} as const satisfies Record<string, NavigationRailAlignment>
+} as const
+export type NavigationRailAlignment = (typeof NavigationRailAlignment)[keyof typeof NavigationRailAlignment]
 
 export interface INavigationRail extends LitElement {
     quick           : boolean

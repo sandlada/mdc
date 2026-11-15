@@ -13,28 +13,28 @@ import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import { dispatchActivationClick, isActivationClick } from '../../utils/event/form-label-activation'
 import { mixinFocusRingOptions } from '../focus-ring/focus-ring-options.mixin'
 import { mixinRippleOptions } from '../ripple/ripple-options.mixin'
-import { iconButtonStyles } from './icon-button.style'
+import { IconButtonStyles } from './icon-button.style'
 
-const KEYBOARD_VISUAL_KEYS = new Set(['Tab', ' ', 'Enter', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End'])
-const KEYBOARD_PRESS_KEYS = new Set([' ', 'Enter'])
-const POINTER_MODALITY_EVENTS = ['pointerdown', 'mousedown', 'touchstart'] as const
+const KeyboardVisualKeys = new Set(['Tab', ' ', 'Enter', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End'])
+const KeyboardPressKeys = new Set([' ', 'Enter'])
+const PointerModalityEvents = ['pointerdown', 'mousedown', 'touchstart'] as const
 
-let keyboardInteractionMode = false
-let keyboardModalityTrackingInstalled = false
+let KeyboardInteractionMode = false
+let KeyboardModalityTrackingInstalled = false
 
 function installKeyboardModalityTracking() {
-    if (isServer || keyboardModalityTrackingInstalled) return
+    if (isServer || KeyboardModalityTrackingInstalled) return
 
-    keyboardModalityTrackingInstalled = true
+    KeyboardModalityTrackingInstalled = true
 
     document.addEventListener('keydown', (event) => {
         if (event.altKey || event.ctrlKey || event.metaKey) return
-        keyboardInteractionMode = true
+        KeyboardInteractionMode = true
     }, true)
 
-    for (const eventName of POINTER_MODALITY_EVENTS) {
+    for (const eventName of PointerModalityEvents) {
         document.addEventListener(eventName, () => {
-            keyboardInteractionMode = false
+            KeyboardInteractionMode = false
         }, true)
     }
 }
@@ -59,7 +59,7 @@ export abstract class BaseMDCIconButton extends composeMixin(
     mixinFocusRingOptions
 )(LitElement) {
 
-    static override styles = iconButtonStyles
+    static override styles = IconButtonStyles
 
     public abstract disabled: boolean
 
@@ -199,14 +199,14 @@ export abstract class BaseMDCIconButton extends composeMixin(
     }
 
     protected readonly handleVisualKeyDown = (event: KeyboardEvent) => {
-        if (this.disabled || !KEYBOARD_VISUAL_KEYS.has(event.key)) return
+        if (this.disabled || !KeyboardVisualKeys.has(event.key)) return
 
-        keyboardInteractionMode = true
-        this.queueKeyboardVisualSync(KEYBOARD_PRESS_KEYS.has(event.key))
+        KeyboardInteractionMode = true
+        this.queueKeyboardVisualSync(KeyboardPressKeys.has(event.key))
     }
 
     private shouldShowKeyboardVisuals() {
-        return keyboardInteractionMode || this.matches(':focus-visible') || (this.buttonElement?.matches(':focus-visible') ?? false)
+        return KeyboardInteractionMode || this.matches(':focus-visible') || (this.buttonElement?.matches(':focus-visible') ?? false)
     }
 
     private queueKeyboardVisualSync(pressRipple: boolean) {

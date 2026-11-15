@@ -7,11 +7,11 @@ import { css } from 'lit'
 import { OutlinedSegmentedButtonSetDefinition } from '../segmented-button.definition'
 import { stringifyTokens } from '../../../utils/style'
 
-const tokenString = stringifyTokens('--mdc-segmented-button')(OutlinedSegmentedButtonSetDefinition)
+const TokenString = stringifyTokens('--mdc-segmented-button')(OutlinedSegmentedButtonSetDefinition)
 
 export const SegmentedButtonSetStyles = css`
     :host {
-        ${tokenString};
+        ${TokenString};
 
         display: flex;
         outline: none;

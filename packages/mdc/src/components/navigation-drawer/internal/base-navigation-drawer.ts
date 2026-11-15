@@ -30,13 +30,13 @@ import {
     type INavigationDrawerDragHost,
 } from './navigation-drawer-drag-controller'
 import {
-    NAVIGATION_DRAWER_CANCEL_EVENT,
-    NAVIGATION_DRAWER_CLOSED_EVENT,
-    NAVIGATION_DRAWER_CLOSING_EVENT,
-    NAVIGATION_DRAWER_DRAG_END_EVENT,
-    NAVIGATION_DRAWER_OPENED_EVENT,
-    NAVIGATION_DRAWER_OPENING_EVENT,
-    NAVIGATION_DRAWER_RELOCATE_EVENT,
+    NavigationDrawerCancelEvent,
+    NavigationDrawerClosedEvent,
+    NavigationDrawerClosingEvent,
+    NavigationDrawerDragEndEvent,
+    NavigationDrawerOpenedEvent,
+    NavigationDrawerOpeningEvent,
+    NavigationDrawerRelocateEvent,
     NavigationDrawerEdge,
     NavigationDrawerVariant,
     type INavigationDrawer,
@@ -47,15 +47,15 @@ import {
     type NavigationDrawerCloseReason,
 } from '../navigation-drawer.interface'
 
-const SCRIM_OPACITY_PEAK = 0.38
+const ScrimOpacityPeak = 0.38
 
-const VALID_DRAWER_VARIANTS: readonly NavigationDrawerVariant[] = [
+const ValidDrawerVariants: readonly NavigationDrawerVariant[] = [
     NavigationDrawerVariant.Modal,
     NavigationDrawerVariant.Standard,
     NavigationDrawerVariant.Permanent,
 ]
 
-const VALID_DRAWER_EDGES: readonly NavigationDrawerEdge[] = [
+const ValidDrawerEdges: readonly NavigationDrawerEdge[] = [
     NavigationDrawerEdge.Start,
     NavigationDrawerEdge.End,
 ]
@@ -214,7 +214,7 @@ export abstract class BaseNavigationDrawer extends composeMixin(
     public override connectedCallback(): void {
         super.connectedCallback()
         this.addEventListener(
-            NAVIGATION_DRAWER_DRAG_END_EVENT,
+            NavigationDrawerDragEndEvent,
             this.handleDragEnd,
         )
         // Rebuilt on every connection: the scroll observer is torn down in
@@ -242,10 +242,10 @@ export abstract class BaseNavigationDrawer extends composeMixin(
     protected override willUpdate(changedProperties: PropertyValues<this>): void {
         super.willUpdate(changedProperties)
 
-        if (!VALID_DRAWER_VARIANTS.includes(this.variant)) {
+        if (!ValidDrawerVariants.includes(this.variant)) {
             throw new Error(`[mdc-navigation-drawer] Unsupported variant "${String(this.variant)}". Drawers support only "modal" | "standard" | "permanent".`)
         }
-        if (!VALID_DRAWER_EDGES.includes(this.drawerEdge)) {
+        if (!ValidDrawerEdges.includes(this.drawerEdge)) {
             throw new Error(`[mdc-navigation-drawer] Unsupported drawer edge "${String(this.drawerEdge)}". Drawers support only "start" | "end".`)
         }
 
@@ -254,14 +254,14 @@ export abstract class BaseNavigationDrawer extends composeMixin(
                 this.lastCloseReason = 'programmatic'
                 this.previouslyFocused = this.ownerDocument?.activeElement ?? document.activeElement
                 this.dispatchEvent(
-                    new CustomEvent(NAVIGATION_DRAWER_OPENING_EVENT, {
+                    new CustomEvent(NavigationDrawerOpeningEvent, {
                         bubbles: true,
                         composed: true,
                     }),
                 )
             } else {
                 this.dispatchEvent(
-                    new CustomEvent(NAVIGATION_DRAWER_CLOSING_EVENT, {
+                    new CustomEvent(NavigationDrawerClosingEvent, {
                         bubbles: true,
                         composed: true,
                     }),
@@ -303,7 +303,7 @@ export abstract class BaseNavigationDrawer extends composeMixin(
         this.isOpening = false
         this.isClosing = false
         this.removeEventListener(
-            NAVIGATION_DRAWER_DRAG_END_EVENT,
+            NavigationDrawerDragEndEvent,
             this.handleDragEnd,
         )
         super.disconnectedCallback()
@@ -380,7 +380,7 @@ export abstract class BaseNavigationDrawer extends composeMixin(
         }
 
         this.dispatchEvent(
-            new CustomEvent(NAVIGATION_DRAWER_OPENED_EVENT, {
+            new CustomEvent(NavigationDrawerOpenedEvent, {
                 bubbles: true,
                 composed: true,
             }),
@@ -443,7 +443,7 @@ export abstract class BaseNavigationDrawer extends composeMixin(
 
         this.dispatchEvent(
             new CustomEvent<INavigationDrawerClosedEventDetail>(
-                NAVIGATION_DRAWER_CLOSED_EVENT,
+                NavigationDrawerClosedEvent,
                 {
                     bubbles: true,
                     composed: true,
@@ -534,7 +534,7 @@ export abstract class BaseNavigationDrawer extends composeMixin(
 
     private dispatchRelocate(edge: NavigationDrawerEdge): void {
         this.dispatchEvent(new CustomEvent<INavigationDrawerRelocateEventDetail>(
-            NAVIGATION_DRAWER_RELOCATE_EVENT,
+            NavigationDrawerRelocateEvent,
             { bubbles: true, composed: true, detail: { edge } },
         ))
     }
@@ -700,7 +700,7 @@ export abstract class BaseNavigationDrawer extends composeMixin(
         this.lastCloseReason = 'scrim'
         const preventDefault = !this.dispatchEvent(
             new CustomEvent<INavigationDrawerCancelEventDetail>(
-                NAVIGATION_DRAWER_CANCEL_EVENT,
+                NavigationDrawerCancelEvent,
                 {
                     bubbles: true,
                     cancelable: true,
@@ -734,7 +734,7 @@ export abstract class BaseNavigationDrawer extends composeMixin(
         this.lastCloseReason = 'escape'
         const preventDefault = !this.dispatchEvent(
             new CustomEvent<INavigationDrawerCancelEventDetail>(
-                NAVIGATION_DRAWER_CANCEL_EVENT,
+                NavigationDrawerCancelEvent,
                 {
                     bubbles: true,
                     cancelable: true,

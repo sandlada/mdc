@@ -5,12 +5,12 @@
  */
 import type { LitElement } from 'lit'
 
-export type TabVariant = 'primary' | 'secondary' | 'floating'
 export const TabVariant = {
     Primary: 'primary',
     Secondary: 'secondary',
     Floating: 'floating',
-} as const satisfies Record<string, TabVariant>
+} as const
+export type TabVariant = (typeof TabVariant)[keyof typeof TabVariant]
 
 export interface ITab extends LitElement {
     active: boolean

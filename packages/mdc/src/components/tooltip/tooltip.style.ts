@@ -11,17 +11,17 @@ import {
 } from './tooltip.definition'
 import { stringifyTokens } from '../../utils/style'
 
-const plainTokens = stringifyTokens('--mdc-tooltip')(PlainTooltipDefinition)
+const PlainTokens = stringifyTokens('--mdc-tooltip')(PlainTooltipDefinition)
 
-const richTokens = stringifyTokens('--mdc-tooltip')(RichTooltipDefinition)
+const RichTokens = stringifyTokens('--mdc-tooltip')(RichTooltipDefinition)
 
-const emphasizedDecelerateEasing = unsafeCSS(Easing.EmphasizedDecelerate.ToCSSValue())
-const emphasizedAccelerateEasing = unsafeCSS(Easing.EmphasizedAccelerate.ToCSSValue())
+const EmphasizedDecelerateEasing = unsafeCSS(Easing.EmphasizedDecelerate.ToCSSValue())
+const EmphasizedAccelerateEasing = unsafeCSS(Easing.EmphasizedAccelerate.ToCSSValue())
 
 export const TooltipStyles = css`
     @layer mdc.tooltip.variable {
-        :host(:not([rich])) { ${plainTokens}; }
-        :host([rich]) { ${richTokens}; }
+        :host(:not([rich])) { ${PlainTokens}; }
+        :host([rich]) { ${RichTokens}; }
     }
 
     @layer mdc.tooltip.base {
@@ -46,15 +46,15 @@ export const TooltipStyles = css`
             opacity: 1;
             transform: scale(1);
             pointer-events: auto;
-            transition: transform 250ms ${emphasizedDecelerateEasing},
-                        opacity 150ms ${emphasizedDecelerateEasing};
+            transition: transform 250ms ${EmphasizedDecelerateEasing},
+                        opacity 150ms ${EmphasizedDecelerateEasing};
         }
 
         :host(.hiding) .container {
             opacity: 0;
             transform: scale(0.8);
-            transition: transform 150ms ${emphasizedAccelerateEasing},
-                        opacity 150ms ${emphasizedAccelerateEasing};
+            transition: transform 150ms ${EmphasizedAccelerateEasing},
+                        opacity 150ms ${EmphasizedAccelerateEasing};
         }
     }
 

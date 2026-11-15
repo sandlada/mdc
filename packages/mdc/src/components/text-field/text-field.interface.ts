@@ -11,22 +11,6 @@ export type { FieldVariant, FloatingLabelBehavior }
 /**
  * Input type supported by `mdc-text-field`.
  */
-export type TextFieldType =
-    | 'email'
-    | 'number'
-    | 'password'
-    | 'search'
-    | 'tel'
-    | 'text'
-    | 'url'
-    | 'color'
-    | 'date'
-    | 'datetime-local'
-    | 'month'
-    | 'time'
-    | 'week'
-    | 'textarea'
-
 export const TextFieldType = {
     Email: 'email',
     Number: 'number',
@@ -42,7 +26,8 @@ export const TextFieldType = {
     Time: 'time',
     Week: 'week',
     Textarea: 'textarea',
-} as const satisfies Record<string, TextFieldType>
+} as const
+export type TextFieldType = (typeof TextFieldType)[keyof typeof TextFieldType]
 
 /**
  * Text field component contract.

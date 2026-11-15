@@ -11,16 +11,16 @@ import {
 } from './bottom-sheet.definition'
 import { overrideTokens, stringifyTokens } from '../../utils/style'
 
-const standardTokenString = stringifyTokens('--mdc-bottom-sheet')(StandardBottomSheetDefinition)
+const StandardTokenString = stringifyTokens('--mdc-bottom-sheet')(StandardBottomSheetDefinition)
 
-const modalTokenString = stringifyTokens('--mdc-bottom-sheet')(ModalBottomSheetDefinition)
+const ModalTokenString = stringifyTokens('--mdc-bottom-sheet')(ModalBottomSheetDefinition)
 
-const standardTokens = css`
-    dialog.standard {${standardTokenString};}
+const StandardTokens = css`
+    dialog.standard {${StandardTokenString};}
 `
 
-const modalTokens = css`
-    dialog.modal {${modalTokenString};}
+const ModalTokens = css`
+    dialog.modal {${ModalTokenString};}
 `
 
 const getElevationStyles = () => {
@@ -40,7 +40,7 @@ const getElevationStyles = () => {
     `
 }
 
-export const bottomSheetBaseStyles = css`
+export const BottomSheetBaseStyles = css`
     :host {
         position: fixed;
         inset: 0;
@@ -243,9 +243,9 @@ export const bottomSheetBaseStyles = css`
     .focus-trap-last  { inset-block-end: 0; inset-inline-end: 0; }
 `
 
-export const bottomSheetStyles = [
-    bottomSheetBaseStyles,
-    standardTokens,
-    modalTokens,
+export const BottomSheetStyles = [
+    BottomSheetBaseStyles,
+    StandardTokens,
+    ModalTokens,
     getElevationStyles(),
 ]

@@ -2,16 +2,16 @@ import { css, unsafeCSS } from 'lit'
 import { NavigationBarDefinition } from './navigation-bar.definition'
 import { stringifyTokens } from '../../utils/style'
 
-const tS = stringifyTokens('--mdc-navigation-bar')(NavigationBarDefinition)
+const TS = stringifyTokens('--mdc-navigation-bar')(NavigationBarDefinition)
 
-type Direction = 'vertical' | 'horizontal' | 'vertical-xr'
 const Directions = {
     Vertical: 'vertical',
     Horizontal: 'horizontal',
     VerticalXR: 'vertical-xr'
-} as const satisfies Record<string, Direction>
+} as const
+type Directions = (typeof Directions)[keyof typeof Directions]
 
-const createContainerStyle = (d: Direction) => {
+const createContainerStyle = (d: Directions) => {
     return unsafeCSS(`
         height: var(--_${d}-container-height);
         padding-inline-start: var(--_${d}-container-inline-leading-space);
@@ -25,7 +25,7 @@ const createContainerStyle = (d: Direction) => {
         border-bottom-left-radius: var(--_${d}-container-shape-end-start);
     `)
 }
-const createBackgroundStyle = (d: Direction) => {
+const createBackgroundStyle = (d: Directions) => {
     return unsafeCSS(`
         background-color: var(--_${d}-container-color);
     `)
@@ -34,7 +34,7 @@ const createBackgroundStyle = (d: Direction) => {
 
 export const NavigationBarStyles = css`
     :host {
-        ${tS};
+        ${TS};
     }
 
     :host {

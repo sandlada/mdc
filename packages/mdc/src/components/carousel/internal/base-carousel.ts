@@ -22,7 +22,7 @@
 import { html, isServer, LitElement, type PropertyValues, type TemplateResult } from 'lit'
 import { property, queryAssignedElements } from 'lit/decorators.js'
 import {
-    CAROUSEL_ACTIVE_CHANGE_EVENT,
+    CarouselActiveChangeEvent,
     type CarouselVariant,
     type ICarousel,
     type ICarouselActiveChangeDetail,
@@ -31,11 +31,11 @@ import type { CarouselItem } from '../carousel-item'
 import { CarouselStyles } from '../carousel.style'
 
 /** Only `mdc-carousel-item` children take part in the carousel layout. */
-const ITEM_SELECTOR = 'mdc-carousel-item'
+const ItemSelector = 'mdc-carousel-item'
 
 /** Small-item width clamp, from Compose M3 `CarouselDefaults`. */
-const MIN_SMALL_ITEM_SIZE = 40
-const MAX_SMALL_ITEM_SIZE = 56
+const MinSmallItemSize = 40
+const MaxSmallItemSize = 56
 
 export abstract class BaseCarousel extends LitElement implements ICarousel {
 
@@ -53,7 +53,7 @@ export abstract class BaseCarousel extends LitElement implements ICarousel {
     @property({ type: Number, reflect: true, attribute: 'preferred-item-width' })
     public preferredItemWidth = 186
 
-    @queryAssignedElements({ selector: ITEM_SELECTOR, flatten: true })
+    @queryAssignedElements({ selector: ItemSelector, flatten: true })
     private readonly assignedItems!: CarouselItem[]
 
     private items: CarouselItem[] = []
@@ -131,8 +131,8 @@ export abstract class BaseCarousel extends LitElement implements ICarousel {
         if (containerWidth === 0) return
         const large = Math.min(this.preferredItemWidth, containerWidth)
         const small = Math.min(
-            MAX_SMALL_ITEM_SIZE,
-            Math.max(MIN_SMALL_ITEM_SIZE, Math.round(large / 3)),
+            MaxSmallItemSize,
+            Math.max(MinSmallItemSize, Math.round(large / 3)),
         )
         const medium = Math.round((large + small) / 2)
         this.style.setProperty('--_computed-large-item-width', `${large}px`)
@@ -200,7 +200,7 @@ export abstract class BaseCarousel extends LitElement implements ICarousel {
             item.active = index === nearestIndex
         }
         this.dispatchEvent(new CustomEvent<ICarouselActiveChangeDetail>(
-            CAROUSEL_ACTIVE_CHANGE_EVENT,
+            CarouselActiveChangeEvent,
             { detail: { item: activeItem, index: nearestIndex }, bubbles: true, composed: true },
         ))
     }

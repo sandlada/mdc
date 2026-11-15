@@ -5,7 +5,7 @@
  */
 import { css } from 'lit'
 
-export const dockLayoutStyles = css`
+export const DockLayoutStyles = css`
     /* mdc-dock-layout — root container */
     :host {
         display: flex;

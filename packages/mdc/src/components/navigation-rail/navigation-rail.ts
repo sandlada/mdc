@@ -114,14 +114,14 @@ declare global {
     }
 }
 
-const VALID_VARIANTS: readonly NavigationRailVariant[] = [
+const ValidVariants: readonly NavigationRailVariant[] = [
     NavigationRailVariant.Collapsed,
     NavigationRailVariant.ExpandedDocked,
     NavigationRailVariant.ExpandedFloating,
     NavigationRailVariant.XR,
 ]
 
-const VALID_ALIGNMENTS: readonly NavigationRailAlignment[] = [
+const ValidAlignments: readonly NavigationRailAlignment[] = [
     NavigationRailAlignment.Top,
     NavigationRailAlignment.Center,
     NavigationRailAlignment.Bottom,
@@ -291,10 +291,10 @@ export class NavigationRail extends composeMixin(
 
     protected override willUpdate(changedProperties: PropertyValues<this>): void {
         super.willUpdate(changedProperties)
-        if (!VALID_VARIANTS.includes(this.variant)) {
+        if (!ValidVariants.includes(this.variant)) {
             throw new Error(`[mdc-navigation-rail] Unsupported variant "${String(this.variant)}". Navigation rails support only "collapsed" | "expanded-docked" | "expanded-floating" | "xr".`)
         }
-        if (!VALID_ALIGNMENTS.includes(this.alignment)) {
+        if (!ValidAlignments.includes(this.alignment)) {
             throw new Error(`[mdc-navigation-rail] Unsupported alignment "${String(this.alignment)}". Navigation rails support only "top" | "center" | "bottom".`)
         }
 

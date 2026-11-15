@@ -37,8 +37,8 @@ import { mixinRippleOptions } from '../ripple/ripple-options.mixin'
 import { mixinFocusRingOptions } from '../focus-ring/focus-ring-options.mixin'
 import { mixinElementInternals } from '../../utils/behaviors/element-internals'
 import { mixinDelegatesAria } from '../../utils/aria/delegate'
-import { createValidator, getValidityAnchor, mixinConstraintValidation } from '../../utils/behaviors/constraint-validation'
-import { getFormState, getFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
+import { CreateValidator, GetValidityAnchor, mixinConstraintValidation } from '../../utils/behaviors/constraint-validation'
+import { GetFormState, GetFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
 import { RadioValidator } from '../../utils/behaviors/validators/radio-validator'
 import { NavigationTabStyles } from './navigation-tab.style'
 import { classMap } from 'lit/directives/class-map.js'
@@ -47,9 +47,9 @@ import { MeasuredDimensionController } from '../../utils/controller/measured-dim
 import { isActivationClick } from '../../utils/event/form-label-activation'
 import { readDirectLabel } from './internal/read-direct-label'
 
-const KEYBOARD_SELECTION_KEYS = new Set([' ', 'Enter'])
+const KeyboardSelectionKeys = new Set([' ', 'Enter'])
 
-const VALID_TAB_VARIANTS = new Set<string>(Object.values(NavigationTabVariant))
+const ValidTabVariants = new Set<string>(Object.values(NavigationTabVariant))
 
 function createNavigationTabId(): string {
     return `mdc-navigation-tab-${crypto.randomUUID()}`
@@ -256,7 +256,7 @@ export class MDCNavigationTab extends composeMixin(
     protected override willUpdate(changedProperties: PropertyValues<this>): void {
         super.willUpdate(changedProperties)
 
-        if (!VALID_TAB_VARIANTS.has(this.variant)) {
+        if (!ValidTabVariants.has(this.variant)) {
             throw new Error(`[mdc-navigation-tab] Unsupported variant "${String(this.variant)}".`)
         }
 
@@ -305,11 +305,11 @@ export class MDCNavigationTab extends composeMixin(
         }
     }
 
-    public override [getFormValue]() {
+    public override [GetFormValue]() {
         return this.checked ? this.value : null
     }
 
-    public override [getFormState]() {
+    public override [GetFormState]() {
         return String(this.checked)
     }
 
@@ -321,7 +321,7 @@ export class MDCNavigationTab extends composeMixin(
         this.checked = state === 'true'
     }
 
-    public override [createValidator]() {
+    public override [CreateValidator]() {
         return new RadioValidator(() => {
             if (!this.selectionController) {
                 return [this] as [MDCNavigationTab]
@@ -330,7 +330,7 @@ export class MDCNavigationTab extends composeMixin(
         })
     }
 
-    public override [getValidityAnchor]() {
+    public override [GetValidityAnchor]() {
         return this.rootElement ?? this
     }
 
@@ -465,7 +465,7 @@ export class MDCNavigationTab extends composeMixin(
 
     private readonly handleKeyDownCapture = (event: KeyboardEvent) => {
         if (this.disabled) return
-        if (!KEYBOARD_SELECTION_KEYS.has(event.key)) return
+        if (!KeyboardSelectionKeys.has(event.key)) return
 
         // Activate through the inner control exactly once; the selection
         // controller would otherwise toggle on keydown and again on the

@@ -6,7 +6,7 @@
 
 import { customElement } from 'lit/decorators.js'
 import { BaseSlider } from './internal/base-slider'
-import { sliderStyles } from './internal/slider.styles'
+import { SliderStyles } from './internal/slider.styles'
 
 declare global {
     interface HTMLElementTagNameMap {
@@ -20,5 +20,5 @@ declare global {
  */
 @customElement('mdc-slider')
 export class MDCSlider extends BaseSlider {
-    static override styles = sliderStyles
+    static override styles = SliderStyles
 }

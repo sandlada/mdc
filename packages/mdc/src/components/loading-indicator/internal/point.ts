@@ -30,16 +30,16 @@ export const point = (x: number, y: number): Point => ({ x, y })
  * Distance below which two points are considered the same, within reasonable
  * roundoff — intended to stay sub-pixel on any reasonable display.
  */
-export const DISTANCE_EPSILON = 1e-4
+export const DistanceEpsilon = 1e-4
 
 /** Epsilon used for angle / outline-progress comparisons. */
-export const ANGLE_EPSILON = 1e-6
+export const AngleEpsilon = 1e-6
 
 /**
  * Relaxed epsilon for comparisons that people perceive more leniently than the
  * exact math (used by the collinearity checks).
  */
-export const RELAXED_DISTANCE_EPSILON = 5e-3
+export const RelaxedDistanceEpsilon = 5e-3
 
 /** Distance of (x, y) from the origin. */
 export const distance = (x: number, y: number): number => Math.hypot(x, y)
@@ -118,7 +118,7 @@ export const collinearIsh = (
     bY: number,
     cX: number,
     cY: number,
-    tolerance = DISTANCE_EPSILON,
+    tolerance = DistanceEpsilon,
 ): boolean => {
     const ab = rotate90(point(bX - aX, bY - aY))
     const ac = point(cX - aX, cY - aY)

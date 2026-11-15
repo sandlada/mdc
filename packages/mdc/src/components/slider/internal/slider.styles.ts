@@ -4,16 +4,16 @@ import { ElevationDefinition } from '../../elevation/elevation.definition'
 import { SliderDefinitionVersion2 } from '../slider.definition'
 import { overrideTokens, stringifyTokens } from '../../../utils/style'
 
-const tokensStringified = stringifyTokens('--mdc-slider')(SliderDefinitionVersion2)
+const TokensStringified = stringifyTokens('--mdc-slider')(SliderDefinitionVersion2)
 
-const medium1Duration = unsafeCSS(Duration.Medium1.ToCSSVariable())
-const short2Duration = unsafeCSS(Duration.Short2.ToCSSVariable())
-const emphasizedEasing = unsafeCSS(Easing.Emphasized.ToCSSVariable())
+const Medium1Duration = unsafeCSS(Duration.Medium1.ToCSSVariable())
+const Short2Duration = unsafeCSS(Duration.Short2.ToCSSVariable())
+const EmphasizedEasing = unsafeCSS(Easing.Emphasized.ToCSSVariable())
 
-export const sliderStyles = [
+export const SliderStyles = [
     css`
         :host {
-            ${tokensStringified};
+            ${TokensStringified};
 
             /* Set these to avoid token test failures */
             --_start-fraction: 0;
@@ -48,8 +48,8 @@ export const sliderStyles = [
         }
 
         mdc-elevation {
-            transition-duration: ${medium1Duration};
-            transition-timing-function: ${emphasizedEasing};
+            transition-duration: ${Medium1Duration};
+            transition-timing-function: ${EmphasizedEasing};
         }
 
         @media (prefers-reduced-motion) {
@@ -292,8 +292,8 @@ export const sliderStyles = [
             transform-origin: center bottom;
             transform: scale(0);
             transition-property: transform;
-            transition-duration: ${short2Duration};
-            transition-timing-function: ${emphasizedEasing};
+            transition-duration: ${Short2Duration};
+            transition-timing-function: ${EmphasizedEasing};
         }
 
         /* note, :has needed only for Safari; it's wrapped in a "forgiving" */

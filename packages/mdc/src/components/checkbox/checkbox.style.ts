@@ -11,11 +11,11 @@ import { CheckboxDefinition } from './checkbox.definition'
 import { stringifyTokens } from '../../utils/style'
 import { overrideTokens } from '../../utils/style'
 
-const tokenString = stringifyTokens('--mdc-checkbox')(CheckboxDefinition)
+const TokenString = stringifyTokens('--mdc-checkbox')(CheckboxDefinition)
 
 // MD3 checkbox motion: 350ms enter / 150ms exit with Emphasized easings.
-const emphasizedAccelerate = unsafeCSS(Easing.EmphasizedAccelerate.ToCSSValue())
-const emphasizedDecelerate = unsafeCSS(Easing.EmphasizedDecelerate.ToCSSValue())
+const EmphasizedAccelerate = unsafeCSS(Easing.EmphasizedAccelerate.ToCSSValue())
+const EmphasizedDecelerate = unsafeCSS(Easing.EmphasizedDecelerate.ToCSSValue())
 
 const rippleStyles = (state: 'selected' | 'unselected') => overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
     'enabled-hovered-color': `var(--_hovered-state-layer-color-${state})`,
@@ -37,7 +37,7 @@ const errorRippleStyles = () => overrideTokens<typeof RippleDefinition>('--mdc-r
 // The focus indicator is a 44px circle around the 18px box. The ring
 // sizes itself through its own `outward-offset` mechanism, so it stays correct
 // even when `enabled-container-size` is overridden.
-const focusRingTokens = overrideTokens<typeof FocusRingDefinition>('--mdc-focus-ring')({
+const FocusRingTokens = overrideTokens<typeof FocusRingDefinition>('--mdc-focus-ring')({
     'enabled-color': `var(--_focused-indicator-color)`,
     'outward-offset': `calc((44px - var(--_enabled-container-size)) / 2)`,
     "shape-end-end": 'var(--_focus-ring-shape-end-end)',
@@ -50,7 +50,7 @@ export const CheckboxStyles = css`
     @layer mdc.checkbox {
         @layer variable {
             :host {
-                ${tokenString}
+                ${TokenString}
             }
         }
 
@@ -148,13 +148,13 @@ export const CheckboxStyles = css`
                 transition-duration: 150ms, 50ms; /* Exit duration for scale and opacity. */
                 transition-property: transform, opacity;
                 /* Exit easing for scale, linear for opacity. */
-                transition-timing-function: ${emphasizedAccelerate}, linear;
+                transition-timing-function: ${EmphasizedAccelerate}, linear;
                 transform: scale(0.6); /* Scale from 60% to 100%. */
             }
             .selected :is(.background, .icon) {
                 opacity: 1;
                 transition-duration: 350ms, 50ms; /* Enter duration for scale and opacity. */
-                transition-timing-function: ${emphasizedDecelerate}, linear;
+                transition-timing-function: ${EmphasizedDecelerate}, linear;
                 transform: scale(1);
             }
 
@@ -178,15 +178,15 @@ export const CheckboxStyles = css`
             }
             .mark {
                 animation-duration: 150ms;
-                animation-timing-function: ${emphasizedAccelerate};
+                animation-timing-function: ${EmphasizedAccelerate};
                 transition-duration: 150ms;
-                transition-timing-function: ${emphasizedAccelerate};
+                transition-timing-function: ${EmphasizedAccelerate};
             }
             .selected .mark {
                 animation-duration: 350ms;
-                animation-timing-function: ${emphasizedDecelerate};
+                animation-timing-function: ${EmphasizedDecelerate};
                 transition-duration: 350ms;
-                transition-timing-function: ${emphasizedDecelerate};
+                transition-timing-function: ${EmphasizedDecelerate};
             }
 
             /* Creates the checkmark icon. The rects' bottom-left corner becomes
@@ -347,7 +347,7 @@ export const CheckboxStyles = css`
 
         @layer composite.focus-ring {
             .container {
-                ${focusRingTokens};
+                ${FocusRingTokens};
             }
         }
 

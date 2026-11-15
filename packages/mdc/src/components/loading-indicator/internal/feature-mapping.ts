@@ -19,7 +19,7 @@
  */
 
 import { FeatureCorner, type Feature } from './feature'
-import { DISTANCE_EPSILON, point, pointDistanceSquared, positiveModulo, progressDistance, progressInRange, type Point } from './point'
+import { DistanceEpsilon, point, pointDistanceSquared, positiveModulo, progressDistance, progressInRange, type Point } from './point'
 import type { ProgressableFeature } from './measure'
 
 /** A mapping from a feature in one shape to a feature in the other. */
@@ -30,7 +30,7 @@ interface DistanceVertex {
 }
 
 /** Identity mapping used when there is nothing to map. */
-const IDENTITY_MAPPING: ReadonlyArray<[number, number]> = [
+const IdentityMapping: ReadonlyArray<[number, number]> = [
     [0, 0],
     [0.5, 0.5],
 ]
@@ -92,7 +92,7 @@ export const validateProgress = (progressValues: readonly number[]): void => {
         if (!(current >= 0 && current < 1)) {
             throw new Error(`FloatMapping - Progress outside of range: ${progressValues.join()}`)
         }
-        if (!(progressDistance(current, previous) > DISTANCE_EPSILON)) {
+        if (!(progressDistance(current, previous) > DistanceEpsilon)) {
             throw new Error(`FloatMapping - Progress repeats a value: ${progressValues.join()}`)
         }
         if (current < previous) {
@@ -140,7 +140,7 @@ export const doMapping = (
     distanceVertexList.sort((a, b) => a.distance - b.distance)
 
     // Special cases.
-    if (distanceVertexList.length === 0) return IDENTITY_MAPPING
+    if (distanceVertexList.length === 0) return IdentityMapping
     if (distanceVertexList.length === 1) {
         const { f1, f2 } = distanceVertexList[0]
         return [
@@ -196,10 +196,10 @@ class MappingHelper {
             // Features that are too close together make the DoubleMapper
             // unstable.
             if (
-                progressDistance(f1.progress, before1) < DISTANCE_EPSILON ||
-                progressDistance(f1.progress, after1) < DISTANCE_EPSILON ||
-                progressDistance(f2.progress, before2) < DISTANCE_EPSILON ||
-                progressDistance(f2.progress, after2) < DISTANCE_EPSILON
+                progressDistance(f1.progress, before1) < DistanceEpsilon ||
+                progressDistance(f1.progress, after1) < DistanceEpsilon ||
+                progressDistance(f2.progress, before2) < DistanceEpsilon ||
+                progressDistance(f2.progress, after2) < DistanceEpsilon
             ) {
                 return
             }

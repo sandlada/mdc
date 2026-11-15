@@ -19,16 +19,16 @@ import { property, queryAssignedElements } from 'lit/decorators.js'
 import type { AriaMixinStrict } from '../../../utils/aria/aria'
 import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
-import { CHIP_TOGGLE_EVENT, type IChip } from '../chip.interface'
+import { ChipToggleEvent, type IChip } from '../chip.interface'
 import {
-    CHIP_SET_SELECTION_EVENT,
+    ChipSetSelectionEvent,
     type IChipSet,
     type IChipSetSelectionEventDetail,
 } from '../chip-set.interface'
 import { ChipSetStyles } from './chip-set.style'
 
 /** Only `mdc-chip` children take part in the set. */
-const CHIP_SELECTOR = 'mdc-chip'
+const ChipSelector = 'mdc-chip'
 
 export abstract class BaseChipSet extends composeMixin(
     mixinDelegatesAria
@@ -44,7 +44,7 @@ export abstract class BaseChipSet extends composeMixin(
     @property({ type: Boolean, attribute: 'single-select', reflect: true })
     public singleSelect = false
 
-    @queryAssignedElements({ selector: CHIP_SELECTOR, flatten: true })
+    @queryAssignedElements({ selector: ChipSelector, flatten: true })
     private readonly assignedChips!: IChip[]
 
     private cachedChips: IChip[] = []
@@ -199,7 +199,7 @@ export abstract class BaseChipSet extends composeMixin(
 
     private emitSelectionEvent(chip: IChip, index: number): void {
         this.dispatchEvent(new CustomEvent<IChipSetSelectionEventDetail>(
-            CHIP_SET_SELECTION_EVENT,
+            ChipSetSelectionEvent,
             {
                 detail: { chip, selected: chip.selected, index },
                 bubbles: true,

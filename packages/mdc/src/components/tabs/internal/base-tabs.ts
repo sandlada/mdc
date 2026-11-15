@@ -9,16 +9,16 @@
  * The bar owns selection: a single active tab at a time (roving `tabindex`),
  * an ARIA `tablist` role, arrow-key navigation and a cancelable `change` event
  * that fires before the selection is committed. Each tab is asked to animate
- * its indicator (via the {@link ANIMATE_INDICATOR} symbol) from the previous
+ * its indicator (via the {@link AnimateIndicator} symbol) from the previous
  * tab's position, so the active indicator slides smoothly between tabs.
  */
 import { html, isServer, LitElement, type PropertyValues, type TemplateResult } from 'lit'
 import { property, query, queryAssignedElements } from 'lit/decorators.js'
-import { BaseTab, ANIMATE_INDICATOR } from './base-tab'
+import { BaseTab, AnimateIndicator } from './base-tab'
 import type { ITabs } from '../tabs.interface'
 
 /** Roving-tabindex selector — matches any element marked as an `mdc-tab`. */
-const TAB_SELECTOR = '[mdc-tab]'
+const TabSelector = '[mdc-tab]'
 
 function isTab(element: EventTarget | null): element is BaseTab {
     return !!element && element instanceof BaseTab
@@ -39,7 +39,7 @@ export abstract class BaseTabs extends LitElement implements ITabs {
     @query('.tabs')
     protected readonly tabsElement!: HTMLElement | null
 
-    @queryAssignedElements({ selector: TAB_SELECTOR, flatten: true })
+    @queryAssignedElements({ selector: TabSelector, flatten: true })
     private readonly assignedTabs!: BaseTab[]
 
     private tabs: BaseTab[] = []
@@ -182,7 +182,7 @@ export abstract class BaseTabs extends LitElement implements ITabs {
         }
 
         // Animate the indicator from the previous tab's position.
-        tab[ANIMATE_INDICATOR](previousTab)
+        tab[AnimateIndicator](previousTab)
 
         if (userInitiated) {
             await this.scrollToTab(tab)

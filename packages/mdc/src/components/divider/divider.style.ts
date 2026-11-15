@@ -7,9 +7,9 @@ import { css } from 'lit'
 import { DividerDefinition } from './divider.definition'
 import { stringifyTokens } from '../../utils/style'
 
-const tokens = stringifyTokens('--mdc-divider')(DividerDefinition)
+const Tokens = stringifyTokens('--mdc-divider')(DividerDefinition)
 
-const stylePart = css`
+const StylePart = css`
     @layer mdc.divider.component {
         :host {
             box-sizing: border-box;
@@ -82,6 +82,6 @@ export const DividerStyles = [
             @layer variable, component, motion, hcm, contrast, transparency;
         }
     `,
-    css`@layer mdc.divider.variable {:host {${tokens};}}`,
-    stylePart,
+    css`@layer mdc.divider.variable {:host {${Tokens};}}`,
+    StylePart,
 ]

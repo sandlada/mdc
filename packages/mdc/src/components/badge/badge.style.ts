@@ -7,9 +7,9 @@ import { css } from 'lit'
 import { stringifyTokens } from '../../utils/style'
 import { BadgeDefinition } from './badge.definition'
 
-const tokens = stringifyTokens('--mdc-badge')(BadgeDefinition)
+const Tokens = stringifyTokens('--mdc-badge')(BadgeDefinition)
 
-const stylePart = css`
+const StylePart = css`
     :host {
         box-sizing: border-box;
         position: relative;
@@ -114,6 +114,6 @@ const stylePart = css`
 `
 
 export const BadgeStyles = [
-    css`:host {${tokens};}`,
-    stylePart,
+    css`:host {${Tokens};}`,
+    StylePart,
 ]

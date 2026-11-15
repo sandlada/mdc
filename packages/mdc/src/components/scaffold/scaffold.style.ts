@@ -7,12 +7,12 @@ import { css, unsafeCSS } from 'lit'
 import { ScaffoldDefinition } from './scaffold.definition'
 import { stringifyTokens } from '../../utils/style'
 
-const tokenString = stringifyTokens('--mdc-scaffold')(ScaffoldDefinition)
+const TokenString = stringifyTokens('--mdc-scaffold')(ScaffoldDefinition)
 
-const base = css`
+const Base = css`
     @layer mdc.scaffold.variable {
         :host {
-            ${tokenString};
+            ${TokenString};
         }
     }
 
@@ -265,4 +265,4 @@ const base = css`
     }
 `
 
-export const ScaffoldStyles = [base]
+export const ScaffoldStyles = [Base]

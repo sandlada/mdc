@@ -9,12 +9,12 @@ import { RadioButtonDefinition } from './radio-button.definition'
 import type { RippleDefinition } from '../ripple/ripple.definition'
 import { overrideTokens, stringifyTokens } from '../../utils/style'
 
-const tokenString = stringifyTokens('--mdc-radio-button')(RadioButtonDefinition)
+const TokenString = stringifyTokens('--mdc-radio-button')(RadioButtonDefinition)
 
-export const radioButtonStyle = css`
+export const RadioButtonStyle = css`
     @layer mdc.radio-button {
         @layer variable {
-            :host { ${tokenString} }
+            :host { ${TokenString} }
         }
 
         @layer base {

@@ -30,7 +30,7 @@ import { createStyleDefinition } from '../../utils/style'
  * `app:backgroundTint` defaults from the Material Components Android
  * reference.
  */
-const sharedStructural = {
+const SharedStructural = {
     // Container size
     'enabled-container-width'                  : `400px`,
 
@@ -122,7 +122,7 @@ const sharedStructural = {
  * Standard side sheet — co-exists with main UI, no scrim, `surface` background.
  */
 export const StandardSideSheetDefinition = createStyleDefinition({
-    ...sharedStructural,
+    ...SharedStructural,
     'enabled-container-color'           : Color.Surface,
     'enabled-headline-color'            : Color.OnSurfaceVariant,
     'enabled-close-icon-color'          : Color.OnSurfaceVariant,
@@ -135,7 +135,7 @@ export const StandardSideSheetDefinition = createStyleDefinition({
  * background per the Material Components Android default.
  */
 export const ModalSideSheetDefinition = createStyleDefinition({
-    ...sharedStructural,
+    ...SharedStructural,
     'enabled-container-color'           : Color.SurfaceContainerLow,
     'enabled-headline-color'            : Color.OnSurfaceVariant,
     'enabled-close-icon-color'          : Color.OnSurfaceVariant,

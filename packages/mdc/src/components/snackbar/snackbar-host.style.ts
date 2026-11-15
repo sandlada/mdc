@@ -7,12 +7,12 @@ import { css } from 'lit'
 import { SnackbarHostDefinition } from './snackbar-host.definition'
 import { stringifyTokens } from '../../utils/style'
 
-const tokenString = stringifyTokens('--mdc-snackbar-host')(SnackbarHostDefinition)
+const TokenString = stringifyTokens('--mdc-snackbar-host')(SnackbarHostDefinition)
 
-const base = css`
+const Base = css`
     @layer mdc.snackbar-host.variable {
         :host {
-            ${tokenString};
+            ${TokenString};
         }
     }
 
@@ -77,4 +77,4 @@ const base = css`
     }
 `
 
-export const SnackbarHostStyles = [base]
+export const SnackbarHostStyles = [Base]

@@ -7,9 +7,9 @@ import { css } from 'lit'
 import { RippleDefinition } from './ripple.definition'
 import { stringifyTokens } from '../../utils/style'
 
-const tokens = stringifyTokens('--mdc-ripple')(RippleDefinition)
+const Tokens = stringifyTokens('--mdc-ripple')(RippleDefinition)
 
-const stylePart = css`
+const StylePart = css`
     @layer mdc.ripple.component {
         :host {
             display: flex;
@@ -150,12 +150,12 @@ const stylePart = css`
     }
 `
 
-export const styles = [
+export const Styles = [
     css`
         @layer mdc.icon {
             @layer variable, component, motion, hcm, contrast, transparency;
         }
-        @layer mdc.ripple.variable{:host{${tokens};}}
+        @layer mdc.ripple.variable{:host{${Tokens};}}
     `,
-    stylePart,
+    StylePart,
 ]

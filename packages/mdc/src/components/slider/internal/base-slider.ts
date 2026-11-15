@@ -17,14 +17,14 @@ import { classMap } from 'lit/directives/class-map.js'
 import { styleMap } from 'lit/directives/style-map.js'
 import { when } from 'lit/directives/when.js'
 import type { AriaMixinStrict } from '../../../utils/aria/aria'
-import { createValidator, getValidityAnchor, mixinConstraintValidation } from '../../../utils/behaviors/constraint-validation'
+import { CreateValidator, GetValidityAnchor, mixinConstraintValidation } from '../../../utils/behaviors/constraint-validation'
 import { mixinElementInternals } from '../../../utils/behaviors/element-internals'
 import type { MixinBase, MixinReturn } from '../../../utils/behaviors/mixin'
 import { SliderValidator } from '../../../utils/behaviors/validators/slider-validator'
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
 import { dispatchActivationClick, isActivationClick } from '../../../utils/event/form-label-activation'
 import { redispatchEvent } from '../../../utils/event/redispatch-event'
-import { getFormState, getFormValue, mixinFormAssociated } from '../../../utils/form/form-associated'
+import { GetFormState, GetFormValue, mixinFormAssociated } from '../../../utils/form/form-associated'
 import type { MDCRipple } from '../../ripple/ripple'
 
 export interface IMDCSliderAttributes {
@@ -779,7 +779,7 @@ export class BaseSlider extends composeMixin(
         this.finishAction(event)
     }
 
-    override[getFormValue]() {
+    override[GetFormValue]() {
         if (this.range) {
             const data = new FormData()
             data.append(this.nameStart, String(this.valueStart))
@@ -817,7 +817,7 @@ export class BaseSlider extends composeMixin(
         this.range = false
     }
 
-    public override [createValidator]() {
+    public override [CreateValidator]() {
         return new SliderValidator(() => ({
             min: this.min,
             max: this.max,
@@ -829,11 +829,11 @@ export class BaseSlider extends composeMixin(
         }))
     }
 
-    public override [getValidityAnchor]() {
+    public override [GetValidityAnchor]() {
         return this
     }
 
-    public override [getFormState]() {
+    public override [GetFormState]() {
         if (this.range) {
             const data = new FormData()
             data.append(this.nameStart, String(this.valueStart))

@@ -28,7 +28,7 @@ export interface BottomSheetAnimation {
 
 // Mirror --_enabled-container-opacity-modal (see bottom-sheet.definition.ts).
 // Centralised here so the WAAPI keyframes and the CSS rest state stay in sync.
-const SCRIM_OPACITY_PEAK = 0.32
+const ScrimOpacityPeak = 0.32
 
 /**
  * The default bottom-sheet open animation.
@@ -40,7 +40,7 @@ export const BottomSheetDefaultOpenAnimation = (): BottomSheetAnimation => ({
         [
             [
                 { opacity: 0 },
-                { opacity: SCRIM_OPACITY_PEAK },
+                { opacity: ScrimOpacityPeak },
             ],
             { duration: 500, easing: 'linear' },
         ],
@@ -66,7 +66,7 @@ export const BottomSheetDefaultCloseAnimation = (): BottomSheetAnimation => ({
     scrim: [
         [
             [
-                { opacity: SCRIM_OPACITY_PEAK },
+                { opacity: ScrimOpacityPeak },
                 { opacity: 0 },
             ],
             { duration: 150, easing: 'linear' },
@@ -135,7 +135,7 @@ export const BottomSheetDragSnapBackAnimation = (
         [
             [
                 { opacity: scrimCurrent },
-                { opacity: SCRIM_OPACITY_PEAK },
+                { opacity: ScrimOpacityPeak },
             ],
             { duration: 250, easing: 'linear' },
         ],

@@ -28,28 +28,28 @@ import { getDeterminateMorphs, getIndeterminateMorphs } from './material-shapes'
 import { springMotionAt, type SpringParameters } from './spring'
 
 /** Duration of the full seven-shape loop: 4666ms, the global rotation duration. */
-export const LOOP_DURATION_MS = 4666
+export const LoopDurationMs = 4666
 
 /** Duration of one shape period: one seventh of the loop (≈666.57 ms). */
-export const SHAPE_PERIOD_MS = LOOP_DURATION_MS / 7
+export const ShapePeriodMs = LoopDurationMs / 7
 
 /**
  * Total rotation added by each shape period. The reference loops three full
  * turns per seven shapes (measured from the design video, whose loop is
  * seamless), i.e. 1080/7 ≈ 154.29° per period.
  */
-export const ROTATION_PER_PERIOD = (3 * 360) / 7
+export const RotationPerPeriod = (3 * 360) / 7
 
 /** Extra clockwise spin contributed by the morph spring of each period. */
-export const SPRING_ROTATION_PER_PERIOD = 90
+export const SpringRotationPerPeriod = 90
 
 /** Constant (time-driven) part of the per-period rotation. */
-export const CONSTANT_ROTATION_PER_PERIOD = ROTATION_PER_PERIOD - SPRING_ROTATION_PER_PERIOD
+export const ConstantRotationPerPeriod = RotationPerPeriod - SpringRotationPerPeriod
 
 /** The morph spring parameters of the reference implementation. */
-export const MORPH_SPRING: SpringParameters = { stiffness: 200, dampingRatio: 0.6 }
+export const MorphSpring: SpringParameters = { stiffness: 200, dampingRatio: 0.6 }
 
-const morphSpring = springMotionAt(MORPH_SPRING)
+const morphSpring = springMotionAt(MorphSpring)
 
 /** Parses a pixel size token (e.g. `'48px'`) into its numeric value. */
 const parseSizePx = (value: unknown): number => {
@@ -60,10 +60,10 @@ const parseSizePx = (value: unknown): number => {
 }
 
 /** MD3 container size (48px), from the component token definition. */
-export const CONTAINER_SIZE_PX = parseSizePx(LoadingIndicatorDefinition['container-size'])
+export const ContainerSizePx = parseSizePx(LoadingIndicatorDefinition['container-size'])
 
 /** MD3 active indicator size (38px), from the component token definition. */
-export const INDICATOR_SIZE_PX = parseSizePx(LoadingIndicatorDefinition['indicator-size'])
+export const IndicatorSizePx = parseSizePx(LoadingIndicatorDefinition['indicator-size'])
 
 /**
  * Draw scale of the normalized shapes within the active indicator size: the
@@ -71,17 +71,17 @@ export const INDICATOR_SIZE_PX = parseSizePx(LoadingIndicatorDefinition['indicat
  * (the shapes span ~73% of the 48px container), which the video measurement
  * of all settled shapes confirms (≈186px at the reference's 256px container).
  */
-export const SHAPE_DRAW_SCALE = 35 / 38
+export const ShapeDrawScale = 35 / 38
 
 /**
  * The uniform path scale of the indeterminate sequence within the indicator
  * viewBox: the shapes are normalized into the unit square, so the scale in
  * viewBox units is `indicator-size × SHAPE_DRAW_SCALE`.
  */
-export const getIndeterminateShapeScale = (): number => INDICATOR_SIZE_PX * SHAPE_DRAW_SCALE
+export const getIndeterminateShapeScale = (): number => IndicatorSizePx * ShapeDrawScale
 
 /** The uniform path scale of the determinate sequence (see {@link getIndeterminateShapeScale}). */
-export const getDeterminateShapeScale = (): number => INDICATOR_SIZE_PX * SHAPE_DRAW_SCALE
+export const getDeterminateShapeScale = (): number => IndicatorSizePx * ShapeDrawScale
 
 /** A single rendered frame of the indicator. */
 export interface LoadingIndicatorFrame {
@@ -114,8 +114,8 @@ export const indeterminateFrameAt = (timelineMs: number): LoadingIndicatorFrame 
         throw new Error('Timeline position must be a finite, non-negative number')
     }
     const morphs = getIndeterminateMorphs()
-    const cycle = Math.floor(timelineMs / SHAPE_PERIOD_MS)
-    const elapsed = timelineMs - cycle * SHAPE_PERIOD_MS
+    const cycle = Math.floor(timelineMs / ShapePeriodMs)
+    const elapsed = timelineMs - cycle * ShapePeriodMs
     // The spring animates from the previous shape (settled) to the next one.
     const morphFactor = cycle + morphSpring(0, 0, elapsed, 1).value
     const shapeIndex = ((Math.floor(morphFactor) % morphs.length) + morphs.length) % morphs.length
@@ -124,9 +124,9 @@ export const indeterminateFrameAt = (timelineMs: number): LoadingIndicatorFrame 
     // spring rotation; within the current period the constant part advances
     // linearly and the spring part follows the morph factor.
     const rotation =
-        (CONSTANT_ROTATION_PER_PERIOD + SPRING_ROTATION_PER_PERIOD) * cycle +
-        CONSTANT_ROTATION_PER_PERIOD * (elapsed / SHAPE_PERIOD_MS) +
-        SPRING_ROTATION_PER_PERIOD * (morphFactor - cycle)
+        (ConstantRotationPerPeriod + SpringRotationPerPeriod) * cycle +
+        ConstantRotationPerPeriod * (elapsed / ShapePeriodMs) +
+        SpringRotationPerPeriod * (morphFactor - cycle)
     return frameFromCubics(morphs[shapeIndex].asCubics(progress), rotation)
 }
 

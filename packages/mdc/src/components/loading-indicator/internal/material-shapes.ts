@@ -22,7 +22,7 @@ import { Morph } from './morph'
 import { addPoints, point, pointDistance, scalePoint, subtractPoints, type Point } from './point'
 import {
     RoundedPolygon,
-    UNROUNDED,
+    Unrounded,
     circlePolygon,
     cornerRounding,
     roundedPolygonFromVertices,
@@ -31,8 +31,8 @@ import {
 } from './rounded-polygon'
 
 /** Cached roundings, matching the companion object of the source. */
-const CORNER_ROUND_15 = cornerRounding(0.15)
-const CORNER_ROUND_50 = cornerRounding(0.5)
+const CornerRound15 = cornerRounding(0.15)
+const CornerRound50 = cornerRounding(0.5)
 
 /** A vertex with its own corner rounding. */
 interface ShapePoint {
@@ -113,7 +113,7 @@ const customPolygon = (
         vertices.push(actualPoint.o.x, actualPoint.o.y)
         perVertexRounding.push(actualPoint.r)
     }
-    return roundedPolygonFromVertices(vertices, UNROUNDED, perVertexRounding, center.x, center.y)
+    return roundedPolygonFromVertices(vertices, Unrounded, perVertexRounding, center.x, center.y)
 }
 
 /** A soft 10-armed burst (the first shape of the indeterminate sequence). */
@@ -128,7 +128,7 @@ export const softBurst = (): RoundedPolygon =>
 
 /** A 9-sided cookie (stars rounded by half the radius), rotated −90°. */
 export const cookie9 = (): RoundedPolygon =>
-    starPolygon(9, 1, 0.8, CORNER_ROUND_50, 0, 0).transformed(p => rotateDegrees(p, -90))
+    starPolygon(9, 1, 0.8, CornerRound50, 0, 0).transformed(p => rotateDegrees(p, -90))
 
 /** A rounded pentagon. */
 export const pentagon = (): RoundedPolygon =>
@@ -148,7 +148,7 @@ export const pill = (): RoundedPolygon =>
     customPolygon(
         [
             { o: point(0.961, 0.039), r: cornerRounding(0.426) },
-            { o: point(1.001, 0.428), r: UNROUNDED },
+            { o: point(1.001, 0.428), r: Unrounded },
             { o: point(1, 0.609), r: cornerRounding(1) },
         ],
         2,
@@ -157,7 +157,7 @@ export const pill = (): RoundedPolygon =>
     )
 
 /** An 8-armed sunny star. */
-export const sunny = (): RoundedPolygon => starPolygon(8, 1, 0.8, CORNER_ROUND_15, 0, 0)
+export const sunny = (): RoundedPolygon => starPolygon(8, 1, 0.8, CornerRound15, 0, 0)
 
 /** A 4-sided cookie. */
 export const cookie4 = (): RoundedPolygon =>
@@ -178,10 +178,10 @@ export const oval = (): RoundedPolygon =>
 /** A 10-vertex circle (used by the determinate indicator). */
 export const circle = (): RoundedPolygon => circlePolygon(10, 1, 0, 0)
 
-let indeterminatePolygons: readonly RoundedPolygon[] | null = null
-let indeterminateMorphs: readonly Morph[] | null = null
-let determinatePolygons: readonly RoundedPolygon[] | null = null
-let determinateMorphs: readonly Morph[] | null = null
+let IndeterminatePolygons: readonly RoundedPolygon[] | null = null
+let IndeterminateMorphs: readonly Morph[] | null = null
+let DeterminatePolygons: readonly RoundedPolygon[] | null = null
+let DeterminateMorphs: readonly Morph[] | null = null
 
 /**
  * The indeterminate shape sequence, each shape normalized into the unit
@@ -189,7 +189,7 @@ let determinateMorphs: readonly Morph[] | null = null
  * Oval.
  */
 export const getIndeterminatePolygons = (): readonly RoundedPolygon[] =>
-    (indeterminatePolygons ??= [softBurst(), cookie9(), pentagon(), pill(), sunny(), cookie4(), oval()].map(polygon =>
+    (IndeterminatePolygons ??= [softBurst(), cookie9(), pentagon(), pill(), sunny(), cookie4(), oval()].map(polygon =>
         polygon.normalized(),
     ))
 
@@ -198,7 +198,7 @@ export const getIndeterminatePolygons = (): readonly RoundedPolygon[] =>
  * spacing, for a smoother morph to the burst) into the SoftBurst.
  */
 export const getDeterminatePolygons = (): readonly RoundedPolygon[] =>
-    (determinatePolygons ??= [circle().normalized().transformed(p => rotateDegrees(p, 360 / 20)), softBurst().normalized()])
+    (DeterminatePolygons ??= [circle().normalized().transformed(p => rotateDegrees(p, 360 / 20)), softBurst().normalized()])
 
 /**
  * Builds the morph sequence for a polygon list (a circular sequence adds the
@@ -219,11 +219,11 @@ const buildMorphs = (polygons: readonly RoundedPolygon[], circularSequence: bool
 
 /** The seven indeterminate morphs (including Oval → SoftBurst). */
 export const getIndeterminateMorphs = (): readonly Morph[] =>
-    (indeterminateMorphs ??= buildMorphs(getIndeterminatePolygons(), true))
+    (IndeterminateMorphs ??= buildMorphs(getIndeterminatePolygons(), true))
 
 /** The single determinate morph (Circle → SoftBurst). */
 export const getDeterminateMorphs = (): readonly Morph[] =>
-    (determinateMorphs ??= buildMorphs(getDeterminatePolygons(), false))
+    (DeterminateMorphs ??= buildMorphs(getDeterminatePolygons(), false))
 
 /**
  * Computes a uniform scale factor for a polygon sequence: the smallest ratio

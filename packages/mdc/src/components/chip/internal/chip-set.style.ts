@@ -7,12 +7,12 @@ import { css } from 'lit'
 import { ChipSetDefinition } from '../chip-set.definition'
 import { stringifyTokens } from '../../../utils/style'
 
-const tokenString = stringifyTokens('--mdc-chip-set')(ChipSetDefinition)
+const TokenString = stringifyTokens('--mdc-chip-set')(ChipSetDefinition)
 
 export const ChipSetStyles = css`
     @layer mdc.chip-set.variable {
         :host {
-            ${tokenString};
+            ${TokenString};
         }
     }
 

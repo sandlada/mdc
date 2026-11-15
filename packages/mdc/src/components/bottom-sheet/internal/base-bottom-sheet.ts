@@ -10,7 +10,7 @@ import { styleMap } from 'lit/directives/style-map.js'
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
 import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import { mixinElevationOptions } from '../../elevation/elevation-options.mixin'
-import { bottomSheetStyles } from '../bottom-sheet.style'
+import { BottomSheetStyles } from '../bottom-sheet.style'
 import {
     BottomSheetDragController,
     type IBottomSheetDragHost,
@@ -25,12 +25,12 @@ import {
     type BottomSheetAnimationArgs,
 } from '../bottom-sheet.animation'
 import {
-    BOTTOM_SHEET_CANCEL_EVENT,
-    BOTTOM_SHEET_CLOSED_EVENT,
-    BOTTOM_SHEET_CLOSING_EVENT,
-    BOTTOM_SHEET_DRAG_END_EVENT,
-    BOTTOM_SHEET_OPENED_EVENT,
-    BOTTOM_SHEET_OPENING_EVENT,
+    BottomSheetCancelEvent,
+    BottomSheetClosedEvent,
+    BottomSheetClosingEvent,
+    BottomSheetDragEndEvent,
+    BottomSheetOpenedEvent,
+    BottomSheetOpeningEvent,
     type BottomSheetCloseReason,
     type BottomSheetDetent,
     type BottomSheetVariant,
@@ -40,7 +40,7 @@ import {
     type IBottomSheetDragEndEventDetail,
 } from '../bottom-sheet.interface'
 
-const SCRIM_OPACITY_PEAK = 0.32
+const ScrimOpacityPeak = 0.32
 
 /**
  * Abstract base for `mdc-bottom-sheet`. Owns the lifecycle, focus traps,
@@ -58,7 +58,7 @@ export abstract class BaseBottomSheet extends composeMixin(
     mixinElevationOptions,
 )(LitElement) implements IBottomSheet, IBottomSheetDragHost {
 
-    public static override styles = bottomSheetStyles
+    public static override styles = BottomSheetStyles
 
     @property({ type: String })
     public variant: BottomSheetVariant = 'modal'
@@ -153,7 +153,7 @@ export abstract class BaseBottomSheet extends composeMixin(
     public constructor() {
         super()
         this.dragController = new BottomSheetDragController(this)
-        this.addEventListener(BOTTOM_SHEET_DRAG_END_EVENT, this.handleDragEnd as EventListener)
+        this.addEventListener(BottomSheetDragEndEvent, this.handleDragEnd as EventListener)
     }
 
     // ── IBottomSheetDragHost implementation ─────────────────────────────────
@@ -259,7 +259,7 @@ export abstract class BaseBottomSheet extends composeMixin(
             }
         }
         await this.animateBottomSheet(BottomSheetDefaultOpenAnimation())
-        this.dispatchEvent(new Event(BOTTOM_SHEET_OPENED_EVENT, {
+        this.dispatchEvent(new Event(BottomSheetOpenedEvent, {
             bubbles: true, composed: true,
         }))
         requestAnimationFrame(() => {
@@ -276,7 +276,7 @@ export abstract class BaseBottomSheet extends composeMixin(
         await this.animateBottomSheet(BottomSheetDefaultCloseAnimation())
         this.closeDialog()
         this.dispatchEvent(new CustomEvent<IBottomSheetClosedEventDetail>(
-            BOTTOM_SHEET_CLOSED_EVENT, {
+            BottomSheetClosedEvent, {
                 bubbles: true,
                 composed: true,
                 detail: {
@@ -325,7 +325,7 @@ export abstract class BaseBottomSheet extends composeMixin(
         await this.updateComplete
         this.closeDialog()
         this.dispatchEvent(new CustomEvent<IBottomSheetClosedEventDetail>(
-            BOTTOM_SHEET_CLOSED_EVENT, {
+            BottomSheetClosedEvent, {
                 bubbles: true,
                 composed: true,
                 detail: {
@@ -351,7 +351,7 @@ export abstract class BaseBottomSheet extends composeMixin(
 
         if (this.detent === 'full') {
             await this.animateBottomSheet(
-                BottomSheetDragSnapBackAnimation(currentDy, SCRIM_OPACITY_PEAK),
+                BottomSheetDragSnapBackAnimation(currentDy, ScrimOpacityPeak),
             )
         } else {
             const vh = window.innerHeight
@@ -376,7 +376,7 @@ export abstract class BaseBottomSheet extends composeMixin(
 
         if (this.detent === 'peek') {
             await this.animateBottomSheet(
-                BottomSheetDragSnapBackAnimation(currentDy, SCRIM_OPACITY_PEAK),
+                BottomSheetDragSnapBackAnimation(currentDy, ScrimOpacityPeak),
             )
         } else {
             const vh = window.innerHeight
@@ -398,7 +398,7 @@ export abstract class BaseBottomSheet extends composeMixin(
     public async dragSnapBack(fromDy?: number): Promise<void> {
         const scrimCurrent = this.scrimEl
             ? parseFloat(getComputedStyle(this.scrimEl).opacity)
-            : SCRIM_OPACITY_PEAK
+            : ScrimOpacityPeak
         const currentDy = fromDy ?? (this.containerEl
             ? this.readTranslateY(this.containerEl)
             : 0)
@@ -435,11 +435,11 @@ export abstract class BaseBottomSheet extends composeMixin(
                 this.lastCloseReason = 'programmatic'
                 this.previouslyFocused = this.ownerDocument?.activeElement ?? null
                 this.dispatchEvent(new Event(
-                    BOTTOM_SHEET_OPENING_EVENT, { bubbles: true, composed: true },
+                    BottomSheetOpeningEvent, { bubbles: true, composed: true },
                 ))
             } else {
                 this.dispatchEvent(new Event(
-                    BOTTOM_SHEET_CLOSING_EVENT, { bubbles: true, composed: true },
+                    BottomSheetClosingEvent, { bubbles: true, composed: true },
                 ))
             }
         }
@@ -549,7 +549,7 @@ export abstract class BaseBottomSheet extends composeMixin(
         if (this.variant !== 'modal' || !this.cancelable || !this.open) return
         this.lastCloseReason = 'escape'
         this.dispatchEvent(new CustomEvent<IBottomSheetCancelEventDetail>(
-            BOTTOM_SHEET_CANCEL_EVENT, {
+            BottomSheetCancelEvent, {
                 bubbles: true, composed: true,
                 detail: { reason: 'escape' },
             },
@@ -563,7 +563,7 @@ export abstract class BaseBottomSheet extends composeMixin(
         if (path.some((node) => (node as Element).classList?.contains?.('scrim'))) {
             this.lastCloseReason = 'scrim'
             this.dispatchEvent(new CustomEvent<IBottomSheetCancelEventDetail>(
-                BOTTOM_SHEET_CANCEL_EVENT, {
+                BottomSheetCancelEvent, {
                     bubbles: true, composed: true,
                     detail: { reason: 'scrim' },
                 },

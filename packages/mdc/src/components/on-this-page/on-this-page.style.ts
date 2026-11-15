@@ -11,11 +11,11 @@ import { css } from 'lit'
 import { stringifyTokens } from '../../utils/style'
 import { OnThisPageDefinition } from './on-this-page.definition'
 
-const tokenString = stringifyTokens('--mdc-on-this-page')(OnThisPageDefinition)
+const TokenString = stringifyTokens('--mdc-on-this-page')(OnThisPageDefinition)
 
 export const OnThisPageStyles = css`
     :host {
-        ${tokenString};
+        ${TokenString};
         display: block;
         box-sizing: border-box;
         width: var(--_enabled-container-width);

@@ -40,15 +40,15 @@ import { css, unsafeCSS } from 'lit'
 import { SliderDefinition } from '../slider/slider.definition'
 import { stringifyTokens } from '../../utils/style'
 
-const tokensStringified = stringifyTokens('--mdc-expressive-slider')(SliderDefinition)
+const TokensStringified = stringifyTokens('--mdc-expressive-slider')(SliderDefinition)
 
-const short2Duration = unsafeCSS(Duration.Short2.ToCSSVariable())
-const emphasizedEasing = unsafeCSS(Easing.Emphasized.ToCSSVariable())
+const Short2Duration = unsafeCSS(Duration.Short2.ToCSSVariable())
+const EmphasizedEasing = unsafeCSS(Easing.Emphasized.ToCSSVariable())
 
 export const ExpressiveSliderStyles = [
     css`
         :host {
-            ${tokensStringified};
+            ${TokensStringified};
 
             /* Per-size internal aliases. */
             --_track-height: 16px;
@@ -525,8 +525,8 @@ export const ExpressiveSliderStyles = [
             transform-origin: center bottom;
             transform: translate(-50%, 0) scale(0);
             transition-property: transform;
-            transition-duration: ${short2Duration};
-            transition-timing-function: ${emphasizedEasing};
+            transition-duration: ${Short2Duration};
+            transition-timing-function: ${EmphasizedEasing};
             z-index: 3;
             pointer-events: none;
             white-space: nowrap;

@@ -9,10 +9,10 @@ import { classMap } from 'lit/directives/class-map.js'
 import { mixinDelegatesAria } from '../../utils/aria/delegate'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import {
-    TOOLTIP_HIDDEN_EVENT,
-    TOOLTIP_HIDING_EVENT,
-    TOOLTIP_SHOWN_EVENT,
-    TOOLTIP_SHOWING_EVENT,
+    TooltipHiddenEvent,
+    TooltipHidingEvent,
+    TooltipShownEvent,
+    TooltipShowingEvent,
     type ITooltip,
     type TooltipPosition,
 } from './tooltip.interface'
@@ -190,20 +190,20 @@ export class MDCTooltip extends composeMixin(
     }
 
     private handleOpen(): void {
-        this.dispatchEvent(new Event(TOOLTIP_SHOWING_EVENT, { bubbles: true, composed: true }))
+        this.dispatchEvent(new Event(TooltipShowingEvent, { bubbles: true, composed: true }))
         // Emit shown event after animation
         setTimeout(() => {
-            this.dispatchEvent(new Event(TOOLTIP_SHOWN_EVENT, { bubbles: true, composed: true }))
+            this.dispatchEvent(new Event(TooltipShownEvent, { bubbles: true, composed: true }))
         }, 200)
     }
 
     private handleClose(): void {
         this.containerElement?.classList.add('hiding')
-        this.dispatchEvent(new Event(TOOLTIP_HIDING_EVENT, { bubbles: true, composed: true }))
+        this.dispatchEvent(new Event(TooltipHidingEvent, { bubbles: true, composed: true }))
         // Emit hidden event after animation
         setTimeout(() => {
             this.containerElement?.classList.remove('hiding')
-            this.dispatchEvent(new Event(TOOLTIP_HIDDEN_EVENT, { bubbles: true, composed: true }))
+            this.dispatchEvent(new Event(TooltipHiddenEvent, { bubbles: true, composed: true }))
         }, 200)
     }
 

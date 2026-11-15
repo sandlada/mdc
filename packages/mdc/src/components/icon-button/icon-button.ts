@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 import { customElement, property } from 'lit/decorators.js'
-import { internals } from '../../utils/behaviors/element-internals'
+import { Internals } from '../../utils/behaviors/element-internals'
 import { setupFormSubmitter, type FormSubmitter, type FormSubmitterType } from '../../utils/controller/form-submitter'
 import { BaseMDCIconButton } from './base-icon-button'
 
@@ -47,7 +47,7 @@ export class MDCIconButton extends BaseMDCIconButton implements FormSubmitter {
     }
 
     public get form() {
-        return this[internals].form
+        return this[Internals].form
     }
 
     @property({ type: String })

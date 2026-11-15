@@ -8,7 +8,7 @@ declare global {
     }
 }
 
-const SMOOTHING_FACTOR = 0.38;
+const SmoothingFactor = 0.38;
 
 @customElement('mdc-linear-wave')
 export class LinearWave extends BaseWave {
@@ -94,7 +94,7 @@ export class LinearWave extends BaseWave {
         const amplitude = this.waveAmplitude;
         const lambda = this.wavelength;
         const halfLambda = lambda / 2;
-        const controlPointOffset = halfLambda * SMOOTHING_FACTOR;
+        const controlPointOffset = halfLambda * SmoothingFactor;
 
 
         const yCenter = canvasHeight / 2;

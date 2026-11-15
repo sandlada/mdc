@@ -94,4 +94,4 @@ export interface ICarouselActiveChangeDetail {
 }
 
 /** Name of the event the carousel dispatches when the focal item changes. */
-export const CAROUSEL_ACTIVE_CHANGE_EVENT = 'carousel-active-change'
+export const CarouselActiveChangeEvent = 'carousel-active-change'

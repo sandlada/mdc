@@ -8,7 +8,7 @@ import { Color } from '../../utils/color'
 import { createStyleDefinition } from '../../utils/style'
 
 
-const sharedShapes = {
+const SharedShapes = {
     'extra-small-container-shape-round-start-start': Shape.Full,
     'extra-small-container-shape-round-start-end': Shape.Full,
     'extra-small-container-shape-round-end-start': Shape.Full,
@@ -115,7 +115,7 @@ const sharedShapes = {
     'extra-large-container-shape-square-selected-end-end': Shape.Full,
 } as const
 
-const shared = {
+const Shared = {
     'extra-small-container-height'      : `32px`,
     'extra-small-icon-size'             : `20px`,
     'extra-small-narrow-leading-space'  : `4px`,
@@ -168,8 +168,8 @@ const shared = {
 } as const
 
 export const OutlinedIconButtonDefinition = createStyleDefinition({
-    ...shared,
-    ...sharedShapes,
+    ...Shared,
+    ...SharedShapes,
 
     // Enabled
     'enabled-outline-color'                    : Color.OutlineVariant,
@@ -220,8 +220,8 @@ export const OutlinedIconButtonDefinition = createStyleDefinition({
 })
 
 export const StandardIconButtonDefinition = createStyleDefinition({
-    ...shared,
-    ...sharedShapes,
+    ...Shared,
+    ...SharedShapes,
 
     // Enabled
     'enabled-icon-color'                  : Color.OnSurfaceVariant,
@@ -257,8 +257,8 @@ export const StandardIconButtonDefinition = createStyleDefinition({
 })
 
 export const FilledIconButtonDefinition = createStyleDefinition({
-    ...shared,
-    ...sharedShapes,
+    ...Shared,
+    ...SharedShapes,
 
     // Enabled
     'enabled-container-color'                  : Color.Primary,
@@ -299,8 +299,8 @@ export const FilledIconButtonDefinition = createStyleDefinition({
 })
 
 export const FilledTonalIconButtonDefinition = createStyleDefinition({
-    ...shared,
-    ...sharedShapes,
+    ...Shared,
+    ...SharedShapes,
 
     // Enabled
     'enabled-container-color'                  : Color.SecondaryContainer,

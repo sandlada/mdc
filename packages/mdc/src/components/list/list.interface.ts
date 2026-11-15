@@ -13,25 +13,24 @@ import type { LitElement } from 'lit'
  * - `link`    — native `<a>` root, navigates to `href`. Forced automatically when
  *               `href` is set, and never disabled.
  */
-export type ListItemType = 'text' | 'button' | 'link'
-
-export const LIST_ITEM_TYPE = {
-    TEXT: 'text',
-    BUTTON: 'button',
-    LINK: 'link',
+export const ListItemType = {
+    Text: 'text',
+    Button: 'button',
+    Link: 'link',
 } as const
+export type ListItemType = (typeof ListItemType)[keyof typeof ListItemType]
 
 /**
  * The element name of list items, used by `mdc-list` to discover slotted children.
  */
-export const LIST_ITEM_SELECTOR = 'mdc-list-item'
+export const ListItemSelector = 'mdc-list-item'
 
 /**
  * Dispatched (bubbles + composed) when a button / link item is activated (clicked or
  * Enter / Space). The list listens and promotes the activating item to the roving
  * tabindex slot.
  */
-export const LIST_ITEM_REQUEST_ACTIVATION_EVENT = 'request-activation'
+export const ListItemRequestActivationEvent = 'request-activation'
 
 export interface IList extends LitElement {
     /** The slotted `mdc-list-item` children, flattened. */

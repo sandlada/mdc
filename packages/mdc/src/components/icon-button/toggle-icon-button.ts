@@ -7,13 +7,13 @@ import { html, isServer, nothing, type PropertyValues, type TemplateResult } fro
 import { customElement, property, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import type { AriaMixinStrict } from '../../utils/aria/aria'
-import { createValidator, getValidityAnchor, mixinConstraintValidation } from '../../utils/behaviors/constraint-validation'
-import { internals } from '../../utils/behaviors/element-internals'
+import { CreateValidator, GetValidityAnchor, mixinConstraintValidation } from '../../utils/behaviors/constraint-validation'
+import { Internals } from '../../utils/behaviors/element-internals'
 import { CheckboxValidator } from '../../utils/behaviors/validators/checkbox-validator'
 import { RadioValidator } from '../../utils/behaviors/validators/radio-validator'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import { SelectionController } from '../../utils/controller/selection-controller'
-import { getFormState, getFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
+import { GetFormState, GetFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
 import { BaseMDCIconButton } from './base-icon-button'
 
 declare global {
@@ -84,7 +84,7 @@ export class MDCToggleIconButton extends composeMixin(
             return
         }
         this.tabIndex = 0
-        this[internals].role = this.type
+        this[Internals].role = this.type
     }
 
     public override connectedCallback(): void {
@@ -110,10 +110,10 @@ export class MDCToggleIconButton extends composeMixin(
                 preventSelectionDuringSwitching: isCheckbox,
                 dispatchNavigationClick: !isCheckbox,
             })
-            this[internals].role = this.type
+            this[Internals].role = this.type
         }
         if (changedProperties.has('checked')) {
-            this[internals].ariaChecked = String(this.checked)
+            this[Internals].ariaChecked = String(this.checked)
         }
     }
 
@@ -206,11 +206,11 @@ export class MDCToggleIconButton extends composeMixin(
         this.hasInactiveIcon = (e.target as HTMLSlotElement).assignedElements().length > 0
     }
 
-    override[getFormValue]() {
+    override[GetFormValue]() {
         return this.checked ? this.value : null
     }
 
-    override[getFormState]() {
+    override[GetFormState]() {
         return String(this.checked)
     }
 
@@ -222,7 +222,7 @@ export class MDCToggleIconButton extends composeMixin(
         this.checked = state === 'true'
     }
 
-    override[createValidator]() {
+    override[CreateValidator]() {
         if(this.type === 'checkbox') {
             return new CheckboxValidator(() => ({
                 checked: this.checked,
@@ -239,7 +239,7 @@ export class MDCToggleIconButton extends composeMixin(
         })
     }
 
-    override[getValidityAnchor]() {
+    override[GetValidityAnchor]() {
         return this.buttonElement
     }
 }

@@ -1,14 +1,14 @@
 import { css, unsafeCSS } from 'lit'
 import { MDCDockedToolbarStyleDefinition, MDCStandardDockedToolbarStyleDefinition, MDCVibrantDockedToolbarStyleDefinition } from '../toolbar.definition'
-import type { FilledIconButtonDefinition } from '../../../definitions'
+import type { FilledIconButtonDefinition } from '../../icon-button/icon-button.definition'
 import { overrideTokens, stringifyTokens } from '../../../utils/style'
 
-const standardBaseVars = stringifyTokens('--mdc-standard-docked-toolbar')(MDCDockedToolbarStyleDefinition)
-const standardVars = stringifyTokens('--mdc-standard-docked-toolbar')(MDCStandardDockedToolbarStyleDefinition)
-const vibrantBaseVars = stringifyTokens('--mdc-vibrant-docked-toolbar')(MDCDockedToolbarStyleDefinition)
-const vibrantVars = stringifyTokens('--mdc-vibrant-docked-toolbar')(MDCVibrantDockedToolbarStyleDefinition)
+const StandardBaseVars = stringifyTokens('--mdc-standard-docked-toolbar')(MDCDockedToolbarStyleDefinition)
+const StandardVars = stringifyTokens('--mdc-standard-docked-toolbar')(MDCStandardDockedToolbarStyleDefinition)
+const VibrantBaseVars = stringifyTokens('--mdc-vibrant-docked-toolbar')(MDCDockedToolbarStyleDefinition)
+const VibrantVars = stringifyTokens('--mdc-vibrant-docked-toolbar')(MDCVibrantDockedToolbarStyleDefinition)
 
-const standardActionStyles = overrideTokens<typeof FilledIconButtonDefinition>('--mdc-icon-button')({
+const StandardActionStyles = overrideTokens<typeof FilledIconButtonDefinition>('--mdc-icon-button')({
     'container-color': MDCStandardDockedToolbarStyleDefinition['enabled-standard-selected-button-container-color'],
     'container-color-toggle-unselected': MDCStandardDockedToolbarStyleDefinition['enabled-standard-button-container-color'],
     'container-color-toggle-selected': MDCStandardDockedToolbarStyleDefinition['enabled-standard-selected-button-container-color'],
@@ -17,7 +17,7 @@ const standardActionStyles = overrideTokens<typeof FilledIconButtonDefinition>('
     'icon-color-toggle-selected': MDCStandardDockedToolbarStyleDefinition['enabled-standard-selected-icon-color'],
 })()
 
-const vibrantActionStyles = overrideTokens<typeof FilledIconButtonDefinition>('--mdc-icon-button')({
+const VibrantActionStyles = overrideTokens<typeof FilledIconButtonDefinition>('--mdc-icon-button')({
     'container-color': MDCVibrantDockedToolbarStyleDefinition['enabled-vibrant-button-container-color'],
     'container-color-toggle-unselected': MDCVibrantDockedToolbarStyleDefinition['enabled-vibrant-button-container-color'],
     'container-color-toggle-selected': MDCVibrantDockedToolbarStyleDefinition['enabled-vibrant-selected-button-container-color'],
@@ -37,15 +37,15 @@ export const MDCDockedToolbarStyles = [
                 display: inline-flex;
             }
             :host:has(.container.standard) {
-                ${standardBaseVars};
-                ${standardVars};
-                ${standardActionStyles};
+                ${StandardBaseVars};
+                ${StandardVars};
+                ${StandardActionStyles};
                 height: var(--_container-height);
             }
             :host:has(.container.vibrant) {
-                ${vibrantBaseVars};
-                ${vibrantVars};
-                ${vibrantActionStyles};
+                ${VibrantBaseVars};
+                ${VibrantVars};
+                ${VibrantActionStyles};
                 height: var(--_container-height);
             }
 

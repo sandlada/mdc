@@ -8,56 +8,47 @@ import type { LitElement } from 'lit'
 /**
  * Anchor position for the floating action button (FAB).
  */
-export type ScaffoldFabPosition =
-    | 'bottom-end'
-    | 'bottom-center'
-    | 'bottom-start'
-    | 'docked-end'
-    | 'docked-center'
-
 export const ScaffoldFabPosition = {
     BottomEnd   : 'bottom-end',
     BottomCenter: 'bottom-center',
     BottomStart : 'bottom-start',
     DockedEnd   : 'docked-end',
     DockedCenter: 'docked-center',
-} as const satisfies Record<string, ScaffoldFabPosition>
+} as const
+export type ScaffoldFabPosition = (typeof ScaffoldFabPosition)[keyof typeof ScaffoldFabPosition]
 
 /**
  * Scroll management mode for the scaffold.
  * - `body`: `<main class="body-area">` is the primary scroll container. App bar & rail are fixed/sticky.
  * - `window`: The whole window / viewport scrolls.
  */
-export type ScaffoldScrollMode = 'body' | 'window'
-
 export const ScaffoldScrollMode = {
     Body  : 'body',
     Window: 'window',
-} as const satisfies Record<string, ScaffoldScrollMode>
+} as const
+export type ScaffoldScrollMode = (typeof ScaffoldScrollMode)[keyof typeof ScaffoldScrollMode]
 
 /**
  * Layout relationship between side rails/drawers and the top app bar.
  * - `full-height`: Rail/Drawer spans from top:0 to bottom:0 (full height), flush with App Bar (MD3 Adaptive default).
  * - `below-appbar`: Top App Bar spans full width across the top, Rail/Drawer is placed below it.
  */
-export type ScaffoldRailLayout = 'full-height' | 'below-appbar'
-
 export const ScaffoldRailLayout = {
     FullHeight : 'full-height',
     BelowAppbar: 'below-appbar',
-} as const satisfies Record<string, ScaffoldRailLayout>
+} as const
+export type ScaffoldRailLayout = (typeof ScaffoldRailLayout)[keyof typeof ScaffoldRailLayout]
 
 /**
  * Responsive layout mode.
  */
-export type ScaffoldLayoutMode = 'auto' | 'compact' | 'medium' | 'expanded'
-
 export const ScaffoldLayoutMode = {
     Auto    : 'auto',
     Compact : 'compact',
     Medium  : 'medium',
     Expanded: 'expanded',
-} as const satisfies Record<string, ScaffoldLayoutMode>
+} as const
+export type ScaffoldLayoutMode = (typeof ScaffoldLayoutMode)[keyof typeof ScaffoldLayoutMode]
 
 /**
  * Scaffold component interface for Material Design 3 adaptive screen layouts.

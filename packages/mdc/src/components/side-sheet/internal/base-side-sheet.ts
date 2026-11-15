@@ -10,7 +10,7 @@ import { styleMap } from 'lit/directives/style-map.js'
 import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
 import { mixinElevationOptions } from '../../elevation/elevation-options.mixin'
-import { sideSheetStyles } from '../side-sheet.style'
+import { SideSheetStyles } from '../side-sheet.style'
 import {
     SideSheetDragController,
     type ISideSheetDragHost,
@@ -27,14 +27,14 @@ import {
     type SideSheetAnimationArgs,
 } from '../side-sheet.animation'
 import {
-    SIDE_SHEET_ACTION_EVENT,
-    SIDE_SHEET_CANCEL_EVENT,
-    SIDE_SHEET_CLOSED_EVENT,
-    SIDE_SHEET_CLOSING_EVENT,
-    SIDE_SHEET_DRAG_END_EVENT,
-    SIDE_SHEET_OPENED_EVENT,
-    SIDE_SHEET_OPENING_EVENT,
-    SIDE_SHEET_RELOCATE_EVENT,
+    SideSheetActionEvent,
+    SideSheetCancelEvent,
+    SideSheetClosedEvent,
+    SideSheetClosingEvent,
+    SideSheetDragEndEvent,
+    SideSheetOpenedEvent,
+    SideSheetOpeningEvent,
+    SideSheetRelocateEvent,
     type ISideSheet,
     type ISideSheetActionEventDetail,
     type ISideSheetCancelEventDetail,
@@ -47,7 +47,7 @@ import {
     type SideSheetVariant,
 } from '../side-sheet.interface'
 
-const SCRIM_OPACITY_PEAK = 0.32
+const ScrimOpacityPeak = 0.32
 
 /**
  * Abstract base for `mdc-side-sheet`. Owns the lifecycle, focus traps,
@@ -72,7 +72,7 @@ export abstract class BaseSideSheet extends composeMixin(
     mixinElevationOptions,
 )(LitElement) implements ISideSheet, ISideSheetDragHost {
 
-    public static override styles = sideSheetStyles
+    public static override styles = SideSheetStyles
 
     @property({ type: String })
     public variant: SideSheetVariant = 'standard'
@@ -209,7 +209,7 @@ export abstract class BaseSideSheet extends composeMixin(
     public constructor() {
         super()
         this.dragController = new SideSheetDragController(this)
-        this.addEventListener(SIDE_SHEET_DRAG_END_EVENT, this.handleDragEnd as EventListener)
+        this.addEventListener(SideSheetDragEndEvent, this.handleDragEnd as EventListener)
     }
 
     // ── ISideSheetDragHost implementation ───────────────────────────────────
@@ -401,7 +401,7 @@ export abstract class BaseSideSheet extends composeMixin(
         await this.playOpenAnimation(container, fromTx)
         if (session !== this.session) return
         this.dispatchEvent(new Event(
-            SIDE_SHEET_OPENED_EVENT,
+            SideSheetOpenedEvent,
             { bubbles: true, composed: true },
         ))
         // Focus the first focusable element after the entrance animation.
@@ -439,7 +439,7 @@ export abstract class BaseSideSheet extends composeMixin(
         if (session !== this.session) return
         if (this.handleMode !== 'peek') this.closeDialog()
         this.dispatchEvent(new CustomEvent<ISideSheetClosedEventDetail>(
-            SIDE_SHEET_CLOSED_EVENT,
+            SideSheetClosedEvent,
             {
                 bubbles: true,
                 composed: true,
@@ -511,7 +511,7 @@ export abstract class BaseSideSheet extends composeMixin(
 
     private dispatchRelocate(position: SideSheetPosition): void {
         this.dispatchEvent(new CustomEvent<ISideSheetRelocateEventDetail>(
-            SIDE_SHEET_RELOCATE_EVENT,
+            SideSheetRelocateEvent,
             { bubbles: true, composed: true, detail: { position } },
         ))
     }
@@ -548,7 +548,7 @@ export abstract class BaseSideSheet extends composeMixin(
         this.endDragSettle(container)
         if (this.handleMode !== 'peek') this.closeDialog()
         this.dispatchEvent(new CustomEvent<ISideSheetClosedEventDetail>(
-            SIDE_SHEET_CLOSED_EVENT, {
+            SideSheetClosedEvent, {
                 bubbles: true,
                 composed: true,
                 detail: {
@@ -563,7 +563,7 @@ export abstract class BaseSideSheet extends composeMixin(
     public async dragSnapBack(fromDx?: number): Promise<void> {
         const scrimCurrent = this.scrimEl
             ? parseFloat(getComputedStyle(this.scrimEl).opacity)
-            : SCRIM_OPACITY_PEAK
+            : ScrimOpacityPeak
         const currentDx = fromDx ?? (this.containerEl
             ? this.readTranslateX(this.containerEl)
             : 0)
@@ -606,7 +606,7 @@ export abstract class BaseSideSheet extends composeMixin(
         await this.animateSideSheet(SideSheetDragRevealOpenAnimation(currentDx))
         this.endDragSettle(container)
         this.dispatchEvent(new Event(
-            SIDE_SHEET_OPENED_EVENT,
+            SideSheetOpenedEvent,
             { bubbles: true, composed: true },
         ))
         requestAnimationFrame(() => {
@@ -740,12 +740,12 @@ export abstract class BaseSideSheet extends composeMixin(
                 this.lastCloseReason = 'programmatic'
                 this.previouslyFocused = this.ownerDocument?.activeElement ?? null
                 this.dispatchEvent(new Event(
-                    SIDE_SHEET_OPENING_EVENT,
+                    SideSheetOpeningEvent,
                     { bubbles: true, composed: true },
                 ))
             } else {
                 this.dispatchEvent(new Event(
-                    SIDE_SHEET_CLOSING_EVENT,
+                    SideSheetClosingEvent,
                     { bubbles: true, composed: true },
                 ))
             }
@@ -812,7 +812,7 @@ export abstract class BaseSideSheet extends composeMixin(
         // A declarative close may have interrupted the entrance.
         if (!this.open) return
         this.dispatchEvent(new Event(
-            SIDE_SHEET_OPENED_EVENT,
+            SideSheetOpenedEvent,
             { bubbles: true, composed: true },
         ))
         requestAnimationFrame(() => {
@@ -992,7 +992,7 @@ export abstract class BaseSideSheet extends composeMixin(
         }
         this.lastCloseReason = 'escape'
         this.dispatchEvent(new CustomEvent<ISideSheetCancelEventDetail>(
-            SIDE_SHEET_CANCEL_EVENT,
+            SideSheetCancelEvent,
             { bubbles: true, composed: true, detail: { reason: 'escape' } },
         ))
         void this.hide()
@@ -1004,7 +1004,7 @@ export abstract class BaseSideSheet extends composeMixin(
         if (path.some((node) => (node as Element).classList?.contains?.('scrim'))) {
             this.lastCloseReason = 'scrim'
             this.dispatchEvent(new CustomEvent<ISideSheetCancelEventDetail>(
-                SIDE_SHEET_CANCEL_EVENT,
+                SideSheetCancelEvent,
                 { bubbles: true, composed: true, detail: { reason: 'scrim' } },
             ))
             void this.hide()
@@ -1019,7 +1019,7 @@ export abstract class BaseSideSheet extends composeMixin(
 
     private handleCloseIconClick(_event: MouseEvent): void {
         this.dispatchEvent(new CustomEvent<ISideSheetActionEventDetail>(
-            SIDE_SHEET_ACTION_EVENT,
+            SideSheetActionEvent,
             { bubbles: true, composed: true, detail: { source: 'close' } },
         ))
         this.lastCloseReason = 'close-button'
@@ -1028,7 +1028,7 @@ export abstract class BaseSideSheet extends composeMixin(
 
     private handleBackIconClick(_event: MouseEvent): void {
         this.dispatchEvent(new CustomEvent<ISideSheetActionEventDetail>(
-            SIDE_SHEET_ACTION_EVENT,
+            SideSheetActionEvent,
             { bubbles: true, composed: true, detail: { source: 'back' } },
         ))
         this.lastCloseReason = 'back-button'

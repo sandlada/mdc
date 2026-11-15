@@ -4,10 +4,10 @@
  * SPDX-License-Identifier: MIT
  */
 import { customElement, property } from 'lit/decorators.js'
-import { internals } from '../../utils/behaviors/element-internals'
+import { Internals } from '../../utils/behaviors/element-internals'
 import { setupFormSubmitter, type FormSubmitter, type FormSubmitterType } from '../../utils/controller/form-submitter'
 import { BaseButton } from './button.base'
-import { buttonStyles } from './button.style'
+import { ButtonStyles } from './button.style'
 
 declare global {
     interface HTMLElementTagNameMap {
@@ -40,7 +40,7 @@ declare global {
 @customElement('mdc-button')
 export class MDCButton extends BaseButton implements FormSubmitter {
 
-    static override styles = buttonStyles
+    static override styles = ButtonStyles
     static readonly formAssociated = true
     static {
         setupFormSubmitter(MDCButton)
@@ -57,7 +57,7 @@ export class MDCButton extends BaseButton implements FormSubmitter {
     }
 
     public get form() {
-        return this[internals].form
+        return this[Internals].form
     }
 
     @property({ type: String })

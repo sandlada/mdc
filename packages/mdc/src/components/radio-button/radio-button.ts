@@ -7,16 +7,16 @@ import { html, isServer, LitElement, type PropertyValues } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import { mixinDelegatesAria } from '../../utils/aria/delegate'
-import { createValidator, getValidityAnchor, mixinConstraintValidation } from '../../utils/behaviors/constraint-validation'
-import { internals, mixinElementInternals } from '../../utils/behaviors/element-internals'
+import { CreateValidator, GetValidityAnchor, mixinConstraintValidation } from '../../utils/behaviors/constraint-validation'
+import { Internals, mixinElementInternals } from '../../utils/behaviors/element-internals'
 import { RadioValidator } from '../../utils/behaviors/validators/radio-validator'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import { SelectionController } from '../../utils/controller/selection-controller'
 import { isActivationClick } from '../../utils/event/form-label-activation'
-import { getFormState, getFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
+import { GetFormState, GetFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
 import { mixinFocusRingOptions } from '../focus-ring/focus-ring-options.mixin'
 import { mixinRippleOptions } from '../ripple/ripple-options.mixin'
-import { radioButtonStyle } from './radio-button.style'
+import { RadioButtonStyle } from './radio-button.style'
 
 declare global {
     interface HTMLElementTagNameMap {
@@ -24,26 +24,26 @@ declare global {
     }
 }
 
-const KEYBOARD_VISUAL_KEYS = new Set(['Tab', ' ', 'Enter', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End'])
-const KEYBOARD_PRESS_KEYS = new Set([' ', 'Enter'])
-const POINTER_MODALITY_EVENTS = ['pointerdown', 'mousedown', 'touchstart'] as const
+const KeyboardVisualKeys = new Set(['Tab', ' ', 'Enter', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End'])
+const KeyboardPressKeys = new Set([' ', 'Enter'])
+const PointerModalityEvents = ['pointerdown', 'mousedown', 'touchstart'] as const
 
-let keyboardInteractionMode = false
-let keyboardModalityTrackingInstalled = false
+let KeyboardInteractionMode = false
+let KeyboardModalityTrackingInstalled = false
 
 function installKeyboardModalityTracking() {
-    if (isServer || keyboardModalityTrackingInstalled) return
+    if (isServer || KeyboardModalityTrackingInstalled) return
 
-    keyboardModalityTrackingInstalled = true
+    KeyboardModalityTrackingInstalled = true
 
     document.addEventListener('keydown', (event) => {
         if (event.altKey || event.ctrlKey || event.metaKey) return
-        keyboardInteractionMode = true
+        KeyboardInteractionMode = true
     }, true)
 
-    for (const eventName of POINTER_MODALITY_EVENTS) {
+    for (const eventName of PointerModalityEvents) {
         document.addEventListener(eventName, () => {
-            keyboardInteractionMode = false
+            KeyboardInteractionMode = false
         }, true)
     }
 }
@@ -76,7 +76,7 @@ export class RadioButton extends composeMixin(
         delegatesFocus: false
     }
 
-    static override styles = radioButtonStyle
+    static override styles = RadioButtonStyle
 
     declare disabled: boolean
     declare name: string
@@ -100,7 +100,7 @@ export class RadioButton extends composeMixin(
         },
         onAfterNavigate: (next) => {
             if (next !== this) return
-            keyboardInteractionMode = true
+            KeyboardInteractionMode = true
             this.queueKeyboardVisualSync(true)
         }
     })
@@ -113,7 +113,7 @@ export class RadioButton extends composeMixin(
         this.addController(this.selectionController)
         if (!isServer) {
             installKeyboardModalityTracking()
-            this[internals].role = 'radio'
+            this[Internals].role = 'radio'
             this.tabIndex = 0
             this.addEventListener('focusin', this.handleFocusIn)
             this.addEventListener('focusout', this.handleFocusOut)
@@ -134,7 +134,7 @@ export class RadioButton extends composeMixin(
 
     protected override updated(_changedProperties: PropertyValues): void {
         super.updated(_changedProperties)
-        this[internals].ariaChecked = String(this.checked)
+        this[Internals].ariaChecked = String(this.checked)
     }
 
     protected getRenderClasses() {
@@ -188,14 +188,14 @@ export class RadioButton extends composeMixin(
     }
 
     private readonly handleVisualKeyDown = (event: KeyboardEvent) => {
-        if (this.disabled || !KEYBOARD_VISUAL_KEYS.has(event.key)) return
+        if (this.disabled || !KeyboardVisualKeys.has(event.key)) return
 
-        keyboardInteractionMode = true
-        this.queueKeyboardVisualSync(KEYBOARD_PRESS_KEYS.has(event.key))
+        KeyboardInteractionMode = true
+        this.queueKeyboardVisualSync(KeyboardPressKeys.has(event.key))
     }
 
     private shouldShowKeyboardVisuals() {
-        return keyboardInteractionMode || this.matches(':focus-visible')
+        return KeyboardInteractionMode || this.matches(':focus-visible')
     }
 
     private queueKeyboardVisualSync(pressRipple: boolean) {
@@ -236,7 +236,7 @@ export class RadioButton extends composeMixin(
         // which fires via the host's composed click listener.
     }
 
-    public override [createValidator]() {
+    public override [CreateValidator]() {
         return new RadioValidator(() => {
             if (!this.selectionController) {
                 return [this] as [RadioButton]
@@ -245,15 +245,15 @@ export class RadioButton extends composeMixin(
         })
     }
 
-    public override [getValidityAnchor]() {
+    public override [GetValidityAnchor]() {
         return this
     }
 
-    public override [getFormValue]() {
+    public override [GetFormValue]() {
         return this.checked ? this.value : null
     }
 
-    public override [getFormState]() {
+    public override [GetFormState]() {
         return String(this.checked)
     }
 

@@ -5,13 +5,13 @@
  */
 import { css, unsafeCSS } from 'lit'
 import { stringifyTokens } from '../../utils/style'
-import { TypographyDefinition, typographyEmphases, typographyRoles, typographySizes } from './typography.definition'
+import { TypographyDefinition, TypographyEmphases, TypographyRoles, TypographySizes } from './typography.definition'
 
-const tokens = stringifyTokens('--mdc-typography')(TypographyDefinition)
+const Tokens = stringifyTokens('--mdc-typography')(TypographyDefinition)
 
-const comboRules = typographyRoles.flatMap((role) =>
-    typographySizes.flatMap((size) =>
-        typographyEmphases.map((emphasis) => {
+const ComboRules = TypographyRoles.flatMap((role) =>
+    TypographySizes.flatMap((size) =>
+        TypographyEmphases.map((emphasis) => {
             const infix = `${role}-${size}-${emphasis}`
             const condition = emphasis === 'emphasized' ? '[emphasized]' : ':not([emphasized])'
             return `:host([variant^="${role}-"][variant$="-${size}"]${condition}) {
@@ -25,13 +25,13 @@ const comboRules = typographyRoles.flatMap((role) =>
     )
 ).join('\n\n')
 
-export const typographyStyles = css`
+export const TypographyStyles = css`
     @layer mdc.typography {
         @layer variable, component, hcm, contrast, motion, transparency;
     }
 
     @layer mdc.typography.variable {
-        :host{${tokens};}
+        :host{${Tokens};}
     }
 
     @layer mdc.typography.component {
@@ -48,7 +48,7 @@ export const typographyStyles = css`
             display: inline-block;
         }
 
-        ${unsafeCSS(comboRules)}
+        ${unsafeCSS(ComboRules)}
     }
 
     @layer mdc.typography {

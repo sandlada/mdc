@@ -9,12 +9,12 @@ import { RippleDefinition } from '../ripple/ripple.definition'
 import { DatePickerDockedDefinition, DatePickerFullscreenDefinition, DatePickerInputDefinition, DatePickerModalDefinition } from './date-picker.definition'
 import { overrideTokens, stringifyTokens } from '../../utils/style'
 
-const modalTokens = stringifyTokens('--mdc-date-picker')(DatePickerModalDefinition)
-const dockedTokens = stringifyTokens('--mdc-date-picker')(DatePickerDockedDefinition)
-const inputTokens = stringifyTokens('--mdc-date-picker')(DatePickerInputDefinition)
-const fullscreenTokens = stringifyTokens('--mdc-date-picker')(DatePickerFullscreenDefinition)
+const ModalTokens = stringifyTokens('--mdc-date-picker')(DatePickerModalDefinition)
+const DockedTokens = stringifyTokens('--mdc-date-picker')(DatePickerDockedDefinition)
+const InputTokens = stringifyTokens('--mdc-date-picker')(DatePickerInputDefinition)
+const FullscreenTokens = stringifyTokens('--mdc-date-picker')(DatePickerFullscreenDefinition)
 
-const elevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
+const ElevationStyles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
     'level': `var(--_enabled-container-elevation)`,
 })()
 
@@ -31,14 +31,14 @@ const rippleBridge = (group: 'day' | 'year' | 'menu-item') => overrideTokens<typ
     'pressed-opacity': `var(--_pressed-${group}-state-layer-opacity)`,
 })()
 
-const dayRippleStyles = rippleBridge('day')
-const yearRippleStyles = rippleBridge('year')
-const menuItemRippleStyles = rippleBridge('menu-item')
+const DayRippleStyles = rippleBridge('day')
+const YearRippleStyles = rippleBridge('year')
+const MenuItemRippleStyles = rippleBridge('menu-item')
 
-const stylePart = css`
+const StylePart = css`
     @layer mdc.date-picker.component {
         .container > mdc-elevation {
-            ${elevationStyles};
+            ${ElevationStyles};
             position: absolute;
             inset: 0;
             border-radius: inherit;
@@ -233,7 +233,7 @@ const stylePart = css`
 
         .menu-item mdc-ripple {
             position: absolute;
-            ${menuItemRippleStyles};
+            ${MenuItemRippleStyles};
         }
 
         .menu-item svg {
@@ -310,7 +310,7 @@ const stylePart = css`
             inset-block: calc((var(--_day-container-size) - var(--_day-node-size)) / 2);
             inset-inline: calc(50% - var(--_day-node-size) / 2);
             position: absolute;
-            ${dayRippleStyles};
+            ${DayRippleStyles};
         }
 
         .day-inner {
@@ -449,7 +449,7 @@ const stylePart = css`
             inset-block: calc((var(--_day-container-size) - var(--_year-container-height)) / 2);
             inset-inline: calc(50% - var(--_year-container-width) / 2);
             position: absolute;
-            ${yearRippleStyles};
+            ${YearRippleStyles};
         }
 
         .year-inner {
@@ -802,9 +802,9 @@ export const DatePickerStyles = [
             @layer variable, component, motion, hcm, contrast, transparency;
         }
     `,
-    css`@layer mdc.date-picker.variable {:host {${modalTokens};}}`,
-    css`@layer mdc.date-picker.variable {:host([variant='docked']) {${dockedTokens};}}`,
-    css`@layer mdc.date-picker.variable {:host([variant='fullscreen']) {${fullscreenTokens};}}`,
-    css`@layer mdc.date-picker.variable {:host([display-mode='input']) {${inputTokens};}}`,
-    stylePart,
+    css`@layer mdc.date-picker.variable {:host {${ModalTokens};}}`,
+    css`@layer mdc.date-picker.variable {:host([variant='docked']) {${DockedTokens};}}`,
+    css`@layer mdc.date-picker.variable {:host([variant='fullscreen']) {${FullscreenTokens};}}`,
+    css`@layer mdc.date-picker.variable {:host([display-mode='input']) {${InputTokens};}}`,
+    StylePart,
 ]

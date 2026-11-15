@@ -30,11 +30,11 @@ import type { ITab, TabVariant } from '../tab.interface'
  * Symbol used by `mdc-tabs` to request a tab to animate its active indicator
  * from the previously selected tab's indicator position.
  */
-export const ANIMATE_INDICATOR = Symbol('animateIndicator')
+export const AnimateIndicator = Symbol('animateIndicator')
 
 /** MD3E Expressive spatial easing used for the indicator morph. */
-const INDICATOR_EASING = 'cubic-bezier(0.38, 1.21, 0.22, 1)'
-const INDICATOR_DURATION = 250
+const IndicatorEasing = 'cubic-bezier(0.38, 1.21, 0.22, 1)'
+const IndicatorDuration = 250
 
 // NOTE: `mixinDelegatesAria` is intentionally NOT used here. The tab host is
 // itself the focusable, interactive element (it carries `role="tab"` and
@@ -197,14 +197,14 @@ export abstract class BaseTab extends composeMixin(
      * indicator bounds to this tab's, via a `translateX` + `scaleX` morph.
      * Falls back to an opacity fade when motion is reduced.
      */
-    public [ANIMATE_INDICATOR](previousTab: BaseTab | null): void {
+    public [AnimateIndicator](previousTab: BaseTab | null): void {
         if (!this.indicatorElement) return
         this.indicatorElement.getAnimations().forEach((a) => a.cancel())
         const frames = this.getKeyframes(previousTab)
         if (frames !== null) {
             this.indicatorElement.animate(frames, {
-                duration: INDICATOR_DURATION,
-                easing  : INDICATOR_EASING,
+                duration: IndicatorDuration,
+                easing  : IndicatorEasing,
             })
         }
     }

@@ -42,7 +42,7 @@ export interface SpringDurationEstimate {
     readonly delta: number
 }
 
-const MAX_LONG_MILLIS = Number.MAX_SAFE_INTEGER
+const MaxLongMillis = Number.MAX_SAFE_INTEGER
 
 /** Validates spring parameters. */
 const assertSpringParameters = ({ stiffness, dampingRatio }: SpringParameters): void => {
@@ -117,7 +117,7 @@ export const estimateAnimationDurationMillis = (estimate: SpringDurationEstimate
     const { stiffness, dampingRatio, initialVelocity, initialDisplacement, delta } = estimate
     if (dampingRatio === 0) {
         // No damping: the spring never settles.
-        return MAX_LONG_MILLIS
+        return MaxLongMillis
     }
 
     // Roots of the characteristic polynomial x² + c·x + k (a folded into the

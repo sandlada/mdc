@@ -6,9 +6,9 @@
 import type { ReactiveController, ReactiveControllerHost } from 'lit'
 import { resolveDockSide } from '../../../utils/docking'
 import {
-    SIDE_SHEET_DRAG_END_EVENT,
-    SIDE_SHEET_DRAG_EVENT,
-    SIDE_SHEET_DRAG_START_EVENT,
+    SideSheetDragEndEvent,
+    SideSheetDragEvent,
+    SideSheetDragStartEvent,
     type ISideSheetDragEndEventDetail,
     type ISideSheetDragEventDetail,
     type ISideSheetDragStartEventDetail,
@@ -19,34 +19,34 @@ import {
 } from '../side-sheet.interface'
 
 /** Distance (CSS px) the pointer must travel from the down point before a drag engages. */
-const ENGAGE_THRESHOLD_PX = 4
+const EngageThresholdPx = 4
 
 /**
  * Snap-decision distance: drag must exceed this fraction of container width to
  * commit close / reveal.
  */
-const DISTANCE_COMMIT_FRACTION = 0.25
+const DistanceCommitFraction = 0.25
 
 /**
  * Snap-decision velocity: release must exceed this px/ms in the commit
  * direction to commit (per Material Design spec).
  */
-const VELOCITY_COMMIT_PX_PER_MS = 0.5
+const VelocityCommitPxPerMs = 0.5
 
 /**
  * Window over which to compute release velocity (ms).
  */
-const VELOCITY_WINDOW_MS = 80
+const VelocityWindowMs = 80
 
 /**
  * Max vertical movement (px) allowed during a drag, expressed as a multiple
  * of the horizontal movement. Beyond this, the drag is canceled (vertical
  * scroll gesture likely).
  */
-const MAX_VERTICAL_RATIO = 2
+const MaxVerticalRatio = 2
 
 /** Resistance factor applied to movement beyond a drag's hard boundary. */
-const RUBBER_BAND_FACTOR = 0.2
+const RubberBandFactor = 0.2
 
 /**
  * Drag gesture mode:
@@ -208,14 +208,14 @@ export class SideSheetDragController implements ReactiveController {
         const deltaY = Math.abs(event.clientY - this.startY)
 
         // Vertical-dominant motion before engagement → cancel drag.
-        if (!this.engaged && deltaY > MAX_VERTICAL_RATIO * Math.max(Math.abs(deltaX), 1)) {
+        if (!this.engaged && deltaY > MaxVerticalRatio * Math.max(Math.abs(deltaX), 1)) {
             this.canceled = true
             this.handlePointerUp(event)
             return
         }
 
         if (!this.engaged) {
-            if (Math.abs(deltaX) < ENGAGE_THRESHOLD_PX) return
+            if (Math.abs(deltaX) < EngageThresholdPx) return
             const container = this.host.containerRef()
             if (!container) return
             try {
@@ -229,7 +229,7 @@ export class SideSheetDragController implements ReactiveController {
             this.host.setAttribute('dragged', '')
             this.host.handleRef()?.style.setProperty('cursor', 'grabbing')
             this.host.dispatchEvent(new CustomEvent<ISideSheetDragStartEventDetail>(
-                SIDE_SHEET_DRAG_START_EVENT,
+                SideSheetDragStartEvent,
                 {
                     bubbles: true,
                     composed: true,
@@ -254,9 +254,9 @@ export class SideSheetDragController implements ReactiveController {
             : this.containerWidth
         const inwardHard = -(viewportWidth - this.containerWidth)
         if (value > outwardHard) {
-            value = outwardHard + (value - outwardHard) * RUBBER_BAND_FACTOR
+            value = outwardHard + (value - outwardHard) * RubberBandFactor
         } else if (value < inwardHard) {
-            value = inwardHard + (value - inwardHard) * RUBBER_BAND_FACTOR
+            value = inwardHard + (value - inwardHard) * RubberBandFactor
         }
 
         this.currentValue = value
@@ -267,9 +267,9 @@ export class SideSheetDragController implements ReactiveController {
         const prevValue = this.lastMoveValue
         this.lastMoveT = now
         this.lastMoveValue = value
-        if (prevT > 0 && now - prevT < VELOCITY_WINDOW_MS) {
+        if (prevT > 0 && now - prevT < VelocityWindowMs) {
             this.releaseVelocity = (value - prevValue) / (now - prevT)
-        } else if (now - prevT >= VELOCITY_WINDOW_MS) {
+        } else if (now - prevT >= VelocityWindowMs) {
             this.releaseVelocity = 0
         }
 
@@ -297,7 +297,7 @@ export class SideSheetDragController implements ReactiveController {
 
         const lastValue = this.currentValue
         const width = this.containerWidth > 0 ? this.containerWidth : 1
-        const commitDistance = Math.max(40, width * DISTANCE_COMMIT_FRACTION)
+        const commitDistance = Math.max(40, width * DistanceCommitFraction)
 
         let target: SideSheetDragTarget = this.mode === 'reveal' ? 'peek' : 'open'
         let reason: 'distance' | 'velocity' | undefined = undefined
@@ -312,21 +312,21 @@ export class SideSheetDragController implements ReactiveController {
 
         if (this.mode === 'reveal' && (
             lastValue < this.baseValue - commitDistance
-            || this.releaseVelocity < -VELOCITY_COMMIT_PX_PER_MS
+            || this.releaseVelocity < -VelocityCommitPxPerMs
         )) {
             // Pulling the sheet out: far enough / fast enough reveals it.
             // The opened sheet re-docks to the side its center ended on.
             target = 'reveal'
-            reason = this.releaseVelocity < -VELOCITY_COMMIT_PX_PER_MS
+            reason = this.releaseVelocity < -VelocityCommitPxPerMs
                 ? 'velocity'
                 : 'distance'
             if (sideByCenter !== this.host.getPosition()) relocateTo = sideByCenter
         } else if (this.mode === 'move' && (
             lastValue > commitDistance
-            || this.releaseVelocity > VELOCITY_COMMIT_PX_PER_MS
+            || this.releaseVelocity > VelocityCommitPxPerMs
         )) {
             target = 'closed'
-            reason = this.releaseVelocity > VELOCITY_COMMIT_PX_PER_MS
+            reason = this.releaseVelocity > VelocityCommitPxPerMs
                 ? 'velocity'
                 : 'distance'
         } else if (sideByCenter !== this.host.getPosition()) {
@@ -352,7 +352,7 @@ export class SideSheetDragController implements ReactiveController {
     ): void {
         const sign = this.host.getPosition() === 'left' ? -1 : 1
         this.host.dispatchEvent(new CustomEvent<ISideSheetDragEndEventDetail>(
-            SIDE_SHEET_DRAG_END_EVENT,
+            SideSheetDragEndEvent,
             {
                 bubbles: true,
                 composed: true,
@@ -380,7 +380,7 @@ export class SideSheetDragController implements ReactiveController {
             progress = Math.min(1, Math.max(0, value / width))
         }
         this.host.dispatchEvent(new CustomEvent<ISideSheetDragEventDetail>(
-            SIDE_SHEET_DRAG_EVENT,
+            SideSheetDragEvent,
             {
                 bubbles: true,
                 composed: true,

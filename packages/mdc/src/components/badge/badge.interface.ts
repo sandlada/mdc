@@ -5,11 +5,11 @@
  */
 import type { LitElement } from 'lit'
 
-export type BadgeSize = 'large' | 'small'
 export const BadgeSize = {
     Large: 'large',
     Small: 'small',
-} as const satisfies Record<string, BadgeSize>
+} as const
+export type BadgeSize = (typeof BadgeSize)[keyof typeof BadgeSize]
 
 export interface IMDCBadgeAttributes {
     size          : BadgeSize

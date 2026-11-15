@@ -19,8 +19,8 @@ import type { AriaMixinStrict } from '../../../utils/aria/aria'
 import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
 import {
-    LIST_ITEM_REQUEST_ACTIVATION_EVENT,
-    LIST_ITEM_SELECTOR,
+    ListItemRequestActivationEvent,
+    ListItemSelector,
     type IList,
     type IListItem,
     type IListItemRequestActivationEventDetail,
@@ -33,7 +33,7 @@ export abstract class BaseList extends composeMixin(
 
     static override styles = ListStyles
 
-    @queryAssignedElements({ selector: LIST_ITEM_SELECTOR, flatten: true })
+    @queryAssignedElements({ selector: ListItemSelector, flatten: true })
     private readonly assignedItems!: IListItem[]
 
     private cachedItems: IListItem[] = []
@@ -48,7 +48,7 @@ export abstract class BaseList extends composeMixin(
             return
         }
         this.addEventListener('keydown', this.handleKeydown)
-        this.addEventListener(LIST_ITEM_REQUEST_ACTIVATION_EVENT, this.handleRequestActivation)
+        this.addEventListener(ListItemRequestActivationEvent, this.handleRequestActivation)
     }
 
     protected override render(): TemplateResult {

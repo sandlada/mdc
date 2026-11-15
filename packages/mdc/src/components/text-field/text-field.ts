@@ -5,7 +5,7 @@
  */
 import { customElement } from 'lit/decorators.js'
 import { BaseTextField } from './internal/base-text-field'
-import { textFieldStyles } from './text-field.style'
+import { TextFieldStyles } from './text-field.style'
 
 declare global {
     interface HTMLElementTagNameMap {
@@ -50,5 +50,5 @@ declare global {
  */
 @customElement('mdc-text-field')
 export class MDCTextField extends BaseTextField {
-    public static override styles = textFieldStyles
+    public static override styles = TextFieldStyles
 }

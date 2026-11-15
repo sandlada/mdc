@@ -9,14 +9,6 @@ import type { SnackbarAnimationMode, SnackbarDuration, SnackbarVariant } from '.
 /**
  * Screen placement for the snackbar host.
  */
-export type SnackbarPlacement =
-    | 'bottom-center'
-    | 'bottom-start'
-    | 'bottom-end'
-    | 'top-center'
-    | 'top-start'
-    | 'top-end'
-
 export const SnackbarPlacement = {
     BottomCenter: 'bottom-center',
     BottomStart : 'bottom-start',
@@ -24,7 +16,8 @@ export const SnackbarPlacement = {
     TopCenter   : 'top-center',
     TopStart    : 'top-start',
     TopEnd      : 'top-end',
-} as const satisfies Record<string, SnackbarPlacement>
+} as const
+export type SnackbarPlacement = (typeof SnackbarPlacement)[keyof typeof SnackbarPlacement]
 
 /**
  * Reason/result when a snackbar closes or is dismissed.
@@ -33,14 +26,13 @@ export const SnackbarPlacement = {
  * - `timeout`: duration expired
  * - `dismiss`: programmatically dismissed or replaced
  */
-export type SnackbarResult = 'action' | 'close' | 'timeout' | 'dismiss'
-
 export const SnackbarResult = {
     Action : 'action',
     Close  : 'close',
     Timeout: 'timeout',
     Dismiss: 'dismiss',
-} as const satisfies Record<string, SnackbarResult>
+} as const
+export type SnackbarResult = (typeof SnackbarResult)[keyof typeof SnackbarResult]
 
 /**
  * Options for showing a snackbar through the host.
@@ -79,7 +71,7 @@ export interface ISnackbarShowEventDetail extends SnackbarShowOptions {
 }
 
 /** Name of the event dispatched to request a snackbar display from any child element. */
-export const MDC_SNACKBAR_SHOW_EVENT = 'mdc-snackbar-show'
+export const MdcSnackbarShowEvent = 'mdc-snackbar-show'
 
 /**
  * Snackbar Host component interface.

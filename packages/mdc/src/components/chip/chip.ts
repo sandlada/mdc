@@ -13,9 +13,9 @@ import { mixinElevationOptions } from '../elevation/elevation-options.mixin'
 import { mixinFocusRingOptions } from '../focus-ring/focus-ring-options.mixin'
 import { mixinRippleOptions } from '../ripple/ripple-options.mixin'
 import {
-    CHIP_CLOSE_EVENT,
-    CHIP_NAVIGATE_EVENT,
-    CHIP_TOGGLE_EVENT,
+    ChipCloseEvent,
+    ChipNavigateEvent,
+    ChipToggleEvent,
     type ChipVariant,
     type IChip,
     type IChipCloseEventDetail,
@@ -374,7 +374,7 @@ export class MDCChip extends composeMixin(
         if (this.variant === 'filter' || this.variant === 'input') {
             this.selected = !this.selected
             this.dispatchEvent(new CustomEvent<IChipToggleEventDetail>(
-                CHIP_TOGGLE_EVENT,
+                ChipToggleEvent,
                 {
                     detail: { selected: this.selected, chip: this },
                     bubbles: true,
@@ -384,7 +384,7 @@ export class MDCChip extends composeMixin(
         } else {
             // Assist/suggestion variants
             this.dispatchEvent(new CustomEvent<IChipNavigateEventDetail>(
-                CHIP_NAVIGATE_EVENT,
+                ChipNavigateEvent,
                 {
                     detail: { chip: this },
                     bubbles: true,
@@ -400,7 +400,7 @@ export class MDCChip extends composeMixin(
             return
         }
         this.dispatchEvent(new CustomEvent<IChipCloseEventDetail>(
-            CHIP_CLOSE_EVENT,
+            ChipCloseEvent,
             {
                 detail: { chip: this },
                 bubbles: true,

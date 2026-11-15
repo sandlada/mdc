@@ -2,10 +2,10 @@ import { css } from 'lit'
 import { stringifyTokens } from '../../utils/style'
 import { NavigationRailSectionHeaderDefinition } from './navigation-rail-section-header.definition'
 
-const tokens = stringifyTokens('--mdc-navigation-rail-section-header')(NavigationRailSectionHeaderDefinition)
+const Tokens = stringifyTokens('--mdc-navigation-rail-section-header')(NavigationRailSectionHeaderDefinition)
 
 export const NavigationRailSectionHeaderStyles = [
-    css`@layer mdc.navigation-rail-section-header.variables{:host{${tokens};}}`,
+    css`@layer mdc.navigation-rail-section-header.variables{:host{${Tokens};}}`,
     css`
         @layer mdc.navigation-rail-section-header.base {
             :host {

@@ -194,6 +194,26 @@ export interface IMDCMenuItem extends LitElement, IMDCMenuItemAttributes {
     click(): void
 }
 
+export interface IMDCMenuGroupAttributes {
+    /** Optional group header label displayed at the top of the group. */
+    label: string | null
+    /** Expressive color-style axis inherited from the parent menu. */
+    variant: MenuColorStyle
+}
+
+/**
+ * Expressive menu-group component contract.
+ *
+ * Material Design 3 Expressive grouped menu container with gap separation.
+ *
+ * @slot - The `mdc-menu-item` / `mdc-menu-submenu` children in this group.
+ * @slot label - Optional custom group header label.
+ *
+ * @link
+ * https://m3.material.io/components/menus/specs
+ */
+export interface IMDCMenuGroup extends LitElement, IMDCMenuGroupAttributes {}
+
 export interface IMDCMenuSubmenuAttributes {
     /** Visible label of the submenu trigger item. */
     label: string

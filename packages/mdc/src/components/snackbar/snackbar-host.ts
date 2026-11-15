@@ -31,7 +31,7 @@ import { html, isServer, LitElement, nothing, type TemplateResult } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import './snackbar'
 import {
-    MDC_SNACKBAR_SHOW_EVENT,
+    MdcSnackbarShowEvent,
     type ISnackbarHost,
     type ISnackbarQueueItem,
     type ISnackbarShowEventDetail,
@@ -80,13 +80,13 @@ export class MDCSnackbarHost extends LitElement implements ISnackbarHost {
     public override connectedCallback(): void {
         super.connectedCallback()
         if (isServer) return
-        window.addEventListener(MDC_SNACKBAR_SHOW_EVENT, this.handleWindowShowEvent as EventListener)
+        window.addEventListener(MdcSnackbarShowEvent, this.handleWindowShowEvent as EventListener)
     }
 
     public override disconnectedCallback(): void {
         super.disconnectedCallback()
         if (isServer) return
-        window.removeEventListener(MDC_SNACKBAR_SHOW_EVENT, this.handleWindowShowEvent as EventListener)
+        window.removeEventListener(MdcSnackbarShowEvent, this.handleWindowShowEvent as EventListener)
         this.clearQueue()
     }
 

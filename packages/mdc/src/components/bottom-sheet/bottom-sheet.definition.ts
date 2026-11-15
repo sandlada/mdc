@@ -27,7 +27,7 @@ import { createStyleDefinition } from '../../utils/style'
  *  - shapes expand to four corner fields
  *  - paddings use the `{padding|margin}-{inline|block}-{start|end}` pattern
  */
-const sharedStructural = {
+const SharedStructural = {
     // Detent heights
     'enabled-container-max-height-peek'              : `40vh`,
     'enabled-container-max-height-full'              : `96vh`,
@@ -79,7 +79,7 @@ const sharedStructural = {
  * background.
  */
 export const StandardBottomSheetDefinition = createStyleDefinition({
-    ...sharedStructural,
+    ...SharedStructural,
     'enabled-container-color'           : Color.Surface,
     'enabled-drag-handle-color'         : Color.OnSurfaceVariant,
 })
@@ -90,7 +90,7 @@ export const StandardBottomSheetDefinition = createStyleDefinition({
  * default.
  */
 export const ModalBottomSheetDefinition = createStyleDefinition({
-    ...sharedStructural,
+    ...SharedStructural,
     'enabled-container-color'           : Color.SurfaceContainerLow,
     'enabled-drag-handle-color'         : Color.OnSurfaceVariant,
 })

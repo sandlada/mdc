@@ -13,7 +13,7 @@ export interface IDirectLabelNode {
     readonly textContent: string | null
 }
 
-const TEXT_NODE_TYPE = 3
+const TextNodeType = 3
 
 /**
  * Reads a label from the direct text children of an element only.
@@ -25,7 +25,7 @@ const TEXT_NODE_TYPE = 3
 export function readDirectLabel(nodes: Iterable<IDirectLabelNode>): string {
     let label = ''
     for (const node of nodes) {
-        if (node.nodeType !== TEXT_NODE_TYPE) continue
+        if (node.nodeType !== TextNodeType) continue
         label += node.textContent ?? ''
     }
     return label.trim()

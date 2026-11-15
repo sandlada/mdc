@@ -18,7 +18,7 @@
 
 import type { Cubic } from './cubic'
 import { FeatureCorner, type Feature } from './feature'
-import { DISTANCE_EPSILON, point, pointDistance, positiveModulo } from './point'
+import { DistanceEpsilon, point, pointDistance, positiveModulo } from './point'
 import type { RoundedPolygon } from './rounded-polygon'
 
 /** A feature together with the outline progress at which it sits. */
@@ -161,7 +161,7 @@ export class MeasuredPolygon {
         let startOutlineProgress = 0
         for (let index = 0; index < cubics.length; index++) {
             // Filter out "empty" cubics.
-            if (outlineProgress[index + 1] - outlineProgress[index] > DISTANCE_EPSILON) {
+            if (outlineProgress[index + 1] - outlineProgress[index] > DistanceEpsilon) {
                 measuredCubics.push(new MeasuredCubic(cubics[index], startOutlineProgress, outlineProgress[index + 1], measurer))
                 // The next measured cubic starts exactly where this one ends.
                 startOutlineProgress = outlineProgress[index + 1]
@@ -199,7 +199,7 @@ export class MeasuredPolygon {
         if (!(cuttingPoint >= 0 && cuttingPoint <= 1)) {
             throw new Error('Cutting point is expected to be between 0 and 1')
         }
-        if (cuttingPoint < DISTANCE_EPSILON) return this
+        if (cuttingPoint < DistanceEpsilon) return this
 
         const targetIndex = this.measuredCubics.findIndex(
             measured => cuttingPoint >= measured.startOutlineProgress && cuttingPoint <= measured.endOutlineProgress,

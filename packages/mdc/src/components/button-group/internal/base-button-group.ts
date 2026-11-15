@@ -11,8 +11,8 @@ import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import { mixinElementInternals } from '../../../utils/behaviors/element-internals'
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
 import {
-    BUTTON_GROUP_INTERACTION_EVENT,
-    BUTTON_GROUP_SELECTION_EVENT,
+    ButtonGroupInteractionEvent,
+    ButtonGroupSelectionEvent,
     type ButtonGroupOrientation,
     type ButtonGroupSelectionMode,
     type ButtonGroupShape,
@@ -21,14 +21,14 @@ import {
     type IButtonGroup,
     type IButtonGroupSelectionEventDetail,
 } from '../button-group.interface'
-import { buttonGroupStyles } from '../button-group.style'
+import { ButtonGroupStyles } from '../button-group.style'
 
 export abstract class BaseButtonGroup extends composeMixin(
     mixinDelegatesAria,
     mixinElementInternals,
 )(LitElement) implements IButtonGroup {
 
-    public static override styles = buttonGroupStyles
+    public static override styles = ButtonGroupStyles
 
     @property({ type: String, reflect: true })
     public variant: ButtonGroupVariant = 'connected'
@@ -385,7 +385,7 @@ export abstract class BaseButtonGroup extends composeMixin(
             this.emitSelectionChange(item, index)
         } else {
             // Action group interaction
-            this.dispatchEvent(new CustomEvent(BUTTON_GROUP_INTERACTION_EVENT, {
+            this.dispatchEvent(new CustomEvent(ButtonGroupInteractionEvent, {
                 detail: { item, index },
                 bubbles: true,
                 composed: true,
@@ -509,7 +509,7 @@ export abstract class BaseButtonGroup extends composeMixin(
         const selectedIndexes = this.getSelectedIndexes()
 
         this.dispatchEvent(new CustomEvent<IButtonGroupSelectionEventDetail>(
-            BUTTON_GROUP_SELECTION_EVENT,
+            ButtonGroupSelectionEvent,
             {
                 detail: {
                     item,

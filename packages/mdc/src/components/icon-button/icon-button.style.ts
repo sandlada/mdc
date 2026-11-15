@@ -10,10 +10,10 @@ import type { RippleDefinition } from '../ripple/ripple.definition'
 import type { FocusRingDefinition } from '../focus-ring/focus-ring.definition'
 import { overrideTokens, stringifyTokens } from '../../utils/style'
 
-const filledString = stringifyTokens('--mdc-icon-button')(FilledIconButtonDefinition)
-const filledTonalString = stringifyTokens('--mdc-icon-button')(FilledTonalIconButtonDefinition)
-const outlinedString = stringifyTokens('--mdc-icon-button')(OutlinedIconButtonDefinition)
-const standardString = stringifyTokens('--mdc-icon-button')(StandardIconButtonDefinition)
+const FilledString = stringifyTokens('--mdc-icon-button')(FilledIconButtonDefinition)
+const FilledTonalString = stringifyTokens('--mdc-icon-button')(FilledTonalIconButtonDefinition)
+const OutlinedString = stringifyTokens('--mdc-icon-button')(OutlinedIconButtonDefinition)
+const StandardString = stringifyTokens('--mdc-icon-button')(StandardIconButtonDefinition)
 
 type TShapeState = 'container-shape-round' | 'container-shape-square' | 'container-shape-round-selected' | 'container-shape-square-selected' | 'container-shape-pressed-morph'
 type TSize = 'extra-small' | 'small' | 'medium' | 'large' | 'extra-large'
@@ -134,7 +134,7 @@ const getContainerSize = () => {
     return css`${getHeightStyle()}${getPaddingStyle()}${getWidth()}`
 }
 
-const containerColor = css`
+const ContainerColor = css`
     .container:is(.filled, .filled-tonal):not(.disabled) .background {
         background: var(--_enabled-container-color);
     }
@@ -170,7 +170,7 @@ const containerColor = css`
         }
     }
 `
-const outlineStyle = css`
+const OutlineStyle = css`
     .outline {
         all: unset;
         border-radius: inherit;
@@ -224,7 +224,7 @@ const outlineStyle = css`
     }
 `
 
-const buttonSharedStyle = css`
+const ButtonSharedStyle = css`
     :host {
         display: inline-flex;
         vertical-align: top;
@@ -307,7 +307,7 @@ const buttonSharedStyle = css`
     }
 `
 
-const iconColorStyle = css`
+const IconColorStyle = css`
     .container:not(.disabled) {
         color: var(--_enabled-icon-color);
     }
@@ -354,7 +354,7 @@ const iconColorStyle = css`
     }
 `
 
-const iconSizeStyle = css`
+const IconSizeStyle = css`
     .container.extra-small ::slotted(*) {
         font-size: var(--_extra-small-icon-size);
         height: var(--_extra-small-icon-size);
@@ -388,7 +388,7 @@ const iconSizeStyle = css`
     .container.extra-large .icon {${overrideTokens<typeof IconDefinition>('--mdc-icon')({ 'enabled-size': 'var(--_extra-large-icon-size)' })()};}
 `
 
-const iconSlotStyle = css`
+const IconSlotStyle = css`
     .icon {
         grid-row: 1/2;
         grid-column: 1/2;
@@ -414,23 +414,23 @@ const iconSlotStyle = css`
     }
 `
 
-const variant = css`
-    :host:has(.container.filled) {${filledString};}
-    :host:has(.container.filled-tonal) {${filledTonalString};}
-    :host:has(.container.outlined) {${outlinedString};}
-    :host:has(.container.standard) {${standardString};}
+const Variant = css`
+    :host:has(.container.filled) {${FilledString};}
+    :host:has(.container.filled-tonal) {${FilledTonalString};}
+    :host:has(.container.outlined) {${OutlinedString};}
+    :host:has(.container.standard) {${StandardString};}
 `
 
-export const iconButtonStyles = [
+export const IconButtonStyles = [
     getContainerShapes(),
     getRippleStyle(),
     getFocusRingStyles(),
     getContainerSize(),
-    containerColor,
-    outlineStyle,
-    buttonSharedStyle,
-    iconColorStyle,
-    iconSizeStyle,
-    iconSlotStyle,
-    variant,
+    ContainerColor,
+    OutlineStyle,
+    ButtonSharedStyle,
+    IconColorStyle,
+    IconSizeStyle,
+    IconSlotStyle,
+    Variant,
 ]

@@ -25,8 +25,8 @@ import { html, isServer, LitElement, nothing, type TemplateResult } from 'lit'
 import { property, query, queryAssignedElements, queryAssignedNodes, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import {
-    SPLIT_BUTTON_LEADING_INTERACTION_EVENT,
-    SPLIT_BUTTON_TRAILING_INTERACTION_EVENT,
+    SplitButtonLeadingInteractionEvent,
+    SplitButtonTrailingInteractionEvent,
     type ISplitButton,
     type SplitButtonSize,
     type SplitButtonVariant,
@@ -373,7 +373,7 @@ export abstract class BaseSplitButton extends LitElement implements ISplitButton
             e.preventDefault()
             return
         }
-        this.dispatchEvent(new Event(SPLIT_BUTTON_LEADING_INTERACTION_EVENT, {
+        this.dispatchEvent(new Event(SplitButtonLeadingInteractionEvent, {
             bubbles: true,
             composed: true,
         }))
@@ -385,7 +385,7 @@ export abstract class BaseSplitButton extends LitElement implements ISplitButton
             e.preventDefault()
             return
         }
-        this.dispatchEvent(new Event(SPLIT_BUTTON_TRAILING_INTERACTION_EVENT, {
+        this.dispatchEvent(new Event(SplitButtonTrailingInteractionEvent, {
             bubbles: true,
             composed: true,
         }))

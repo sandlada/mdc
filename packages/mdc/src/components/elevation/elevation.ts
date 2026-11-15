@@ -8,7 +8,7 @@ import { customElement, property } from 'lit/decorators.js'
 import { ContextConsumer } from '@lit/context'
 import type { IMDCElevation } from './elevation.interface'
 import { GlobalMDCContext, type GlobalMDCContextElevationConfig } from '../../utils/context-provider'
-import { styles } from './elevation.style'
+import { Styles } from './elevation.style'
 
 declare global {
     interface HTMLElementTagNameMap {
@@ -51,7 +51,7 @@ export * from './elevation.interface'
 @customElement('mdc-elevation')
 export class Elevation extends LitElement implements IMDCElevation {
 
-    static override styles = styles
+    static override styles = Styles
 
     private _ignoreGlobalConfig: boolean = false
     private _disabled: boolean = false

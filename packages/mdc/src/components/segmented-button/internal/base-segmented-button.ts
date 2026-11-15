@@ -24,7 +24,7 @@ import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
 import { mixinFocusRingOptions } from '../../focus-ring/focus-ring-options.mixin'
 import { mixinRippleOptions } from '../../ripple/ripple-options.mixin'
-import { SEGMENTED_BUTTON_INTERACTION_EVENT, type ISegmentedButton } from '../segmented-button.interface'
+import { SegmentedButtonInteractionEvent, type ISegmentedButton } from '../segmented-button.interface'
 import { SegmentedButtonStyles } from './segmented-button.style'
 
 export abstract class BaseSegmentedButton extends composeMixin(
@@ -200,7 +200,7 @@ export abstract class BaseSegmentedButton extends composeMixin(
         if (this.disabled) {
             return
         }
-        this.dispatchEvent(new Event(SEGMENTED_BUTTON_INTERACTION_EVENT, {
+        this.dispatchEvent(new Event(SegmentedButtonInteractionEvent, {
             bubbles: true,
             composed: true,
         }))

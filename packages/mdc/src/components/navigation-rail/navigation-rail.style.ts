@@ -9,7 +9,7 @@ import { overrideComponentTokens, stringifyTokens, stringTokens } from '../../ut
 import type { NavigationRailVerticalTabDefinition } from '../navigation-tab/navigation-tab.definition'
 import { NavigationRailDefinition } from './navigation-rail.definition'
 
-const railString = stringifyTokens('--mdc-navigation-rail')(NavigationRailDefinition)
+const RailString = stringifyTokens('--mdc-navigation-rail')(NavigationRailDefinition)
 
 export const NavigationRailTransitionDuration: number = 300
 
@@ -19,10 +19,10 @@ export const NavigationRailTransitionDuration: number = 300
  */
 const NavigationRailFloatingExitDuration: number = 200
 
-const emphasizedDecelerateEasing = unsafeCSS(Easing.EmphasizedDecelerate.ToCSSValue())
-const emphasizedAccelerateEasing = unsafeCSS(Easing.EmphasizedAccelerate.ToCSSValue())
+const EmphasizedDecelerateEasing = unsafeCSS(Easing.EmphasizedDecelerate.ToCSSValue())
+const EmphasizedAccelerateEasing = unsafeCSS(Easing.EmphasizedAccelerate.ToCSSValue())
 
-const overrideTab = {
+const OverrideTab = {
     collapsed: stringTokens(overrideComponentTokens<keyof typeof NavigationRailVerticalTabDefinition>('--mdc-navigation-tab', {
         'enabled-container-width': `var(--_collapsed-container-width)`,
     })),
@@ -45,7 +45,7 @@ const overrideTab = {
  */
 export const NavigationRailStyles = [
     // Token injection
-    css`@layer mdc.navigation-rail.variables {:host {${railString};}}`,
+    css`@layer mdc.navigation-rail.variables {:host {${RailString};}}`,
     // ExpandedFloating Scrim
     css`
         @layer mdc.navigation-rail.component {
@@ -340,7 +340,7 @@ export const NavigationRailStyles = [
         @layer mdc.navigation-rail.component {
             :host:has(dialog.collapsed),
             :host([variant="collapsed"]) {
-                ${overrideTab.collapsed};
+                ${OverrideTab.collapsed};
             }
 
             dialog.collapsed .container {
@@ -411,7 +411,7 @@ export const NavigationRailStyles = [
         @layer mdc.navigation-rail.component {
             :host:has(dialog.expanded-docked),
             :host([variant="expanded-docked"]) {
-                ${overrideTab.expandedDocked};
+                ${OverrideTab.expandedDocked};
             }
 
             dialog.expanded-docked .container {
@@ -467,7 +467,7 @@ export const NavigationRailStyles = [
         @layer mdc.navigation-rail.component {
             :host:has(dialog.expanded-floating),
             :host([variant="expanded-floating"]) {
-                ${overrideTab.expandedFloating};
+                ${OverrideTab.expandedFloating};
             }
 
             dialog.expanded-floating .container {
@@ -505,8 +505,8 @@ export const NavigationRailStyles = [
                     ${NavigationRailFloatingExitDuration}ms;
                 transition-timing-function:
                     cubic-bezier(0.2, 0, 0, 1),
-                    ${emphasizedAccelerateEasing},
-                    ${emphasizedAccelerateEasing};
+                    ${EmphasizedAccelerateEasing},
+                    ${EmphasizedAccelerateEasing};
             }
 
             :host(:dir(rtl)) dialog.expanded-floating .container {
@@ -523,8 +523,8 @@ export const NavigationRailStyles = [
                     ${NavigationRailTransitionDuration}ms;
                 transition-timing-function:
                     cubic-bezier(0.2, 0, 0, 1),
-                    ${emphasizedDecelerateEasing},
-                    ${emphasizedDecelerateEasing};
+                    ${EmphasizedDecelerateEasing},
+                    ${EmphasizedDecelerateEasing};
             }
 
             /*
@@ -588,7 +588,7 @@ export const NavigationRailStyles = [
         @layer mdc.navigation-rail.component {
             :host:has(dialog.xr),
             :host([variant="xr"]) {
-                ${overrideTab.xr};
+                ${OverrideTab.xr};
             }
 
             dialog.xr .container {

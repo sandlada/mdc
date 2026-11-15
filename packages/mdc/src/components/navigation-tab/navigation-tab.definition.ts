@@ -300,14 +300,14 @@ export const NavigationDrawerTabDefinition = createStyleDefinition({
 })
 
 export const NavigationTabVariants = {
-    'bar-vertical': NavigationBarVerticalTabDefinition,
-    'bar-horizontal': NavigationBarHorizontalTabDefinition,
-    'bar-xr-vertical': NavigationBarXRVerticalTabDefinition,
-    'rail-vertical': NavigationRailVerticalTabDefinition,
-    'rail-horizontal': NavigationRailHorizontalTabDefinition,
-    'rail-round': NavigationRailRoundTabDefinition,
-    'rail-xr-vertical': NavigationRailXRVerticalTabDefinition,
-    'rail-xr-round': NavigationRailXRRoundTabDefinition,
-    'drawer': NavigationDrawerTabDefinition,
-    'drawer-horizontal': NavigationDrawerTabDefinition,
+    BarVertical: NavigationBarVerticalTabDefinition,
+    BarHorizontal: NavigationBarHorizontalTabDefinition,
+    BarXRVertical: NavigationBarXRVerticalTabDefinition,
+    RailVertical: NavigationRailVerticalTabDefinition,
+    RailHorizontal: NavigationRailHorizontalTabDefinition,
+    RailRound: NavigationRailRoundTabDefinition,
+    RailXRVertical: NavigationRailXRVerticalTabDefinition,
+    RailXRRound: NavigationRailXRRoundTabDefinition,
+    Drawer: NavigationDrawerTabDefinition,
+    DrawerHorizontal: NavigationDrawerTabDefinition,
 } as const

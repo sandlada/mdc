@@ -8,13 +8,13 @@ import { customElement, property, query } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import type { AriaMixinStrict } from '../../utils/aria/aria'
 import { mixinDelegatesAria } from '../../utils/aria/delegate'
-import { createValidator, getValidityAnchor, mixinConstraintValidation } from '../../utils/behaviors/constraint-validation'
+import { CreateValidator, GetValidityAnchor, mixinConstraintValidation } from '../../utils/behaviors/constraint-validation'
 import { mixinElementInternals } from '../../utils/behaviors/element-internals'
 import { CheckboxValidator } from '../../utils/behaviors/validators/checkbox-validator'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import { dispatchActivationClick, isActivationClick } from '../../utils/event/form-label-activation'
 import { redispatchEvent } from '../../utils/event/redispatch-event'
-import { getFormState, getFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
+import { GetFormState, GetFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
 import { mixinFocusRingOptions } from '../focus-ring/focus-ring-options.mixin'
 import { mixinRippleOptions } from '../ripple/ripple-options.mixin'
 import { CheckboxStyles } from './checkbox.style'
@@ -246,14 +246,14 @@ export class MDCCheckbox extends composeMixin(
 
     // ── form association ─────────────────────────────────────────────────────
 
-    override [getFormValue]() {
+    override [GetFormValue]() {
         if (!this.checked || this.indeterminate) {
             return null
         }
         return this.value
     }
 
-    override [getFormState]() {
+    override [GetFormState]() {
         return String(this.checked)
     }
 
@@ -266,14 +266,14 @@ export class MDCCheckbox extends composeMixin(
         this.checked = state === 'true'
     }
 
-    override [createValidator]() {
+    override [CreateValidator]() {
         return new CheckboxValidator(() => ({
             checked: this.checked,
             required: this.required,
         }))
     }
 
-    override [getValidityAnchor]() {
+    override [GetValidityAnchor]() {
         return this.inputElement
     }
 }

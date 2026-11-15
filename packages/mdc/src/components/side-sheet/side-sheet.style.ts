@@ -12,20 +12,20 @@ import {
 } from './side-sheet.definition'
 import { overrideTokens, stringifyTokens } from '../../utils/style'
 
-const standardTokenString = stringifyTokens('--mdc-side-sheet')(StandardSideSheetDefinition)
+const StandardTokenString = stringifyTokens('--mdc-side-sheet')(StandardSideSheetDefinition)
 
-const modalTokenString = stringifyTokens('--mdc-side-sheet')(ModalSideSheetDefinition)
+const ModalTokenString = stringifyTokens('--mdc-side-sheet')(ModalSideSheetDefinition)
 
-const standardTokens = css`
-    dialog.standard {${standardTokenString};}
+const StandardTokens = css`
+    dialog.standard {${StandardTokenString};}
 `
 
-const modalTokens = css`
-    dialog.modal {${modalTokenString};}
+const ModalTokens = css`
+    dialog.modal {${ModalTokenString};}
 `
 
-const emphasizedEasing = unsafeCSS(Easing.Emphasized.ToCSSValue())
-const emphasizedAccelerateEasing = unsafeCSS(Easing.EmphasizedAccelerate.ToCSSValue())
+const EmphasizedEasing = unsafeCSS(Easing.Emphasized.ToCSSValue())
+const EmphasizedAccelerateEasing = unsafeCSS(Easing.EmphasizedAccelerate.ToCSSValue())
 
 const getElevationStyles = () => {
     const styles = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
@@ -44,7 +44,7 @@ const getElevationStyles = () => {
     `
 }
 
-export const sideSheetBaseStyles = css`
+export const SideSheetBaseStyles = css`
     :host {
         position: fixed;
         inset: 0;
@@ -147,7 +147,7 @@ export const sideSheetBaseStyles = css`
         flex-direction: column;
         transition:
             border-radius 200ms cubic-bezier(0.2, 0, 0, 1),
-            transform 150ms ${emphasizedAccelerateEasing};
+            transform 150ms ${EmphasizedAccelerateEasing};
         pointer-events: auto;
         z-index: 1;
         will-change: transform;
@@ -187,7 +187,7 @@ export const sideSheetBaseStyles = css`
         transform: translateX(0);
         transition:
             border-radius 200ms cubic-bezier(0.2, 0, 0, 1),
-            transform 500ms ${emphasizedEasing};
+            transform 500ms ${EmphasizedEasing};
     }
 
     /* Peek sliver (handle-mode="peek", closed sheet): most of the sheet
@@ -195,7 +195,7 @@ export const sideSheetBaseStyles = css`
     dialog.peek .container {
         transition:
             border-radius 200ms cubic-bezier(0.2, 0, 0, 1),
-            transform 150ms ${emphasizedAccelerateEasing};
+            transform 150ms ${EmphasizedAccelerateEasing};
     }
 
     /* The offset resolves against the container's OWN rendered width (100%),
@@ -212,7 +212,7 @@ export const sideSheetBaseStyles = css`
     dialog.peek.open .container {
         transition:
             border-radius 200ms cubic-bezier(0.2, 0, 0, 1),
-            transform 500ms ${emphasizedEasing};
+            transform 500ms ${EmphasizedEasing};
     }
 
     :host([dragged]) dialog .container,
@@ -486,9 +486,9 @@ export const sideSheetBaseStyles = css`
     }
 `
 
-export const sideSheetStyles = [
-    sideSheetBaseStyles,
-    standardTokens,
-    modalTokens,
+export const SideSheetStyles = [
+    SideSheetBaseStyles,
+    StandardTokens,
+    ModalTokens,
     getElevationStyles(),
 ]
