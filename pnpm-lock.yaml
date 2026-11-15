@@ -175,6 +175,9 @@ importers:
 
   packages/dev-app:
     dependencies:
+      '@fontsource/noto-sans':
+        specifier: ^5.3.0
+        version: 5.3.0
       '@sandlada/breakpoint':
         specifier: ^0.0.1-20260831.a
         version: 0.0.1-20260831.a(rxjs@7.8.2)
@@ -689,6 +692,9 @@ packages:
 
   '@fontsource-variable/google-sans-code@5.3.2':
     resolution: {integrity: sha512-kW4RcfoTTObtUWAhlh6hzs8LCDsBNLwVRPqjUIKMkEiabfR3SRGP0Y6erFKd9k1yaRppTSCLSVkxhPKpEW3QPg==}
+
+  '@fontsource/noto-sans@5.3.0':
+    resolution: {integrity: sha512-fBCog2PY7DiVVTEEqtI/Qdinx/knobHYfoGpjFXdfBX5RoJaBp1Prw2G75p0OIsdlMZg3cLo0c+YbIUYOxnQJw==}
 
   '@img/colour@1.1.0':
     resolution: {integrity: sha512-Td76q7j57o/tLVdgS746cYARfSyxk8iEfRxewL9h4OMzYhbW4TAcppl0mT4eyqXddh6L/jwoM75mo7ixa/pCeQ==}
@@ -2966,6 +2972,8 @@ snapshots:
   '@floating-ui/utils@0.2.12': {}
 
   '@fontsource-variable/google-sans-code@5.3.2': {}
+
+  '@fontsource/noto-sans@5.3.0': {}
 
   '@img/colour@1.1.0': {}
 

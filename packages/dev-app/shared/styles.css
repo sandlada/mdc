@@ -60,6 +60,8 @@
     --md-sys-color-tertiary-fixed-dim: light-dark(#a1ced6, #a1ced6);
     --md-sys-color-on-tertiary-fixed: light-dark(#001f24, #001f24);
     --md-sys-color-on-tertiary-fixed-variant: light-dark(#1f4d54, #1f4d54);
+    --md-ref-typeface-font-brand: 'Noto Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --md-ref-typeface-font-plain: 'Noto Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 
 * {
@@ -72,7 +74,7 @@ html, body {
     height: 100%;
     background: var(--md-sys-color-background);
     color: var(--md-sys-color-on-background);
-    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Noto Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 
 .docs-section {
