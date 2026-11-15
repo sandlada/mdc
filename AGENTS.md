@@ -12,6 +12,13 @@
 - Web Components：一律 `class`（繼承 `LitElement` 或 `Base*`），成員顯式標 `public` / `protected` / `private`，對外只用 HTML 屬性、DOM 事件、Slots，禁框架專屬型別。
 - 非 Web Components（工具、算法、tokens）：純函數 + 高階函數 + 數據後置（Data-Last / Currying），以嵌套調用組合，不另設 `pipe`。
 - Mixins：接收基類並返回擴充類別的高階函數，以 `composeMixin(...)` 組合。
+- 常量命名：模組頂層 `const` 常量（字面量／物件／陣列／`as const`）一律帕斯卡命名（`ButtonVariants`、`CornerKeys`）；禁 `SCREAMING_SNAKE_CASE`（`BUTTON_VARIANTS`）與 `camelCase`（`buttonVariants`）。可呼叫值不算常量——箭頭函式／函式表達式，以及初始化為可呼叫結果者（如 `factory()`），不適用本條常量命名規則（維持既有命名）。類別表達式用帕斯卡類名。函式內局部 `const` 不受此限。模組頂層 `let` 單例同樣用帕斯卡命名。
+- 常量配套型別：型別由常量推導，禁手寫重複的字面量聯合型別；型別名與常量名一致（值／型別兩空間合併宣告）。
+  - 物件常量：`export type X = (typeof X)[keyof typeof X]`
+  - 陣列常量：`export type X = (typeof X)[number]`
+  - 鍵名聯集（僅在確實需要鍵名時）：`export type XKeys = keyof typeof X`
+  - 禁 `as const satisfies Record<string, X>` 與同名型別併用（自引用循環 → TS2456 / TS7022），改用無 `satisfies` 的 `as const`。
+- 常量物件鍵：`as const` 物件常量的元素一律帕斯卡命名（`Standard`、`Text`、`TonalPrimary`）——鍵是 JS 面向的標籤，值是對外 slug。唯一例外為 component definition（`Shared`／`SharedStructural`／`SharedShapes`／`DefaultScheme`／`*Tokens`）：其鍵即 CSS 自訂屬性名，維持 §3 的 token 命名（kebab-case）。
 
 ---
 
