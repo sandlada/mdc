@@ -6,7 +6,7 @@
 
 import type { PaddingObject } from '../expand-padding'
 
-export const PADDING_OBJECT_KEYS = new Set([
+export const PaddingObjectKeys = new Set([
     'all',
     'block',
     'inline',
@@ -32,7 +32,7 @@ export function isPaddingObject(val: unknown): val is PaddingObject<any> {
         return false
     }
     const keys = Object.keys(val)
-    return keys.some(k => PADDING_OBJECT_KEYS.has(k))
+    return keys.some(k => PaddingObjectKeys.has(k))
 }
 
 export function isPrimitiveValue(val: unknown): boolean {

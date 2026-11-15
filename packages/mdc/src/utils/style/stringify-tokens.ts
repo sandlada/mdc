@@ -94,7 +94,7 @@ const isLeafCapableObject = (value: unknown): boolean => {
     return typeof record['ToCSSVariable'] === 'function' || '_$cssResult$' in record || 'cssText' in record
 }
 
-const RESERVED_DEF_KEYS = new Set(['__brand', 'schema', 'tokens', 'flatTokenKeys', 'forwardedBridges'])
+const ReservedDefKeys = new Set(['__brand', 'schema', 'tokens', 'flatTokenKeys', 'forwardedBridges'])
 
 /**
  * Generates private (`--_*`) CSS custom property declarations with public
@@ -132,7 +132,7 @@ export function stringifyTokens(
         const declarations: string[] = []
 
         for (const [key, rawValue] of Object.entries(tokensObj)) {
-            if (rawValue === null || rawValue === undefined || RESERVED_DEF_KEYS.has(key)) {
+            if (rawValue === null || rawValue === undefined || ReservedDefKeys.has(key)) {
                 continue
             }
 

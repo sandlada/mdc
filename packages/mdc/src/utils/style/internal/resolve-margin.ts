@@ -6,7 +6,7 @@
 
 import type { MarginObject } from '../expand-margin'
 
-export const MARGIN_OBJECT_KEYS = new Set([
+export const MarginObjectKeys = new Set([
     'all',
     'block',
     'inline',
@@ -32,7 +32,7 @@ export function isMarginObject(val: unknown): val is MarginObject<any> {
         return false
     }
     const keys = Object.keys(val)
-    return keys.some(k => MARGIN_OBJECT_KEYS.has(k))
+    return keys.some(k => MarginObjectKeys.has(k))
 }
 
 export function isPrimitiveValue(val: unknown): boolean {

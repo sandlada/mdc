@@ -9,7 +9,7 @@ import type { MixinBase, MixinReturn } from '../behaviors/mixin'
 import { AriaProperties, ariaPropertyToAttribute, isARIAAttribute } from './aria'
 
 // Private symbols
-const privateIgnoreAttributeChangesFor = Symbol(
+const PrivateIgnoreAttributeChangesFor = Symbol(
     'privateIgnoreAttributeChangesFor',
 )
 
@@ -71,7 +71,7 @@ export function mixinDelegatesAria<T extends MixinBase<LitElement>>(
     }
 
     abstract class WithDelegatesAriaElement extends base {
-        [privateIgnoreAttributeChangesFor] = new Set();
+        [PrivateIgnoreAttributeChangesFor] = new Set();
 
         override attributeChangedCallback(
             name: string,
@@ -83,7 +83,7 @@ export function mixinDelegatesAria<T extends MixinBase<LitElement>>(
                 return
             }
 
-            if (this[privateIgnoreAttributeChangesFor].has(name)) {
+            if (this[PrivateIgnoreAttributeChangesFor].has(name)) {
                 return
             }
 
@@ -92,9 +92,9 @@ export function mixinDelegatesAria<T extends MixinBase<LitElement>>(
             // attribute to ignore since `attributeChangedCallback` can be called
             // multiple times out of an expected order when hydrating an element with
             // multiple attributes.
-            this[privateIgnoreAttributeChangesFor].add(name)
+            this[PrivateIgnoreAttributeChangesFor].add(name)
             this.removeAttribute(name)
-            this[privateIgnoreAttributeChangesFor].delete(name)
+            this[PrivateIgnoreAttributeChangesFor].delete(name)
             const dataProperty = ariaAttributeToDataProperty(name)
             if (newValue === null) {
                 delete this.dataset[dataProperty]

@@ -21,7 +21,7 @@ import { type MixinBase, type MixinReturn } from './mixin'
  * }
  * ```
  */
-export const internals = Symbol('internals')
+export const Internals = Symbol('internals')
 
 /**
  * An instance with an `internals` symbol property for the component's
@@ -34,11 +34,11 @@ export interface WithElementInternals {
     /**
      * An instance's `ElementInternals`.
      */
-    [internals]: ElementInternals
+    [Internals]: ElementInternals
 }
 
 // Private symbols
-const privateInternals = Symbol('privateInternals')
+const PrivateInternals = Symbol('privateInternals')
 
 /**
  * Mixes in an attached `ElementInternals` instance.
@@ -55,18 +55,18 @@ export function mixinElementInternals<T extends MixinBase<LitElement>>(
     abstract class WithElementInternalsElement
         extends base
         implements WithElementInternals {
-        get [internals]() {
+        get [Internals]() {
             // Create internals in getter so that it can be used in methods called on
             // construction in `ReactiveElement`, such as `requestUpdate()`.
-            if (!this[privateInternals]) {
+            if (!this[PrivateInternals]) {
                 // Cast needed for closure
-                this[privateInternals] = (this as HTMLElement).attachInternals()
+                this[PrivateInternals] = (this as HTMLElement).attachInternals()
             }
 
-            return this[privateInternals]
+            return this[PrivateInternals]
         }
 
-        [privateInternals]?: ElementInternals
+        [PrivateInternals]?: ElementInternals
     }
 
     return WithElementInternalsElement

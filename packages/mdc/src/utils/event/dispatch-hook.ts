@@ -7,13 +7,13 @@
 /**
  * A symbol used to access dispatch hooks on an event.
  */
-const dispatchHooks = Symbol('dispatchHooks');
+const DispatchHooks = Symbol('dispatchHooks');
 
 /**
  * An `Event` with additional symbols for dispatch hooks.
  */
 interface EventWithDispatchHooks extends Event {
-  [dispatchHooks]: EventTarget;
+  [DispatchHooks]: EventTarget;
 }
 
 /**
@@ -72,7 +72,7 @@ interface EventWithDispatchHooks extends Event {
  * @param callback A hook that is called after the event finishes dispatching.
  */
 export function afterDispatch(event: Event, callback: () => void) {
-  const hooks = (event as EventWithDispatchHooks)[dispatchHooks];
+  const hooks = (event as EventWithDispatchHooks)[DispatchHooks];
   if (!hooks) {
     throw new Error(`'${event.type}' event needs setupDispatchHooks().`);
   }
@@ -85,7 +85,7 @@ export function afterDispatch(event: Event, callback: () => void) {
  * set up. Used to ensure we don't set up multiple hook listeners on the same
  * element for the same event.
  */
-const ELEMENT_DISPATCH_HOOK_TYPES = new WeakMap<Element, Set<string>>();
+const ElementDispatchHookTypes = new WeakMap<Element, Set<string>>();
 
 /**
  * Sets up an element to add dispatch hooks to given event types. This must be
@@ -114,10 +114,10 @@ export function setupDispatchHooks(
   element: Element,
   ...eventTypes: [string, ...string[]]
 ) {
-  let typesAlreadySetUp = ELEMENT_DISPATCH_HOOK_TYPES.get(element);
+  let typesAlreadySetUp = ElementDispatchHookTypes.get(element);
   if (!typesAlreadySetUp) {
     typesAlreadySetUp = new Set();
-    ELEMENT_DISPATCH_HOOK_TYPES.set(element, typesAlreadySetUp);
+    ElementDispatchHookTypes.set(element, typesAlreadySetUp);
   }
 
   for (const eventType of eventTypes) {
@@ -149,7 +149,7 @@ export function setupDispatchHooks(
 
         // Add hooks onto the event.
         const hooks = new EventTarget();
-        (eventCopy as EventWithDispatchHooks)[dispatchHooks] = hooks;
+        (eventCopy as EventWithDispatchHooks)[DispatchHooks] = hooks;
 
         // Re-dispatch the event. We can't reuse `redispatchEvent()` since we
         // need to add the hooks to the copy before it's dispatched.

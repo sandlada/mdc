@@ -5,7 +5,7 @@
  */
 import { LitElement, type PropertyDeclaration } from 'lit'
 import { property } from 'lit/decorators.js'
-import { type WithElementInternals, internals } from '../behaviors/element-internals'
+import { type WithElementInternals, Internals } from '../behaviors/element-internals'
 import type { MixinBase, MixinReturn } from '../behaviors/mixin'
 
 /**
@@ -48,7 +48,7 @@ export interface FormAssociated {
      *
      * @return The current form value.
      */
-    [getFormValue](): FormValue | null
+    [GetFormValue](): FormValue | null
 
     /**
      * Gets the current form state of a component. Defaults to the component's
@@ -59,7 +59,7 @@ export interface FormAssociated {
      *
      * @return The current form state, defaults to the form value.
      */
-    [getFormState](): FormValue | null
+    [GetFormState](): FormValue | null
 
     /**
      * A callback for when a form component should be disabled or enabled. This
@@ -114,12 +114,12 @@ export interface FormAssociatedConstructor {
 /**
  * A symbol property to retrieve the form value for an element.
  */
-export const getFormValue = Symbol('getFormValue')
+export const GetFormValue = Symbol('getFormValue')
 
 /**
  * A symbol property to retrieve the form state for an element.
  */
-export const getFormState = Symbol('getFormState')
+export const GetFormState = Symbol('getFormState')
 
 /**
  * Mixes in form-associated behavior for a class. This allows an element to add
@@ -207,11 +207,11 @@ export function mixinFormAssociated<
         static readonly formAssociated = true;
 
         get form() {
-            return this[internals].form
+            return this[Internals].form
         }
 
         get labels() {
-            return this[internals].labels
+            return this[Internals].labels
         }
 
         // Use @property for the `name` and `disabled` properties to add them to the
@@ -276,17 +276,17 @@ export function mixinFormAssociated<
             // Update the form value synchronously in `requestUpdate()` rather than
             // `update()` or `updated()`, which are async. This is necessary to ensure
             // that form data is updated in time for synchronous event listeners.
-            this[internals].setFormValue(this[getFormValue](), this[getFormState]())
+            this[Internals].setFormValue(this[GetFormValue](), this[GetFormState]())
         }
 
-        [getFormValue](): FormValue | null {
+        [GetFormValue](): FormValue | null {
             // Closure does not allow abstract symbol members, so a default
             // implementation is needed.
             throw new Error('Implement [getFormValue]')
         }
 
-        [getFormState](): FormValue | null {
-            return this[getFormValue]()
+        [GetFormState](): FormValue | null {
+            return this[GetFormValue]()
         }
 
         formDisabledCallback(disabled: boolean) {

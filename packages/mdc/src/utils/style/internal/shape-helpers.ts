@@ -7,11 +7,11 @@
 import type { CSSLike } from '../css-like'
 import type { CSSVariableProvider } from '../expand-shape'
 
-export const CORNER_KEYS = ['start-start', 'start-end', 'end-start', 'end-end'] as const
+export const CornerKeys = ['start-start', 'start-end', 'end-start', 'end-end'] as const
 
-export const CORNER_PROP_MAP: Record<
-    typeof CORNER_KEYS[number],
-    readonly ['startStart' | 'startEnd' | 'endStart' | 'endEnd', typeof CORNER_KEYS[number]]
+export const CornerPropMap: Record<
+    typeof CornerKeys[number],
+    readonly ['startStart' | 'startEnd' | 'endStart' | 'endEnd', typeof CornerKeys[number]]
 > = {
     'start-start': ['startStart', 'start-start'],
     'start-end'  : ['startEnd', 'start-end'],

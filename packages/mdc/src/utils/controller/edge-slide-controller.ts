@@ -55,13 +55,13 @@ import { Duration, Easing } from '@sandlada/mdk'
  * - `left`   → slides left (out the left)
  * - `right`  → slides right (out the right)
  */
-export type Placement = 'top' | 'bottom' | 'left' | 'right'
 export const Placement = {
     Top   : 'top',
     Bottom: 'bottom',
     Left  : 'left',
     Right : 'right',
-} as const satisfies Record<string, Placement>
+} as const
+export type Placement = (typeof Placement)[keyof typeof Placement]
 
 /**
  * Host contract required by {@link EdgeSlideController}.
@@ -128,17 +128,17 @@ export interface EdgeSlideOptions {
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 /** Open transition: spatial slide-in. */
-const OPEN_DURATION = Duration.ExpressiveFastSpatial.Value
-const OPEN_EASING = Easing.Emphasized.ToCSSVariable()
+const OpenDuration = Duration.ExpressiveFastSpatial.Value
+const OpenEasing = Easing.Emphasized.ToCSSVariable()
 /** Close transition: fast effects slide-out. */
-const CLOSE_DURATION = Duration.ExpressiveFastEffects.Value
-const CLOSE_EASING = Easing.EmphasizedAccelerate.ToCSSVariable()
+const CloseDuration = Duration.ExpressiveFastEffects.Value
+const CloseEasing = Easing.EmphasizedAccelerate.ToCSSVariable()
 
 /** Minimum scroll |delta| (px) before a direction change is recognized. */
-const SCROLL_THRESHOLD = 4
+const ScrollThreshold = 4
 
 /** Minimum peek size (px) when no explicit value is provided. */
-const DEFAULT_PEEK_SIZE = 24
+const DefaultPeekSize = 24
 
 // ── Controller ───────────────────────────────────────────────────────────────
 
@@ -150,7 +150,7 @@ export class EdgeSlideController implements ReactiveController {
     private _placement: Placement = 'bottom'
     private _autoHide = false
     private _scrollElementId = ''
-    private _peekSize = DEFAULT_PEEK_SIZE
+    private _peekSize = DefaultPeekSize
     private _quick = false
 
     // ── Open state ─────────────────────────────────────────────────────────
@@ -359,8 +359,8 @@ export class EdgeSlideController implements ReactiveController {
         }
 
         await this.animateBar(this.getOpenKeyframes(), {
-            duration: OPEN_DURATION,
-            easing: OPEN_EASING,
+            duration: OpenDuration,
+            easing: OpenEasing,
             fill: 'forwards',
         })
         if (gen !== this.generation) return
@@ -404,8 +404,8 @@ export class EdgeSlideController implements ReactiveController {
         }
 
         await this.animateBar(this.getCloseKeyframes(), {
-            duration: CLOSE_DURATION,
-            easing: CLOSE_EASING,
+            duration: CloseDuration,
+            easing: CloseEasing,
             fill: 'forwards',
         })
         if (gen !== this.generation) return
@@ -789,7 +789,7 @@ export class EdgeSlideController implements ReactiveController {
         }
 
         // Ignore sub-threshold jitter.
-        if (Math.abs(delta) < SCROLL_THRESHOLD) {
+        if (Math.abs(delta) < ScrollThreshold) {
             return
         }
 

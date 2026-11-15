@@ -6,7 +6,7 @@
 
 import { isServer, LitElement, type PropertyDeclaration, type PropertyValues } from 'lit'
 import { type FormAssociated } from '../form/form-associated'
-import { internals, type WithElementInternals } from './element-internals'
+import { Internals, type WithElementInternals } from './element-internals'
 import type { MixinBase, MixinReturn } from './mixin'
 import { Validator } from './validators/validator'
 
@@ -88,32 +88,32 @@ export interface ConstraintValidation extends FormAssociated {
      * must be computed synchronously and frequently in response to constraint
      * validation property changes.
      */
-    [createValidator](): Validator<unknown>
+    [CreateValidator](): Validator<unknown>
 
     /**
      * Returns shadow DOM child that is used as the anchor for the platform
      * `reportValidity()` popup. This is often the root element or the inner
      * focus-delegated element.
      */
-    [getValidityAnchor](): HTMLElement | null
+    [GetValidityAnchor](): HTMLElement | null
 }
 
 /**
  * A symbol property used to create a constraint validation `Validator`.
  * Required for all `mixinConstraintValidation()` elements.
  */
-export const createValidator = Symbol('createValidator')
+export const CreateValidator = Symbol('createValidator')
 
 /**
  * A symbol property used to return an anchor for constraint validation popups.
  * Required for all `mixinConstraintValidation()` elements.
  */
-export const getValidityAnchor = Symbol('getValidityAnchor')
+export const GetValidityAnchor = Symbol('getValidityAnchor')
 
 // Private symbol members, used to avoid name clashing.
-const privateValidator = Symbol('privateValidator')
-const privateSyncValidity = Symbol('privateSyncValidity')
-const privateCustomValidationMessage = Symbol('privateCustomValidationMessage')
+const PrivateValidator = Symbol('privateValidator')
+const PrivateSyncValidity = Symbol('privateSyncValidity')
+const PrivateCustomValidationMessage = Symbol('privateCustomValidationMessage')
 
 /**
  * Mixes in constraint validation APIs for an element.
@@ -154,44 +154,44 @@ export function mixinConstraintValidation<
         extends base
         implements ConstraintValidation {
         get validity() {
-            this[privateSyncValidity]()
-            return this[internals].validity
+            this[PrivateSyncValidity]()
+            return this[Internals].validity
         }
 
         get validationMessage() {
-            this[privateSyncValidity]()
-            return this[internals].validationMessage
+            this[PrivateSyncValidity]()
+            return this[Internals].validationMessage
         }
 
         get willValidate() {
-            this[privateSyncValidity]()
-            return this[internals].willValidate
+            this[PrivateSyncValidity]()
+            return this[Internals].willValidate
         }
 
         /**
          * A validator instance created from `[createValidator]()`.
          */
-        [privateValidator]?: Validator<unknown>
+        [PrivateValidator]?: Validator<unknown>
 
         /**
          * Needed for Safari, see https://bugs.webkit.org/show_bug.cgi?id=261432
          * Replace with this[internals].validity.customError when resolved.
          */
-        [privateCustomValidationMessage] = '';
+        [PrivateCustomValidationMessage] = '';
 
         checkValidity() {
-            this[privateSyncValidity]()
-            return this[internals].checkValidity()
+            this[PrivateSyncValidity]()
+            return this[Internals].checkValidity()
         }
 
         reportValidity() {
-            this[privateSyncValidity]()
-            return this[internals].reportValidity()
+            this[PrivateSyncValidity]()
+            return this[Internals].reportValidity()
         }
 
         setCustomValidity(error: string) {
-            this[privateCustomValidationMessage] = error
-            this[privateSyncValidity]()
+            this[PrivateCustomValidationMessage] = error
+            this[PrivateSyncValidity]()
         }
 
         override requestUpdate(
@@ -200,7 +200,7 @@ export function mixinConstraintValidation<
             options?: PropertyDeclaration,
         ) {
             super.requestUpdate(name, oldValue, options)
-            this[privateSyncValidity]()
+            this[PrivateSyncValidity]()
         }
 
         override firstUpdated(changed: PropertyValues) {
@@ -218,37 +218,37 @@ export function mixinConstraintValidation<
             //
             // See https://lit.dev/playground/#gist=6c26e418e0010f7a5aac15005cde8bde
             // for a reproduction.
-            this[privateSyncValidity]()
+            this[PrivateSyncValidity]()
         }
 
-        [privateSyncValidity]() {
+        [PrivateSyncValidity]() {
             if (isServer) {
                 return
             }
 
-            if (!this[privateValidator]) {
-                this[privateValidator] = this[createValidator]()
+            if (!this[PrivateValidator]) {
+                this[PrivateValidator] = this[CreateValidator]()
             }
 
             const { validity, validationMessage: nonCustomValidationMessage } =
-                this[privateValidator].getValidity()
+                this[PrivateValidator].getValidity()
 
-            const customError = !!this[privateCustomValidationMessage]
+            const customError = !!this[PrivateCustomValidationMessage]
             const validationMessage =
-                this[privateCustomValidationMessage] || nonCustomValidationMessage
+                this[PrivateCustomValidationMessage] || nonCustomValidationMessage
 
-            this[internals].setValidity(
+            this[Internals].setValidity(
                 { ...validity, customError },
                 validationMessage,
-                this[getValidityAnchor]() ?? undefined,
+                this[GetValidityAnchor]() ?? undefined,
             )
         }
 
-        [createValidator](): Validator<unknown> {
+        [CreateValidator](): Validator<unknown> {
             throw new Error('Implement [createValidator]')
         }
 
-        [getValidityAnchor](): HTMLElement | null {
+        [GetValidityAnchor](): HTMLElement | null {
             throw new Error('Implement [getValidityAnchor]')
         }
     }

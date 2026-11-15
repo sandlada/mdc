@@ -6,8 +6,8 @@
 
 import type { CSSLike } from './css-like'
 import {
-    CORNER_KEYS,
-    CORNER_PROP_MAP,
+    CornerKeys,
+    CornerPropMap,
     isPlainObject,
     isCSSVariableProvider,
     isCSSResult,
@@ -209,8 +209,8 @@ export function expandShape<const TPrefix extends string>(prefix: TPrefix) {
                 const result: Record<string, any> = {}
                 let definedCornerCount = 0
 
-                for (const corner of CORNER_KEYS) {
-                    const [camelKey, kebabKey] = CORNER_PROP_MAP[corner]
+                for (const corner of CornerKeys) {
+                    const [camelKey, kebabKey] = CornerPropMap[corner]
                     const val = (shapeValue as any)[kebabKey] !== undefined
                         ? (shapeValue as any)[kebabKey]
                         : (shapeValue as any)[camelKey]

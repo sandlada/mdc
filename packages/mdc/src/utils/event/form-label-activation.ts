@@ -79,7 +79,7 @@ export function isActivationClick(event: Event) {
 // TODO(https://bugzilla.mozilla.org/show_bug.cgi?id=1804576)
 //  Remove when Firefox bug is addressed.
 function squelchEvent(event: Event) {
-  const squelched = isSquelchingEvents;
+  const squelched = IsSquelchingEvents;
   if (squelched) {
     event.preventDefault();
     event.stopImmediatePropagation();
@@ -89,11 +89,11 @@ function squelchEvent(event: Event) {
 }
 
 // Ignore events for one microtask only.
-let isSquelchingEvents = false;
+let IsSquelchingEvents = false;
 async function squelchEventsForMicrotask() {
-  isSquelchingEvents = true;
+  IsSquelchingEvents = true;
   // Need to pause for just one microtask.
   // tslint:disable-next-line
   await null;
-  isSquelchingEvents = false;
+  IsSquelchingEvents = false;
 }

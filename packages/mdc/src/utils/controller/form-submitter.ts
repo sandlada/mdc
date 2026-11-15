@@ -6,7 +6,7 @@
 
 
 import { isServer, ReactiveElement } from 'lit'
-import { type WithElementInternals, internals } from '../behaviors/element-internals'
+import { type WithElementInternals, Internals } from '../behaviors/element-internals'
 
 /**
  * A string indicating the form submission behavior of the element.
@@ -84,7 +84,7 @@ export function setupFormSubmitter(ctor: FormSubmitterConstructor) {
     (ctor as unknown as typeof ReactiveElement).addInitializer((instance) => {
         const submitter = instance as FormSubmitter
         submitter.addEventListener('click', async (event) => {
-            const { type, [internals]: elementInternals } = submitter
+            const { type, [Internals]: elementInternals } = submitter
             const { form } = elementInternals
             if (!form || type === 'button') {
                 return
