@@ -1,0 +1,32 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">Default — open/close plays the scale + fade motion:</span>
+    <mdc-menu open label="Animated menu">
+        <button slot="trigger">Open menu</button>
+        <mdc-menu-item type="button">Cut</mdc-menu-item>
+        <mdc-menu-item type="button">Copy</mdc-menu-item>
+    </mdc-menu>
+</div>
+
+<div class="demo-column">
+    <span class="demo-caption">quick — skips opening and closing animations:</span>
+    <mdc-menu open quick label="Quick menu">
+        <button slot="trigger">Open menu</button>
+        <mdc-menu-item type="button">Cut</mdc-menu-item>
+        <mdc-menu-item type="button">Copy</mdc-menu-item>
+    </mdc-menu>
+</div>

@@ -1,0 +1,24 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">radio — renders with the `menuitemradio` role, one selection per group:</span>
+    <mdc-menu open label="Radio items">
+        <button slot="trigger">Open menu</button>
+        <mdc-menu-item type="button" radio value="small">Small</mdc-menu-item>
+        <mdc-menu-item type="button" radio value="medium">Medium</mdc-menu-item>
+        <mdc-menu-item type="button" radio value="large">Large</mdc-menu-item>
+    </mdc-menu>
+</div>

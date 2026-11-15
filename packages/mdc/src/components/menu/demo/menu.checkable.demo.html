@@ -1,0 +1,24 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">checkable — renders with the `menuitemcheckbox` role:</span>
+    <mdc-menu open label="Checkable items">
+        <button slot="trigger">Open menu</button>
+        <mdc-menu-item type="button" checkable value="wifi">Wi-Fi</mdc-menu-item>
+        <mdc-menu-item type="button" checkable value="bluetooth">Bluetooth</mdc-menu-item>
+        <mdc-menu-item type="button" checkable value="airplane">Airplane mode</mdc-menu-item>
+    </mdc-menu>
+</div>

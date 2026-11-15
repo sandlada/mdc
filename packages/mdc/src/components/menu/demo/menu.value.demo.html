@@ -1,0 +1,24 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">value — selection value reported with activation:</span>
+    <mdc-menu open label="Valued items">
+        <button slot="trigger">Open menu</button>
+        <mdc-menu-item type="button" value="copy">Copy</mdc-menu-item>
+        <mdc-menu-item type="button" value="cut">Cut</mdc-menu-item>
+        <mdc-menu-item type="button" value="paste">Paste</mdc-menu-item>
+    </mdc-menu>
+</div>

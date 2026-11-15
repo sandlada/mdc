@@ -1,0 +1,26 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">close-delay — hover-intent delay in ms before the submenu closes (default 220):</span>
+    <mdc-menu open label="Submenu close delay">
+        <button slot="trigger">Open menu</button>
+        <mdc-menu-item type="button">New file</mdc-menu-item>
+        <mdc-menu-submenu label="Share" placement="right-start" close-delay="500">
+            <mdc-menu-item type="button">Email</mdc-menu-item>
+            <mdc-menu-item type="button">Copy link</mdc-menu-item>
+        </mdc-menu-submenu>
+    </mdc-menu>
+</div>

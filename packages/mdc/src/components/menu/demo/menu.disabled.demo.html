@@ -1,0 +1,39 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">disabled — skipped by roving navigation, dimmed, no interaction:</span>
+    <mdc-menu open label="Disabled items">
+        <button slot="trigger">Open menu</button>
+        <mdc-menu-item type="button">Cut</mdc-menu-item>
+        <mdc-menu-item type="button" disabled>Paste (unavailable)</mdc-menu-item>
+        <mdc-menu-item type="button">Copy</mdc-menu-item>
+    </mdc-menu>
+</div>
+
+<div class="demo-column">
+    <span class="demo-caption">Disabled item with leading icon:</span>
+    <mdc-menu open label="Disabled with icon">
+        <button slot="trigger">Open menu</button>
+        <mdc-menu-item type="button">
+            <mdc-icon slot="leading">cloud</mdc-icon>
+            <span>Cloud sync</span>
+        </mdc-menu-item>
+        <mdc-menu-item type="button" disabled>
+            <mdc-icon slot="leading">wifi_off</mdc-icon>
+            <span>Offline</span>
+        </mdc-menu-item>
+    </mdc-menu>
+</div>

@@ -1,0 +1,41 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">placement="bottom-start" — surface below the anchor, aligned to the start edge:</span>
+    <mdc-menu open placement="bottom-start" label="Bottom-start menu">
+        <button slot="trigger">Open menu</button>
+        <mdc-menu-item type="button">Cut</mdc-menu-item>
+        <mdc-menu-item type="button">Copy</mdc-menu-item>
+    </mdc-menu>
+</div>
+
+<div class="demo-column">
+    <span class="demo-caption">placement="top" — surface above the anchor, centered:</span>
+    <mdc-menu open placement="top" label="Top menu">
+        <button slot="trigger">Open menu</button>
+        <mdc-menu-item type="button">Cut</mdc-menu-item>
+        <mdc-menu-item type="button">Copy</mdc-menu-item>
+    </mdc-menu>
+</div>
+
+<div class="demo-column">
+    <span class="demo-caption">placement="right-start" — surface to the side, flipped/shifted on overflow:</span>
+    <mdc-menu open placement="right-start" label="Right-start menu">
+        <button slot="trigger">Open menu</button>
+        <mdc-menu-item type="button">Cut</mdc-menu-item>
+        <mdc-menu-item type="button">Copy</mdc-menu-item>
+    </mdc-menu>
+</div>

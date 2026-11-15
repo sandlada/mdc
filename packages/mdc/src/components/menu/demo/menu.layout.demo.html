@@ -1,0 +1,38 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">layout="standard" — single flat item list (default):</span>
+    <mdc-menu layout="standard" open label="Standard layout">
+        <button slot="trigger">Open menu</button>
+        <mdc-menu-item type="button">Cut</mdc-menu-item>
+        <mdc-menu-item type="button">Copy</mdc-menu-item>
+        <mdc-menu-item type="button">Paste</mdc-menu-item>
+    </mdc-menu>
+</div>
+
+<div class="demo-column">
+    <span class="demo-caption">layout="grouped" — single surface with section-label + divider slots (no gap surfaces on web):</span>
+    <mdc-menu layout="grouped" open label="Grouped layout">
+        <button slot="trigger">Open grouped</button>
+        <span slot="section-label">Recent</span>
+        <mdc-menu-item type="button">Report.docx</mdc-menu-item>
+        <mdc-menu-item type="button">Notes.txt</mdc-menu-item>
+        <mdc-divider></mdc-divider>
+        <span slot="section-label">Shared</span>
+        <mdc-menu-item type="button">Budget.xlsx</mdc-menu-item>
+        <mdc-menu-item type="button">Deck.pptx</mdc-menu-item>
+    </mdc-menu>
+</div>

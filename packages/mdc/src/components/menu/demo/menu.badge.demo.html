@@ -1,0 +1,33 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">badge — badge text displayed in the trailing slot:</span>
+    <mdc-menu open label="Badged items">
+        <button slot="trigger">Open menu</button>
+        <mdc-menu-item type="button" badge="3">
+            <mdc-icon slot="leading">inbox</mdc-icon>
+            <span>Inbox</span>
+        </mdc-menu-item>
+        <mdc-menu-item type="button" badge="12">
+            <mdc-icon slot="leading">mail</mdc-icon>
+            <span>Unread</span>
+        </mdc-menu-item>
+        <mdc-menu-item type="button">
+            <mdc-icon slot="leading">drafts</mdc-icon>
+            <span>Drafts (no badge)</span>
+        </mdc-menu-item>
+    </mdc-menu>
+</div>
