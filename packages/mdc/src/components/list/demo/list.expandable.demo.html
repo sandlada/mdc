@@ -1,0 +1,86 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-surface {
+        padding: 16px;
+        border-radius: 16px;
+        background-color: var(--md-sys-color-surface-container, #f3edf7);
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">Expandable segmented list — click to expand/collapse children with shape morphing and chevron pill indicator:</span>
+    <div class="demo-surface">
+        <mdc-list variant="segmented" selection-mode="single" aria-label="Expandable list">
+            <mdc-list-item type="button" expandable>
+                <mdc-icon slot="start">stars</mdc-icon>
+                <span>List item</span>
+                <mdc-list-item slot="children" type="button">
+                    <mdc-icon slot="start">stars</mdc-icon>
+                    <span>List item</span>
+                </mdc-list-item>
+                <mdc-list-item slot="children" type="button" selected>
+                    <mdc-icon slot="start">stars</mdc-icon>
+                    <span>List item</span>
+                </mdc-list-item>
+                <mdc-list-item slot="children" type="button">
+                    <mdc-icon slot="start">stars</mdc-icon>
+                    <span>List item</span>
+                </mdc-list-item>
+                <mdc-list-item slot="children" type="button">
+                    <mdc-icon slot="start">stars</mdc-icon>
+                    <span>List item</span>
+                </mdc-list-item>
+                <mdc-list-item slot="children" type="button">
+                    <mdc-icon slot="start">stars</mdc-icon>
+                    <span>List item</span>
+                </mdc-list-item>
+            </mdc-list-item>
+        </mdc-list>
+    </div>
+</div>
+
+<div class="demo-column">
+    <span class="demo-caption">Expandable items alongside sibling items in one segmented list:</span>
+    <div class="demo-surface">
+        <mdc-list variant="segmented" selection-mode="multiple" aria-label="Expandable settings group">
+            <mdc-list-item type="button" expandable expanded>
+                <mdc-icon slot="start">notifications</mdc-icon>
+                <span>Notifications</span>
+                <span slot="supporting-text">App alerts and sounds</span>
+                <mdc-list-item slot="children" type="button" selected>
+                    <span>Push notifications</span>
+                </mdc-list-item>
+                <mdc-list-item slot="children" type="button">
+                    <span>Email summary</span>
+                </mdc-list-item>
+            </mdc-list-item>
+            <mdc-list-item type="button" expandable>
+                <mdc-icon slot="start">lock</mdc-icon>
+                <span>Privacy</span>
+                <span slot="supporting-text">Permissions and data sharing</span>
+                <mdc-list-item slot="children" type="button">
+                    <span>Location access</span>
+                </mdc-list-item>
+                <mdc-list-item slot="children" type="button">
+                    <span>Diagnostics</span>
+                </mdc-list-item>
+            </mdc-list-item>
+            <mdc-list-item type="button">
+                <mdc-icon slot="start">help</mdc-icon>
+                <span>Help &amp; feedback</span>
+            </mdc-list-item>
+        </mdc-list>
+    </div>
+</div>

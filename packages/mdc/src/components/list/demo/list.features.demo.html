@@ -14,8 +14,14 @@
 </style>
 
 <div class="demo-column">
-    <span class="demo-caption">One-line (56dp) — icon in the `start` slot, trailing `end` slot:</span>
+    <span class="demo-caption">One-line (56dp) — avatar / icon in `start`, `trailing-supporting-text` + `end` slot:</span>
     <mdc-list aria-label="One-line with slots">
+        <mdc-list-item type="button">
+            <span slot="start" data-avatar>A</span>
+            <span>Alice Johnson</span>
+            <span slot="trailing-supporting-text">2m ago</span>
+            <mdc-icon slot="end">more_vert</mdc-icon>
+        </mdc-list-item>
         <mdc-list-item type="button">
             <mdc-icon slot="start">folder</mdc-icon>
             <span>One-line with leading icon</span>
@@ -28,32 +34,35 @@
 </div>
 
 <div class="demo-column">
-    <span class="demo-caption">Two-line (72dp) — `supporting-text` slot:</span>
+    <span class="demo-caption">Two-line (72dp) — `supporting-text` + `trailing-supporting-text` slots:</span>
     <mdc-list aria-label="Two-line">
         <mdc-list-item type="button">
             <mdc-icon slot="start">mail</mdc-icon>
             <span>Brunch this weekend?</span>
             <span slot="supporting-text">Ali Connors · I'll be in your neighborhood doing errands this weekend</span>
+            <span slot="trailing-supporting-text">10:30 AM</span>
         </mdc-list-item>
         <mdc-list-item type="button">
             <span>Summer BBQ</span>
             <span slot="supporting-text">to Alex, Scott, Jennifer · Wish I could come, but I'm out of town this weekend</span>
+            <span slot="trailing-supporting-text">Yesterday</span>
         </mdc-list-item>
     </mdc-list>
 </div>
 
 <div class="demo-column">
-    <span class="demo-caption">Three-line (88dp) — `overline` + `supporting-text` slots:</span>
+    <span class="demo-caption">Three-line (88dp) — `overline` + `supporting-text` slots (top-aligned):</span>
     <mdc-list aria-label="Three-line">
         <mdc-list-item type="button">
             <span slot="overline">RECOMMENDED</span>
             <span>Flutter — ListTile</span>
             <span slot="supporting-text">A single fixed-height row that typically contains some text as well as a leading or trailing icon.</span>
+            <span slot="trailing-supporting-text">100+</span>
         </mdc-list-item>
         <mdc-list-item type="button">
             <span slot="overline">JETPACK COMPOSE</span>
-            <span>ListItem</span>
-            <span slot="supporting-text">A composable that follows the Material 3 list-item specification.</span>
+            <span>SegmentedListItem</span>
+            <span slot="supporting-text">A composable that follows the Material 3 Expressive list-item specification.</span>
         </mdc-list-item>
     </mdc-list>
 </div>

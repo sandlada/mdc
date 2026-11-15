@@ -1,0 +1,66 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-surface {
+        padding: 16px;
+        border-radius: 16px;
+        background-color: var(--md-sys-color-surface-container, #f3edf7);
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">selection-mode="single" (with selection-required) — selected item morphs to 16dp secondary-container:</span>
+    <div class="demo-surface">
+        <mdc-list variant="segmented" selection-mode="single" selection-required aria-label="Theme selection">
+            <mdc-list-item type="button" selected>
+                <mdc-icon slot="start">light_mode</mdc-icon>
+                <span>Light</span>
+                <span slot="supporting-text">Always use light appearance</span>
+            </mdc-list-item>
+            <mdc-list-item type="button">
+                <mdc-icon slot="start">dark_mode</mdc-icon>
+                <span>Dark</span>
+                <span slot="supporting-text">Always use dark appearance</span>
+            </mdc-list-item>
+            <mdc-list-item type="button">
+                <mdc-icon slot="start">contrast</mdc-icon>
+                <span>System default</span>
+                <span slot="supporting-text">Match device theme</span>
+            </mdc-list-item>
+        </mdc-list>
+    </div>
+</div>
+
+<div class="demo-column">
+    <span class="demo-caption">selection-mode="multiple" — toggle multiple items independently:</span>
+    <div class="demo-surface">
+        <mdc-list variant="segmented" selection-mode="multiple" aria-label="Filter options">
+            <mdc-list-item type="button" selected>
+                <mdc-icon slot="start">photo</mdc-icon>
+                <span>Photos</span>
+                <span slot="trailing-supporting-text">128</span>
+            </mdc-list-item>
+            <mdc-list-item type="button">
+                <mdc-icon slot="start">videocam</mdc-icon>
+                <span>Videos</span>
+                <span slot="trailing-supporting-text">14</span>
+            </mdc-list-item>
+            <mdc-list-item type="button" selected>
+                <mdc-icon slot="start">description</mdc-icon>
+                <span>Documents</span>
+                <span slot="trailing-supporting-text">42</span>
+            </mdc-list-item>
+        </mdc-list>
+    </div>
+</div>

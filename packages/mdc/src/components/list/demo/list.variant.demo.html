@@ -1,0 +1,89 @@
+<style>
+    .demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .demo-surface {
+        padding: 16px;
+        border-radius: 16px;
+        background-color: var(--md-sys-color-surface-container, #f3edf7);
+    }
+
+    .demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="demo-column">
+    <span class="demo-caption">standard — continuous vertical rows without inter-item gap:</span>
+    <mdc-list variant="standard" aria-label="Standard list">
+        <mdc-list-item type="button">
+            <mdc-icon slot="start">inbox</mdc-icon>
+            <span>Inbox</span>
+            <span slot="trailing-supporting-text">24</span>
+        </mdc-list-item>
+        <mdc-list-item type="button">
+            <mdc-icon slot="start">send</mdc-icon>
+            <span>Sent</span>
+        </mdc-list-item>
+        <mdc-list-item type="button">
+            <mdc-icon slot="start">drafts</mdc-icon>
+            <span>Drafts</span>
+            <span slot="trailing-supporting-text">3</span>
+        </mdc-list-item>
+    </mdc-list>
+</div>
+
+<div class="demo-column">
+    <span class="demo-caption">segmented — MD3 Expressive 2dp gap with 16dp outer / 4dp inner corners and state morphing:</span>
+    <div class="demo-surface">
+        <mdc-list variant="segmented" aria-label="Segmented settings">
+            <mdc-list-item type="button">
+                <mdc-icon slot="start">wifi</mdc-icon>
+                <span>Network &amp; internet</span>
+                <span slot="supporting-text">Mobile, Wi-Fi, hotspot</span>
+                <mdc-icon slot="end">chevron_right</mdc-icon>
+            </mdc-list-item>
+            <mdc-list-item type="button">
+                <mdc-icon slot="start">bluetooth</mdc-icon>
+                <span>Connected devices</span>
+                <span slot="supporting-text">Bluetooth, pairing</span>
+                <mdc-icon slot="end">chevron_right</mdc-icon>
+            </mdc-list-item>
+            <mdc-list-item type="button">
+                <mdc-icon slot="start">apps</mdc-icon>
+                <span>Apps</span>
+                <span slot="supporting-text">Assistant, recent apps, default apps</span>
+                <mdc-icon slot="end">chevron_right</mdc-icon>
+            </mdc-list-item>
+        </mdc-list>
+    </div>
+</div>
+
+<div class="demo-column">
+    <span class="demo-caption">segmented with divider — contiguous runs compute independent first/last/single corners:</span>
+    <div class="demo-surface">
+        <mdc-list variant="segmented" aria-label="Grouped segmented list">
+            <mdc-list-item type="button">
+                <mdc-icon slot="start">notifications</mdc-icon>
+                <span>Notifications</span>
+                <span slot="trailing-supporting-text">On</span>
+            </mdc-list-item>
+            <mdc-list-item type="button">
+                <mdc-icon slot="start">volume_up</mdc-icon>
+                <span>Sound &amp; vibration</span>
+            </mdc-list-item>
+            <mdc-divider style="margin-block: 6px;"></mdc-divider>
+            <mdc-list-item type="button">
+                <mdc-icon slot="start">info</mdc-icon>
+                <span>About device</span>
+                <span slot="trailing-supporting-text">v2.0</span>
+            </mdc-list-item>
+        </mdc-list>
+    </div>
+</div>
