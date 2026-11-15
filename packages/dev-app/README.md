@@ -23,7 +23,7 @@ packages/dev-app/
 │   └── {component-name}/index.html   # one page per enabled component
 ├── shared/
 │   ├── contexts/                 # one *-context module per context + index.ts barrel
-│   │   ├── title-context.ts      # docsPageTitleContext (current page title)
+│   │   ├── title-context.ts      # DocsPageTitleContext (current page title)
 │   │   └── index.ts
 │   ├── docs-shell.ts             # <mdc-docs-shell> page chrome (Lit)
 │   ├── docs-sidebar.ts           # <mdc-docs-sidebar> dialog nav (Lit)
@@ -47,7 +47,7 @@ Demo snippets live next to the component in `packages/mdc/src/components/{name}/
 ## Sidebar sections
 
 The sidebar (`shared/docs-sidebar.ts`, grouped in `shared/docs-manifest.ts`) has
-two sections in order: **Base Components** (`BASE_COMPONENT_ORDER`: divider,
+two sections in order: **Base Components** (`BaseComponentOrder`: divider,
 elevation, focus-ring, ripple, badge, icon, typography), and **Components**
 (everything else).
 
@@ -65,7 +65,7 @@ compact range auto-closes the sidebar.
 
 Cross-cutting page state lives in `shared/contexts/` — one module per context
 (`*-context.ts`, re-exported via `index.ts`; add future contexts the same way).
-`<mdc-docs-page>` publishes its `title` through `docsPageTitleContext`, and
+`<mdc-docs-page>` publishes its `title` through `DocsPageTitleContext`, and
 `<mdc-docs-shell>` consumes it to render the current page title in the header.
 
 ## Dynamic detection (no server restart needed)

@@ -7,22 +7,22 @@
 import { LitElement, css, html, nothing } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
 import { Easing } from '@sandlada/mdk'
-import { baseComponents, regularComponents, type ComponentEntry } from './docs-manifest.js'
+import { BaseComponents, RegularComponents, type ComponentEntry } from './docs-manifest.js'
 
 /**
  * Cancelable event fired when the sidebar requests to close
  * (scrim click or Escape while modal). The host should set `open = false`
  * unless the close is prevented.
  */
-export const DOCS_SIDEBAR_CLOSE_EVENT = 'docs-sidebar-close'
+export const DocsSidebarCloseEvent = 'docs-sidebar-close'
 
 export interface DocsSidebarCloseDetail {
     reason: 'scrim' | 'escape'
 }
 
-const PANEL_OPEN_MS = 400
-const PANEL_CLOSE_MS = 200
-const SCRIM_PEAK_OPACITY = 0.32
+const PanelOpenMs = 400
+const PanelCloseMs = 200
+const ScrimPeakOpacity = 0.32
 
 /**
  * `<mdc-docs-sidebar>` is the docs site navigation rendered as a dialog.
@@ -210,11 +210,11 @@ export class DocsSidebar extends LitElement {
                     <nav>
                         <section aria-label="Base Components">
                             <h3>Base Components</h3>
-                            ${this.renderLinks(baseComponents)}
+                            ${this.renderLinks(BaseComponents)}
                         </section>
                         <section aria-label="Components">
                             <h3>Components</h3>
-                            ${this.renderLinks(regularComponents)}
+                            ${this.renderLinks(RegularComponents)}
                         </section>
                     </nav>
                 </div>
@@ -304,7 +304,7 @@ export class DocsSidebar extends LitElement {
             return
         }
         const prevented = !this.dispatchEvent(
-            new CustomEvent<DocsSidebarCloseDetail>(DOCS_SIDEBAR_CLOSE_EVENT, {
+            new CustomEvent<DocsSidebarCloseDetail>(DocsSidebarCloseEvent, {
                 bubbles: true,
                 composed: true,
                 cancelable: true,
@@ -355,7 +355,7 @@ export class DocsSidebar extends LitElement {
                     ? [{ transform: 'translateX(-100%)' }, { transform: 'translateX(0)' }]
                     : [{ transform: 'translateX(0)' }, { transform: 'translateX(-100%)' }],
                 {
-                    duration: opening ? PANEL_OPEN_MS : PANEL_CLOSE_MS,
+                    duration: opening ? PanelOpenMs : PanelCloseMs,
                     easing: opening
                         ? Easing.Emphasized.ToCSSValue()
                         : Easing.EmphasizedAccelerate.ToCSSValue(),
@@ -365,10 +365,10 @@ export class DocsSidebar extends LitElement {
         if (this.scrimEl !== null) {
             animations.push(this.scrimEl.animate(
                 opening
-                    ? [{ opacity: '0' }, { opacity: String(SCRIM_PEAK_OPACITY) }]
-                    : [{ opacity: String(SCRIM_PEAK_OPACITY) }, { opacity: '0' }],
+                    ? [{ opacity: '0' }, { opacity: String(ScrimPeakOpacity) }]
+                    : [{ opacity: String(ScrimPeakOpacity) }, { opacity: '0' }],
                 {
-                    duration: opening ? PANEL_OPEN_MS : PANEL_CLOSE_MS,
+                    duration: opening ? PanelOpenMs : PanelCloseMs,
                     easing: 'linear',
                 },
             ))

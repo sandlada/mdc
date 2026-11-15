@@ -8,17 +8,17 @@ import type { ISession } from '@sandlada/document-context'
 import { createSubSession, type ISubSession } from './sub-session'
 
 /** Token used to `inject()` the theme sub-session. */
-export const THEME_SESSION_TOKEN = 'theme:session'
+export const ThemeSessionToken = 'theme:session'
 
 /** localStorage key reserved for the persisted theme preference. */
-export const THEME_STORAGE_KEY = 'theme'
+export const ThemeStorageKey = 'theme'
 
 /** Reactive state slice owned by the theme sub-session. */
 export interface ThemeState {
     isDark: boolean
 }
 
-export const initialThemeState: ThemeState = { isDark: false }
+export const InitialThemeState: ThemeState = { isDark: false }
 
 /** Runtime theme sub-session exposed as the `theme:session` service. */
 export type ThemeSession = ISubSession<ThemeState>

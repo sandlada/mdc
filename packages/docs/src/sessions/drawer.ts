@@ -8,7 +8,7 @@ import type { ISession } from '@sandlada/document-context'
 import { createSubSession, type ISubSession } from './sub-session'
 
 /** Token used to `inject()` the drawer sub-session. */
-export const DRAWER_SESSION_TOKEN = 'drawer:session'
+export const DrawerSessionToken = 'drawer:session'
 
 /** Reactive state slice owned by the drawer sub-session. */
 export interface DrawerState {
@@ -17,7 +17,7 @@ export interface DrawerState {
     iSQuick: boolean
 }
 
-export const initialDrawerState: DrawerState = { isOpen: true, isModal: false, iSQuick: true }
+export const InitialDrawerState: DrawerState = { isOpen: true, isModal: false, iSQuick: true }
 
 /** Runtime drawer sub-session exposed as the `drawer:session` service. */
 export type DrawerSession = ISubSession<DrawerState>

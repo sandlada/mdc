@@ -9,8 +9,8 @@ import { customElement, property, query } from 'lit/decorators.js'
 import { consume } from '@lit/context'
 import type { Subscription } from 'rxjs'
 import { getDefaultViewportObserver, lessThan, observeWidthBreakpoint } from '@sandlada/breakpoint'
-import { docsPageTitleContext } from './contexts/index.js'
-import { DOCS_SIDEBAR_CLOSE_EVENT, type DocsSidebar } from './docs-sidebar.js'
+import { DocsPageTitleContext } from './contexts/index.js'
+import { DocsSidebarCloseEvent, type DocsSidebar } from './docs-sidebar.js'
 import './base-imports.js'
 import './docs-sidebar.js'
 
@@ -18,7 +18,7 @@ import './docs-sidebar.js'
  * Width below which the sidebar switches to a modal dialog.
  * Matches the `md` breakpoint (`>= 840px`) of the default configuration.
  */
-const COMPACT_MAX_WIDTH = 840
+const CompactMaxWidth = 840
 
 /**
  * `<mdc-docs-shell active="button">` is the full-page layout for the docs site.
@@ -108,7 +108,7 @@ export class DocsShell extends LitElement {
     @property({ type: Boolean, reflect: true })
     public compact: boolean = false
 
-    @consume({ context: docsPageTitleContext, subscribe: true })
+    @consume({ context: DocsPageTitleContext, subscribe: true })
     @property({ type: String, attribute: false })
     public pageTitle: string = ''
 
@@ -119,7 +119,7 @@ export class DocsShell extends LitElement {
 
     public override connectedCallback(): void {
         super.connectedCallback()
-        const belowMd = lessThan(COMPACT_MAX_WIDTH)
+        const belowMd = lessThan(CompactMaxWidth)
         this.compact = getDefaultViewportObserver().matchesWidthBreakpoint(belowMd)
         if (this.compact) {
             this.sidebarOpen = false
@@ -140,7 +140,7 @@ export class DocsShell extends LitElement {
     }
 
     protected override firstUpdated(): void {
-        this.sidebarEl?.addEventListener(DOCS_SIDEBAR_CLOSE_EVENT, this.handleSidebarClose)
+        this.sidebarEl?.addEventListener(DocsSidebarCloseEvent, this.handleSidebarClose)
     }
 
     public override render() {

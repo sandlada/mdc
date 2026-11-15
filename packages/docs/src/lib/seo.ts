@@ -5,13 +5,13 @@
  */
 
 /** Canonical site origin. Mirrors `site` in `astro.config.mjs`. */
-export const SITE_URL = 'https://mdc.sandlada.com'
-export const SITE_NAME = 'MDC by Sandlada'
-export const DEFAULT_OG_IMAGE = `${SITE_URL}/mdc-cover.png`
-export const DEFAULT_OG_IMAGE_WIDTH = 1280
-export const DEFAULT_OG_IMAGE_HEIGHT = 640
-export const DEFAULT_TWITTER_CARD = 'summary_large_image'
-export const DEFAULT_ROBOTS = 'index, follow'
+export const SiteUrl = 'https://mdc.sandlada.com'
+export const SiteName = 'MDC by Sandlada'
+export const DefaultOgImage = `${SiteUrl}/mdc-cover.png`
+export const DefaultOgImageWidth = 1280
+export const DefaultOgImageHeight = 640
+export const DefaultTwitterCard = 'summary_large_image'
+export const DefaultRobots = 'index, follow'
 
 export interface SeoInput {
     title: string
@@ -19,7 +19,7 @@ export interface SeoInput {
     /** Path starting with `/`, e.g. `/components/button/`. Defaults to `/`. */
     path?: string
     keywords?: string[]
-    /** Defaults to {@link DEFAULT_ROBOTS}. Set to `noindex, nofollow` for thin pages. */
+    /** Defaults to {@link DefaultRobots}. Set to `noindex, nofollow` for thin pages. */
     robots?: string
     /** `website` for top-level pages, `article` for component docs. */
     ogType?: 'website' | 'article'
@@ -36,7 +36,7 @@ export interface ResolvedSeo extends Required<Omit<SeoInput, 'keywords'>> {
 export function canonicalUrl(path = '/'): string {
     const normalized = path.startsWith('/') ? path : `/${path}`
     const withSlash = normalized.endsWith('/') ? normalized : `${normalized}/`
-    return `${SITE_URL}${withSlash === '//' ? '/' : withSlash}`
+    return `${SiteUrl}${withSlash === '//' ? '/' : withSlash}`
 }
 
 /** Resolve page-level SEO input against site-wide defaults. */
@@ -47,10 +47,10 @@ export function resolveSeo(input: SeoInput): ResolvedSeo {
         description: input.description,
         path,
         canonical: canonicalUrl(path),
-        robots: input.robots ?? DEFAULT_ROBOTS,
+        robots: input.robots ?? DefaultRobots,
         ogType: input.ogType ?? 'website',
-        ogImage: input.ogImage ?? DEFAULT_OG_IMAGE,
-        twitterCard: input.twitterCard ?? DEFAULT_TWITTER_CARD,
+        ogImage: input.ogImage ?? DefaultOgImage,
+        twitterCard: input.twitterCard ?? DefaultTwitterCard,
         keywords: input.keywords ?? [],
     }
 }

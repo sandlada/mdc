@@ -9,20 +9,20 @@ import { marked } from 'marked'
 // Live registries derived from the library source. Vite re-transforms these
 // modules when a matching file is added/removed, so new demos and components
 // show up without editing anything here.
-const readmeModules = import.meta.glob('../../../mdc/src/components/*/README.md', {
+const ReadmeModules = import.meta.glob('../../../mdc/src/components/*/README.md', {
     query: '?raw',
     eager: true,
     import: 'default',
 }) as Record<string, string>
 
-const demoModules = import.meta.glob('../../../mdc/src/components/*/demo/*.demo.html', {
+const DemoModules = import.meta.glob('../../../mdc/src/components/*/demo/*.demo.html', {
     query: '?raw',
     eager: true,
     import: 'default',
 }) as Record<string, string>
 
-const COMPONENT_DEMO_RE = /\/components\/([^/]+)\/demo\/([^/]+)$/
-const COMPONENT_README_RE = /\/components\/([^/]+)\/README\.md$/
+const ComponentDemoRe = /\/components\/([^/]+)\/demo\/([^/]+)$/
+const ComponentReadmeRe = /\/components\/([^/]+)\/README\.md$/
 
 export interface ComponentEntry {
     /** kebab-case folder name, e.g. `button`. */
@@ -33,24 +33,24 @@ export interface ComponentEntry {
     readmeHtml: string
 }
 
-const demosByComponent = new Map<string, Record<string, string>>()
-for (const [key, html] of Object.entries(demoModules)) {
-    const match = COMPONENT_DEMO_RE.exec(key)
+const DemosByComponent = new Map<string, Record<string, string>>()
+for (const [key, html] of Object.entries(DemoModules)) {
+    const match = ComponentDemoRe.exec(key)
     if (!match) continue
     const component = match[1]
     const file = match[2]
-    let bucket = demosByComponent.get(component)
+    let bucket = DemosByComponent.get(component)
     if (!bucket) {
         bucket = {}
-        demosByComponent.set(component, bucket)
+        DemosByComponent.set(component, bucket)
     }
     bucket[file] = html
 }
 
-const readmesByComponent = new Map<string, string>()
-for (const [key, markdown] of Object.entries(readmeModules)) {
-    const name = COMPONENT_README_RE.exec(key)?.[1]
-    if (name) readmesByComponent.set(name, markdown)
+const ReadmesByComponent = new Map<string, string>()
+for (const [key, markdown] of Object.entries(ReadmeModules)) {
+    const name = ComponentReadmeRe.exec(key)?.[1]
+    if (name) ReadmesByComponent.set(name, markdown)
 }
 
 function titleCase(value: string): string {
@@ -75,7 +75,7 @@ function renderMarkdown(markdown: string): string {
     return marked.parse(body, { async: false }) as string
 }
 
-export const BASE_COMPONENT_ORDER = [
+export const BaseComponentOrder = [
     'divider',
     'elevation',
     'focus-ring',
@@ -85,10 +85,10 @@ export const BASE_COMPONENT_ORDER = [
     'typography',
 ] as const
 
-const allComponents: ComponentEntry[] = [...demosByComponent.keys()]
+const AllComponents: ComponentEntry[] = [...DemosByComponent.keys()]
     .sort()
     .map((name) => {
-        const markdown = readmesByComponent.get(name) ?? ''
+        const markdown = ReadmesByComponent.get(name) ?? ''
         return {
             name,
             label: titleCase(name),
@@ -96,26 +96,26 @@ const allComponents: ComponentEntry[] = [...demosByComponent.keys()]
         }
     })
 
-const byName = new Map(allComponents.map((entry) => [entry.name, entry]))
-const baseSet = new Set<string>(BASE_COMPONENT_ORDER)
+const ByName = new Map(AllComponents.map((entry) => [entry.name, entry]))
+const BaseSet = new Set<string>(BaseComponentOrder)
 
-export const components = allComponents
+export const Components = AllComponents
 
-export const baseComponents = BASE_COMPONENT_ORDER
-    .map((name) => byName.get(name))
+export const BaseComponents = BaseComponentOrder
+    .map((name) => ByName.get(name))
     .filter((entry): entry is ComponentEntry => entry !== undefined)
 
-export const regularComponents = allComponents.filter((entry) => !baseSet.has(entry.name))
+export const RegularComponents = AllComponents.filter((entry) => !BaseSet.has(entry.name))
 
 export function getComponent(name: string): ComponentEntry | undefined {
-    return byName.get(name)
+    return ByName.get(name)
 }
 
 export function listDemos(component: string): string[] {
-    const bucket = demosByComponent.get(component)
+    const bucket = DemosByComponent.get(component)
     return bucket ? Object.keys(bucket).sort() : []
 }
 
 export function getDemo(component: string, file: string): string {
-    return demosByComponent.get(component)?.[file] ?? ''
+    return DemosByComponent.get(component)?.[file] ?? ''
 }

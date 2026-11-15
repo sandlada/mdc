@@ -7,14 +7,14 @@
 // Vite's import.meta.glob with `?raw` produces namespace imports where each
 // value is `{ default: '<raw text>' }`. Normalize to plain strings so consumers
 // can pass them straight to `unsafeHTML()` / `<template>.innerHTML`.
-const rawModules = import.meta.glob('../../mdc/src/components/*/demo/*.demo.html', {
+const RawModules = import.meta.glob('../../mdc/src/components/*/demo/*.demo.html', {
     query: '?raw',
     eager: true,
 }) as Record<string, string | { default: string }>
 
-const rawDemos: Record<string, string> = {}
-for (const [key, value] of Object.entries(rawModules)) {
-    rawDemos[key] = typeof value === 'string' ? value : value.default
+const RawDemos: Record<string, string> = {}
+for (const [key, value] of Object.entries(RawModules)) {
+    RawDemos[key] = typeof value === 'string' ? value : value.default
 }
 
 /**
@@ -25,7 +25,7 @@ for (const [key, value] of Object.entries(rawModules)) {
  */
 export function getDemo(componentName: string, demoFile: string): string {
     const key = `../../mdc/src/components/${componentName}/demo/${demoFile}`
-    return rawDemos[key] ?? ''
+    return RawDemos[key] ?? ''
 }
 
 /**
@@ -33,7 +33,7 @@ export function getDemo(componentName: string, demoFile: string): string {
  */
 export function listDemos(componentName: string): string[] {
     const prefix = `../../mdc/src/components/${componentName}/demo/`
-    return Object.keys(rawDemos)
+    return Object.keys(RawDemos)
         .filter((k) => k.startsWith(prefix))
         .map((k) => k.slice(prefix.length))
         .sort()

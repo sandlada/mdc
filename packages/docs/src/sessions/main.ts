@@ -5,9 +5,9 @@
  */
 
 import { createContext, mount, pipe, withProvider } from '@sandlada/document-context'
-import { BREAKPOINT_OBSERVER_TOKEN, getBreakpointObserver } from './breakpoint'
-import { createDrawerSession, DRAWER_SESSION_TOKEN, initialDrawerState, type DrawerState } from './drawer'
-import { createThemeSession, initialThemeState, THEME_SESSION_TOKEN, type ThemeState } from './theme'
+import { BreakpointObserverToken, getBreakpointObserver } from './breakpoint'
+import { createDrawerSession, DrawerSessionToken, InitialDrawerState, type DrawerState } from './drawer'
+import { createThemeSession, InitialThemeState, ThemeSessionToken, type ThemeState } from './theme'
 
 /**
  * Aggregate state owned by the single root session mounted on
@@ -18,20 +18,20 @@ export interface MainState {
     theme: ThemeState
 }
 
-export const initialMainState: MainState = {
-    drawer: initialDrawerState,
-    theme: initialThemeState,
+export const InitialMainState: MainState = {
+    drawer: InitialDrawerState,
+    theme: InitialThemeState,
 }
 
 /**
  * Root blueprint: mounted once on `documentElement`, it exposes every
  * sub-session as a scoped provider resolvable through `inject()`.
  */
-export const mainBlueprint = pipe(
-    createContext<MainState>(initialMainState),
-    withProvider(DRAWER_SESSION_TOKEN, (session) => createDrawerSession(session)),
-    withProvider(THEME_SESSION_TOKEN, (session) => createThemeSession(session)),
-    withProvider(BREAKPOINT_OBSERVER_TOKEN, () => getBreakpointObserver()),
+export const MainBlueprint = pipe(
+    createContext<MainState>(InitialMainState),
+    withProvider(DrawerSessionToken, (session) => createDrawerSession(session)),
+    withProvider(ThemeSessionToken, (session) => createThemeSession(session)),
+    withProvider(BreakpointObserverToken, () => getBreakpointObserver()),
 )
 
 /**
@@ -41,7 +41,7 @@ export const mainBlueprint = pipe(
  * scoped providers of this root session instead of separate mounts.
  */
 export function mountMainSession(element: HTMLElement = document.documentElement) {
-    return mount(mainBlueprint)(element)
+    return mount(MainBlueprint)(element)
 }
 
 /** Runtime root session exposed as `document.__mainSession`. */

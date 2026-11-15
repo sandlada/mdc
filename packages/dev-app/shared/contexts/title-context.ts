@@ -12,4 +12,4 @@ import { createContext } from '@lit/context'
  * Provided by `<mdc-docs-page>` (from its `title` attribute), consumed by
  * `<mdc-docs-shell>` to render the current page title in the header.
  */
-export const docsPageTitleContext = createContext<string>(Symbol.for('mdc-docs-page-title'))
+export const DocsPageTitleContext = createContext<string>(Symbol.for('mdc-docs-page-title'))

@@ -2,7 +2,7 @@
 import Docs from '../../layouts/Docs.astro'
 import ComponentTabs from '../../components/ComponentTabs.astro'
 import DemoPreview from '../../components/DemoPreview.astro'
-import { components, getComponent, getDemo, listDemos, demoLabel } from '../../lib/registry'
+import { Components, getComponent, getDemo, listDemos, demoLabel } from '../../lib/registry'
 import { breadcrumbJsonLd, componentDescription, excerptFromHtml } from '../../lib/seo'
 
 interface Props {
@@ -10,7 +10,7 @@ interface Props {
 }
 
 export function getStaticPaths() {
-    return components.map((entry) => ({
+    return Components.map((entry) => ({
         params: { name: entry.name },
         props: { name: entry.name },
     }))

@@ -2,7 +2,7 @@
 /**
  * Component navigation, grouped into Base Components and Components.
  */
-import { baseComponents, regularComponents } from '../lib/registry';
+import { BaseComponents, RegularComponents } from '../lib/registry';
 
 interface Props {
     active?: string;
@@ -35,7 +35,7 @@ const { active } = Astro.props;
             <div class="group">
                 <h3 class="header">Base Components</h3>
                 {
-                    baseComponents.map((entry) => (
+                    BaseComponents.map((entry) => (
                         <a class="tab" href={`/components/${entry.name}/`} aria-current={active === entry.name ? 'page' : undefined}>
                             <span class="label">{entry.label}</span>
                             <mdc-ripple />
@@ -47,7 +47,7 @@ const { active } = Astro.props;
             <div class="group">
                 <h3 class="header">Components</h3>
                 {
-                    regularComponents.map((entry) => (
+                    RegularComponents.map((entry) => (
                         <a class="tab" href={`/components/${entry.name}/`} aria-current={active === entry.name ? 'page' : undefined}>
                             <span class="label">{entry.label}</span>
                             <mdc-ripple />

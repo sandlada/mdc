@@ -8,9 +8,9 @@ import { createBreakpointObserver, DEFAULT_WIDTH_BREAKPOINTS } from '@sandlada/b
 import type { BreakpointObserverInstance } from '@sandlada/breakpoint'
 
 /** Token used to `inject()` the breakpoint observer service. */
-export const BREAKPOINT_OBSERVER_TOKEN = 'breakpoint:observer'
+export const BreakpointObserverToken = 'breakpoint:observer'
 
-let observer: BreakpointObserverInstance | undefined
+let Observer: BreakpointObserverInstance | undefined
 
 /**
  * Lazily create the single width breakpoint observer for the document root and
@@ -20,18 +20,18 @@ let observer: BreakpointObserverInstance | undefined
  * consumer that injects `breakpoint:observer` from the root session.
  */
 export function getBreakpointObserver(): BreakpointObserverInstance {
-    if (observer) return observer
+    if (Observer) return Observer
 
-    observer = createBreakpointObserver({
+    Observer = createBreakpointObserver({
         element: document.documentElement,
         widthBreakpoints: DEFAULT_WIDTH_BREAKPOINTS,
         dimension: 'width',
     })
 
-    observer.activeWidthBreakpoints$.subscribe((state) => {
+    Observer.activeWidthBreakpoints$.subscribe((state) => {
         Object.keys(DEFAULT_WIDTH_BREAKPOINTS).forEach((name) => document.documentElement.removeAttribute(name))
         state.forEach((attr) => document.documentElement.setAttribute(attr, ``))
     })
 
-    return observer
+    return Observer
 }

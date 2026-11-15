@@ -8,7 +8,7 @@ import { LitElement, html, css } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { ContextProvider } from '@lit/context'
 import { getDemo, listDemos } from './demo-loader.js'
-import { docsPageTitleContext } from './contexts/index.js'
+import { DocsPageTitleContext } from './contexts/index.js'
 import './docs-shell.js'
 
 /**
@@ -74,11 +74,11 @@ export class DocsPage extends LitElement {
     @property({ type: String, attribute: 'demo-files' })
     public demoFiles: string = ''
 
-    private titleProvider: ContextProvider<typeof docsPageTitleContext>
+    private titleProvider: ContextProvider<typeof DocsPageTitleContext>
 
     public constructor() {
         super()
-        this.titleProvider = new ContextProvider(this, { context: docsPageTitleContext })
+        this.titleProvider = new ContextProvider(this, { context: DocsPageTitleContext })
     }
 
     public override connectedCallback(): void {

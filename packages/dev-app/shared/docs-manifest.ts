@@ -12,7 +12,7 @@
 // Each page's `<mdc-docs-page component="..." title="...">` tag declares the
 // component name and its curated display label — parse them here rather than
 // duplicating the list.
-const pageModules = import.meta.glob('../components/*/index.html', {
+const PageModules = import.meta.glob('../components/*/index.html', {
     query: '?raw',
     eager: true,
     import: 'default',
@@ -32,17 +32,17 @@ function attr(tag: string, re: RegExp): string | undefined {
     return re.exec(tag)?.[1]
 }
 
-export const components: ComponentEntry[] = Object.keys(pageModules)
+export const Components: ComponentEntry[] = Object.keys(PageModules)
     .sort()
     .map((key) => {
         const folder = /\/components\/([^/]+)\/index\.html$/.exec(key)?.[1] ?? ''
-        const tag = /<\s*mdc-docs-page\b([^>]*)>/.exec(pageModules[key])?.[1] ?? ''
+        const tag = /<\s*mdc-docs-page\b([^>]*)>/.exec(PageModules[key])?.[1] ?? ''
         const name = attr(tag, /component="([^"]*)"/) ?? folder
         const label = attr(tag, /title="([^"]*)"/) ?? titleCase(folder)
         return { name, label, href: `/components/${name}/` }
     })
 
-export const BASE_COMPONENT_ORDER = [
+export const BaseComponentOrder = [
     'divider',
     'elevation',
     'focus-ring',
@@ -52,12 +52,12 @@ export const BASE_COMPONENT_ORDER = [
     'typography',
 ]
 
-const byName = new Map(components.map((c) => [c.name, c]))
+const ByName = new Map(Components.map((c) => [c.name, c]))
 
-export const baseComponents: ComponentEntry[] = BASE_COMPONENT_ORDER
-    .map((name) => byName.get(name))
+export const BaseComponents: ComponentEntry[] = BaseComponentOrder
+    .map((name) => ByName.get(name))
     .filter((c): c is ComponentEntry => c !== undefined)
 
-const excluded = new Set([...BASE_COMPONENT_ORDER])
+const Excluded = new Set([...BaseComponentOrder])
 
-export const regularComponents: ComponentEntry[] = components.filter((c) => !excluded.has(c.name))
+export const RegularComponents: ComponentEntry[] = Components.filter((c) => !Excluded.has(c.name))
