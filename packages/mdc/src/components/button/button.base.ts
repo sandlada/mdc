@@ -113,7 +113,9 @@ export abstract class BaseButton extends composeMixin(
     protected readonly sizeController = new MeasuredDimensionController(this, { target: () => this.labelElement })
     protected readonly opacityController = new OpacityTransitionController(this, { target: () => this.labelElement })
 
-    public override get focusRingControl(): HTMLElement | null { return this.buttonElement }
+    // With delegatesFocus:true, the host receives :focus-visible on keyboard
+    // navigation while focusin from the inner <button> bubbles to the host.
+    public override get focusRingControl(): HTMLElement | null { return this }
     public override get rippleControl(): HTMLElement | null { return this.buttonElement }
 
     constructor() {

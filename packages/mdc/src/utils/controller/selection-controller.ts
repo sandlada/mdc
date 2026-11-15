@@ -322,13 +322,14 @@ export class SelectionController implements ReactiveController {
     private updateRovingTabindex(): void {
         if (!this.host.isConnected) return
 
+        const controls = this.controls
+        if (controls.length <= 1) return
+
         // Resolve the currently focused element, piercing one shadow boundary.
         let activeEl = this.root?.activeElement as HTMLElement | null
         if (activeEl?.shadowRoot) {
             activeEl = activeEl.shadowRoot.activeElement as HTMLElement | null
         }
-
-        const controls = this.controls
 
         // Determine which control should own tabIndex 0.
         let target: ISelectionControllerHost | undefined
@@ -515,6 +516,7 @@ export class SelectionController implements ReactiveController {
 
         const navKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End']
         if (!navKeys.includes(key)) return
+        if (this.controls.length <= 1) return
 
         e.preventDefault()
 

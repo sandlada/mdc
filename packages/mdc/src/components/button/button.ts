@@ -41,6 +41,10 @@ declare global {
 export class MDCButton extends BaseButton implements FormSubmitter {
 
     static override styles = ButtonStyles
+    static override shadowRootOptions: ShadowRootInit = {
+        mode: 'open',
+        delegatesFocus: true,
+    }
     static readonly formAssociated = true
     static {
         setupFormSubmitter(MDCButton)

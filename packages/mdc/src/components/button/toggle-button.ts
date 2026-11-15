@@ -79,11 +79,17 @@ export class MDCTogglableButton extends composeMixin(
             preventSelectionDuringInitialFocus: this.type === 'checkbox',
             preventSelectionDuringSwitching: this.type === 'checkbox',
             getFocusableElement: (host) => host as HTMLElement,
+            getGroupRoot: (host) =>
+                host.closest('mdc-button-group, mdc-docked-toolbar, mdc-floating-toolbar')
+                    ? null
+                    : (host.getRootNode() as ParentNode),
         })
         if (isServer) {
             return
         }
-        this.tabIndex = 0
+        if (!this.hasAttribute('tabindex')) {
+            this.tabIndex = 0
+        }
         this[Internals].role = this.type
     }
 

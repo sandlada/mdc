@@ -78,12 +78,18 @@ export class MDCToggleIconButton extends composeMixin(
             dispatchNavigationClick: this.type === 'radio',
             getFocusableElement: (host) => {
                 return host
-            }
+            },
+            getGroupRoot: (host) =>
+                host.closest('mdc-button-group, mdc-docked-toolbar, mdc-floating-toolbar')
+                    ? null
+                    : (host.getRootNode() as ParentNode),
         })
         if(isServer) {
             return
         }
-        this.tabIndex = 0
+        if (!this.hasAttribute('tabindex')) {
+            this.tabIndex = 0
+        }
         this[Internals].role = this.type
     }
 
