@@ -5,93 +5,77 @@
  */
 import type { LitElement } from 'lit'
 
-/** Visual variants of `mdc-carousel`. */
-export type CarouselVariant = 'multi-browse' | 'uncontained'
-/** The three item sizes supported by `mdc-carousel-item`. */
-export type CarouselItemSize = 'small' | 'medium' | 'large'
+/** Visual layout variants of `mdc-carousel`, mirroring Material Design 3 / Jetpack Compose. */
+export const CarouselVariant = {
+    MultiBrowse: 'multi-browse',
+    Hero: 'hero',
+    CenteredHero: 'centered-hero',
+    Uncontained: 'uncontained',
+    FullScreen: 'full-screen',
+} as const
+export type CarouselVariant = (typeof CarouselVariant)[keyof typeof CarouselVariant]
+
+/** The three semantic item sizes reported by `mdc-carousel-item`. */
+export const CarouselItemSize = {
+    Small: 'small',
+    Medium: 'medium',
+    Large: 'large',
+} as const
+export type CarouselItemSize = (typeof CarouselItemSize)[keyof typeof CarouselItemSize]
+
+/** Name of the event the carousel dispatches when the focal item changes. */
+export const CarouselActiveChangeEvent = 'carousel-active-change'
 
 /**
- * `mdc-carousel-item` — a single cell of an `mdc-carousel`.
- *
- * The item declares its visual size (`small` / `medium` / `large`); for a
- * horizontal carousel the sizes differ only in width and corner roundness,
- * while every item shares the same height (stretched to the tallest cell).
- * The owning carousel derives the concrete widths from its
- * `preferred-item-width` and assigns `index` / `active`, so an item is only
- * meaningful as a direct child of an `mdc-carousel`.
- *
- * Mirrors the item-size model of the Jetpack Compose Material 3 carousel,
- * where the large item targets a preferred width, the small item clamps to
- * roughly a third of it (40–56px), and the medium item is their average.
+ * `detail` payload of the `carousel-active-change` event.
  */
-export interface ICarouselItem extends LitElement {
-    /** Visual size: `'large'` | `'medium'` (default) | `'small'`. */
+export interface ICarouselActiveChangeDetail {
+    item: IMDCCarouselItem
+    index: number
+}
+
+/** Input attributes for `mdc-carousel-item`. */
+export interface IMDCCarouselItemAttributes {
+    /** Visual size dynamically updated by the owning carousel: `'large'` | `'medium'` | `'small'`. */
     size: CarouselItemSize
-    /** Set by the carousel when this item is the focal (leading) item. */
+    /** Set by the carousel when this item is the focal item. */
     active: boolean
     /** Position of this item within its owning carousel, set by the carousel. */
     index: number
 }
 
 /**
- * `mdc-carousel` — a horizontal, scroll-snap carousel container.
- *
- * Lays out its `mdc-carousel-item` children in a single scrollable row. In
- * the `multi-browse` variant (default) the row mixes large / medium / small
- * items that snap to the leading keyline and clip at the container edge; in
- * the `uncontained` variant all items share one fixed width and the row
- * scrolls freely, with a partially visible trailing item peeking at the edge.
- *
- * Item widths are derived from `preferred-item-width` using the Jetpack
- * Compose Material 3 formulas and are exposed as inheritable CSS custom
- * properties (`--_*-item-width` / `--_*-item-shape-*`), so every `size` value
- * differs only in width and roundness while sharing one height.
- *
- * @slot — One or more `mdc-carousel-item` elements.
- *
- * @fires carousel-active-change — Dispatched when the focal (leading) item
- *     changes, on scroll or via `scrollToItem()`.
- *
- * @cssproperty --mdc-carousel-small-item-width
- * @cssproperty --mdc-carousel-medium-item-width
- * @cssproperty --mdc-carousel-large-item-width
- * @cssproperty --mdc-carousel-small-item-shape-start-start
- * @cssproperty --mdc-carousel-small-item-shape-start-end
- * @cssproperty --mdc-carousel-small-item-shape-end-start
- * @cssproperty --mdc-carousel-small-item-shape-end-end
- * @cssproperty --mdc-carousel-medium-item-shape-start-start
- * @cssproperty --mdc-carousel-medium-item-shape-start-end
- * @cssproperty --mdc-carousel-medium-item-shape-end-start
- * @cssproperty --mdc-carousel-medium-item-shape-end-end
- * @cssproperty --mdc-carousel-large-item-shape-start-start
- * @cssproperty --mdc-carousel-large-item-shape-start-end
- * @cssproperty --mdc-carousel-large-item-shape-end-start
- * @cssproperty --mdc-carousel-large-item-shape-end-end
- * @cssproperty --mdc-carousel-item-spacing
- * @cssproperty --mdc-carousel-item-height
- * @cssproperty --mdc-carousel-container-padding-block-start
- * @cssproperty --mdc-carousel-container-padding-block-end
- * @cssproperty --mdc-carousel-container-padding-inline-start
- * @cssproperty --mdc-carousel-container-padding-inline-end
+ * `mdc-carousel-item` — a single cell of an `mdc-carousel`.
  */
-export interface ICarousel extends LitElement {
-    /** Visual variant: `'multi-browse'` (default) | `'uncontained'`. */
+export interface IMDCCarouselItem extends LitElement, IMDCCarouselItemAttributes {}
+
+/** Input attributes for `mdc-carousel`. */
+export interface IMDCCarouselAttributes {
+    /** Visual variant: `'multi-browse'` (default) | `'hero'` | `'centered-hero'` | `'uncontained'` | `'full-screen'`. */
     variant: CarouselVariant
     /** Target width of the `large` items in px; small / medium derive from it. */
     preferredItemWidth: number
-    /** Index of the current focal (leading) item. */
-    readonly activeIndex: number
-    /** Scrolls the item at `index` to the leading keyline. */
-    scrollToItem(index: number): void
+    /** Minimum width of `small` items in px (Compose M3 `minSmallItemWidth`, default 40). */
+    minSmallItemWidth: number
+    /** Maximum width of `small` items in px (Compose M3 `maxSmallItemWidth`, default 56). */
+    maxSmallItemWidth: number
+}
+
+/** Custom events emitted by `mdc-carousel`. */
+export interface IMDCCarouselEvents {
+    'carousel-active-change': CustomEvent<ICarouselActiveChangeDetail>
 }
 
 /**
- * `detail` payload of the `carousel-active-change` event.
+ * `mdc-carousel` — a Material Design 3 horizontal, keyline-morphing scroll-snap carousel.
+ *
+ * @slot — One or more `mdc-carousel-item` elements.
+ *
+ * @fires carousel-active-change — Dispatched when the focal item changes, on scroll or via `scrollToItem()`.
  */
-export interface ICarouselActiveChangeDetail {
-    item: ICarouselItem
-    index: number
+export interface IMDCCarousel extends LitElement, IMDCCarouselAttributes {
+    /** Index of the current focal item, or `-1` when empty. */
+    readonly activeIndex: number
+    /** Scrolls the item at `index` to its focal keyline. */
+    scrollToItem(index: number): void
 }
-
-/** Name of the event the carousel dispatches when the focal item changes. */
-export const CarouselActiveChangeEvent = 'carousel-active-change'

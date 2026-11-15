@@ -1,100 +1,76 @@
 # Carousel
 
-A horizontal, scroll-snap carousel container that lays out its
-`mdc-carousel-item` children in **large / medium / small** widths.
-
-The carousel is not part of `@material/web`; it mirrors the **Jetpack Compose
-Material 3** carousel (`HorizontalMultiBrowseCarousel` /
-`HorizontalUncontainedCarousel`). For a horizontal carousel the three item
-sizes differ **only in width and corner roundness** — every cell shares one
-height and one interaction model.
+A Material Design 3 horizontal, keyline-morphing scroll-snap carousel container (`mdc-carousel`) and its items (`mdc-carousel-item`), modeled after **Jetpack Compose Material 3** (`androidx.compose.material3.carousel`) and the **Material 3 Figma Design Kit**.
 
 ## Elements
 
-| Element             | Role                                             |
-| ------------------- | ------------------------------------------------ |
-| `mdc-carousel`      | The container — owns layout, scroll-snap, focus  |
-| `mdc-carousel-item` | A sized cell; declares `size`, tracks `active`   |
+| Element | Role |
+| --- | --- |
+| `mdc-carousel` | The scroll-snap container — computes keylines, morphs item widths & shapes on scroll, and tracks `activeIndex` |
+| `mdc-carousel-item` | A morphing cell; exposes `size` (`large` / `medium` / `small`), `active`, `index`, and `--mdc-carousel-item-ratio` (`0..1`), plus an optional `caption` slot |
 
 ## Usage
 
 ```html
-<mdc-carousel>
-    <mdc-carousel-item size="large">…</mdc-carousel-item>
-    <mdc-carousel-item size="medium">…</mdc-carousel-item>
-    <mdc-carousel-item size="small">…</mdc-carousel-item>
-    <mdc-carousel-item size="large">…</mdc-carousel-item>
+<mdc-carousel variant="multi-browse">
+    <mdc-carousel-item>
+        <img src="photo-1.jpg" alt="Alpine ridge" />
+        <span slot="caption">Alpine Ridge</span>
+    </mdc-carousel-item>
+    <mdc-carousel-item>
+        <img src="photo-2.jpg" alt="Emerald valley" />
+        <span slot="caption">Emerald Valley</span>
+    </mdc-carousel-item>
+    <mdc-carousel-item>
+        <img src="photo-3.jpg" alt="Rose canyon" />
+        <span slot="caption">Rose Canyon</span>
+    </mdc-carousel-item>
 </mdc-carousel>
 ```
 
-## Sizing
-
-Item widths derive from `preferred-item-width` (default **186px**):
-
-| Size     | Width                                              | Corner roundness |
-| -------- | -------------------------------------------------- | ---------------- |
-| `large`  | `min(preferred-item-width, container width)`       | 28px             |
-| `medium` | `(large + small) / 2`                              | 20px             |
-| `small`  | `clamp(large / 3, 40px, 56px)`                     | 12px             |
-
-Every value is overridable through the `--mdc-carousel-*` CSS custom
-properties below. Widths are recomputed when the container resizes.
-
 ## Variants
 
-- **`multi-browse`** (default) — the row mixes large / medium / small items.
-  Items snap to the leading keyline and the row clips at the container edge.
-- **`uncontained`** — all items share one width and the row scrolls freely
-  (no snap), with the trailing item peeking at the edge.
+- **`multi-browse`** (default) — fills the container edge-to-edge with large, medium, and small items. As you scroll, items dynamically morph between keylines and snap cleanly.
+- **`hero`** — start-aligned large focal item paired with a small peeking item.
+- **`centered-hero`** — centered large focal item flanked by small items on both sides, shifting smoothly to start/end alignment at the list bounds.
+- **`uncontained`** — uniform item width (`preferred-item-width`), free scrolling without snap.
+- **`full-screen`** — single edge-to-edge large item per snap.
 
 ## Properties
 
 ### `mdc-carousel`
 
-| Property              | Attribute             | Type                   | Default         |
-| --------------------- | --------------------- | ---------------------- | --------------- |
-| `variant`             | `variant`             | `'multi-browse' \| 'uncontained'` | `'multi-browse'` |
-| `preferredItemWidth`  | `preferred-item-width`| `number`               | `186`           |
-| `activeIndex`         | *(read only)*         | `number`               | `-1`            |
+| Property | Attribute | Type | Default |
+| --- | --- | --- | --- |
+| `variant` | `variant` | `'multi-browse' \| 'hero' \| 'centered-hero' \| 'uncontained' \| 'full-screen'` | `'multi-browse'` |
+| `preferredItemWidth` | `preferred-item-width` | `number` | `186` |
+| `minSmallItemWidth` | `min-small-item-width` | `number` | `40` |
+| `maxSmallItemWidth` | `max-small-item-width` | `number` | `56` |
+| `activeIndex` | *(read only)* | `number` | `-1` |
 
 ### `mdc-carousel-item`
 
-| Property | Attribute | Type                          | Default   |
-| -------- | --------- | ----------------------------- | --------- |
-| `size`   | `size`    | `'large' \| 'medium' \| 'small'` | `'medium'` |
-| `active` | `active`  | `boolean`                     | `false`   |
-| `index`  | `index`   | `number`                      | `0`       |
+| Property | Attribute | Type | Default |
+| --- | --- | --- | --- |
+| `size` | `size` | `'large' \| 'medium' \| 'small'` | `'medium'` |
+| `active` | `active` | `boolean` | `false` |
+| `index` | `index` | `number` | `0` |
 
-## Events
+## Events & Methods
 
-| Event                       | Detail                          | Description                            |
-| --------------------------- | ------------------------------- | -------------------------------------- |
-| `carousel-active-change`    | `{ item, index }`               | Fired when the focal (leading) item changes. |
+- `carousel-active-change` (`{ item, index }`) — dispatched when the focal item changes.
+- `scrollToItem(index)` — scrolls the item at `index` to its focal keyline. Also driven by `←` / `→` (RTL-aware), `Home`, `End`, and mouse drag.
 
-## Methods
-
-- `scrollToItem(index)` — scrolls the item at `index` to the leading keyline
-  (smooth). Also driven by `←` / `→` / `Home` / `End` when the carousel is
-  focused (`tabindex="0"`).
-
-## CSS custom properties
+## CSS Custom Properties
 
 | Property | Default |
-| -------- | ------- |
-| `--mdc-carousel-small-item-width`  | computed |
-| `--mdc-carousel-medium-item-width` | computed |
-| `--mdc-carousel-large-item-width`  | computed |
-| `--mdc-carousel-*-item-shape-start-start` | `28px` / `20px` / `12px` |
-| `--mdc-carousel-*-item-shape-start-end`   | `28px` / `20px` / `12px` |
-| `--mdc-carousel-*-item-shape-end-start`   | `28px` / `20px` / `12px` |
-| `--mdc-carousel-*-item-shape-end-end`     | `28px` / `20px` / `12px` |
-| `--mdc-carousel-item-spacing`             | `8px` |
-| `--mdc-carousel-item-height`              | `auto` (stretched to tallest) |
-| `--mdc-carousel-container-padding-block-start`  | `8px` |
-| `--mdc-carousel-container-padding-block-end`    | `8px` |
-| `--mdc-carousel-container-padding-inline-start` | `16px` |
-| `--mdc-carousel-container-padding-inline-end`   | `16px` |
-
-`*` in the shape rows stands for `small` / `medium` / `large` (the item size);
-the per-size defaults are the extra-large (`28px`), large-increased (`20px`)
-and medium (`12px`) MD3 corners respectively.
+| --- | --- |
+| `--mdc-carousel-small-item-shape-*` | `12px` (`Shape.Medium`) |
+| `--mdc-carousel-medium-item-shape-*` | `20px` (`Shape.LargeIncreased`) |
+| `--mdc-carousel-large-item-shape-*` | `28px` (`Shape.ExtraLarge`) |
+| `--mdc-carousel-item-spacing` | `8px` |
+| `--mdc-carousel-item-height` | `auto` |
+| `--mdc-carousel-container-padding-*` | `8px 16px` |
+| `--mdc-carousel-caption-color` | `#ffffff` |
+| `--mdc-carousel-caption-scrim-color` | `rgba(0, 0, 0, 0.65)` |
+| `--mdc-carousel-caption-padding-*` | `16px` |

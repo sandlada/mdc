@@ -1,37 +1,70 @@
 <style>
-    .cd-card {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-sizing: border-box;
-        height: 180px;
-        padding: 8px;
-        font: 500 14px/20px Roboto, system-ui, sans-serif;
-        color: var(--md-sys-color-on-surface, #1d1b20);
+    .cd-section-label {
+        margin: 16px 16px 4px;
+        font: 500 12px/16px var(--md-ref-typeface-font-plain, 'Noto Sans', system-ui, sans-serif);
+        letter-spacing: 0.4px;
+        color: var(--md-sys-color-on-surface-variant, #49454f);
     }
-    .cd-a { background: var(--md-sys-color-surface-container-high, #e6e0e9); }
-    .cd-b { background: var(--md-sys-color-secondary-container, #e8def8); }
-    .cd-c { background: var(--md-sys-color-tertiary-container, #ffd8e4); }
+    .cd-card {
+        width: 100%;
+        height: 220px;
+        box-sizing: border-box;
+    }
+    .cd-g1 { background: linear-gradient(135deg, #6750a4 0%, #b69df8 100%); }
+    .cd-g2 { background: linear-gradient(135deg, #386a20 0%, #a6d388 100%); }
+    .cd-g3 { background: linear-gradient(135deg, #7d5260 0%, #efb8c8 100%); }
+    .cd-g4 { background: linear-gradient(135deg, #0061a4 0%, #9ecaff 100%); }
+    .cd-g5 { background: linear-gradient(135deg, #8b5000 0%, #ffb870 100%); }
+    .cd-g6 { background: linear-gradient(135deg, #006a60 0%, #70d7ca 100%); }
+    .cd-g7 { background: linear-gradient(135deg, #5b5b7e 0%, #c3c0f0 100%); }
 </style>
 
-<!-- multi-browse (default): mixes large / medium / small items that snap to the leading keyline -->
+<div class="cd-section-label">Multi-browse (default) — dynamic keyline morphing across large / medium / small</div>
 <mdc-carousel aria-label="Multi-browse carousel">
-    <mdc-carousel-item size="large"><div class="cd-card cd-a">Large</div></mdc-carousel-item>
-    <mdc-carousel-item size="medium"><div class="cd-card cd-b">Medium</div></mdc-carousel-item>
-    <mdc-carousel-item size="small"><div class="cd-card cd-c">Small</div></mdc-carousel-item>
-    <mdc-carousel-item size="large"><div class="cd-card cd-c">Large</div></mdc-carousel-item>
-    <mdc-carousel-item size="medium"><div class="cd-card cd-a">Medium</div></mdc-carousel-item>
-    <mdc-carousel-item size="small"><div class="cd-card cd-b">Small</div></mdc-carousel-item>
-    <mdc-carousel-item size="large"><div class="cd-card cd-b">Large</div></mdc-carousel-item>
-    <mdc-carousel-item size="medium"><div class="cd-card cd-c">Medium</div></mdc-carousel-item>
+    <mdc-carousel-item><div class="cd-card cd-g1"></div><span slot="caption">Alpine Ridge</span></mdc-carousel-item>
+    <mdc-carousel-item><div class="cd-card cd-g2"></div><span slot="caption">Emerald Valley</span></mdc-carousel-item>
+    <mdc-carousel-item><div class="cd-card cd-g3"></div><span slot="caption">Rose Canyon</span></mdc-carousel-item>
+    <mdc-carousel-item><div class="cd-card cd-g4"></div><span slot="caption">Azure Coast</span></mdc-carousel-item>
+    <mdc-carousel-item><div class="cd-card cd-g5"></div><span slot="caption">Amber Dunes</span></mdc-carousel-item>
+    <mdc-carousel-item><div class="cd-card cd-g6"></div><span slot="caption">Teal Lagoon</span></mdc-carousel-item>
+    <mdc-carousel-item><div class="cd-card cd-g7"></div><span slot="caption">Twilight Peak</span></mdc-carousel-item>
 </mdc-carousel>
 
-<!-- uncontained: uniform width, scrolls freely (no snap), trailing item peeks at the edge -->
+<div class="cd-section-label">Hero — start-aligned large focal item with small trailing peek</div>
+<mdc-carousel variant="hero" aria-label="Hero carousel">
+    <mdc-carousel-item><div class="cd-card cd-g4"></div><span slot="caption">Featured Story</span></mdc-carousel-item>
+    <mdc-carousel-item><div class="cd-card cd-g3"></div><span slot="caption">Editor's Pick</span></mdc-carousel-item>
+    <mdc-carousel-item><div class="cd-card cd-g2"></div><span slot="caption">New Releases</span></mdc-carousel-item>
+    <mdc-carousel-item><div class="cd-card cd-g5"></div><span slot="caption">Trending Now</span></mdc-carousel-item>
+    <mdc-carousel-item><div class="cd-card cd-g1"></div><span slot="caption">Spotlight</span></mdc-carousel-item>
+</mdc-carousel>
+
+<div class="cd-section-label">Centered Hero — centered large focal item flanked by small peek items</div>
+<mdc-carousel variant="centered-hero" aria-label="Centered hero carousel">
+    <mdc-carousel-item><div class="cd-card cd-g6"></div><span slot="caption">Coastal Trail</span></mdc-carousel-item>
+    <mdc-carousel-item><div class="cd-card cd-g1"></div><span slot="caption">Mountain Pass</span></mdc-carousel-item>
+    <mdc-carousel-item><div class="cd-card cd-g5"></div><span slot="caption">Desert Horizon</span></mdc-carousel-item>
+    <mdc-carousel-item><div class="cd-card cd-g2"></div><span slot="caption">Forest Canopy</span></mdc-carousel-item>
+    <mdc-carousel-item><div class="cd-card cd-g3"></div><span slot="caption">Sunset Cliffs</span></mdc-carousel-item>
+</mdc-carousel>
+
+<div class="cd-section-label">Uncontained — uniform item width, free scrolling edge-to-edge</div>
 <mdc-carousel variant="uncontained" aria-label="Uncontained carousel">
-    <mdc-carousel-item size="large"><div class="cd-card cd-a">One</div></mdc-carousel-item>
-    <mdc-carousel-item size="large"><div class="cd-card cd-b">Two</div></mdc-carousel-item>
-    <mdc-carousel-item size="large"><div class="cd-card cd-c">Three</div></mdc-carousel-item>
-    <mdc-carousel-item size="large"><div class="cd-card cd-a">Four</div></mdc-carousel-item>
-    <mdc-carousel-item size="large"><div class="cd-card cd-b">Five</div></mdc-carousel-item>
-    <mdc-carousel-item size="large"><div class="cd-card cd-c">Six</div></mdc-carousel-item>
+    <mdc-carousel-item><div class="cd-card cd-g2"></div><span slot="caption">Item One</span></mdc-carousel-item>
+    <mdc-carousel-item><div class="cd-card cd-g4"></div><span slot="caption">Item Two</span></mdc-carousel-item>
+    <mdc-carousel-item><div class="cd-card cd-g6"></div><span slot="caption">Item Three</span></mdc-carousel-item>
+    <mdc-carousel-item><div class="cd-card cd-g1"></div><span slot="caption">Item Four</span></mdc-carousel-item>
+    <mdc-carousel-item><div class="cd-card cd-g3"></div><span slot="caption">Item Five</span></mdc-carousel-item>
+    <mdc-carousel-item><div class="cd-card cd-g5"></div><span slot="caption">Item Six</span></mdc-carousel-item>
+    <mdc-carousel-item><div class="cd-card cd-g7"></div><span slot="caption">Item Seven</span></mdc-carousel-item>
+    <mdc-carousel-item><div class="cd-card cd-g2"></div><span slot="caption">Item Eight</span></mdc-carousel-item>
+    <mdc-carousel-item><div class="cd-card cd-g4"></div><span slot="caption">Item Nine</span></mdc-carousel-item>
+    <mdc-carousel-item><div class="cd-card cd-g6"></div><span slot="caption">Item Ten</span></mdc-carousel-item>
+</mdc-carousel>
+
+<div class="cd-section-label">Full-screen — single edge-to-edge focal item per snap</div>
+<mdc-carousel variant="full-screen" aria-label="Full-screen carousel">
+    <mdc-carousel-item><div class="cd-card cd-g7"></div><span slot="caption">Chapter 1 — Dawn</span></mdc-carousel-item>
+    <mdc-carousel-item><div class="cd-card cd-g5"></div><span slot="caption">Chapter 2 — Noon</span></mdc-carousel-item>
+    <mdc-carousel-item><div class="cd-card cd-g3"></div><span slot="caption">Chapter 3 — Dusk</span></mdc-carousel-item>
 </mdc-carousel>

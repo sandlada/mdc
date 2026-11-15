@@ -6,47 +6,32 @@
  * @version
  * 1.0.0
  */
-import { Shape, Space } from '@sandlada/mdk'
-import { createStyleDefinition } from '../../utils/style'
-import { expandShape, expandPadding } from '../../utils/style'
-
-/**
- * Carousel item-size schema:
- * - small / medium / large — the three `mdc-carousel-item` sizes.
- */
+import { Shape, Space, Typescale } from '@sandlada/mdk'
+import { createStyleDefinition, expandPadding, expandShape, expandTypescale } from '../../utils/style'
 
 /**
  * Style definition for `mdc-carousel` — the horizontal carousel container and
  * its `mdc-carousel-item` cells.
  *
- * For a horizontal carousel the three item sizes differ only in width and
- * corner roundness, so `item-width` / `item-shape` are the only per-size
- * tokens. Widths are derived at runtime from `preferred-item-width`
- * (see `internal/base-carousel.ts`) and published as
- * `--_computed-*-item-width` custom properties, which the definition chains
- * into the public `--mdc-carousel-*-item-width` override variables.
- *
- * Roundness follows the MD3 shape scale: `large` uses the extra-large corner
- * (`28px`, matching the Material carousel's `shapeAppearanceExtraLarge`),
- * `medium` the large-increased corner (`20px`) and `small` the medium corner
- * (`12px`) — each corner still overridable through
- * `--mdc-carousel-*-item-shape-*`.
+ * Mirrors Material Design 3 / Jetpack Compose Carousel tokens:
+ * - `large` items use `Shape.ExtraLarge` (28px), `medium` use
+ *   `Shape.LargeIncreased` (20px), and `small` use `Shape.Medium` (12px).
+ * - Item spacing defaults to `Space.Space100` (8px); container inline padding
+ *   defaults to `Space.Space200` (16px) and block padding to `Space.Space100` (8px).
  *
  * @version
  * Material Design 3
  */
 export const CarouselDefinition = createStyleDefinition({
-    // Item width — the concrete value is computed at runtime (large targets
-    // `preferred-item-width`, small ≈ ⅓ of it clamped to 40–56px, medium the
-    // average); the definition only wires the public override chain.
+    // Item width — computed at runtime by the keyline engine and chained
+    // into the public `--mdc-carousel-*-item-width` override variables.
     'item-width': {
         small: 'var(--_computed-small-item-width)',
         medium: 'var(--_computed-medium-item-width)',
         large: 'var(--_computed-large-item-width)',
     },
 
-    // Item roundness — differs per size (per the horizontal-carousel contract
-    // that sizes vary only in width and roundness).
+    // Item roundness — per-size MD3 shape tokens.
     ...expandShape('item-shape')({
         small: Shape.Medium,
         medium: Shape.LargeIncreased,
@@ -54,9 +39,15 @@ export const CarouselDefinition = createStyleDefinition({
     }),
 
     // Item geometry
-    'item-spacing'                  : Space.Space100,
-    'item-height'                   : 'auto',
+    'item-spacing': Space.Space100,
+    'item-height': 'auto',
 
     // Container padding
     ...expandPadding('container-padding')([Space.Space100, Space.Space200]),
+
+    // Caption overlay (for `slot="caption"`)
+    'caption-color': '#ffffff',
+    'caption-scrim-color': 'rgba(0, 0, 0, 0.65)',
+    ...expandPadding('caption-padding')([Space.Space200, Space.Space200]),
+    ...expandTypescale('caption-text')(Typescale.TitleMedium),
 })

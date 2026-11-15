@@ -4,15 +4,11 @@
  * SPDX-License-Identifier: MIT
  *
  * @fileoverview
- * Public `mdc-carousel-item` element — a sized cell of an `mdc-carousel`.
- *
- * The item declares its visual size; the owning carousel assigns its index and
- * focal `active` state and derives the concrete width / roundness from its
- * `preferred-item-width`, so an item is only meaningful as a direct child.
+ * Public `mdc-carousel-item` element — a morphing cell of an `mdc-carousel`.
  */
-import { html, LitElement, type TemplateResult } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
-import type { CarouselItemSize, ICarouselItem } from './carousel.interface'
+import { html, LitElement, nothing, type TemplateResult } from 'lit'
+import { customElement, property, queryAssignedNodes, state } from 'lit/decorators.js'
+import { CarouselItemSize, type IMDCCarouselItem } from './carousel.interface'
 import { CarouselItemStyles } from './carousel-item.style'
 
 declare global {
@@ -24,39 +20,24 @@ declare global {
 /**
  * @element mdc-carousel-item
  *
- * A single cell of an `mdc-carousel`. Declare one of the three sizes; the
- * owning carousel sizes the cell (width + roundness) and tracks it as the
- * focal item (`active`) as the carousel scrolls.
+ * A single cell of an `mdc-carousel`. Its width, corner roundness, and
+ * `--mdc-carousel-item-ratio` are driven dynamically by the owning carousel's
+ * keyline engine as the user scrolls.
  *
- * @slot — The cell content (image, card, label, …).
- *
- * @cssproperty --mdc-carousel-small-item-width
- * @cssproperty --mdc-carousel-medium-item-width
- * @cssproperty --mdc-carousel-large-item-width
- * @cssproperty --mdc-carousel-small-item-shape-start-start
- * @cssproperty --mdc-carousel-small-item-shape-start-end
- * @cssproperty --mdc-carousel-small-item-shape-end-start
- * @cssproperty --mdc-carousel-small-item-shape-end-end
- * @cssproperty --mdc-carousel-medium-item-shape-start-start
- * @cssproperty --mdc-carousel-medium-item-shape-start-end
- * @cssproperty --mdc-carousel-medium-item-shape-end-start
- * @cssproperty --mdc-carousel-medium-item-shape-end-end
- * @cssproperty --mdc-carousel-large-item-shape-start-start
- * @cssproperty --mdc-carousel-large-item-shape-start-end
- * @cssproperty --mdc-carousel-large-item-shape-end-start
- * @cssproperty --mdc-carousel-large-item-shape-end-end
- * @cssproperty --mdc-carousel-item-height
+ * @slot — The cell content (image, card, custom content).
+ * @slot caption — Optional bottom overlay caption with automatic scrim and
+ *     opacity fade when the item shrinks.
  */
 @customElement('mdc-carousel-item')
-export class CarouselItem extends LitElement implements ICarouselItem {
+export class CarouselItem extends LitElement implements IMDCCarouselItem {
 
     static override styles = CarouselItemStyles
 
-    /** Visual size: `'large'` | `'medium'` (default) | `'small'`. */
+    /** Visual size dynamically updated by the owning carousel: `'large'` | `'medium'` | `'small'`. */
     @property({ type: String, reflect: true })
-    public size: CarouselItemSize = 'medium'
+    public size: CarouselItemSize = CarouselItemSize.Medium
 
-    /** Set by the owning carousel when this item is the focal (leading) item. */
+    /** Set by the owning carousel when this item is the focal item. */
     @property({ type: Boolean, reflect: true })
     public active = false
 
@@ -64,7 +45,26 @@ export class CarouselItem extends LitElement implements ICarouselItem {
     @property({ type: Number, reflect: true })
     public index = 0
 
+    @state()
+    private hasCaption = false
+
+    @queryAssignedNodes({ slot: 'caption', flatten: true })
+    private readonly captionNodes!: Node[]
+
     protected override render(): TemplateResult {
-        return html`<slot></slot>`
+        return html`
+            <div class="content" part="content">
+                <slot></slot>
+                <div class="caption" part="caption" ?hidden=${!this.hasCaption}>
+                    <slot name="caption" @slotchange=${this.handleCaptionSlotChange}></slot>
+                </div>
+            </div>
+        `
+    }
+
+    private readonly handleCaptionSlotChange = (): void => {
+        this.hasCaption = this.captionNodes.some(
+            (node) => node.nodeType === Node.ELEMENT_NODE || (node.nodeType === Node.TEXT_NODE && node.textContent?.trim()),
+        )
     }
 }

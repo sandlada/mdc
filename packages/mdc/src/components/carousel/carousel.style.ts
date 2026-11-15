@@ -4,14 +4,7 @@
  * SPDX-License-Identifier: MIT
  *
  * @fileoverview
- * Styles for `mdc-carousel` — the scroll-snap container.
- *
- * The host is the scroll container: a `flex` row with horizontal overflow and
- * scroll snapping. Item widths are derived at runtime (see
- * `internal/base-carousel.ts`) and chained into the definition's per-size
- * `--_*-item-width` custom properties, so the slotted `mdc-carousel-item`
- * cells can read them across the shadow boundary. Users may override every
- * value through the public `--mdc-carousel-*` properties.
+ * Styles for `mdc-carousel` — the Material Design 3 scroll-snap carousel.
  */
 import { css } from 'lit'
 import { stringifyTokens } from '../../utils/style'
@@ -22,43 +15,109 @@ const Tokens = stringifyTokens('--mdc-carousel')(CarouselDefinition)
 const StylePart = css`
     @layer mdc.carousel.component {
         :host {
-            display: flex;
+            position: relative;
+            display: block;
             box-sizing: border-box;
-            align-items: stretch;
             overflow-x: auto;
             overflow-y: hidden;
-            gap: var(--_item-spacing);
-            padding-inline-start: var(--_container-padding-inline-start);
-            padding-inline-end: var(--_container-padding-inline-end);
-            padding-block-start: var(--_container-padding-block-start);
-            padding-block-end: var(--_container-padding-block-end);
-            /* Items snap their start edge to the leading keyline (the inline
-               padding position), matching the Compose keyline alignment. */
             scroll-snap-type: x mandatory;
-            scroll-padding-inline-start: var(--_container-padding-inline-start);
-            scroll-padding-inline-end: var(--_container-padding-inline-end);
             overscroll-behavior-x: contain;
+            touch-action: pan-y;
             outline: none;
             scrollbar-width: none;
-            -ms-overflow-style: none;
+            user-select: none;
+            -webkit-user-drag: none;
+            cursor: grab;
         }
         :host::-webkit-scrollbar {
             display: none;
         }
 
-        /* Uncontained: fixed-width items, free scrolling — no snap. */
+        :host([data-dragging]) {
+            cursor: grabbing;
+            scroll-snap-type: none;
+        }
+
+        /* Invisible snap track driving native scroll-snap & scrollWidth for keylined variants. */
+        .snap-track {
+            position: absolute;
+            inset-block-start: 0;
+            inset-inline-start: 0;
+            height: 1px;
+            display: flex;
+            pointer-events: none;
+        }
+
+        .snap-stop {
+            flex: none;
+            height: 1px;
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+        }
+
+        /* Sticky viewport stays pinned while :host scrolls horizontally. */
+        .viewport {
+            position: sticky;
+            inset-inline-start: 0;
+            width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
+            padding-inline-start: var(--_container-padding-inline-start);
+            padding-inline-end: var(--_container-padding-inline-end);
+            padding-block-start: var(--_container-padding-block-start);
+            padding-block-end: var(--_container-padding-block-end);
+        }
+
+        .track {
+            position: relative;
+            width: 100%;
+        }
+
+        :host(:not([variant='uncontained'])) ::slotted(mdc-carousel-item) {
+            position: absolute;
+            inset-block-start: 0;
+            inset-inline-start: 0;
+            will-change: transform, width;
+        }
+
+        /* Uncontained: uniform items flow natively without keyline morphing or snap. */
         :host([variant='uncontained']) {
             scroll-snap-type: none;
         }
-        :host([variant='uncontained']) ::slotted(mdc-carousel-item) {
-            scroll-snap-align: none;
+
+        :host([variant='uncontained']) .snap-track {
+            display: none;
         }
 
-        ::slotted(mdc-carousel-item) {
+        :host([variant='uncontained']) .viewport {
+            position: static;
+            width: max-content;
+            min-width: 100%;
+            overflow: visible;
+        }
+
+        :host([variant='uncontained']) .track {
+            display: flex;
+            align-items: stretch;
+            gap: var(--_item-spacing);
+        }
+
+        :host([variant='uncontained']) ::slotted(mdc-carousel-item) {
             flex: none;
-            scroll-snap-align: start;
-            /* One item per fling, mirroring Compose's single-advance behavior. */
-            scroll-snap-stop: always;
+        }
+
+        :host(:focus-visible) {
+            outline: 2px solid var(--md-sys-color-primary);
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+    }
+
+    @layer mdc.carousel.a11y {
+        @media (forced-colors: active) {
+            :host(:focus-visible) {
+                outline: 2px solid Highlight;
+            }
         }
     }
 
@@ -74,7 +133,7 @@ const StylePart = css`
 export const CarouselStyles = [
     css`
         @layer mdc.carousel {
-            @layer variable, component, motion;
+            @layer variable, component, a11y, motion;
         }
     `,
     css`@layer mdc.carousel.variable { :host { ${Tokens}; } }`,
