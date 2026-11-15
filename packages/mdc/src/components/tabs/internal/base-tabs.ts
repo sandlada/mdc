@@ -7,15 +7,18 @@
  * Internal base class for `mdc-tabs`.
  *
  * The bar owns selection: a single active tab at a time (roving `tabindex`),
- * an ARIA `tablist` role, arrow-key navigation and a cancelable `change` event
- * that fires before the selection is committed. Each tab is asked to animate
- * its indicator (via the {@link AnimateIndicator} symbol) from the previous
- * tab's position, so the active indicator slides smoothly between tabs.
+ * an ARIA `tablist` role, arrow-key navigation (skipping disabled tabs) and a
+ * cancelable `change` event that fires before the selection is committed.
+ * Each tab is asked to animate its indicator (via {@link AnimateIndicator})
+ * from the previous tab's position, so the active indicator slides smoothly
+ * between tabs.
  */
-import { html, isServer, LitElement, type PropertyValues, type TemplateResult } from 'lit'
+import { html, isServer, LitElement, nothing, type PropertyValues, type TemplateResult } from 'lit'
 import { property, query, queryAssignedElements } from 'lit/decorators.js'
+import { classMap } from 'lit/directives/class-map.js'
 import { BaseTab, AnimateIndicator } from './base-tab'
-import type { ITabs } from '../tabs.interface'
+import { TabsMode, type IMDCTabs } from '../tabs.interface'
+import type { TabVariant } from '../tab.interface'
 
 /** Roving-tabindex selector — matches any element marked as an `mdc-tab`. */
 const TabSelector = '[mdc-tab]'
@@ -24,10 +27,13 @@ function isTab(element: EventTarget | null): element is BaseTab {
     return !!element && element instanceof BaseTab
 }
 
+function isTabFocusable(tab: BaseTab): boolean {
+    return !tab.disabled || tab.alwaysFocusable
+}
+
 // NOTE: `mixinElementInternals` is intentionally NOT used here — the tab bar
 // has no form / `ElementInternals` needs; it is a plain `tablist` container.
-export abstract class BaseTabs extends LitElement implements ITabs {
-
+export abstract class BaseTabs extends LitElement implements IMDCTabs {
     /** The index of the active tab. */
     @property({ type: Number, reflect: true, attribute: 'active-tab-index' })
     public activeTabIndex = 0
@@ -35,6 +41,22 @@ export abstract class BaseTabs extends LitElement implements ITabs {
     /** If `true` (default), arrow keys immediately activate the focused tab. */
     @property({ type: Boolean, reflect: true, attribute: 'auto-activate' })
     public autoActivate = true
+
+    /** Layout mode (`fixed` | `scrollable`). Defaults to `fixed`. */
+    @property({ type: String, reflect: true })
+    public mode: TabsMode = TabsMode.Fixed
+
+    /** Optional bar-level variant propagated to child `mdc-tab` elements that omit `variant`. */
+    @property({ type: String, reflect: true })
+    public variant?: TabVariant
+
+    /** Hides the trailing divider below the tab bar. */
+    @property({ type: Boolean, reflect: true, attribute: 'no-divider' })
+    public noDivider = false
+
+    /** Accessible name (`aria-label`) forwarded to the `tablist` element. */
+    @property({ type: String })
+    public label = ''
 
     @query('.tabs')
     protected readonly tabsElement!: HTMLElement | null
@@ -53,17 +75,28 @@ export abstract class BaseTabs extends LitElement implements ITabs {
     /** The currently selected tab. */
     public get activeTab(): BaseTab | null {
         const { activeTabIndex, tabs } = this
-        const activeTab = tabs[activeTabIndex]
-        if (activeTab) {
-            return activeTab
+        const candidate = tabs[activeTabIndex]
+        if (candidate && !candidate.disabled) {
+            return candidate
         }
-        // Fall back to the first tab when the index is out of range.
-        return tabs[0] ?? null
+        return tabs.find((tab) => !tab.disabled) ?? null
+    }
+
+    protected getTabsClasses() {
+        return {
+            'scrollable': this.mode === TabsMode.Scrollable,
+            'fixed'     : this.mode === TabsMode.Fixed,
+        }
     }
 
     protected override render(): TemplateResult {
         return html`
-            <div class="tabs" role="tablist">
+            <div
+                class="tabs ${classMap(this.getTabsClasses())}"
+                part="tabs"
+                role="tablist"
+                aria-label=${this.label || nothing}
+            >
                 <slot @slotchange=${this.handleSlotChange} @click=${this.handleTabClick}></slot>
             </div>
             <div class="divider" part="divider"></div>
@@ -72,10 +105,23 @@ export abstract class BaseTabs extends LitElement implements ITabs {
 
     protected override updated(changedProperties: PropertyValues<this>): void {
         super.updated(changedProperties)
+        if (changedProperties.has('variant') && this.variant !== undefined) {
+            this.syncChildVariants()
+        }
         if (changedProperties.has('activeTabIndex')) {
             const { activeTabIndex, tabs } = this
-            if (tabs.length && activeTabIndex >= 0 && activeTabIndex < tabs.length) {
-                this.activateTab(tabs[activeTabIndex], false)
+            const target = tabs[activeTabIndex]
+            if (target && !target.disabled) {
+                void this.activateTab(target, false)
+            }
+        }
+    }
+
+    private syncChildVariants(): void {
+        if (this.variant === undefined) return
+        for (const tab of this.tabs) {
+            if (!tab.hasAttribute('variant')) {
+                tab.variant = this.variant
             }
         }
     }
@@ -88,37 +134,63 @@ export abstract class BaseTabs extends LitElement implements ITabs {
 
     private async activateTabAfterMicrotask(target: EventTarget | null): Promise<void> {
         await 0
-        if (!isTab(target) || target.active) {
+        if (!isTab(target) || target.disabled || target.active) {
             return
         }
-        this.activateTab(target, true)
+        void this.activateTab(target, true)
     }
 
     private readonly handleKeydown = (event: KeyboardEvent): void => {
         if (event.defaultPrevented || !isTab(event.target)) {
             return
         }
+        const len = this.tabs.length
+        if (len === 0) return
+
         const { key, ctrlKey, metaKey } = event
-        const start = this.tabs.findIndex((tab) => tab.active)
-        let next = NaN
+        const focusedIndex = this.tabs.indexOf(event.target)
+        const start = focusedIndex >= 0 ? focusedIndex : this.tabs.findIndex((tab) => tab.active)
+
+        let target: BaseTab | null = null
         if (key === 'Home') {
-            next = 0
+            target = this.findNextFocusableTab(0, 1)
         } else if (key === 'End') {
-            next = this.tabs.length - 1
+            target = this.findNextFocusableTab(len - 1, -1)
         } else if (key === 'ArrowLeft' || key === 'ArrowRight') {
             const dir = key === 'ArrowLeft' ? -1 : 1
             const offset = this.isRtl() ? -dir : dir
-            next = start + offset
+            const next = (((start + offset) % len) + len) % len
+            target = this.findNextFocusableTab(next, offset)
         }
-        if (isNaN(next)) {
+
+        if (!target) {
             return
         }
+
         event.preventDefault()
-        const target = this.tabs[next % this.tabs.length]
-        if (ctrlKey || metaKey || this.autoActivate) {
-            this.activateTab(target, true)
+        if (!target.disabled && (ctrlKey || metaKey || this.autoActivate)) {
+            void this.activateTab(target, true)
         } else {
+            this.updateRovingTabindex(target)
             target.focus()
+        }
+    }
+
+    private findNextFocusableTab(startIndex: number, step: number): BaseTab | null {
+        const len = this.tabs.length
+        for (let i = 0; i < len; i++) {
+            const idx = (((startIndex + i * step) % len) + len) % len
+            const candidate = this.tabs[idx]
+            if (isTabFocusable(candidate)) {
+                return candidate
+            }
+        }
+        return null
+    }
+
+    private updateRovingTabindex(focusedTab: BaseTab): void {
+        for (const tab of this.tabs) {
+            tab.tabIndex = tab === focusedTab ? 0 : -1
         }
     }
 
@@ -129,19 +201,17 @@ export abstract class BaseTabs extends LitElement implements ITabs {
     private readonly handleSlotChange = (): void => {
         // Query for assigned elements, as a tab may be slotted from a wrapper.
         this.tabs = this.assignedTabs
-        const { activeTabIndex, activeTab } = this
+        this.syncChildVariants()
+
+        const { activeTab } = this
         for (const [index, tab] of this.tabs.entries()) {
             tab.index = index
-            tab.tabIndex = index === activeTabIndex ? 0 : -1
-            if (tab === activeTab) {
-                tab.active = true
-            } else {
-                tab.active = false
-            }
+            const isActive = tab === activeTab
+            tab.active = isActive
+            tab.tabIndex = isActive && isTabFocusable(tab) ? 0 : -1
         }
-        if (activeTab === null && this.tabs[0]) {
-            // No active tab yet — select the first one so the indicator shows.
-            this.activateTab(this.tabs[0], false)
+        if (activeTab && this.activeTabIndex !== activeTab.index) {
+            this.activeTabIndex = activeTab.index
         }
     }
 
@@ -152,8 +222,8 @@ export abstract class BaseTabs extends LitElement implements ITabs {
      * the previous selection is restored.
      */
     public async activateTab(tab: BaseTab, userInitiated: boolean): Promise<void> {
-        const previousTab = this.activeTab
-        if (!tab || tab === previousTab) {
+        const previousTab = this.tabs.find((candidate) => candidate.active) ?? null
+        if (!tab || tab.disabled || tab === previousTab) {
             return
         }
         // Because `change` is cancelable, only commit after the event is not
@@ -177,9 +247,7 @@ export abstract class BaseTabs extends LitElement implements ITabs {
         this.activeTabIndex = tab.index
 
         // Roving tabindex — the newly active tab receives the focus slot.
-        for (const [index, candidate] of this.tabs.entries()) {
-            candidate.tabIndex = index === tab.index ? 0 : -1
-        }
+        this.updateRovingTabindex(tab)
 
         // Animate the indicator from the previous tab's position.
         tab[AnimateIndicator](previousTab)
@@ -200,7 +268,7 @@ export abstract class BaseTabs extends LitElement implements ITabs {
         }
         const { offsetLeft, offsetWidth } = tabToScrollTo
         const { scrollLeft, clientWidth, scrollWidth } = tabsElement
-        const maxScroll = scrollWidth - clientWidth
+        const maxScroll = Math.max(0, scrollWidth - clientWidth)
         const targetScroll = Math.max(
             0,
             Math.min(offsetLeft - (clientWidth - offsetWidth) / 2, maxScroll)

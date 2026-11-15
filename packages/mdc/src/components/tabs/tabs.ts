@@ -27,8 +27,13 @@ declare global {
  * @fires change — Cancelable. Fires before selection commits; `preventDefault()`
  *     reverts the selection.
  *
+ * @csspart tabs — The scrollable tablist container.
+ * @csspart divider — The trailing bottom divider.
+ *
+ * @cssproperty --mdc-tabs-enabled-container-color
  * @cssproperty --mdc-tabs-enabled-divider-color
  * @cssproperty --mdc-tabs-divider-height
+ * @cssproperty --mdc-tabs-scrollable-edge-padding
  */
 @customElement('mdc-tabs')
 export class Tabs extends BaseTabs {

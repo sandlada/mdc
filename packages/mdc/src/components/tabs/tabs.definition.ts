@@ -6,25 +6,20 @@
  * @fileoverview
  * Style definition for the `mdc-tabs` container.
  *
- * The container itself is a transparent flex row; the only themed surface it
- * paints is the trailing divider that separates the tab bar from the content
- * below it.
+ * Metrics aligned with Material Design 3 Figma specs and Jetpack Compose
+ * Material 3 (`TabRowDefaults` / `PrimaryScrollableTabRow` / `SecondaryScrollableTabRow`):
+ * - Divider: 1dp `OutlineVariant`
+ * - Scrollable edge start padding: 52dp (`ScrollableTabRowEdgeStartPadding`)
  *
  * @link
- * https://m3.material.io/components/tabs/overview
+ * https://m3.material.io/components/tabs/specs
  */
 import { Color } from '../../utils/color'
 import { createStyleDefinition } from '../../utils/style'
 
-
-interface ITabsScheme {
-    'enabled-container-color': string
-    'enabled-divider-color': string
-    'divider-height': string
-}
-
 export const TabsDefinition = createStyleDefinition({
     'enabled-container-color': `transparent`,
-    'enabled-divider-color': Color.OutlineVariant,
-    'divider-height': `1px`,
+    'enabled-divider-color'  : Color.OutlineVariant,
+    'divider-height'         : `1px`,
+    'scrollable-edge-padding': `52px`,
 })

@@ -8,14 +8,14 @@
  *
  * A tab is a single-select cell inside an `mdc-tabs` bar. Selection is owned
  * by the parent bar (roving `tabindex`, `role="tab"`, `aria-selected`), while
- * the tab is responsible for rendering its icon / label and the animated
- * active indicator.
+ * the tab is responsible for rendering its icon, badge, label, and the
+ * animated active indicator.
  *
  * Label and icon width/opacity changes are animated via
  * {@link MeasuredDimensionController} and {@link OpacityTransitionController},
  * so a tab visibly resizes / fades when its slotted content changes.
  */
-import { html, isServer, LitElement, type PropertyValues, type TemplateResult } from 'lit'
+import { html, isServer, LitElement, nothing, type PropertyValues, type TemplateResult } from 'lit'
 import { property, query, queryAssignedElements, queryAssignedNodes } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import { mixinElementInternals } from '../../../utils/behaviors/element-internals'
@@ -24,7 +24,7 @@ import { MeasuredDimensionController } from '../../../utils/controller/measured-
 import { OpacityTransitionController } from '../../../utils/controller/opacity-transition-controller'
 import { mixinFocusRingOptions } from '../../focus-ring/focus-ring-options.mixin'
 import { mixinRippleOptions } from '../../ripple/ripple-options.mixin'
-import type { ITab, TabVariant } from '../tab.interface'
+import { TabVariant, type IMDCTab } from '../tab.interface'
 
 /**
  * Symbol used by `mdc-tabs` to request a tab to animate its active indicator
@@ -40,12 +40,10 @@ const IndicatorDuration = 250
 // itself the focusable, interactive element (it carries `role="tab"` and
 // `aria-selected`); delegating aria to a `data-*` attribute would strip the
 // role from the accessibility tree.
-export abstract class BaseTab extends composeMixin(
-    mixinElementInternals,
-    mixinRippleOptions,
-    mixinFocusRingOptions
-)(LitElement) implements ITab {
-
+export abstract class BaseTab
+    extends composeMixin(mixinElementInternals, mixinRippleOptions, mixinFocusRingOptions)(LitElement)
+    implements IMDCTab
+{
     /**
      * Marks the element as a tab child of `mdc-tabs`. The bar discovers its
      * tabs by querying this attribute.
@@ -57,30 +55,37 @@ export abstract class BaseTab extends composeMixin(
     @property({ type: Boolean, reflect: true })
     public active = false
 
-    /** @deprecated use `active`. */
-    @property({ type: Boolean })
-    public get selected(): boolean {
-        return this.active
-    }
-    public set selected(active: boolean) {
-        this.active = active
-    }
+    /** Whether this tab is disabled and non-interactive. */
+    @property({ type: Boolean, reflect: true })
+    public disabled = false
+
+    /** Keeps a disabled tab focusable in roving tabindex order. */
+    @property({ type: Boolean, reflect: true, attribute: 'always-focusable' })
+    public alwaysFocusable = false
 
     /** Visual variant — `primary` | `secondary` | `floating`. */
     @property({ type: String, reflect: true })
-    public variant: TabVariant = 'primary'
+    public variant: TabVariant = TabVariant.Primary
 
     /** Index within the parent `mdc-tabs`, assigned by the bar. */
     @property({ type: Number })
     public index = 0
 
-    /** Set when the `icon` slot is populated. */
+    /** Set automatically when the `icon` slot is populated. */
     @property({ type: Boolean, reflect: true, attribute: 'has-icon' })
     public hasIcon = false
 
-    /** Set when the default slot is empty — the tab shows only its icon. */
+    /** Set automatically when the default slot (and `label`) is empty — the tab shows only its icon. */
     @property({ type: Boolean, reflect: true, attribute: 'icon-only' })
     public iconOnly = false
+
+    /** Set automatically when the `badge` slot is populated. */
+    @property({ type: Boolean, reflect: true, attribute: 'has-badge' })
+    public hasBadge = false
+
+    /** Optional fallback label text when the default slot is empty; also used for `aria-label`. */
+    @property({ type: String })
+    public label = ''
 
     @query('.tab')
     protected readonly buttonElement!: HTMLElement | null
@@ -97,6 +102,8 @@ export abstract class BaseTab extends composeMixin(
     private readonly assignedDefaultNodes!: Node[]
     @queryAssignedElements({ slot: 'icon', flatten: true })
     private readonly assignedIcons!: HTMLElement[]
+    @queryAssignedElements({ slot: 'badge', flatten: true })
+    private readonly assignedBadges!: HTMLElement[]
 
     /** Animates the label width when the slotted label text changes. */
     protected readonly labelWidthController = new MeasuredDimensionController(this, {
@@ -129,25 +136,32 @@ export abstract class BaseTab extends composeMixin(
 
     protected getContentClasses() {
         return {
-            'has-icon': this.hasIcon,
+            'has-icon' : this.hasIcon,
             'has-label': !this.iconOnly,
+            'has-badge': this.hasBadge,
         }
     }
 
     protected override render(): TemplateResult {
+        const indicator = html`<div class="indicator" part="indicator" aria-hidden="true"></div>`
+        const isPrimary = this.variant === TabVariant.Primary
+
         return html`
-            <div class="tab" role="presentation" @click=${this.handleContentClick}>
+            <div class="tab" part="tab" role="presentation" @click=${this.handleContentClick}>
                 ${this.renderFocusRing()}
-                ${this.renderRipple()}
+                ${this.disabled ? nothing : this.renderRipple()}
                 <div class="content ${classMap(this.getContentClasses())}" role="presentation">
                     <span class="icon" aria-hidden="true">
                         <slot name="icon" @slotchange=${this.handleIconSlotChange}></slot>
+                        ${this.hasIcon ? html`<span class="badge"><slot name="badge" @slotchange=${this.handleBadgeSlotChange}></slot></span>` : nothing}
                     </span>
                     <span class="label">
-                        <slot @slotchange=${this.handleSlotChange}></slot>
+                        <slot @slotchange=${this.handleSlotChange}>${this.label}</slot>
                     </span>
+                    ${!this.hasIcon ? html`<span class="badge"><slot name="badge" @slotchange=${this.handleBadgeSlotChange}></slot></span>` : nothing}
+                    ${isPrimary ? indicator : nothing}
                 </div>
-                <div class="indicator" aria-hidden="true"></div>
+                ${isPrimary ? nothing : indicator}
             </div>
         `
     }
@@ -157,10 +171,20 @@ export abstract class BaseTab extends composeMixin(
         if (changedProperties.has('active')) {
             this.setAttribute('aria-selected', String(this.active))
         }
+        if (changedProperties.has('disabled')) {
+            if (this.disabled) {
+                this.setAttribute('aria-disabled', 'true')
+            } else {
+                this.removeAttribute('aria-disabled')
+            }
+        }
+        if (changedProperties.has('label')) {
+            this.syncLabelState()
+        }
     }
 
     private readonly handleKeydown = (event: KeyboardEvent): void => {
-        if (event.defaultPrevented) return
+        if (event.defaultPrevented || this.disabled) return
         if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault()
             this.click()
@@ -168,28 +192,40 @@ export abstract class BaseTab extends composeMixin(
     }
 
     private readonly handleContentClick = (event: Event): void => {
+        if (this.disabled) {
+            event.preventDefault()
+            event.stopPropagation()
+            return
+        }
         // Ensure the click target is always the tab host, not slotted content.
         event.stopPropagation()
         this.click()
     }
 
     private readonly handleSlotChange = (): void => {
-        this.iconOnly = false
-        // If the default slot has no element or non-whitespace text, the tab
-        // is icon-only.
+        this.syncLabelState()
+    }
+
+    private syncLabelState(): void {
+        let hasSlotContent = false
         for (const node of this.assignedDefaultNodes) {
             const hasTextContent =
                 node.nodeType === Node.TEXT_NODE &&
                 !!(node as Text).wholeText.match(/\S/)
             if (node.nodeType === Node.ELEMENT_NODE || hasTextContent) {
-                return
+                hasSlotContent = true
+                break
             }
         }
-        this.iconOnly = true
+        this.iconOnly = !hasSlotContent && !this.label
     }
 
     private readonly handleIconSlotChange = (): void => {
         this.hasIcon = this.assignedIcons.length > 0
+    }
+
+    private readonly handleBadgeSlotChange = (): void => {
+        this.hasBadge = this.assignedBadges.length > 0
     }
 
     /**
@@ -216,19 +252,20 @@ export abstract class BaseTab extends composeMixin(
         }
 
         const from: Keyframe = {}
-        const fromRect = previousTab?.indicatorElement?.getBoundingClientRect() ?? ({} as DOMRect)
-        const fromPos = fromRect.left
-        const fromExtent = fromRect.width
+        const fromRect = previousTab?.indicatorElement?.getBoundingClientRect()
         const toRect = this.indicatorElement!.getBoundingClientRect()
+        const fromPos = fromRect?.left
+        const fromExtent = fromRect?.width ?? 0
         const toPos = toRect.left
         const toExtent = toRect.width
-        const scale = fromExtent / toExtent
+
         if (
             !reduceMotion &&
             fromPos !== undefined &&
-            toPos !== undefined &&
-            !isNaN(scale)
+            fromExtent > 0 &&
+            toExtent > 0
         ) {
+            const scale = fromExtent / toExtent
             from['transform'] = `translateX(${(fromPos - toPos).toFixed(4)}px) scaleX(${scale.toFixed(4)})`
         } else {
             from['opacity'] = 0
