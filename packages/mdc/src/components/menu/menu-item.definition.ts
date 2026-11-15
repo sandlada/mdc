@@ -30,6 +30,7 @@ import { createStyleDefinition, expandPadding, expandShape, expandTypescale } fr
  */
 const MenuItemSharedTokens = {
     ...expandShape('enabled-container-shape')('4px'),
+    ...expandShape('enabled-container-shape-selected')('12px'),
 
     ...expandPadding('enabled-container-padding')({ block: '0px', inlineStart: '12px', inlineEnd: '12px' }),
 
@@ -89,6 +90,9 @@ export const StandardMenuItemDefinition = createStyleDefinition({
     'hovered-state-layer-color': Color.OnSurface,
     'focused-state-layer-color': Color.OnSurface,
     'pressed-state-layer-color': Color.OnSurface,
+    'hovered-state-layer-color-selected': Color.OnTertiaryContainer,
+    'focused-state-layer-color-selected': Color.OnTertiaryContainer,
+    'pressed-state-layer-color-selected': Color.OnTertiaryContainer,
 })
 
 export const VibrantMenuItemDefinition = createStyleDefinition({
@@ -117,6 +121,9 @@ export const VibrantMenuItemDefinition = createStyleDefinition({
     'hovered-state-layer-color': Color.OnTertiaryContainer,
     'focused-state-layer-color': Color.OnTertiaryContainer,
     'pressed-state-layer-color': Color.OnTertiaryContainer,
+    'hovered-state-layer-color-selected': Color.OnTertiary,
+    'focused-state-layer-color-selected': Color.OnTertiary,
+    'pressed-state-layer-color-selected': Color.OnTertiary,
 })
 
 export const MenuItemDefinitions = {
