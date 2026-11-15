@@ -275,7 +275,7 @@ const ButtonSharedStyle = css`
         position: relative;
         display: grid;
         place-content: center;
-        flex-grow: 0;
+        flex-grow: var(--_mdc-swipe-action-grow, 0);
         flex-shrink: 0;
         border: none;
         text-decoration: none;
@@ -392,6 +392,12 @@ const IconSlotStyle = css`
     .icon {
         grid-row: 1/2;
         grid-column: 1/2;
+    }
+
+    /* Dynamic swipe-action pill fade driven by enclosing mdc-list-item during reveal. */
+    ::slotted(*) {
+        opacity: var(--_mdc-swipe-action-icon-opacity, 1);
+        transition: opacity var(--_mdc-swipe-action-icon-transition, 0ms) linear;
     }
 
     /* For Checkable IconButton */

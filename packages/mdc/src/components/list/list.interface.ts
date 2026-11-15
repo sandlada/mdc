@@ -43,6 +43,32 @@ export const ListItemPositions = ['single', 'first', 'middle', 'last'] as const
 export type ListItemPosition = (typeof ListItemPositions)[number]
 
 /**
+ * Reveal state of a swipeable `mdc-list-item`.
+ *
+ * - `closed`     — default un-swiped state.
+ * - `open-start` — swiped toward inline-end, revealing `swipe-start` actions.
+ * - `open-end`   — swiped toward inline-start, revealing `swipe-end` actions.
+ */
+export const ListSwipeStates = ['closed', 'open-start', 'open-end'] as const
+export type ListSwipeState = (typeof ListSwipeStates)[number]
+
+/**
+ * Horizontal side containing swipe-to-reveal actions.
+ */
+export const ListSwipeSides = ['start', 'end'] as const
+export type ListSwipeSide = (typeof ListSwipeSides)[number]
+
+/**
+ * Behavior when swiping past the open reveal width toward the primary action.
+ *
+ * - `none`     — only snaps between closed and open; no full-swipe commit.
+ * - `indirect` — first swipe opens actions; swiping further from open commits primary action.
+ * - `direct`   — single full swipe commits primary action directly.
+ */
+export const ListSwipePrimaryModes = ['none', 'indirect', 'direct'] as const
+export type ListSwipePrimaryMode = (typeof ListSwipePrimaryModes)[number]
+
+/**
  * The element name of list items, used by `mdc-list` to discover slotted children.
  */
 export const ListItemSelector = 'mdc-list-item'
@@ -64,6 +90,18 @@ export const ListSelectionChangeEvent = 'list-selection-change'
  * `expanded` state.
  */
 export const ListItemExpandChangeEvent = 'list-item-expand-change'
+
+/**
+ * Dispatched (bubbles + composed) when a swipeable `mdc-list-item` changes its
+ * `swipeState` (`'closed'`, `'open-start'`, or `'open-end'`).
+ */
+export const ListItemSwipeChangeEvent = 'list-item-swipe-change'
+
+/**
+ * Dispatched (bubbles + composed) when a swipe-to-reveal action is triggered either
+ * via full-swipe commit (`trigger: 'swipe'`) or clicking a slotted action (`trigger: 'click'`).
+ */
+export const ListItemSwipeActionEvent = 'list-item-swipe-action'
 
 export interface IMDCListSelectionChangeDetail {
     /** The item whose selection changed. */
@@ -129,6 +167,12 @@ export interface IMDCListItemAttributes {
     expandable: boolean
     /** Whether the item's `children` slot is currently expanded. */
     expanded: boolean
+    /** Current swipe reveal state (`'closed'` | `'open-start'` | `'open-end'`). */
+    swipeState: ListSwipeState
+    /** Full-swipe primary action commit behavior (`'none'` | `'indirect'` | `'direct'`). */
+    swipePrimaryMode: ListSwipePrimaryMode
+    /** Disables horizontal swipe gestures even when swipe action slots are populated. */
+    swipeDisabled: boolean
     /** Roving tabindex value assigned by the parent `mdc-list`. */
     listTabIndex: number
 }
@@ -142,9 +186,24 @@ export interface IMDCListItemExpandChangeDetail {
     expanded: boolean
 }
 
+export interface IMDCListItemSwipeChangeDetail {
+    item: IMDCListItem
+    state: ListSwipeState
+    previousState: ListSwipeState
+}
+
+export interface IMDCListItemSwipeActionDetail {
+    item: IMDCListItem
+    side: ListSwipeSide
+    action: HTMLElement | null
+    trigger: 'swipe' | 'click'
+}
+
 export interface IMDCListItemEvents {
     [ListItemRequestActivationEvent]: CustomEvent<IMDCListItemRequestActivationEventDetail>
     [ListItemExpandChangeEvent]: CustomEvent<IMDCListItemExpandChangeDetail>
+    [ListItemSwipeChangeEvent]: CustomEvent<IMDCListItemSwipeChangeDetail>
+    [ListItemSwipeActionEvent]: CustomEvent<IMDCListItemSwipeActionDetail>
 }
 
 export interface IMDCListItem extends LitElement, IMDCListItemAttributes {
@@ -154,11 +213,20 @@ export interface IMDCListItem extends LitElement, IMDCListItemAttributes {
     /** Whether the item can expand (`expandable` attribute or has child items). */
     readonly isExpandable: boolean
 
+    /** Whether either `swipe-start` or `swipe-end` contains action elements. */
+    readonly hasSwipeActions: boolean
+
     /** Whether the item is interactive (`button` or `link` type). */
     readonly isInteractive: boolean
 
     /** Whether the item is disabled (always false for `link` items). */
     readonly isDisabled: boolean
+
+    /** Reveals the swipe actions on the specified side (defaults to `'end'`, or `'start'` if only start actions exist). */
+    openSwipe(side?: ListSwipeSide): void
+
+    /** Closes any currently revealed swipe actions. */
+    closeSwipe(): void
 
     /** Focuses the item's root element. */
     focus(): void

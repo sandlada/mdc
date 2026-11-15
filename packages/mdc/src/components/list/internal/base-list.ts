@@ -17,10 +17,12 @@ import {
     ListItemExpandChangeEvent,
     ListItemRequestActivationEvent,
     ListItemSelector,
+    ListItemSwipeChangeEvent,
     ListSelectionChangeEvent,
     type IMDCList,
     type IMDCListItem,
     type IMDCListItemRequestActivationEventDetail,
+    type IMDCListItemSwipeChangeDetail,
     type IMDCListSelectionChangeDetail,
     type ListItemPosition,
     type ListSelectionMode,
@@ -83,6 +85,7 @@ export abstract class BaseList extends composeMixin(
         this.addEventListener(ListItemRequestActivationEvent, this.handleRequestActivation)
         this.addEventListener(ListItemExpandChangeEvent, this.handleExpandChange)
         this.addEventListener(ListItemChildrenChangeEvent, this.handleExpandChange)
+        this.addEventListener(ListItemSwipeChangeEvent, this.handleSwipeChange)
     }
 
     protected override updated(changedProperties: PropertyValues<this>): void {
@@ -123,12 +126,29 @@ export abstract class BaseList extends composeMixin(
         this.updateTabIndices()
     }
 
+    private readonly handleSwipeChange = (event: Event): void => {
+        const detail = (event as CustomEvent<IMDCListItemSwipeChangeDetail>).detail
+        if (!detail || detail.state === 'closed') {
+            return
+        }
+        for (const item of this.cachedItems) {
+            if (item !== detail.item && item.swipeState !== 'closed') {
+                item.closeSwipe()
+            }
+        }
+    }
+
     private readonly handleFocusIn = (): void => {
         this.updateTabIndices()
     }
 
     private readonly handleRequestActivation = (event: Event): void => {
         const item = (event as CustomEvent<IMDCListItemRequestActivationEventDetail>).detail.item
+        for (const other of this.cachedItems) {
+            if (other !== item && other.swipeState !== 'closed') {
+                other.closeSwipe()
+            }
+        }
         item.focus()
         this.updateTabIndices()
 

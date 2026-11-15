@@ -65,6 +65,7 @@ export const ListItemDefinition = createStyleDefinition({
     ...expandShape('focused-container-shape')(Shape.Large),
     ...expandShape('pressed-container-shape')(Shape.Large),
     ...expandShape('enabled-selected-container-shape')(Shape.Large),
+    ...expandShape('enabled-swiped-container-shape')(Shape.Large),
 
     'one-line-container-height'   : `56px`,
     'two-line-container-height'   : `72px`,
@@ -150,6 +151,18 @@ export const ListItemDefinition = createStyleDefinition({
     'enabled-expand-indicator-icon-color-expanded'      : Color.OnSurface,
     'enabled-standard-children-gap'                     : `0px`,
     'enabled-segmented-children-gap'                    : `2px`,
+
+    // Swipe-to-reveal actions
+    'enabled-swiped-container-color'                    : Color.SurfaceContainer,
+    'enabled-swipe-gap'                                 : `4px`,
+    'enabled-swipe-actions-gap'                         : `4px`,
+    'swipe-action-min-width'                            : `56px`,
+    'swipe-action-height'                               : `56px`,
+    ...expandShape('swipe-action-shape')(Shape.Full),
+    'enabled-swipe-action-container-color'              : Color.SurfaceContainerHighest,
+    'enabled-swipe-action-label-color'                  : Color.OnSurface,
+    'enabled-swipe-primary-action-container-color'      : Color.Primary,
+    'enabled-swipe-primary-action-label-color'          : Color.OnPrimary,
 
     // State layers (wired into `mdc-ripple`)
     'hovered-state-layer-color'   : Color.OnSurface,

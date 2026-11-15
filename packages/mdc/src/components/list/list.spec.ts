@@ -12,6 +12,8 @@ import { ListDefinition, ListItemDefinition } from './list.definition'
 import {
     ListItemExpandChangeEvent,
     ListItemRequestActivationEvent,
+    ListItemSwipeActionEvent,
+    ListItemSwipeChangeEvent,
     ListSelectionChangeEvent,
 } from './list.interface'
 
@@ -21,15 +23,21 @@ interface ListInternals {
     updateTabIndices(): void
     handleRequestActivation(event: Event): void
     handleExpandChange(): void
+    handleSwipeChange(event: Event): void
     handleKeydown(event: KeyboardEvent): void
     render(): { strings: TemplateStringsArray; values: unknown[] }
 }
 
 interface ListItemInternals {
     listDisabled: boolean
+    hasSwipeStart: boolean
+    hasSwipeEnd: boolean
+    assignedSwipeStarts: HTMLElement[]
+    assignedSwipeEnds: HTMLElement[]
     cachedChildItems: MDCListItem[]
     willUpdate(changedProperties: Map<string, unknown>): void
     handleActivation(event: Event): void
+    handleSwipeActionsClick(side: 'start' | 'end', event: Event): void
     getRenderClasses(): Record<string, boolean>
     render(): { strings: TemplateStringsArray; values: unknown[] }
 }
@@ -234,7 +242,7 @@ describe('MDCList & MDCListItem', () => {
         item.selectionMode = 'single'
         item.selected = true
         const itemTpl = (item as unknown as ListItemInternals).render()
-        const rowTpl = itemTpl.values[0] as { values: unknown[] }
+        const rowTpl = itemTpl.values[4] as { values: unknown[] }
         expect(rowTpl.values).toContain('option')
         expect(rowTpl.values).toContain('true')
     })
@@ -288,5 +296,84 @@ describe('MDCList & MDCListItem', () => {
         expect(parent.expanded).toBe(false)
         expect(list.items).toEqual([parent])
         expect(parent.position).toBe('single')
+    })
+
+    it('supports swipe-to-reveal tokens, openSwipe/closeSwipe, click closing, action events, and mutual exclusion', () => {
+        expect(ListItemDefinition['enabled-swiped-container-color']).toBe(Color.SurfaceContainer)
+        expect(ListItemDefinition['enabled-swiped-container-shape-start-start']).toBe(Shape.Large)
+        expect(ListItemDefinition['enabled-swipe-gap']).toBe('4px')
+        expect(ListItemDefinition['enabled-swipe-actions-gap']).toBe('4px')
+        expect(ListItemDefinition['enabled-swipe-primary-action-container-color']).toBe(Color.Primary)
+
+        const itemA = createListItem('button')
+        const itemB = createListItem('button')
+        const internalsA = itemA as unknown as ListItemInternals
+        const internalsB = itemB as unknown as ListItemInternals
+
+        const editBtn = {} as HTMLElement
+        internalsA.hasSwipeEnd = true
+        internalsA.hasSwipeStart = true
+        Object.defineProperty(itemA, 'assignedSwipeEnds', { get: () => [editBtn], configurable: true })
+        internalsB.hasSwipeEnd = true
+        Object.defineProperty(itemB, 'assignedSwipeEnds', { get: () => [{} as HTMLElement], configurable: true })
+
+        const { internals } = setupList([itemA, itemB], { selectionMode: 'single' })
+
+        const swipeChanges: unknown[] = []
+        const actionEvents: unknown[] = []
+        const activations: unknown[] = []
+        itemA.dispatchEvent = ((e: Event) => {
+            if (e.type === ListItemSwipeChangeEvent) {
+                swipeChanges.push((e as CustomEvent).detail)
+                internals.handleSwipeChange(e)
+            } else if (e.type === ListItemSwipeActionEvent) {
+                actionEvents.push((e as CustomEvent).detail)
+            } else if (e.type === ListItemRequestActivationEvent) {
+                activations.push((e as CustomEvent).detail)
+                internals.handleRequestActivation(e)
+            }
+            return true
+        }) as typeof itemA.dispatchEvent
+
+        itemB.dispatchEvent = ((e: Event) => {
+            if (e.type === ListItemSwipeChangeEvent) {
+                internals.handleSwipeChange(e)
+            }
+            return true
+        }) as typeof itemB.dispatchEvent
+
+        expect(itemA.hasSwipeActions).toBe(true)
+        itemA.openSwipe('end')
+        expect(itemA.swipeState).toBe('open-end')
+        expect(internalsA.getRenderClasses()['swiped']).toBe(true)
+        expect(swipeChanges).toHaveLength(1)
+
+        // Tapping an open row closes swipe rather than activating selection
+        internalsA.handleActivation({ preventDefault: vi.fn() } as unknown as Event)
+        expect(itemA.swipeState).toBe('closed')
+        expect(activations).toHaveLength(0)
+
+        // Opening itemB closes itemA if itemA was open
+        itemA.openSwipe('start')
+        expect(itemA.swipeState).toBe('open-start')
+        itemB.openSwipe('end')
+        expect(itemB.swipeState).toBe('open-end')
+        expect(itemA.swipeState).toBe('closed')
+
+        // Disabled swipe blocks openSwipe
+        itemA.swipeDisabled = true
+        itemA.openSwipe('end')
+        expect(itemA.swipeState).toBe('closed')
+        itemA.swipeDisabled = false
+
+        // Clicking a slotted swipe action dispatches list-item-swipe-action
+        internalsA.handleSwipeActionsClick('end', { composedPath: () => [editBtn] } as unknown as Event)
+        expect(actionEvents).toHaveLength(1)
+        expect(actionEvents[0]).toEqual({
+            item: itemA,
+            side: 'end',
+            action: editBtn,
+            trigger: 'click',
+        })
     })
 })

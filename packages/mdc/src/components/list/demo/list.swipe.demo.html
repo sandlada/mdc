@@ -1,0 +1,109 @@
+<style>
+    .swipe-demo-column {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 16px;
+        max-width: 480px;
+    }
+
+    .swipe-demo-surface {
+        padding: 16px;
+        border-radius: 16px;
+        background-color: var(--md-sys-color-surface, #fff);
+        border: 1px solid var(--md-sys-color-outline-variant, #e0e0e0);
+    }
+
+    .swipe-demo-caption {
+        font-size: 12px;
+        color: #757575;
+    }
+</style>
+
+<div class="swipe-demo-column">
+    <span class="swipe-demo-caption">Swipe-to-reveal actions (drag horizontally to reveal, or tap actions):</span>
+    <div class="swipe-demo-surface">
+        <mdc-list variant="standard" aria-label="Swipeable list">
+            <mdc-list-item type="button">
+                <mdc-icon slot="start">stars</mdc-icon>
+                <span>Label text</span>
+                <span slot="trailing-supporting-text">⌘C</span>
+                <mdc-icon slot="end">more_vert</mdc-icon>
+                <mdc-icon-button slot="swipe-end" size="medium" variant="filled-tonal" aria-label="Favorite">
+                    <mdc-icon>star</mdc-icon>
+                </mdc-icon-button>
+                <mdc-icon-button slot="swipe-end" size="medium" variant="filled-tonal" aria-label="Move">
+                    <mdc-icon>drive_file_move</mdc-icon>
+                </mdc-icon-button>
+                <mdc-icon-button slot="swipe-end" size="medium" variant="filled" aria-label="Edit">
+                    <mdc-icon>edit</mdc-icon>
+                </mdc-icon-button>
+            </mdc-list-item>
+
+            <mdc-list-item type="button" swipe-state="open-end">
+                <mdc-icon slot="start">stars</mdc-icon>
+                <span>Label text</span>
+                <span slot="trailing-supporting-text">⌘C</span>
+                <mdc-icon slot="end">more_vert</mdc-icon>
+                <mdc-icon-button slot="swipe-end" size="medium" variant="filled-tonal" aria-label="Favorite">
+                    <mdc-icon>star</mdc-icon>
+                </mdc-icon-button>
+                <mdc-icon-button slot="swipe-end" size="medium" variant="filled-tonal" aria-label="Move">
+                    <mdc-icon>drive_file_move</mdc-icon>
+                </mdc-icon-button>
+                <mdc-icon-button slot="swipe-end" size="medium" variant="filled" aria-label="Edit">
+                    <mdc-icon>edit</mdc-icon>
+                </mdc-icon-button>
+            </mdc-list-item>
+
+            <mdc-list-item type="button">
+                <mdc-icon slot="start">stars</mdc-icon>
+                <span>Label text</span>
+                <span slot="trailing-supporting-text">⌘C</span>
+                <mdc-icon slot="end">more_vert</mdc-icon>
+                <mdc-icon-button slot="swipe-end" size="medium" variant="filled-tonal" aria-label="Favorite">
+                    <mdc-icon>star</mdc-icon>
+                </mdc-icon-button>
+                <mdc-icon-button slot="swipe-end" size="medium" variant="filled-tonal" aria-label="Move">
+                    <mdc-icon>drive_file_move</mdc-icon>
+                </mdc-icon-button>
+                <mdc-icon-button slot="swipe-end" size="medium" variant="filled" aria-label="Edit">
+                    <mdc-icon>edit</mdc-icon>
+                </mdc-icon-button>
+            </mdc-list-item>
+        </mdc-list>
+    </div>
+</div>
+
+<div class="swipe-demo-column">
+    <span class="swipe-demo-caption">Bidirectional segmented list (`swipe-start` + `swipe-end`, with `direct` primary swipe commit):</span>
+    <div class="swipe-demo-surface">
+        <mdc-list variant="segmented" aria-label="Bidirectional swipe list">
+            <mdc-list-item type="button" swipe-primary-mode="direct">
+                <mdc-icon slot="start">mail</mdc-icon>
+                <span>Swipe right to archive, left to delete</span>
+                <span slot="supporting-text">Full swipe widens & commits primary action</span>
+                <mdc-icon-button slot="swipe-start" size="medium" variant="filled" aria-label="Archive">
+                    <mdc-icon>archive</mdc-icon>
+                </mdc-icon-button>
+                <mdc-icon-button slot="swipe-end" size="medium" variant="filled-tonal" aria-label="Snooze">
+                    <mdc-icon>snooze</mdc-icon>
+                </mdc-icon-button>
+                <mdc-icon-button slot="swipe-end" size="medium" variant="filled" aria-label="Delete">
+                    <mdc-icon>delete</mdc-icon>
+                </mdc-icon-button>
+            </mdc-list-item>
+            <mdc-list-item type="button" swipe-primary-mode="direct">
+                <mdc-icon slot="start">drafts</mdc-icon>
+                <span>Project review notes</span>
+                <span slot="supporting-text">Single action per side commits directly</span>
+                <mdc-icon-button slot="swipe-start" size="medium" variant="filled" aria-label="Pin">
+                    <mdc-icon>push_pin</mdc-icon>
+                </mdc-icon-button>
+                <mdc-icon-button slot="swipe-end" size="medium" variant="filled" aria-label="Delete">
+                    <mdc-icon>delete</mdc-icon>
+                </mdc-icon-button>
+            </mdc-list-item>
+        </mdc-list>
+    </div>
+</div>

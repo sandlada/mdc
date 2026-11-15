@@ -42,13 +42,30 @@ export const ListItemStyles = css`
             outline: none;
         }
 
+        .swipe-row {
+            display: flex;
+            align-items: stretch;
+            width: 100%;
+            position: relative;
+        }
+
+        :host([has-swipe-actions]) .swipe-row {
+            touch-action: pan-y;
+        }
+
+        :host([swiping]) .swipe-row {
+            user-select: none;
+        }
+
         .container {
             all: unset;
             position: relative;
             box-sizing: border-box;
             display: flex;
             align-items: stretch;
-            width: 100%;
+            flex: 1 1 0%;
+            min-width: 0;
+            overflow: hidden;
             min-height: var(--_one-line-container-height);
             padding-inline-start: var(--_enabled-container-padding-inline-start);
             padding-inline-end: var(--_enabled-container-padding-inline-end);
@@ -149,17 +166,190 @@ export const ListItemStyles = css`
         :host([variant='segmented']) .container.disabled {
             background-color: var(--_disabled-segmented-container-color);
         }
+
+        /* Swiping / swiped-open foreground card morphs to SurfaceContainer + Shape.Large */
+        .container.swiped:not(.disabled),
+        :host([swiping]) .container:not(.disabled) {
+            background-color: var(--_enabled-swiped-container-color);
+            border-start-start-radius: var(--_enabled-swiped-container-shape-start-start);
+            border-start-end-radius: var(--_enabled-swiped-container-shape-start-end);
+            border-end-start-radius: var(--_enabled-swiped-container-shape-end-start);
+            border-end-end-radius: var(--_enabled-swiped-container-shape-end-end);
+        }
+        :host([swiping]) .container:not(.disabled) {
+            transition: none;
+        }
+        :host([variant='segmented'][swiping]) .container:not(.disabled),
+        :host([variant='segmented'][swiping]) .container:is(.button, .link):not(.disabled):hover,
+        :host([variant='segmented'][swiping]) .container:is(.button, .link):not(.disabled):focus-visible,
+        :host([variant='segmented'][swiping]) .container:is(.button, .link):not(.disabled):active,
+        :host([variant='segmented']) .container.swiped:is(.button, .link):not(.disabled):hover,
+        :host([variant='segmented']) .container.swiped:is(.button, .link):not(.disabled):focus-visible,
+        :host([variant='segmented']) .container.swiped:is(.button, .link):not(.disabled):active {
+            border-start-start-radius: var(--_enabled-swiped-container-shape-start-start);
+            border-start-end-radius: var(--_enabled-swiped-container-shape-start-end);
+            border-end-start-radius: var(--_enabled-swiped-container-shape-end-start);
+            border-end-end-radius: var(--_enabled-swiped-container-shape-end-end);
+        }
     }
 
     @layer mdc.list-item.base.layout {
+        .item-clip {
+            position: relative;
+            z-index: 1;
+            flex: 1 1 0%;
+            min-width: 0;
+            align-self: stretch;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+
+        .container.three-line .item-clip {
+            align-items: flex-start;
+        }
+
         .item {
             position: relative;
             z-index: 1;
             display: flex;
             align-items: center;
-            flex: 1;
+            flex: 0 0 calc(100% + var(--_swipe-content-extra, 0px));
             min-width: 0;
             gap: var(--_enabled-between-space);
+            transform: translateX(var(--_swipe-content-shift, 0px));
+            transition:
+                flex-basis 250ms ${EmphasizedEasing},
+                transform 250ms ${EmphasizedEasing};
+        }
+
+        :host([swipe-state='open-end']) {
+            --_swipe-content-extra: calc(var(--_swipe-end-intrinsic, 0px) + var(--_enabled-swipe-gap));
+            --_swipe-content-shift: calc(-1 * var(--_swipe-dir, 1) * (var(--_swipe-end-intrinsic, 0px) + var(--_enabled-swipe-gap)));
+        }
+        :host([swipe-state='open-start']) {
+            --_swipe-content-extra: calc(var(--_swipe-start-intrinsic, 0px) + var(--_enabled-swipe-gap));
+            --_swipe-content-shift: 0px;
+        }
+        :host([swiping]) .container,
+        :host([swiping]) .item,
+        :host([swiping]) .swipe-actions,
+        :host([swiping]) .swipe-actions-track {
+            transition: none;
+        }
+
+        .swipe-actions {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            width: 0px;
+            opacity: 0;
+            pointer-events: none;
+            transition:
+                width 250ms ${EmphasizedEasing},
+                margin-inline 250ms ${EmphasizedEasing},
+                opacity 200ms ${EmphasizedEasing};
+        }
+        .swipe-actions.measuring {
+            width: max-content;
+            max-width: none;
+        }
+        .swipe-actions.start {
+            justify-content: flex-start;
+        }
+        .swipe-actions.end {
+            justify-content: flex-end;
+        }
+        .swipe-actions {
+            --_mdc-swipe-action-icon-opacity: 0;
+            --_mdc-swipe-action-icon-transition: 120ms;
+        }
+        :host([swipe-state='open-start']) .swipe-actions.start {
+            width: var(--_swipe-start-intrinsic, 0px);
+            margin-inline-end: var(--_enabled-swipe-gap);
+            opacity: 1;
+            pointer-events: auto;
+            --_mdc-swipe-action-icon-opacity: 1;
+            --_mdc-swipe-action-icon-transition: 120ms;
+        }
+        :host([swipe-state='open-end']) .swipe-actions.end {
+            width: var(--_swipe-end-intrinsic, 0px);
+            margin-inline-start: var(--_enabled-swipe-gap);
+            opacity: 1;
+            pointer-events: auto;
+            --_mdc-swipe-action-icon-opacity: 1;
+            --_mdc-swipe-action-icon-transition: 120ms;
+        }
+        :host([swiping]) .swipe-actions.start {
+            width: var(--_swipe-drag-start-width, 0px);
+            margin-inline-end: var(--_swipe-drag-start-gap, 0px);
+            opacity: var(--_swipe-drag-start-opacity, 0);
+            --_mdc-swipe-action-icon-opacity: var(--_swipe-drag-start-icon-opacity, 0);
+            --_mdc-swipe-action-icon-transition: 0ms;
+        }
+        :host([swiping]) .swipe-actions.end {
+            width: var(--_swipe-drag-end-width, 0px);
+            margin-inline-start: var(--_swipe-drag-end-gap, 0px);
+            opacity: var(--_swipe-drag-end-opacity, 0);
+            --_mdc-swipe-action-icon-opacity: var(--_swipe-drag-end-icon-opacity, 0);
+            --_mdc-swipe-action-icon-transition: 0ms;
+        }
+
+        .swipe-actions-track {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            gap: var(--_enabled-swipe-actions-gap);
+            height: 100%;
+        }
+        .swipe-actions.start .swipe-actions-track {
+            justify-content: flex-start;
+        }
+        .swipe-actions.end .swipe-actions-track {
+            justify-content: flex-end;
+        }
+        .swipe-actions.measuring .swipe-actions-track {
+            width: max-content;
+        }
+
+        .swipe-actions ::slotted(*) {
+            flex: 0 1 auto;
+            min-width: 0;
+            border-radius: 9999px;
+            overflow: hidden;
+            transition:
+                flex-grow 200ms ${EmphasizedEasing};
+        }
+        .swipe-actions.measuring ::slotted(*) {
+            flex: 0 0 auto;
+        }
+        :host([swipe-primary-mode='indirect'][swiping]) .swipe-actions.is-primary-active ::slotted([data-swipe-primary]),
+        :host([swipe-primary-mode='direct'][swiping]) .swipe-actions.is-primary-active ::slotted([data-swipe-primary]),
+        :host([swipe-primary-ready]) .swipe-actions.is-primary-active ::slotted([data-swipe-primary]) {
+            flex-grow: 1;
+            --_mdc-swipe-action-grow: 1;
+        }
+        .swipe-actions ::slotted(button) {
+            all: unset;
+            box-sizing: border-box;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: var(--_swipe-action-min-width);
+            height: var(--_swipe-action-height);
+            padding-inline: 16px;
+            border-start-start-radius: var(--_swipe-action-shape-start-start);
+            border-start-end-radius: var(--_swipe-action-shape-start-end);
+            border-end-start-radius: var(--_swipe-action-shape-end-start);
+            border-end-end-radius: var(--_swipe-action-shape-end-end);
+            background-color: var(--_enabled-swipe-action-container-color);
+            color: var(--_enabled-swipe-action-label-color);
+            cursor: pointer;
+        }
+        .swipe-actions ::slotted(button[data-primary]) {
+            background-color: var(--_enabled-swipe-primary-action-container-color);
+            color: var(--_enabled-swipe-primary-action-label-color);
         }
 
         .container.three-line .item {
@@ -485,6 +675,9 @@ export const ListItemStyles = css`
 
     @media (prefers-reduced-motion: reduce) {
         .container,
+        .item,
+        .swipe-actions,
+        .swipe-actions-track,
         .expand-indicator,
         .expand-indicator svg,
         .children-collapse {
