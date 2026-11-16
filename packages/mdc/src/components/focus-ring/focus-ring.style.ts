@@ -32,8 +32,6 @@ const StylePart = css`
             opacity: 0;
             pointer-events: none;
             position: absolute;
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
         }
 
         :host([focused]),
@@ -72,6 +70,12 @@ const StylePart = css`
         }
         :host([focused][inward]) {
             animation-name: inward-grow, inward-shrink;
+        }
+
+        /* Private replay hook used by MDCFocusRing.restartAnimation().
+           Keeping it in CSS avoids overwriting consumer inline animation styles. */
+        :host([data-replay][focused]) {
+            animation: none;
         }
 
         :host([shape-inherit]) {
@@ -140,15 +144,6 @@ const StylePart = css`
             }
         }
     }
-    @layer mdc.focus-ring.hcm {
-        @media (forced-colors: active) {
-            :host {
-                border-color: Highlight;
-                outline-color: Highlight;
-                color: Highlight;
-            }
-        }
-    }
     @layer mdc.focus-ring.contrast {
         @media (prefers-contrast: more) {
             :host {
@@ -162,12 +157,21 @@ const StylePart = css`
             }
         }
     }
+    @layer mdc.focus-ring.hcm {
+        @media (forced-colors: active) {
+            :host {
+                border-color: Highlight;
+                outline-color: Highlight;
+                color: Highlight;
+            }
+        }
+    }
 `
 
 export const FocusRingStyle = [
     css`
         @layer mdc.focus-ring {
-            @layer variable, component, hcm, contrast, motion;
+            @layer variable, component, motion, contrast, hcm;
         }
     `,
     css`@layer mdc.focus-ring.variable {:host {${Tokens};}}`,

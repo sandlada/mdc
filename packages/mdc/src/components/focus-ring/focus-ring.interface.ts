@@ -14,5 +14,6 @@ export interface IFocusRing extends LitElement, IAttachable {
     ignoreGlobalConfig: boolean
     shapeInherit: boolean
     persistent  : boolean
+    close(): void
 }
 

@@ -11,6 +11,14 @@ import { mixinFocusRingOptions } from './focus-ring-options.mixin'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 
 describe('MDCFocusRing', () => {
+    it('does not write presentation attributes during construction', () => {
+        const ring = new MDCFocusRing()
+
+        expect(ring.hasAttribute('aria-hidden')).toBe(false)
+        expect(ring.hasAttribute('role')).toBe(false)
+        expect(ring.hasAttribute('tabindex')).toBe(false)
+    })
+
     it('has persistent property defaulting to false', () => {
         const ring = new MDCFocusRing()
         expect(ring.persistent).toBe(false)
@@ -109,6 +117,16 @@ describe('mixinFocusRingOptions', () => {
         const template = host.renderFocusRing()
         expect(template).toBeDefined()
         expect(template.strings.join('')).toContain('mdc-focus-ring')
+    })
+
+    it('only opts into local config when disabled is explicitly configured', () => {
+        const host = new TestHost()
+
+        expect(host.renderFocusRing().strings.join('')).not.toContain('ignore-global-config')
+
+        host.focusRingDisabled = true
+
+        expect(host.renderFocusRing().strings.join('')).toContain('ignore-global-config')
     })
 })
 

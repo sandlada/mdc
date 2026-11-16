@@ -17,9 +17,24 @@ declare global {
     }
 }
 
+const ReplayAttribute = 'data-replay'
+
+const getDeepActiveElement = (): Element | null => {
+    if (typeof document === 'undefined') return null
+
+    let active: Element | null = document.activeElement
+
+    while (active?.shadowRoot?.activeElement) {
+        active = active.shadowRoot.activeElement
+    }
+
+    return active
+}
+
 /**
  * The parent element of the focus ring used to provide perspective focus
- * must be set to relative and the tabindex must not be -1.
+ * must be positioned (for example, `position: relative`). The ring follows
+ * focus on the control itself or any descendant in its flat tree.
  *
  * The ring can also be attached to an external control through the `for`
  * attribute or the `attach(control)` method.
@@ -54,25 +69,31 @@ export class MDCFocusRing extends LitElement implements IFocusRing {
     private _disabledConfigured: boolean = false
     private _configAttributeSyncSource: 'property' | 'effective' | null = null
     private _lastEffectiveDisabled: boolean = false
+    private _focusDriven: boolean = false
 
     private readonly globalMDCContextConsumer = new ContextConsumer(this, {
         context: GlobalMDCContext,
         subscribe: true,
     })
 
+    /** Draws the ring inside the control instead of around it. */
     @property({ type: Boolean, reflect: true })
     public inward = false
 
+    /** Inherits the control's corner radii instead of using the ring's own shape. */
     @property({ type: Boolean, reflect: true, attribute: 'shape-inherit' })
     public shapeInherit = true
 
+    /** Disables the grow replay and CSS transitions. */
     @property({ type: Boolean, reflect: true, attribute: 'animation-disabled' })
     public animationDisabled = false
 
+    /** Keeps the ring visible even when the attached control is not focused. */
     @property({ type: Boolean, reflect: true })
     public persistent = false
 
 
+    /** Ignores global focus-ring configuration and uses local properties only. */
     @property({ type: Boolean, attribute: 'ignore-global-config', reflect: true, noAccessor: true })
     public get ignoreGlobalConfig() {
         return this._ignoreGlobalConfig
@@ -91,6 +112,10 @@ export class MDCFocusRing extends LitElement implements IFocusRing {
         this.requestUpdate('ignoreGlobalConfig', oldValue)
     }
 
+    /**
+     * Effective disabled state. Setting it explicitly creates a local override
+     * that takes precedence over the global focus-ring configuration.
+     */
     @property({ type: Boolean, attribute: 'disabled', noAccessor: true })
     public get disabled() {
         return this.effectiveDisabled
@@ -123,9 +148,17 @@ export class MDCFocusRing extends LitElement implements IFocusRing {
     }
 
 
+    /**
+     * Whether the ring is shown. Setting it to `true` while already focused
+     * replays the grow animation.
+     */
     @property({ type: Boolean, reflect: false, noAccessor: true })
     public get focused() { return this.hasAttribute('focused') }
     public set focused(value: boolean) {
+        if (!value) {
+            this._focusDriven = false
+        }
+
         if (value) {
             if (this.disabled) {
                 this.removeAttribute('focused')
@@ -141,41 +174,35 @@ export class MDCFocusRing extends LitElement implements IFocusRing {
         this.removeAttribute('focused')
     }
 
+    private openFromFocus(): void {
+        this._focusDriven = true
+        this.focused = true
+    }
+
+    private closeFromFocus(): void {
+        this._focusDriven = false
+        this.focused = false
+    }
+
     private restartAnimation(): void {
-        if (isServer || this.animationDisabled) return
+        if (isServer || !this.isConnected || this.animationDisabled) return
         if (typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches) {
             return
         }
-        const animations = this.getAnimations?.() ?? []
-        let restarted = false
-        for (const anim of animations) {
-            if (
-                typeof CSSAnimation !== 'undefined' &&
-                anim instanceof CSSAnimation &&
-                (anim.animationName === 'outward-grow' ||
-                    anim.animationName === 'outward-shrink' ||
-                    anim.animationName === 'inward-grow' ||
-                    anim.animationName === 'inward-shrink')
-            ) {
-                anim.currentTime = 0
-                anim.play()
-                restarted = true
-            }
-        }
-        if (!restarted && typeof this.style !== 'undefined') {
-            this.style.animation = 'none'
-            // Trigger a layout reflow to flush animation reset
-            void this.offsetHeight
-            this.style.animation = ''
-        }
+
+        this.toggleAttribute(ReplayAttribute, true)
+        // Trigger a layout reflow so the animation name is flushed to none
+        // before it is restored, which restarts the CSS animation from zero.
+        void this.offsetHeight
+        this.toggleAttribute(ReplayAttribute, false)
     }
 
-
-    public constructor() {
-        super()
+    override connectedCallback(): void {
+        super.connectedCallback()
         if (isServer) return
-        this.ariaHidden = 'true'
-        this.role = 'presentation'
+
+        this.setAttribute('aria-hidden', 'true')
+        this.setAttribute('role', 'presentation')
         this.tabIndex = -1
     }
 
@@ -243,36 +270,56 @@ export class MDCFocusRing extends LitElement implements IFocusRing {
             prev?.removeEventListener(event, this.boundHandleEvent)
             next?.addEventListener(event, this.boundHandleEvent)
         }
+
+        if (this.isFocusVisible(next)) {
+            this.openFromFocus()
+        } else if (this._focusDriven) {
+            this.closeFromFocus()
+        }
     }
 
-    private checkFocusVisible(control: HTMLElement | null): boolean {
-        if (!control) return false
+    private isFocusVisible(control: HTMLElement | null): boolean {
+        if (!control?.isConnected) return false
         if (control.matches(':focus-visible')) return true
+
         const shadowActive = control.shadowRoot?.activeElement
-        if (shadowActive && shadowActive.matches?.(':focus-visible')) {
-            return true
-        }
-        return false
+        if (shadowActive?.matches?.(':focus-visible')) return true
+
+        const active = getDeepActiveElement()
+        if (!active) return false
+
+        const isInside = control === active
+            || control.contains(active)
+            || control.matches(':focus-within')
+
+        return isInside && active.matches(':focus-visible')
     }
 
     private handleEvent(e: Event) {
         if (this.disabled) return
 
         switch (e.type) {
-            case 'focusin': {
-                const isVisible = this.checkFocusVisible(this.control)
-                if (isVisible) {
-                    this.focused = true
+            case 'focusin':
+                if (this.isFocusVisible(this.control)) {
+                    this.openFromFocus()
                 }
                 break
-            }
             case 'focusout':
             case 'pointerdown':
-                this.focused = false
+                this.scheduleFocusStateSync()
                 break
             default:
                 break
         }
+    }
+
+    private scheduleFocusStateSync(): void {
+        queueMicrotask(() => {
+            if (this.disabled) return
+            if (!this.isFocusVisible(this.control)) {
+                this.closeFromFocus()
+            }
+        })
     }
 
     /**

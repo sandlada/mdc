@@ -67,19 +67,24 @@ Use `attach(control)` and `detach()` when you need to control the target imperat
 - `shape-inherit`: inherits the host's corner radius. Default: `true`.
 - `animation-disabled`: disables the focus ring animation and transition. Default: `false`.
 - `disabled`: turns the ring off. Default: `false`.
+- `persistent`: keeps the ring visible even when the control is not focused. Default: `false`.
 - `ignore-global-config`: opts the component out of global focus-ring configuration; when present the component will not inherit global focus-ring settings and will use local properties only. Default: `false`.
-- `focused`: force-shows the focus ring (useful for host-driven forced focus or testing). Default: `false`.
+- `focused`: force-shows the focus ring (useful for host-driven forced focus or testing). Setting it again while already focused replays the grow animation. Default: `false`.
 
 Programmatic API:
 
 - `htmlFor` / `for`: reflects the ID of the control the ring follows.
 - `control`: the resolved `HTMLElement` the ring is attached to (or `null`).
 - `attach(control)` / `detach()`: imperatively attach or detach the ring from a control. Note: `attach()` removes the `for` attribute (so the attached control is used), while `detach()` sets `for=""` to create an explicit detached state (control is `null`).
+- `close()`: clears the focused state immediately; the exit transition is handled by CSS.
 
-When a global `GlobalMDCContextProvider` is attached, `mdc-focus-ring` computes its effective disabled state like this: if `GlobalMDCContext.focusRing.disabled` is defined, that value is used; otherwise the component is disabled when `GlobalMDCContext.enableFocusRing` is `false` (i.e., it falls back to the inverse of `enableFocusRing`). A locally configured `disabled` value takes precedence over the global configuration. Setting `ignore-global-config` forces the component to ignore global settings and use local properties only.
+When a global `GlobalMDCContextProvider` is attached, `mdc-focus-ring` reads `GlobalMDCContext.focusRing.disabled`. A locally configured `disabled` value takes precedence over the global configuration. Setting `ignore-global-config` forces the component to ignore global settings and use local properties only.
 
 ## Notes
 
 - The control that the ring follows (the "host") should be focusable (e.g., `tabindex` not `-1`). For standalone rings or when the ring is not a direct child, ensure the container uses `position: relative` so the overlay positions correctly.
 - Calling `detach()` sets `for=""` to create an intentional detached state (the ring's `control` becomes `null`). Removing the `for` attribute returns control resolution to the ring's parent element.
+- `for` is an HTML IDREF, not a CSS selector. Any valid HTML id is accepted, including React `useId()` values such as `:r0:` and ids containing `.` or `#`. Only `""` (detached) and ids containing ASCII whitespace are rejected with an error. A valid id that matches no element yields `control === null`.
+- A `for` target must exist when the ring connects. If the target is rendered later, call `attach()` after inserting it.
+- The ring detects focused descendants, so it can be placed in a focus-within container instead of directly next to the focused element.
 - The component is exported from `@sandlada/mdc/components/focus-ring/index`, so the import shown above is the preferred entry point.

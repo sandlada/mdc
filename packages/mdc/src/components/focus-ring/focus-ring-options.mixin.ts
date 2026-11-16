@@ -14,7 +14,6 @@ export interface IMixinFocusRingAttributes {
     focusRingShapeInherit     : boolean
     focusRingDisabled         : boolean
     focusRingAnimationDisabled: boolean
-    focusRingFocused          : boolean
     focusRingPersistent       : boolean
 }
 
@@ -87,9 +86,6 @@ export function mixinFocusRingOptions<T extends MixinBase<LitElement>>(base: T):
         @property({ type: Boolean, reflect: true, attribute: 'focus-ring-animation-disabled' })
         public focusRingAnimationDisabled: boolean = false
 
-        @property({ type: Boolean, reflect: true, attribute: 'focus-ring-focused'})
-        public focusRingFocused: boolean = false
-
         @property({ type: Boolean, reflect: true, attribute: 'focus-ring-persistent' })
         public focusRingPersistent: boolean = false
 
@@ -137,34 +133,21 @@ export function mixinFocusRingOptions<T extends MixinBase<LitElement>>(base: T):
         protected override updated(_changedProperties: PropertyValues): void {
             super.updated(_changedProperties)
 
-            if(this.focusRingElement) {
-               if(this.focusRingElement.control !== this.focusRingControl) {
-                    this.focusRingElement.control = this.focusRingControl
-                }
-                if(this.focusRingElement.htmlFor !== this.focusRingHtmlFor) {
-                    this.focusRingElement.htmlFor = this.focusRingHtmlFor
-                }
-                if(this.useLocalConfig && this.focusRingElement.disabled !== this.focusRingDisabled) {
-                    this.focusRingElement.disabled = this.focusRingDisabled
-                }
-                if(this.focusRingElement.animationDisabled !== this.focusRingAnimationDisabled) {
-                    this.focusRingElement.animationDisabled = this.focusRingAnimationDisabled
-                }
-                if(this.focusRingElement.persistent !== this.focusRingPersistent) {
-                    this.focusRingElement.persistent = this.focusRingPersistent
-                }
-                // Only force-show when the host explicitly requests it.
-                // Never force-hide: the ring manages its own closed state via
-                // focusout / pointerdown events. Overriding to false here would
-                // reset a ring that was legitimately opened by focusin (e.g.
-                // after arrow-key navigation triggers a checked → Lit update).
-                if (this.focusRingFocused && !this.focusRingElement.focused) {
-                    this.focusRingElement.focused = true
-                }
+            const ring = this.focusRingElement
+            if (!ring) return
+
+            if (ring.control !== this.focusRingControl) {
+                ring.control = this.focusRingControl
+            }
+            if (ring.htmlFor !== this.focusRingHtmlFor) {
+                ring.htmlFor = this.focusRingHtmlFor
             }
         }
 
         public renderFocusRing(): TemplateResult {
+            // Keep the no-local-config branch separate: assigning `.disabled`
+            // on the ring marks an explicit local override and would stop it
+            // from inheriting the global focus-ring configuration.
             if (!this.useLocalConfig) {
                 return html`
                     <mdc-focus-ring
