@@ -5,7 +5,7 @@
  */
 import { describe, it, expect } from 'vitest'
 import { MDCLegacySlider } from './legacy-slider'
-import { BaseSlider } from '../slider/internal/base-slider'
+import { BaseSlider } from './internal/base-slider'
 
 describe('MDCLegacySlider', () => {
     it('instantiates with defaults', () => {

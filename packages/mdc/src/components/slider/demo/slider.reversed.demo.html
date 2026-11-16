@@ -1,29 +1,16 @@
-<div>
+<div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: center; width: 100%;">
     <mdc-slider value="25"></mdc-slider>
     <mdc-slider reversed value="25"></mdc-slider>
-    <mdc-slider reversed value="0"></mdc-slider>
-    <mdc-slider reversed value="50"></mdc-slider>
     <mdc-slider reversed value="75"></mdc-slider>
-    <mdc-slider reversed value="100"></mdc-slider>
 </div>
 
-<div>
-    <mdc-slider reversed type="centered" value="0"></mdc-slider>
-    <mdc-slider reversed type="centered" value="25"></mdc-slider>
-    <mdc-slider reversed type="centered" value="50"></mdc-slider>
-    <mdc-slider reversed type="centered" value="-25"></mdc-slider>
-    <mdc-slider reversed type="centered" value="-50"></mdc-slider>
-</div>
-
-<div>
-    <mdc-slider reversed type="range" value-start="0" value-end="50"></mdc-slider>
+<div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: center; width: 100%;">
+    <mdc-slider reversed type="centered" min="-100" max="100" value="-40"></mdc-slider>
+    <mdc-slider reversed type="centered" min="-100" max="100" value="40"></mdc-slider>
     <mdc-slider reversed type="range" value-start="20" value-end="80"></mdc-slider>
-    <mdc-slider reversed type="range" value-start="50" value-end="100"></mdc-slider>
 </div>
 
-<div>
-    <mdc-slider reversed labeled value="75"></mdc-slider>
-    <mdc-slider reversed labeled type="range" value-start="20" value-end="80"></mdc-slider>
-    <mdc-slider reversed ticks step="10" value="50"></mdc-slider>
-    <mdc-slider reversed disabled value="50"></mdc-slider>
+<div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: center; width: 100%;">
+    <mdc-slider reversed labeled ticks step="10" value="50"></mdc-slider>
+    <mdc-slider reversed size="medium" icon="brightness_6" value="65"></mdc-slider>
 </div>

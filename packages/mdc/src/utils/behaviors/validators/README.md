@@ -125,7 +125,7 @@ This validator emulates `<input>` and `<textarea>` constraint validation.
   - `value?: number`
   - `valueStart?: number`
   - `valueEnd?: number`
-- **Used by:** `base-slider`
+- **Used by:** `legacy-slider/internal/base-slider`, `slider`
 
 This validator emulates `<input type="range">` validation for both single-value and range sliders.
 
@@ -161,4 +161,4 @@ When adding a new validator in this directory:
 - [`icon-button/toggle-icon-button.ts`](../../../components/icon-button/toggle-icon-button.ts) uses checkbox and radio validation.
 - [`radio-button/radio-button.ts`](../../../components/radio-button/radio-button.ts) uses radio validation.
 - [`switch/switch.ts`](../../../components/switch/switch.ts) uses checkbox validation.
-- [`slider/internal/base-slider.ts`](../../../components/slider/internal/base-slider.ts) uses slider validation.
+- [`legacy-slider/internal/base-slider.ts`](../../../components/legacy-slider/internal/base-slider.ts) and [`slider/slider.ts`](../../../components/slider/slider.ts) use slider validation.

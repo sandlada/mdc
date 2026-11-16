@@ -5,7 +5,7 @@
  */
 
 import { customElement } from 'lit/decorators.js'
-import { BaseSlider } from '../slider/internal/base-slider'
+import { BaseSlider } from './internal/base-slider'
 import { LegacySliderStyles } from './internal/legacy-slider.styles'
 
 declare global {

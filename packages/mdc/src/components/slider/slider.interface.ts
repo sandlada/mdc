@@ -5,11 +5,13 @@
  */
 
 import type { LitElement } from 'lit'
+import type { IMixinFocusRingOption } from '../focus-ring/focus-ring-options.mixin'
 import type { FormAssociated } from '../../utils/form/form-associated'
 
 /**
- * Slider orientation. `'horizontal'` lays the track left-to-right;
- * `'vertical'` lays it top-to-bottom.
+ * Slider orientation.
+ * - `'horizontal'` lays the track along the horizontal axis (min -> max left-to-right by default).
+ * - `'vertical'` lays the track along the vertical axis (min -> max bottom-to-top by default).
  */
 export const SliderDirection = {
     Horizontal: 'horizontal',
@@ -18,15 +20,15 @@ export const SliderDirection = {
 export type SliderDirection = (typeof SliderDirection)[keyof typeof SliderDirection]
 
 /**
- * Five-step size scale locked to the Figma prototype (node-id `58008:10353`):
+ * Five-step Material Design 3 Expressive size scale:
  *
- * | Size          | Track height | Handle height | Rounded end |
- * | ------------- | ------------ | ------------- | ----------- |
- * | `extra-small` | 16px         | 44px          | 16px        |
- * | `small`       | 24px         | 44px          | 8px         |
- * | `medium`      | 40px         | 52px          | 12px        |
- * | `large`       | 56px         | 68px          | 16px        |
- * | `extra-large` | 96px         | 108px         | 28px        |
+ * | Size          | Track height | Handle height | Outer corner | Inset icon |
+ * | ------------- | ------------ | ------------- | ------------ | ---------- |
+ * | `extra-small` | 16px         | 44px          | 8px (Full)   | —          |
+ * | `small`       | 24px         | 44px          | 8px          | —          |
+ * | `medium`      | 40px         | 52px          | 12px         | 24px       |
+ * | `large`       | 56px         | 68px          | 16px         | 24px       |
+ * | `extra-large` | 96px         | 108px         | 28px         | 32px       |
  */
 export const SliderSize = {
     ExtraSmall: 'extra-small',
@@ -38,14 +40,11 @@ export const SliderSize = {
 export type SliderSize = (typeof SliderSize)[keyof typeof SliderSize]
 
 /**
- * Behavioral type of the slider.
+ * Behavioral type of the slider:
  *
- * - `standard` — single handle; active track fills `min → value`.
- * - `centered` — handle sits at the geometric center; positive values fill the
- *   right (or bottom) half with the active color, negative values fill the
- *   left (or top) half. Maps to one `<input type="range">` whose effective
- *   `min` is `-max`, `max` is `+max`.
- * - `range` — two handles symmetric about the center with a track-dot marker.
+ * - `'standard'` — single handle; active track fills from `min` to `value`.
+ * - `'centered'` — single handle; active track grows from the midpoint `(min + max) / 2` toward `value`.
+ * - `'range'` — dual handles (`valueStart` and `valueEnd`); active track fills between the two handles.
  */
 export const SliderType = {
     Standard: 'standard',
@@ -54,75 +53,41 @@ export const SliderType = {
 } as const
 export type SliderType = (typeof SliderType)[keyof typeof SliderType]
 
-/**
- * `mdc-slider` — Material Design 3 Expressive slider.
- *
- * Layout pulled from the Figma prototype (node-id `58008:10353`):
- * - Standard: `[active-track] [handle] [inactive-track]`, no gap between
- *   segments and the handle. Active fills from min up to the handle position.
- * - Centered: two inactive halves split at 50%, with an active overlay
- *   growing from the center toward the value side.
- * - Range: two inactive halves with two handles symmetric about the center
- *   and a center dot at the 50% mark.
- *
- * Five size presets and two orientations. The host element behaves as a
- * single (or pair of) `<input type="range">` for form submission and a11y.
- */
-export interface ISlider extends LitElement, FormAssociated {
+export interface IMDCSliderAttributes {
     min: number
     max: number
+    step: number
 
-    /** Single-handle value (used when `type='standard'` or `).). */
-    value?: number
+    value: number
+    valueStart: number
+    valueEnd: number
 
-    /** Range-start value (used when `type='range'`). */
-    valueStart?: number
-    /** Range-end value (used when `type='range'`). */
-    valueEnd?: number
+    type: SliderType
+    size: SliderSize
+    direction: SliderDirection
+    reversed: boolean
+
+    ticks: boolean
+    labeled: boolean
+    icon: string
 
     valueLabel: string
     valueLabelStart: string
     valueLabelEnd: string
+    valueFormatter?: (value: number) => string
 
     ariaLabelStart: string
     ariaLabelEnd: string
     ariaValueTextStart: string
     ariaValueTextEnd: string
 
-    step: number
-    ticks: boolean
-    labeled: boolean
-
-    /**
-     * Backward-compat alias. Setting `range=true` switches `type` to `'range'`;
-     * reading returns whether `type === 'range'`.
-     *
-     * @deprecated Use the `type` attribute instead.
-     */
-    range: boolean
-
-    /** Slider orientation. Reflects to the `direction` attribute. */
-    direction: SliderDirection
-
-    /**
-     * Whether the slider's value scale is reversed.
-     *
-     * - When `false` (default):
-     *   - `horizontal`: small to large, left-to-right (min at left, max at right).
-     *   - `vertical`: small to large, bottom-to-top (min at bottom, max at top).
-     * - When `true`:
-     *   - `horizontal`: large to small, left-to-right (max at left, min at right).
-     *   - `vertical`: large to small, bottom-to-top (max at bottom, min at top / min at top, max at bottom).
-     *
-     * Reflects to the `reversed` attribute.
-     */
-    reversed: boolean
-
-    /** Size preset. Reflects to the `size` attribute. */
-    size: SliderSize
-
-    /** Behavioral type. Reflects to the `type` attribute. */
-    type: SliderType
-
-    name: string
+    nameStart: string
+    nameEnd: string
 }
+
+export interface IMDCSliderEvents {
+    'input': Event
+    'change': Event
+}
+
+export interface IMDCSlider extends LitElement, FormAssociated, IMixinFocusRingOption, IMDCSliderAttributes { }
