@@ -134,10 +134,10 @@
             "import": "./build/components/expressive-progress-indicator/index.js",
             "default": "./build/components/expressive-progress-indicator/index.js"
         },
-        "./components/expressive-slider/index": {
-            "types": "./build/components/expressive-slider/index.d.ts",
-            "import": "./build/components/expressive-slider/index.js",
-            "default": "./build/components/expressive-slider/index.js"
+        "./components/legacy-slider/index": {
+            "types": "./build/components/legacy-slider/index.d.ts",
+            "import": "./build/components/legacy-slider/index.js",
+            "default": "./build/components/legacy-slider/index.js"
         },
         "./components/fab/index": {
             "types": "./build/components/fab/index.d.ts",

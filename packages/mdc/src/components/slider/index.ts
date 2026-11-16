@@ -5,4 +5,5 @@
  */
 
 export * from './slider'
+export * from './slider.interface'
 export * from './slider.definition'

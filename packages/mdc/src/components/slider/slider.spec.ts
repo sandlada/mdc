@@ -5,7 +5,6 @@
  */
 import { describe, it, expect } from 'vitest'
 import { MDCSlider } from './slider'
-import { BaseSlider } from './internal/base-slider'
 
 describe('MDCSlider', () => {
     it('instantiates with defaults', () => {
@@ -28,6 +27,10 @@ describe('MDCSlider', () => {
         expect(slider.range).toBe(false)
         expect(slider.disabled).toBe(false)
         expect(slider.name).toBe('')
+        expect(slider.size).toBe('medium')
+        expect(slider.direction).toBe('horizontal')
+        expect(slider.type).toBe('standard')
+        expect(slider.reversed).toBe(false)
     })
 
     it('exposes an input root in render output', () => {
@@ -35,20 +38,5 @@ describe('MDCSlider', () => {
         const rendered = (slider as unknown as { render(): { strings: unknown } }).render()
         const html = Array.from(rendered.strings as string[]).join('')
         expect(html).toContain('<div')
-    })
-})
-
-describe('BaseSlider', () => {
-    it('instantiates with defaults', () => {
-        const slider = new BaseSlider()
-        expect(slider.min).toBe(0)
-        expect(slider.max).toBe(100)
-        expect(slider.value).toBeUndefined()
-        expect(slider.step).toBe(1)
-        expect(slider.ticks).toBe(false)
-        expect(slider.labeled).toBe(false)
-        expect(slider.range).toBe(false)
-        expect(slider.disabled).toBe(false)
-        expect(slider.name).toBe('')
     })
 })
