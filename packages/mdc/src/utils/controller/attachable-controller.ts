@@ -10,6 +10,22 @@
 import { isServer, type ReactiveController, type ReactiveControllerHost } from 'lit';
 
 /**
+ * Local deviation from upstream: `for` is treated as an HTML IDREF and resolved
+ * with `getElementById`, so valid HTML ids such as React's `:r0:` and `.class`
+ * work without being interpreted as CSS selectors.
+ */
+const AsciiWhitespace = /[\t\n\f\r ]/;
+
+const assertValidControlId = (id: string): void => {
+    if (id === '') return;
+    if (!AsciiWhitespace.test(id)) return;
+
+    throw new Error(
+        `Invalid "for" id ${JSON.stringify(id)}: HTML IDs must not contain ASCII whitespace`
+    );
+};
+
+/**
  * An element that can be attached to an associated controlling element.
  */
 export interface IAttachable {
@@ -20,6 +36,9 @@ export interface IAttachable {
      * Use this when the elements's associated control is not its parent.
      *
      * To manually control an element, set its `for` attribute to `""`.
+     *
+     * The value is an HTML IDREF, not a CSS selector. Valid HTML ids such as
+     * `:r0:` and `.class` are accepted; ids containing ASCII whitespace throw.
      *
      * @example
      * ```html
@@ -131,22 +150,29 @@ export class AttachableController implements ReactiveController, IAttachable {
         if (htmlFor === null) {
             this.host.removeAttribute('for');
         } else {
+            assertValidControlId(htmlFor);
             this.host.setAttribute('for', htmlFor);
         }
     }
 
     public get control() {
         if (this.host.hasAttribute('for')) {
-            if (!this.htmlFor || !this.host.isConnected) {
+            const id = this.htmlFor;
+            assertValidControlId(id ?? '');
+
+            if (!id || !this.host.isConnected) {
                 return null;
             }
 
-            return (
-                this.host.getRootNode() as Document | ShadowRoot
-            ).querySelector<HTMLElement>(`#${this.htmlFor}`);
+            return this.resolveById(id);
         }
 
         return this.currentControl || this.host.parentElement;
+    }
+
+    private resolveById(id: string): HTMLElement | null {
+        const root = this.host.getRootNode() as Document | ShadowRoot;
+        return root.getElementById(id) as HTMLElement | null;
     }
     public set control(control: HTMLElement | null) {
         if (control) {

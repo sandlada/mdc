@@ -43,6 +43,7 @@ export const Components: ComponentEntry[] = Object.keys(PageModules)
     })
 
 export const BaseComponentOrder = [
+    'attachable-controller',
     'divider',
     'elevation',
     'focus-ring',

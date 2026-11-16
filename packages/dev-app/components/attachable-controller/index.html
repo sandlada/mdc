@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Attachable Controller — MDC Docs</title>
+    <script type="module" src="/shared/base-imports.ts"></script>
+    <script type="module" src="/shared/theme.ts"></script>
+    <script type="module" src="/shared/docs-page.ts"></script>
+    <link rel="stylesheet" href="/shared/styles.css" />
+    <style>
+        .ac-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            background: var(--md-sys-color-surface-container-low);
+            border: 1px solid var(--md-sys-color-outline-variant);
+        }
+        .ac-case {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 10px;
+            border-radius: 8px;
+            background: var(--md-sys-color-surface-container);
+            border: 1px solid var(--md-sys-color-outline-variant);
+            min-width: 120px;
+        }
+        .ac-case-label {
+            font-family: monospace;
+            font-size: 12px;
+            color: var(--md-sys-color-on-surface-variant);
+        }
+        .ac-case input {
+            position: relative;
+            padding: 6px 8px;
+            border-radius: 6px;
+            border: 1px solid var(--md-sys-color-outline);
+            background: var(--md-sys-color-surface);
+            color: var(--md-sys-color-on-surface);
+        }
+        .ac-results {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .ac-results th,
+        .ac-results td {
+            padding: 8px 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--md-sys-color-outline-variant);
+            vertical-align: top;
+        }
+        .ac-results th {
+            color: var(--md-sys-color-on-surface-variant);
+            font-weight: 500;
+        }
+        .ac-results td code {
+            font-family: monospace;
+        }
+        .ac-pass { color: #1a6c31; font-weight: 600; }
+        .ac-fail { color: #ba1a1a; font-weight: 600; }
+        .ac-detail { color: var(--md-sys-color-on-surface-variant); font-family: monospace; }
+    </style>
+</head>
+<body>
+    <mdc-docs-page
+        component="attachable-controller"
+        title="Attachable Controller"
+        subtitle="Manual checks for the HTML IDREF behavior of AttachableController's for attribute."
+    >
+        <section id="ac-test-root">
+            <h2>HTML IDREF resolution</h2>
+            <p>
+                Each control below is created with a literal HTML id and an
+                <code>&lt;mdc-focus-ring for="..."&gt;</code>. Focusing the control must resolve the ring's
+                <code>control</code> and turn on its <code>focused</code> attribute. The table reports the
+                observed values.
+            </p>
+            <div id="ac-fixtures" class="ac-panel"></div>
+            <table class="ac-results">
+                <thead>
+                    <tr>
+                        <th>Case</th>
+                        <th>for value</th>
+                        <th>Result</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody id="ac-results-body"></tbody>
+            </table>
+        </section>
+
+        <script type="module">
+            (async () => {
+                // `root` is the docs-page shadow root when docs-page.ts injects it.
+                // When this module runs natively, fall back to the light DOM document.
+                const scope = (typeof root !== 'undefined' && root) ? root : document
+                const testRoot = scope.querySelector('#ac-test-root')
+                if (!testRoot) return
+                const fixtures = testRoot.querySelector('#ac-fixtures')
+                const resultsBody = testRoot.querySelector('#ac-results-body')
+
+                await customElements.whenDefined('mdc-focus-ring')
+
+                const addRow = (caseName, forValue, pass, details) => {
+                    const tr = document.createElement('tr')
+                    const caseCell = document.createElement('td')
+                    caseCell.textContent = caseName
+                    const forCell = document.createElement('td')
+                    const code = document.createElement('code')
+                    code.textContent = JSON.stringify(forValue)
+                    forCell.appendChild(code)
+                    const resultCell = document.createElement('td')
+                    resultCell.textContent = pass ? 'PASS' : 'FAIL'
+                    resultCell.className = pass ? 'ac-pass' : 'ac-fail'
+                    const detailCell = document.createElement('td')
+                    detailCell.className = 'ac-detail'
+                    detailCell.textContent = details
+                    tr.append(caseCell, forCell, resultCell, detailCell)
+                    resultsBody.appendChild(tr)
+                }
+
+                // Create a focusable control with the exact id, then a ring whose
+                // `for` references it. The control is appended first so it exists
+                // when the ring connects (no late-rendered target support).
+                const makeCase = (id) => {
+                    const wrap = document.createElement('div')
+                    wrap.className = 'ac-case'
+                    const label = document.createElement('span')
+                    label.className = 'ac-case-label'
+                    label.textContent = `id=${JSON.stringify(id)}`
+                    const input = document.createElement('input')
+                    input.type = 'text'
+                    input.setAttribute('id', id)
+                    input.setAttribute('aria-label', `Control ${id}`)
+                    input.value = 'Focus me'
+                    const ring = document.createElement('mdc-focus-ring')
+                    ring.setAttribute('for', id)
+                    wrap.append(label, input, ring)
+                    fixtures.appendChild(wrap)
+                    return { input, ring }
+                }
+
+                // 1. Valid HTML ids resolve and attach.
+                for (const id of [':r0:', '.class', '1abc', '#foo', 'foo-bar']) {
+                    const { input, ring } = makeCase(id)
+                    let controlOk = false
+                    let focusedOk = false
+                    let error = null
+                    try {
+                        input.focus()
+                        controlOk = ring.control === input
+                        focusedOk = ring.hasAttribute('focused')
+                    } catch (e) {
+                        error = e
+                    }
+                    addRow(
+                        'valid id',
+                        id,
+                        controlOk && focusedOk && !error,
+                        `control === control: ${controlOk}; focused: ${focusedOk}` +
+                        (error ? `; error: ${error.message}` : '')
+                    )
+                    input.blur()
+                }
+
+                // "" is a valid, intentionally-detached state.
+                {
+                    const ring = document.createElement('mdc-focus-ring')
+                    ring.setAttribute('for', '')
+                    fixtures.appendChild(ring)
+                    let detached = false
+                    let error = null
+                    try {
+                        detached = ring.control === null
+                    } catch (e) {
+                        error = e
+                    }
+                    addRow(
+                        'detached',
+                        '',
+                        detached && !error,
+                        `control === null: ${detached}` + (error ? `; error: ${error.message}` : '')
+                    )
+                }
+
+                // 2. Invalid id fails loudly through the public property path.
+                // Do NOT put for="a b" in markup: the controller throws on connect.
+                {
+                    const ring = document.createElement('mdc-focus-ring')
+                    fixtures.appendChild(ring)
+                    let threw = false
+                    let message = ''
+                    try {
+                        ring.htmlFor = 'a b'
+                    } catch (e) {
+                        threw = true
+                        message = e && e.message ? e.message : String(e)
+                    }
+                    const hasExpectedMessage =
+                        message.includes('Invalid "for" id') && message.includes('ASCII whitespace')
+                    const forUnchanged = !ring.hasAttribute('for')
+                    addRow(
+                        'invalid id',
+                        'a b',
+                        threw && hasExpectedMessage && forUnchanged,
+                        `threw: ${threw}; message: ${JSON.stringify(message)}; ` +
+                        `for attr unchanged: ${forUnchanged}`
+                    )
+                }
+
+                // 3. A valid id that matches no element yields control === null without throwing.
+                {
+                    const ring = document.createElement('mdc-focus-ring')
+                    ring.setAttribute('for', 'does-not-exist')
+                    fixtures.appendChild(ring)
+                    let unmatched = false
+                    let error = null
+                    try {
+                        unmatched = ring.control === null
+                    } catch (e) {
+                        error = e
+                    }
+                    addRow(
+                        'unmatched id',
+                        'does-not-exist',
+                        unmatched && !error,
+                        `control === null: ${unmatched}` + (error ? `; error: ${error.message}` : '')
+                    )
+                }
+            })()
+        </script>
+    </mdc-docs-page>
+</body>
+</html>
