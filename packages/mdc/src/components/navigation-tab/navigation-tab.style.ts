@@ -717,7 +717,7 @@ export const NavigationTabStyles = [
         white-space: nowrap;
     }
 
-    :host([badge=""]) .badge-label,
+    :host([badge=""]) .badge-label:not(.exiting),
     .badge-label:empty {
         width: 6px;
         min-width: 6px;

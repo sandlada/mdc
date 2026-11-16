@@ -3,7 +3,7 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { html, LitElement, type TemplateResult } from 'lit'
+import { html, isServer, LitElement, type PropertyValues, type TemplateResult } from 'lit'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
 import type {
     BadgeSize,
@@ -21,6 +21,13 @@ import { OpacityTransitionController } from '../../utils/controller/opacity-tran
 import { BadgeStyles } from './badge.style'
 import { MeasuredDimensionController } from '../../utils/controller/measured-dimension-controller'
 import { Duration } from '@sandlada/mdk'
+import {
+    cancelBadgeAnimations,
+    captureBadgeVisibilitySnapshot,
+    isBadgeReducedMotion,
+    runBadgeVisibilityTransition,
+    type IBadgeVisibilitySnapshot,
+} from './internal/badge-motion'
 
 declare global {
     interface HTMLElementTagNameMap {
@@ -116,8 +123,17 @@ export class MDCBadge extends composeMixin(
         this.checkStateTransitions()
     }
 
+    @property({ type: Boolean, reflect: true })
+    public override hidden: boolean = false
+
+    @query('.container')
+    protected readonly containerElement!: HTMLElement | null
+
     @query('.label')
     protected readonly labelElement!: HTMLSpanElement
+
+    private readonly activeAnimations = new Set<Animation>()
+    private pendingVisibilitySnapshot: IBadgeVisibilitySnapshot | null = null
 
     private readonly opacityController = new OpacityTransitionController(
         this,
@@ -136,6 +152,47 @@ export class MDCBadge extends composeMixin(
 
     public constructor() {
         super()
+    }
+
+    public override disconnectedCallback(): void {
+        super.disconnectedCallback()
+        cancelBadgeAnimations(this.activeAnimations)
+        this.removeAttribute('data-exiting')
+    }
+
+    protected override willUpdate(changedProperties: PropertyValues<this>): void {
+        super.willUpdate(changedProperties)
+
+        if (this.hasUpdated && !isServer && changedProperties.has('hidden')) {
+            const prevHidden = Boolean(changedProperties.get('hidden'))
+            this.pendingVisibilitySnapshot = captureBadgeVisibilitySnapshot(this.containerElement, prevHidden)
+
+            if (this.hidden && !prevHidden && !isBadgeReducedMotion()) {
+                this.setAttribute('data-exiting', '')
+            } else if (!this.hidden) {
+                this.removeAttribute('data-exiting')
+            }
+        }
+    }
+
+    protected override updated(changedProperties: PropertyValues<this>): void {
+        super.updated(changedProperties)
+
+        if (this.pendingVisibilitySnapshot && !isServer) {
+            const snapshot = this.pendingVisibilitySnapshot
+            this.pendingVisibilitySnapshot = null
+            runBadgeVisibilityTransition(
+                this.activeAnimations,
+                this.containerElement,
+                this.hidden,
+                snapshot,
+                () => {
+                    if (this.hidden) {
+                        this.removeAttribute('data-exiting')
+                    }
+                },
+            )
+        }
     }
 
     protected get isZero(): boolean {

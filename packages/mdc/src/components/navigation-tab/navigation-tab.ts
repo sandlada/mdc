@@ -46,6 +46,7 @@ import { isActivationClick } from '../../utils/event/form-label-activation'
 import { readDirectLabel } from './internal/read-direct-label'
 import {
     captureNavigationTabSnapshot,
+    isReducedMotion,
     runNavigationTabTransitions,
     type INavigationTabMotionElements,
     type INavigationTabMotionSnapshot,
@@ -128,6 +129,11 @@ export class MDCNavigationTab extends composeMixin(
      */
     @property({ type: String, reflect: true })
     public variant: NavigationTabVariant = 'bar-vertical'
+
+    @state()
+    private badgeExiting: boolean = false
+
+    private lastNonEmptyBadge: string = ''
 
     @query('.container')
     protected readonly rootElement!: HTMLElement | null
@@ -283,6 +289,21 @@ export class MDCNavigationTab extends composeMixin(
             const disabledChanged = changedProperties.has('disabled')
             const badgeChanged = changedProperties.has('badge')
 
+            if (badgeChanged) {
+                if (this.badge) {
+                    this.lastNonEmptyBadge = this.badge
+                    this.badgeExiting = false
+                } else {
+                    const prevBadge = changedProperties.get('badge') ?? ''
+                    if (prevBadge && !isReducedMotion()) {
+                        this.lastNonEmptyBadge = prevBadge
+                        this.badgeExiting = true
+                    } else {
+                        this.badgeExiting = false
+                    }
+                }
+            }
+
             if (checkedChanged || variantChanged || disabledChanged || badgeChanged) {
                 const prevChecked = checkedChanged ? Boolean(changedProperties.get('checked')) : this.checked
                 const prevVariant = (variantChanged ? changedProperties.get('variant') : this.variant) ?? this.variant
@@ -331,6 +352,13 @@ export class MDCNavigationTab extends composeMixin(
                     hasInactiveIcon: this.hasInactiveIcon,
                 },
                 snapshot,
+                {
+                    onBadgeExitComplete: () => {
+                        if (!this.badge) {
+                            this.badgeExiting = false
+                        }
+                    },
+                },
             )
         }
 
@@ -481,9 +509,12 @@ export class MDCNavigationTab extends composeMixin(
     }
 
     protected renderBadgeSlot() {
+        const badgeText = this.badge || (this.badgeExiting ? this.lastNonEmptyBadge : '')
         return html`
             <slot name="badge">
-                ${this.badge ? html`<span class="badge-label">${this.badge}</span>` : nothing}
+                ${badgeText
+                    ? html`<span class="badge-label ${this.badgeExiting ? 'exiting' : ''}">${badgeText}</span>`
+                    : nothing}
             </slot>
         `
     }

@@ -1,0 +1,39 @@
+<div style="display: flex; flex-direction: column; gap: 16px;">
+    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+        <mdc-button
+            variant="outlined"
+            onclick="this.getRootNode().querySelectorAll('.demo-badge-hidden-target').forEach((b) => { b.hidden = false; });"
+        >
+            Show All
+        </mdc-button>
+        <mdc-button
+            variant="outlined"
+            onclick="this.getRootNode().querySelectorAll('.demo-badge-hidden-target').forEach((b) => { b.hidden = true; });"
+        >
+            Hide All
+        </mdc-button>
+        <mdc-button
+            variant="tonal"
+            onclick="this.getRootNode().querySelectorAll('.demo-badge-hidden-target').forEach((b) => { b.hidden = !b.hidden; });"
+        >
+            Toggle Hidden
+        </mdc-button>
+    </div>
+
+    <div style="display: flex; gap: 24px; align-items: center; flex-wrap: wrap;">
+        <div style="position: relative; display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 12px; background: var(--md-sys-color-surface-container-high, #ece6f0);">
+            <mdc-icon>notifications</mdc-icon>
+            <mdc-badge class="demo-badge-hidden-target" size="small" style="position: absolute; top: 6px; right: 6px;"></mdc-badge>
+        </div>
+
+        <div style="position: relative; display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 12px; background: var(--md-sys-color-surface-container-high, #ece6f0);">
+            <mdc-icon>mail</mdc-icon>
+            <mdc-badge class="demo-badge-hidden-target" size="large" value="5" style="position: absolute; top: 2px; right: 2px;"></mdc-badge>
+        </div>
+
+        <div style="position: relative; display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 12px; background: var(--md-sys-color-surface-container-high, #ece6f0);">
+            <mdc-icon>shopping_cart</mdc-icon>
+            <mdc-badge class="demo-badge-hidden-target" size="large" value="120" max="99" style="position: absolute; top: 2px; right: 0;"></mdc-badge>
+        </div>
+    </div>
+</div>

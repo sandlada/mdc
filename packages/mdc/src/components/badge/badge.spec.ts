@@ -3,8 +3,13 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { describe, it, expect } from 'vitest'
+import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest'
 import { MDCBadge } from './badge'
+import {
+    cancelBadgeAnimations,
+    captureBadgeVisibilitySnapshot,
+    runBadgeVisibilityTransition,
+} from './internal/badge-motion'
 
 describe('MDCBadge', () => {
     it('has correct default properties', () => {
@@ -287,6 +292,122 @@ describe('MDCBadge', () => {
                 effectiveSize: 'small',
                 isZero: true
             })
+        })
+    })
+
+    describe('WAAPI hidden visibility transitions', () => {
+        let reducedMotion = false
+        let calls: Array<{ keyframes: Keyframe[]; options: KeyframeAnimationOptions | number | undefined }> = []
+        let createdAnimations: Animation[] = []
+
+        function createMockContainer() {
+            const el = {
+                getAnimations: vi.fn(() => []),
+                animate: vi.fn((keyframes: Keyframe[], options?: KeyframeAnimationOptions) => {
+                    calls.push({ keyframes, options })
+                    const listeners = new Map<string, Array<() => void>>()
+                    const anim = {
+                        playState: 'running',
+                        cancel: vi.fn(() => {
+                            ;(anim as { playState: AnimationPlayState }).playState = 'idle'
+                            listeners.get('cancel')?.forEach((fn) => fn())
+                        }),
+                        finish: vi.fn(() => {
+                            ;(anim as { playState: AnimationPlayState }).playState = 'finished'
+                            listeners.get('finish')?.forEach((fn) => fn())
+                        }),
+                        addEventListener: vi.fn((type: string, fn: () => void) => {
+                            const list = listeners.get(type) ?? []
+                            list.push(fn)
+                            listeners.set(type, list)
+                        }),
+                    } as unknown as Animation
+                    createdAnimations.push(anim)
+                    return anim
+                }),
+            } as unknown as HTMLElement
+            return el
+        }
+
+        beforeEach(() => {
+            reducedMotion = false
+            calls = []
+            createdAnimations = []
+            vi.stubGlobal('window', {
+                matchMedia: vi.fn(() => ({ matches: reducedMotion })),
+            })
+        })
+
+        afterEach(() => {
+            vi.unstubAllGlobals()
+        })
+
+        it('has hidden = false by default', () => {
+            const badge = new MDCBadge()
+            expect(badge.hidden).toBe(false)
+        })
+
+        it('animates container exit when hidden becomes true and invokes onExitComplete on finish', () => {
+            const container = createMockContainer()
+            const tracker = new Set<Animation>()
+            const snap = captureBadgeVisibilitySnapshot(container, false)
+            const onExitComplete = vi.fn()
+
+            runBadgeVisibilityTransition(tracker, container, true, snap, onExitComplete)
+
+            expect(calls).toHaveLength(1)
+            expect(calls[0]?.keyframes[0]?.['opacity']).toBe(1)
+            expect(calls[0]?.keyframes[0]?.['transform']).toBe('scale(1)')
+            expect(calls[0]?.keyframes[1]?.['opacity']).toBe(0)
+            expect(calls[0]?.keyframes[1]?.['transform']).toBe('scale(0.6)')
+            expect((calls[0]?.options as KeyframeAnimationOptions | undefined)?.fill).toBe('forwards')
+            expect(onExitComplete).not.toHaveBeenCalled()
+
+            createdAnimations[0]?.finish()
+            expect(onExitComplete).toHaveBeenCalledTimes(1)
+            expect(createdAnimations[0]?.cancel).toHaveBeenCalledTimes(1)
+            expect(tracker.size).toBe(0)
+        })
+
+        it('animates container enter when hidden becomes false', () => {
+            const container = createMockContainer()
+            const tracker = new Set<Animation>()
+            const snap = captureBadgeVisibilitySnapshot(container, true)
+
+            runBadgeVisibilityTransition(tracker, container, false, snap)
+
+            expect(calls).toHaveLength(1)
+            expect(calls[0]?.keyframes[0]?.['opacity']).toBe(0)
+            expect(calls[0]?.keyframes[0]?.['transform']).toBe('scale(0.6)')
+            expect(calls[0]?.keyframes[1]?.['opacity']).toBe(1)
+            expect(calls[0]?.keyframes[1]?.['transform']).toBe('scale(1)')
+            expect((calls[0]?.options as KeyframeAnimationOptions | undefined)?.fill).toBe('none')
+        })
+
+        it('skips WAAPI animation and completes immediately when prefers-reduced-motion is reduce', () => {
+            reducedMotion = true
+            const container = createMockContainer()
+            const tracker = new Set<Animation>()
+            const snap = captureBadgeVisibilitySnapshot(container, false)
+            const onExitComplete = vi.fn()
+
+            runBadgeVisibilityTransition(tracker, container, true, snap, onExitComplete)
+
+            expect(calls).toHaveLength(0)
+            expect(onExitComplete).toHaveBeenCalledTimes(1)
+        })
+
+        it('cancels active animations cleanly', () => {
+            const container = createMockContainer()
+            const tracker = new Set<Animation>()
+            const snap = captureBadgeVisibilitySnapshot(container, false)
+
+            runBadgeVisibilityTransition(tracker, container, true, snap)
+            expect(tracker.size).toBe(1)
+
+            cancelBadgeAnimations(tracker)
+            expect(createdAnimations[0]?.cancel).toHaveBeenCalledTimes(1)
+            expect(tracker.size).toBe(0)
         })
     })
 })

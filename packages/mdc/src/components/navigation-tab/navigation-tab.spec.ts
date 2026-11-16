@@ -42,7 +42,10 @@ function createMockElement(
                     ;(anim as { playState: AnimationPlayState }).playState = 'idle'
                     listeners.get('cancel')?.forEach((fn) => fn())
                 }),
-                finish     : vi.fn(),
+                finish     : vi.fn(() => {
+                    ;(anim as { playState: AnimationPlayState }).playState = 'finished'
+                    listeners.get('finish')?.forEach((fn) => fn())
+                }),
                 addEventListener: vi.fn((type: string, fn: () => void) => {
                     const list = listeners.get(type) ?? []
                     list.push(fn)
@@ -318,6 +321,59 @@ describe('MDCNavigationTab', () => {
             expect(badgeCall).toBeDefined()
             expect(badgeCall?.keyframes[0]?.['opacity']).toBe(0)
             expect(badgeCall?.keyframes[1]?.['opacity']).toBe(1)
+        })
+
+        it('animates badge-label exit when badge clears and invokes onBadgeExitComplete on finish', () => {
+            const { elements, tracker, baseState } = setupMotionFixture()
+            const prevState: INavigationTabMotionState = { ...baseState, badge: '3' }
+            const snap = captureNavigationTabSnapshot(elements, prevState, {
+                checkedChanged : false,
+                variantChanged : false,
+                disabledChanged: false,
+                badgeChanged   : true,
+            })
+
+            const onBadgeExitComplete = vi.fn()
+            runNavigationTabTransitions(
+                tracker,
+                elements,
+                { ...prevState, badge: '' },
+                snap,
+                { onBadgeExitComplete },
+            )
+
+            const badgeCall = calls.find((c) => c.target === elements.badgeLabel)
+            expect(badgeCall).toBeDefined()
+            expect(badgeCall?.keyframes[0]?.['opacity']).toBe(1)
+            expect(badgeCall?.keyframes[0]?.['transform']).toBe('scale(1)')
+            expect(badgeCall?.keyframes[1]?.['opacity']).toBe(0)
+            expect(badgeCall?.keyframes[1]?.['transform']).toBe('scale(0.6)')
+            expect((badgeCall?.options as KeyframeAnimationOptions | undefined)?.fill).toBe('forwards')
+            expect(onBadgeExitComplete).not.toHaveBeenCalled()
+
+            const exitAnim = createdAnimations[createdAnimations.length - 1]
+            exitAnim?.finish()
+            expect(onBadgeExitComplete).toHaveBeenCalledTimes(1)
+        })
+
+        it('animates badge-label subtly when badge updates between non-empty values', () => {
+            const { elements, tracker, baseState } = setupMotionFixture()
+            const prevState: INavigationTabMotionState = { ...baseState, badge: '3' }
+            const snap = captureNavigationTabSnapshot(elements, prevState, {
+                checkedChanged : false,
+                variantChanged : false,
+                disabledChanged: false,
+                badgeChanged   : true,
+            })
+
+            runNavigationTabTransitions(tracker, elements, { ...prevState, badge: '99+' }, snap)
+
+            const badgeCall = calls.find((c) => c.target === elements.badgeLabel)
+            expect(badgeCall).toBeDefined()
+            expect(badgeCall?.keyframes[0]?.['opacity']).toBe(0.7)
+            expect(badgeCall?.keyframes[0]?.['transform']).toBe('scale(0.85)')
+            expect(badgeCall?.keyframes[1]?.['opacity']).toBe(1)
+            expect(badgeCall?.keyframes[1]?.['transform']).toBe('scale(1)')
         })
 
         it('animates color transitions when disabled changes', () => {

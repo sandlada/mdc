@@ -3,7 +3,9 @@
         <mdc-button variant="outlined" onclick="this.getRootNode().querySelector('#demo-tab-badge-live').badge = ''">None</mdc-button>
         <mdc-button variant="outlined" onclick="this.getRootNode().querySelector('#demo-tab-badge-live').badge = '3'">3</mdc-button>
         <mdc-button variant="outlined" onclick="this.getRootNode().querySelector('#demo-tab-badge-live').badge = '99+'">99+</mdc-button>
+        <mdc-button variant="tonal" onclick="const t = this.getRootNode().querySelector('#demo-tab-badge-live'); t.badge = t.badge ? '' : '3';">Toggle Badge</mdc-button>
         <mdc-button variant="tonal" onclick="const t = this.getRootNode().querySelector('#demo-tab-badge-live'); t.checked = !t.checked;">Toggle Checked</mdc-button>
+        <mdc-button variant="tonal" onclick="const t = this.getRootNode().querySelector('#demo-tab-badge-live'); t.variant = t.variant === 'rail-horizontal' ? 'bar-vertical' : 'rail-horizontal';">Toggle Layout</mdc-button>
     </div>
 
     <div style="display: flex; gap: 16px; align-items: center;">

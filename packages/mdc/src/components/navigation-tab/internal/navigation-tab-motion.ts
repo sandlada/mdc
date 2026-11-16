@@ -4,7 +4,17 @@
  * SPDX-License-Identifier: MIT
  */
 import { Duration, Easing } from '@sandlada/mdk'
+import {
+    cancelTrackedAnimations,
+    capturePresenceSnapshot,
+    hasRunningAnimation,
+    isInvertibleTransform,
+    isReducedMotion,
+    runScaleFadeTransition,
+} from '../../../utils/motion'
 import type { NavigationTabVariant } from '../navigation-tab.interface'
+
+export { isReducedMotion }
 
 export interface INavigationTabMotionElements {
     container        : HTMLElement | null
@@ -28,22 +38,25 @@ export interface INavigationTabMotionState {
 }
 
 export interface INavigationTabMotionSnapshot {
-    checkedChanged   : boolean
-    variantChanged   : boolean
-    disabledChanged  : boolean
-    badgeChanged     : boolean
-    prevChecked      : boolean
-    prevVariant      : NavigationTabVariant
-    containerRect    : DOMRect | null
-    indicatorRect    : DOMRect | null
-    iconRect         : DOMRect | null
-    labelRect        : DOMRect | null
-    indicatorOpacity : string
+    checkedChanged    : boolean
+    variantChanged    : boolean
+    disabledChanged   : boolean
+    badgeChanged      : boolean
+    prevChecked       : boolean
+    prevVariant       : NavigationTabVariant
+    prevBadge         : string
+    containerRect     : DOMRect | null
+    indicatorRect     : DOMRect | null
+    iconRect          : DOMRect | null
+    labelRect         : DOMRect | null
+    indicatorOpacity  : string
     indicatorTransform: string
-    indicatorBg      : string
-    iconOpacities    : { default: string; active: string; inactive: string }
-    iconColor        : string
-    labelColor       : string
+    indicatorBg       : string
+    badgeOpacity      : string
+    badgeTransform    : string
+    iconOpacities     : { default: string; active: string; inactive: string }
+    iconColor         : string
+    labelColor        : string
 }
 
 const HorizontalIndicatorVariants = new Set<NavigationTabVariant>([
@@ -56,14 +69,6 @@ const RoundVariants = new Set<NavigationTabVariant>([
     'rail-round',
     'rail-xr-round',
 ])
-
-function isReducedMotion(): boolean {
-    return (
-        typeof window !== 'undefined'
-        && typeof window.matchMedia === 'function'
-        && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    )
-}
 
 function getVisibleLabel(
     variant: NavigationTabVariant,
@@ -95,21 +100,6 @@ function safeComputedStyle(el: HTMLElement | null): CSSStyleDeclaration | null {
     return getComputedStyle(el)
 }
 
-function hasRunningAnimation(el: HTMLElement | null): boolean {
-    if (!el || typeof el.getAnimations !== 'function') return false
-    return el.getAnimations().some((anim) => anim.playState === 'running')
-}
-
-function isInvertibleTransform(transform: string): boolean {
-    if (!transform || transform === 'none') return false
-    const match = transform.match(/^matrix\(([^)]+)\)$/)
-    if (!match) return true
-    const parts = match[1].split(',').map((v) => Number.parseFloat(v.trim()))
-    if (parts.length !== 6 || parts.some((v) => !Number.isFinite(v))) return false
-    const [a, b, c, d] = parts
-    return Math.abs(a * d - b * c) > 1e-4
-}
-
 function playAnimation(
     tracker: Set<Animation>,
     el: HTMLElement | null,
@@ -117,7 +107,7 @@ function playAnimation(
     options: KeyframeAnimationOptions,
 ): Animation | null {
     if (!el || typeof el.animate !== 'function') return null
-    const anim = el.animate(keyframes, { ...options, fill: 'none' })
+    const anim = el.animate(keyframes, { fill: 'none', ...options })
     tracker.add(anim)
     const cleanup = () => tracker.delete(anim)
     anim.addEventListener('finish', cleanup, { once: true })
@@ -126,14 +116,7 @@ function playAnimation(
 }
 
 function cancelElementAnimations(tracker: Set<Animation>, targets: Array<HTMLElement | null>): void {
-    const targetSet = new Set(targets.filter((el): el is HTMLElement => el !== null))
-    for (const anim of tracker) {
-        const effectTarget = (anim.effect as KeyframeEffect | null)?.target as HTMLElement | null
-        if (effectTarget && targetSet.has(effectTarget)) {
-            anim.cancel()
-            tracker.delete(anim)
-        }
-    }
+    cancelTrackedAnimations(tracker, targets)
 }
 
 export function captureNavigationTabSnapshot(
@@ -152,11 +135,15 @@ export function captureNavigationTabSnapshot(
 
     const indicatorRunning = hasRunningAnimation(elements.indicator)
     const rawTransform = indicatorStyle?.transform ?? ''
+    const badgeSnapshot = flags.badgeChanged
+        ? capturePresenceSnapshot(elements.badgeLabel, Boolean(prevState.badge))
+        : { opacity: prevState.badge ? '1' : '0', transform: '' }
 
     return {
         ...flags,
         prevChecked       : prevState.checked,
         prevVariant       : prevState.variant,
+        prevBadge         : prevState.badge,
         containerRect     : flags.variantChanged ? safeRect(elements.container) : null,
         indicatorRect     : flags.variantChanged ? safeRect(elements.indicator) : null,
         iconRect          : flags.variantChanged ? safeRect(elements.iconContainer) : null,
@@ -164,6 +151,8 @@ export function captureNavigationTabSnapshot(
         indicatorOpacity  : indicatorRunning && indicatorStyle ? indicatorStyle.opacity : (prevState.checked ? '1' : '0'),
         indicatorTransform: indicatorRunning && isInvertibleTransform(rawTransform) ? rawTransform : '',
         indicatorBg       : indicatorStyle?.backgroundColor ?? '',
+        badgeOpacity      : badgeSnapshot.opacity,
+        badgeTransform    : badgeSnapshot.transform,
         iconOpacities     : {
             default : hasRunningAnimation(elements.defaultIcon)
                 ? (safeComputedStyle(elements.defaultIcon)?.opacity ?? '0')
@@ -185,6 +174,7 @@ export function runNavigationTabTransitions(
     elements: INavigationTabMotionElements,
     state: INavigationTabMotionState,
     snapshot: INavigationTabMotionSnapshot,
+    callbacks?: { onBadgeExitComplete?: () => void },
 ): void {
     if (isReducedMotion()) return
 
@@ -201,7 +191,7 @@ export function runNavigationTabTransitions(
     }
 
     if (snapshot.badgeChanged) {
-        animateBadgeState(tracker, elements)
+        animateBadgeState(tracker, elements, state, snapshot, callbacks?.onBadgeExitComplete)
     }
 }
 
@@ -487,19 +477,20 @@ function animateDisabledState(
 function animateBadgeState(
     tracker: Set<Animation>,
     elements: INavigationTabMotionElements,
+    state: INavigationTabMotionState,
+    snapshot: INavigationTabMotionSnapshot,
+    onExitComplete?: () => void,
 ): void {
-    if (!elements.badgeLabel) return
-    cancelElementAnimations(tracker, [elements.badgeLabel])
-    playAnimation(
+    const isUpdate = Boolean(state.badge && snapshot.prevBadge)
+    runScaleFadeTransition(
         tracker,
         elements.badgeLabel,
-        [
-            { opacity: 0, transform: 'scale(0.6)' },
-            { opacity: 1, transform: 'scale(1)' },
-        ],
+        Boolean(state.badge),
+        { opacity: snapshot.badgeOpacity, transform: snapshot.badgeTransform },
         {
-            duration: Duration.ExpressiveFastSpatial.Value,
-            easing  : Easing.ExpressiveFastSpatial.ToCSSValue(),
+            startOpacity: isUpdate ? 0.7 : 0,
+            startScale  : isUpdate ? 0.85 : 0.6,
+            onExitComplete,
         },
     )
 }

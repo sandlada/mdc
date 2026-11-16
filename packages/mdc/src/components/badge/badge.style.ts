@@ -20,12 +20,22 @@ const StylePart = css`
         flex-shrink: 0;
     }
 
+    :host([hidden]) {
+        display: none;
+    }
+
+    :host([hidden][data-exiting]) {
+        display: inline-flex;
+        pointer-events: none;
+    }
+
     .container {
         box-sizing: border-box;
         position: relative;
         display: flex;
         align-items: center;
         justify-content: center;
+        transform-origin: center;
         background: var(--_container-color);
 
         .label {
