@@ -3,16 +3,13 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { Easing } from '@sandlada/mdk'
-import { css, unsafeCSS } from 'lit'
+import { css } from 'lit'
 import { overrideTokens, stringifyTokens } from '../../utils/style'
 import type { ElevationDefinition } from '../elevation/elevation.definition'
 import type { IconDefinition } from '../icon/icon.definition'
 import { SearchViewDefinition } from './search.definition'
 
 const TokenString = stringifyTokens('--mdc-search-view')(SearchViewDefinition)
-const EmphasizedEasing = unsafeCSS(Easing.Emphasized.ToCSSValue())
-const EmphasizedAccelerateEasing = unsafeCSS(Easing.EmphasizedAccelerate.ToCSSValue())
 
 const ElevationTokens = overrideTokens<typeof ElevationDefinition>('--mdc-elevation')({
     'level': `var(--_enabled-container-elevation)`,
@@ -100,7 +97,7 @@ export const SearchViewStyle = css`
             width: var(--_docked-width, min(560px, calc(100vw - 32px)));
             min-width: min(var(--_enabled-docked-min-width), calc(100vw - 16px));
             max-width: min(var(--_enabled-docked-max-width), calc(100vw - 16px));
-            max-height: min(var(--_enabled-docked-max-height), calc(100dvh - 32px));
+            max-height: min(var(--_enabled-docked-max-height), calc(100dvh - var(--_docked-top, 16px) - 16px));
             border-start-start-radius: var(--_enabled-docked-container-shape-start-start);
             border-start-end-radius: var(--_enabled-docked-container-shape-start-end);
             border-end-start-radius: var(--_enabled-docked-container-shape-end-start);
@@ -228,52 +225,7 @@ export const SearchViewStyle = css`
         }
     }
 
-    @layer mdc.search-view.motion {
-        .dialog:not(.quick) {
-            opacity: 0;
-            transform: scale(0.96);
-            transition:
-                opacity 200ms ${EmphasizedAccelerateEasing},
-                transform 200ms ${EmphasizedAccelerateEasing},
-                display 200ms allow-discrete,
-                overlay 200ms allow-discrete;
-        }
-
-        .dialog.docked:not(.quick) {
-            transform-origin: top center;
-            transform: var(--_docked-transform, none) scaleY(0.92);
-        }
-
-        .dialog[open]:not(.quick) {
-            opacity: 1;
-            transform: var(--_docked-transform, none) scale(1);
-            transition:
-                opacity 300ms ${EmphasizedEasing},
-                transform 300ms ${EmphasizedEasing},
-                display 300ms allow-discrete,
-                overlay 300ms allow-discrete;
-        }
-
-        @starting-style {
-            .dialog[open]:not(.quick) {
-                opacity: 0;
-                transform: var(--_docked-transform, none) scale(0.96);
-            }
-            .dialog.docked[open]:not(.quick) {
-                opacity: 0;
-                transform: var(--_docked-transform, none) scaleY(0.92);
-            }
-        }
-    }
-
     @layer mdc.search-view.a11y {
-        @media (prefers-reduced-motion: reduce) {
-            .dialog,
-            .dialog[open] {
-                transition: none !important;
-            }
-        }
-
         @media (forced-colors: active) {
             .dialog {
                 border: 1px solid CanvasText;

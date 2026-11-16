@@ -13,6 +13,7 @@ describe('MDCSearchBar', () => {
     it('instantiates with defaults', () => {
         const bar = new MDCSearchBar()
         expect(bar.supportingText).toBe('Type here to search')
+        expect(bar.hideLeadingIcon).toBe(false)
         expect(bar.hideAvatar).toBe(false)
         expect(bar.value).toBe('')
         expect(bar.for).toBe('')
@@ -54,13 +55,29 @@ describe('MDCSearchBar', () => {
             handleContainerClick(e: { target: { closest: (s: string) => Element | null } }): void
         }).handleContainerClick.bind(bar)
 
-        // Clicking trailing-icon / avatar / leading-icon should not open SearchView
-        handleContainerClick({ target: { closest: () => ({}) as Element } })
+        // Clicking trailing-icon / avatar / custom slotted leading-icon should not open SearchView
+        handleContainerClick({ target: { closest: (s: string) => (s.includes('.default-leading-icon') ? null : ({}) as Element) } })
         expect(showSpy).not.toHaveBeenCalled()
+
+        // Clicking the default non-interactive leading search icon opens SearchView
+        handleContainerClick({ target: { closest: () => ({}) as Element } })
+        expect(showSpy).toHaveBeenCalledTimes(1)
 
         // Clicking the bar/input area opens SearchView
         handleContainerClick({ target: { closest: () => null } })
-        expect(showSpy).toHaveBeenCalledTimes(1)
+        expect(showSpy).toHaveBeenCalledTimes(2)
+    })
+
+    it('auto-links a nested MDCSearchView in the default slot', () => {
+        const bar = new MDCSearchBar()
+        const view = new MDCSearchView()
+        ;(bar as unknown as {
+            handleDefaultSlotChange(e: { target: { assignedElements: () => Element[] } }): void
+        }).handleDefaultSlotChange({
+            target: { assignedElements: () => [view] },
+        })
+        expect(bar.searchView).toBe(view)
+        expect(view.searchBar).toBe(bar)
     })
 })
 

@@ -37,6 +37,9 @@ export abstract class BaseSearchBar extends composeMixin(
     @property({ type: String, attribute: 'supporting-text' })
     public supportingText: string = 'Type here to search'
 
+    @property({ type: Boolean, attribute: 'hide-leading-icon', reflect: true })
+    public hideLeadingIcon: boolean = false
+
     @property({ type: Boolean, attribute: 'hide-avatar', reflect: true })
     public hideAvatar: boolean = false
 
@@ -124,6 +127,7 @@ export abstract class BaseSearchBar extends composeMixin(
                 ${this.renderAvatar()}
                 ${this.renderTouchTarget()}
                 ${this.disabled ? nothing : this.renderFocusRing()}
+                <slot @slotchange=${this.handleDefaultSlotChange}></slot>
             </div>
         `
     }
@@ -131,7 +135,17 @@ export abstract class BaseSearchBar extends composeMixin(
     protected renderLeadingIcon(): TemplateResult {
         return html`
             <span class="leading-icon icon">
-                <slot name="leading-icon" @slotchange=${this.handleLeadingIconSlotChange}></slot>
+                <slot name="leading-icon" @slotchange=${this.handleLeadingIconSlotChange}>
+                    ${this.hideLeadingIcon ? nothing : this.renderDefaultLeadingIcon()}
+                </slot>
+            </span>
+        `
+    }
+
+    protected renderDefaultLeadingIcon(): TemplateResult {
+        return html`
+            <span class="default-leading-icon" aria-hidden="true">
+                <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"/></svg>
             </span>
         `
     }
@@ -197,12 +211,22 @@ export abstract class BaseSearchBar extends composeMixin(
 
     protected getRenderClasses(): Record<string, boolean> {
         return {
-            'has-leading-icon': this.hasLeadingIcon,
+            'has-leading-icon': this.hasLeadingIcon || !this.hideLeadingIcon,
             'has-trailing-icon': this.hasTrailingIcon,
             'has-avatar': this.hasAvatar,
             'hide-avatar': this.hideAvatar,
             'is-linked': this.searchViewValue !== null,
             'is-disabled': this.disabled,
+        }
+    }
+
+    private handleDefaultSlotChange(e: Event): void {
+        const assigned = (e.target as HTMLSlotElement).assignedElements({ flatten: true })
+        const nestedView = assigned.find(
+            (el): el is IMDCSearchView => 'setupWithSearchBar' in el && typeof (el as IMDCSearchView).setupWithSearchBar === 'function',
+        )
+        if (nestedView && nestedView !== this.searchViewValue) {
+            this.searchView = nestedView
         }
     }
 
@@ -220,8 +244,12 @@ export abstract class BaseSearchBar extends composeMixin(
     private handleContainerClick(e: MouseEvent): void {
         if (this.disabled || !this.searchViewValue) return
         const target = e.target as Element | null
-        if (target?.closest('.trailing-icon, .avatar, slot[name="avatar"], .leading-icon')) {
-            return
+        if (target?.closest('.trailing-icon, .avatar, slot[name="avatar"], slot[name="leading-icon"]')) {
+            // Allow custom slotted leading/trailing buttons or avatar to handle their own clicks;
+            // clicking the default non-interactive leading search icon still opens SearchView.
+            if (!target.closest('.default-leading-icon')) {
+                return
+            }
         }
         this.searchViewValue.show()
     }

@@ -123,6 +123,20 @@ export const SearchBarStyle = css`
             fill: currentColor;
         }
 
+        .default-leading-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+        }
+
+        .search-icon {
+            width: var(--_enabled-leading-icon-size);
+            height: var(--_enabled-leading-icon-size);
+            fill: currentColor;
+        }
+
         .trailing-icon {
             display: inline-flex;
             align-items: center;
@@ -165,8 +179,7 @@ export const SearchBarStyle = css`
         }
 
         .search.has-leading-icon .input {
-            padding-inline-start: calc(var(--_enabled-content-padding-inline-start) - 16px);
-            padding-inline-end: calc(var(--_enabled-content-padding-inline-end) - 16px);
+            padding-inline-start: 0;
         }
 
         .input::placeholder {

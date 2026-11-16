@@ -25,6 +25,8 @@ export interface ISearchAvatarClickDetail {
 export interface IMDCSearchBarAttributes {
     /** Placeholder / supporting text displayed when `value` is empty. */
     supportingText: string
+    /** Hides the default leading search icon when no custom `leading-icon` is slotted. */
+    hideLeadingIcon: boolean
     /** Hides the trailing avatar button/slot when true. */
     hideAvatar: boolean
     /** Current query text. Syncs bidirectionally with a linked `mdc-search-view`. */

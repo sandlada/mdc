@@ -27,13 +27,13 @@ export const SearchBarDefinition = createStyleDefinition({
     'enabled-container-elevation'          : ElevationLevel.Level0,
     ...expandShape('enabled-container-shape')(Shape.Full),
     ...expandPadding('enabled-container-padding')({
-        inline: Space.Space100,
-        block: Space.Space100,
+        inline: Space.Space50,
+        block: Space.Space50,
     }),
     ...expandMargin('enabled-container-margin')(Space.Space0),
     'enabled-container-items-gap'          : `4px`,
 
-    'enabled-leading-icon-color'           : Color.OnSurfaceVariant,
+    'enabled-leading-icon-color'           : Color.OnSurface,
     'enabled-leading-icon-size'            : `24px`,
     'enabled-trailing-icon-color'          : Color.OnSurfaceVariant,
     'enabled-trailing-icon-size'           : `24px`,
@@ -52,7 +52,10 @@ export const SearchBarDefinition = createStyleDefinition({
     }),
     ...expandMargin('enabled-avatar-container-margin')(Space.Space0),
 
-    ...expandPadding('enabled-content-padding')(Space.Space250),
+    ...expandPadding('enabled-content-padding')({
+        inline: Space.Space150,
+        block: Space.Space0,
+    }),
     ...expandMargin('enabled-content-margin')(Space.Space0),
     'enabled-supporting-text-color'        : Color.OnSurfaceVariant,
     ...expandTypescale('enabled-supporting-text')(Typescale.BodyLarge),
