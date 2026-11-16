@@ -23,13 +23,6 @@ const FocusRingStyles = overrideTokens<typeof FocusRingDefinition>('--mdc-focus-
     'inward-offset': `var(--_focused-indicator-offset)`,
 })()
 
-const AvatarFocusRingStyles = overrideTokens<typeof FocusRingDefinition>('--mdc-focus-ring')({
-    'shape-start-start': `var(--_enabled-avatar-container-shape-start-start)`,
-    'shape-start-end': `var(--_enabled-avatar-container-shape-start-end)`,
-    'shape-end-start': `var(--_enabled-avatar-container-shape-end-start)`,
-    'shape-end-end': `var(--_enabled-avatar-container-shape-end-end)`,
-})()
-
 const RippleStyles = overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
     'enabled-hovered-color': `var(--_hovered-state-layer-color)`,
     'enabled-pressed-color': `var(--_pressed-state-layer-color)`,
@@ -56,10 +49,6 @@ export const SearchBarStyle = css`
         .search > mdc-focus-ring {
             border-radius: inherit;
             ${FocusRingStyles};
-        }
-        .avatar mdc-focus-ring {
-            border-radius: inherit;
-            ${AvatarFocusRingStyles};
         }
     }
 
@@ -161,7 +150,7 @@ export const SearchBarStyle = css`
             box-sizing: border-box;
             color: var(--_enabled-input-text-color);
             font-family: var(--_enabled-input-text-font);
-            line-height: var(--_enabled-input-text-line-height);
+            line-height: var(--_enabled-input-text-leading);
             font-size: var(--_enabled-input-text-size);
             font-weight: var(--_enabled-input-text-weight);
             letter-spacing: var(--_enabled-input-text-tracking);
@@ -171,15 +160,19 @@ export const SearchBarStyle = css`
             padding-block-end: var(--_enabled-content-padding-block-end);
         }
 
+        .search.is-linked .input {
+            cursor: pointer;
+        }
+
         .search.has-leading-icon .input {
-            padding-inline-start:  calc(var(--_enabled-content-padding-inline-start) - 16px);
-            padding-inline-end:  calc(var(--_enabled-content-padding-inline-end) - 16px);
+            padding-inline-start: calc(var(--_enabled-content-padding-inline-start) - 16px);
+            padding-inline-end: calc(var(--_enabled-content-padding-inline-end) - 16px);
         }
 
         .input::placeholder {
             color: var(--_enabled-supporting-text-color);
             font-family: var(--_enabled-supporting-text-font);
-            line-height: var(--_enabled-supporting-text-line-height);
+            line-height: var(--_enabled-supporting-text-leading);
             font-size: var(--_enabled-supporting-text-size);
             font-weight: var(--_enabled-supporting-text-weight);
             letter-spacing: var(--_enabled-supporting-text-tracking);
@@ -210,42 +203,12 @@ export const SearchBarStyle = css`
         }
 
         .avatar {
-            all: unset;
-            cursor: pointer;
-            position: relative;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
             flex-shrink: 0;
-            box-sizing: border-box;
-            width: var(--_enabled-avatar-container-width);
-            height: var(--_enabled-avatar-container-height);
-            background-color: var(--_enabled-avatar-container-color);
             color: var(--_enabled-avatar-color);
-            border-start-start-radius: var(--_enabled-avatar-container-shape-start-start);
-            border-start-end-radius: var(--_enabled-avatar-container-shape-start-end);
-            border-end-start-radius: var(--_enabled-avatar-container-shape-end-start);
-            border-end-end-radius: var(--_enabled-avatar-container-shape-end-end);
-            padding-inline-start: var(--_enabled-avatar-container-padding-inline-start);
-            padding-inline-end: var(--_enabled-avatar-container-padding-inline-end);
-            padding-block-start: var(--_enabled-avatar-container-padding-block-start);
-            padding-block-end: var(--_enabled-avatar-container-padding-block-end);
             margin-inline-start: var(--_enabled-avatar-container-margin-inline-start);
             margin-inline-end: var(--_enabled-avatar-container-margin-inline-end);
             margin-block-start: var(--_enabled-avatar-container-margin-block-start);
             margin-block-end: var(--_enabled-avatar-container-margin-block-end);
-            z-index: 0;
-        }
-
-        .avatar mdc-ripple {
-            border-radius: inherit;
-            inset: 0;
-            z-index: -1;
-        }
-
-        .avatar mdc-focus-ring {
-            border-radius: inherit;
-            z-index: 1;
         }
 
         .avatar-icon {
@@ -258,6 +221,11 @@ export const SearchBarStyle = css`
             border-start-end-radius: var(--_enabled-avatar-shape-start-end);
             border-end-start-radius: var(--_enabled-avatar-shape-end-start);
             border-end-end-radius: var(--_enabled-avatar-shape-end-end);
+        }
+
+        .search.is-disabled {
+            opacity: var(--_disabled-container-opacity);
+            pointer-events: none;
         }
 
         ::slotted([slot='avatar']) {
@@ -282,6 +250,12 @@ export const SearchBarStyle = css`
             }
             .avatar {
                 border: 1px solid CanvasText;
+            }
+        }
+
+        @media (prefers-contrast: more) {
+            .background {
+                outline: 1px solid currentColor;
             }
         }
     }
