@@ -1,24 +1,24 @@
 # App Bar (`<mdc-appbar>`)
 
-Material Design 3 and MD3 Expressive App Bar component.
+Material Design 3 and M3 Expressive App Bar component.
 
 ## Features
 
 - **Variants**:
   - `small` (default): 64px standard top app bar
-  - `center-aligned`: 64px top app bar with centered headline
-  - `medium-flexible` (or `medium`): Multi-line flexible medium app bar that hugs content
-  - `large-flexible` (or `large`): Multi-line flexible large app bar with prominent headline
-  - `search`: Search app bar with embedded pill search container
+  - `center-aligned`: 64px top app bar with mathematically centered headline
+  - `medium-flexible` (`medium`): Multi-line flexible medium app bar (112px min-height, collapses to 64px)
+  - `large-flexible` (`large`): Multi-line flexible large app bar (120px min-height, collapses to 64px)
+  - `search`: 64px search app bar with embedded 48px pill search container
 - **Text Alignment**:
   - `start` (default): Leading edge alignment
-  - `center`: Centered headline and subtitle
-- **Subtitle Support**: Subtitle text automatically expands height flexibly in medium and large variants.
+  - `center`: Centered headline, subtitle, and search placeholder
 - **Scroll Behavior & States**:
-  - Flat (resting) vs Scrolled state (`scrolled` attribute)
-  - Surface color switching (Surface -> SurfaceContainer)
+  - `scroll-behavior="pinned"` (default) or `"collapse"` (for `medium-flexible` / `large-flexible`)
+  - `scrolled` & `collapsed` reflected attributes with `scroll-state-change` event
   - Auto-scroll detection with `scroll-target="window"` or `scroll-target="#container"`
-  - Elevation tinting on scroll
+- **Search Coordination**:
+  - `for="<search-view-id>"` automatically opens a linked `<mdc-search-view>` on search box activation (`search-click` event)
 - **Slots**:
   - `leading`: Navigation icon button or menu button
   - `headline`: Title text or custom element (e.g. logo / image)
@@ -36,9 +36,11 @@ Material Design 3 and MD3 Expressive App Bar component.
   <mdc-icon-button slot="trailing"><mdc-icon>more_vert</mdc-icon></mdc-icon-button>
 </mdc-appbar>
 
-<!-- Medium Flexible App Bar with Subtitle -->
+<!-- Collapsible Medium Flexible App Bar with Subtitle -->
 <mdc-appbar
   variant="medium-flexible"
+  scroll-behavior="collapse"
+  scroll-target="#scroll-body"
   headline="Daily activities"
   subtitle="Record new fitness goals"
 >
@@ -46,9 +48,10 @@ Material Design 3 and MD3 Expressive App Bar component.
   <mdc-icon-button slot="trailing"><mdc-icon>add</mdc-icon></mdc-icon-button>
 </mdc-appbar>
 
-<!-- Search App Bar -->
-<mdc-appbar variant="search" headline="Search product">
+<!-- Search App Bar linked to SearchView -->
+<mdc-appbar variant="search" headline="Search product" for="product-search">
   <mdc-icon-button slot="leading"><mdc-icon>menu</mdc-icon></mdc-icon-button>
   <mdc-icon-button slot="trailing"><mdc-icon>account_circle</mdc-icon></mdc-icon-button>
 </mdc-appbar>
+<mdc-search-view id="product-search" supporting-text="Search product"></mdc-search-view>
 ```

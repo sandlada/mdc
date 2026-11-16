@@ -1,4 +1,18 @@
 <div style="display: flex; flex-direction: column; gap: 24px; width: 100%;">
+    <!-- Interactive Scrolled Toggle -->
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+        <div style="display: flex; gap: 8px;">
+            <mdc-button variant="outlined" onclick="const el = this.getRootNode().querySelector('#demo-scrolled-live'); el.scrolled = !el.scrolled;">
+                Toggle Scrolled State
+            </mdc-button>
+        </div>
+        <mdc-appbar id="demo-scrolled-live" variant="small" headline="Interactive Scroll State">
+            <mdc-icon-button slot="leading"><mdc-icon>arrow_back</mdc-icon></mdc-icon-button>
+            <mdc-icon-button slot="trailing"><mdc-icon>search</mdc-icon></mdc-icon-button>
+            <mdc-icon-button slot="trailing"><mdc-icon>more_vert</mdc-icon></mdc-icon-button>
+        </mdc-appbar>
+    </div>
+
     <!-- Flat / Resting State -->
     <div>
         <p style="margin: 0 0 8px 4px; font-size: 14px; color: var(--md-sys-color-outline, #79747e);">Flat (Resting state)</p>

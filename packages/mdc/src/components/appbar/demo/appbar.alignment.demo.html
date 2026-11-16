@@ -1,4 +1,17 @@
 <div style="display: flex; flex-direction: column; gap: 24px; width: 100%;">
+    <!-- Interactive WAAPI Alignment Switcher -->
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+            <mdc-button variant="outlined" onclick="this.getRootNode().querySelector('#demo-alignment-live').alignment = 'start'">Alignment: Start</mdc-button>
+            <mdc-button variant="outlined" onclick="this.getRootNode().querySelector('#demo-alignment-live').alignment = 'center'">Alignment: Center</mdc-button>
+        </div>
+        <mdc-appbar id="demo-alignment-live" alignment="start" headline="Animated Alignment" subtitle="Toggle start and center alignment">
+            <mdc-icon-button slot="leading"><mdc-icon>arrow_back</mdc-icon></mdc-icon-button>
+            <mdc-icon-button slot="trailing"><mdc-icon>search</mdc-icon></mdc-icon-button>
+            <mdc-icon-button slot="trailing"><mdc-icon>more_vert</mdc-icon></mdc-icon-button>
+        </mdc-appbar>
+    </div>
+
     <!-- Start Alignment (Default) -->
     <mdc-appbar alignment="start" headline="Leading edge headline" subtitle="Leading aligned subtitle">
         <mdc-icon-button slot="leading"><mdc-icon>arrow_back</mdc-icon></mdc-icon-button>
@@ -6,9 +19,10 @@
         <mdc-icon-button slot="trailing"><mdc-icon>more_vert</mdc-icon></mdc-icon-button>
     </mdc-appbar>
 
-    <!-- Centered Alignment -->
+    <!-- Centered Alignment (Asymmetric trailing buttons still mathematically centered) -->
     <mdc-appbar alignment="center" headline="Centered headline" subtitle="Centered subtitle">
         <mdc-icon-button slot="leading"><mdc-icon>arrow_back</mdc-icon></mdc-icon-button>
+        <mdc-icon-button slot="trailing"><mdc-icon>search</mdc-icon></mdc-icon-button>
         <mdc-icon-button slot="trailing"><mdc-icon>more_vert</mdc-icon></mdc-icon-button>
     </mdc-appbar>
 

@@ -1,0 +1,98 @@
+<div style="display: flex; flex-direction: column; gap: 24px; width: 100%;">
+    <!-- Programmatic WAAPI Collapse Toggle -->
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <mdc-button variant="outlined" onclick="const el = this.getRootNode().querySelector('#demo-collapse-live'); el.collapsed = !el.collapsed; el.scrolled = el.collapsed;">
+                Toggle Collapse (WAAPI)
+            </mdc-button>
+        </div>
+        <mdc-appbar
+            id="demo-collapse-live"
+            variant="large-flexible"
+            headline="Explore Banff"
+            subtitle="Toggle collapse to preview WAAPI height & title transition"
+        >
+            <mdc-icon-button slot="leading"><mdc-icon>arrow_back</mdc-icon></mdc-icon-button>
+            <mdc-icon-button slot="trailing"><mdc-icon>share</mdc-icon></mdc-icon-button>
+        </mdc-appbar>
+    </div>
+
+    <!-- Scroll-driven Dynamic WAAPI: Medium Flexible -->
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--md-sys-color-on-surface-variant, #49454f);">
+            <span>Medium Flexible — Scroll-driven WAAPI Scrubbing</span>
+            <span id="medium-scrub-status">progress: 0% · expanded</span>
+        </div>
+        <div style="display: flex; flex-direction: column; height: 280px; overflow: hidden; border: 1px solid var(--md-sys-color-outline-variant, #cac4d0); border-radius: 12px;">
+            <mdc-appbar
+                id="appbar-scrub-medium"
+                variant="medium-flexible"
+                scroll-behavior="collapse"
+                scroll-target="#collapse-scroll-medium"
+                headline="Medium Collapsible"
+                subtitle="Scroll smoothly to scrub WAAPI collapse"
+            >
+                <mdc-icon-button slot="leading"><mdc-icon>arrow_back</mdc-icon></mdc-icon-button>
+                <mdc-icon-button slot="trailing"><mdc-icon>more_vert</mdc-icon></mdc-icon-button>
+            </mdc-appbar>
+            <div id="collapse-scroll-medium" style="flex: 1 1 auto; overflow: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+                <div style="padding: 12px; border-radius: 8px; background: var(--md-sys-color-surface-container-low, #f7f2fa);">Item 1 — Scroll slowly to watch height &amp; opacity scrub</div>
+                <div style="padding: 12px; border-radius: 8px; background: var(--md-sys-color-surface-container-low, #f7f2fa);">Item 2 — Top row transitions from 56px to 64px</div>
+                <div style="padding: 12px; border-radius: 8px; background: var(--md-sys-color-surface-container-low, #f7f2fa);">Item 3 — Collapsed headline fades in seamlessly</div>
+                <div style="padding: 12px; border-radius: 8px; background: var(--md-sys-color-surface-container-low, #f7f2fa);">Item 4 — Driven by paused WAAPI currentTime</div>
+                <div style="padding: 12px; border-radius: 8px; background: var(--md-sys-color-surface-container-low, #f7f2fa);">Item 5 — Scroll back up to expand smoothly</div>
+                <div style="padding: 12px; border-radius: 8px; background: var(--md-sys-color-surface-container-low, #f7f2fa);">Item 6 — End of list</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scroll-driven Dynamic WAAPI: Large Flexible -->
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--md-sys-color-on-surface-variant, #49454f);">
+            <span>Large Flexible — Scroll-driven WAAPI Scrubbing</span>
+            <span id="large-scrub-status">progress: 0% · expanded</span>
+        </div>
+        <div style="display: flex; flex-direction: column; height: 280px; overflow: hidden; border: 1px solid var(--md-sys-color-outline-variant, #cac4d0); border-radius: 12px;">
+            <mdc-appbar
+                id="appbar-scrub-large"
+                variant="large-flexible"
+                scroll-behavior="collapse"
+                scroll-target="#collapse-scroll-large"
+                headline="Large Collapsible"
+                subtitle="120px DisplaySmall scrubs down to 64px"
+            >
+                <mdc-icon-button slot="leading"><mdc-icon>arrow_back</mdc-icon></mdc-icon-button>
+                <mdc-icon-button slot="trailing"><mdc-icon>share</mdc-icon></mdc-icon-button>
+            </mdc-appbar>
+            <div id="collapse-scroll-large" style="flex: 1 1 auto; overflow: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+                <div style="padding: 12px; border-radius: 8px; background: var(--md-sys-color-surface-container-low, #f7f2fa);">Trail 1 — Lake Louise</div>
+                <div style="padding: 12px; border-radius: 8px; background: var(--md-sys-color-surface-container-low, #f7f2fa);">Trail 2 — Moraine Lake</div>
+                <div style="padding: 12px; border-radius: 8px; background: var(--md-sys-color-surface-container-low, #f7f2fa);">Trail 3 — Johnston Canyon</div>
+                <div style="padding: 12px; border-radius: 8px; background: var(--md-sys-color-surface-container-low, #f7f2fa);">Trail 4 — Sulphur Mountain</div>
+                <div style="padding: 12px; border-radius: 8px; background: var(--md-sys-color-surface-container-low, #f7f2fa);">Trail 5 — Peyto Lake</div>
+                <div style="padding: 12px; border-radius: 8px; background: var(--md-sys-color-surface-container-low, #f7f2fa);">Trail 6 — Bow Falls</div>
+                <div style="padding: 12px; border-radius: 8px; background: var(--md-sys-color-surface-container-low, #f7f2fa);">Trail 7 — Emerald Lake</div>
+                <div style="padding: 12px; border-radius: 8px; background: var(--md-sys-color-surface-container-low, #f7f2fa);">Trail 8 — Lake Minnewanka</div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const mediumBar = document.getElementById('appbar-scrub-medium')
+    const mediumStatus = document.getElementById('medium-scrub-status')
+    if (mediumBar && mediumStatus) {
+        mediumBar.addEventListener('scroll-state-change', (e) => {
+            const { progress, collapsed } = e.detail
+            mediumStatus.textContent = `progress: ${Math.round(progress * 100)}% · ${collapsed ? 'collapsed' : 'expanded'}`
+        })
+    }
+
+    const largeBar = document.getElementById('appbar-scrub-large')
+    const largeStatus = document.getElementById('large-scrub-status')
+    if (largeBar && largeStatus) {
+        largeBar.addEventListener('scroll-state-change', (e) => {
+            const { progress, collapsed } = e.detail
+            largeStatus.textContent = `progress: ${Math.round(progress * 100)}% · ${collapsed ? 'collapsed' : 'expanded'}`
+        })
+    }
+</script>

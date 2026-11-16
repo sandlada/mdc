@@ -1,4 +1,20 @@
 <div style="display: flex; flex-direction: column; gap: 24px; width: 100%;">
+    <!-- Interactive WAAPI Variant Switcher -->
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+            <mdc-button variant="outlined" onclick="this.getRootNode().querySelector('#demo-variant-live').variant = 'small'">Small</mdc-button>
+            <mdc-button variant="outlined" onclick="this.getRootNode().querySelector('#demo-variant-live').variant = 'center-aligned'">Center-aligned</mdc-button>
+            <mdc-button variant="outlined" onclick="this.getRootNode().querySelector('#demo-variant-live').variant = 'medium-flexible'">Medium Flexible</mdc-button>
+            <mdc-button variant="outlined" onclick="this.getRootNode().querySelector('#demo-variant-live').variant = 'large-flexible'">Large Flexible</mdc-button>
+            <mdc-button variant="outlined" onclick="this.getRootNode().querySelector('#demo-variant-live').variant = 'search'">Search</mdc-button>
+        </div>
+        <mdc-appbar id="demo-variant-live" variant="small" headline="Interactive App Bar" subtitle="Switch variants to preview WAAPI transition">
+            <mdc-icon-button slot="leading"><mdc-icon>arrow_back</mdc-icon></mdc-icon-button>
+            <mdc-icon-button slot="trailing"><mdc-icon>search</mdc-icon></mdc-icon-button>
+            <mdc-icon-button slot="trailing"><mdc-icon>more_vert</mdc-icon></mdc-icon-button>
+        </mdc-appbar>
+    </div>
+
     <!-- Small -->
     <mdc-appbar variant="small" headline="Small App Bar">
         <mdc-icon-button slot="leading"><mdc-icon>arrow_back</mdc-icon></mdc-icon-button>
