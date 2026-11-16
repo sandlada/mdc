@@ -33,6 +33,7 @@ export interface INavigationTabMotionState {
     variant         : NavigationTabVariant
     disabled        : boolean
     badge           : string
+    badgeDot?       : boolean
     hasActiveIcon   : boolean
     hasInactiveIcon : boolean
 }
@@ -45,6 +46,7 @@ export interface INavigationTabMotionSnapshot {
     prevChecked       : boolean
     prevVariant       : NavigationTabVariant
     prevBadge         : string
+    prevBadgeDot      : boolean
     containerRect     : DOMRect | null
     indicatorRect     : DOMRect | null
     iconRect          : DOMRect | null
@@ -135,15 +137,17 @@ export function captureNavigationTabSnapshot(
 
     const indicatorRunning = hasRunningAnimation(elements.indicator)
     const rawTransform = indicatorStyle?.transform ?? ''
+    const prevHasBadge = Boolean(prevState.badge) || Boolean(prevState.badgeDot)
     const badgeSnapshot = flags.badgeChanged
-        ? capturePresenceSnapshot(elements.badgeLabel, Boolean(prevState.badge))
-        : { opacity: prevState.badge ? '1' : '0', transform: '' }
+        ? capturePresenceSnapshot(elements.badgeLabel, prevHasBadge)
+        : { opacity: prevHasBadge ? '1' : '0', transform: '' }
 
     return {
         ...flags,
         prevChecked       : prevState.checked,
         prevVariant       : prevState.variant,
         prevBadge         : prevState.badge,
+        prevBadgeDot      : Boolean(prevState.badgeDot),
         containerRect     : flags.variantChanged ? safeRect(elements.container) : null,
         indicatorRect     : flags.variantChanged ? safeRect(elements.indicator) : null,
         iconRect          : flags.variantChanged ? safeRect(elements.iconContainer) : null,
@@ -481,11 +485,13 @@ function animateBadgeState(
     snapshot: INavigationTabMotionSnapshot,
     onExitComplete?: () => void,
 ): void {
-    const isUpdate = Boolean(state.badge && snapshot.prevBadge)
+    const hasBadge = Boolean(state.badge) || Boolean(state.badgeDot)
+    const prevHasBadge = Boolean(snapshot.prevBadge) || snapshot.prevBadgeDot
+    const isUpdate = hasBadge && prevHasBadge
     runScaleFadeTransition(
         tracker,
         elements.badgeLabel,
-        Boolean(state.badge),
+        hasBadge,
         { opacity: snapshot.badgeOpacity, transform: snapshot.badgeTransform },
         {
             startOpacity: isUpdate ? 0.7 : 0,

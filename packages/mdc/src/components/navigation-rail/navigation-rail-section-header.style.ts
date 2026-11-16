@@ -12,12 +12,12 @@ export const NavigationRailSectionHeaderStyles = [
                 display: contents;
             }
             .section-header {
-                display: inline-flex;
+                display: var(--_display);
                 align-items: center;
                 box-sizing: border-box;
                 fill: currentColor;
                 color: var(--_color);
-                size: var(--_size);
+                font-size: var(--_size);
                 letter-spacing: var(--_tracking);
                 line-height: var(--_leading);
                 font-family: var(--_font);

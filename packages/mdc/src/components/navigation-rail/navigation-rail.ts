@@ -594,27 +594,31 @@ export class NavigationRail extends composeMixin(
 
     private handleMenuSlotChange = (event: Event): void => {
         const slot = event.target as HTMLSlotElement
-        this.hasMenuSlot = slot.assignedNodes({ flatten: true }).length > 0
+        this.hasMenuSlot = slot.assignedElements({ flatten: true }).length > 0
     }
 
     private handleFabSlotChange = (event: Event): void => {
         const slot = event.target as HTMLSlotElement
-        this.hasFabSlot = slot.assignedNodes({ flatten: true }).length > 0
+        this.hasFabSlot = slot.assignedElements({ flatten: true }).length > 0
     }
 
     private handleHeaderSlotChange = (event: Event): void => {
         const slot = event.target as HTMLSlotElement
-        this.hasHeaderSlot = slot.assignedNodes({ flatten: true }).length > 0
+        this.hasHeaderSlot = slot.assignedNodes({ flatten: true }).some(
+            (node) => node.nodeType === Node.ELEMENT_NODE || (node.textContent?.trim().length ?? 0) > 0,
+        )
     }
 
     private handleEndSlotChange = (event: Event): void => {
         const slot = event.target as HTMLSlotElement
-        this.hasEndSlot = slot.assignedNodes({ flatten: true }).length > 0
+        this.hasEndSlot = slot.assignedElements({ flatten: true }).length > 0
     }
 
     private handleFooterSlotChange = (event: Event): void => {
         const slot = event.target as HTMLSlotElement
-        this.hasFooterSlot = slot.assignedNodes({ flatten: true }).length > 0
+        this.hasFooterSlot = slot.assignedNodes({ flatten: true }).some(
+            (node) => node.nodeType === Node.ELEMENT_NODE || (node.textContent?.trim().length ?? 0) > 0,
+        )
     }
 
     /**
@@ -966,7 +970,7 @@ export class NavigationRail extends composeMixin(
      */
     private getFocusableElements(): HTMLElement[] {
         return Array.from(this.querySelectorAll<HTMLElement>(
-            'mdc-navigation-tab, mdc-icon-button, button, a[href], [tabindex]:not([tabindex="-1"])',
+            'mdc-navigation-tab, mdc-icon-button, mdc-fab, mdc-extended-fab, button, a[href], [tabindex]:not([tabindex="-1"])',
         )).filter((element) => {
             if (element.hasAttribute('disabled')) return false
             if (element.closest('[inert]')) return false

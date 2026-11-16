@@ -26,12 +26,6 @@ const OverrideTab = {
     collapsed: stringTokens(overrideComponentTokens<keyof typeof NavigationRailVerticalTabDefinition>('--mdc-navigation-tab', {
         'enabled-container-width': `var(--_collapsed-container-width)`,
     })),
-    expandedDocked: stringTokens(overrideComponentTokens<keyof typeof NavigationRailVerticalTabDefinition>('--mdc-navigation-tab', {
-        'enabled-container-width': `100%`,
-    })),
-    expandedFloating: stringTokens(overrideComponentTokens<keyof typeof NavigationRailVerticalTabDefinition>('--mdc-navigation-tab', {
-        'enabled-container-width': `100%`,
-    })),
     xr: stringTokens(overrideComponentTokens<keyof typeof NavigationRailVerticalTabDefinition>('--mdc-navigation-tab', {
         'enabled-container-width': `var(--_xr-container-width)`,
     })),
@@ -262,6 +256,23 @@ export const NavigationRailStyles = [
                 box-sizing: border-box;
             }
 
+            .menu {
+                min-width: 56px;
+                min-height: 56px;
+                justify-content: center;
+                align-items: center;
+            }
+
+            dialog:not(.has-menu) .menu,
+            dialog:not(.has-fab) .fab,
+            dialog:not(.has-header) .header,
+            dialog:not(.has-menu):not(.has-fab):not(.has-header) .header-section,
+            dialog:not(.has-end) .end,
+            dialog:not(.has-footer) .footer,
+            dialog:not(.has-end):not(.has-footer) .end-section {
+                display: none;
+            }
+
             .scroller-section {
                 position: relative;
                 flex: 1;
@@ -341,6 +352,7 @@ export const NavigationRailStyles = [
             :host:has(dialog.collapsed),
             :host([variant="collapsed"]) {
                 ${OverrideTab.collapsed};
+                --mdc-navigation-rail-section-header-display: none;
             }
 
             dialog.collapsed .container {
@@ -411,7 +423,7 @@ export const NavigationRailStyles = [
         @layer mdc.navigation-rail.component {
             :host:has(dialog.expanded-docked),
             :host([variant="expanded-docked"]) {
-                ${OverrideTab.expandedDocked};
+                --mdc-navigation-rail-section-header-display: inline-flex;
             }
 
             dialog.expanded-docked .container {
@@ -440,7 +452,6 @@ export const NavigationRailStyles = [
                 padding-inline-end: var(--_expanded-docked-menu-and-fab-padding-inline-end);
             }
 
-            dialog.expanded-docked .container .header-section .menu,
             dialog.expanded-docked .container .header-section .fab,
             dialog.expanded-docked .container .header-section .header {
                 justify-content: flex-start;
@@ -448,7 +459,7 @@ export const NavigationRailStyles = [
             }
 
             dialog.expanded-docked .container .destination {
-                align-items: stretch;
+                align-items: flex-start;
             }
 
             dialog.expanded-docked .container .end-section {
@@ -467,7 +478,7 @@ export const NavigationRailStyles = [
         @layer mdc.navigation-rail.component {
             :host:has(dialog.expanded-floating),
             :host([variant="expanded-floating"]) {
-                ${OverrideTab.expandedFloating};
+                --mdc-navigation-rail-section-header-display: inline-flex;
             }
 
             dialog.expanded-floating .container {
@@ -561,7 +572,6 @@ export const NavigationRailStyles = [
                 padding-inline-end: var(--_expanded-floating-menu-and-fab-padding-inline-end);
             }
 
-            dialog.expanded-floating .container .header-section .menu,
             dialog.expanded-floating .container .header-section .fab,
             dialog.expanded-floating .container .header-section .header {
                 justify-content: flex-start;
@@ -569,7 +579,7 @@ export const NavigationRailStyles = [
             }
 
             dialog.expanded-floating .container .destination {
-                align-items: stretch;
+                align-items: flex-start;
             }
 
             dialog.expanded-floating .container .end-section {
@@ -589,6 +599,7 @@ export const NavigationRailStyles = [
             :host:has(dialog.xr),
             :host([variant="xr"]) {
                 ${OverrideTab.xr};
+                --mdc-navigation-rail-section-header-display: none;
             }
 
             dialog.xr .container {

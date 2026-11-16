@@ -7,6 +7,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { MDCNavigationTab } from './navigation-tab'
 import { NavigationTabVariant } from './navigation-tab.interface'
 import {
+    NavigationBarHorizontalTabDefinition,
+    NavigationBarXRVerticalTabDefinition,
+    NavigationRailHorizontalTabDefinition,
+    NavigationRailXRVerticalTabDefinition,
+} from './navigation-tab.definition'
+import { NavigationTabStyles } from './navigation-tab.style'
+import {
     captureNavigationTabSnapshot,
     runNavigationTabTransitions,
     type INavigationTabMotionElements,
@@ -82,6 +89,7 @@ describe('MDCNavigationTab', () => {
         const tab = new MDCNavigationTab()
         expect(tab.label).toBe('')
         expect(tab.badge).toBe('')
+        expect(tab.badgeDot).toBe(false)
         expect(tab.value).toBe('')
         expect(tab.href).toBe(null)
         expect(tab.target).toBe(null)
@@ -426,6 +434,67 @@ describe('MDCNavigationTab', () => {
                 expect(anim.cancel).toHaveBeenCalled()
             }
             expect(tracker.size).toBe(0)
+        })
+
+        it('animates badge-dot entry and exit via presence motion', () => {
+            const { elements, tracker, baseState } = setupMotionFixture()
+            const enterSnap = captureNavigationTabSnapshot(elements, baseState, {
+                checkedChanged : false,
+                variantChanged : false,
+                disabledChanged: false,
+                badgeChanged   : true,
+            })
+            runNavigationTabTransitions(tracker, elements, { ...baseState, badgeDot: true }, enterSnap)
+            const enterCall = calls.find((c) => c.target === elements.badgeLabel)
+            expect(enterCall?.keyframes[0]?.['opacity']).toBe(0)
+            expect(enterCall?.keyframes[1]?.['opacity']).toBe(1)
+
+            calls = []
+            const onBadgeExitComplete = vi.fn()
+            const exitSnap = captureNavigationTabSnapshot(
+                elements,
+                { ...baseState, badgeDot: true },
+                { checkedChanged: false, variantChanged: false, disabledChanged: false, badgeChanged: true },
+            )
+            runNavigationTabTransitions(
+                tracker,
+                elements,
+                { ...baseState, badgeDot: false },
+                exitSnap,
+                { onBadgeExitComplete },
+            )
+            const exitCall = calls.find((c) => c.target === elements.badgeLabel)
+            expect(exitCall?.keyframes[0]?.['opacity']).toBe(1)
+            expect(exitCall?.keyframes[1]?.['opacity']).toBe(0)
+            createdAnimations[createdAnimations.length - 1]?.finish()
+            expect(onBadgeExitComplete).toHaveBeenCalledTimes(1)
+        })
+    })
+
+    describe('Figma M3E specs & CSS alignment', () => {
+        const cssText = NavigationTabStyles.map((s) => s.cssText).join('\n')
+
+        it('never uses invalid CSS property size: or line-height token suffixes', () => {
+            expect(cssText).not.toMatch(/(?:^|[;{\s])size\s*:/)
+            expect(cssText).not.toContain('--_enabled-unselected-label-line-height')
+            expect(cssText).not.toContain('--_enabled-selected-label-line-height')
+            expect(cssText).not.toContain('-label-line-height')
+        })
+
+        it('applies selected-label typography tokens when checked', () => {
+            expect(cssText).toContain('var(--_enabled-selected-label-weight)')
+            expect(cssText).toContain('var(--_enabled-selected-label-font)')
+        })
+
+        it('uses hugging widths for bar-horizontal and rail-horizontal pills', () => {
+            expect(NavigationBarHorizontalTabDefinition['icon-container-width'].enabled).toBe('auto')
+            expect(NavigationRailHorizontalTabDefinition['container-width'].enabled).toBe('auto')
+            expect(NavigationRailHorizontalTabDefinition['spacing-between-icon-and-label'].enabled).toBe('8px')
+        })
+
+        it('uses EmphasizedLabelMedium for XR selected labels', () => {
+            expect(String(NavigationBarXRVerticalTabDefinition['selected-label-weight'].enabled)).toContain('700')
+            expect(String(NavigationRailXRVerticalTabDefinition['selected-label-weight'].enabled)).toContain('700')
         })
     })
 })

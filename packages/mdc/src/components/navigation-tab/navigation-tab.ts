@@ -103,6 +103,9 @@ export class MDCNavigationTab extends composeMixin(
     @property({ type: String, reflect: true })
     public badge: string = ''
 
+    @property({ type: Boolean, reflect: true, attribute: 'badge-dot' })
+    public badgeDot: boolean = false
+
     @property({ type: String })
     public value: string = ''
 
@@ -134,6 +137,7 @@ export class MDCNavigationTab extends composeMixin(
     private badgeExiting: boolean = false
 
     private lastNonEmptyBadge: string = ''
+    private exitingBadgeWasDot: boolean = false
 
     @query('.container')
     protected readonly rootElement!: HTMLElement | null
@@ -287,20 +291,29 @@ export class MDCNavigationTab extends composeMixin(
             const checkedChanged = changedProperties.has('checked')
             const variantChanged = changedProperties.has('variant')
             const disabledChanged = changedProperties.has('disabled')
-            const badgeChanged = changedProperties.has('badge')
+            const badgeChanged = changedProperties.has('badge') || changedProperties.has('badgeDot')
 
             if (badgeChanged) {
-                if (this.badge) {
+                const hasBadge = Boolean(this.badge) || this.badgeDot
+                const prevBadgeValue = changedProperties.has('badge')
+                    ? (changedProperties.get('badge') ?? '')
+                    : this.badge
+                const prevDotValue = changedProperties.has('badgeDot')
+                    ? Boolean(changedProperties.get('badgeDot'))
+                    : this.badgeDot
+                const prevHadBadge = Boolean(prevBadgeValue) || prevDotValue
+
+                if (hasBadge) {
                     this.lastNonEmptyBadge = this.badge
+                    this.exitingBadgeWasDot = !this.badge && this.badgeDot
                     this.badgeExiting = false
+                } else if (prevHadBadge && !isReducedMotion()) {
+                    this.lastNonEmptyBadge = prevBadgeValue
+                    this.exitingBadgeWasDot = !prevBadgeValue && prevDotValue
+                    this.badgeExiting = true
                 } else {
-                    const prevBadge = changedProperties.get('badge') ?? ''
-                    if (prevBadge && !isReducedMotion()) {
-                        this.lastNonEmptyBadge = prevBadge
-                        this.badgeExiting = true
-                    } else {
-                        this.badgeExiting = false
-                    }
+                    this.badgeExiting = false
+                    this.exitingBadgeWasDot = false
                 }
             }
 
@@ -308,7 +321,8 @@ export class MDCNavigationTab extends composeMixin(
                 const prevChecked = checkedChanged ? Boolean(changedProperties.get('checked')) : this.checked
                 const prevVariant = (variantChanged ? changedProperties.get('variant') : this.variant) ?? this.variant
                 const prevDisabled = disabledChanged ? Boolean(changedProperties.get('disabled')) : this.disabled
-                const prevBadge = (badgeChanged ? changedProperties.get('badge') : this.badge) ?? this.badge
+                const prevBadge = (changedProperties.has('badge') ? changedProperties.get('badge') : this.badge) ?? this.badge
+                const prevBadgeDot = changedProperties.has('badgeDot') ? Boolean(changedProperties.get('badgeDot')) : this.badgeDot
 
                 this.pendingMotionSnapshot = captureNavigationTabSnapshot(
                     this.getMotionElements(),
@@ -317,11 +331,24 @@ export class MDCNavigationTab extends composeMixin(
                         variant        : prevVariant,
                         disabled       : prevDisabled,
                         badge          : prevBadge,
+                        badgeDot       : prevBadgeDot,
                         hasActiveIcon  : this.hasActiveIcon,
                         hasInactiveIcon: this.hasInactiveIcon,
                     },
                     { checkedChanged, variantChanged, disabledChanged, badgeChanged },
                 )
+            }
+        }
+
+        if (changedProperties.has('defaultChecked') && this.defaultChecked) {
+            this.checked = true
+        }
+
+        if (!isServer && this.isConnected) {
+            if (changedProperties.has('navigationScope')) {
+                this.subscribeScope()
+            } else if (changedProperties.has('value')) {
+                this.syncWithScopeState()
             }
         }
 
@@ -348,22 +375,20 @@ export class MDCNavigationTab extends composeMixin(
                     variant        : this.variant,
                     disabled       : this.disabled,
                     badge          : this.badge,
+                    badgeDot       : this.badgeDot,
                     hasActiveIcon  : this.hasActiveIcon,
                     hasInactiveIcon: this.hasInactiveIcon,
                 },
                 snapshot,
                 {
                     onBadgeExitComplete: () => {
-                        if (!this.badge) {
+                        if (!this.badge && !this.badgeDot) {
                             this.badgeExiting = false
+                            this.exitingBadgeWasDot = false
                         }
                     },
                 },
             )
-        }
-
-        if (changedProperties.has('defaultChecked') && this.defaultChecked) {
-            this.checked = true
         }
 
         if (changedProperties.has('label')) {
@@ -384,14 +409,6 @@ export class MDCNavigationTab extends composeMixin(
 
         if (changedProperties.has('checked')) {
             this.handleCheckedMutation()
-        }
-
-        if (changedProperties.has('navigationScope') && this.isConnected) {
-            this.subscribeScope()
-        }
-
-        if (changedProperties.has('value') && this.isConnected) {
-            this.syncWithScopeState()
         }
     }
 
@@ -433,13 +450,19 @@ export class MDCNavigationTab extends composeMixin(
     @state()
     protected hasInactiveIcon: boolean = false
 
+    @state()
+    protected hasBadgeSlot: boolean = false
+
     protected getRenderClasses() {
+        const isDot = !this.badge && (this.badgeDot || (this.badgeExiting && this.exitingBadgeWasDot))
         return ({
             'container': true,
             [this.variant]: true,
             'has-default-icon': this.hasDefaultIcon,
             'has-active-icon': this.hasActiveIcon,
             'has-inactive-icon': this.hasInactiveIcon,
+            'has-badge': Boolean(this.badge) || this.badgeDot || this.badgeExiting || this.hasBadgeSlot,
+            'has-badge-dot': isDot,
             'disabled': this.disabled,
         })
     }
@@ -454,10 +477,9 @@ export class MDCNavigationTab extends composeMixin(
         // `tablist`/`tab`/`aria-selected` relationship is implied.
         const accessibleLabel = this.getAttribute('aria-label') || this.label || nothing
         const content = html`
-            <div aria-hidden="true" class="indicator">
-                <div aria-hidden="true" class="ripple-layer">
-                    ${this.renderRipple()}
-                </div>
+            <div aria-hidden="true" class="indicator"></div>
+            <div aria-hidden="true" class="ripple-layer">
+                ${this.renderRipple()}
             </div>
 
             <div class="icon-container">
@@ -509,14 +531,21 @@ export class MDCNavigationTab extends composeMixin(
     }
 
     protected renderBadgeSlot() {
-        const badgeText = this.badge || (this.badgeExiting ? this.lastNonEmptyBadge : '')
+        const hasTextBadge = Boolean(this.badge)
+        const isDot = !hasTextBadge && (this.badgeDot || (this.badgeExiting && this.exitingBadgeWasDot))
+        const badgeText = this.badge || (this.badgeExiting && !this.exitingBadgeWasDot ? this.lastNonEmptyBadge : '')
+        const showInternalBadge = Boolean(badgeText) || isDot
         return html`
-            <slot name="badge">
-                ${badgeText
-                    ? html`<span class="badge-label ${this.badgeExiting ? 'exiting' : ''}">${badgeText}</span>`
+            <slot name="badge" @slotchange=${this.handleBadgeSlotChange}>
+                ${showInternalBadge
+                    ? html`<span class="badge-label ${isDot ? 'dot' : ''} ${this.badgeExiting ? 'exiting' : ''}">${badgeText}</span>`
                     : nothing}
             </slot>
         `
+    }
+
+    protected handleBadgeSlotChange(e: Event): void {
+        this.hasBadgeSlot = (e.target as HTMLSlotElement).assignedElements({ flatten: true }).length > 0
     }
 
     protected handleDefaultIconSlotChange(e: Event): void {

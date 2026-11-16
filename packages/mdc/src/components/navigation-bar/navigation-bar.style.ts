@@ -47,15 +47,43 @@ export const NavigationBarStyles = css`
         overflow: hidden;
     }
 
+    :host([variant="vertical"]),
+    :host([variant="horizontal"]),
+    :host(:not([variant])) {
+        display: flex;
+        width: 100%;
+    }
+
+    :host([variant="vertical-xr"]) {
+        display: inline-flex;
+        width: fit-content;
+    }
+
     /* The inner container is the translate target driven by WAAPI in
        base-navigation-bar. will-change hints the compositor for smoothness. */
     .container {
         position: relative;
         display: flex;
         align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
         will-change: transform;
         /* Keep the container from wrapping/shrinking while the host collapses,
            so its natural size is preserved for measurement + translate math. */
+        flex: 0 0 auto;
+    }
+
+    .container:is(.vertical, .horizontal) {
+        width: 100%;
+    }
+
+    .container:is(.vertical, .horizontal) ::slotted(mdc-navigation-tab) {
+        flex: 1 0 0;
+        min-width: 0;
+        height: 100%;
+    }
+
+    .vertical-xr.container ::slotted(mdc-navigation-tab) {
         flex: 0 0 auto;
     }
     .vertical.container {
@@ -71,6 +99,7 @@ export const NavigationBarStyles = css`
     .background {
         position: absolute;
         inset: 0;
+        border-radius: inherit;
         z-index: -1;
         pointer-events: none;
     }

@@ -23,6 +23,9 @@ export const NavigationRailSectionStyles = [
 
                 margin-block-end: 12px;
             }
+            :host(:last-of-type) .section {
+                margin-block-end: 0;
+            }
         }
     `,
 ]

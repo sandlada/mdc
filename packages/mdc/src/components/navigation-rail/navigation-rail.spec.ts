@@ -5,8 +5,11 @@
  */
 import { describe, expect, it } from 'vitest'
 import { NavigationRail } from './navigation-rail'
+import { NavigationRailDefinition } from './navigation-rail.definition'
 import { MDCNavigationRailSection } from './navigation-rail-section'
 import { MDCNavigationRailSectionHeader } from './navigation-rail-section-header'
+import { NavigationRailSectionHeaderStyles } from './navigation-rail-section-header.style'
+import { NavigationRailStyles } from './navigation-rail.style'
 import {
     NavigationRailAlignment,
     NavigationRailVariant,
@@ -81,5 +84,32 @@ describe('MDCNavigationRailSectionHeader', () => {
         const header = new MDCNavigationRailSectionHeader()
         header.header = 'Main'
         expect(header.header).toBe('Main')
+    })
+
+    it('uses valid font-size and display tokens in section header styles', () => {
+        const cssText = NavigationRailSectionHeaderStyles.map((s) => s.cssText).join('\n')
+        expect(cssText).toContain('font-size: var(--_size)')
+        expect(cssText).toContain('display: var(--_display)')
+        expect(cssText).not.toMatch(/(?:^|[;{\s])size\s*:/)
+    })
+})
+
+describe('NavigationRail Figma M3E alignment', () => {
+    it('matches Figma dimensions and spacing tokens', () => {
+        expect(NavigationRailDefinition['container-width'].collapsed).toBe('96px')
+        expect(NavigationRailDefinition['container-width']['expanded-docked']).toBe('220px')
+        expect(NavigationRailDefinition['container-width']['expanded-floating']).toBe('220px')
+        expect(NavigationRailDefinition['container-width'].xr).toBe('96px')
+        expect(String(NavigationRailDefinition['container-item-gap'].collapsed)).toContain('40px')
+        expect(String(NavigationRailDefinition['container-item-gap'].xr)).toContain('40px')
+        expect(String(NavigationRailDefinition['container-padding-block-start'].collapsed)).toContain('44px')
+        expect(String(NavigationRailDefinition['container-padding-block-start'].xr)).toContain('20px')
+    })
+
+    it('keeps expanded nav items unstretched and hides empty header/end sections', () => {
+        const cssText = NavigationRailStyles.map((s) => s.cssText).join('\n')
+        expect(cssText).not.toContain('--mdc-navigation-tab-enabled-container-width: 100%')
+        expect(cssText).toContain('dialog:not(.has-menu) .menu')
+        expect(cssText).toContain('align-items: flex-start')
     })
 })

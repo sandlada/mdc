@@ -62,13 +62,9 @@ export class MDCNavigationRailSectionHeader extends LitElement {
     static override styles = NavigationRailSectionHeaderStyles
 
     /**
-     * The label of the section.
-     *
-     * @remarks
-     * Reserved for an attribute-driven label. The rendered label comes from the
-     * default slot, so this property has no effect yet.
+     * Fallback header label used when no light-DOM child content is slotted.
      */
-    @property({ attribute: 'header', type: String, })
+    @property({ attribute: 'header', type: String })
     public header: string | null = null
 
     @state()
@@ -77,14 +73,16 @@ export class MDCNavigationRailSectionHeader extends LitElement {
     public override render(): TemplateResult<1> {
         return html`
             <span class="section-header">
-                <slot @slotchange=${this.handleDefaultSlotChange}></slot>
+                <slot @slotchange=${this.handleDefaultSlotChange}>${this.header ?? ''}</slot>
             </span>
         `
     }
 
     protected handleDefaultSlotChange(event: Event) {
         const slot = event.target as HTMLSlotElement
-        this.hasLabel = slot.assignedElements().length > 0
+        this.hasLabel = slot.assignedNodes({ flatten: true }).some(
+            (node) => node.nodeType === Node.ELEMENT_NODE || (node.textContent?.trim().length ?? 0) > 0,
+        )
     }
 
 }

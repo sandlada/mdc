@@ -12,11 +12,13 @@
  * `src/utils/controller/edge-slide-controller.ts`.
  */
 import { BaseNavigationContainer } from '../../navigation/internal/base-navigation-container'
+import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import { mixinConnectedPromiseResolve } from '../../../utils/behaviors/connected-promise-resolve'
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
 
 /**
- * Base navigation bar with scope propagation and connection-promise support.
+ * Base navigation bar with scope propagation, ARIA delegation, and
+ * connection-promise support.
  *
  * Composed with {@link mixinConnectedPromiseResolve} so `isConnectedPromise`
  * is available (resolved on `connectedCallback`, re-created on disconnect).
@@ -25,6 +27,7 @@ import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
  * {@link EdgeSlideController} — add one in the public component class to
  * enable those features.
  */
-export const BaseNavigationBar = composeMixin(mixinConnectedPromiseResolve)(
-    BaseNavigationContainer,
-)
+export const BaseNavigationBar = composeMixin(
+    mixinDelegatesAria,
+    mixinConnectedPromiseResolve,
+)(BaseNavigationContainer)

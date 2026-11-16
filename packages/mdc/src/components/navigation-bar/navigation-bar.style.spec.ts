@@ -74,4 +74,9 @@ describe('NavigationBarStyles container axes', () => {
         expect(getDeclaration(block, 'border-bottom-right-radius'))
             .toBe('var(--_vertical-xr-container-shape-end-end)')
     })
+
+    it('distributes slotted tabs evenly on vertical/horizontal bars and fits XR', () => {
+        expect(CssText).toContain('flex: 1 0 0')
+        expect(CssText).toContain('width: fit-content')
+    })
 })

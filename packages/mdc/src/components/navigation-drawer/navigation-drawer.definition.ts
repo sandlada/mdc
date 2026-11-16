@@ -60,7 +60,7 @@ const SharedStructural = {
     'headline-container-padding-block-end'          : `16px`,
 
     'enabled-headline-font'                          : Typescale.TitleSmall.Font,
-    'enabled-headline-line-height'                   : Typescale.TitleSmall.LineHeight,
+    'enabled-headline-leading'                       : Typescale.TitleSmall.LineHeight,
     'enabled-headline-size'                          : Typescale.TitleSmall.FontSize,
     'enabled-headline-tracking'                      : Typescale.TitleSmall.Tracking,
     'enabled-headline-weight'                        : Typescale.TitleSmall.FontWeight,

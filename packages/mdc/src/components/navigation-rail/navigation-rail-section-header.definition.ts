@@ -20,5 +20,6 @@ import { createStyleDefinition, expandPadding, expandTypescale } from '../../uti
 export const NavigationRailSectionHeaderDefinition = createStyleDefinition({
     ...expandTypescale('')(Typescale.LabelLarge),
     ...expandPadding('')([Space.Space50, Space.Space200]),
-    color: Color.OnSurfaceVariant,
+    color  : Color.OnSurfaceVariant,
+    display: `inline-flex`,
 } as const)

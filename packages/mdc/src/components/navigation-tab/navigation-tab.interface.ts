@@ -20,6 +20,7 @@ export interface INavigationTab extends LitElement, FormAssociated {
     value          : string
     label          : string
     badge          : string
+    badgeDot       : boolean
     href           : string | null
     target         : string | null
     navigationScope: string

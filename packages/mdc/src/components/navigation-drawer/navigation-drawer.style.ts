@@ -42,7 +42,7 @@ const OverrideTypography = overrideTokens<typeof TypographyDefinition>(
 )({
     'title-small-regular-font': 'var(--_enabled-headline-font)',
     'title-small-regular-size': 'var(--_enabled-headline-size)',
-    'title-small-regular-leading': 'var(--_enabled-headline-line-height)',
+    'title-small-regular-leading': 'var(--_enabled-headline-leading)',
     'title-small-regular-weight': 'var(--_enabled-headline-weight)',
     'title-small-regular-tracking': 'var(--_enabled-headline-tracking)',
 })()
@@ -389,7 +389,7 @@ export const NavigationDrawerStyles = [
             font-family: var(--_enabled-headline-font);
             font-size: var(--_enabled-headline-size);
             font-weight: var(--_enabled-headline-weight);
-            line-height: var(--_enabled-headline-line-height);
+            line-height: var(--_enabled-headline-leading);
             letter-spacing: var(--_enabled-headline-tracking);
         }
         dialog.has-headline .headline-section {
@@ -459,7 +459,7 @@ export const NavigationDrawerStyles = [
             font-family: var(--_enabled-headline-font);
             font-size: var(--_enabled-headline-size);
             font-weight: var(--_enabled-headline-weight);
-            line-height: var(--_enabled-headline-line-height);
+            line-height: var(--_enabled-headline-leading);
             letter-spacing: var(--_enabled-headline-tracking);
             color: var(--_enabled-headline-color);
             overflow: hidden;

@@ -22,7 +22,7 @@
  */
 import { customElement, property } from 'lit/decorators.js'
 import { BaseNavigationBar } from './internal/base-navigation-bar'
-import { html, type CSSResultGroup, type PropertyValues, type TemplateResult } from 'lit'
+import { html, nothing, type CSSResultGroup, type PropertyValues, type TemplateResult } from 'lit'
 import { type INavigationBar, NavigationBarVariant } from './navigation-bar.interface'
 import { NavigationBarStyles } from './navigation-bar.style'
 import { classMap } from 'lit/directives/class-map.js'
@@ -89,7 +89,11 @@ export class MDCNavigationBar extends BaseNavigationBar implements INavigationBa
 
     protected override render(): TemplateResult {
         return html`
-            <div class=${classMap(this.getRenderClasses())}>
+            <div
+                role="navigation"
+                aria-label=${this.getAttribute('aria-label') || nothing}
+                class=${classMap(this.getRenderClasses())}
+            >
                 ${this.renderSlot()}
                 ${this.renderBackground()}
             </div>

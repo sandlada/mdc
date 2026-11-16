@@ -1,16 +1,20 @@
 <div style="display: flex; flex-direction: column; gap: 16px;">
     <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-        <mdc-button variant="outlined" onclick="this.getRootNode().querySelector('#demo-tab-badge-live').badge = ''">None</mdc-button>
-        <mdc-button variant="outlined" onclick="this.getRootNode().querySelector('#demo-tab-badge-live').badge = '3'">3</mdc-button>
-        <mdc-button variant="outlined" onclick="this.getRootNode().querySelector('#demo-tab-badge-live').badge = '99+'">99+</mdc-button>
-        <mdc-button variant="tonal" onclick="const t = this.getRootNode().querySelector('#demo-tab-badge-live'); t.badge = t.badge ? '' : '3';">Toggle Badge</mdc-button>
+        <mdc-button variant="outlined" onclick="const t = this.getRootNode().querySelector('#demo-tab-badge-live'); t.badge = ''; t.badgeDot = false;">None</mdc-button>
+        <mdc-button variant="outlined" onclick="const t = this.getRootNode().querySelector('#demo-tab-badge-live'); t.badge = ''; t.badgeDot = true;">Small Dot</mdc-button>
+        <mdc-button variant="outlined" onclick="const t = this.getRootNode().querySelector('#demo-tab-badge-live'); t.badgeDot = false; t.badge = '3';">3</mdc-button>
+        <mdc-button variant="outlined" onclick="const t = this.getRootNode().querySelector('#demo-tab-badge-live'); t.badgeDot = false; t.badge = '99+';">99+</mdc-button>
         <mdc-button variant="tonal" onclick="const t = this.getRootNode().querySelector('#demo-tab-badge-live'); t.checked = !t.checked;">Toggle Checked</mdc-button>
-        <mdc-button variant="tonal" onclick="const t = this.getRootNode().querySelector('#demo-tab-badge-live'); t.variant = t.variant === 'rail-horizontal' ? 'bar-vertical' : 'rail-horizontal';">Toggle Layout</mdc-button>
+        <mdc-button variant="tonal" onclick="const t = this.getRootNode().querySelector('#demo-tab-badge-live'); t.variant = t.variant === 'rail-horizontal' ? 'bar-horizontal' : (t.variant === 'bar-horizontal' ? 'bar-vertical' : 'rail-horizontal');">Cycle Layout</mdc-button>
     </div>
 
-    <div style="display: flex; gap: 16px; align-items: center;">
+    <div style="display: flex; gap: 24px; align-items: center;">
         <mdc-navigation-tab id="demo-tab-badge-live" name="demo-badge" value="/1" label="Inbox" badge="3" checked>
             <mdc-icon slot="icon">inbox</mdc-icon>
+        </mdc-navigation-tab>
+
+        <mdc-navigation-tab name="demo-badge-static" value="/dot" label="Updates" badge-dot>
+            <mdc-icon slot="icon">notifications</mdc-icon>
         </mdc-navigation-tab>
     </div>
 </div>

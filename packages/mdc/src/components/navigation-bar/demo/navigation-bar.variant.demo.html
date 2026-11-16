@@ -1,21 +1,55 @@
-<mdc-navigation-bar open variant="horizontal">
-    <mdc-navigation-tab name="nv1" value="/" checked label="A">
-        <mdc-icon slot="inactive-icon">home</mdc-icon>
-        <mdc-icon slot="active-icon" filled>home</mdc-icon>
-    </mdc-navigation-tab>
-    <mdc-navigation-tab name="nv1" value="/b" label="B">
-        <mdc-icon slot="inactive-icon">home</mdc-icon>
-        <mdc-icon slot="active-icon" filled>home</mdc-icon>
-    </mdc-navigation-tab>
-</mdc-navigation-bar>
+<div style="display: flex; flex-direction: column; gap: 24px; width: 100%;">
+    <div>
+        <p style="margin: 0 0 8px 0;">variant="vertical" (Mobile Portrait)</p>
+        <mdc-navigation-bar variant="vertical" style="max-width: 412px;">
+            <mdc-navigation-tab name="nv-v" value="/explore" checked label="Explore" badge="3">
+                <mdc-icon slot="inactive-icon">explore</mdc-icon>
+                <mdc-icon slot="active-icon" filled>explore</mdc-icon>
+            </mdc-navigation-tab>
+            <mdc-navigation-tab name="nv-v" value="/saved" label="Saved" badge-dot>
+                <mdc-icon slot="inactive-icon">bookmark</mdc-icon>
+                <mdc-icon slot="active-icon" filled>bookmark</mdc-icon>
+            </mdc-navigation-tab>
+            <mdc-navigation-tab name="nv-v" value="/updates" label="Updates">
+                <mdc-icon slot="inactive-icon">notifications</mdc-icon>
+                <mdc-icon slot="active-icon" filled>notifications</mdc-icon>
+            </mdc-navigation-tab>
+        </mdc-navigation-bar>
+    </div>
 
-<mdc-navigation-bar open variant="vertical" style="height: 200px;">
-    <mdc-navigation-tab name="nv2" value="/" checked label="A" variant="bar-vertical">
-        <mdc-icon slot="inactive-icon">home</mdc-icon>
-        <mdc-icon slot="active-icon" filled>home</mdc-icon>
-    </mdc-navigation-tab>
-    <mdc-navigation-tab name="nv2" value="/b" label="B" variant="bar-vertical">
-        <mdc-icon slot="inactive-icon">home</mdc-icon>
-        <mdc-icon slot="active-icon" filled>home</mdc-icon>
-    </mdc-navigation-tab>
-</mdc-navigation-bar>
+    <div>
+        <p style="margin: 0 0 8px 0;">variant="horizontal" (Tablet / Medium Window)</p>
+        <mdc-navigation-bar variant="horizontal" style="max-width: 741px;">
+            <mdc-navigation-tab name="nv-h" value="/explore" checked label="Explore" badge="3">
+                <mdc-icon slot="inactive-icon">explore</mdc-icon>
+                <mdc-icon slot="active-icon" filled>explore</mdc-icon>
+            </mdc-navigation-tab>
+            <mdc-navigation-tab name="nv-h" value="/saved" label="Saved" badge-dot>
+                <mdc-icon slot="inactive-icon">bookmark</mdc-icon>
+                <mdc-icon slot="active-icon" filled>bookmark</mdc-icon>
+            </mdc-navigation-tab>
+            <mdc-navigation-tab name="nv-h" value="/updates" label="Updates">
+                <mdc-icon slot="inactive-icon">notifications</mdc-icon>
+                <mdc-icon slot="active-icon" filled>notifications</mdc-icon>
+            </mdc-navigation-tab>
+        </mdc-navigation-bar>
+    </div>
+
+    <div>
+        <p style="margin: 0 0 8px 0;">variant="vertical-xr" (XR Floating Pill)</p>
+        <mdc-navigation-bar variant="vertical-xr">
+            <mdc-navigation-tab name="nv-xr" value="/explore" checked label="Explore" badge="3">
+                <mdc-icon slot="inactive-icon">explore</mdc-icon>
+                <mdc-icon slot="active-icon" filled>explore</mdc-icon>
+            </mdc-navigation-tab>
+            <mdc-navigation-tab name="nv-xr" value="/saved" label="Saved">
+                <mdc-icon slot="inactive-icon">bookmark</mdc-icon>
+                <mdc-icon slot="active-icon" filled>bookmark</mdc-icon>
+            </mdc-navigation-tab>
+            <mdc-navigation-tab name="nv-xr" value="/updates" label="Updates">
+                <mdc-icon slot="inactive-icon">notifications</mdc-icon>
+                <mdc-icon slot="active-icon" filled>notifications</mdc-icon>
+            </mdc-navigation-tab>
+        </mdc-navigation-bar>
+    </div>
+</div>
