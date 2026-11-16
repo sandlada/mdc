@@ -55,29 +55,26 @@ packages/docs/
 
 ## Icons
 
-Icons are plain SVG from `@material-design-icons/svg` injected into
-`<mdc-icon>` with `set:html` — **no icon font / CDN**. `mdc-icon` already
-styles slotted SVGs (`::slotted(svg) { fill: currentColor }`), so they inherit
-size and color.
+Icons use the `material-symbols` variable font, the same package as
+`packages/dev-app`. It is loaded once in `src/layouts/Site.astro`:
 
-```astro
----
-import Icon from '../components/Icon.astro'
-import { getIcon } from '../lib/icons'
----
-
-<Icon name="notifications" />
-<Icon name="favorite" style="filled" label="Favorite" />
-<mdc-icon set:html={getIcon('menu')} />
+```ts
+import 'material-symbols/index.css'
 ```
 
-`getIcon(name, style?)` (`src/lib/icons.ts`) reads from disk (server-only) and
-supports `filled | outlined | round | sharp | two-tone`. `Icon.astro` is the
-`set:html` wrapper.
+`mdc-icon` already sets `font-family: 'Material Symbols Outlined'`, so write the
+icon name as ligature text and use the element's attributes for the variable
+axes:
 
-> `mdc-icon`'s ligature form (`<mdc-icon>favorite</mdc-icon>`) requires the
-> Material Symbols font; without the CDN it renders text. Use `Icon` / the
-> `set:html` form instead.
+```html
+<mdc-icon>notifications</mdc-icon>
+<mdc-icon filled>favorite</mdc-icon>
+<mdc-icon weight="300" optical-size="20">menu</mdc-icon>
+```
+
+Shared component demos (`packages/mdc/src/components/*/demo/*.demo.html`) use
+the same ligature form, so they render correctly in the docs preview without
+any per-demo work.
 
 ## Deploy
 

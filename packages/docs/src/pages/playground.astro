@@ -1,6 +1,5 @@
 ---
 import Docs from 'src/layouts/Docs.astro';
-import { getIcon } from '../lib/icons';
 import { breadcrumbJsonLd } from '../lib/seo';
 
 const title = 'Playground · Try MDC Web Components Live';
@@ -24,14 +23,12 @@ const jsonLd = [
     ]),
 ];
 
-const notificationIcon = getIcon('notifications');
-
 const sample = [
     '<mdc-button variant="filled"><span>Filled</span></mdc-button>',
     '<mdc-button variant="outlined"><span>Outlined</span></mdc-button>',
     '',
-    '<!-- Icons are plain SVG injected into <mdc-icon> - no icon font -->',
-    `<mdc-icon>${notificationIcon}</mdc-icon>`,
+    '<!-- Material Symbols ligature names render as icons -->',
+    '<mdc-icon>notifications</mdc-icon>',
 ].join('\n');
 ---
 

@@ -1,6 +1,4 @@
 ---
-import Icon from './Icon.astro';
-
 interface Props {
     hideMenuToggleButton?: boolean;
 }
@@ -11,8 +9,8 @@ const { hideMenuToggleButton = false } = Astro.props;
     {
         !hideMenuToggleButton && (
             <mdc-icon-button class="w-[52px]" width="wide" id="drawer-toggle-button">
-                <Icon class="opacity-0" id="drawer-toggle-button-icon-menu" name="menu" />
-                <Icon class="opacity-0" id="drawer-toggle-button-icon-menu-open" name="menu_open" />
+                <mdc-icon class="opacity-0" id="drawer-toggle-button-icon-menu">menu</mdc-icon>
+                <mdc-icon class="opacity-0" id="drawer-toggle-button-icon-menu-open">menu_open</mdc-icon>
             </mdc-icon-button>
         )
     }
@@ -22,8 +20,8 @@ const { hideMenuToggleButton = false } = Astro.props;
         <a href="https://github.com/sandlada/mdc" rel="noopener" target="_blank">GitHub</a>
 
         <mdc-icon-button id="theme-toggle-button" class="w-[40px]">
-            <Icon class="opacity-0" id="theme-toggle-button-icon-dark-mode" name="dark_mode" />
-            <Icon class="opacity-0" id="theme-toggle-button-icon-light-mode" name="light_mode" />
+            <mdc-icon class="opacity-0" id="theme-toggle-button-icon-dark-mode">dark_mode</mdc-icon>
+            <mdc-icon class="opacity-0" id="theme-toggle-button-icon-light-mode">light_mode</mdc-icon>
         </mdc-icon-button>
     </nav>
 </header>

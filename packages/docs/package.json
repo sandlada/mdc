@@ -11,7 +11,6 @@
     },
     "dependencies": {
         "@fontsource-variable/google-sans-code": "^5.3.2",
-        "@material-design-icons/svg": "^0.14.15",
         "@sandlada/breakpoint": "^0.0.1-20260831.a",
         "@sandlada/document-context": "^0.0.1-20261008.a",
         "@sandlada/material-design-css": "^3.0.1-20261004.a",
@@ -19,6 +18,7 @@
         "@sandlada/mdk": "^3.0.1-20261014.a",
         "@tailwindcss/vite": "^4.3.3",
         "marked": "^18.1.1",
+        "material-symbols": "^0.48.0",
         "tailwindcss": "^4.3.3"
     },
     "devDependencies": {
