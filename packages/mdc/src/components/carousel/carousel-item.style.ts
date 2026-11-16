@@ -45,6 +45,10 @@ export const CarouselItemStyles = css`
             overflow: hidden;
         }
 
+        :host(:not([active])) {
+            cursor: pointer;
+        }
+
         ::slotted(*) {
             flex: 1;
             min-width: 0;

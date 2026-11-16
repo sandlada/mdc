@@ -3,7 +3,7 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { Carousel } from './carousel'
 import { CarouselItem } from './carousel-item'
 import { CarouselItemSize, CarouselVariant } from './carousel.interface'
@@ -187,6 +187,38 @@ describe('Carousel', () => {
         expect(el.preferredItemWidth).toBe(240)
         expect(el.minSmallItemWidth).toBe(44)
         expect(el.maxSmallItemWidth).toBe(64)
+    })
+
+    it('scrolls to expand a non-active item when clicked', () => {
+        const el = new Carousel()
+        const item0 = new CarouselItem()
+        const item1 = new CarouselItem()
+        const item2 = new CarouselItem()
+
+        ;(el as unknown as { items: CarouselItem[]; activeIndexValue: number }).items = [item0, item1, item2]
+        ;(el as unknown as { activeIndexValue: number }).activeIndexValue = 0
+
+        const scrollSpy = vi.spyOn(el, 'scrollToItem').mockImplementation(() => {})
+        const handleClick = (el as unknown as { handleClick(e: { defaultPrevented: boolean; target: unknown }): void }).handleClick
+
+        handleClick({
+            defaultPrevented: false,
+            target: { closest: () => item0 },
+        })
+        expect(scrollSpy).not.toHaveBeenCalled()
+
+        handleClick({
+            defaultPrevented: false,
+            target: { closest: () => item2 },
+        })
+        expect(scrollSpy).toHaveBeenCalledTimes(1)
+        expect(scrollSpy).toHaveBeenCalledWith(2)
+
+        handleClick({
+            defaultPrevented: true,
+            target: { closest: () => item1 },
+        })
+        expect(scrollSpy).toHaveBeenCalledTimes(1)
     })
 })
 

@@ -102,6 +102,7 @@ export abstract class BaseCarousel extends LitElement implements IMDCCarousel {
         this.addEventListener('pointerdown', this.handlePointerDown)
         this.addEventListener('dragstart', this.handleDragStart)
         this.addEventListener('click', this.handleClickCapture, { capture: true })
+        this.addEventListener('click', this.handleClick)
     }
 
     public override connectedCallback(): void {
@@ -605,6 +606,15 @@ export abstract class BaseCarousel extends LitElement implements IMDCCarousel {
             event.preventDefault()
             event.stopPropagation()
         }
+    }
+
+    private readonly handleClick = (event: MouseEvent): void => {
+        if (event.defaultPrevented) return
+        const item = (event.target as Element | null)?.closest?.(ItemSelector) as CarouselItem | null
+        if (!item) return
+        const index = this.items.indexOf(item)
+        if (index === -1 || index === this.activeIndexValue) return
+        this.scrollToItem(index)
     }
 
     private cleanupDragListeners(): void {
