@@ -81,3 +81,6 @@ packages/mdc/src/components/{name}/
   2. 共用狀態 class（如 `.indeterminate`）須以 variant 限縮（如 `:host([variant='circular']) .indeterminate`）。
   3. `css` 模板註解內禁反引號。
   4. Slider 垂直標準模式（下至上遞增）視 `isVisualReversed` 為倒序，原生 input 設 `dir="rtl"`。
+  5. Demo 內聯互動及元件內部 ID / 選擇器查詢（如 `for`、`scroll-target`）須優先使用 `this.getRootNode()`（ShadowRoot 相容），不可僅依賴 `document.getElementById` / `document.querySelector`。
+  6. 使用 WAAPI 對帶 `min-height` 約束的容器做高度動畫或滾動擦洗時，關鍵影格須同時包含 `height` 與 `minHeight`，避免被 CSS `min-height` 鉗制導致跳變。
+  7. 勿在父容器對 `::slotted(mdc-icon-button)` 強設 `height: 48px`（其內部 `40px` 容器會貼頂上偏），應由外層 `48px` 容器以 flex 置中。
