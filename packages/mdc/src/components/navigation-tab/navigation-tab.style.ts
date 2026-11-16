@@ -15,8 +15,6 @@ const RailXRVS = stringifyTokens('--mdc-navigation-tab')(NavigationRailXRVertica
 const RailXRRS = stringifyTokens('--mdc-navigation-tab')(NavigationRailXRRoundTabDefinition)
 const DrawerS = stringifyTokens('--mdc-navigation-tab')(NavigationDrawerTabDefinition)
 
-const TabIndicatorGrowEasing = Easing.ExpressiveDefaultSpatial.ToCSSVariable()
-
 const LabelFadeDuration = Duration.ExpressiveFastEffects.ToCSSValue()
 
 const OverrideRipple = {
@@ -132,9 +130,6 @@ export const NavigationTabStyles = [
         z-index: -1;
         overflow: clip;
         transform-origin: center;
-        transition-property: opacity, background, transform;
-        transition-duration: 400ms;
-        transition-timing-function: ${unsafeCSS(TabIndicatorGrowEasing)};
     }
 
     .label {
@@ -149,8 +144,6 @@ export const NavigationTabStyles = [
         display: grid;
         align-items: center;
         z-index: 0;
-        transition-property: opacity, color;
-        transition-duration: 200ms;
         pointer-events: none;
         user-select: none;
     }
@@ -291,9 +284,6 @@ export const NavigationTabStyles = [
         z-index: -1;
         pointer-events: none;
         transform-origin: center;
-        transition-property: opacity, background-color, transform;
-        transition-duration: 200ms;
-        transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
     }
     :host([variant="rail-horizontal"]:not([checked])) .indicator {
         opacity: 0;
@@ -458,9 +448,6 @@ export const NavigationTabStyles = [
         z-index: -1;
         pointer-events: none;
         transform-origin: center;
-        transition-property: opacity, background-color, transform;
-        transition-duration: 200ms;
-        transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
     }
     :host([variant="drawer"]:not([checked])) .indicator,
     :host([variant="drawer-horizontal"]:not([checked])) .indicator {
@@ -691,7 +678,7 @@ export const NavigationTabStyles = [
         height: var(--_enabled-indicator-height);
     }
     :host(:not([variant*="drawer"]):not([checked])) .indicator {
-        transform: scaleX(0) scaleY(0.8);
+        transform: scaleX(0.2) scaleY(0.82);
         opacity: 0;
         background: var(--_enabled-unselected-indicator-color);
     }

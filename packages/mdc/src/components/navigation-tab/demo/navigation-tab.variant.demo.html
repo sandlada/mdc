@@ -1,19 +1,51 @@
-<mdc-navigation-tab name="ntv" value="/" checked label="Bar Horizontal" variant="bar-horizontal">
-    <mdc-icon slot="icon">send</mdc-icon>
-</mdc-navigation-tab>
+<div style="display: flex; flex-direction: column; gap: 24px; width: 100%;">
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+            <mdc-button variant="outlined" onclick="this.getRootNode().querySelector('#demo-tab-variant-live').variant = 'bar-vertical'">Bar Vertical</mdc-button>
+            <mdc-button variant="outlined" onclick="this.getRootNode().querySelector('#demo-tab-variant-live').variant = 'bar-horizontal'">Bar Horizontal</mdc-button>
+            <mdc-button variant="outlined" onclick="this.getRootNode().querySelector('#demo-tab-variant-live').variant = 'bar-xr-vertical'">Bar XR Vertical</mdc-button>
+            <mdc-button variant="outlined" onclick="this.getRootNode().querySelector('#demo-tab-variant-live').variant = 'rail-vertical'">Rail Vertical</mdc-button>
+            <mdc-button variant="outlined" onclick="this.getRootNode().querySelector('#demo-tab-variant-live').variant = 'rail-horizontal'">Rail Horizontal</mdc-button>
+            <mdc-button variant="outlined" onclick="this.getRootNode().querySelector('#demo-tab-variant-live').variant = 'rail-round'">Rail Round</mdc-button>
+            <mdc-button variant="outlined" onclick="this.getRootNode().querySelector('#demo-tab-variant-live').variant = 'drawer'">Drawer</mdc-button>
+            <mdc-button variant="tonal" onclick="const t = this.getRootNode().querySelector('#demo-tab-variant-live'); t.checked = !t.checked;">Toggle Checked</mdc-button>
+        </div>
 
-<mdc-navigation-tab name="ntv" value="/" checked label="Bar Vertical" variant="bar-vertical">
-    <mdc-icon slot="icon">send</mdc-icon>
-</mdc-navigation-tab>
+        <div style="min-height: 88px; display: flex; align-items: center;">
+            <mdc-navigation-tab
+                id="demo-tab-variant-live"
+                name="ntv-live"
+                value="/"
+                checked
+                label="Mail"
+                variant="bar-vertical"
+                style="max-width: 240px;"
+            >
+                <mdc-icon slot="inactive-icon">mail</mdc-icon>
+                <mdc-icon slot="active-icon" filled>mail</mdc-icon>
+            </mdc-navigation-tab>
+        </div>
+    </div>
 
-<mdc-navigation-tab name="ntv" value="/" checked label="Rail Vertical" variant="rail-vertical">
-    <mdc-icon slot="icon">send</mdc-icon>
-</mdc-navigation-tab>
+    <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: center;">
+        <mdc-navigation-tab name="ntv" value="/" checked label="Bar Horizontal" variant="bar-horizontal">
+            <mdc-icon slot="icon">send</mdc-icon>
+        </mdc-navigation-tab>
 
-<mdc-navigation-tab name="ntv" value="/" checked label="Rail Round" variant="rail-round">
-    <mdc-icon slot="icon">send</mdc-icon>
-</mdc-navigation-tab>
+        <mdc-navigation-tab name="ntv" value="/" checked label="Bar Vertical" variant="bar-vertical">
+            <mdc-icon slot="icon">send</mdc-icon>
+        </mdc-navigation-tab>
 
-<mdc-navigation-tab name="ntv" value="/" checked label="Drawer" variant="drawer">
-    <mdc-icon slot="icon">send</mdc-icon>
-</mdc-navigation-tab>
+        <mdc-navigation-tab name="ntv" value="/" checked label="Rail Vertical" variant="rail-vertical">
+            <mdc-icon slot="icon">send</mdc-icon>
+        </mdc-navigation-tab>
+
+        <mdc-navigation-tab name="ntv" value="/" checked label="Rail Round" variant="rail-round">
+            <mdc-icon slot="icon">send</mdc-icon>
+        </mdc-navigation-tab>
+
+        <mdc-navigation-tab name="ntv" value="/" checked label="Drawer" variant="drawer">
+            <mdc-icon slot="icon">send</mdc-icon>
+        </mdc-navigation-tab>
+    </div>
+</div>

@@ -42,10 +42,14 @@ import { GetFormState, GetFormValue, mixinFormAssociated } from '../../utils/for
 import { RadioValidator } from '../../utils/behaviors/validators/radio-validator'
 import { NavigationTabStyles } from './navigation-tab.style'
 import { classMap } from 'lit/directives/class-map.js'
-import { OpacityTransitionController } from '../../utils/controller/opacity-transition-controller'
-import { MeasuredDimensionController } from '../../utils/controller/measured-dimension-controller'
 import { isActivationClick } from '../../utils/event/form-label-activation'
 import { readDirectLabel } from './internal/read-direct-label'
+import {
+    captureNavigationTabSnapshot,
+    runNavigationTabTransitions,
+    type INavigationTabMotionElements,
+    type INavigationTabMotionSnapshot,
+} from './internal/navigation-tab-motion'
 
 const KeyboardSelectionKeys = new Set([' ', 'Enter'])
 
@@ -131,8 +135,26 @@ export class MDCNavigationTab extends composeMixin(
     @query('.indicator')
     private indicatorElement!: HTMLElement | null
 
-    @query('.label')
-    private labelElement!: HTMLLabelElement
+    @query('.icon-container')
+    private iconContainerElement!: HTMLElement | null
+
+    @query('.icon.default-icon')
+    private defaultIconElement!: HTMLElement | null
+
+    @query('.icon.active-icon')
+    private activeIconElement!: HTMLElement | null
+
+    @query('.icon.inactive-icon')
+    private inactiveIconElement!: HTMLElement | null
+
+    @query('.label.in-icon-container')
+    private inLabelElement!: HTMLElement | null
+
+    @query('.label.out-icon-container')
+    private outLabelElement!: HTMLElement | null
+
+    @query('.badge-label')
+    private badgeLabelElement!: HTMLElement | null
 
     public override get rippleControl(): HTMLElement | null {
         return this.rootElement
@@ -162,6 +184,8 @@ export class MDCNavigationTab extends composeMixin(
     private suppressCheckedUpdatePublish: boolean = false
     private labelObserver: MutationObserver | null = null
     private autoAdoptedLabel: string = ''
+    private readonly activeAnimations = new Set<Animation>()
+    private pendingMotionSnapshot: INavigationTabMotionSnapshot | null = null
 
     private readonly selectionController = new SelectionController(this, {
         multiple: false,
@@ -189,14 +213,6 @@ export class MDCNavigationTab extends composeMixin(
             const changed = this.checkedBeforeControllerSelection !== this.checked
             this.handleControllerSelection(changed)
         },
-    })
-
-    private readonly opacityController = new OpacityTransitionController(this, {
-        target:  () => this.labelElement
-    })
-
-    private readonly widthController = new MeasuredDimensionController(this, {
-        target: () => this.labelElement
     })
 
     constructor() {
@@ -246,6 +262,7 @@ export class MDCNavigationTab extends composeMixin(
     }
 
     public override disconnectedCallback(): void {
+        this.cancelActiveAnimations()
         this.labelObserver?.disconnect()
         this.labelObserver = null
         this.unsubscribeScope?.()
@@ -260,6 +277,33 @@ export class MDCNavigationTab extends composeMixin(
             throw new Error(`[mdc-navigation-tab] Unsupported variant "${String(this.variant)}".`)
         }
 
+        if (this.hasUpdated && !isServer) {
+            const checkedChanged = changedProperties.has('checked')
+            const variantChanged = changedProperties.has('variant')
+            const disabledChanged = changedProperties.has('disabled')
+            const badgeChanged = changedProperties.has('badge')
+
+            if (checkedChanged || variantChanged || disabledChanged || badgeChanged) {
+                const prevChecked = checkedChanged ? Boolean(changedProperties.get('checked')) : this.checked
+                const prevVariant = (variantChanged ? changedProperties.get('variant') : this.variant) ?? this.variant
+                const prevDisabled = disabledChanged ? Boolean(changedProperties.get('disabled')) : this.disabled
+                const prevBadge = (badgeChanged ? changedProperties.get('badge') : this.badge) ?? this.badge
+
+                this.pendingMotionSnapshot = captureNavigationTabSnapshot(
+                    this.getMotionElements(),
+                    {
+                        checked        : prevChecked,
+                        variant        : prevVariant,
+                        disabled       : prevDisabled,
+                        badge          : prevBadge,
+                        hasActiveIcon  : this.hasActiveIcon,
+                        hasInactiveIcon: this.hasInactiveIcon,
+                    },
+                    { checkedChanged, variantChanged, disabledChanged, badgeChanged },
+                )
+            }
+        }
+
         // Before the first render there is no inner control yet, so the
         // controller would fall back to the host and make the wrapper an extra
         // Tab stop. The first render's roving tabindex is applied by the
@@ -271,6 +315,24 @@ export class MDCNavigationTab extends composeMixin(
 
     protected override updated(changedProperties: PropertyValues<this>): void {
         super.updated(changedProperties)
+
+        if (this.pendingMotionSnapshot && !isServer) {
+            const snapshot = this.pendingMotionSnapshot
+            this.pendingMotionSnapshot = null
+            runNavigationTabTransitions(
+                this.activeAnimations,
+                this.getMotionElements(),
+                {
+                    checked        : this.checked,
+                    variant        : this.variant,
+                    disabled       : this.disabled,
+                    badge          : this.badge,
+                    hasActiveIcon  : this.hasActiveIcon,
+                    hasInactiveIcon: this.hasInactiveIcon,
+                },
+                snapshot,
+            )
+        }
 
         if (changedProperties.has('defaultChecked') && this.defaultChecked) {
             this.checked = true
@@ -615,5 +677,27 @@ export class MDCNavigationTab extends composeMixin(
 
     private get normalizedScope(): string {
         return this.navigationScope?.trim() ?? ''
+    }
+
+    protected getMotionElements(): INavigationTabMotionElements {
+        return {
+            container    : this.rootElement,
+            indicator    : this.indicatorElement,
+            iconContainer: this.iconContainerElement,
+            defaultIcon  : this.defaultIconElement,
+            activeIcon   : this.activeIconElement,
+            inactiveIcon : this.inactiveIconElement,
+            inLabel      : this.inLabelElement,
+            outLabel     : this.outLabelElement,
+            badgeLabel   : this.badgeLabelElement,
+        }
+    }
+
+    private cancelActiveAnimations(): void {
+        for (const anim of this.activeAnimations) {
+            anim.cancel()
+        }
+        this.activeAnimations.clear()
+        this.pendingMotionSnapshot = null
     }
 }

@@ -1,11 +1,34 @@
-<mdc-navigation-tab name="20qdow411" value="/1" label="Enabled">
-    <mdc-icon slot="icon">send</mdc-icon>
-</mdc-navigation-tab>
+<div style="display: flex; flex-direction: column; gap: 16px;">
+    <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+        <mdc-button
+            variant="outlined"
+            onclick="const t = this.getRootNode().querySelector('#demo-tab-disabled-live'); t.disabled = !t.disabled;"
+        >
+            Toggle Disabled
+        </mdc-button>
+        <mdc-button
+            variant="outlined"
+            onclick="const t = this.getRootNode().querySelector('#demo-tab-disabled-live'); t.checked = !t.checked;"
+        >
+            Toggle Checked
+        </mdc-button>
+    </div>
 
-<mdc-navigation-tab name="20qdow411" value="/2" label="Disabled" disabled>
-    <mdc-icon slot="icon">send</mdc-icon>
-</mdc-navigation-tab>
+    <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+        <mdc-navigation-tab id="demo-tab-disabled-live" name="20qdow411-live" value="/0" label="Interactive" checked>
+            <mdc-icon slot="icon">send</mdc-icon>
+        </mdc-navigation-tab>
 
-<mdc-navigation-tab name="20qdow411" value="/3" default-checked label="Disabled" disabled>
-    <mdc-icon slot="icon">send</mdc-icon>
-</mdc-navigation-tab>
+        <mdc-navigation-tab name="20qdow411" value="/1" label="Enabled">
+            <mdc-icon slot="icon">send</mdc-icon>
+        </mdc-navigation-tab>
+
+        <mdc-navigation-tab name="20qdow411" value="/2" label="Disabled" disabled>
+            <mdc-icon slot="icon">send</mdc-icon>
+        </mdc-navigation-tab>
+
+        <mdc-navigation-tab name="20qdow411" value="/3" default-checked label="Disabled Checked" disabled>
+            <mdc-icon slot="icon">send</mdc-icon>
+        </mdc-navigation-tab>
+    </div>
+</div>

@@ -1,7 +1,42 @@
-<mdc-navigation-tab name="w0x2rri2" value="/1" label="Unchecked">
-    <mdc-icon slot="icon">send</mdc-icon>
-</mdc-navigation-tab>
+<div style="display: flex; flex-direction: column; gap: 20px; width: 100%;">
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+            <mdc-button
+                variant="outlined"
+                onclick="const t = this.getRootNode().querySelector('#demo-tab-checked-live'); t.checked = !t.checked;"
+            >
+                Toggle Checked
+            </mdc-button>
+            <mdc-button
+                variant="outlined"
+                onclick="const t = this.getRootNode().querySelector('#demo-tab-checked-live'); t.badge = t.badge ? '' : '12';"
+            >
+                Toggle Badge
+            </mdc-button>
+        </div>
 
-<mdc-navigation-tab name="w0x2rri2" value="/2" checked label="Checked">
-    <mdc-icon slot="icon">send</mdc-icon>
-</mdc-navigation-tab>
+        <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+            <mdc-navigation-tab id="demo-tab-checked-live" name="demo-checked-single" value="/live" label="Interactive">
+                <mdc-icon slot="inactive-icon">bookmark_border</mdc-icon>
+                <mdc-icon slot="active-icon" filled>bookmark</mdc-icon>
+            </mdc-navigation-tab>
+        </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+        <mdc-navigation-bar>
+            <mdc-navigation-tab name="w0x2rri2" value="/home" label="Home" checked>
+                <mdc-icon slot="inactive-icon">home</mdc-icon>
+                <mdc-icon slot="active-icon" filled>home</mdc-icon>
+            </mdc-navigation-tab>
+            <mdc-navigation-tab name="w0x2rri2" value="/explore" label="Explore">
+                <mdc-icon slot="inactive-icon">explore</mdc-icon>
+                <mdc-icon slot="active-icon" filled>explore</mdc-icon>
+            </mdc-navigation-tab>
+            <mdc-navigation-tab name="w0x2rri2" value="/library" label="Library">
+                <mdc-icon slot="inactive-icon">video_library</mdc-icon>
+                <mdc-icon slot="active-icon" filled>video_library</mdc-icon>
+            </mdc-navigation-tab>
+        </mdc-navigation-bar>
+    </div>
+</div>
