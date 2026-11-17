@@ -231,6 +231,10 @@ export class AttachableController implements ReactiveController, IAttachable {
     }
 
     private setCurrentControl(control: HTMLElement | null) {
+        if (control === this.currentControl) {
+            return;
+        }
+
         this.onControlChange(this.currentControl, control);
         this.currentControl = control;
     }

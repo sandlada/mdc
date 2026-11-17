@@ -343,7 +343,6 @@ export class EdgeSlideController implements ReactiveController {
             new Event('open', { cancelable: true }),
         )
         if (preventOpen) {
-            this._isOpen = false
             return
         }
 
@@ -389,7 +388,6 @@ export class EdgeSlideController implements ReactiveController {
             new Event('close', { cancelable: true }),
         )
         if (preventClose) {
-            this._isOpen = true
             return
         }
 
