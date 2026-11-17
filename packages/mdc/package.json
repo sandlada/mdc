@@ -33,6 +33,7 @@
         "build:dts": "tsc --project tsconfig.json --emitDeclarationOnly --outDir build --skipLibCheck",
         "smoke": "node .smoke/run.mjs",
         "test": "vitest run",
+        "test:coverage": "vitest run --coverage",
         "test:watch": "vitest"
     },
     "dependencies": {
@@ -42,7 +43,7 @@
         "lit": "^3.3.3"
     },
     "devDependencies": {
-        "@vitest/coverage-v8": "^5.1.0",
+        "@vitest/coverage-v8": "5.0.5",
         "fast-check": "^4.10.2",
         "happy-dom": "^21.0.4",
         "rolldown": "^1.2.14",
