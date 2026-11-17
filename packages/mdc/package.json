@@ -42,6 +42,7 @@
         "lit": "^3.3.3"
     },
     "devDependencies": {
+        "happy-dom": "^21.0.4",
         "rolldown": "^1.2.14",
         "rollup-plugin-html-literals": "^2.0.1",
         "tslib": "^2.8.1",
