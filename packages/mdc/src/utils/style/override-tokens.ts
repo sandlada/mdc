@@ -23,23 +23,28 @@ export interface OverrideTokensOptions {
     readonly selector?: string
 }
 
+const normalizePrefix = (prefix: string): string => {
+    const trimmed = prefix.trim()
+    const prefixed = trimmed.startsWith('--') ? trimmed : `--${trimmed}`
+    return prefixed.replace(/-+$/, '')
+}
+
+const publicName = (prefix: string, name: string): string =>
+    prefix.length === 0 ? `--${name}` : `${prefix}-${name}`
+
 const normalizeOptions = (prefixOrOptions: string | OverrideTokensOptions): {
     prefix: string
     selector?: string
 } => {
     if (typeof prefixOrOptions === 'string') {
-        const raw = prefixOrOptions.trim()
-        const normalized = raw.startsWith('--') ? raw : `--${raw}`
         return {
-            prefix: normalized.replace(/-+$/, '')
+            prefix: normalizePrefix(prefixOrOptions)
         }
     }
 
     const { prefix = '', selector } = prefixOrOptions ?? {}
-    const raw = prefix.trim()
-    const normalized = raw.startsWith('--') ? raw : `--${raw}`
     return {
-        prefix: normalized.replace(/-+$/, ''),
+        prefix: normalizePrefix(prefix),
         selector
     }
 }
@@ -99,7 +104,7 @@ export function overrideTokens<TDef extends Record<string, any> = Record<string,
             const formattedVal = formatOverrideValue(rawVal)
 
             if (formattedVal.length > 0) {
-                declarations.push(`${options.prefix}-${cleanKey}: ${formattedVal};`)
+                declarations.push(`${publicName(options.prefix, cleanKey)}: ${formattedVal};`)
             }
         }
 

@@ -287,6 +287,10 @@ export function expandMargin<const TPrefix extends string>(prefix: TPrefix) {
             if (Object.keys(inlineStartRecord).length > 0) result[keyInlineStart] = Object.freeze(inlineStartRecord)
             if (Object.keys(inlineEndRecord).length > 0) result[keyInlineEnd] = Object.freeze(inlineEndRecord)
 
+            if (Object.keys(result).length === 0) {
+                throw new Error('[expandMargin] Margin object cannot be empty.')
+            }
+
             return Object.freeze(result) as unknown as ExpandedMarginResult<TPrefix, TValue>
         }
 

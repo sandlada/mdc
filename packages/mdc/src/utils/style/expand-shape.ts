@@ -243,7 +243,11 @@ export function expandShape<const TPrefix extends string>(prefix: TPrefix) {
                     if (typeof stateVal === 'string' && stateVal.trim().length === 0) {
                         continue
                     }
-                    cleanedRecord[stateKey] = stateVal
+                    cleanedRecord[stateKey] = Array.isArray(stateVal)
+                        ? Object.freeze([...stateVal])
+                        : isPlainObject(stateVal) && !isCSSVariableProvider(stateVal) && !isCSSResult(stateVal)
+                            ? Object.freeze({ ...stateVal })
+                            : stateVal
                     stateCount++
                 }
             }

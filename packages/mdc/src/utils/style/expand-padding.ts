@@ -314,6 +314,10 @@ export function expandPadding<const TPrefix extends string>(prefix: TPrefix) {
             if (Object.keys(inlineStartRecord).length > 0) result[keyInlineStart] = Object.freeze(inlineStartRecord)
             if (Object.keys(inlineEndRecord).length > 0) result[keyInlineEnd] = Object.freeze(inlineEndRecord)
 
+            if (Object.keys(result).length === 0) {
+                throw new Error('[expandPadding] Padding object cannot be empty.')
+            }
+
             return Object.freeze(result) as unknown as ExpandedPaddingResult<TPrefix, TValue>
         }
 

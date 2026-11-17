@@ -36,25 +36,30 @@ export interface StringifyTokensOptions {
 
 export type StringifyPrefixOrOptions = string | StringifyTokensOptions
 
+const normalizePrefix = (prefix: string): string => {
+    const trimmed = prefix.trim()
+    const prefixed = trimmed.startsWith('--') ? trimmed : `--${trimmed}`
+    return prefixed.replace(/-+$/, '')
+}
+
+const publicName = (prefix: string, name: string): string =>
+    prefix.length === 0 ? `--${name}` : `${prefix}-${name}`
+
 const normalizeOptions = (prefixOrOptions: StringifyPrefixOrOptions): {
     prefix: string
     includePublicVars: boolean
     selector?: string
 } => {
     if (typeof prefixOrOptions === 'string') {
-        const rawPrefix = prefixOrOptions.trim()
-        const normalizedPrefix = rawPrefix.startsWith('--') ? rawPrefix : `--${rawPrefix}`
         return {
-            prefix: normalizedPrefix.replace(/-+$/, ''),
+            prefix: normalizePrefix(prefixOrOptions),
             includePublicVars: true
         }
     }
 
     const { prefix = '', includePublicVars = true, selector } = prefixOrOptions ?? {}
-    const rawPrefix = prefix.trim()
-    const normalizedPrefix = rawPrefix.startsWith('--') ? rawPrefix : `--${rawPrefix}`
     return {
-        prefix: normalizedPrefix.replace(/-+$/, ''),
+        prefix: normalizePrefix(prefix),
         includePublicVars,
         selector
     }
@@ -91,7 +96,26 @@ const isLeafCapableObject = (value: unknown): boolean => {
         return false
     }
     const record = value as Record<string, unknown>
-    return typeof record['ToCSSVariable'] === 'function' || '_$cssResult$' in record || 'cssText' in record
+    return typeof record['ToCSSVariable'] === 'function' || '_$cssResult$' in record || 'cssText' in record || 'rawVal' in record
+}
+
+const containsArray = (value: unknown): boolean => {
+    if (Array.isArray(value)) {
+        return true
+    }
+    if (typeof value !== 'object' || value === null) {
+        return false
+    }
+
+    const record = value as Record<string, unknown>
+    if (isLeafCapableObject(value)) {
+        return 'rawVal' in record ? containsArray(record['rawVal']) : false
+    }
+    if (!isPlainObject(value)) {
+        return false
+    }
+
+    return Object.values(record).some(containsArray)
 }
 
 const ReservedDefKeys = new Set(['__brand', 'schema', 'tokens', 'flatTokenKeys', 'forwardedBridges'])
@@ -138,7 +162,7 @@ export function stringifyTokens(
 
             const cleanKey = key.startsWith('--') ? key.slice(2) : key
 
-            if (Array.isArray(rawValue)) {
+            if (containsArray(rawValue)) {
                 throw new Error(`[stringifyTokens] Token '${cleanKey}' uses an array but the simplified style system holds no schema: only static values and plain records are allowed.`)
             }
 
@@ -149,10 +173,11 @@ export function stringifyTokens(
                 for (const [sName, sVal] of Object.entries(rawValue)) {
                     if (sVal !== null && sVal !== undefined) {
                         const sValStr = formatTokenValue(sVal)
+                        const name = `${sName}-${cleanKey}`
                         if (options.includePublicVars) {
-                            declarations.push(`--_${sName}-${cleanKey}: var(${options.prefix}-${sName}-${cleanKey}, ${sValStr});`)
+                            declarations.push(`--_${name}: var(${publicName(options.prefix, name)}, ${sValStr});`)
                         } else {
-                            declarations.push(`--_${sName}-${cleanKey}: ${sValStr};`)
+                            declarations.push(`--_${name}: ${sValStr};`)
                         }
                     }
                 }
@@ -163,7 +188,7 @@ export function stringifyTokens(
             const staticVal = formatTokenValue(rawValue)
 
             if (options.includePublicVars) {
-                declarations.push(`--_${cleanKey}: var(${options.prefix}-${cleanKey}, ${staticVal});`)
+                declarations.push(`--_${cleanKey}: var(${publicName(options.prefix, cleanKey)}, ${staticVal});`)
             } else {
                 declarations.push(`--_${cleanKey}: ${staticVal};`)
             }
