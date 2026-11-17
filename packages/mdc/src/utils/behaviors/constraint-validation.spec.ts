@@ -50,8 +50,8 @@ class Control extends Base {
     public override [GetValidityAnchor]() {
         return this.anchor
     }
-    public formResetCallback() {}
-    public formStateRestoreCallback() {}
+    public override formResetCallback() {}
+    public override formStateRestoreCallback() {}
 }
 
 class Concrete extends Control {
@@ -62,11 +62,11 @@ class Concrete extends Control {
 customElements.define('test-constraint-control', Concrete)
 
 class Unimplemented extends Base {
-    public [GetFormValue]() {
+    public override [GetFormValue]() {
         return ''
     }
-    public formResetCallback() {}
-    public formStateRestoreCallback() {}
+    public override formResetCallback() {}
+    public override formStateRestoreCallback() {}
 }
 customElements.define('test-constraint-unimpl', Unimplemented)
 

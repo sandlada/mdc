@@ -25,18 +25,18 @@ class Control extends Base {
     public override [GetFormState]() {
         return this.state ?? this.value
     }
-    public formResetCallback() {
+    public override formResetCallback() {
         this.value = 'reset'
     }
-    public formStateRestoreCallback(state: FormRestoreState | null) {
+    public override formStateRestoreCallback(state: FormRestoreState | null) {
         this.value = String(state)
     }
 }
 customElements.define('test-form-control', Control)
 
 class NoValue extends Base {
-    public formResetCallback() {}
-    public formStateRestoreCallback() {}
+    public override formResetCallback() {}
+    public override formStateRestoreCallback() {}
 }
 customElements.define('test-form-novalue', NoValue)
 
