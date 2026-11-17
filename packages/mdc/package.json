@@ -30,7 +30,7 @@
     "type": "module",
     "scripts": {
         "build": "rolldown -c rolldown.config.js",
-        "build:dts": "tsc --project tsconfig.json --emitDeclarationOnly --outDir build --skipLibCheck",
+        "build:dts": "tsc --project tsconfig.build.json --emitDeclarationOnly --outDir build --skipLibCheck",
         "smoke": "node .smoke/run.mjs",
         "test": "vitest run",
         "test:coverage": "vitest run --coverage",
