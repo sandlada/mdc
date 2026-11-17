@@ -5,9 +5,9 @@
  */
 
 import { LitElement, html, css } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 import { ContextProvider } from '@lit/context'
-import { getDemo, listDemos } from './demo-loader.js'
+import { getDemo, listDemos, loadDemos } from './demo-loader.js'
 import { DocsPageTitleContext } from './contexts/index.js'
 import './docs-shell.js'
 
@@ -76,6 +76,11 @@ export class DocsPage extends LitElement {
 
     private titleProvider: ContextProvider<typeof DocsPageTitleContext>
 
+    @state()
+    private demoVersion = 0
+
+    private lastDemoKey = ''
+
     public constructor() {
         super()
         this.titleProvider = new ContextProvider(this, { context: DocsPageTitleContext })
@@ -84,33 +89,60 @@ export class DocsPage extends LitElement {
     public override connectedCallback(): void {
         super.connectedCallback()
         this.publishTitle()
+        this.ensureDemos()
     }
 
     protected override updated(): void {
         this.publishTitle()
+        this.ensureDemos()
+        this.executeDemoScripts()
     }
 
     private publishTitle(): void {
         this.titleProvider.setValue(this.title || this.component)
     }
 
-    public override render() {
+    private demoFileList(): string[] {
         // Explicitly-ordered demos first (curated via `demo-files`), then any
         // `*.demo.html` files in the component's demo folder that aren't listed —
         // so newly-added demo files show up without editing the page's HTML.
         const explicit = this.demoFiles.split(',').map((s) => s.trim()).filter((s) => s.length > 0)
         const seen = new Set(explicit)
-        const files = [...explicit, ...listDemos(this.component).filter((f) => !seen.has(f))]
+        return [...explicit, ...listDemos(this.component).filter((f) => !seen.has(f))]
+    }
+
+    private ensureDemos(): void {
+        const files = this.demoFileList()
+        const key = `${this.component}|${files.join(',')}`
+        if (key === this.lastDemoKey) return
+        this.lastDemoKey = key
+        if (files.length === 0) return
+        const currentKey = key
+        void loadDemos(this.component, files)
+            .catch((err) => {
+                console.error('Failed to load demos:', err)
+            })
+            .finally(() => {
+                if (this.lastDemoKey !== currentKey || !this.isConnected) return
+                this.demoVersion++
+            })
+    }
+
+    public override render() {
+        void this.demoVersion
+        const files = this.demoFileList()
         const demos = files.map((file) => ({
             file,
             label: file.replace(/\.demo\.html$/, '').replace(/^[^.]+\./, ''),
             content: getDemo(this.component, file),
         }))
+        const pendingCount = demos.filter((d) => d.content.length === 0).length
 
         return html`
             <mdc-docs-shell active=${this.component}>
                 <h1>${this.title || this.component}</h1>
                 ${this.subtitle ? html`<p class="subtitle">${this.subtitle}</p>` : ''}
+                ${pendingCount > 0 ? html`<p class="subtitle">Loading ${pendingCount} demo${pendingCount === 1 ? '' : 's'}…</p>` : ''}
                 ${demos.map((d) => html`
                     <section>
                         <h2>${d.label}</h2>
@@ -123,6 +155,10 @@ export class DocsPage extends LitElement {
     }
 
     protected override firstUpdated() {
+        this.executeDemoScripts()
+    }
+
+    private executeDemoScripts(): void {
         const root = this.shadowRoot ?? this
         const scriptTags = root.querySelectorAll('script')
         scriptTags.forEach((s) => {
