@@ -195,6 +195,7 @@ export abstract class BaseListItem extends composeMixin(
     private cachedSwipeStartWidth = 0
     private cachedSwipeEndWidth = 0
     private suppressNextClick = false
+    private hasVibratedForExpandedPrimary = false
     private pointerDrag: {
         pointerId: number
         startX: number
@@ -279,6 +280,13 @@ export abstract class BaseListItem extends composeMixin(
             if (!this.listManaged) {
                 this.syncStandaloneChildren()
             }
+        }
+        if (
+            changedProperties.has('expanded') ||
+            (changedProperties as Map<string, unknown>).has('swipePrimaryReady') ||
+            (changedProperties as Map<string, unknown>).has('swiping')
+        ) {
+            this.maybeVibrateOnExpandedPrimaryReady()
         }
     }
 
@@ -589,6 +597,31 @@ export abstract class BaseListItem extends composeMixin(
         this.toggleAttribute('swipe-primary-ready', this.swipePrimaryReady)
     }
 
+    private maybeVibrateOnExpandedPrimaryReady(): void {
+        if (!this.expanded || !this.swipePrimaryReady) {
+            this.hasVibratedForExpandedPrimary = false
+            return
+        }
+        if (this.hasVibratedForExpandedPrimary) {
+            return
+        }
+        if (isServer && typeof window === 'undefined') {
+            return
+        }
+        if (typeof navigator === 'undefined' || typeof navigator.vibrate !== 'function') {
+            return
+        }
+        if (typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            return
+        }
+        try {
+            navigator.vibrate(15)
+            this.hasVibratedForExpandedPrimary = true
+        } catch {
+            // Haptic feedback is best-effort and must not interrupt gestures.
+        }
+    }
+
     private setSwipeState(nextState: ListSwipeState): void {
         const previousState = this.swipeState
         if (previousState === nextState) {
@@ -897,6 +930,7 @@ export abstract class BaseListItem extends composeMixin(
         this.dragActiveSide = activeSide
         this.swipePrimaryReady = primaryReady
         this.syncSwipeAttributes()
+        this.maybeVibrateOnExpandedPrimaryReady()
         this.applyDragStyles(clamped, gap)
     }
 
