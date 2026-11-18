@@ -1,0 +1,45 @@
+<div style="display: flex; flex-direction: column; gap: 24px; width: 100%;">
+    <!-- Docked Toolbar: exit-always scroll behavior -->
+    <div style="position: relative; height: 260px; border: 1px solid var(--md-sys-color-outline-variant, #ccc); overflow: hidden; display: flex; flex-direction: column;">
+        <div id="dt-scroller" style="flex: 1; overflow-y: auto; padding: 16px;">
+            <p style="margin-top: 0;">Docked Toolbar (<code>scroll-behavior="exit-always"</code>): scroll down to hide, scroll up to reveal.</p>
+            <div style="height: 440px; background: linear-gradient(var(--md-sys-color-surface-container, #eee), transparent); border-radius: 8px; padding: 16px;">
+                Scrollable content
+            </div>
+        </div>
+        <mdc-docked-toolbar
+            variant="standard"
+            scroll-behavior="exit-always"
+            scroll-target="#dt-scroller"
+            aria-label="Scroll-reactive docked toolbar"
+            style="position: absolute; inset-inline: 0; bottom: 0;"
+        >
+            <mdc-icon-button aria-label="Add"><mdc-icon>add</mdc-icon></mdc-icon-button>
+            <mdc-icon-button aria-label="Edit"><mdc-icon>edit</mdc-icon></mdc-icon-button>
+            <mdc-icon-button aria-label="Share"><mdc-icon>share</mdc-icon></mdc-icon-button>
+            <mdc-icon-button aria-label="More"><mdc-icon>more_vert</mdc-icon></mdc-icon-button>
+        </mdc-docked-toolbar>
+    </div>
+
+    <!-- Floating Toolbar: exit-always scroll behavior -->
+    <div style="position: relative; height: 260px; border: 1px solid var(--md-sys-color-outline-variant, #ccc); overflow: hidden; display: flex; flex-direction: column;">
+        <div id="ft-scroller" style="flex: 1; overflow-y: auto; padding: 16px;">
+            <p style="margin-top: 0;">Floating Toolbar (<code>scroll-behavior="exit-always"</code>): scroll down to hide, scroll up to reveal.</p>
+            <div style="height: 440px; background: linear-gradient(var(--md-sys-color-surface-container, #eee), transparent); border-radius: 8px; padding: 16px;">
+                Scrollable content
+            </div>
+        </div>
+        <mdc-floating-toolbar
+            variant="standard"
+            scroll-behavior="exit-always"
+            scroll-target="#ft-scroller"
+            aria-label="Scroll-reactive floating toolbar"
+            style="position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%);"
+        >
+            <mdc-icon-button aria-label="Edit"><mdc-icon>edit</mdc-icon></mdc-icon-button>
+            <mdc-icon-button aria-label="Star"><mdc-icon>star</mdc-icon></mdc-icon-button>
+            <mdc-icon-button aria-label="Share"><mdc-icon>share</mdc-icon></mdc-icon-button>
+            <mdc-fab slot="fab" open aria-label="Add"><mdc-icon slot="icon">add</mdc-icon></mdc-fab>
+        </mdc-floating-toolbar>
+    </div>
+</div>
