@@ -32,6 +32,29 @@ export const FloatingToolbarFabPositions = ['end', 'start'] as const
 export type FloatingToolbarFabPosition = (typeof FloatingToolbarFabPositions)[number]
 
 /**
+ * Scroll response behavior for toolbars.
+ * - `pinned`: stays visible regardless of scroll (default; auto scroll-hide disabled).
+ * - `exit-always`: slides out of view when scrolling down and returns when scrolling up.
+ */
+export const ToolbarScrollBehavior = {
+    Pinned    : 'pinned',
+    ExitAlways: 'exit-always',
+} as const
+export type ToolbarScrollBehavior = (typeof ToolbarScrollBehavior)[keyof typeof ToolbarScrollBehavior]
+
+/**
+ * Event fired when a toolbar's `collapsed` visibility state changes.
+ */
+export const ToolbarVisibilityChangeEvent = 'toolbar-visibility-change'
+
+/**
+ * Detail payload for `toolbar-visibility-change`.
+ */
+export interface IToolbarVisibilityChangeDetail {
+    collapsed: boolean
+}
+
+/**
  * Event fired when `mdc-floating-toolbar` expands or collapses.
  */
 export const ToolbarExpandedChangeEvent = 'toolbar-expanded-change'
@@ -52,12 +75,37 @@ export interface IMDCDockedToolbarAttributes {
 
     /** Horizontal distribution of slotted actions. */
     alignment: DockedToolbarAlignment
+
+    /** Scroll response behavior (`pinned` by default). */
+    scrollBehavior: ToolbarScrollBehavior
+
+    /** Whether the toolbar is currently slid out of view. */
+    collapsed: boolean
+
+    /** Element, `'window'`, or CSS selector whose scroll position drives `exit-always`. */
+    scrollTarget: HTMLElement | Window | string | null
+}
+
+/**
+ * Events map for `mdc-docked-toolbar`.
+ */
+export interface IMDCDockedToolbarEvents {
+    [ToolbarVisibilityChangeEvent]: CustomEvent<IToolbarVisibilityChangeDetail>
 }
 
 /**
  * Public interface contract for `mdc-docked-toolbar`.
  */
-export interface IMDCDockedToolbar extends LitElement, IMDCDockedToolbarAttributes {}
+export interface IMDCDockedToolbar extends LitElement, IMDCDockedToolbarAttributes {
+    /** Reveal the toolbar. */
+    show(): void
+
+    /** Hide the toolbar (slide out). */
+    hide(): void
+
+    /** Toggle toolbar visibility. */
+    toggle(): void
+}
 
 /**
  * Pure input attributes contract for `mdc-floating-toolbar`.
@@ -74,6 +122,15 @@ export interface IMDCFloatingToolbarAttributes {
 
     /** Placement of the paired `slot="fab"` relative to the toolbar pill. */
     fabPosition: FloatingToolbarFabPosition
+
+    /** Scroll response behavior (`pinned` by default). */
+    scrollBehavior: ToolbarScrollBehavior
+
+    /** Whether the toolbar is currently slid out of view. */
+    collapsed: boolean
+
+    /** Element, `'window'`, or CSS selector whose scroll position drives `exit-always`. */
+    scrollTarget: HTMLElement | Window | string | null
 }
 
 /**
@@ -81,6 +138,7 @@ export interface IMDCFloatingToolbarAttributes {
  */
 export interface IMDCFloatingToolbarEvents {
     [ToolbarExpandedChangeEvent]: CustomEvent<IToolbarExpandedChangeEventDetail>
+    [ToolbarVisibilityChangeEvent]: CustomEvent<IToolbarVisibilityChangeDetail>
 }
 
 /**
@@ -95,6 +153,15 @@ export interface IMDCFloatingToolbar extends LitElement, IMDCFloatingToolbarAttr
 
     /** Toggles the expanded state of the floating toolbar container. */
     toggle(): void
+
+    /** Reveal the floating toolbar. */
+    show(): void
+
+    /** Hide the floating toolbar (slide out). */
+    hide(): void
+
+    /** Toggle floating toolbar visibility. */
+    toggleVisibility(): void
 }
 
 /**

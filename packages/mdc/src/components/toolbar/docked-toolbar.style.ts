@@ -42,6 +42,18 @@ export const DockedToolbarStyles = css`
             border-end-start-radius: var(--_enabled-container-shape-end-start);
             border-end-end-radius: var(--_enabled-container-shape-end-end);
             z-index: 0;
+            transition: transform 300ms cubic-bezier(0.2, 0, 0, 1);
+        }
+
+        .container.is-hidden {
+            transform: translateY(100%);
+            pointer-events: none;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .container {
+                transition: none;
+            }
         }
 
         .container.align-space-between { justify-content: space-between; }

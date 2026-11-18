@@ -44,6 +44,7 @@ describe('MDCDockedToolbar', () => {
             'container': true,
             'standard': true,
             'align-space-between': true,
+            'is-hidden': false,
         })
     })
 
@@ -87,6 +88,7 @@ describe('MDCFloatingToolbar', () => {
         const internals = el as unknown as FloatingToolbarInternals
         expect(internals.getWrapperClasses()).toEqual({
             'wrapper': true,
+            'is-hidden': false,
             'vertical': true,
             'expanded': false,
             'collapsed': true,
@@ -141,5 +143,27 @@ describe('MDCDockedToolbarAction', () => {
         expect(el.variant).toBe('vibrant')
         expect(el.selected).toBe(true)
         expect(el.label).toBe('Edit')
+    })
+
+    it('defaults scrollBehavior to pinned and supports show/hide/toggleVisibility', () => {
+        const docked = new MDCDockedToolbar()
+        expect(docked.scrollBehavior).toBe('pinned')
+        expect(docked.collapsed).toBe(false)
+        docked.hide()
+        expect(docked.collapsed).toBe(true)
+        docked.show()
+        expect(docked.collapsed).toBe(false)
+        docked.toggle()
+        expect(docked.collapsed).toBe(true)
+
+        const floating = new MDCFloatingToolbar()
+        expect(floating.scrollBehavior).toBe('pinned')
+        expect(floating.collapsed).toBe(false)
+        floating.hide()
+        expect(floating.collapsed).toBe(true)
+        floating.show()
+        expect(floating.collapsed).toBe(false)
+        floating.toggleVisibility()
+        expect(floating.collapsed).toBe(true)
     })
 })

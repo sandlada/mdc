@@ -10,13 +10,21 @@ import type { AriaMixinStrict } from '../../../utils/aria/aria'
 import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import { mixinElementInternals } from '../../../utils/behaviors/element-internals'
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
-import type { DockedToolbarAlignment, IMDCDockedToolbar, ToolbarVariant } from '../toolbar.interface'
+import {
+    ToolbarScrollBehavior,
+    ToolbarVisibilityChangeEvent,
+    type DockedToolbarAlignment,
+    type IMDCDockedToolbar,
+    type IToolbarVisibilityChangeDetail,
+    type ToolbarVariant,
+} from '../toolbar.interface'
 import { DockedToolbarStyles } from '../docked-toolbar.style'
 import {
     getToolbarInteractiveItems,
     handleToolbarKeyDown,
     updateToolbarRovingTabindex,
 } from './toolbar-navigation'
+import { attachToolbarScrollTarget, type IToolbarScrollBinding } from './toolbar-scroll'
 
 export abstract class BaseDockedToolbar extends composeMixin(
     mixinDelegatesAria,
@@ -31,11 +39,22 @@ export abstract class BaseDockedToolbar extends composeMixin(
     @property({ type: String, reflect: true })
     public alignment: DockedToolbarAlignment = 'space-between'
 
+    @property({ type: String, reflect: true, attribute: 'scroll-behavior' })
+    public scrollBehavior: ToolbarScrollBehavior = ToolbarScrollBehavior.Pinned
+
+    @property({ type: Boolean, reflect: true })
+    public collapsed: boolean = false
+
+    @property({ attribute: 'scroll-target' })
+    public scrollTarget: HTMLElement | Window | string | null = null
+
     @state()
     private hasLeading = false
 
     @state()
     private hasTrailing = false
+
+    private scrollBinding: IToolbarScrollBinding | null = null
 
     constructor() {
         super()
@@ -43,10 +62,43 @@ export abstract class BaseDockedToolbar extends composeMixin(
         this.addEventListener('keydown', this.onKeyDown)
     }
 
+    public override connectedCallback(): void {
+        super.connectedCallback()
+        this.rebindScrollTarget()
+    }
+
+    public override disconnectedCallback(): void {
+        this.scrollBinding?.cleanup()
+        this.scrollBinding = null
+        super.disconnectedCallback()
+    }
+
+    public show(): void {
+        this.collapsed = false
+    }
+
+    public hide(): void {
+        this.collapsed = true
+    }
+
+    public toggle(): void {
+        this.collapsed = !this.collapsed
+    }
+
     protected override updated(changedProperties: PropertyValues<this>): void {
         super.updated(changedProperties)
         if (changedProperties.has('variant')) {
             this.syncChildVariants()
+        }
+        if (changedProperties.has('scrollTarget') || changedProperties.has('scrollBehavior')) {
+            this.rebindScrollTarget()
+        }
+        if (changedProperties.has('collapsed')) {
+            this.dispatchEvent(new CustomEvent<IToolbarVisibilityChangeDetail>(ToolbarVisibilityChangeEvent, {
+                bubbles : true,
+                composed: true,
+                detail  : { collapsed: this.collapsed },
+            }))
         }
     }
 
@@ -55,7 +107,20 @@ export abstract class BaseDockedToolbar extends composeMixin(
             'container': true,
             [this.variant]: true,
             [`align-${this.alignment}`]: true,
+            'is-hidden': this.collapsed,
         }
+    }
+
+    private rebindScrollTarget(): void {
+        this.scrollBinding?.cleanup()
+        this.scrollBinding = attachToolbarScrollTarget(
+            this,
+            this.scrollBehavior,
+            this.scrollTarget,
+            (collapsed) => {
+                this.collapsed = collapsed
+            },
+        )
     }
 
     protected handleDefaultSlotChange = (): void => {

@@ -34,6 +34,18 @@ export const FloatingToolbarStyles = css`
             align-items: center;
             box-sizing: border-box;
             gap: 0;
+            transition: transform 300ms cubic-bezier(0.2, 0, 0, 1);
+        }
+
+        .wrapper.is-hidden {
+            transform: translateY(100%);
+            pointer-events: none;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .wrapper {
+                transition: none;
+            }
         }
 
         .wrapper.has-fab {

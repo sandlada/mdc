@@ -13,9 +13,12 @@ import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
 import '../../elevation/elevation'
 import {
     ToolbarExpandedChangeEvent,
+    ToolbarScrollBehavior,
+    ToolbarVisibilityChangeEvent,
     type FloatingToolbarFabPosition,
     type IMDCFloatingToolbar,
     type IToolbarExpandedChangeEventDetail,
+    type IToolbarVisibilityChangeDetail,
     type ToolbarOrientation,
     type ToolbarVariant,
 } from '../toolbar.interface'
@@ -25,6 +28,7 @@ import {
     handleToolbarKeyDown,
     updateToolbarRovingTabindex,
 } from './toolbar-navigation'
+import { attachToolbarScrollTarget, type IToolbarScrollBinding } from './toolbar-scroll'
 
 export abstract class BaseFloatingToolbar extends composeMixin(
     mixinDelegatesAria,
@@ -45,13 +49,47 @@ export abstract class BaseFloatingToolbar extends composeMixin(
     @property({ type: String, attribute: 'fab-position', reflect: true })
     public fabPosition: FloatingToolbarFabPosition = 'end'
 
+    @property({ type: String, reflect: true, attribute: 'scroll-behavior' })
+    public scrollBehavior: ToolbarScrollBehavior = ToolbarScrollBehavior.Pinned
+
+    @property({ type: Boolean, reflect: true })
+    public collapsed: boolean = false
+
+    @property({ attribute: 'scroll-target' })
+    public scrollTarget: HTMLElement | Window | string | null = null
+
     @state()
     protected hasFab = false
+
+    private scrollBinding: IToolbarScrollBinding | null = null
 
     constructor() {
         super()
         if (isServer) return
         this.addEventListener('keydown', this.onKeyDown)
+    }
+
+    public override connectedCallback(): void {
+        super.connectedCallback()
+        this.rebindScrollTarget()
+    }
+
+    public override disconnectedCallback(): void {
+        this.scrollBinding?.cleanup()
+        this.scrollBinding = null
+        super.disconnectedCallback()
+    }
+
+    public show(): void {
+        this.collapsed = false
+    }
+
+    public hide(): void {
+        this.collapsed = true
+    }
+
+    public toggleVisibility(): void {
+        this.collapsed = !this.collapsed
     }
 
     public expand(): void {
@@ -73,14 +111,34 @@ export abstract class BaseFloatingToolbar extends composeMixin(
 
     protected override updated(changedProperties: PropertyValues<this>): void {
         super.updated(changedProperties)
-        if (changedProperties.has('expanded') && changedProperties.get('expanded') !== undefined) {
-            // Keep inert/aria-hidden synced when collapsed
+        if (changedProperties.has('scrollTarget') || changedProperties.has('scrollBehavior')) {
+            this.rebindScrollTarget()
         }
+        if (changedProperties.has('collapsed')) {
+            this.dispatchEvent(new CustomEvent<IToolbarVisibilityChangeDetail>(ToolbarVisibilityChangeEvent, {
+                bubbles : true,
+                composed: true,
+                detail  : { collapsed: this.collapsed },
+            }))
+        }
+    }
+
+    private rebindScrollTarget(): void {
+        this.scrollBinding?.cleanup()
+        this.scrollBinding = attachToolbarScrollTarget(
+            this,
+            this.scrollBehavior,
+            this.scrollTarget,
+            (collapsed) => {
+                this.collapsed = collapsed
+            },
+        )
     }
 
     protected getWrapperClasses() {
         return {
             'wrapper': true,
+            'is-hidden': this.collapsed,
             [this.orientation]: true,
             'expanded': this.expanded,
             'collapsed': !this.expanded,
