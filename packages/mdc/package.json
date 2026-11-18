@@ -153,6 +153,11 @@
             "import": "./build/components/fab/index.js",
             "default": "./build/components/fab/index.js"
         },
+        "./components/fab-menu/index": {
+            "types": "./build/components/fab-menu/index.d.ts",
+            "import": "./build/components/fab-menu/index.js",
+            "default": "./build/components/fab-menu/index.js"
+        },
         "./components/field/index": {
             "types": "./build/components/field/index.d.ts",
             "import": "./build/components/field/index.js",
