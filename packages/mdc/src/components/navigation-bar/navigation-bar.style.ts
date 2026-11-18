@@ -71,6 +71,12 @@ export const NavigationBarStyles = css`
         /* Keep the container from wrapping/shrinking while the host collapses,
            so its natural size is preserved for measurement + translate math. */
         flex: 0 0 auto;
+        transition: transform 300ms cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .container.is-hidden {
+        transform: translateY(100%);
+        pointer-events: none;
     }
 
     .container:is(.vertical, .horizontal) {

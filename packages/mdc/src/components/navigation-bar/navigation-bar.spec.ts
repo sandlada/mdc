@@ -39,4 +39,19 @@ describe('MDCNavigationBar tab variants', () => {
             '[mdc-navigation-bar] Unsupported variant "unsupported"',
         )
     })
+
+    it('supports show(), hide(), and toggle() collapsed state', () => {
+        const bar = new TestNavigationBar()
+        expect(bar.scrollBehavior).toBe('pinned')
+        expect(bar.collapsed).toBe(false)
+
+        bar.hide()
+        expect(bar.collapsed).toBe(true)
+
+        bar.show()
+        expect(bar.collapsed).toBe(false)
+
+        bar.toggle()
+        expect(bar.collapsed).toBe(true)
+    })
 })

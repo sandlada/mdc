@@ -1,0 +1,62 @@
+<div style="display: flex; flex-direction: column; gap: 24px; width: 100%;">
+    <!-- Imperative Show / Hide / Toggle -->
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+        <div style="display: flex; gap: 8px;">
+            <mdc-button variant="outlined" id="nb-show-btn"><span>Show</span></mdc-button>
+            <mdc-button variant="outlined" id="nb-hide-btn"><span>Hide</span></mdc-button>
+            <mdc-button variant="filled-tonal" id="nb-toggle-btn"><span>Toggle</span></mdc-button>
+        </div>
+        <div style="position: relative; overflow: hidden; border: 1px solid var(--md-sys-color-outline-variant, #ccc);">
+            <mdc-navigation-bar id="nb-imperative" variant="horizontal">
+                <mdc-navigation-tab name="nb-imp" value="/home" checked label="Home">
+                    <mdc-icon slot="inactive-icon">home</mdc-icon>
+                    <mdc-icon slot="active-icon" filled>home</mdc-icon>
+                </mdc-navigation-tab>
+                <mdc-navigation-tab name="nb-imp" value="/explore" label="Explore">
+                    <mdc-icon slot="inactive-icon">explore</mdc-icon>
+                    <mdc-icon slot="active-icon" filled>explore</mdc-icon>
+                </mdc-navigation-tab>
+                <mdc-navigation-tab name="nb-imp" value="/saved" label="Saved">
+                    <mdc-icon slot="inactive-icon">bookmark</mdc-icon>
+                    <mdc-icon slot="active-icon" filled>bookmark</mdc-icon>
+                </mdc-navigation-tab>
+            </mdc-navigation-bar>
+        </div>
+    </div>
+
+    <!-- Scroll-driven ExitAlways -->
+    <div style="position: relative; height: 280px; border: 1px solid var(--md-sys-color-outline-variant, #ccc); overflow: hidden; display: flex; flex-direction: column;">
+        <div id="nb-scroller" style="flex: 1; overflow-y: auto; padding: 16px;">
+            <p style="margin-top: 0;">Scroll down to hide the Navigation Bar (<code>scroll-behavior="exit-always"</code>), and scroll up to reveal it.</p>
+            <div style="height: 480px; background: linear-gradient(var(--md-sys-color-surface-container, #eee), transparent); border-radius: 8px; padding: 16px;">
+                Scrollable content
+            </div>
+        </div>
+        <mdc-navigation-bar
+            variant="horizontal"
+            scroll-behavior="exit-always"
+            scroll-target="#nb-scroller"
+            style="position: absolute; inset-inline: 0; bottom: 0;"
+        >
+            <mdc-navigation-tab name="nb-scroll" value="/home" checked label="Home">
+                <mdc-icon slot="inactive-icon">home</mdc-icon>
+                <mdc-icon slot="active-icon" filled>home</mdc-icon>
+            </mdc-navigation-tab>
+            <mdc-navigation-tab name="nb-scroll" value="/explore" label="Explore">
+                <mdc-icon slot="inactive-icon">explore</mdc-icon>
+                <mdc-icon slot="active-icon" filled>explore</mdc-icon>
+            </mdc-navigation-tab>
+            <mdc-navigation-tab name="nb-scroll" value="/saved" label="Saved">
+                <mdc-icon slot="inactive-icon">bookmark</mdc-icon>
+                <mdc-icon slot="active-icon" filled>bookmark</mdc-icon>
+            </mdc-navigation-tab>
+        </mdc-navigation-bar>
+    </div>
+</div>
+
+<script>
+    const bar = document.getElementById('nb-imperative');
+    document.getElementById('nb-show-btn')?.addEventListener('click', () => bar?.show());
+    document.getElementById('nb-hide-btn')?.addEventListener('click', () => bar?.hide());
+    document.getElementById('nb-toggle-btn')?.addEventListener('click', () => bar?.toggle());
+</script>
