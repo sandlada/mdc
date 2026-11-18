@@ -1,17 +1,37 @@
-<mdc-scaffold fab-position="bottom-end" style="height: 350px; border: 1px solid var(--md-sys-color-outline-variant, #ccc); margin-bottom: 16px;">
-    <mdc-appbar slot="appbar" headline="FAB Bottom End"></mdc-appbar>
-    <div style="padding: 16px;">Content area</div>
-    <mdc-fab slot="fab" icon="add" label="End"></mdc-fab>
+<mdc-scaffold fab-position="end" style="height: 350px; border: 1px solid var(--md-sys-color-outline-variant, #ccc); margin-bottom: 16px;">
+    <mdc-appbar slot="appbar" headline="FAB End (Default)"></mdc-appbar>
+    <div style="padding: 16px;">Content area (Android FabPosition.End: above bottom bar, 16dp inline-end).</div>
+    <mdc-fab slot="fab" open variant="primary">
+        <mdc-icon slot="icon">add</mdc-icon>
+    </mdc-fab>
 </mdc-scaffold>
 
-<mdc-scaffold fab-position="bottom-center" style="height: 350px; border: 1px solid var(--md-sys-color-outline-variant, #ccc); margin-bottom: 16px;">
-    <mdc-appbar slot="appbar" headline="FAB Bottom Center"></mdc-appbar>
-    <div style="padding: 16px;">Content area</div>
-    <mdc-fab slot="fab" icon="add" label="Center"></mdc-fab>
+<mdc-scaffold fab-position="center" style="height: 350px; border: 1px solid var(--md-sys-color-outline-variant, #ccc); margin-bottom: 16px;">
+    <mdc-appbar slot="appbar" headline="FAB Center"></mdc-appbar>
+    <div style="padding: 16px;">Content area (Android FabPosition.Center, RTL-safe centered).</div>
+    <mdc-fab slot="fab" open variant="primary">
+        <mdc-icon slot="icon">add</mdc-icon>
+    </mdc-fab>
 </mdc-scaffold>
 
-<mdc-scaffold fab-position="bottom-start" style="height: 350px; border: 1px solid var(--md-sys-color-outline-variant, #ccc);">
-    <mdc-appbar slot="appbar" headline="FAB Bottom Start"></mdc-appbar>
-    <div style="padding: 16px;">Content area</div>
-    <mdc-fab slot="fab" icon="add" label="Start"></mdc-fab>
+<mdc-scaffold fab-position="start" style="height: 350px; border: 1px solid var(--md-sys-color-outline-variant, #ccc); margin-bottom: 16px;">
+    <mdc-appbar slot="appbar" headline="FAB Start"></mdc-appbar>
+    <div style="padding: 16px;">Content area (Android FabPosition.Start).</div>
+    <mdc-fab slot="fab" open variant="primary">
+        <mdc-icon slot="icon">add</mdc-icon>
+    </mdc-fab>
+</mdc-scaffold>
+
+<mdc-scaffold fab-position="end-overlay" style="height: 350px; border: 1px solid var(--md-sys-color-outline-variant, #ccc);">
+    <mdc-appbar slot="appbar" headline="FAB End Overlay"></mdc-appbar>
+    <div style="padding: 16px;">Content area (Android FabPosition.EndOverlay: overlays Bottom App Bar, 16dp from bottom-end).</div>
+    <mdc-bottom-appbar slot="bottom-bar" label="Bottom app bar actions">
+        <mdc-icon-button aria-label="Check"><mdc-icon>check</mdc-icon></mdc-icon-button>
+        <mdc-icon-button aria-label="Edit"><mdc-icon>edit</mdc-icon></mdc-icon-button>
+        <mdc-icon-button aria-label="Mic"><mdc-icon>mic</mdc-icon></mdc-icon-button>
+        <mdc-icon-button aria-label="Image"><mdc-icon>image</mdc-icon></mdc-icon-button>
+    </mdc-bottom-appbar>
+    <mdc-fab slot="fab" open variant="primary">
+        <mdc-icon slot="icon">add</mdc-icon>
+    </mdc-fab>
 </mdc-scaffold>

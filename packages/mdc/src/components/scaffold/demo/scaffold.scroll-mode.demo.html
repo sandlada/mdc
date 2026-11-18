@@ -1,0 +1,45 @@
+<mdc-scaffold scroll-mode="body" style="height: 400px; border: 1px solid var(--md-sys-color-outline-variant, #ccc); margin-bottom: 24px;">
+    <mdc-appbar slot="appbar" headline="Body Scroll (Default)"></mdc-appbar>
+    <div style="padding: 24px;">
+        <p>Body area scrolls internally; app bar and bottom bar stay fixed.</p>
+        <div style="height: 600px; background: linear-gradient(var(--md-sys-color-surface-container, #eee), transparent);">Tall content</div>
+    </div>
+    <mdc-navigation-bar slot="bottom-bar">
+        <mdc-navigation-tab name="scroll-body-nav" value="/home" checked label="Home">
+            <mdc-icon slot="inactive-icon">home</mdc-icon>
+            <mdc-icon slot="active-icon" filled>home</mdc-icon>
+        </mdc-navigation-tab>
+        <mdc-navigation-tab name="scroll-body-nav" value="/explore" label="Explore">
+            <mdc-icon slot="inactive-icon">explore</mdc-icon>
+            <mdc-icon slot="active-icon" filled>explore</mdc-icon>
+        </mdc-navigation-tab>
+        <mdc-navigation-tab name="scroll-body-nav" value="/saved" label="Saved">
+            <mdc-icon slot="inactive-icon">bookmark</mdc-icon>
+            <mdc-icon slot="active-icon" filled>bookmark</mdc-icon>
+        </mdc-navigation-tab>
+    </mdc-navigation-bar>
+    <mdc-fab slot="fab" open variant="primary">
+        <mdc-icon slot="icon">add</mdc-icon>
+    </mdc-fab>
+</mdc-scaffold>
+
+<mdc-scaffold scroll-mode="window" style="border: 1px solid var(--md-sys-color-outline-variant, #ccc);">
+    <mdc-appbar slot="appbar" headline="Window Scroll"></mdc-appbar>
+    <div style="padding: 24px;">
+        <p>Whole page scrolls; app bar sticks to top, bottom bar sticks to bottom.</p>
+    </div>
+    <mdc-navigation-bar slot="bottom-bar">
+        <mdc-navigation-tab name="scroll-body-nav" value="/home" checked label="Home">
+            <mdc-icon slot="inactive-icon">home</mdc-icon>
+            <mdc-icon slot="active-icon" filled>home</mdc-icon>
+        </mdc-navigation-tab>
+        <mdc-navigation-tab name="scroll-body-nav" value="/explore" label="Explore">
+            <mdc-icon slot="inactive-icon">explore</mdc-icon>
+            <mdc-icon slot="active-icon" filled>explore</mdc-icon>
+        </mdc-navigation-tab>
+        <mdc-navigation-tab name="scroll-body-nav" value="/saved" label="Saved">
+            <mdc-icon slot="inactive-icon">bookmark</mdc-icon>
+            <mdc-icon slot="active-icon" filled>bookmark</mdc-icon>
+        </mdc-navigation-tab>
+    </mdc-navigation-bar>
+</mdc-scaffold>

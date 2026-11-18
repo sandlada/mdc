@@ -1,0 +1,49 @@
+<mdc-scaffold avoid-safe-area style="height: 400px; border: 1px solid var(--md-sys-color-outline-variant, #ccc); margin-bottom: 24px;">
+    <mdc-appbar slot="appbar" headline="Safe Area (contentWindowInsets)"></mdc-appbar>
+    <div style="padding: 24px;">
+        <p>Top inset only when no app bar; bottom inset only when no bottom bar; FAB and snackbar avoid double-counting bottom insets.</p>
+    </div>
+    <mdc-navigation-bar slot="navigation-bar">
+        <mdc-navigation-tab name="safe-area-nav" value="/home" checked label="Home">
+            <mdc-icon slot="inactive-icon">home</mdc-icon>
+            <mdc-icon slot="active-icon" filled>home</mdc-icon>
+        </mdc-navigation-tab>
+        <mdc-navigation-tab name="safe-area-nav" value="/explore" label="Explore">
+            <mdc-icon slot="inactive-icon">explore</mdc-icon>
+            <mdc-icon slot="active-icon" filled>explore</mdc-icon>
+        </mdc-navigation-tab>
+        <mdc-navigation-tab name="safe-area-nav" value="/saved" label="Saved">
+            <mdc-icon slot="inactive-icon">bookmark</mdc-icon>
+            <mdc-icon slot="active-icon" filled>bookmark</mdc-icon>
+        </mdc-navigation-tab>
+    </mdc-navigation-bar>
+    <mdc-fab slot="fab" open variant="primary">
+        <mdc-icon slot="icon">add</mdc-icon>
+    </mdc-fab>
+    <mdc-snackbar-host slot="snackbar-host"></mdc-snackbar-host>
+</mdc-scaffold>
+
+<mdc-scaffold style="height: 400px; border: 1px solid var(--md-sys-color-outline-variant, #ccc);">
+    <mdc-appbar slot="appbar" headline="Snackbar Stacking"></mdc-appbar>
+    <div style="padding: 24px;">
+        <p>Snackbar sits directly atop FAB (Android snackbarOffset), else atop bottom bar.</p>
+    </div>
+    <mdc-navigation-bar slot="navigation-bar">
+        <mdc-navigation-tab name="safe-area-nav" value="/home" checked label="Home">
+            <mdc-icon slot="inactive-icon">home</mdc-icon>
+            <mdc-icon slot="active-icon" filled>home</mdc-icon>
+        </mdc-navigation-tab>
+        <mdc-navigation-tab name="safe-area-nav" value="/explore" label="Explore">
+            <mdc-icon slot="inactive-icon">explore</mdc-icon>
+            <mdc-icon slot="active-icon" filled>explore</mdc-icon>
+        </mdc-navigation-tab>
+        <mdc-navigation-tab name="safe-area-nav" value="/saved" label="Saved">
+            <mdc-icon slot="inactive-icon">bookmark</mdc-icon>
+            <mdc-icon slot="active-icon" filled>bookmark</mdc-icon>
+        </mdc-navigation-tab>
+    </mdc-navigation-bar>
+    <mdc-fab slot="fab" open variant="primary">
+        <mdc-icon slot="icon">add</mdc-icon>
+    </mdc-fab>
+    <mdc-snackbar-host slot="snackbar-host"></mdc-snackbar-host>
+</mdc-scaffold>

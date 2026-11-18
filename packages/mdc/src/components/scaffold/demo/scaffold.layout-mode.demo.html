@@ -1,0 +1,45 @@
+<mdc-scaffold layout-mode="auto" style="height: 500px; border: 1px solid var(--md-sys-color-outline-variant, #ccc); margin-bottom: 24px;">
+    <mdc-appbar slot="appbar" headline="Auto Breakpoints (NavigationSuiteScaffold)"></mdc-appbar>
+    <mdc-navigation-rail slot="rail">
+        <mdc-navigation-tab label="Home" checked>
+            <mdc-icon slot="active-icon" filled>home</mdc-icon>
+            <mdc-icon slot="inactive-icon">home</mdc-icon>
+        </mdc-navigation-tab>
+    </mdc-navigation-rail>
+    <mdc-navigation-bar slot="navigation-bar">
+        <mdc-navigation-tab name="layout-auto-nav" value="/home" checked label="Home">
+            <mdc-icon slot="inactive-icon">home</mdc-icon>
+            <mdc-icon slot="active-icon" filled>home</mdc-icon>
+        </mdc-navigation-tab>
+        <mdc-navigation-tab name="layout-auto-nav" value="/explore" label="Explore">
+            <mdc-icon slot="inactive-icon">explore</mdc-icon>
+            <mdc-icon slot="active-icon" filled>explore</mdc-icon>
+        </mdc-navigation-tab>
+    </mdc-navigation-bar>
+    <div style="padding: 24px;">
+        <h2>Window Size Classes (Width &amp; Height)</h2>
+        <p>Compact (&lt;600 width or &lt;480 height): NavigationBar. Medium/Expanded (600-1199): NavigationRail. Large/Extra-Large (1200+): Drawer/Rail.</p>
+        <p>Inspect <code>effectiveLayoutMode</code>, <code>effectiveHeightMode</code>, and <code>effectiveNavigationType</code>.</p>
+    </div>
+</mdc-scaffold>
+
+<mdc-scaffold layout-mode="compact" style="height: 300px; border: 1px solid var(--md-sys-color-outline-variant, #ccc);">
+    <mdc-appbar slot="appbar" headline="Forced Compact"></mdc-appbar>
+    <mdc-navigation-rail slot="rail">
+        <mdc-navigation-tab label="Home" checked>
+            <mdc-icon slot="active-icon" filled>home</mdc-icon>
+            <mdc-icon slot="inactive-icon">home</mdc-icon>
+        </mdc-navigation-tab>
+    </mdc-navigation-rail>
+    <div style="padding: 24px;">Pinned to compact regardless of width; rail hides in favor of navigation-bar.</div>
+    <mdc-navigation-bar slot="navigation-bar">
+        <mdc-navigation-tab name="layout-auto-nav" value="/home" checked label="Home">
+            <mdc-icon slot="inactive-icon">home</mdc-icon>
+            <mdc-icon slot="active-icon" filled>home</mdc-icon>
+        </mdc-navigation-tab>
+        <mdc-navigation-tab name="layout-auto-nav" value="/explore" label="Explore">
+            <mdc-icon slot="inactive-icon">explore</mdc-icon>
+            <mdc-icon slot="active-icon" filled>explore</mdc-icon>
+        </mdc-navigation-tab>
+    </mdc-navigation-bar>
+</mdc-scaffold>
