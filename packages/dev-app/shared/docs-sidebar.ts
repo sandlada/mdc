@@ -7,7 +7,7 @@
 import { LitElement, css, html, nothing } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
 import { Easing } from '@sandlada/mdk'
-import { BaseComponents, RegularComponents, type ComponentEntry } from './docs-manifest.js'
+import { BaseComponents, Components, RegularComponents, type ComponentEntry } from './docs-manifest.js'
 
 /**
  * Cancelable event fired when the sidebar requests to close
@@ -239,10 +239,48 @@ export class DocsSidebar extends LitElement {
             <a
                 href="/components/${c.name}/"
                 class=${c.name === this.active ? 'active' : ''}
+                @click=${(e: MouseEvent) => this.handleLinkClick(e, c)}
             >
                 <span>${c.label}</span>
             </a>
         `)
+    }
+
+    private handleLinkClick(event: MouseEvent, entry: ComponentEntry): void {
+        if (
+            event.defaultPrevented
+            || event.button !== 0
+            || event.metaKey
+            || event.ctrlKey
+            || event.shiftKey
+            || event.altKey
+            || entry.custom
+        ) {
+            return
+        }
+
+        const currentEntry = Components.find((c) => c.name === this.active)
+        if (currentEntry?.custom) {
+            return
+        }
+
+        const pageEl = document.querySelector('mdc-docs-page')
+        if (pageEl === null) {
+            return
+        }
+
+        event.preventDefault()
+        if (entry.name !== this.active) {
+            history.pushState(null, '', entry.href)
+            document.title = `${entry.label} — MDC Docs`
+            pageEl.setAttribute('component', entry.name)
+            pageEl.setAttribute('title', entry.label)
+            pageEl.setAttribute('subtitle', entry.subtitle)
+            pageEl.setAttribute('demo-files', entry.demoFiles)
+        }
+        if (this.modal) {
+            this.requestClose('scrim')
+        }
     }
 
     private async syncDialog(): Promise<void> {

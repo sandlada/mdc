@@ -8,6 +8,7 @@ import { LitElement, html, css } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { ContextProvider } from '@lit/context'
 import { getDemo, listDemos, loadDemos } from './demo-loader.js'
+import { Components } from './docs-manifest.js'
 import { DocsPageTitleContext } from './contexts/index.js'
 import './docs-shell.js'
 
@@ -88,8 +89,29 @@ export class DocsPage extends LitElement {
 
     public override connectedCallback(): void {
         super.connectedCallback()
+        window.addEventListener('popstate', this.handlePopState)
         this.publishTitle()
         this.ensureDemos()
+    }
+
+    public override disconnectedCallback(): void {
+        window.removeEventListener('popstate', this.handlePopState)
+        super.disconnectedCallback()
+    }
+
+    private readonly handlePopState = (): void => {
+        const match = /\/components\/([^/]+)\/?$/.exec(window.location.pathname)
+        if (match === null) return
+        const entry = Components.find((c) => c.name === match[1])
+        if (entry === undefined || entry.custom) {
+            window.location.reload()
+            return
+        }
+        this.component = entry.name
+        this.title = entry.label
+        this.subtitle = entry.subtitle
+        this.demoFiles = entry.demoFiles
+        document.title = `${entry.label} — MDC Docs`
     }
 
     protected override updated(): void {
@@ -118,7 +140,7 @@ export class DocsPage extends LitElement {
         this.lastDemoKey = key
         if (files.length === 0) return
         const currentKey = key
-        void loadDemos(this.component, files)
+        void loadDemos(this.component)
             .catch((err) => {
                 console.error('Failed to load demos:', err)
             })
