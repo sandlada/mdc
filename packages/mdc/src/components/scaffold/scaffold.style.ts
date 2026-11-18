@@ -168,6 +168,7 @@ const Base = css`
             min-height: 0;
             min-width: 0;
             position: relative;
+            z-index: -1;
             display: block;
             box-sizing: border-box;
         }
@@ -271,7 +272,7 @@ const Base = css`
             height: 0;
             overflow: visible;
             position: relative;
-            z-index: var(--_enabled-z-index-fab);
+            z-index: 1;
             pointer-events: none;
         }
 

@@ -28,6 +28,7 @@
 - SSOT 僅約束架構與數據（tokens / 定義）。元件 CSS 直接用 `:host` 注入的 `--_*` 私有變數。
 - 禁 CSS 第二參數 fallback（如 `var(--_x, #fff)`）；預設值與回退鏈由 `src/components/{name}/{name}.definition.ts` 經 `createStyleDefinition()` 注入。僅未於 definition 定義的動態計算變數允許 inline fallback。
 - 錯誤一律 `throw new Error(...)`；禁返回碼、哨兵值、吞異常。
+- `z-index` 約束：全專案僅允許使用 `-1`、`0`、`1` 三個整數取值（`999`、`1000`、`2`、`-2` 等皆為非法值）。多層堆疊透過 `isolation: isolate`、DOM 順序與三層相對語義（`-1` 背景/陰影、`0` 基礎層、`1` 前景/浮層）解決。
 - a11y（WCAG 2.2+）：`forced-colors` 用系統色 + 對比外框並覆蓋各互動狀態；`prefers-contrast: more` 加框、`less` 柔化；`reduced-motion` 停動畫；`reduced-transparency` 去半透明與 `backdrop-filter`。
 
 ---

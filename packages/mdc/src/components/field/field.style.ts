@@ -77,7 +77,7 @@ export const BaseFieldStyles = css`
             background-color: var(--_enabled-active-indicator-color);
             transition: background-color 150ms cubic-bezier(0.2, 0, 0, 1);
             pointer-events: none;
-            z-index: 1;
+            z-index: -1;
         }
 
         :host([variant="filled"]:not([focused]):not(:focus-within):not([disabled]):hover) .container::before {
@@ -102,7 +102,7 @@ export const BaseFieldStyles = css`
             height: var(--_focused-active-indicator-height);
             background-color: var(--_focused-active-indicator-color);
             pointer-events: none;
-            z-index: 2;
+            z-index: 0;
             transform: scaleX(0);
             opacity: 0;
             transform-origin: center bottom;
@@ -140,7 +140,7 @@ export const BaseFieldStyles = css`
             box-sizing: border-box;
             border: var(--_outline-width) solid var(--_enabled-outline-color);
             transition: border-color 150ms cubic-bezier(0.2, 0, 0, 1);
-            z-index: 0;
+            z-index: -1;
         }
 
         :host([variant="outlined"]:not([focused]):not(:focus-within):not([disabled]):hover) .container::before {
@@ -168,7 +168,7 @@ export const BaseFieldStyles = css`
             opacity: 0;
             transition: opacity 150ms cubic-bezier(0.2, 0, 0, 1),
                         border-color 150ms cubic-bezier(0.2, 0, 0, 1);
-            z-index: 1;
+            z-index: 0;
         }
 
         :host([variant="outlined"][focused]) .container::after,
@@ -209,7 +209,7 @@ export const BaseFieldStyles = css`
             align-items: center;
             height: 100%;
             box-sizing: border-box;
-            z-index: 2;
+            z-index: 1;
         }
 
         /* In filled variant with label, align input text in the lower half of container */
@@ -340,7 +340,7 @@ export const BaseFieldStyles = css`
             justify-content: center;
             flex-shrink: 0;
             color: var(--_enabled-icon-color);
-            z-index: 2;
+            z-index: 1;
         }
         .leading {
             width: var(--_leading-icon-size);
@@ -425,7 +425,7 @@ export const BaseFieldStyles = css`
             text-overflow: ellipsis;
             white-space: nowrap;
             box-sizing: border-box;
-            z-index: 3;
+            z-index: 1;
             transition: transform 150ms cubic-bezier(0.2, 0, 0, 1),
                         top 150ms cubic-bezier(0.2, 0, 0, 1),
                         font-size 150ms cubic-bezier(0.2, 0, 0, 1),

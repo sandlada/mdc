@@ -208,7 +208,7 @@ const StylePart = css`
             padding-block: 8px;
             position: absolute;
             top: 100%;
-            z-index: 2;
+            z-index: 1;
         }
 
         .menu-item {
@@ -640,7 +640,7 @@ const StylePart = css`
 
         .docked-menu {
             position: fixed;
-            z-index: 1000;
+            z-index: 1;
         }
 
         .docked-menu[hidden] {

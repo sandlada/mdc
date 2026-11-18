@@ -12,5 +12,5 @@ export const SnackbarHostDefinition = createStyleDefinition({
     'enabled-container-margin-block-start' : `16px`,
     'enabled-container-margin-block-end'   : `16px`,
     'enabled-container-max-width'          : `560px`,
-    'enabled-z-index'                      : `5000`,
+    'enabled-z-index'                      : `1`,
 })

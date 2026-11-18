@@ -47,7 +47,7 @@ export const BottomSheetBaseStyles = css`
         pointer-events: none;
         background: transparent;
         color: inherit;
-        z-index: 1000;
+        z-index: 1;
         isolation: isolate;
     }
 

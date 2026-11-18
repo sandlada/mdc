@@ -81,7 +81,7 @@ export const NavigationDrawerStyles = [
         :host(:not([variant])) {
             position: fixed;
             inset: 0;
-            z-index: 20;
+            z-index: 1;
             pointer-events: none;
             width: 100vw;
             height: 100vh;

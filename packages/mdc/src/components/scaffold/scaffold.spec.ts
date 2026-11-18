@@ -282,12 +282,23 @@ describe('ScaffoldDefinition (Android ScaffoldDefaults parity)', () => {
         expect(tokens['enabled-fab-margin-block-end']).toBe('16px')
     })
 
-    it('orders z-indices appbar <= bottom-bar < drawer < fab < snackbar-host < bottom-sheet', () => {
+    it('restricts z-indices to [-1, 0, 1] and preserves layering order', () => {
         const tokens = (ScaffoldDefinition as unknown as { tokens: Record<string, unknown> }).tokens
         const z = (key: string): number => Number(tokens[key])
+        const allowed = [-1, 0, 1]
+        for (const key of [
+            'enabled-z-index-rail',
+            'enabled-z-index-appbar',
+            'enabled-z-index-bottom-bar',
+            'enabled-z-index-drawer',
+            'enabled-z-index-fab',
+            'enabled-z-index-snackbar-host',
+            'enabled-z-index-bottom-sheet',
+        ]) {
+            expect(allowed).toContain(z(key))
+        }
         expect(z('enabled-z-index-appbar')).toBeLessThanOrEqual(z('enabled-z-index-bottom-bar'))
         expect(z('enabled-z-index-bottom-bar')).toBeLessThan(z('enabled-z-index-drawer'))
-        expect(z('enabled-z-index-drawer')).toBeLessThan(z('enabled-z-index-fab'))
         expect(z('enabled-z-index-fab')).toBeLessThan(z('enabled-z-index-snackbar-host'))
         expect(z('enabled-z-index-snackbar-host')).toBeLessThan(z('enabled-z-index-bottom-sheet'))
     })

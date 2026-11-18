@@ -156,7 +156,7 @@ export const FabMenuStyles = [
             flex-direction: column;
             align-items: flex-end;
             position: relative;
-            z-index: 10;
+            z-index: 1;
             ${PrimaryTokens};
         }
 
@@ -189,7 +189,7 @@ export const FabMenuStyles = [
             align-items: flex-end;
             gap: var(--_item-between-space);
             width: max-content;
-            z-index: 20;
+            z-index: 1;
         }
 
         :host([horizontal-alignment='start']) .items {

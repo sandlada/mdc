@@ -196,7 +196,7 @@ export const SliderStyles = [
             border-radius: var(--_stop-indicator-shape);
             background-color: var(--_enabled-stop-indicator-color);
             pointer-events: none;
-            z-index: 1;
+            z-index: 0;
             inset-block-start: 50%;
             transform: translate(-50%, -50%);
         }
@@ -261,7 +261,7 @@ export const SliderStyles = [
                 transparent
             );
             pointer-events: none;
-            z-index: 1;
+            z-index: 0;
             inset-block-start: 50%;
             inset-inline-start: calc(var(--_edge-inset) + var(--_tick-vf) * var(--_travel));
             transform: translate(-50%, -50%);
@@ -312,7 +312,7 @@ export const SliderStyles = [
             block-size: var(--_icon-size);
             color: var(--_enabled-active-icon-color);
             pointer-events: none;
-            z-index: 1;
+            z-index: 0;
             inset-block-start: 50%;
             inset-inline-start: var(--_icon-leading-space);
             transform: translateY(-50%);
@@ -377,7 +377,7 @@ export const SliderStyles = [
             inset-inline-start: calc(var(--_edge-inset) + var(--_vf) * var(--_travel));
             transform: translate(-50%, -50%);
             outline: none;
-            z-index: 2;
+            z-index: 0;
         }
 
         :host(:dir(rtl)) .thumb {
@@ -394,11 +394,11 @@ export const SliderStyles = [
         }
 
         .thumb.pressed {
-            z-index: 3;
+            z-index: 1;
         }
 
         .thumb.focused {
-            z-index: 3;
+            z-index: 1;
         }
 
         .handle-ring-anchor {
@@ -526,7 +526,7 @@ export const SliderStyles = [
             opacity: 0;
             pointer-events: none;
             white-space: nowrap;
-            z-index: 4;
+            z-index: 1;
             transition:
                 opacity ${Short2Duration} ${EmphasizedEasing},
                 transform ${Short2Duration} ${EmphasizedEasing};

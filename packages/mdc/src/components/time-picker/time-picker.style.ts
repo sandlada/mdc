@@ -295,7 +295,7 @@ const StylePart = css`
             transform-origin: top center;
             transition: transform 500ms ${unsafeCSS(Easing.ExpressiveFastSpatial.ToCSSValue())}, height 300ms ${unsafeCSS(Easing.StandardDefaultSpatial.ToCSSValue())};
             width: var(--_dial-selector-track-width);
-            z-index: 1;
+            z-index: 0;
         }
 
         /* While dragging the hand follows magnetically with a faster,
@@ -339,7 +339,7 @@ const StylePart = css`
             top: 50%;
             transform: translate(-50%, -50%);
             width: var(--_dial-selector-center-size);
-            z-index: 2;
+            z-index: 1;
         }
 
         .inputs {

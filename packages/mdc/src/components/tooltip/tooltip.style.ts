@@ -28,7 +28,7 @@ export const TooltipStyles = css`
         :host {
             display: inline-block;
             position: absolute;
-            z-index: 1000;
+            z-index: 1;
             pointer-events: none;
             max-width: max-content;
         }

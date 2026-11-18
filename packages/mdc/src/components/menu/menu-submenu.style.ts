@@ -192,7 +192,7 @@ const ComponentPart = css`
 
         .surface {
             position: absolute;
-            z-index: 1001;
+            z-index: 1;
             left: 0;
             top: 0;
             display: flex;

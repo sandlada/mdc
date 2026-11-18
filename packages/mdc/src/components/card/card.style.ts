@@ -230,7 +230,7 @@ export const CardStyles = [
     @layer mdc.card.composite.ripple {
         .container mdc-ripple {
             border-radius: inherit;
-            z-index: 1;
+            z-index: 0;
             ${RippleStyles};
         }
     }
@@ -238,14 +238,14 @@ export const CardStyles = [
     @layer mdc.card.composite.focus-ring {
         .container mdc-focus-ring {
             border-radius: inherit;
-            z-index: 2;
+            z-index: 1;
         }
     }
 
     @layer mdc.card.composite.elevation {
         .container mdc-elevation {
             border-radius: inherit;
-            z-index: 0;
+            z-index: -1;
             transition-duration: 200ms;
             ${ElevationStyles};
         }

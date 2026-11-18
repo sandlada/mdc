@@ -371,7 +371,7 @@ export const LegacySliderStyles = [
             block-size: var(--_handle-height);
             inline-size: var(--_handle-width);
             opacity: 0;
-            z-index: 2;
+            z-index: 1;
         }
 
         ::-moz-range-thumb {
@@ -380,7 +380,7 @@ export const LegacySliderStyles = [
             inline-size: var(--_state-layer-size);
             transform: scaleX(0);
             opacity: 0;
-            z-index: 2;
+            z-index: 1;
         }
 
         /* clip left side of "start" input */

@@ -39,7 +39,7 @@ const getElevationStyles = () => {
             inset: 0;
             border-radius: inherit;
             pointer-events: none;
-            z-index: 0;
+            z-index: -1;
         }
     `
 }
@@ -51,7 +51,7 @@ export const SideSheetBaseStyles = css`
         pointer-events: none;
         background: transparent;
         color: inherit;
-        z-index: 1000;
+        z-index: 1;
         isolation: isolate;
     }
 
@@ -246,14 +246,18 @@ export const SideSheetBaseStyles = css`
         inset: 0;
         border-radius: inherit;
         pointer-events: none;
-        z-index: 0;
+        z-index: -1;
     }
 
     .headline,
     mdc-divider,
     .content,
     .actions,
-    .handle,
+    .handle {
+        position: relative;
+        z-index: 0;
+    }
+
     .peek-grip {
         position: relative;
         z-index: 1;
@@ -311,9 +315,9 @@ export const SideSheetBaseStyles = css`
         -webkit-user-select: none;
         /* Keep the horizontal axis for the drag (see .container). */
         touch-action: pan-y;
-        /* Above the sibling layers (.content etc. share z-index 1 but sit
-        later in the DOM) — the sliver exists to be grabbed. */
-        z-index: 2;
+        /* Above the sibling layers (.content etc. sit at z-index 0) — the
+        sliver exists to be grabbed. */
+        z-index: 1;
     }
 
     dialog.right.peek:not(.open) .peek-grip {

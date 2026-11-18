@@ -134,7 +134,7 @@ export const NavigationTabStyles = [
 
         .indicator {
             display: flex;
-            z-index: -2;
+            z-index: -1;
             overflow: clip;
             transform-origin: center;
             pointer-events: none;
@@ -146,7 +146,7 @@ export const NavigationTabStyles = [
 
         .ripple-layer {
             position: relative;
-            z-index: -1;
+            z-index: 0;
             pointer-events: none;
             overflow: hidden;
             border-start-start-radius: var(--_enabled-indicator-shape-start-start);
@@ -347,7 +347,7 @@ export const NavigationTabStyles = [
             position: relative;
             width: var(--_enabled-indicator-width);
             height: var(--_enabled-indicator-height);
-            z-index: 2;
+            z-index: 1;
             pointer-events: none;
         }
 
@@ -458,7 +458,7 @@ export const NavigationTabStyles = [
             position: relative;
             width: 100%;
             height: 100%;
-            z-index: 2;
+            z-index: 1;
             pointer-events: none;
         }
 
@@ -563,7 +563,7 @@ export const NavigationTabStyles = [
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            z-index: 2;
+            z-index: 1;
             pointer-events: none;
         }
 
@@ -641,7 +641,7 @@ export const NavigationTabStyles = [
             position: relative;
             width: var(--_enabled-indicator-width);
             height: var(--_enabled-indicator-height);
-            z-index: 2;
+            z-index: 1;
             pointer-events: none;
         }
 
@@ -793,7 +793,7 @@ export const NavigationTabStyles = [
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 2;
+            z-index: 1;
             pointer-events: none;
         }
 

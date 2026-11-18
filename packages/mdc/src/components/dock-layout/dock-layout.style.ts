@@ -47,7 +47,7 @@ export const DockLayoutStyles = css`
         position: relative;
         user-select: none;
         touch-action: none;
-        z-index: 10;
+        z-index: 1;
     }
     :host([orientation="horizontal"]) {
         width: 8px;
@@ -100,7 +100,7 @@ export const DockLayoutStyles = css`
     :host([maximized]) {
         position: absolute;
         inset: 0;
-        z-index: 1000;
+        z-index: 1;
         margin: 0;
         border-radius: 0;
     }
@@ -211,7 +211,7 @@ export const DockLayoutStyles = css`
     .dock-indicator {
         position: absolute;
         pointer-events: none;
-        z-index: 99999;
+        z-index: 1;
         border: 2px solid var(--md-sys-color-primary);
         background: var(--md-sys-color-primary-container);
         opacity: 0.65;

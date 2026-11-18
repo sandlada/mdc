@@ -138,12 +138,12 @@ export const ChipStyles = css`
         }
 
         .container > mdc-focus-ring {
-            z-index: 2;
+            z-index: 1;
             ${FocusRingShapeStyles};
         }
 
         .trailing-action > mdc-focus-ring {
-            z-index: 2;
+            z-index: 1;
         }
 
         .container mdc-elevation {
