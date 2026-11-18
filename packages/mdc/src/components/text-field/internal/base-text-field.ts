@@ -32,7 +32,7 @@ import '../../field/field'
 import {
     type FieldVariant,
     type FloatingLabelBehavior,
-    type ITextField,
+    type IMDCTextField,
     type TextFieldType,
 } from '../text-field.interface'
 import { TextFieldStyles } from '../text-field.style'
@@ -63,7 +63,7 @@ export abstract class BaseTextField extends composeMixin(
     mixinFormAssociated,
     mixinElementInternals,
     mixinFocusRingOptions,
-)(LitElement) implements ITextField {
+)(LitElement) implements IMDCTextField {
 
     public static override styles = TextFieldStyles
 
@@ -451,14 +451,22 @@ export abstract class BaseTextField extends composeMixin(
         `
     }
 
+    protected get shouldHidePlaceholder(): boolean {
+        return this.label.length > 0
+            && this.floatingLabelBehavior === 'auto'
+            && !this.focused
+            && !this.isPopulated()
+    }
+
     protected renderInputOrTextarea(): TemplateResult {
         const { ariaInvalid, ariaLabel, ariaAutoComplete } = this as AriaMixinStrict
+        const inputClass = this.shouldHidePlaceholder ? 'input hide-placeholder' : 'input'
 
         if (this.type === 'textarea') {
             return html`
                 <textarea
                     id="input"
-                    class="input"
+                    class=${inputClass}
                     part="input"
                     .value=${live(this.value)}
                     ?disabled=${this.disabled}
@@ -485,7 +493,7 @@ export abstract class BaseTextField extends composeMixin(
         return html`
             <input
                 id="input"
-                class="input"
+                class=${inputClass}
                 part="input"
                 type=${this.type}
                 .value=${live(this.value)}

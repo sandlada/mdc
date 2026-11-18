@@ -3,10 +3,14 @@
  * Copyright 2026 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { Shape, Typescale } from '@sandlada/mdk'
+import { Shape, State, Typescale } from '@sandlada/mdk'
 import { Color } from '../../utils/color'
-import { createStyleDefinition } from '../../utils/style'
-
+import {
+    createStyleDefinition,
+    expandPadding,
+    expandShape,
+    expandTypescale,
+} from '../../utils/style'
 
 /**
  * Style definitions for `mdc-field`.
@@ -14,192 +18,188 @@ import { createStyleDefinition } from '../../utils/style'
  * Reference:
  * - MD3 spec: https://m3.material.io/components/text-fields/specs
  * - Android: `Widget.Material3.TextInputLayout.FilledBox` / `.OutlinedBox`
- * - Flutter: `InputDecoration` (filled vs. outlined)
- * - Jetpack Compose: `TextFieldDefaults` (filled) vs. `OutlinedTextFieldDefaults` (outlined)
+ * - Jetpack Compose: `TextFieldDefaults` / `OutlinedTextFieldDefaults`
  *
  * Container height: 56dp per MD3 spec.
- * Label typography: typescale body-large when populated; body-small when floating.
- * Supporting text: typescale body-small.
+ * Label typography: typescale body-large when resting; body-small when floating.
+ * Supporting text & counter: typescale body-small.
+ * Content / prefix / suffix typography: typescale body-large.
  */
 
-// Tokens shared by both variants.
-const Shared = {
+const SharedFieldTokens = {
     // Container height — 56dp per MD3 spec.
-    'container-height': `56px`,
+    'container-height': '56px',
 
-    // Label typography — typescale body-large.
-    'enabled-label-font':        Typescale.BodyLarge.Font,
-    'enabled-label-size':        Typescale.BodyLarge.FontSize,
-    'enabled-label-weight':      Typescale.BodyLarge.FontWeight,
-    'enabled-label-tracking':    Typescale.BodyLarge.Tracking,
-    'enabled-label-line-height': Typescale.BodyLarge.LineHeight,
+    // Typography.
+    ...expandTypescale('enabled-label')(Typescale.BodyLarge),
+    ...expandTypescale('floating-label')(Typescale.BodySmall),
+    ...expandTypescale('supporting-text')(Typescale.BodySmall),
+    ...expandTypescale('counter')(Typescale.BodySmall),
+    ...expandTypescale('content')(Typescale.BodyLarge),
 
-    // Floating label (MD3 "notch" / "resting position") — body-small.
-    'floating-label-font':        Typescale.BodySmall.Font,
-    'floating-label-size':        Typescale.BodySmall.FontSize,
-    'floating-label-weight':      Typescale.BodySmall.FontWeight,
-    'floating-label-tracking':    Typescale.BodySmall.Tracking,
-    'floating-label-line-height': Typescale.BodySmall.LineHeight,
+    // Content & prefix/suffix colors.
+    'enabled-content-color': Color.OnSurface,
+    'disabled-content-color': Color.OnSurface,
+    'disabled-content-opacity': '0.38',
 
-    // Supporting text / error text — typescale body-small.
-    'supporting-text-font':        Typescale.BodySmall.Font,
-    'supporting-text-size':        Typescale.BodySmall.FontSize,
-    'supporting-text-weight':      Typescale.BodySmall.FontWeight,
-    'supporting-text-tracking':    Typescale.BodySmall.Tracking,
-    'supporting-text-line-height': Typescale.BodySmall.LineHeight,
+    'enabled-prefix-color': Color.OnSurfaceVariant,
+    'disabled-prefix-color': Color.OnSurface,
+    'enabled-suffix-color': Color.OnSurfaceVariant,
+    'disabled-suffix-color': Color.OnSurface,
 
-    // Counter — typescale body-small.
-    'counter-font':        Typescale.BodySmall.Font,
-    'counter-size':        Typescale.BodySmall.FontSize,
-    'counter-weight':      Typescale.BodySmall.FontWeight,
-    'counter-tracking':    Typescale.BodySmall.Tracking,
-    'counter-line-height': Typescale.BodySmall.LineHeight,
+    // Label colors.
+    'enabled-label-color': Color.OnSurfaceVariant,
+    'hovered-label-color': Color.OnSurfaceVariant,
+    'focused-label-color': Color.Primary,
+    'invalid-label-color': Color.Error,
+    'disabled-label-color': Color.OnSurface,
 
-    // Disabled opacity.
-    'disabled-label-opacity':           `0.38`,
-    'disabled-supporting-text-opacity': `0.38`,
-    'disabled-counter-opacity':         `0.38`,
-    'disabled-icon-opacity':            `0.38`,
+    // Supporting text / error text colors.
+    'enabled-supporting-text-color': Color.OnSurfaceVariant,
+    'hovered-supporting-text-color': Color.OnSurfaceVariant,
+    'focused-supporting-text-color': Color.OnSurfaceVariant,
+    'invalid-supporting-text-color': Color.Error,
+    'disabled-supporting-text-color': Color.OnSurface,
+
+    // Counter colors.
+    'enabled-counter-color': Color.OnSurfaceVariant,
+    'invalid-counter-color': Color.Error,
+    'disabled-counter-color': Color.OnSurface,
+
+    // Leading icon colors & size.
+    'leading-icon-size': '24px',
+    'enabled-leading-icon-color': Color.OnSurfaceVariant,
+    'hovered-leading-icon-color': Color.OnSurfaceVariant,
+    'focused-leading-icon-color': Color.OnSurfaceVariant,
+    'invalid-leading-icon-color': Color.OnSurfaceVariant,
+    'disabled-leading-icon-color': Color.OnSurface,
+
+    // Trailing icon colors & size (MD3: error state colors trailing icon in Error).
+    'trailing-icon-size': '24px',
+    'enabled-trailing-icon-color': Color.OnSurfaceVariant,
+    'hovered-trailing-icon-color': Color.OnSurfaceVariant,
+    'focused-trailing-icon-color': Color.OnSurfaceVariant,
+    'invalid-trailing-icon-color': Color.Error,
+    'disabled-trailing-icon-color': Color.OnSurface,
+
+    // Disabled opacities.
+    'disabled-label-opacity': '0.38',
+    'disabled-supporting-text-opacity': '0.38',
+    'disabled-counter-opacity': '0.38',
+    'disabled-leading-icon-opacity': '0.38',
+    'disabled-trailing-icon-opacity': '0.38',
 
     // State-layer opacities.
-    'hovered-state-layer-opacity': `0.08`,
-    'focused-state-layer-opacity': `0.1`,
-    'pressed-state-layer-opacity': `0.1`,
+    'hovered-state-layer-opacity': State.HoveredStateLayerOpacity,
+    'focused-state-layer-opacity': State.FocusedStateLayerOpacity,
+    'pressed-state-layer-opacity': State.PressedStateLayerOpacity,
 
-    // Container internal padding (MD3 spec).
-    'container-padding-inline-start': `16px`,
-    'container-padding-inline-end'  : `16px`,
-    'container-padding-block-start' : `8px`,
-    'container-padding-block-end'   : `8px`,
+    // Container internal padding & icon spacing (MD3 spec: 16dp edge, 12dp edge with icon, 16dp icon-to-text gap).
+    ...expandPadding('container-padding')({
+        inlineStart: '16px',
+        inlineEnd: '16px',
+        blockStart: '8px',
+        blockEnd: '8px',
+    }),
+    'container-icon-padding': '12px',
+    'icon-content-gap': '16px',
 
-    // Icon sizes.
-    'leading-icon-size':  `24px`,
-    'trailing-icon-size': `24px`,
+    // Supporting text row padding.
+    ...expandPadding('supporting-text-padding')({
+        inlineStart: '16px',
+        inlineEnd: '16px',
+        blockStart: '4px',
+        blockEnd: '0px',
+    }),
 
-    // Prefix / suffix text internal padding.
-    'prefix-padding-inline-start': `2px`,
-    'prefix-padding-inline-end'  : `2px`,
-    'prefix-padding-block-start' : `0px`,
-    'prefix-padding-block-end'   : `0px`,
-    'suffix-padding-inline-start': `2px`,
-    'suffix-padding-inline-end'  : `2px`,
-    'suffix-padding-block-start' : `0px`,
-    'suffix-padding-block-end'   : `0px`,
+    // Prefix / suffix internal padding.
+    ...expandPadding('prefix-padding')({
+        inlineStart: '0px',
+        inlineEnd: '2px',
+        blockStart: '0px',
+        blockEnd: '0px',
+    }),
+    ...expandPadding('suffix-padding')({
+        inlineStart: '2px',
+        inlineEnd: '0px',
+        blockStart: '0px',
+        blockEnd: '0px',
+    }),
 } as const
 
 /**
- * Filled Field — `Widget.Material3.TextInputLayout.FilledBox`.
+ * Filled Field — `Widget.Material3.TextInputLayout.FilledBox` / `TextFieldDefaults`.
  *
- * Filled variant has rounded top corners (4dp) and square bottom corners.
- * The container is rendered with a `surface-container-highest` background
- * and a bottom-indicator underline that thickens on focus and switches to
- * the error color when `invalid`.
+ * Rounded top corners (`4dp`), square bottom corners (`0dp`),
+ * `surface-container-highest` container with hover state layer, and a bottom
+ * active-indicator underline.
  */
 export const FilledFieldDefinition = createStyleDefinition({
-    ...Shared,
-    'container-shape-start-start': Shape.ExtraSmall,
-    'container-shape-start-end':   Shape.ExtraSmall,
-    'container-shape-end-start':   `0`,
-    'container-shape-end-end':     `0`,
+    ...SharedFieldTokens,
+    ...expandShape('container-shape')({
+        startStart: Shape.ExtraSmall,
+        startEnd: Shape.ExtraSmall,
+        endStart: '0px',
+        endEnd: '0px',
+    }),
 
-    // Background.
-    'enabled-container-color':   Color.SurfaceContainerHighest,
-    'hovered-container-color':   Color.SurfaceContainerHigh,
-    'focused-container-color':   Color.SurfaceContainerHighest,
-    'disabled-container-color':  Color.SurfaceContainerHighest,
+    // Container & state layer.
+    'enabled-container-color': Color.SurfaceContainerHighest,
+    'hovered-state-layer-color': Color.OnSurface,
+    'disabled-container-color': Color.OnSurface,
+    'disabled-container-opacity': '0.04',
 
-    // Active indicator (filled variant uses a bottom underline).
-    'enabled-active-indicator-color':   Color.OnSurfaceVariant,
-    'hovered-active-indicator-color':   Color.OnSurface,
-    'focused-active-indicator-color':   Color.Primary,
-    'invalid-active-indicator-color':   Color.Error,
-    'disabled-active-indicator-color':  Color.OnSurface,
+    // Active indicator (bottom underline).
+    'enabled-active-indicator-color': Color.OnSurfaceVariant,
+    'hovered-active-indicator-color': Color.OnSurface,
+    'focused-active-indicator-color': Color.Primary,
+    'invalid-active-indicator-color': Color.Error,
+    'disabled-active-indicator-color': Color.OnSurface,
+    'disabled-active-indicator-opacity': '0.38',
 
-    'enabled-active-indicator-height':   `1px`,
-    'hovered-active-indicator-height':   `1px`,
-    'focused-active-indicator-height':   `2px`,
-    'invalid-active-indicator-height':   `2px`,
-    'disabled-active-indicator-height':  `1px`,
-
-    // Label color.
-    'enabled-label-color':  Color.OnSurfaceVariant,
-    'focused-label-color':  Color.Primary,
-    'invalid-label-color':  Color.Error,
-    'disabled-label-color': Color.OnSurface,
-
-    // Supporting text / error text.
-    'enabled-supporting-text-color':  Color.OnSurfaceVariant,
-    'invalid-supporting-text-color':  Color.Error,
-    'disabled-supporting-text-color': Color.OnSurface,
-
-    // Counter color.
-    'enabled-counter-color':  Color.OnSurfaceVariant,
-    'invalid-counter-color':  Color.Error,
-    'disabled-counter-color': Color.OnSurface,
-
-    // Icon color.
-    'enabled-icon-color':  Color.OnSurfaceVariant,
-    'focused-icon-color':  Color.OnSurfaceVariant,
-    'invalid-icon-color':  Color.OnSurfaceVariant,
-    'disabled-icon-color': Color.OnSurface,
+    'enabled-active-indicator-height': '1px',
+    'hovered-active-indicator-height': '1px',
+    'focused-active-indicator-height': '2px',
+    'invalid-active-indicator-height': '1px',
+    'invalid-focused-active-indicator-height': '2px',
+    'disabled-active-indicator-height': '1px',
 })
 
 /**
- * Outlined Field — `Widget.Material3.TextInputLayout.OutlinedBox`.
+ * Outlined Field — `Widget.Material3.TextInputLayout.OutlinedBox` / `OutlinedTextFieldDefaults`.
  *
- * Outlined variant has uniform 4dp rounded corners and a 4-sided border. The
- * label "notch" effect is created by giving the label a solid background that
- * matches the container background (`transparent`), so the outline appears to
- * break at the label position.
+ * Uniform `4dp` rounded corners, transparent container, and a 4-sided outline
+ * with a true transparent notch cutout for the floating label.
  */
 export const OutlinedFieldDefinition = createStyleDefinition({
-    ...Shared,
-    'container-shape-start-start': Shape.ExtraSmall,
-    'container-shape-start-end':   Shape.ExtraSmall,
-    'container-shape-end-start':   Shape.ExtraSmall,
-    'container-shape-end-end':     Shape.ExtraSmall,
+    ...SharedFieldTokens,
+    ...expandShape('container-shape')(Shape.ExtraSmall),
 
-    // Background — transparent so the page surface shows through.
-    'enabled-container-color':   `transparent`,
-    'hovered-container-color':   `transparent`,
-    'focused-container-color':   `transparent`,
-    'disabled-container-color':  `transparent`,
+    // Background — transparent so any parent surface shows through.
+    'enabled-container-color': 'transparent',
+    'hovered-state-layer-color': 'transparent',
+    'disabled-container-color': 'transparent',
+    'disabled-container-opacity': '1',
 
-    // Outline (4-sided border).
-    'outline-width': `1px`,
-    'enabled-outline-color':  Color.Outline,
-    'hovered-outline-color':  Color.OnSurface,
-    'focused-outline-color':  Color.Primary,
-    'invalid-outline-color':  Color.Error,
+    // Outline (4-sided border with notch).
+    'enabled-outline-width': '1px',
+    'hovered-outline-width': '1px',
+    'focused-outline-width': '2px',
+    'invalid-outline-width': '1px',
+    'invalid-focused-outline-width': '2px',
+    'disabled-outline-width': '1px',
+
+    'enabled-outline-color': Color.Outline,
+    'hovered-outline-color': Color.OnSurface,
+    'focused-outline-color': Color.Primary,
+    'invalid-outline-color': Color.Error,
     'disabled-outline-color': Color.OnSurface,
+    'disabled-outline-opacity': '0.12',
 
-    // Label color (same as filled).
-    'enabled-label-color':  Color.OnSurfaceVariant,
-    'focused-label-color':  Color.Primary,
-    'invalid-label-color':  Color.Error,
-    'disabled-label-color': Color.OnSurface,
-
-    // Supporting text / error text (same as filled).
-    'enabled-supporting-text-color':  Color.OnSurfaceVariant,
-    'invalid-supporting-text-color':  Color.Error,
-    'disabled-supporting-text-color': Color.OnSurface,
-
-    // Counter color.
-    'enabled-counter-color':  Color.OnSurfaceVariant,
-    'invalid-counter-color':  Color.Error,
-    'disabled-counter-color': Color.OnSurface,
-
-    // Icon color (same as filled).
-    'enabled-icon-color':  Color.OnSurfaceVariant,
-    'focused-icon-color':  Color.OnSurfaceVariant,
-    'invalid-icon-color':  Color.OnSurfaceVariant,
-    'disabled-icon-color': Color.OnSurface,
+    'outline-label-padding': '4px',
 })
 
 /**
- * Default export — kept for parity with single-definition components.
- * The concrete class uses `FilledFieldDefinition` / `OutlinedFieldDefinition`
- * directly via the `variant` attribute.
+ * Default definition — kept for parity with single-definition components.
  */
 export const FieldDefinition = FilledFieldDefinition
-

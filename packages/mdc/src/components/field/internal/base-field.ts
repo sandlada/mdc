@@ -14,24 +14,24 @@ import { FieldStyles } from '../field.style'
 import {
     type FieldVariant,
     type FloatingLabelBehavior,
-    type IField,
+    type IMDCField,
     FieldLabelPointerEvent,
 } from '../field.interface'
 
 /**
  * Abstract base for `mdc-field`. Owns the chrome rendering, label/state,
- * slot detection, and click-to-label wiring. Subclasses define the public tag
- * and the default variant.
+ * outlined notch cutout, active indicator, slot detection, and click-to-label
+ * wiring. Subclasses define the public tag and styles.
  *
- * Mixin composition (per CLAUDE.md rules, abstract → concrete):
+ * Mixin composition (abstract -> concrete):
  * - `mixinDelegatesAria`      — passes ARIA attributes from host to inner label / input
- * - `mixinElementInternals`   — exposes `[internals]` for future textfield integration
+ * - `mixinElementInternals`   — exposes `[internals]` for consumer integration
  * - `mixinFocusRingOptions`   — provides the outer focus ring via `renderFocusRing()`
  *
- * State is **manual** — the consumer (e.g. `mdc-textfield`) sets `focused`,
- * `populated`, `invalid`, and `disabled` in response to events from the input
- * child. `mdc-field` deliberately does not listen to focus / input / invalid
- * events itself, so it remains agnostic to the input child type.
+ * State is **manual** — the consumer (e.g. `mdc-text-field`, `mdc-select`) sets
+ * `focused`, `populated`, `invalid`, and `disabled` in response to events from
+ * the input child. `mdc-field` deliberately does not listen to focus / input /
+ * invalid events itself, so it remains agnostic to the input child type.
  *
  * @version
  * Material Design 3
@@ -43,7 +43,7 @@ export abstract class BaseField extends composeMixin(
     mixinDelegatesAria,
     mixinElementInternals,
     mixinFocusRingOptions
-)(LitElement) implements IField {
+)(LitElement) implements IMDCField {
 
     public static override styles = FieldStyles
 
@@ -99,8 +99,6 @@ export abstract class BaseField extends composeMixin(
     public resizable: boolean = false
 
     // ── Slot detection ──────────────────────────────────────────────────────
-    // Slot presence is driven by `slotchange` handlers; these @state
-    // flags flip on first render and on every subsequent slot mutation.
 
     @state()
     protected hasLeadingIcon: boolean = false
@@ -158,6 +156,7 @@ export abstract class BaseField extends composeMixin(
 
     protected getRenderClasses(): Record<string, boolean | string> {
         const isFloating = this.shouldLabelFloat
+        const hasLabel = this.label.length > 0 && !(this.floatingLabelBehavior === 'never' && !this.populated)
         const hasError = this.invalid && (this.errorText.length > 0 || this.hasErrorText)
         const hasSupporting = this.supportingText.length > 0 || this.hasSupportingText
         const hasCounterText = this.counterText.length > 0 || this.hasCounter
@@ -166,9 +165,9 @@ export abstract class BaseField extends composeMixin(
             'container': true,
             'filled': this.variant === 'filled',
             'outlined': this.variant === 'outlined',
-            'has-label': this.label.length > 0,
+            'has-label': hasLabel,
             'floating-label': isFloating,
-            'resting-label': !isFloating && this.label.length > 0,
+            'resting-label': !isFloating && hasLabel,
             'has-leading-icon': this.hasLeadingIcon,
             'has-trailing-icon': this.hasTrailingIcon,
             'has-prefix': this.hasPrefix || this.prefixText.length > 0,
@@ -202,6 +201,27 @@ export abstract class BaseField extends composeMixin(
                 part="container"
                 @click=${this.handleContainerClick}
             >
+                ${this.variant === 'filled' ? html`
+                    <span class="background" aria-hidden="true"></span>
+                    <span class="state-layer" aria-hidden="true"></span>
+                    <span class="active-indicator" aria-hidden="true"></span>
+                ` : html`
+                    <div class="outline" aria-hidden="true">
+                        <div class="outline-start"></div>
+                        <div class="outline-notch">
+                            <div class="outline-panel-inactive"></div>
+                            <div class="outline-panel-active"></div>
+                            <div class="outline-label-spacer">
+                                ${this.label ? html`
+                                    <span>${this.label}</span>
+                                    ${this.required && !this.noAsterisk ? html`<span class="required-asterisk"> *</span>` : nothing}
+                                ` : nothing}
+                            </div>
+                        </div>
+                        <div class="outline-end"></div>
+                    </div>
+                `}
+
                 <span class="leading" part="leading-icon">
                     <slot name="leading-icon"
                         @slotchange=${this.handleLeadingIconSlotChange}></slot>
@@ -261,6 +281,20 @@ export abstract class BaseField extends composeMixin(
 
     // ── Slot change handlers ───────────────────────────────────────────────
 
+    protected override firstUpdated(): void {
+        this.syncSlotStates()
+    }
+
+    private syncSlotStates(): void {
+        this.hasLeadingIcon = this.assignedLeadingIcons.length > 0
+        this.hasTrailingIcon = this.assignedTrailingIcons.length > 0
+        this.hasPrefix = this.assignedPrefixElements.length > 0
+        this.hasSuffix = this.assignedSuffixElements.length > 0
+        this.hasSupportingText = this.assignedSupportingTextElements.length > 0
+        this.hasErrorText = this.assignedErrorTextElements.length > 0
+        this.hasCounter = this.assignedCounterElements.length > 0
+    }
+
     private readonly handleLeadingIconSlotChange = (): void => {
         this.hasLeadingIcon = this.assignedLeadingIcons.length > 0
     }
@@ -296,13 +330,16 @@ export abstract class BaseField extends composeMixin(
     // ── Interaction handlers ────────────────────────────────────────────────
 
     private readonly handleContainerClick = (event: MouseEvent): void => {
-        // Forward click to the slotted focusable input if click was on chrome
+        // Forward click to the slotted focusable input if click was on chrome.
         const target = event.target as HTMLElement
         if (target.closest('slot[name="trailing-icon"]') || target.closest('slot[name="leading-icon"]')) {
             return
         }
         const inputChild = this.getDefaultSlotFocusable()
-        if (inputChild && document.activeElement !== inputChild) {
+        if (!inputChild) return
+        const root = this.getRootNode()
+        const activeElement = root instanceof ShadowRoot ? root.activeElement : document.activeElement
+        if (activeElement !== inputChild) {
             inputChild.focus()
         }
     }
@@ -335,4 +372,3 @@ export abstract class BaseField extends composeMixin(
         return null
     }
 }
-

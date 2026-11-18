@@ -30,25 +30,9 @@ export const TextFieldType = {
 export type TextFieldType = (typeof TextFieldType)[keyof typeof TextFieldType]
 
 /**
- * Text field component contract.
- *
- * `mdc-text-field` is a full form-associated Web Component implementing
- * Material Design 3 Text Fields. It renders a real native `<input>` or
- * `<textarea>` child hosted inside an `mdc-field` container, participates in
- * HTML `<form>` submission and constraint validation, and exposes standard
- * input IDL properties and selection methods.
- *
- * Variants:
- * - `filled`   : filled background container with bottom-indicator underline.
- * - `outlined` : transparent container with 4-sided outline and label notch.
- *
- * @version
- * Material Design 3
- *
- * @link
- * https://m3.material.io/components/text-fields/overview
+ * Input attributes for `mdc-text-field`.
  */
-export interface ITextField extends LitElement {
+export interface IMDCTextFieldAttributes {
     /** Visual variant ('filled' | 'outlined'). Default 'filled'. */
     variant: FieldVariant
     /** Current value of the text field. */
@@ -111,6 +95,49 @@ export interface ITextField extends LitElement {
     floatingLabelBehavior: FloatingLabelBehavior
     /** Aligns the input text and tokens to the end of the field. */
     alignEnd: boolean
+    /** Automatically validates on blur. */
+    autoValidate: boolean
+}
+
+/**
+ * Events dispatched by `mdc-text-field`.
+ */
+export interface IMDCTextFieldEvents {
+    'input': Event
+    'change': Event
+    'select': Event
+}
+
+/**
+ * Text field component contract.
+ *
+ * `mdc-text-field` is a full form-associated Web Component implementing
+ * Material Design 3 Text Fields. It renders a real native `<input>` or
+ * `<textarea>` child hosted inside an `mdc-field` container, participates in
+ * HTML `<form>` submission and constraint validation, and exposes standard
+ * input IDL properties and selection methods.
+ *
+ * Variants:
+ * - `filled`   : filled background container with bottom-indicator underline.
+ * - `outlined` : transparent container with 4-sided outline and transparent label notch.
+ *
+ * @version
+ * Material Design 3
+ *
+ * @link
+ * https://m3.material.io/components/text-fields/overview
+ */
+export interface IMDCTextField extends LitElement, IMDCTextFieldAttributes {
+    /** Start index of the current text selection. */
+    selectionStart: number | null
+    /** End index of the current text selection. */
+    selectionEnd: number | null
+    /** Direction of the current text selection. */
+    selectionDirection: 'forward' | 'backward' | 'none' | null
+    /** Numeric interpretation of the value for numeric/date inputs. */
+    valueAsNumber: number
+    /** Date interpretation of the value for date/time inputs. */
+    valueAsDate: Date | null
 
     /** Selects all text in the field. */
     select(): void
@@ -124,6 +151,6 @@ export interface ITextField extends LitElement {
     stepDown(n?: number): void
     /** Shows the browser picker for date/time/color inputs. */
     showPicker(): void
-    /** Resets the value to empty string or default-value. */
+    /** Resets the value to empty string or default attribute value. */
     reset(): void
 }

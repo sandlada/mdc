@@ -7,7 +7,7 @@ import type { LitElement } from 'lit'
 
 /**
  * Visual variant of the field container.
- * - `filled`   : filled background with a bottom-indicator underline.
+ * - `filled`   : filled background with a bottom active-indicator underline.
  * - `outlined` : transparent background with a 4-sided outline and a notch for the label.
  */
 export const FieldVariant = {
@@ -29,32 +29,13 @@ export const FloatingLabelBehavior = {
 } as const
 export type FloatingLabelBehavior = (typeof FloatingLabelBehavior)[keyof typeof FloatingLabelBehavior]
 
+/** Fired when the user clicks / touches the floating label. */
+export const FieldLabelPointerEvent = 'field-label-pointer'
+
 /**
- * Field component contract.
- *
- * The element is the chrome-only container for text inputs. It renders the
- * visible bounding box, floating label, supporting text, error text, prefix /
- * suffix tokens, and leading / trailing icon slots. The actual input
- * (`<input>`, `<textarea>`, `<select>`, or custom widget) is provided by the
- * consumer in the default slot.
- *
- * Variants:
- * - `filled`   : filled background (SurfaceContainerHighest), bottom indicator underline.
- * - `outlined` : transparent background, 4-sided outline, label notch.
- *
- * State is **manual** — consumers (e.g. `mdc-textfield`) set `populated`,
- * `focused`, `invalid`, and `disabled` in response to events from the input
- * child. `mdc-field` deliberately does not listen to focus / input / invalid
- * events itself, so it remains agnostic to what kind of element sits in the
- * default slot.
- *
- * @version
- * Material Design 3
- *
- * @link
- * https://m3.material.io/components/text-fields/overview
+ * Input attributes for `mdc-field`.
  */
-export interface IField extends LitElement {
+export interface IMDCFieldAttributes {
     /** Visual variant ('filled' | 'outlined'). */
     variant: FieldVariant
     /** Floating label text. */
@@ -91,6 +72,41 @@ export interface IField extends LitElement {
     resizable: boolean
 }
 
-/** Fired when the user clicks / touches the floating label. */
-export const FieldLabelPointerEvent = 'field-label-pointer'
+/**
+ * Events dispatched by `mdc-field`.
+ */
+export interface IMDCFieldEvents {
+    [FieldLabelPointerEvent]: Event
+}
 
+/**
+ * Field component contract.
+ *
+ * The element is the chrome-only container for text inputs. It renders the
+ * visible bounding box, floating label, supporting text, error text, prefix /
+ * suffix tokens, and leading / trailing icon slots. The actual input
+ * (`<input>`, `<textarea>`, `<select>`, or custom widget) is provided by the
+ * consumer in the default slot.
+ *
+ * Variants:
+ * - `filled`   : filled background (`surface-container-highest`), bottom indicator underline.
+ * - `outlined` : transparent background, 4-sided outline with transparent label notch.
+ *
+ * State is **manual** — consumers (e.g. `mdc-text-field`, `mdc-select`) set
+ * `populated`, `focused`, `invalid`, and `disabled` in response to events from
+ * the input child. `mdc-field` deliberately does not listen to focus / input /
+ * invalid events itself, so it remains agnostic to what kind of element sits in
+ * the default slot.
+ *
+ * @version
+ * Material Design 3
+ *
+ * @link
+ * https://m3.material.io/components/text-fields/overview
+ */
+export interface IMDCField extends LitElement, IMDCFieldAttributes {
+    /** Whether the label should currently be in the floating position. */
+    readonly shouldLabelFloat: boolean
+    /** Returns the primary focusable element in the default slot, if any. */
+    getDefaultSlotFocusable(): HTMLElement | null
+}
