@@ -1,0 +1,53 @@
+<div style="display: flex; flex-direction: column; gap: 24px; width: 100%;">
+    <!-- Imperative ShowRail / HideRail / ToggleRail -->
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+        <div style="display: flex; gap: 8px;">
+            <mdc-button variant="outlined" id="nr-show-btn"><span>Show Rail</span></mdc-button>
+            <mdc-button variant="outlined" id="nr-hide-btn"><span>Hide Rail</span></mdc-button>
+            <mdc-button variant="filled-tonal" id="nr-toggle-btn"><span>Toggle Rail</span></mdc-button>
+        </div>
+        <div style="display: flex; height: 280px; border: 1px solid var(--md-sys-color-outline-variant, #ccc); overflow: hidden;">
+            <mdc-navigation-rail id="nr-imperative" variant="collapsed">
+                <mdc-navigation-tab name="nr-imp" value="/home" checked label="Home">
+                    <mdc-icon slot="inactive-icon">home</mdc-icon>
+                    <mdc-icon slot="active-icon" filled>home</mdc-icon>
+                </mdc-navigation-tab>
+                <mdc-navigation-tab name="nr-imp" value="/explore" label="Explore">
+                    <mdc-icon slot="inactive-icon">explore</mdc-icon>
+                    <mdc-icon slot="active-icon" filled>explore</mdc-icon>
+                </mdc-navigation-tab>
+            </mdc-navigation-rail>
+            <div style="flex: 1; padding: 16px;">
+                Main content expands horizontally when the rail slides out left/right.
+            </div>
+        </div>
+    </div>
+
+    <!-- Scroll-driven ExitAlways inside Scaffold -->
+    <mdc-scaffold style="height: 300px; border: 1px solid var(--md-sys-color-outline-variant, #ccc);">
+        <mdc-navigation-rail slot="rail" scroll-behavior="exit-always">
+            <mdc-navigation-tab name="nr-scroll" value="/home" checked label="Home">
+                <mdc-icon slot="inactive-icon">home</mdc-icon>
+                <mdc-icon slot="active-icon" filled>home</mdc-icon>
+            </mdc-navigation-tab>
+            <mdc-navigation-tab name="nr-scroll" value="/explore" label="Explore">
+                <mdc-icon slot="inactive-icon">explore</mdc-icon>
+                <mdc-icon slot="active-icon" filled>explore</mdc-icon>
+            </mdc-navigation-tab>
+        </mdc-navigation-rail>
+        <mdc-appbar slot="appbar" headline="Rail Exit-Always in Scaffold"></mdc-appbar>
+        <div style="padding: 16px;">
+            <p style="margin-top: 0;">Scroll down inside the scaffold body to slide the rail out horizontally; scroll up to reveal it.</p>
+            <div style="height: 480px; background: linear-gradient(var(--md-sys-color-surface-container, #eee), transparent); border-radius: 8px; padding: 16px;">
+                Scrollable content
+            </div>
+        </div>
+    </mdc-scaffold>
+</div>
+
+<script>
+    const rail = document.getElementById('nr-imperative');
+    document.getElementById('nr-show-btn')?.addEventListener('click', () => rail?.showRail());
+    document.getElementById('nr-hide-btn')?.addEventListener('click', () => rail?.hideRail());
+    document.getElementById('nr-toggle-btn')?.addEventListener('click', () => rail?.toggleRail());
+</script>

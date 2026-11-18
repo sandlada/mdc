@@ -227,11 +227,51 @@ export const NavigationRailStyles = [
                 position: relative;
                 box-sizing: border-box;
                 transform-origin: top start;
+                transition:
+                    width ${NavigationRailTransitionDuration}ms cubic-bezier(0.2, 0, 0, 1),
+                    transform ${NavigationRailTransitionDuration}ms cubic-bezier(0.2, 0, 0, 1),
+                    opacity ${NavigationRailTransitionDuration}ms cubic-bezier(0.2, 0, 0, 1);
+            }
+
+            :host(:not([variant="expanded-floating"])) {
+                overflow: hidden;
+                width: var(--_collapsed-container-width);
                 transition: width ${NavigationRailTransitionDuration}ms cubic-bezier(0.2, 0, 0, 1);
             }
 
+            :host([variant="expanded-docked"]) {
+                width: var(--_expanded-docked-container-width);
+            }
+
+            :host([variant="xr"]) {
+                width: var(--_xr-container-width);
+            }
+
+            :host([rail-hidden]:not([variant="expanded-floating"])) {
+                width: 0;
+                min-width: 0;
+                pointer-events: none;
+            }
+
+            :host([rail-hidden]:not([variant="expanded-floating"])) dialog .container {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+
+            :host([rail-hidden]:not([variant="expanded-floating"]):dir(rtl)) dialog .container {
+                transform: translateX(100%);
+            }
+
+            :host([quick]),
             :host([quick]) .container {
                 transition: none !important;
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                :host(:not([variant="expanded-floating"])),
+                .container {
+                    transition: none !important;
+                }
             }
 
             .background {

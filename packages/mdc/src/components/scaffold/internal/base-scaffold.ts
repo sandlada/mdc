@@ -629,10 +629,14 @@ export abstract class BaseScaffold extends LitElement implements IMDCScaffold {
         const appbarSlot = root.querySelector('slot[name="appbar"]') as HTMLSlotElement | null
         const bottomBarSlot = root.querySelector('slot[name="bottom-bar"]') as HTMLSlotElement | null
         const navigationBarSlot = root.querySelector('slot[name="navigation-bar"]') as HTMLSlotElement | null
+        const railSlot = root.querySelector('slot[name="rail"]') as HTMLSlotElement | null
+        const startRailSlot = root.querySelector('slot[name="start-rail"]') as HTMLSlotElement | null
         const assigned: HTMLElement[] = [
             ...((appbarSlot?.assignedElements?.({ flatten: true }) as HTMLElement[] | undefined) ?? []),
             ...((bottomBarSlot?.assignedElements?.({ flatten: true }) as HTMLElement[] | undefined) ?? []),
             ...((navigationBarSlot?.assignedElements?.({ flatten: true }) as HTMLElement[] | undefined) ?? []),
+            ...((railSlot?.assignedElements?.({ flatten: true }) as HTMLElement[] | undefined) ?? []),
+            ...((startRailSlot?.assignedElements?.({ flatten: true }) as HTMLElement[] | undefined) ?? []),
         ]
 
         // Reclaim auto-assigned target from elements no longer slotted.

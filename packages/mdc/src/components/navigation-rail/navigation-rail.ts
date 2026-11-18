@@ -97,8 +97,11 @@ import { mixinElevationOptions } from '../elevation/elevation-options.mixin'
 import { mixinConnectedPromiseResolve, type IConnectedPromiseResolve } from '../../utils/behaviors/connected-promise-resolve'
 import {
     NavigationRailAlignment,
+    NavigationRailScrollBehavior,
     NavigationRailVariant,
+    NavigationRailVisibilityChangeEvent,
     type INavigationRail,
+    type INavigationRailVisibilityChangeDetail,
 } from './navigation-rail.interface'
 import type { NavigationTabVariant } from '../navigation-tab/navigation-tab.interface'
 import { html, nothing, type PropertyValues, type TemplateResult } from 'lit'
@@ -199,6 +202,25 @@ export class NavigationRail extends composeMixin(
     @property({ type: Boolean, attribute: 'no-focus-trap' })
     public noFocusTrap: boolean = false
 
+    /**
+     * Horizontal visibility switch for docked rails (slides out inline-start).
+     * Distinct from `variant="collapsed"` / `"expanded-docked"`.
+     */
+    @property({ type: Boolean, reflect: true, attribute: 'rail-hidden' })
+    public railHidden: boolean = false
+
+    /**
+     * Scroll response behavior (`pinned` by default, or `exit-always`).
+     */
+    @property({ type: String, reflect: true, attribute: 'scroll-behavior' })
+    public scrollBehavior: NavigationRailScrollBehavior = NavigationRailScrollBehavior.Pinned
+
+    /**
+     * Element, `'window'`, or CSS selector whose scroll position drives `exit-always`.
+     */
+    @property({ attribute: 'scroll-target' })
+    public scrollTarget: HTMLElement | Window | string | null = null
+
     @state()
     protected isAtScrollTop: boolean = false
 
@@ -252,6 +274,9 @@ export class NavigationRail extends composeMixin(
      * so a scrim click / Escape never leaks into the dialog return value.
      */
     private lastCloseReason: string = 'programmatic'
+    private currentScrollElement: HTMLElement | Window | null = null
+    private boundScrollHandler: (() => void) | null = null
+    private lastScrollTop: number = 0
 
     /**
      * Whether the rail currently renders as the floating overlay variant.
@@ -273,6 +298,9 @@ export class NavigationRail extends composeMixin(
 
     public override connectedCallback(): void {
         super.connectedCallback()
+        if (typeof document !== 'undefined') {
+            this.setupScrollTarget()
+        }
         // Rebuilt on every connection: the observer and the transition
         // listener are torn down in `disconnectedCallback()`, so a rail that
         // is moved or re-attached must rebind them to the current subtree.
@@ -330,10 +358,24 @@ export class NavigationRail extends composeMixin(
             }
         }
 
+        if (typeof document !== 'undefined' && (changedProperties.has('scrollTarget') || changedProperties.has('scrollBehavior'))) {
+            this.cleanupScrollTarget()
+            this.setupScrollTarget()
+        }
+
+        if (changedProperties.has('railHidden')) {
+            this.dispatchEvent(new CustomEvent<INavigationRailVisibilityChangeDetail>(NavigationRailVisibilityChangeEvent, {
+                bubbles : true,
+                composed: true,
+                detail  : { railHidden: this.railHidden },
+            }))
+        }
+
         this.hasCompletedInitialUpdate = true
     }
 
     public override disconnectedCallback(): void {
+        this.cleanupScrollTarget()
         this.intersectionObserver?.disconnect()
         this.intersectionObserver = undefined
         this.container?.removeEventListener('transitionend', this.handleContainerTransitionEnd)
@@ -863,6 +905,88 @@ export class NavigationRail extends composeMixin(
         } else {
             await this.expand()
         }
+    }
+
+    /**
+     * Reveal the docked rail horizontally.
+     */
+    public showRail(): void {
+        this.railHidden = false
+    }
+
+    /**
+     * Slide the docked rail out horizontally.
+     */
+    public hideRail(): void {
+        this.railHidden = true
+    }
+
+    /**
+     * Toggle the docked rail horizontal visibility.
+     */
+    public toggleRail(): void {
+        this.railHidden = !this.railHidden
+    }
+
+    private setupScrollTarget(): void {
+        if (this.scrollBehavior !== NavigationRailScrollBehavior.ExitAlways) return
+
+        let target: HTMLElement | Window | null = null
+        if (typeof this.scrollTarget === 'string') {
+            if (this.scrollTarget === 'window') {
+                target = typeof window !== 'undefined' ? window : null
+            } else if (this.scrollTarget.length > 0) {
+                const root = typeof this.getRootNode === 'function'
+                    ? (this.getRootNode() as Document | ShadowRoot)
+                    : null
+                target = root?.querySelector?.(this.scrollTarget) ??
+                    (typeof document !== 'undefined' ? document.querySelector(this.scrollTarget) : null)
+            }
+        } else if (
+            (typeof HTMLElement !== 'undefined' && this.scrollTarget instanceof HTMLElement) ||
+            (typeof window !== 'undefined' && this.scrollTarget === window) ||
+            (this.scrollTarget !== null && typeof this.scrollTarget === 'object' && 'addEventListener' in this.scrollTarget)
+        ) {
+            target = this.scrollTarget as HTMLElement | Window
+        }
+
+        if (!target) return
+
+        this.currentScrollElement = target
+        this.lastScrollTop = this.readScrollTop(target)
+
+        this.boundScrollHandler = () => {
+            const scrollTop = this.readScrollTop(target)
+            const delta = scrollTop - this.lastScrollTop
+            if (scrollTop <= 0) {
+                this.railHidden = false
+            } else if (delta > 4) {
+                this.railHidden = true
+            } else if (delta < -4) {
+                this.railHidden = false
+            }
+            this.lastScrollTop = scrollTop
+        }
+
+        target.addEventListener('scroll', this.boundScrollHandler, { passive: true })
+    }
+
+    private cleanupScrollTarget(): void {
+        if (this.currentScrollElement && this.boundScrollHandler) {
+            this.currentScrollElement.removeEventListener('scroll', this.boundScrollHandler)
+        }
+        this.currentScrollElement = null
+        this.boundScrollHandler = null
+    }
+
+    private readScrollTop(target: HTMLElement | Window): number {
+        if (typeof window !== 'undefined' && target === window) {
+            return window.scrollY || document.documentElement.scrollTop || 0
+        }
+        if ('scrollTop' in target) {
+            return (target as HTMLElement).scrollTop || 0
+        }
+        return 0
     }
 
     /**

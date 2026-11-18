@@ -31,10 +31,25 @@ export const NavigationRailAlignment = {
 } as const
 export type NavigationRailAlignment = (typeof NavigationRailAlignment)[keyof typeof NavigationRailAlignment]
 
+export const NavigationRailScrollBehavior = {
+    Pinned    : 'pinned',
+    ExitAlways: 'exit-always',
+} as const
+export type NavigationRailScrollBehavior = (typeof NavigationRailScrollBehavior)[keyof typeof NavigationRailScrollBehavior]
+
+export const NavigationRailVisibilityChangeEvent = 'navigation-rail-visibility-change'
+
+export interface INavigationRailVisibilityChangeDetail {
+    railHidden: boolean
+}
+
 export interface INavigationRail extends LitElement {
     quick           : boolean
     variant         : NavigationRailVariant
     open            : boolean
+    railHidden      : boolean
+    scrollBehavior  : NavigationRailScrollBehavior
+    scrollTarget    : HTMLElement | Window | string | null
     alignment       : NavigationRailAlignment
     returnValue     : string
     noFocusTrap     : boolean
@@ -45,4 +60,7 @@ export interface INavigationRail extends LitElement {
     hide(returnValue?: string)     : Promise<void>
     close(returnValue?: string)    : Promise<void>
     toggle()                       : Promise<void>
+    showRail()                     : void
+    hideRail()                     : void
+    toggleRail()                   : void
 }
