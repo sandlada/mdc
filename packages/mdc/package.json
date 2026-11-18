@@ -257,6 +257,11 @@
             "import": "./build/components/segmented-button/index.js",
             "default": "./build/components/segmented-button/index.js"
         },
+        "./components/select/index": {
+            "types": "./build/components/select/index.d.ts",
+            "import": "./build/components/select/index.js",
+            "default": "./build/components/select/index.js"
+        },
         "./components/side-sheet/index": {
             "types": "./build/components/side-sheet/index.d.ts",
             "import": "./build/components/side-sheet/index.js",
