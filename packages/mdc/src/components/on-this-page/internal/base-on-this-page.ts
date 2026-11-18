@@ -89,6 +89,8 @@ export abstract class BaseOnThisPage extends composeMixin(
     private resizeObserver: ResizeObserver | null = null
     private isManualScrolling: boolean = false
     private manualScrollTimeout: number | null = null
+    private isAnimatingIndicator: boolean = false
+    private indicatorAnimationTimeout: number | null = null
     private rafId: number | null = null
 
     public constructor() {
@@ -131,6 +133,10 @@ export abstract class BaseOnThisPage extends composeMixin(
         if (this.manualScrollTimeout !== null) {
             window.clearTimeout(this.manualScrollTimeout)
             this.manualScrollTimeout = null
+        }
+        if (this.indicatorAnimationTimeout !== null) {
+            window.clearTimeout(this.indicatorAnimationTimeout)
+            this.indicatorAnimationTimeout = null
         }
     }
 
@@ -247,8 +253,21 @@ export abstract class BaseOnThisPage extends composeMixin(
         const height = itemRect.height
 
         if (!animate) {
+            this.isAnimatingIndicator = false
+            if (this.indicatorAnimationTimeout !== null) {
+                window.clearTimeout(this.indicatorAnimationTimeout)
+                this.indicatorAnimationTimeout = null
+            }
             this.indicatorElement.style.transition = 'none'
         } else {
+            this.isAnimatingIndicator = true
+            if (this.indicatorAnimationTimeout !== null) {
+                window.clearTimeout(this.indicatorAnimationTimeout)
+            }
+            this.indicatorAnimationTimeout = window.setTimeout(() => {
+                this.isAnimatingIndicator = false
+                this.indicatorAnimationTimeout = null
+            }, 600)
             this.indicatorElement.style.removeProperty('transition')
         }
 
@@ -410,7 +429,7 @@ export abstract class BaseOnThisPage extends composeMixin(
     private setupResizeObserver(): void {
         if (typeof ResizeObserver === 'undefined') return
         this.resizeObserver = new ResizeObserver(() => {
-            void this.updateIndicatorPosition(false)
+            void this.updateIndicatorPosition(this.isAnimatingIndicator)
         })
         if (this.itemsContainerElement) {
             this.resizeObserver.observe(this.itemsContainerElement)
