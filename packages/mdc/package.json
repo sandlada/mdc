@@ -70,6 +70,11 @@
             "import": "./build/components/badge/index.js",
             "default": "./build/components/badge/index.js"
         },
+        "./components/bottom-appbar/index": {
+            "types": "./build/components/bottom-appbar/index.d.ts",
+            "import": "./build/components/bottom-appbar/index.js",
+            "default": "./build/components/bottom-appbar/index.js"
+        },
         "./components/bottom-sheet/index": {
             "types": "./build/components/bottom-sheet/index.d.ts",
             "import": "./build/components/bottom-sheet/index.js",

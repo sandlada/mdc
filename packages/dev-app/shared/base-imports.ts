@@ -4,18 +4,15 @@
  * SPDX-License-Identifier: MIT
  */
 
-// Side-effect imports — registered on every page so all components are always
-// available, avoiding manual imports across individual demo pages and ensuring
-// components passed as slot content are automatically registered.
-//
-// Each folder barrel (`src/components/<name>/index.ts`) re-exports the
-// component itself plus its interface, replacing the removed `src/all.ts`.
+// Side-effect imports — registered once per SPA session so all components
+// (including imperative or dynamically-created ones) are always available.
 import '@fontsource/noto-sans/400.css'
 import '@fontsource/noto-sans/500.css'
 import '@fontsource/noto-sans/700.css'
-import 'material-symbols/index.css'
+import 'material-symbols/outlined.css'
 import '@sandlada/mdc/components/appbar/index'
 import '@sandlada/mdc/components/badge/index'
+import '@sandlada/mdc/components/bottom-appbar/index'
 import '@sandlada/mdc/components/bottom-sheet/index'
 import '@sandlada/mdc/components/button/index'
 import '@sandlada/mdc/components/button-group/index'

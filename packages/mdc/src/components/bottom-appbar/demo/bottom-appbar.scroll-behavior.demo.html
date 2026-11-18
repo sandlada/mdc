@@ -1,0 +1,21 @@
+<div style="position: relative; height: 280px; border: 1px solid var(--md-sys-color-outline-variant, #ccc); overflow: hidden; display: flex; flex-direction: column;">
+    <div id="bottom-appbar-scroller" style="flex: 1; overflow-y: auto; padding: 16px;">
+        <p style="margin-top: 0;">Scroll down to hide the Bottom App Bar (<code>scroll-behavior="exit-always"</code>), and scroll up to reveal it.</p>
+        <div style="height: 480px; background: linear-gradient(var(--md-sys-color-surface-container, #eee), transparent); border-radius: 8px; padding: 16px;">
+            Scrollable content
+        </div>
+    </div>
+    <mdc-bottom-appbar
+        scroll-behavior="exit-always"
+        scroll-target="#bottom-appbar-scroller"
+        label="Scroll-reactive bottom app bar"
+        style="position: absolute; inset-inline: 0; bottom: 0;"
+    >
+        <mdc-icon-button aria-label="Check"><mdc-icon>check</mdc-icon></mdc-icon-button>
+        <mdc-icon-button aria-label="Edit"><mdc-icon>edit</mdc-icon></mdc-icon-button>
+        <mdc-icon-button aria-label="Share"><mdc-icon>share</mdc-icon></mdc-icon-button>
+        <mdc-fab slot="fab" open variant="tonal-secondary">
+            <mdc-icon slot="icon">add</mdc-icon>
+        </mdc-fab>
+    </mdc-bottom-appbar>
+</div>
