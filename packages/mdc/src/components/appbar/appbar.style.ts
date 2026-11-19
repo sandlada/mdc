@@ -83,6 +83,25 @@ export const AppBarStyles = css`
             position: relative;
         }
 
+        :host([scroll-behavior="collapse"][variant="medium-flexible"]),
+        :host([scroll-behavior="collapse"][variant="medium"]) {
+            min-height: var(--_expanded-height, var(--_enabled-medium-container-min-height));
+            pointer-events: none;
+        }
+
+        :host([scroll-behavior="collapse"][variant="large-flexible"]),
+        :host([scroll-behavior="collapse"][variant="large"]) {
+            min-height: var(--_expanded-height, var(--_enabled-large-container-min-height));
+            pointer-events: none;
+        }
+
+        :host([scroll-behavior="collapse"][variant="medium-flexible"]) .container,
+        :host([scroll-behavior="collapse"][variant="medium"]) .container,
+        :host([scroll-behavior="collapse"][variant="large-flexible"]) .container,
+        :host([scroll-behavior="collapse"][variant="large"]) .container {
+            pointer-events: auto;
+        }
+
         .container {
             position: relative;
             display: flex;

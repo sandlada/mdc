@@ -394,6 +394,7 @@ export abstract class BaseAppBar extends composeMixin(
         }
         this.scrollScrubAnimations = []
         this.cachedCollapseRange = 0
+        this.style?.removeProperty?.('--_expanded-height')
     }
 
     private ensureScrollScrubAnimations(): boolean {
@@ -406,6 +407,7 @@ export abstract class BaseAppBar extends composeMixin(
         const expandedHeight = measuredHeight > 64 ? measuredHeight : defaultExpandedHeight
         const collapsedHeight = 64
         this.cachedCollapseRange = Math.max(1, expandedHeight - collapsedHeight)
+        this.style?.setProperty?.('--_expanded-height', `${expandedHeight}px`)
 
         const scrubOptions: KeyframeAnimationOptions = {
             duration: 1000,

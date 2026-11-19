@@ -143,6 +143,15 @@ describe('BaseAppBar', () => {
             scrubAnims.push(anim)
             return anim
         }
+        const hostStyleMap = new Map<string, string>()
+        Object.defineProperty(appbar, 'style', {
+            value: {
+                setProperty     : (k: string, v: string) => hostStyleMap.set(k, v),
+                removeProperty  : (k: string) => hostStyleMap.delete(k),
+                getPropertyValue: (k: string) => hostStyleMap.get(k) ?? '',
+            },
+            configurable: true,
+        })
         Object.defineProperty(appbar, 'containerElement', {
             value: { getBoundingClientRect: () => ({ height: 112 }), animate: makeAnim },
             configurable: true,
@@ -173,12 +182,14 @@ describe('BaseAppBar', () => {
         expect(scrubAnims.length).toBe(4)
         expect(scrubAnims[0].pause).toHaveBeenCalledTimes(1)
         expect(scrubAnims[0].currentTime).toBe(500)
+        expect(appbar.style.getPropertyValue('--_expanded-height')).toBe('112px')
 
         mockScroller.scrollTop = 60
         listeners.get('scroll')?.(new Event('scroll'))
         expect(appbar.scrolled).toBe(true)
         expect(appbar.collapsed).toBe(true)
         expect(scrubAnims[0].currentTime).toBe(1000)
+        expect(appbar.style.getPropertyValue('--_expanded-height')).toBe('112px')
         expect(events).toEqual([
             { scrolled: false, collapsed: false, progress: 0 },
             { scrolled: true, collapsed: false, progress: 0.5 },
@@ -188,6 +199,7 @@ describe('BaseAppBar', () => {
         appbar.destroyScrollTarget()
         expect(listeners.size).toBe(0)
         expect(scrubAnims[0].cancel).toHaveBeenCalledTimes(1)
+        expect(appbar.style.getPropertyValue('--_expanded-height')).toBe('')
     })
 
     it('dispatches search-click and calls linked search-view show()', () => {

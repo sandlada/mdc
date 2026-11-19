@@ -23,9 +23,10 @@
             <span>Medium Flexible — Scroll-driven WAAPI Scrubbing</span>
             <span id="medium-scrub-status">progress: 0% · expanded</span>
         </div>
-        <div style="display: flex; flex-direction: column; height: 280px; overflow: hidden; border: 1px solid var(--md-sys-color-outline-variant, #cac4d0); border-radius: 12px;">
+        <div id="collapse-scroll-medium" style="height: 280px; overflow: auto; border: 1px solid var(--md-sys-color-outline-variant, #cac4d0); border-radius: 12px;">
             <mdc-appbar
                 id="appbar-scrub-medium"
+                style="position: sticky; top: 0; z-index: 1;"
                 variant="medium-flexible"
                 scroll-behavior="collapse"
                 scroll-target="#collapse-scroll-medium"
@@ -35,7 +36,7 @@
                 <mdc-icon-button slot="leading"><mdc-icon>arrow_back</mdc-icon></mdc-icon-button>
                 <mdc-icon-button slot="trailing"><mdc-icon>more_vert</mdc-icon></mdc-icon-button>
             </mdc-appbar>
-            <div id="collapse-scroll-medium" style="flex: 1 1 auto; overflow: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+            <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
                 <div style="padding: 12px; border-radius: 8px; background: var(--md-sys-color-surface-container-low, #f7f2fa);">Item 1 — Scroll slowly to watch height &amp; opacity scrub</div>
                 <div style="padding: 12px; border-radius: 8px; background: var(--md-sys-color-surface-container-low, #f7f2fa);">Item 2 — Top row transitions from 56px to 64px</div>
                 <div style="padding: 12px; border-radius: 8px; background: var(--md-sys-color-surface-container-low, #f7f2fa);">Item 3 — Collapsed headline fades in seamlessly</div>
@@ -52,9 +53,10 @@
             <span>Large Flexible — Scroll-driven WAAPI Scrubbing</span>
             <span id="large-scrub-status">progress: 0% · expanded</span>
         </div>
-        <div style="display: flex; flex-direction: column; height: 280px; overflow: hidden; border: 1px solid var(--md-sys-color-outline-variant, #cac4d0); border-radius: 12px;">
+        <div id="collapse-scroll-large" style="height: 280px; overflow: auto; border: 1px solid var(--md-sys-color-outline-variant, #cac4d0); border-radius: 12px;">
             <mdc-appbar
                 id="appbar-scrub-large"
+                style="position: sticky; top: 0; z-index: 1;"
                 variant="large-flexible"
                 scroll-behavior="collapse"
                 scroll-target="#collapse-scroll-large"
@@ -64,7 +66,7 @@
                 <mdc-icon-button slot="leading"><mdc-icon>arrow_back</mdc-icon></mdc-icon-button>
                 <mdc-icon-button slot="trailing"><mdc-icon>share</mdc-icon></mdc-icon-button>
             </mdc-appbar>
-            <div id="collapse-scroll-large" style="flex: 1 1 auto; overflow: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+            <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
                 <div style="padding: 12px; border-radius: 8px; background: var(--md-sys-color-surface-container-low, #f7f2fa);">Trail 1 — Lake Louise</div>
                 <div style="padding: 12px; border-radius: 8px; background: var(--md-sys-color-surface-container-low, #f7f2fa);">Trail 2 — Moraine Lake</div>
                 <div style="padding: 12px; border-radius: 8px; background: var(--md-sys-color-surface-container-low, #f7f2fa);">Trail 3 — Johnston Canyon</div>
