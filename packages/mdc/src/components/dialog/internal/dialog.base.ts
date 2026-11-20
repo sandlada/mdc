@@ -5,13 +5,25 @@
  *
  * [Modified by Kai-Orion & Sandlada]
  */
-import { html, isServer, LitElement, nothing } from 'lit'
+import { html, LitElement, nothing } from 'lit'
 import { property, query, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import type { AriaMixinStrict } from '../../../utils/aria/aria'
 import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
 import { redispatchEvent } from '../../../utils/event/redispatch-event'
+import '../../divider/divider'
+import '../../elevation/elevation'
+import type { DialogType, IDialog } from '../dialog.interface'
+
+const BooleanTrueDefaultConverter = {
+    fromAttribute(value: string | null): boolean {
+        return value !== 'false'
+    },
+    toAttribute(value: boolean): string | null {
+        return value ? null : 'false'
+    },
+}
 
 /**
  *
@@ -21,7 +33,7 @@ import { redispatchEvent } from '../../../utils/event/redispatch-event'
  * @link
  * https://m3.material.io/components/dialogs/specs
  */
-export abstract class BaseDialog extends composeMixin(mixinDelegatesAria)(LitElement) {
+export abstract class BaseDialog extends composeMixin(mixinDelegatesAria)(LitElement) implements IDialog {
 
     @property({ type: Boolean, noAccessor: true })
     public get open(): boolean {
@@ -48,10 +60,16 @@ export abstract class BaseDialog extends composeMixin(mixinDelegatesAria)(LitEle
     public returnValue: string = ''
 
     @property({ type: String })
-    public type: 'alert' | '' = ''
+    public type: DialogType = ''
 
     @property({ type: Boolean, attribute: 'no-focus-trap', reflect: true })
     public noFocusTrap: boolean = false
+
+    @property({ converter: BooleanTrueDefaultConverter, attribute: 'dismiss-on-click-outside' })
+    public dismissOnClickOutside: boolean = true
+
+    @property({ converter: BooleanTrueDefaultConverter, attribute: 'dismiss-on-escape' })
+    public dismissOnEscape: boolean = true
 
     @state()
     protected isAtScrollTop = false;
@@ -90,11 +108,13 @@ export abstract class BaseDialog extends composeMixin(mixinDelegatesAria)(LitEle
     private declare readonly lastFocusTrap: HTMLElement | null
 
     @state()
-    private hasHeadline = false;
+    protected hasHeadline = false
     @state()
-    private hasActions = false;
+    protected hasActions = false
     @state()
-    private hasIcon = false;
+    protected hasIcon = false
+    @state()
+    protected hasContent = false
 
     protected getIsConnectedPromise() {
         return new Promise<void>((resolve) => {
@@ -104,15 +124,26 @@ export abstract class BaseDialog extends composeMixin(mixinDelegatesAria)(LitEle
 
     constructor() {
         super()
-        if (isServer) {
+        if (typeof window === 'undefined') {
             return
         }
-        this.addEventListener('submit', this.handleSubmit.bind(this))
+        this.addEventListener('submit', this.handleSubmit.bind(this), { capture: true })
     }
 
     override connectedCallback() {
         super.connectedCallback()
         this.isConnectedPromiseResolve()
+    }
+
+    protected override firstUpdated() {
+        const headlineSlot = this.shadowRoot?.querySelector<HTMLSlotElement>('slot[name="headline"]')
+        const actionsSlot = this.shadowRoot?.querySelector<HTMLSlotElement>('slot[name="actions"]')
+        const iconSlot = this.shadowRoot?.querySelector<HTMLSlotElement>('slot[name="icon"]')
+        const contentSlot = this.shadowRoot?.querySelector<HTMLSlotElement>('slot[name="content"]')
+        if (headlineSlot) this.hasHeadline = headlineSlot.assignedElements().length > 0
+        if (actionsSlot) this.hasActions = actionsSlot.assignedElements().length > 0
+        if (iconSlot) this.hasIcon = iconSlot.assignedElements().length > 0
+        if (contentSlot) this.hasContent = contentSlot.assignedElements().length > 0
     }
 
     public override disconnectedCallback() {
@@ -153,6 +184,8 @@ export abstract class BaseDialog extends composeMixin(mixinDelegatesAria)(LitEle
             <dialog
                 class="${classMap(this.getDialogClasses())}"
                 aria-label=${ariaLabel || nothing}
+                aria-labelledby=${this.hasHeadline && !ariaLabel ? 'headline' : nothing}
+                aria-describedby=${this.hasContent ? 'content' : nothing}
                 role=${this.type === 'alert' ? 'alertdialog' : nothing}
                 .returnValue=${this.returnValue}
                 @cancel=${this.handleCancel}
@@ -163,13 +196,8 @@ export abstract class BaseDialog extends composeMixin(mixinDelegatesAria)(LitEle
                 ${!this.noFocusTrap ? html`<div class="first-focus-trap" tabindex="0"
                     @focus=${this.handleFirstFocusTrapFocus}></div>` : nothing}
                 <div class="container" @click=${this.handleContentClick}>
-                    <div class="headline">
-                        ${this.renderHeadlineIcon()}
-                        ${this.renderHeadlineLabel()}
-                        <mdc-divider></mdc-divider>
-                    </div>
-                    ${this.renderContent()}
-                    ${this.renderActions()}
+                    <mdc-elevation aria-hidden="true"></mdc-elevation>
+                    ${this.renderContainer()}
                 </div>
                 ${!this.noFocusTrap ? html`<div class="last-focus-trap" tabindex="0"
                     @focus=${this.handleLastFocusTrapFocus}></div>` : nothing}
@@ -177,9 +205,21 @@ export abstract class BaseDialog extends composeMixin(mixinDelegatesAria)(LitEle
         `
     }
 
+    protected renderContainer() {
+        return html`
+            <div class="headline">
+                ${this.renderHeadlineIcon()}
+                ${this.renderHeadlineLabel()}
+                <mdc-divider></mdc-divider>
+            </div>
+            ${this.renderContent()}
+            ${this.renderActions()}
+        `
+    }
+
     protected renderHeadlineLabel() {
         return html`
-            <h2 id="headline" .aria-hidden=${!this.hasHeadline || nothing}>
+            <h2 id="headline" aria-hidden=${!this.hasHeadline ? 'true' : nothing}>
                 <slot name="headline" @slotchange=${this.handleHeadlineChange}></slot>
             </h2>
         `
@@ -202,28 +242,33 @@ export abstract class BaseDialog extends composeMixin(mixinDelegatesAria)(LitEle
     protected renderContent() {
         return html`
             <div class="scroller">
-                <div class="content">
+                <div class="content" id="content">
                     <div class="top anchor"></div>
-                    <slot name="content"></slot>
+                    <slot name="content" @slotchange=${this.handleContentChange}></slot>
                     <div class="bottom anchor"></div>
                 </div>
             </div>
         `
     }
 
-    private handleHeadlineChange(event: Event) {
+    protected handleHeadlineChange(event: Event) {
         const slot = event.target as HTMLSlotElement
         this.hasHeadline = slot.assignedElements().length > 0
     }
 
-    private handleActionsChange(event: Event) {
+    protected handleActionsChange(event: Event) {
         const slot = event.target as HTMLSlotElement
         this.hasActions = slot.assignedElements().length > 0
     }
 
-    private handleIconChange(event: Event) {
+    protected handleIconChange(event: Event) {
         const slot = event.target as HTMLSlotElement
         this.hasIcon = slot.assignedElements().length > 0
+    }
+
+    protected handleContentChange(event: Event) {
+        const slot = event.target as HTMLSlotElement
+        this.hasContent = slot.assignedElements().length > 0
     }
 
     private handleFirstFocusTrapFocus() {
@@ -243,18 +288,28 @@ export abstract class BaseDialog extends composeMixin(mixinDelegatesAria)(LitEle
     }
 
     private getFocusableElements(): HTMLElement[] {
-        if (!this.dialog) {
-            return []
+        const selector =
+            'a[href], button, textarea, input, select, mdc-button, mdc-icon-button, mdc-text-field, [tabindex]:not([tabindex="-1"])'
+        const shadowCandidates = this.dialog
+            ? Array.from(this.dialog.querySelectorAll<HTMLElement>(selector))
+            : []
+        const lightCandidates = Array.from(this.querySelectorAll<HTMLElement>(selector))
+        const seen = new Set<HTMLElement>()
+        const results: HTMLElement[] = []
+        for (const el of [...shadowCandidates, ...lightCandidates]) {
+            if (seen.has(el)) continue
+            seen.add(el)
+            if (
+                el.hasAttribute('disabled') ||
+                el.getAttribute('aria-hidden') === 'true' ||
+                el.classList.contains('first-focus-trap') ||
+                el.classList.contains('last-focus-trap')
+            ) {
+                continue
+            }
+            results.push(el)
         }
-        const candidates = this.dialog.querySelectorAll<HTMLElement>(
-            'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])',
-        )
-        return Array.from(candidates).filter(
-            (el) => !el.hasAttribute('disabled')
-                && !el.getAttribute('aria-hidden')
-                && !el.classList.contains('first-focus-trap')
-                && !el.classList.contains('last-focus-trap'),
-        )
+        return results
     }
 
     public async show() {
@@ -384,6 +439,10 @@ export abstract class BaseDialog extends composeMixin(mixinDelegatesAria)(LitEle
             return
         }
 
+        if (!this.dismissOnClickOutside) {
+            return
+        }
+
         // Click originated on the backdrop. Native `<dialog>`s will not cancel,
         // but Material dialogs do.
         const preventDefault = !this.dispatchEvent(
@@ -402,14 +461,16 @@ export abstract class BaseDialog extends composeMixin(mixinDelegatesAria)(LitEle
 
     protected handleSubmit(event: SubmitEvent) {
         const form = event.target as HTMLFormElement
-        const { submitter } = event
-        if (form.getAttribute('method') !== 'dialog' || !submitter) {
+        if (form?.getAttribute('method') !== 'dialog') {
             return
         }
 
-        // Close reason is the submitter's value attribute, or the dialog's
-        // `returnValue` if there is no attribute.
-        this.close(submitter.getAttribute('value') ?? this.returnValue)
+        event.preventDefault()
+        const { submitter } = event
+        const submitterValue = submitter?.getAttribute('value')
+            ?? (submitter as { value?: string } | null)?.value
+        // Close reason is the submitter's value, or the dialog's `returnValue`.
+        this.close(submitterValue ?? this.returnValue)
     }
 
     protected handleCancel(event: Event) {
@@ -418,10 +479,13 @@ export abstract class BaseDialog extends composeMixin(mixinDelegatesAria)(LitEle
             return
         }
         this.escapePressedWithoutCancel = false
-        const preventDefault = redispatchEvent(this, event)
         // We always prevent default on the original dialog event since we close
         // it through `close()` to let the closing transition play out.
         event.preventDefault()
+        if (!this.dismissOnEscape) {
+            return
+        }
+        const preventDefault = redispatchEvent(this, event)
         if (preventDefault) {
             return
         }
@@ -434,11 +498,18 @@ export abstract class BaseDialog extends composeMixin(mixinDelegatesAria)(LitEle
             return
         }
         this.escapePressedWithoutCancel = false
+        if (!this.dismissOnEscape) {
+            return
+        }
         this.dialog?.dispatchEvent(new Event('cancel', { cancelable: true }))
     }
 
     protected handleKeydown(event: KeyboardEvent) {
         if (event.key !== 'Escape') {
+            return
+        }
+        if (!this.dismissOnEscape) {
+            event.preventDefault()
             return
         }
         // An escape key was pressed. If a "close" event fires next without a

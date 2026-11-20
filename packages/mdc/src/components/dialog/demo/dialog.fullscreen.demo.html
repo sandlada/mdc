@@ -1,0 +1,9 @@
+<mdc-fullscreen-dialog id="fullscreen-dialog">
+    <span slot="headline">Full-screen Dialog</span>
+    <mdc-button slot="actions" variant="text" onclick="this.closest('mdc-fullscreen-dialog').close('save')"><span>Save</span></mdc-button>
+    <div slot="content" style="display: flex; flex-direction: column; gap: 16px;">
+        <p>Full-screen dialogs fill the entire screen and are designed for complex tasks or multi-field forms.</p>
+    </div>
+</mdc-fullscreen-dialog>
+
+<mdc-button onclick="this.getRootNode().querySelector('#fullscreen-dialog').show()"><span>Open Full-screen Dialog</span></mdc-button>

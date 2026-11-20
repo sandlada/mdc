@@ -5,5 +5,6 @@
  */
 
 export * from './basic-dialog'
+export * from './fullscreen-dialog'
 export * from './dialog.interface'
 export * from './dialog.definition'
