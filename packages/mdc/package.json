@@ -302,6 +302,11 @@
             "import": "./build/components/side-sheet/index.js",
             "default": "./build/components/side-sheet/index.js"
         },
+        "./components/skeleton/index": {
+            "types": "./build/components/skeleton/index.d.ts",
+            "import": "./build/components/skeleton/index.js",
+            "default": "./build/components/skeleton/index.js"
+        },
         "./components/slider/index": {
             "types": "./build/components/slider/index.d.ts",
             "import": "./build/components/slider/index.js",

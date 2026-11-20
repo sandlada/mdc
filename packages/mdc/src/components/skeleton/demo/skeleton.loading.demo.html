@@ -1,0 +1,18 @@
+<div style="display: flex; flex-direction: column; gap: 16px; align-items: flex-start; width: 100%; max-width: 360px;">
+    <mdc-button
+        variant="tonal"
+        onclick="const s = this.getRootNode().querySelector('#wrapper-skeleton'); s.loading = !s.loading;"
+    >Toggle Loading</mdc-button>
+
+    <mdc-skeleton id="wrapper-skeleton" loading variant="rounded" style="width: 100%;">
+        <mdc-card variant="outlined" style="padding: 16px; width: 100%; box-sizing: border-box;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <mdc-avatar name="Kai Orion" auto-color></mdc-avatar>
+                <div>
+                    <div style="font-weight: 600;">Zero-CLS Wrapper</div>
+                    <div style="font-size: 13px; opacity: 0.72;">Skeleton matches wrapped card geometry.</div>
+                </div>
+            </div>
+        </mdc-card>
+    </mdc-skeleton>
+</div>

@@ -1,0 +1,27 @@
+<div style="display: flex; flex-direction: column; gap: 16px; align-items: flex-start; width: 100%; max-width: 380px;">
+    <mdc-button
+        variant="tonal"
+        onclick="const g = this.getRootNode().querySelector('#demo-skeleton-group'); g.loading = !g.loading;"
+    >Toggle Group Loading</mdc-button>
+
+    <mdc-skeleton-group id="demo-skeleton-group" loading animation="shimmer" label="Loading profile card" style="width: 100%;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <mdc-skeleton variant="circular" size="large">
+                <mdc-avatar name="Sandlada MDC" size="large" auto-color></mdc-avatar>
+            </mdc-skeleton>
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+                <mdc-skeleton variant="text" width="140px">
+                    <div style="font-weight: 600; font-size: 16px;">Sandlada MDC</div>
+                </mdc-skeleton>
+                <mdc-skeleton variant="text" size="small" width="200px">
+                    <div style="font-size: 13px; opacity: 0.72;">Material Design 3 Web Components</div>
+                </mdc-skeleton>
+            </div>
+        </div>
+        <mdc-skeleton variant="rounded">
+            <div style="padding: 16px; border-radius: 12px; background: var(--md-sys-color-surface-container-low);">
+                Coordinated group loading reveals all wrapped regions together while announcing a single accessible status.
+            </div>
+        </mdc-skeleton>
+    </mdc-skeleton-group>
+</div>
