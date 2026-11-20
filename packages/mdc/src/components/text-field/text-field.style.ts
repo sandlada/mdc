@@ -38,6 +38,7 @@ export const BaseTextFieldStyles = css`
             outline: none;
             box-sizing: border-box;
             min-width: 240px;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .field {

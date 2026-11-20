@@ -18,6 +18,7 @@ const StylePart = css`
             align-items: center;
             vertical-align: middle;
             isolation: isolate;
+            -webkit-tap-highlight-color: transparent;
         }
 
         :host([hidden]) {

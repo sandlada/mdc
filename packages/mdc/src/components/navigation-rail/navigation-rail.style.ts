@@ -196,6 +196,7 @@ export const NavigationRailStyles = [
                 height: 100%;
                 box-sizing: border-box;
                 z-index: 0;
+                -webkit-tap-highlight-color: transparent;
             }
 
             dialog {

@@ -65,6 +65,7 @@ const Base = css`
         :host {
             display: block;
             position: relative;
+            -webkit-tap-highlight-color: transparent;
         }
 
         :host(:not([open]):not([closing])) {

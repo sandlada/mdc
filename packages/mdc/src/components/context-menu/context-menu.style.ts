@@ -36,6 +36,7 @@ const ComponentPart = css`
         :host {
             display: contents;
             isolation: isolate;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .target {

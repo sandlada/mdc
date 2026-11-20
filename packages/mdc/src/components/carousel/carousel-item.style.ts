@@ -16,6 +16,7 @@ export const CarouselItemStyles = css`
             box-sizing: border-box;
             overflow: hidden;
             flex: none;
+            -webkit-tap-highlight-color: transparent;
             height: var(--_item-height);
             border-start-start-radius: calc(
                 var(--_small-item-shape-start-start) +

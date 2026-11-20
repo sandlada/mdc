@@ -27,6 +27,7 @@ export const BaseFieldStyles = css`
             color: var(--_enabled-content-color);
             min-width: 240px;
             vertical-align: top;
+            -webkit-tap-highlight-color: transparent;
         }
 
         /* ---------- Container (the visible bounding box) ---------- */

@@ -48,6 +48,7 @@ export const SearchViewStyle = css`
     @layer mdc.search-view.base {
         :host {
             display: contents;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .dialog {

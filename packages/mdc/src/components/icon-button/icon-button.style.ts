@@ -232,6 +232,7 @@ const ButtonSharedStyle = css`
         outline: none;
         justify-content: center;
         user-select: none;
+        -webkit-tap-highlight-color: transparent;
     }
 
     :host([disabled]),

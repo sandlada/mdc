@@ -42,6 +42,7 @@ export const BasicDialogStyle = css`
     }
     :host {
         display: contents;
+        -webkit-tap-highlight-color: transparent;
     }
 
     dialog {
@@ -428,6 +429,7 @@ export const FullscreenDialogStyle = css`
     }
     :host {
         display: contents;
+        -webkit-tap-highlight-color: transparent;
     }
 
     dialog {

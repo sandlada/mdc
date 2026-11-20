@@ -177,6 +177,7 @@ export const ChipStyles = css`
             display: inline-flex;
             vertical-align: middle;
             outline: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         :host([hidden]) {

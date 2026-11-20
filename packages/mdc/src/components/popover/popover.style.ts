@@ -42,6 +42,7 @@ const ComponentPart = css`
             display: inline-block;
             position: relative;
             isolation: isolate;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .anchor {

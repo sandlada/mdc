@@ -74,6 +74,7 @@ export const NavigationDrawerStyles = [
             box-sizing: border-box;
             vertical-align: top;
             z-index: 0;
+            -webkit-tap-highlight-color: transparent;
         }
 
         /* ── Modal Variant ────────────────────────────────────────── */

@@ -157,6 +157,7 @@ export const FabMenuStyles = [
             align-items: flex-end;
             position: relative;
             z-index: 1;
+            -webkit-tap-highlight-color: transparent;
             ${PrimaryTokens};
         }
 

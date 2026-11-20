@@ -49,6 +49,7 @@ export const BottomSheetBaseStyles = css`
         color: inherit;
         z-index: 1;
         isolation: isolate;
+        -webkit-tap-highlight-color: transparent;
     }
 
     dialog {

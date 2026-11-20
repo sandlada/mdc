@@ -40,6 +40,7 @@ export const ListItemStyles = css`
         :host {
             display: block;
             outline: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .swipe-row {

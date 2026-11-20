@@ -48,6 +48,7 @@ const StylePart = css`
         :host {
             display: contents;
             user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         dialog {

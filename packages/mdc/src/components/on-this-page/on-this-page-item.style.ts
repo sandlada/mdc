@@ -20,6 +20,7 @@ export const OnThisPageItemStyles = css`
         outline: none;
         user-select: none;
         -webkit-user-select: none;
+        -webkit-tap-highlight-color: transparent;
     }
 
     :host([indicator-fit="full"]),

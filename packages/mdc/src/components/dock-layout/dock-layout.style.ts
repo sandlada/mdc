@@ -47,6 +47,7 @@ export const DockLayoutStyles = css`
         position: relative;
         user-select: none;
         touch-action: none;
+        -webkit-tap-highlight-color: transparent;
         z-index: 1;
     }
     :host([orientation="horizontal"]) {

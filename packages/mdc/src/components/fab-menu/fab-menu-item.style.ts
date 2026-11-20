@@ -74,6 +74,7 @@ export const FabMenuItemStyles = [
     css`
         :host {
             display: inline-flex;
+            -webkit-tap-highlight-color: transparent;
             ${PrimaryTokens};
         }
 

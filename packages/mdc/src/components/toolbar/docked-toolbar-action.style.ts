@@ -64,6 +64,7 @@ export const DockedToolbarActionStyles = css`
             vertical-align: middle;
             min-width: 48px;
             min-height: 48px;
+            -webkit-tap-highlight-color: transparent;
         }
 
         :host([hidden]) {
