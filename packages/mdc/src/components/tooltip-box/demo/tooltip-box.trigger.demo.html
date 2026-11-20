@@ -1,11 +1,24 @@
+<mdc-tooltip-box>
+    <mdc-button variant="filled">Auto trigger (default: hover + focus + long-press)</mdc-button>
+    <mdc-tooltip slot="tooltip">Shows on hover, keyboard focus, or touch long-press</mdc-tooltip>
+</mdc-tooltip-box>
+
 <mdc-tooltip-box trigger="hover">
-    <mdc-button variant="filled">Hover trigger (default)</mdc-button>
+    <mdc-button variant="outlined">Hover only</mdc-button>
     <mdc-tooltip slot="tooltip">Shows on pointer enter, hides on pointer leave</mdc-tooltip>
 </mdc-tooltip-box>
 
 <mdc-tooltip-box trigger="focus">
-    <mdc-button variant="outlined">Focus trigger</mdc-button>
+    <mdc-button variant="outlined">Focus only</mdc-button>
     <mdc-tooltip slot="tooltip">Shows on focus in, hides on focus out. Tab to this button.</mdc-tooltip>
+</mdc-tooltip-box>
+
+<mdc-tooltip-box trigger="click" persistent>
+    <mdc-button variant="tonal">Click + Persistent</mdc-button>
+    <mdc-tooltip slot="tooltip" rich>
+        <span slot="headline">Persistent Tooltip</span>
+        <span>Stays open until you press Escape or click outside.</span>
+    </mdc-tooltip>
 </mdc-tooltip-box>
 
 <mdc-tooltip-box trigger="manual" id="manual-tooltip-box">
@@ -14,13 +27,16 @@
 </mdc-tooltip-box>
 
 <script>
-    const tb = document.getElementById('manual-tooltip-box')
-    const btn = document.getElementById('manual-btn')
-    btn.addEventListener('click', () => {
-        if (tb.open) {
-            tb.hide()
-        } else {
-            tb.show()
-        }
-    })
+    (() => {
+        const root = document.currentScript?.getRootNode?.() ?? document
+        const tb = root.getElementById ? root.getElementById('manual-tooltip-box') : root.querySelector('#manual-tooltip-box')
+        const btn = root.getElementById ? root.getElementById('manual-btn') : root.querySelector('#manual-btn')
+        btn?.addEventListener('click', () => {
+            if (tb.open) {
+                tb.hide()
+            } else {
+                tb.show()
+            }
+        })
+    })()
 </script>

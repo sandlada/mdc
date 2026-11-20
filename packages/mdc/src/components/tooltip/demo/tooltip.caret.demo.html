@@ -1,0 +1,40 @@
+<style>
+    .demo-anchor {
+        position: relative;
+        display: inline-block;
+    }
+    .demo-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 48px;
+        align-items: center;
+        padding: 80px 32px;
+    }
+</style>
+
+<div class="demo-row">
+    <div class="demo-anchor">
+        <button>Top Caret</button>
+        <mdc-tooltip open caret position="top">
+            <span>Plain with caret</span>
+        </mdc-tooltip>
+    </div>
+
+    <div class="demo-anchor">
+        <button>Bottom Caret</button>
+        <mdc-tooltip open caret position="bottom">
+            <span>Bottom caret</span>
+        </mdc-tooltip>
+    </div>
+
+    <div class="demo-anchor">
+        <button>Rich Caret</button>
+        <mdc-tooltip open rich caret position="top">
+            <span slot="headline">Rich with caret</span>
+            <span>Caret points directly to the anchor element.</span>
+            <div slot="actions">
+                <mdc-button variant="text">Got it</mdc-button>
+            </div>
+        </mdc-tooltip>
+    </div>
+</div>

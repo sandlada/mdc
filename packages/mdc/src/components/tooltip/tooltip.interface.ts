@@ -19,12 +19,20 @@ export interface ITooltip extends LitElement {
     position: TooltipPosition
     /** Whether the tooltip is visible. */
     open: boolean
+    /** Whether this is a rich tooltip (auto-detected from headline/actions slots). */
+    rich: boolean
     /** Whether this is a plain tooltip (auto-detected from slots). */
     plain: boolean
+    /** Whether to display a directional caret pointing toward the anchor. */
+    caret: boolean
     /** Whether the tooltip has content. */
     hasContent: boolean
     /** Whether the tooltip has action buttons (rich only). */
     hasActions: boolean
+    /** Shows the tooltip. */
+    show(): Promise<void>
+    /** Hides the tooltip. */
+    hide(): Promise<void>
 }
 
 /**

@@ -8,6 +8,7 @@ import { customElement, property, query, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import { mixinDelegatesAria } from '../../utils/aria/delegate'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
+import '../elevation/elevation'
 import {
     TooltipHiddenEvent,
     TooltipHidingEvent,
@@ -28,7 +29,7 @@ declare global {
  * @element mdc-tooltip
  *
  * A tooltip adds context to a button or other UI element.
- * Supports plain and rich variants via slots.
+ * Supports plain and rich variants via slots, and an optional directional caret.
  *
  * Plain tooltip: Describes elements or actions (default).
  * Rich tooltip: Provides more detail with optional title and actions.
@@ -48,12 +49,16 @@ declare global {
  * @cssproperty --mdc-tooltip-container-shape-end-start
  * @cssproperty --mdc-tooltip-container-shape-end-end
  * @cssproperty --mdc-tooltip-enabled-label-color
+ * @cssproperty --mdc-tooltip-enabled-headline-color
+ * @cssproperty --mdc-tooltip-enabled-action-label-color
+ * @cssproperty --mdc-tooltip-caret-width
+ * @cssproperty --mdc-tooltip-caret-height
  *
  * @version
  * Material Design 3
  *
  * @link
- * https://m3.material.io/components/tooltip/overview
+ * https://m3.material.io/components/tooltips/overview
  */
 @customElement('mdc-tooltip')
 export class MDCTooltip extends composeMixin(
@@ -74,14 +79,23 @@ export class MDCTooltip extends composeMixin(
     @property({ type: Boolean, reflect: true })
     public plain: boolean = false
 
+    @property({ type: Boolean, reflect: true })
+    public caret: boolean = false
+
     @state()
     public hasContent: boolean = false
 
     @state()
     public hasActions: boolean = false
 
+    @state()
+    private hasHeadlineContent: boolean = false
+
     @query('.container')
     protected readonly containerElement!: HTMLDivElement | null
+
+    private openTimeoutId: ReturnType<typeof setTimeout> | null = null
+    private closeTimeoutId: ReturnType<typeof setTimeout> | null = null
 
     public constructor() {
         super()
@@ -92,8 +106,27 @@ export class MDCTooltip extends composeMixin(
 
     public override connectedCallback(): void {
         super.connectedCallback()
-        // Auto-detect rich mode from slots
         this.detectRichMode()
+    }
+
+    protected override firstUpdated(): void {
+        const defaultSlot = this.shadowRoot?.querySelector('slot:not([name])') as HTMLSlotElement | null
+        if (defaultSlot) {
+            this.hasContent = defaultSlot.assignedNodes({ flatten: true }).some(
+                (node) => node.nodeType === Node.ELEMENT_NODE
+                    || (node.nodeType === Node.TEXT_NODE && Boolean(node.textContent?.trim())),
+            )
+        } else {
+            this.hasContent = Array.from(this.childNodes).some(
+                (node) => (node.nodeType === Node.ELEMENT_NODE && !(node as Element).hasAttribute('slot'))
+                    || (node.nodeType === Node.TEXT_NODE && Boolean(node.textContent?.trim())),
+            )
+        }
+    }
+
+    public override disconnectedCallback(): void {
+        super.disconnectedCallback()
+        this.clearTransitionTimeouts()
     }
 
     protected override willUpdate(changedProperties: PropertyValues<this>): void {
@@ -111,27 +144,29 @@ export class MDCTooltip extends composeMixin(
             'container': true,
             'has-content': this.hasContent,
             'has-actions': this.hasActions,
-            'has-headline': this.hasHeadline(),
+            'has-headline': this.hasHeadlineContent,
         })
     }
 
     protected override render(): TemplateResult {
         return html`
             <div class="${classMap(this.getRenderClasses())}" role="tooltip">
+                ${this.rich ? html`<mdc-elevation></mdc-elevation>` : nothing}
                 ${this.renderHeadline()}
                 ${this.renderContent()}
                 ${this.renderActions()}
+                ${this.renderCaret()}
             </div>
         `
     }
 
-    protected renderHeadline(): TemplateResult {
+    protected renderHeadline(): TemplateResult | typeof nothing {
         if (!this.rich) {
-            return html``
+            return nothing
         }
         return html`
             <div class="headline">
-                <slot name="headline"></slot>
+                <slot name="headline" @slotchange=${this.handleHeadlineSlotChange}></slot>
             </div>
         `
     }
@@ -144,14 +179,25 @@ export class MDCTooltip extends composeMixin(
         `
     }
 
-    protected renderActions(): TemplateResult {
+    protected renderActions(): TemplateResult | typeof nothing {
         if (!this.rich) {
-            return html``
+            return nothing
         }
         return html`
             <div class="actions">
                 <slot name="actions" @slotchange=${this.handleActionsSlotChange}></slot>
             </div>
+        `
+    }
+
+    protected renderCaret(): TemplateResult | typeof nothing {
+        if (!this.caret) {
+            return nothing
+        }
+        return html`
+            <svg class="caret" viewBox="0 0 16 8" aria-hidden="true">
+                <path d="M 0,0 L 6.5858,6.5858 A 2,2 0 0 0 9.4142,6.5858 L 16,0 Z"></path>
+            </svg>
         `
     }
 
@@ -172,48 +218,79 @@ export class MDCTooltip extends composeMixin(
     }
 
     private detectRichMode(): void {
-        // Auto-detect rich mode based on slot content
-        const headlineSlot = this.querySelector('[slot="headline"]')
-        const actionsSlot = this.querySelector('[slot="actions"]')
-        if (headlineSlot || actionsSlot) {
+        const hasHeadlineSlot = this.querySelector('[slot="headline"]') !== null
+        const hasActionsSlot = this.querySelector('[slot="actions"]') !== null
+        this.hasHeadlineContent = hasHeadlineSlot
+        this.hasActions = hasActionsSlot
+
+        if (hasHeadlineSlot || hasActionsSlot) {
             this.rich = true
             this.plain = false
-        } else {
+        } else if (!this.hasAttribute('rich')) {
             this.rich = false
             this.plain = true
+        } else {
+            this.plain = !this.rich
         }
     }
 
-    private hasHeadline(): boolean {
-        const headlineSlot = this.querySelector('[slot="headline"]')
-        return headlineSlot !== null
+    private clearTransitionTimeouts(): void {
+        if (this.openTimeoutId !== null) {
+            clearTimeout(this.openTimeoutId)
+            this.openTimeoutId = null
+        }
+        if (this.closeTimeoutId !== null) {
+            clearTimeout(this.closeTimeoutId)
+            this.closeTimeoutId = null
+        }
     }
 
     private handleOpen(): void {
+        if (this.hasAttribute('managed')) return
+        this.clearTransitionTimeouts()
+        this.classList.remove('hiding')
         this.dispatchEvent(new Event(TooltipShowingEvent, { bubbles: true, composed: true }))
-        // Emit shown event after animation
-        setTimeout(() => {
+        this.openTimeoutId = setTimeout(() => {
+            this.openTimeoutId = null
             this.dispatchEvent(new Event(TooltipShownEvent, { bubbles: true, composed: true }))
-        }, 200)
+        }, 150)
     }
 
     private handleClose(): void {
-        this.containerElement?.classList.add('hiding')
+        if (this.hasAttribute('managed')) return
+        this.clearTransitionTimeouts()
+        this.classList.add('hiding')
         this.dispatchEvent(new Event(TooltipHidingEvent, { bubbles: true, composed: true }))
-        // Emit hidden event after animation
-        setTimeout(() => {
-            this.containerElement?.classList.remove('hiding')
+        this.closeTimeoutId = setTimeout(() => {
+            this.closeTimeoutId = null
+            this.classList.remove('hiding')
             this.dispatchEvent(new Event(TooltipHiddenEvent, { bubbles: true, composed: true }))
-        }, 200)
+        }, 75)
     }
 
     private handleContentSlotChange(event: Event): void {
         const slot = event.target as HTMLSlotElement
-        this.hasContent = slot.assignedElements().length > 0
+        this.hasContent = slot.assignedNodes({ flatten: true }).some(
+            (node) => node.nodeType === Node.ELEMENT_NODE
+                || (node.nodeType === Node.TEXT_NODE && Boolean(node.textContent?.trim())),
+        )
+    }
+
+    private handleHeadlineSlotChange(event: Event): void {
+        const slot = event.target as HTMLSlotElement
+        this.hasHeadlineContent = slot.assignedElements({ flatten: true }).length > 0
+        if (this.hasHeadlineContent) {
+            this.rich = true
+            this.plain = false
+        }
     }
 
     private handleActionsSlotChange(event: Event): void {
         const slot = event.target as HTMLSlotElement
-        this.hasActions = slot.assignedElements().length > 0
+        this.hasActions = slot.assignedElements({ flatten: true }).length > 0
+        if (this.hasActions) {
+            this.rich = true
+            this.plain = false
+        }
     }
 }

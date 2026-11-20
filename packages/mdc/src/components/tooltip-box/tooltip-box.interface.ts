@@ -17,8 +17,13 @@ export type TooltipBoxPlacement =
 
 /**
  * What triggers the tooltip to show/hide.
+ * - `'auto'` (default): Hover, keyboard focus, and touch long-press (Compose TooltipBox behavior).
+ * - `'hover'`: Pointer enter / leave only.
+ * - `'focus'`: Focus in / out only.
+ * - `'click'`: Click / tap toggle.
+ * - `'manual'`: Controlled programmatically via `show()` / `hide()` or `open`.
  */
-export type TooltipBoxTriggerMode = 'hover' | 'focus' | 'manual'
+export type TooltipBoxTriggerMode = 'auto' | 'hover' | 'focus' | 'click' | 'manual'
 
 /**
  * A tooltip-box manages the display and positioning of a tooltip
@@ -40,6 +45,10 @@ export interface ITooltipBox extends LitElement {
     trigger: TooltipBoxTriggerMode
     /** Whether the tooltip is currently visible. */
     open: boolean
+    /** Whether the tooltip stays open until dismissed by Escape, outside click, or hide(). */
+    persistent: boolean
+    /** Whether to display a directional caret on the slotted tooltip. */
+    caret: boolean
     /** Disables floating-ui flip middleware. */
     disableFlip: boolean
     /** Disables open/close animations. */
