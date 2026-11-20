@@ -53,4 +53,36 @@ describe('mdc-checkbox (DOM)', () => {
         expect(el.checked).toBe(false)
         expect(onChange).not.toHaveBeenCalled()
     })
+
+    it('applies prev-checked and unselected classes when unchecking', async () => {
+        const el = await fixture<MDCCheckbox>(html`<mdc-checkbox checked></mdc-checkbox>`)
+        const container = el.shadowRoot?.querySelector('.container')
+        expect(container?.classList.contains('selected')).toBe(true)
+        expect(container?.classList.contains('checked')).toBe(true)
+
+        const input = el.shadowRoot?.querySelector('input')
+        input?.click()
+        await el.updateComplete
+
+        expect(el.checked).toBe(false)
+        expect(container?.classList.contains('unselected')).toBe(true)
+        expect(container?.classList.contains('prev-checked')).toBe(true)
+        expect(container?.classList.contains('selected')).toBe(false)
+    })
+
+    it('applies prev-indeterminate and unselected classes when clearing indeterminate via tristate', async () => {
+        const el = await fixture<MDCCheckbox>(html`<mdc-checkbox tristate indeterminate></mdc-checkbox>`)
+        const container = el.shadowRoot?.querySelector('.container')
+        expect(container?.classList.contains('selected')).toBe(true)
+        expect(container?.classList.contains('indeterminate')).toBe(true)
+
+        const input = el.shadowRoot?.querySelector('input')
+        input?.click()
+        await el.updateComplete
+
+        expect(el.indeterminate).toBe(false)
+        expect(el.checked).toBe(false)
+        expect(container?.classList.contains('unselected')).toBe(true)
+        expect(container?.classList.contains('prev-indeterminate')).toBe(true)
+    })
 })

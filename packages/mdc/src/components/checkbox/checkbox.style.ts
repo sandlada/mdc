@@ -141,18 +141,20 @@ export const CheckboxStyles = css`
                 width: 100%;
             }
 
-            /* Background and icon fade in/out with a vertical 45° flip. */
+            /* Background and icon fade in/out with a scale transition. */
             .background,
             .icon {
-                opacity: 0; /* Fade in */
+                opacity: 0; /* Fade out */
+                transition-delay: 0ms, 100ms;
                 transition-duration: 150ms, 50ms; /* Exit duration for scale and opacity. */
                 transition-property: transform, opacity;
                 /* Exit easing for scale, linear for opacity. */
                 transition-timing-function: ${EmphasizedAccelerate}, linear;
-                transform: scale(0.6); /* Scale from 60% to 100%. */
+                transform: scale(0.6); /* Scale from 100% to 60%. */
             }
             .selected :is(.background, .icon) {
                 opacity: 1;
+                transition-delay: 0ms;
                 transition-duration: 350ms, 50ms; /* Enter duration for scale and opacity. */
                 transition-timing-function: ${EmphasizedDecelerate}, linear;
                 transform: scale(1);
@@ -305,6 +307,7 @@ export const CheckboxStyles = css`
             .disabled :is(.background, .icon, .mark),
             .prev-disabled :is(.background, .icon, .mark) {
                 animation-duration: 0s;
+                transition-delay: 0s;
                 transition-duration: 0s;
             }
             .disabled .outline {
@@ -321,6 +324,14 @@ export const CheckboxStyles = css`
             }
             .disabled .icon {
                 fill: var(--_disabled-icon-color-selected);
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                .container :is(.background, .icon, .mark) {
+                    animation-duration: 0s;
+                    transition-delay: 0s;
+                    transition-duration: 0s;
+                }
             }
         }
 

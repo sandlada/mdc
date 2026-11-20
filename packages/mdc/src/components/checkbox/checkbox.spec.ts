@@ -5,6 +5,7 @@
  */
 import { describe, it, expect } from 'vitest'
 import { MDCCheckbox } from './checkbox'
+import { CheckboxStyles } from './checkbox.style'
 
 describe('MDCCheckbox', () => {
     it('instantiates with defaults', () => {
@@ -23,5 +24,14 @@ describe('MDCCheckbox', () => {
         const rendered = (checkbox as unknown as { render(): { strings: unknown } }).render()
         const html = Array.from(rendered.strings as string[]).join('')
         expect(html).toContain('<div')
+    })
+
+    it('delays exit opacity fade-out until scale shrink is underway and resets delay on enter', () => {
+        const cssText = CheckboxStyles.cssText
+        expect(cssText).toContain('transition-delay: 0ms, 100ms;')
+        expect(cssText).toContain('transition-duration: 150ms, 50ms;')
+        expect(cssText).toContain('transition-delay: 0ms;')
+        expect(cssText).toContain('transition-duration: 350ms, 50ms;')
+        expect(cssText).toContain('@media (prefers-reduced-motion: reduce)')
     })
 })
