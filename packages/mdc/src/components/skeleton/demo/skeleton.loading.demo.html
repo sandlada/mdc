@@ -1,8 +1,8 @@
 <div style="display: flex; flex-direction: column; gap: 16px; align-items: flex-start; width: 100%; max-width: 360px;">
     <mdc-button
-        variant="tonal"
+        variant="filled-tonal"
         onclick="const s = this.getRootNode().querySelector('#wrapper-skeleton'); s.loading = !s.loading;"
-    >Toggle Loading</mdc-button>
+    ><span>Toggle Loading</span></mdc-button>
 
     <mdc-skeleton id="wrapper-skeleton" loading variant="rounded" style="width: 100%;">
         <mdc-card variant="outlined" style="padding: 16px; width: 100%; box-sizing: border-box;">

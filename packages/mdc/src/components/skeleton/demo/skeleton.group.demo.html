@@ -1,8 +1,8 @@
 <div style="display: flex; flex-direction: column; gap: 16px; align-items: flex-start; width: 100%; max-width: 380px;">
     <mdc-button
-        variant="tonal"
+        variant="filled-tonal"
         onclick="const g = this.getRootNode().querySelector('#demo-skeleton-group'); g.loading = !g.loading;"
-    >Toggle Group Loading</mdc-button>
+    ><span>Toggle Group Loading</span></mdc-button>
 
     <mdc-skeleton-group id="demo-skeleton-group" loading animation="shimmer" label="Loading profile card" style="width: 100%;">
         <div style="display: flex; align-items: center; gap: 12px;">

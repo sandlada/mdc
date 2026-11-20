@@ -161,5 +161,26 @@ describe('mdc-skeleton-group (DOM)', () => {
         expect(wrapped.shadowRoot?.querySelector<HTMLElement>('.overlay')?.hidden).toBe(true)
         expect(inherited.isLoading).toBe(false)
         expect(inherited.classList.contains('standalone-idle')).toBe(true)
+
+        // Transition back to skeleton (Real DOM -> Skeleton) and reload again (Skeleton -> Real DOM)
+        group.loading = true
+        await group.updateComplete
+        await Promise.all([inherited.updateComplete, wrapped.updateComplete])
+
+        expect(groupRoot?.getAttribute('role')).toBe('status')
+        expect(groupRoot?.getAttribute('aria-busy')).toBe('true')
+        expect(wrapped.isLoading).toBe(true)
+        expect(wrapped.shadowRoot?.querySelector<HTMLElement>('.overlay')?.hidden).toBe(false)
+        expect(wrapped.shadowRoot?.querySelector<HTMLElement>('.content')?.hasAttribute('inert')).toBe(true)
+        expect(inherited.classList.contains('standalone-idle')).toBe(false)
+
+        group.loading = false
+        await group.updateComplete
+        await Promise.all([inherited.updateComplete, wrapped.updateComplete])
+
+        expect(onGroupLoaded).toHaveBeenCalledTimes(2)
+        expect(wrapped.isLoading).toBe(false)
+        expect(wrapped.shadowRoot?.querySelector<HTMLElement>('.overlay')?.hidden).toBe(true)
+        expect(wrapped.shadowRoot?.querySelector<HTMLElement>('.content')?.hasAttribute('inert')).toBe(false)
     })
 })

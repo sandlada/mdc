@@ -1,0 +1,72 @@
+<div
+    id="reload-cycle-demo"
+    style="display: flex; flex-direction: column; gap: 16px; width: 100%; max-width: 420px;"
+>
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
+        <mdc-button
+            variant="filled"
+            onclick="
+                const root = this.getRootNode();
+                const group = root.querySelector('#cycle-group');
+                const status = root.querySelector('#cycle-status');
+                const title = root.querySelector('#cycle-title');
+                const subtitle = root.querySelector('#cycle-subtitle');
+                const body = root.querySelector('#cycle-body');
+                const avatar = root.querySelector('#cycle-avatar');
+                const count = (Number(group.dataset.cycle || 0) + 1);
+                group.dataset.cycle = String(count);
+                clearTimeout(Number(group.dataset.timerId || 0));
+                group.loading = true;
+                status.textContent = 'State: Skeleton (loading=true)';
+                const timerId = setTimeout(() => {
+                    avatar.name = count % 2 === 1 ? 'Kai Orion' : 'Sandlada MDC';
+                    title.textContent = count % 2 === 1 ? 'Release v1.2.0 Published' : 'Design Tokens Updated';
+                    subtitle.textContent = 'Fetched #' + count + ' · ' + new Date().toLocaleTimeString();
+                    body.textContent = 'Transitioned smoothly from Skeleton back to Real DOM. Click Simulate Reload to return to Skeleton.';
+                    group.loading = false;
+                    status.textContent = 'State: Real DOM (loading=false)';
+                }, 1200);
+                group.dataset.timerId = String(timerId);
+            "
+        ><span>Simulate Reload (Skeleton → DOM → Skeleton)</span></mdc-button>
+
+        <mdc-button
+            variant="outlined"
+            onclick="
+                const root = this.getRootNode();
+                const group = root.querySelector('#cycle-group');
+                const status = root.querySelector('#cycle-status');
+                clearTimeout(Number(group.dataset.timerId || 0));
+                group.loading = !group.loading;
+                status.textContent = group.loading ? 'State: Skeleton (loading=true)' : 'State: Real DOM (loading=false)';
+            "
+        ><span>Step Toggle</span></mdc-button>
+    </div>
+
+    <div id="cycle-status" style="font-size: 12px; opacity: 0.72;">State: Skeleton (loading=true)</div>
+
+    <mdc-skeleton-group id="cycle-group" loading animation="shimmer" label="Loading feed item" style="width: 100%;">
+        <mdc-card variant="outlined" style="padding: 16px; width: 100%; box-sizing: border-box;">
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <mdc-skeleton variant="circular" size="medium">
+                        <mdc-avatar id="cycle-avatar" name="Kai Orion" auto-color></mdc-avatar>
+                    </mdc-skeleton>
+                    <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
+                        <mdc-skeleton variant="text" width="180px">
+                            <div id="cycle-title" style="font-weight: 600;">Release v1.2.0 Published</div>
+                        </mdc-skeleton>
+                        <mdc-skeleton variant="text" size="small" width="140px">
+                            <div id="cycle-subtitle" style="font-size: 12px; opacity: 0.72;">Initial content</div>
+                        </mdc-skeleton>
+                    </div>
+                </div>
+                <mdc-skeleton variant="rounded">
+                    <div id="cycle-body" style="font-size: 14px; line-height: 1.5;">
+                        Click Simulate Reload or Step Toggle to cycle between Skeleton and Real DOM without layout shift.
+                    </div>
+                </mdc-skeleton>
+            </div>
+        </mdc-card>
+    </mdc-skeleton-group>
+</div>
