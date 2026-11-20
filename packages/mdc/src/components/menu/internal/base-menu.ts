@@ -30,6 +30,12 @@ import { classMap } from 'lit/directives/class-map.js'
 import type { AriaMixinStrict } from '../../../utils/aria/aria'
 import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
+import {
+    findNearestAncestorOverlayId,
+    isOutsideComposedPath,
+    OverlayIdAttribute,
+} from '../../../utils/controller/overlay-controller'
+import { DefaultOverlayTree } from '../../../utils/controller/overlay-tree'
 import { mixinElevationOptions } from '../../elevation/elevation-options.mixin'
 import type {
     IMDCMenu,
@@ -76,6 +82,8 @@ type MenuRovingChild = (IMDCMenuItem | IMDCMenuSubmenu) & {
 
 const isMenuSubmenuNode = (node: EventTarget): boolean =>
     typeof (node as Element).tagName === 'string' && (node as Element).tagName === 'MDC-MENU-SUBMENU'
+
+let NextMenuOverlayUid = 0
 
 export abstract class BaseMenu extends composeMixin(
     mixinDelegatesAria,
@@ -136,6 +144,7 @@ export abstract class BaseMenu extends composeMixin(
     private returnFocusElement: HTMLElement | null = null
     private typeaheadBuffer = ''
     private typeaheadTimer: ReturnType<typeof setTimeout> | null = null
+    private readonly overlayId = `mdc-menu-${++NextMenuOverlayUid}`
 
     /** Set when the `section-label` slot is populated (grouped layout). */
     @state()
@@ -283,6 +292,15 @@ export abstract class BaseMenu extends composeMixin(
         }
         this.rememberReturnFocus()
         this.open = true
+        if (typeof document !== 'undefined') {
+            this.setAttribute?.(OverlayIdAttribute, this.overlayId)
+            DefaultOverlayTree.register(this.overlayId, {
+                parentId: findNearestAncestorOverlayId(this, this.overlayId),
+                getSurface: () => this.surfaceElement,
+                onClose: () => this.hide(),
+            })
+            await DefaultOverlayTree.markOpen(this.overlayId)
+        }
         if (this.isConnected) {
             await this.updateComplete
         }
@@ -338,6 +356,9 @@ export abstract class BaseMenu extends composeMixin(
         // attribute is removed. `allow-discrete` keeps the surface rendered
         // until the transition ends (dialog.base idiom).
         this.closeOpenSubmenus()
+        if (typeof document !== 'undefined') {
+            await DefaultOverlayTree.markClosed(this.overlayId, 'programmatic')
+        }
         this.open = false
         this.stopPositionTracking()
         this.detachDismissListeners()
@@ -712,7 +733,10 @@ export abstract class BaseMenu extends composeMixin(
             return
         }
         const path = typeof event.composedPath === 'function' ? event.composedPath() : []
-        if (path.includes(this)) {
+        const descendants = typeof document !== 'undefined'
+            ? DefaultOverlayTree.getOpenDescendantSurfaces(this.overlayId)
+            : []
+        if (!isOutsideComposedPath(path, [this, ...descendants])) {
             return
         }
         void this.hide()
@@ -721,6 +745,10 @@ export abstract class BaseMenu extends composeMixin(
     private readonly handleDocumentKeydown = (event: KeyboardEvent): void => {
         if (event.key === 'Escape' && this.open) {
             if (this.isEventFromOpenDescendant(event)) {
+                return
+            }
+            const deepest = typeof document !== 'undefined' ? DefaultOverlayTree.getDeepestActiveLeafId() : null
+            if (deepest && deepest !== this.overlayId) {
                 return
             }
             event.preventDefault()
@@ -732,6 +760,10 @@ export abstract class BaseMenu extends composeMixin(
         if (event.key === 'Escape') {
             if (this.open) {
                 if (this.isEventFromOpenDescendant(event)) {
+                    return
+                }
+                const deepest = typeof document !== 'undefined' ? DefaultOverlayTree.getDeepestActiveLeafId() : null
+                if (deepest && deepest !== this.overlayId) {
                     return
                 }
                 event.preventDefault()

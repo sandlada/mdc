@@ -12,6 +12,12 @@ import type { AriaMixinStrict } from '../../../utils/aria/aria'
 import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import { mixinElementInternals } from '../../../utils/behaviors/element-internals'
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
+import {
+    findNearestAncestorOverlayId,
+    isOutsideComposedPath,
+    OverlayIdAttribute,
+} from '../../../utils/controller/overlay-controller'
+import { DefaultOverlayTree } from '../../../utils/controller/overlay-tree'
 import { cancelTrackedAnimations, isReducedMotion } from '../../../utils/motion/presence-motion'
 import { mixinElevationOptions } from '../../elevation/elevation-options.mixin'
 import { mixinFocusRingOptions } from '../../focus-ring/focus-ring-options.mixin'
@@ -37,6 +43,8 @@ const DefaultCloseIcon = html`
         <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>
     </svg>
 `
+
+let NextFabMenuOverlayUid = 0
 
 export abstract class BaseFabMenu extends composeMixin(
     mixinDelegatesAria,
@@ -111,6 +119,8 @@ export abstract class BaseFabMenu extends composeMixin(
     @state()
     private hasCustomTrigger = false
 
+    private readonly overlayId = `mdc-fab-menu-${++NextFabMenuOverlayUid}`
+
     private isConnectedPromiseResolve!: () => void
     private isConnectedPromise = this.createConnectedPromise()
 
@@ -134,6 +144,12 @@ export abstract class BaseFabMenu extends composeMixin(
         this.isConnectedPromiseResolve()
         this.itemsCollapsed = !this.isExpanded
         if (typeof document !== 'undefined') {
+            this.setAttribute(OverlayIdAttribute, this.overlayId)
+            DefaultOverlayTree.register(this.overlayId, {
+                parentId: findNearestAncestorOverlayId(this, this.overlayId),
+                getSurface: () => this.itemsContainerElement,
+                onClose: () => this.close(),
+            })
             document.addEventListener('pointerdown', this.handleOutsidePointerDown)
         }
     }
@@ -144,6 +160,7 @@ export abstract class BaseFabMenu extends composeMixin(
         cancelTrackedAnimations(this.activeAnimations)
         this.isConnectedPromise = this.createConnectedPromise()
         if (typeof document !== 'undefined') {
+            DefaultOverlayTree.unregister(this.overlayId)
             document.removeEventListener('pointerdown', this.handleOutsidePointerDown)
         }
     }
@@ -171,6 +188,7 @@ export abstract class BaseFabMenu extends composeMixin(
         this.isExpanded = true
         this.requestUpdate('expanded', false)
         this.dispatchExpandedChange(true)
+        await DefaultOverlayTree.markOpen(this.overlayId)
         await this.runShowTransition()
     }
 
@@ -182,6 +200,7 @@ export abstract class BaseFabMenu extends composeMixin(
         if (preventClose) {
             return
         }
+        await DefaultOverlayTree.markClosed(this.overlayId, 'programmatic')
         this.isExpanded = false
         this.requestUpdate('expanded', true)
         this.dispatchExpandedChange(false)
@@ -277,7 +296,8 @@ export abstract class BaseFabMenu extends composeMixin(
         if (!this.isExpanded) {
             return
         }
-        if (!e.composedPath().includes(this)) {
+        const boundaries = [this, ...DefaultOverlayTree.getOpenDescendantSurfaces(this.overlayId)]
+        if (isOutsideComposedPath(e.composedPath(), boundaries)) {
             void this.close()
         }
     }
@@ -288,6 +308,10 @@ export abstract class BaseFabMenu extends composeMixin(
         }
 
         if (e.key === 'Escape') {
+            const deepest = DefaultOverlayTree.getDeepestActiveLeafId()
+            if (deepest && deepest !== this.overlayId) {
+                return
+            }
             e.preventDefault()
             e.stopPropagation()
             void this.close().then(() => {
