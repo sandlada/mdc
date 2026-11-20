@@ -178,6 +178,11 @@ export const SearchBarStyle = css`
             cursor: pointer;
         }
 
+        :host([alignment='center']) .input,
+        .search.is-centered .input {
+            text-align: center;
+        }
+
         .search.has-leading-icon .input {
             padding-inline-start: 0;
         }

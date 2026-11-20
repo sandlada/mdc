@@ -11,6 +11,8 @@ import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
 import { mixinElevationOptions } from '../../elevation/elevation-options.mixin'
 import { mixinFocusRingOptions } from '../../focus-ring/focus-ring-options.mixin'
 import { mixinRippleOptions } from '../../ripple/ripple-options.mixin'
+import '../../search/search-bar'
+import type { IMDCSearchBar, IMDCSearchView } from '../../search/search.interface'
 import {
     AppBarAlignment,
     AppBarScrollBehavior,
@@ -105,8 +107,14 @@ export abstract class BaseAppBar extends composeMixin(
     @query('.headline')
     private readonly headlineElement!: HTMLElement | null
 
-    @query('.search-box')
-    private readonly searchBoxElement!: HTMLElement | null
+    @query('.search-container')
+    private readonly searchContainerElement!: HTMLElement | null
+
+    @query('.default-search-bar')
+    private readonly defaultSearchBarElement!: IMDCSearchBar | null
+
+    @query('slot[name="search"]')
+    private readonly searchSlotElement!: HTMLSlotElement | null
 
     private boundScrollHandler: (() => void) | null = null
     private boundScrollEndHandler: (() => void) | null = null
@@ -123,6 +131,9 @@ export abstract class BaseAppBar extends composeMixin(
         super.connectedCallback()
         if (!isServer) {
             this.setupScrollTarget()
+            if (this.for && this.normalizedVariant === AppBarVariant.Search) {
+                queueMicrotask(() => this.syncSearchViewBinding())
+            }
         }
     }
 
@@ -155,6 +166,10 @@ export abstract class BaseAppBar extends composeMixin(
             this.setupScrollTarget()
         } else if (!isServer && (changedProperties.has('headline') || changedProperties.has('subtitle'))) {
             this.cancelScrollScrubAnimations()
+        }
+
+        if (!isServer && (changedProperties.has('for') || changedProperties.has('variant'))) {
+            this.syncSearchViewBinding()
         }
 
         if (this.pendingMotionSnapshot) {
@@ -230,6 +245,7 @@ export abstract class BaseAppBar extends composeMixin(
     protected handleSearchSlotChange(e: Event): void {
         const slot = e.target as HTMLSlotElement
         this.hasSearch = slot.assignedElements({ flatten: true }).length > 0
+        this.syncSearchViewBinding()
     }
 
     protected handleDefaultSlotChange(e: Event): void {
@@ -237,11 +253,51 @@ export abstract class BaseAppBar extends composeMixin(
         this.hasDefaultTrailingSlot = slot.assignedElements({ flatten: true }).length > 0
     }
 
-    protected handleSearchBoxClick(event: Event): void {
-        const target = event.target as HTMLElement | null
-        const interactiveChild = target?.closest('mdc-icon-button, button, a, input')
-        if (interactiveChild && interactiveChild !== event.currentTarget) {
+    protected getActiveSearchBar(): IMDCSearchBar | null {
+        const slotted = this.searchSlotElement?.assignedElements({ flatten: true }) ?? []
+        const slottedBar = slotted.find(
+            (el): el is IMDCSearchBar => 'syncFromSearchView' in el && typeof (el as IMDCSearchBar).syncFromSearchView === 'function',
+        )
+        return slottedBar ?? this.defaultSearchBarElement ?? null
+    }
+
+    protected syncSearchViewBinding(): void {
+        if (!this.for || this.normalizedVariant !== AppBarVariant.Search) {
             return
+        }
+        const searchBar = this.getActiveSearchBar()
+        if (!searchBar || searchBar.searchView) {
+            return
+        }
+        const root = typeof this.getRootNode === 'function'
+            ? (this.getRootNode() as Document | ShadowRoot)
+            : null
+        const target =
+            root?.getElementById?.(this.for) ??
+            (typeof document !== 'undefined' ? document.getElementById(this.for) : null)
+        if (target && 'setupWithSearchBar' in target && typeof (target as IMDCSearchView).setupWithSearchBar === 'function') {
+            ;(target as IMDCSearchView).setupWithSearchBar(searchBar)
+        }
+    }
+
+    protected handleSearchContainerClick(event: Event): void {
+        const target = event.target as HTMLElement | null
+        const path = typeof event.composedPath === 'function' ? event.composedPath() : []
+        if (path.length > 0) {
+            const isAction = path.some(
+                (node) =>
+                    node instanceof Element &&
+                    node !== event.currentTarget &&
+                    node.matches?.('mdc-icon-button, button, a, [slot="trailing-icon"], [slot="avatar"], [slot="leading-icon"], [slot="search-trailing"], [slot="search-leading"]'),
+            )
+            if (isAction) {
+                return
+            }
+        } else {
+            const interactiveChild = target?.closest('mdc-icon-button, button, a')
+            if (interactiveChild && interactiveChild !== event.currentTarget) {
+                return
+            }
         }
 
         this.dispatchEvent(new CustomEvent<IAppBarSearchClickDetail>('search-click', {
@@ -250,7 +306,8 @@ export abstract class BaseAppBar extends composeMixin(
             detail  : { target },
         }))
 
-        if (this.for) {
+        const activeBar = this.getActiveSearchBar()
+        if (this.for && !activeBar?.searchView) {
             const root = typeof this.getRootNode === 'function'
                 ? (this.getRootNode() as Document | ShadowRoot)
                 : null
@@ -260,14 +317,6 @@ export abstract class BaseAppBar extends composeMixin(
             if (searchView && typeof (searchView as unknown as { show?: () => void }).show === 'function') {
                 ;(searchView as unknown as { show: () => void }).show()
             }
-        }
-    }
-
-    protected handleSearchBoxKeydown(event: KeyboardEvent): void {
-        if (event.key === 'Enter' || event.key === ' ') {
-            if (event.target !== event.currentTarget) return
-            event.preventDefault()
-            this.handleSearchBoxClick(event)
         }
     }
 
@@ -564,8 +613,8 @@ export abstract class BaseAppBar extends composeMixin(
         }
 
         if (snapshot.variantOrAlignmentChanged) {
-            if (this.normalizedVariant === AppBarVariant.Search && this.searchBoxElement && typeof this.searchBoxElement.animate === 'function') {
-                this.trackAnimation(this.searchBoxElement.animate(
+            if (this.normalizedVariant === AppBarVariant.Search && this.searchContainerElement && typeof this.searchContainerElement.animate === 'function') {
+                this.trackAnimation(this.searchContainerElement.animate(
                     [
                         { opacity: 0, transform: 'scaleX(0.94)' },
                         { opacity: 1, transform: 'scaleX(1)' },
@@ -662,32 +711,17 @@ export abstract class BaseAppBar extends composeMixin(
         return html`
             <div class="appbar-row search-row">
                 ${this.renderLeading()}
-                <div class="search-container">
+                <div class="search-container" @click=${this.handleSearchContainerClick}>
                     <slot name="search" @slotchange=${this.handleSearchSlotChange}>
-                        <div
-                            class="search-box"
-                            role="button"
-                            tabindex="0"
-                            aria-label=${this.headline || 'Search'}
-                            @click=${this.handleSearchBoxClick}
-                            @keydown=${this.handleSearchBoxKeydown}
+                        <mdc-search-bar
+                            class="default-search-bar"
+                            supporting-text=${this.headline || 'Search'}
+                            alignment=${this.alignment}
+                            hide-avatar
                         >
-                            ${this.renderRipple()}
-                            ${this.renderFocusRing()}
-                            <slot name="search-leading">
-                                <span class="search-icon" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-                                        <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-                                    </svg>
-                                </span>
-                            </slot>
-                            <div class="search-input-wrapper">
-                                <slot name="search-input">
-                                    <span class="search-placeholder">${this.headline || 'Search'}</span>
-                                </slot>
-                            </div>
-                            <slot name="search-trailing"></slot>
-                        </div>
+                            <slot name="search-leading" slot="leading-icon"></slot>
+                            <slot name="search-trailing" slot="trailing-icon"></slot>
+                        </mdc-search-bar>
                     </slot>
                 </div>
                 ${this.renderTrailing()}

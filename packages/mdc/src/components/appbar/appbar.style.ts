@@ -6,8 +6,7 @@
 import { css } from 'lit'
 import { overrideTokens, stringifyTokens } from '../../utils/style'
 import type { ElevationDefinition } from '../elevation/elevation.definition'
-import type { FocusRingDefinition } from '../focus-ring/focus-ring.definition'
-import type { RippleDefinition } from '../ripple/ripple.definition'
+import type { SearchBarDefinition } from '../search/search.definition'
 import { AppBarDefinition } from './appbar.definition'
 
 const TokenString = stringifyTokens('--mdc-appbar')(AppBarDefinition)
@@ -21,22 +20,17 @@ const ScrolledElevationStyles = overrideTokens<typeof ElevationDefinition>('--md
     'enabled-level': `var(--_enabled-container-elevation-scrolled)`,
 })()
 
-const SearchFocusRingStyles = overrideTokens<typeof FocusRingDefinition>('--mdc-focus-ring')({
-    'shape-start-start': `var(--_enabled-search-box-shape-start-start)`,
-    'shape-start-end'  : `var(--_enabled-search-box-shape-start-end)`,
-    'shape-end-start'  : `var(--_enabled-search-box-shape-end-start)`,
-    'shape-end-end'    : `var(--_enabled-search-box-shape-end-end)`,
-    'enabled-color'    : `var(--_focused-search-box-indicator-color)`,
-    'width'            : `var(--_focused-search-box-indicator-thickness)`,
-    'outward-offset'   : `var(--_focused-search-box-indicator-offset)`,
-    'inward-offset'    : `var(--_focused-search-box-indicator-offset)`,
+const SearchBarStyles = overrideTokens<typeof SearchBarDefinition>('--mdc-search-bar')({
+    'enabled-container-color'      : `var(--_enabled-search-box-container-color)`,
+    'enabled-container-height'     : `var(--_enabled-search-box-height)`,
+    'enabled-supporting-text-color': `var(--_enabled-search-box-placeholder-color)`,
+    'enabled-input-text-color'     : `var(--_enabled-search-box-text-color)`,
+    'enabled-leading-icon-color'   : `var(--_enabled-search-box-icon-color)`,
+    'enabled-trailing-icon-color'  : `var(--_enabled-search-box-icon-color)`,
 })()
 
-const SearchRippleStyles = overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
-    'enabled-hovered-color'  : `var(--_hovered-search-box-state-layer-color)`,
-    'enabled-hovered-opacity': `var(--_hovered-search-box-state-layer-opacity)`,
-    'enabled-pressed-color'  : `var(--_pressed-search-box-state-layer-color)`,
-    'enabled-pressed-opacity': `var(--_pressed-search-box-state-layer-opacity)`,
+const ScrolledSearchBarStyles = overrideTokens<typeof SearchBarDefinition>('--mdc-search-bar')({
+    'enabled-container-color': `var(--_enabled-search-box-container-color-scrolled)`,
 })()
 
 export const AppBarStyles = css`
@@ -61,17 +55,13 @@ export const AppBarStyles = css`
         }
     }
 
-    @layer mdc.appbar.composite.focus-ring {
-        .search-box > mdc-focus-ring {
-            border-radius: inherit;
-            ${SearchFocusRingStyles};
+    @layer mdc.appbar.composite.search-bar {
+        .search-container {
+            ${SearchBarStyles};
         }
-    }
 
-    @layer mdc.appbar.composite.ripple {
-        .search-box > mdc-ripple {
-            border-radius: inherit;
-            ${SearchRippleStyles};
+        .container.scrolled .search-container {
+            ${ScrolledSearchBarStyles};
         }
     }
 
@@ -408,69 +398,11 @@ export const AppBarStyles = css`
             margin-inline-end: var(--_enabled-search-box-gap-space);
         }
 
-        .search-box {
-            position: relative;
-            display: flex;
-            align-items: center;
-            width: 100%;
-            height: var(--_enabled-search-box-height);
-            background-color: var(--_enabled-search-box-container-color);
-            border-start-start-radius: var(--_enabled-search-box-shape-start-start);
-            border-start-end-radius: var(--_enabled-search-box-shape-start-end);
-            border-end-end-radius: var(--_enabled-search-box-shape-end-end);
-            border-end-start-radius: var(--_enabled-search-box-shape-end-start);
-            padding-inline-start: var(--_enabled-search-box-padding-inline-start);
-            padding-inline-end: var(--_enabled-search-box-padding-inline-end);
-            padding-block-start: var(--_enabled-search-box-padding-block-start);
-            padding-block-end: var(--_enabled-search-box-padding-block-end);
-            gap: var(--_enabled-search-box-inner-gap-space);
-            box-sizing: border-box;
-            transition: background-color var(--_enabled-transition-duration) var(--_enabled-transition-easing);
-            cursor: pointer;
-            outline: none;
-        }
-
-        .container.scrolled .search-box {
-            background-color: var(--_enabled-search-box-container-color-scrolled);
-        }
-
-        .search-icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: var(--_enabled-icon-size);
-            height: var(--_enabled-icon-size);
-            color: var(--_enabled-search-box-icon-color);
-            flex-shrink: 0;
-        }
-
-        .search-input-wrapper {
+        .default-search-bar,
+        .search-container > ::slotted(*) {
             flex: 1 1 auto;
+            width: 100%;
             min-width: 0;
-            display: flex;
-            align-items: center;
-        }
-
-        .container.centered .search-input-wrapper {
-            justify-content: center;
-        }
-
-        .search-placeholder {
-            font-family: var(--_enabled-search-text-font);
-            font-size: var(--_enabled-search-text-size);
-            line-height: var(--_enabled-search-text-leading);
-            font-weight: var(--_enabled-search-text-weight);
-            letter-spacing: var(--_enabled-search-text-tracking);
-            color: var(--_enabled-search-box-placeholder-color);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            user-select: none;
-        }
-
-        .search-box ::slotted(button) {
-            width: var(--_enabled-icon-button-size);
-            height: var(--_enabled-icon-button-size);
         }
     }
 
@@ -480,16 +412,14 @@ export const AppBarStyles = css`
             .container.medium-flexible .top-row,
             .container.large-flexible .top-row,
             .collapsed-title,
-            .flexible-content-wrapper,
-            .search-box {
+            .flexible-content-wrapper {
                 transition: none;
             }
         }
 
         @media (prefers-reduced-transparency: reduce) {
             .container,
-            .container.scrolled,
-            .search-box {
+            .container.scrolled {
                 backdrop-filter: none;
             }
         }
@@ -497,11 +427,6 @@ export const AppBarStyles = css`
         @media (prefers-contrast: more) {
             .container.scrolled {
                 border-block-end: 1px solid currentColor;
-            }
-
-            .search-box {
-                outline: 1px solid currentColor;
-                outline-offset: -1px;
             }
         }
 
@@ -523,17 +448,8 @@ export const AppBarStyles = css`
             .collapsed-headline,
             .subtitle,
             .leading-section,
-            .trailing-section,
-            .search-icon,
-            .search-placeholder {
+            .trailing-section {
                 color: CanvasText;
-            }
-
-            .search-box,
-            .container.scrolled .search-box {
-                background-color: Field;
-                color: FieldText;
-                border: 1px solid ButtonBorder;
             }
         }
     }

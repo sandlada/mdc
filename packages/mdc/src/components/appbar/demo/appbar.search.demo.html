@@ -1,7 +1,13 @@
 <div style="display: flex; flex-direction: column; gap: 24px; width: 100%;">
-    <!-- 1. Linked to SearchView via `for` -->
-    <mdc-appbar variant="search" headline="Search product" for="appbar-demo-search-view">
+    <!-- 1. Slotted SearchBar linked to SearchView via `for` (AppBarWithSearch pattern) -->
+    <mdc-appbar variant="search">
         <mdc-icon-button slot="leading"><mdc-icon>menu</mdc-icon></mdc-icon-button>
+        <mdc-search-bar
+            slot="search"
+            for="appbar-demo-search-view"
+            supporting-text="Search product"
+            hide-avatar
+        ></mdc-search-bar>
         <mdc-icon-button slot="trailing"><mdc-icon>account_circle</mdc-icon></mdc-icon-button>
     </mdc-appbar>
     <mdc-search-view id="appbar-demo-search-view" supporting-text="Search product">
@@ -12,17 +18,38 @@
         </mdc-list>
     </mdc-search-view>
 
-    <!-- 2. Centered placeholder with search-trailing action -->
-    <mdc-appbar variant="search" alignment="center" headline="Search emails">
+    <!-- 2. Centered SearchBar with trailing action inside SearchBar -->
+    <mdc-appbar variant="search" alignment="center">
         <mdc-icon-button slot="leading"><mdc-icon>menu</mdc-icon></mdc-icon-button>
-        <mdc-icon-button slot="search-trailing"><mdc-icon>mic</mdc-icon></mdc-icon-button>
+        <mdc-search-bar
+            slot="search"
+            for="appbar-demo-docked-search-view"
+            alignment="center"
+            supporting-text="Search emails"
+            hide-avatar
+        >
+            <mdc-icon-button slot="trailing-icon"><mdc-icon>mic</mdc-icon></mdc-icon-button>
+        </mdc-search-bar>
         <mdc-icon-button slot="trailing"><mdc-icon>account_circle</mdc-icon></mdc-icon-button>
     </mdc-appbar>
+    <mdc-search-view id="appbar-demo-docked-search-view" variant="docked" supporting-text="Search emails">
+        <mdc-list>
+            <mdc-list-item headline="Inbox"></mdc-list-item>
+            <mdc-list-item headline="Sent"></mdc-list-item>
+            <mdc-list-item headline="Drafts"></mdc-list-item>
+        </mdc-list>
+    </mdc-search-view>
 
-    <!-- 3. Leading element and two trailing elements outside search -->
-    <mdc-appbar variant="search" headline="Search files">
+    <!-- 3. Shorthand `for` on AppBar (delegates to internal mdc-search-bar) + multiple trailing actions -->
+    <mdc-appbar variant="search" headline="Search files" for="appbar-demo-files-view">
         <mdc-icon-button slot="leading"><mdc-icon>menu</mdc-icon></mdc-icon-button>
         <mdc-icon-button slot="trailing"><mdc-icon>tune</mdc-icon></mdc-icon-button>
         <mdc-icon-button slot="trailing"><mdc-icon>account_circle</mdc-icon></mdc-icon-button>
     </mdc-appbar>
+    <mdc-search-view id="appbar-demo-files-view" supporting-text="Search files">
+        <mdc-list>
+            <mdc-list-item headline="Design Specs.pdf"></mdc-list-item>
+            <mdc-list-item headline="Release Notes.md"></mdc-list-item>
+        </mdc-list>
+    </mdc-search-view>
 </div>

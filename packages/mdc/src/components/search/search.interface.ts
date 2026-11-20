@@ -5,6 +5,13 @@
  */
 import type { LitElement } from 'lit'
 
+/** Text alignment for `mdc-search-bar` supporting text and input. */
+export const SearchBarAlignment = {
+    Start : 'start',
+    Center: 'center',
+} as const
+export type SearchBarAlignment = (typeof SearchBarAlignment)[keyof typeof SearchBarAlignment]
+
 /** Layout variants for `mdc-search-view`, matching Material Design 3 / Android. */
 export const SearchViewVariant = {
     Fullscreen: 'fullscreen',
@@ -25,6 +32,8 @@ export interface ISearchAvatarClickDetail {
 export interface IMDCSearchBarAttributes {
     /** Placeholder / supporting text displayed when `value` is empty. */
     supportingText: string
+    /** Text alignment for supporting text and input (`'start'` or `'center'`). */
+    alignment: SearchBarAlignment
     /** Hides the default leading search icon when no custom `leading-icon` is slotted. */
     hideLeadingIcon: boolean
     /** Hides the trailing avatar button/slot when true. */

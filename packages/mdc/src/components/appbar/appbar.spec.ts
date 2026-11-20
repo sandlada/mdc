@@ -17,12 +17,12 @@ class TestAppBar extends BaseAppBar {
         return this.getRenderClasses()
     }
 
-    public triggerSearchBoxClick(event: Event) {
-        this.handleSearchBoxClick(event)
+    public triggerSearchContainerClick(event: Event) {
+        this.handleSearchContainerClick(event)
     }
 
-    public triggerSearchBoxKeydown(event: KeyboardEvent) {
-        this.handleSearchBoxKeydown(event)
+    public triggerSyncSearchViewBinding() {
+        this.syncSearchViewBinding()
     }
 
     public initScrollTarget() {
@@ -202,6 +202,27 @@ describe('BaseAppBar', () => {
         expect(appbar.style.getPropertyValue('--_expanded-height')).toBe('')
     })
 
+    it('renders mdc-search-bar inside search slot instead of a fake search-box', () => {
+        const appbar = new TestAppBar()
+        appbar.variant = AppBarVariant.Search
+        const rendered = (appbar as unknown as { render(): { strings: unknown } }).render()
+        const collectStrings = (tpl: unknown): string => {
+            if (!tpl || typeof tpl !== 'object') return ''
+            const t = tpl as { strings?: readonly string[]; values?: unknown[] }
+            let out = t.strings ? t.strings.join('') : ''
+            if (t.values) {
+                for (const v of t.values) {
+                    out += collectStrings(v)
+                }
+            }
+            return out
+        }
+        const html = collectStrings(rendered)
+        expect(html).toContain('<mdc-search-bar')
+        expect(html).toContain('<slot name="search"')
+        expect(html).not.toContain('class="search-box"')
+    })
+
     it('dispatches search-click and calls linked search-view show()', () => {
         const appbar = new TestAppBar()
         appbar.variant = AppBarVariant.Search
@@ -216,13 +237,13 @@ describe('BaseAppBar', () => {
         appbar.addEventListener('search-click', clickHandler)
 
         const box = { closest: () => null } as unknown as HTMLElement
-        appbar.triggerSearchBoxClick({ target: box, currentTarget: box } as unknown as Event)
+        appbar.triggerSearchContainerClick({ target: box, currentTarget: box } as unknown as Event)
 
         expect(clickHandler).toHaveBeenCalledTimes(1)
         expect(showMock).toHaveBeenCalledTimes(1)
     })
 
-    it('ignores search-box click when target is an inner button', () => {
+    it('ignores search-container click when target is an inner button', () => {
         const appbar = new TestAppBar()
         appbar.variant = AppBarVariant.Search
 
@@ -232,29 +253,29 @@ describe('BaseAppBar', () => {
         const innerButton = {} as HTMLElement
         const box = {} as HTMLElement
         const target = { closest: () => innerButton } as unknown as HTMLElement
-        appbar.triggerSearchBoxClick({ target, currentTarget: box } as unknown as Event)
+        appbar.triggerSearchContainerClick({ target, currentTarget: box } as unknown as Event)
 
         expect(clickHandler).not.toHaveBeenCalled()
     })
 
-    it('activates search-box on Enter or Space keydown', () => {
+    it('binds search-view to active mdc-search-bar via setupWithSearchBar', () => {
         const appbar = new TestAppBar()
         appbar.variant = AppBarVariant.Search
+        appbar.for = 'my-search-view'
 
-        const clickHandler = vi.fn()
-        appbar.addEventListener('search-click', clickHandler)
+        const mockBar = { searchView: null, syncFromSearchView: vi.fn() }
+        Object.defineProperty(appbar, 'defaultSearchBarElement', {
+            value       : mockBar,
+            configurable: true,
+        })
 
-        const box = { closest: () => null } as unknown as HTMLElement
-        const event = {
-            key           : 'Enter',
-            target        : box,
-            currentTarget : box,
-            preventDefault: vi.fn(),
-        } as unknown as KeyboardEvent
+        const setupWithSearchBar = vi.fn()
+        ;(appbar as unknown as { getRootNode: () => unknown }).getRootNode = () => ({
+            getElementById: (id: string) => (id === 'my-search-view' ? { setupWithSearchBar } : null),
+        })
 
-        appbar.triggerSearchBoxKeydown(event)
-        expect(event.preventDefault).toHaveBeenCalledTimes(1)
-        expect(clickHandler).toHaveBeenCalledTimes(1)
+        appbar.triggerSyncSearchViewBinding()
+        expect(setupWithSearchBar).toHaveBeenCalledWith(mockBar)
     })
 
     it('runs WAAPI transitions on state changes when motion is enabled', () => {

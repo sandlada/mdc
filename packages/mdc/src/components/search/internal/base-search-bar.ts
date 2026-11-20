@@ -12,7 +12,7 @@ import { redispatchEvent } from '../../../utils/event/redispatch-event'
 import { mixinFocusRingOptions } from '../../focus-ring/focus-ring-options.mixin'
 import '../../icon-button/icon-button'
 import { mixinRippleOptions } from '../../ripple/ripple-options.mixin'
-import type { IMDCSearchBar, IMDCSearchView } from '../search.interface'
+import { SearchBarAlignment, type IMDCSearchBar, type IMDCSearchView } from '../search.interface'
 import { SearchBarStyle } from '../search-bar.style'
 
 /**
@@ -36,6 +36,9 @@ export abstract class BaseSearchBar extends composeMixin(
 
     @property({ type: String, attribute: 'supporting-text' })
     public supportingText: string = 'Type here to search'
+
+    @property({ type: String, reflect: true })
+    public alignment: SearchBarAlignment = SearchBarAlignment.Start
 
     @property({ type: Boolean, attribute: 'hide-leading-icon', reflect: true })
     public hideLeadingIcon: boolean = false
@@ -215,6 +218,7 @@ export abstract class BaseSearchBar extends composeMixin(
             'has-trailing-icon': this.hasTrailingIcon,
             'has-avatar': this.hasAvatar,
             'hide-avatar': this.hideAvatar,
+            'is-centered': this.alignment === SearchBarAlignment.Center,
             'is-linked': this.searchViewValue !== null,
             'is-disabled': this.disabled,
         }
@@ -243,12 +247,27 @@ export abstract class BaseSearchBar extends composeMixin(
 
     private handleContainerClick(e: MouseEvent): void {
         if (this.disabled || !this.searchViewValue) return
-        const target = e.target as Element | null
-        if (target?.closest('.trailing-icon, .avatar, slot[name="avatar"], slot[name="leading-icon"]')) {
-            // Allow custom slotted leading/trailing buttons or avatar to handle their own clicks;
-            // clicking the default non-interactive leading search icon still opens SearchView.
-            if (!target.closest('.default-leading-icon')) {
+        const path = typeof e.composedPath === 'function' ? e.composedPath() : []
+        if (path.length > 0) {
+            const isDefaultLeadingIcon = path.some(
+                (node) => node instanceof Element && node.classList?.contains('default-leading-icon'),
+            )
+            const isActionArea = path.some(
+                (node) =>
+                    node instanceof Element &&
+                    (node.matches?.('.trailing-icon, .avatar, [slot="trailing-icon"], [slot="avatar"], [slot="leading-icon"], mdc-icon-button, button, a')),
+            )
+            if (isActionArea && !isDefaultLeadingIcon) {
                 return
+            }
+        } else {
+            const target = e.target as Element | null
+            if (target?.closest('.trailing-icon, .avatar, slot[name="avatar"], slot[name="leading-icon"], [slot="trailing-icon"], [slot="avatar"], [slot="leading-icon"]')) {
+                // Allow custom slotted leading/trailing buttons or avatar to handle their own clicks;
+                // clicking the default non-interactive leading search icon still opens SearchView.
+                if (!target.closest('.default-leading-icon')) {
+                    return
+                }
             }
         }
         this.searchViewValue.show()
@@ -317,14 +336,14 @@ export abstract class BaseSearchBar extends composeMixin(
     }
 
     private handleLeadingIconSlotChange(e: Event): void {
-        this.hasLeadingIcon = (e.target as HTMLSlotElement).assignedElements().length > 0
+        this.hasLeadingIcon = (e.target as HTMLSlotElement).assignedElements({ flatten: true }).length > 0
     }
 
     private handleTrailingIconSlotChange(e: Event): void {
-        this.hasTrailingIcon = (e.target as HTMLSlotElement).assignedElements().length > 0
+        this.hasTrailingIcon = (e.target as HTMLSlotElement).assignedElements({ flatten: true }).length > 0
     }
 
     private handleAvatarSlotChange(e: Event): void {
-        this.hasAvatar = (e.target as HTMLSlotElement).assignedElements().length > 0
+        this.hasAvatar = (e.target as HTMLSlotElement).assignedElements({ flatten: true }).length > 0
     }
 }

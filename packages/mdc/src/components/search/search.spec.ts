@@ -6,13 +6,14 @@
 import { describe, expect, it, vi } from 'vitest'
 import { MDCSearchBar } from './search-bar'
 import { MDCSearchView } from './search-view'
-import { SearchViewVariant } from './search.interface'
+import { SearchBarAlignment, SearchViewVariant } from './search.interface'
 import { SearchBarDefinition, SearchViewDefinition } from './search.definition'
 
 describe('MDCSearchBar', () => {
     it('instantiates with defaults', () => {
         const bar = new MDCSearchBar()
         expect(bar.supportingText).toBe('Type here to search')
+        expect(bar.alignment).toBe(SearchBarAlignment.Start)
         expect(bar.hideLeadingIcon).toBe(false)
         expect(bar.hideAvatar).toBe(false)
         expect(bar.value).toBe('')
@@ -31,13 +32,16 @@ describe('MDCSearchBar', () => {
     it('allows toggling key properties', () => {
         const bar = new MDCSearchBar()
         bar.supportingText = 'Find'
+        bar.alignment = SearchBarAlignment.Center
         bar.hideAvatar = true
         bar.value = 'query'
         bar.disabled = true
         expect(bar.supportingText).toBe('Find')
+        expect(bar.alignment).toBe(SearchBarAlignment.Center)
         expect(bar.hideAvatar).toBe(true)
         expect(bar.value).toBe('query')
         expect(bar.disabled).toBe(true)
+        expect((bar as unknown as { getRenderClasses(): Record<string, boolean> }).getRenderClasses()['is-centered']).toBe(true)
     })
 
     it('opens linked SearchView when container is clicked outside action slots', () => {

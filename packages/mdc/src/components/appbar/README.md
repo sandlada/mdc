@@ -24,7 +24,7 @@ Material Design 3 and M3 Expressive App Bar component.
   - `headline`: Title text or custom element (e.g. logo / image)
   - `subtitle`: Subtitle text or supporting elements
   - `trailing` / default slot: Action icon buttons, avatar, overflow menu
-  - `search`, `search-leading`, `search-input`, `search-trailing`: For search variant customization
+  - `search`, `search-leading`, `search-trailing`: For search variant customization (accepts `<mdc-search-bar slot="search">` or delegates to an internal `mdc-search-bar`)
 
 ## Usage
 
@@ -48,9 +48,10 @@ Material Design 3 and M3 Expressive App Bar component.
   <mdc-icon-button slot="trailing"><mdc-icon>add</mdc-icon></mdc-icon-button>
 </mdc-appbar>
 
-<!-- Search App Bar linked to SearchView -->
-<mdc-appbar variant="search" headline="Search product" for="product-search">
+<!-- Search App Bar with slotted SearchBar & SearchView -->
+<mdc-appbar variant="search">
   <mdc-icon-button slot="leading"><mdc-icon>menu</mdc-icon></mdc-icon-button>
+  <mdc-search-bar slot="search" for="product-search" supporting-text="Search product" hide-avatar></mdc-search-bar>
   <mdc-icon-button slot="trailing"><mdc-icon>account_circle</mdc-icon></mdc-icon-button>
 </mdc-appbar>
 <mdc-search-view id="product-search" supporting-text="Search product"></mdc-search-view>
