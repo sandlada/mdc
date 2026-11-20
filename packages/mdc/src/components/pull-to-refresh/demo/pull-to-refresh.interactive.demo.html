@@ -1,0 +1,44 @@
+<div style="display: flex; flex-direction: column; gap: 12px; max-width: 420px;">
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+        <span id="ptr-status" style="font-size: 14px; color: var(--md-sys-color-on-surface-variant);">
+            Pull down or click Trigger to refresh
+        </span>
+        <mdc-button id="ptr-trigger" variant="tonal">Trigger</mdc-button>
+    </div>
+
+    <mdc-pull-to-refresh
+        id="ptr-demo"
+        indicator="expressive"
+        style="height: 280px; border: 1px solid var(--md-sys-color-outline-variant); border-radius: 12px;"
+    >
+        <mdc-list id="ptr-list">
+            <mdc-list-item headline="Material Design 3 Expressive" supporting-text="PullToRefreshBox physics &amp; loading indicator"></mdc-list-item>
+            <mdc-list-item headline="Android Jetpack Compose" supporting-text="80dp positional threshold &amp; 0.5x drag resistance"></mdc-list-item>
+            <mdc-list-item headline="Flutter RefreshIndicator" supporting-text="Supports classic elevated circular spinner"></mdc-list-item>
+            <mdc-list-item headline="Overlay &amp; Push modes" supporting-text="Switchable content layout behavior"></mdc-list-item>
+        </mdc-list>
+    </mdc-pull-to-refresh>
+</div>
+
+<script type="module">
+    const root = document.currentScript?.getRootNode?.() ?? document
+    const ptr = root.getElementById?.('ptr-demo') ?? document.getElementById('ptr-demo')
+    const trigger = root.getElementById?.('ptr-trigger') ?? document.getElementById('ptr-trigger')
+    const status = root.getElementById?.('ptr-status') ?? document.getElementById('ptr-status')
+
+    let count = 0
+    if (ptr && status) {
+        ptr.addEventListener('refresh', () => {
+            count += 1
+            status.textContent = `Refreshing... (#${count})`
+            setTimeout(() => {
+                ptr.complete()
+                status.textContent = `Updated (#${count}) at ${new Date().toLocaleTimeString()}`
+            }, 1400)
+        })
+    }
+
+    if (trigger && ptr) {
+        trigger.addEventListener('click', () => ptr.triggerRefresh())
+    }
+</script>

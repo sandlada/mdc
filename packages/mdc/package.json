@@ -85,6 +85,11 @@
             "import": "./build/components/bottom-sheet/index.js",
             "default": "./build/components/bottom-sheet/index.js"
         },
+        "./components/breadcrumbs/index": {
+            "types": "./build/components/breadcrumbs/index.d.ts",
+            "import": "./build/components/breadcrumbs/index.js",
+            "default": "./build/components/breadcrumbs/index.js"
+        },
         "./components/button/index": {
             "types": "./build/components/button/index.d.ts",
             "import": "./build/components/button/index.js",
@@ -114,6 +119,11 @@
             "types": "./build/components/chip/index.d.ts",
             "import": "./build/components/chip/index.js",
             "default": "./build/components/chip/index.js"
+        },
+        "./components/context-menu/index": {
+            "types": "./build/components/context-menu/index.d.ts",
+            "import": "./build/components/context-menu/index.js",
+            "default": "./build/components/context-menu/index.js"
         },
         "./components/data-table/index": {
             "types": "./build/components/data-table/index.d.ts",
@@ -238,6 +248,11 @@
             "import": "./build/components/pagination/index.js",
             "default": "./build/components/pagination/index.js"
         },
+        "./components/popover/index": {
+            "types": "./build/components/popover/index.d.ts",
+            "import": "./build/components/popover/index.js",
+            "default": "./build/components/popover/index.js"
+        },
         "./components/popup-controller/index": {
             "import": "./build/components/popup-controller/index.js",
             "default": "./build/components/popup-controller/index.js"
@@ -246,6 +261,11 @@
             "types": "./build/components/progress-indicator/index.d.ts",
             "import": "./build/components/progress-indicator/index.js",
             "default": "./build/components/progress-indicator/index.js"
+        },
+        "./components/pull-to-refresh/index": {
+            "types": "./build/components/pull-to-refresh/index.d.ts",
+            "import": "./build/components/pull-to-refresh/index.js",
+            "default": "./build/components/pull-to-refresh/index.js"
         },
         "./components/radio-button/index": {
             "types": "./build/components/radio-button/index.d.ts",
