@@ -4,7 +4,14 @@
  * SPDX-License-Identifier: MIT
  */
 import type { LitElement } from 'lit'
-import type { SnackbarAnimationMode, SnackbarDuration, SnackbarVariant } from './snackbar.interface'
+import {
+    SnackbarResult,
+    type SnackbarAnimationMode,
+    type SnackbarDuration,
+    type SnackbarVariant,
+} from './snackbar.interface'
+
+export { SnackbarResult }
 
 /**
  * Screen placement for the snackbar host.
@@ -20,21 +27,6 @@ export const SnackbarPlacement = {
 export type SnackbarPlacement = (typeof SnackbarPlacement)[keyof typeof SnackbarPlacement]
 
 /**
- * Reason/result when a snackbar closes or is dismissed.
- * - `action`: user clicked the action button
- * - `close`: user clicked the close icon button
- * - `timeout`: duration expired
- * - `dismiss`: programmatically dismissed or replaced
- */
-export const SnackbarResult = {
-    Action : 'action',
-    Close  : 'close',
-    Timeout: 'timeout',
-    Dismiss: 'dismiss',
-} as const
-export type SnackbarResult = (typeof SnackbarResult)[keyof typeof SnackbarResult]
-
-/**
  * Options for showing a snackbar through the host.
  */
 export interface SnackbarShowOptions {
@@ -42,16 +34,24 @@ export interface SnackbarShowOptions {
     message: string
     /** Optional action button text. */
     action?: string
-    /** Duration before auto-dismiss. */
-    duration?: SnackbarDuration
+    /** Duration before auto-dismiss (preset or custom milliseconds). */
+    duration?: SnackbarDuration | number
     /** Visual color variant. */
     variant?: SnackbarVariant
     /** Entrance/exit animation mode. */
     animationMode?: SnackbarAnimationMode
     /** Whether message allows multiple lines. */
     multiline?: boolean
+    /** Places the action button on a separate line below the message. */
+    actionOnNewLine?: boolean
+    /** Allows horizontal swipe-to-dismiss gesture. */
+    swipeToDismiss?: boolean
     /** Whether to show a close icon button. */
     hasCloseIcon?: boolean
+    /** Optional coalescing tag. If an active or queued snackbar has the same tag, it is updated in place. */
+    tag?: string
+    /** If true, dismisses the currently visible snackbar immediately and shows this one next. */
+    replace?: boolean
 }
 
 /**
@@ -80,11 +80,17 @@ export interface ISnackbarHost extends LitElement {
     /** Placement of the snackbar on the screen/container. */
     placement: SnackbarPlacement
 
+    /** Maximum number of simultaneously visible snackbars (1 = strict MD3 sequential; >1 = stacked). */
+    maxVisible: number
+
     /** Show a snackbar and await the user interaction or dismiss result. */
     show(options: SnackbarShowOptions | string): Promise<SnackbarResult>
 
     /** Dismiss currently showing snackbar. */
     dismissCurrent(reason?: SnackbarResult): void
+
+    /** Dismiss all currently showing snackbars. */
+    dismissAll(reason?: SnackbarResult): void
 
     /** Clear all queued snackbars. */
     clearQueue(): void

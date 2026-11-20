@@ -1,0 +1,88 @@
+<mdc-snackbar-host id="host-events" placement="bottom-center" max-visible="3"></mdc-snackbar-host>
+
+<div id="events-demo" style="display: flex; flex-direction: column; gap: 12px;">
+    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <button onclick="
+            const root = this.getRootNode();
+            const host = root.querySelector('#host-events');
+            const log = root.querySelector('#events-log');
+            if (host._stackTimer) {
+                clearInterval(host._stackTimer);
+                host._stackTimer = null;
+                this.textContent = 'Start 1/sec (Stack max 3)';
+                return;
+            }
+            host.maxVisible = 3;
+            host._demoCount = (host._demoCount || 0);
+            const emit = () => {
+                const idx = ++host._demoCount;
+                host.show({
+                    message: 'Stacked event #' + idx,
+                    action: 'Undo',
+                    duration: 4000,
+                    hasCloseIcon: true
+                }).then((res) => { log.textContent = 'Event #' + idx + ' -> ' + res; });
+            };
+            emit();
+            host._stackTimer = setInterval(emit, 1000);
+            this.textContent = 'Stop 1/sec (Stack max 3)';
+        ">Start 1/sec (Stack max 3)</button>
+
+        <button onclick="
+            const root = this.getRootNode();
+            const host = root.querySelector('#host-events');
+            const log = root.querySelector('#events-log');
+            if (host._tagTimer) {
+                clearInterval(host._tagTimer);
+                host._tagTimer = null;
+                this.textContent = 'Start 1/sec (Coalesce by tag)';
+                return;
+            }
+            host._syncCount = 0;
+            const emit = () => {
+                const count = ++host._syncCount;
+                host.show({
+                    tag: 'sync-status',
+                    message: 'Synced ' + count + (count === 1 ? ' item' : ' items'),
+                    action: 'Undo',
+                    duration: 3000,
+                    hasCloseIcon: true
+                }).then((res) => { log.textContent = 'Sync tag (' + count + ') -> ' + res; });
+            };
+            emit();
+            host._tagTimer = setInterval(emit, 1000);
+            this.textContent = 'Stop 1/sec (Coalesce by tag)';
+        ">Start 1/sec (Coalesce by tag)</button>
+
+        <button onclick="
+            const root = this.getRootNode();
+            const host = root.querySelector('#host-events');
+            const log = root.querySelector('#events-log');
+            host.maxVisible = 1;
+            [1, 2, 3].forEach((n) => {
+                host.dispatchEvent(new CustomEvent('mdc-snackbar-show', {
+                    bubbles: true,
+                    composed: true,
+                    detail: {
+                        message: 'Queued burst ' + n + '/3',
+                        action: 'OK',
+                        duration: 1500,
+                        resolve: (res) => { log.textContent = 'Burst ' + n + '/3 -> ' + res; }
+                    }
+                }));
+            });
+        ">Emit 3 Burst (Queue max 1)</button>
+
+        <button onclick="
+            const root = this.getRootNode();
+            const host = root.querySelector('#host-events');
+            if (host._stackTimer) { clearInterval(host._stackTimer); host._stackTimer = null; }
+            if (host._tagTimer) { clearInterval(host._tagTimer); host._tagTimer = null; }
+            host.clearQueue();
+            host.dismissAll('dismiss');
+            root.querySelector('#events-log').textContent = 'Cleared queue & dismissed all';
+        ">Clear & Dismiss All</button>
+    </div>
+
+    <div id="events-log" style="font-size: 12px; opacity: 0.8;">Ready</div>
+</div>

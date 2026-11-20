@@ -15,6 +15,8 @@ describe('MDCSnackbar', () => {
         expect(snackbar.duration).toBe('short')
         expect(snackbar.animationMode).toBe('slide')
         expect(snackbar.multiline).toBe(false)
+        expect(snackbar.actionOnNewLine).toBe(false)
+        expect(snackbar.swipeToDismiss).toBe(true)
         expect(snackbar.variant).toBe('inverse-surface')
         expect(snackbar.hasAction).toBe(false)
         expect(snackbar.hasCloseIcon).toBe(false)
@@ -27,11 +29,17 @@ describe('MDCSnackbar', () => {
         snackbar.duration = 'long'
         snackbar.animationMode = 'fade'
         snackbar.multiline = true
+        snackbar.actionOnNewLine = true
+        snackbar.swipeToDismiss = false
+        snackbar.hasCloseIcon = true
         snackbar.variant = 'error'
         expect(snackbar.open).toBe(true)
         expect(snackbar.duration).toBe('long')
         expect(snackbar.animationMode).toBe('fade')
         expect(snackbar.multiline).toBe(true)
+        expect(snackbar.actionOnNewLine).toBe(true)
+        expect(snackbar.swipeToDismiss).toBe(false)
+        expect(snackbar.hasCloseIcon).toBe(true)
         expect(snackbar.variant).toBe('error')
     })
 })
@@ -41,14 +49,17 @@ describe('MDCSnackbarHost', () => {
         const host = new MDCSnackbarHost()
         expect(host.placement).toBe('bottom-center')
         expect(host.scoped).toBe(false)
+        expect(host.maxVisible).toBe(1)
     })
 
     it('allows updating properties', () => {
         const host = new MDCSnackbarHost()
         host.placement = 'top-center'
         host.scoped = true
+        host.maxVisible = 3
         expect(host.placement).toBe('top-center')
         expect(host.scoped).toBe(true)
+        expect(host.maxVisible).toBe(3)
     })
 })
 

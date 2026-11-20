@@ -31,7 +31,26 @@ const Base = css`
         }
 
         .container {
-            display: contents;
+            display: flex;
+            flex-direction: column;
+            gap: var(--_enabled-container-gap);
+            align-items: center;
+            width: 100%;
+            pointer-events: none;
+        }
+
+        :host([placement="bottom-start"]) .container,
+        :host([placement="top-start"]) .container {
+            align-items: flex-start;
+        }
+
+        :host([placement="bottom-end"]) .container,
+        :host([placement="top-end"]) .container {
+            align-items: flex-end;
+        }
+
+        :host([placement^="top"]) .container {
+            flex-direction: column-reverse;
         }
 
         mdc-snackbar {
@@ -40,7 +59,7 @@ const Base = css`
 
         /* ── Placements ─────────────────────────────────────────────────────── */
         :host([placement="bottom-center"]) {
-            bottom: max(var(--_enabled-container-margin-block-end), env(safe-area-inset-bottom, 0px));
+            bottom: calc(max(var(--_enabled-container-margin-block-end), env(safe-area-inset-bottom, 0px)) + var(--_enabled-offset-block-end));
             inset-inline: 0;
             justify-content: center;
             align-items: center;
@@ -48,31 +67,34 @@ const Base = css`
         }
 
         :host([placement="bottom-start"]) {
-            bottom: max(var(--_enabled-container-margin-block-end), env(safe-area-inset-bottom, 0px));
+            bottom: calc(max(var(--_enabled-container-margin-block-end), env(safe-area-inset-bottom, 0px)) + var(--_enabled-offset-block-end));
             inset-inline-start: max(var(--_enabled-container-margin-inline-start), env(safe-area-inset-left, 0px));
         }
 
         :host([placement="bottom-end"]) {
-            bottom: max(var(--_enabled-container-margin-block-end), env(safe-area-inset-bottom, 0px));
+            bottom: calc(max(var(--_enabled-container-margin-block-end), env(safe-area-inset-bottom, 0px)) + var(--_enabled-offset-block-end));
             inset-inline-end: max(var(--_enabled-container-margin-inline-end), env(safe-area-inset-right, 0px));
         }
 
         :host([placement="top-center"]) {
-            top: max(var(--_enabled-container-margin-block-start), env(safe-area-inset-top, 0px));
+            top: calc(max(var(--_enabled-container-margin-block-start), env(safe-area-inset-top, 0px)) + var(--_enabled-offset-block-start));
             inset-inline: 0;
             justify-content: center;
             align-items: center;
             margin-inline: auto;
+            --mdc-snackbar-slide-offset: -100%;
         }
 
         :host([placement="top-start"]) {
-            top: max(var(--_enabled-container-margin-block-start), env(safe-area-inset-top, 0px));
+            top: calc(max(var(--_enabled-container-margin-block-start), env(safe-area-inset-top, 0px)) + var(--_enabled-offset-block-start));
             inset-inline-start: max(var(--_enabled-container-margin-inline-start), env(safe-area-inset-left, 0px));
+            --mdc-snackbar-slide-offset: -100%;
         }
 
         :host([placement="top-end"]) {
-            top: max(var(--_enabled-container-margin-block-start), env(safe-area-inset-top, 0px));
+            top: calc(max(var(--_enabled-container-margin-block-start), env(safe-area-inset-top, 0px)) + var(--_enabled-offset-block-start));
             inset-inline-end: max(var(--_enabled-container-margin-inline-end), env(safe-area-inset-right, 0px));
+            --mdc-snackbar-slide-offset: -100%;
         }
     }
 `
