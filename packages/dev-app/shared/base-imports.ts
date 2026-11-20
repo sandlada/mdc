@@ -62,5 +62,6 @@ import '@sandlada/mdc/components/text-field/index'
 import '@sandlada/mdc/components/tooltip/index'
 import '@sandlada/mdc/components/tooltip-box/index'
 import '@sandlada/mdc/components/typography/index'
+import '@sandlada/mdc/components/wavy-progress-indicator/index'
 
 export { }

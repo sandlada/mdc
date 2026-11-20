@@ -337,6 +337,11 @@
             "import": "./build/components/typography/index.js",
             "default": "./build/components/typography/index.js"
         },
+        "./components/wavy-progress-indicator/index": {
+            "types": "./build/components/wavy-progress-indicator/index.d.ts",
+            "import": "./build/components/wavy-progress-indicator/index.js",
+            "default": "./build/components/wavy-progress-indicator/index.js"
+        },
         "./utils/*": {
             "types": "./build/utils/*/index.d.ts",
             "import": "./build/utils/*/index.js",

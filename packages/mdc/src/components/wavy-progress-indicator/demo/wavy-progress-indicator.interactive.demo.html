@@ -1,0 +1,31 @@
+<div style="display: flex; flex-direction: column; gap: 16px; max-width: 480px;">
+    <mdc-wavy-progress-indicator id="wavy-interactive-linear" variant="linear" value="0.5"></mdc-wavy-progress-indicator>
+    <div style="display: flex; align-items: center; gap: 16px;">
+        <mdc-wavy-progress-indicator id="wavy-interactive-circular" variant="circular" value="0.5"></mdc-wavy-progress-indicator>
+        <label style="display: flex; align-items: center; gap: 8px; flex: 1;">
+            <span>Progress:</span>
+            <input type="range" min="0" max="1" step="0.01" value="0.5" style="flex: 1;"
+                oninput="
+                    const root = this.getRootNode();
+                    const linear = root.getElementById('wavy-interactive-linear');
+                    const circular = root.getElementById('wavy-interactive-circular');
+                    const val = Number(this.value);
+                    if (linear) linear.value = val;
+                    if (circular) circular.value = val;
+                "
+            />
+        </label>
+        <label style="display: flex; align-items: center; gap: 4px;">
+            <input type="checkbox"
+                onchange="
+                    const root = this.getRootNode();
+                    const linear = root.getElementById('wavy-interactive-linear');
+                    const circular = root.getElementById('wavy-interactive-circular');
+                    if (linear) linear.indeterminate = this.checked;
+                    if (circular) circular.indeterminate = this.checked;
+                "
+            />
+            <span>Indeterminate</span>
+        </label>
+    </div>
+</div>
