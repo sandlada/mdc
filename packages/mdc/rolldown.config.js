@@ -13,11 +13,7 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url))
  * still ship .js and must compile cleanly. Paths use the OS separator so
  * they match the relative paths returned by Node's fs APIs.
  */
-const WIP_DIRS = [
-    'button-group',
-    'wave',
-    'toolbar',
-]
+const WIP_DIRS = []
 const WIP_SUFFIX = '-old'
 
 /**
