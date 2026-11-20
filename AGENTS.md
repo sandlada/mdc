@@ -55,7 +55,7 @@ packages/mdc/src/components/{name}/
 - 非 host 根元素用 `getRenderClasses()` + `classMap`；host 自身用 `getHostClasses()`；子類 spread `super` 結果再擴展。
 - 狀態三軸（不適用可省略）：`variant`（如 `filled` / `outlined` / `text`）、`size`（`extra-small` ~ `extra-large`）、`shape`（`round` / `square`）。
 - 介面三檔（複數 + `IMDC` 前綴）：`IMDC{Pascal}Attributes`（純輸入屬性）、`IMDC{Pascal}Events`（`'event-name': EventType` 映射）、`IMDC{Pascal}`（繼承 `LitElement` + Attributes + mixins / 方法）。
-- 新元件步驟：定 interface → 寫 `internal/base-{name}.ts`（複雜者）→ 寫 `{name}.ts` → 加 `components/{name}/{name}.definition.ts` → 於 `components/{name}/index.ts` 導出。
+- 新元件步驟：定 interface → 寫 `internal/base-{name}.ts`（複雜者）→ 寫 `{name}.ts` → 加 `components/{name}/{name}.definition.ts` → 於 `components/{name}/index.ts` 導出 → 於 `packages/mdc/package.json` `"exports"` 補上 `"./components/{name}/index"` → 更新 `dev-app`（`packages/dev-app/shared/base-imports.ts` 與 `packages/dev-app/components/{name}/index.html`）。
 - Barrel：深層資料夾以 `index.ts` 導出、外部禁直引內檔；禁 `utils/index.ts` 與 `components/index.ts` 頂層大桶。
 - Token 命名：`[狀態-]?[尺寸-]?[元素-][屬性][-selected|-checked]?`。預設狀態加 `enabled-`；容器屬性帶 `container-*`；圓角展四角；Margin / Padding 拆四邊；文字備齊 `font`、`size`、`leading`、`weight`、`tracking`、`opacity`。comp def 一律用 `leading` 表示 line-height，禁 `line-height` 後綴（與 `expandTypescale` 的 `${prefix}-leading` 一致；樣式側 CSS 屬性仍寫 `line-height`）。
 - Demo：`demo/{comp-name}.{prop}.demo.html`，純 HTML 片段，每個 `@property` 一個檔案。
@@ -86,3 +86,6 @@ packages/mdc/src/components/{name}/
   6. 使用 WAAPI 對帶 `min-height` 約束的容器做高度動畫或滾動擦洗時，關鍵影格須同時包含 `height` 與 `minHeight`，避免被 CSS `min-height` 鉗制導致跳變。
   7. 勿在父容器對 `::slotted(mdc-icon-button)` 強設 `height: 48px`（其內部 `40px` 容器會貼頂上偏），應由外層 `48px` 容器以 flex 置中。
   8. 謹慎使用 WAAPI（`element.animate()`）的 `fill: 'forwards'`／`'both'`：僅在確需維持終態（如交錯退場等待全體完成）時使用，並在隱藏／收起完成後或下次進場動畫啟動前，透過 `anim.cancel()`（或先 `commitStyles()` 再 `cancel()`）清理殘留動畫，避免後續進場結束時回落至舊終態導致閃爍或消失。
+  9. 帶 `gap` 的 flex／grid 容器若包裹可選 `<slot name="...">`（如前導圖示），未傳入屬性且無 slotted 子節點時須以 `@slotchange` + `?hidden` 搭配 `[hidden] { display: none; }` 隱藏包裹元素，避免空容器佔用 `gap` 造成左右內距不對稱。
+  10. `expandPadding` / `expandMargin` 僅接受 CSS 邏輯鍵（`all`、`block`、`inline`、`blockStart`、`blockEnd`、`inlineStart`、`inlineEnd`），並生成 `--_*-inline-start` 等變數；誤用 `top`/`bottom`/`start`/`end` 會拋出 `object cannot be empty` 錯誤。
+  11. `*.dom.spec.ts` 檔頭須加 `// @vitest-environment happy-dom`；透過 `innerHTML` 解析的容器元件除了在 `connectedCallback`／`slotchange` 收集子元件外，亦應在 `willUpdate` 檢查補收，確保首幀即完整渲染。
