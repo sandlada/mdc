@@ -65,6 +65,11 @@
             "import": "./build/components/appbar/index.js",
             "default": "./build/components/appbar/index.js"
         },
+        "./components/avatar/index": {
+            "types": "./build/components/avatar/index.d.ts",
+            "import": "./build/components/avatar/index.js",
+            "default": "./build/components/avatar/index.js"
+        },
         "./components/badge/index": {
             "types": "./build/components/badge/index.d.ts",
             "import": "./build/components/badge/index.js",
@@ -222,6 +227,11 @@
             "types": "./build/components/on-this-page/index.d.ts",
             "import": "./build/components/on-this-page/index.js",
             "default": "./build/components/on-this-page/index.js"
+        },
+        "./components/pagination/index": {
+            "types": "./build/components/pagination/index.d.ts",
+            "import": "./build/components/pagination/index.js",
+            "default": "./build/components/pagination/index.js"
         },
         "./components/popup-controller/index": {
             "import": "./build/components/popup-controller/index.js",

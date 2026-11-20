@@ -12,6 +12,7 @@
 // plus its interface. Never import a component in Astro frontmatter - that would
 // evaluate Lit during SSR; always register here and use bare tags in markup.
 import '@sandlada/mdc/components/appbar/index'
+import '@sandlada/mdc/components/avatar/index'
 import '@sandlada/mdc/components/badge/index'
 import '@sandlada/mdc/components/bottom-sheet/index'
 import '@sandlada/mdc/components/button/index'
@@ -40,6 +41,7 @@ import '@sandlada/mdc/components/navigation-drawer/index'
 import '@sandlada/mdc/components/navigation-rail/index'
 import '@sandlada/mdc/components/navigation-tab/index'
 import '@sandlada/mdc/components/on-this-page/index'
+import '@sandlada/mdc/components/pagination/index'
 import '@sandlada/mdc/components/progress-indicator/index'
 import '@sandlada/mdc/components/radio-button/index'
 import '@sandlada/mdc/components/ripple/index'

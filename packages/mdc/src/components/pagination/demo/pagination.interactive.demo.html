@@ -1,0 +1,198 @@
+<style>
+    .pg-demo-shell {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        width: 100%;
+        max-width: 680px;
+        padding: 16px;
+        border-radius: 16px;
+        background: var(--md-sys-color-surface-container-low, #f7f2fa);
+        box-sizing: border-box;
+    }
+
+    .pg-demo-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .pg-demo-title {
+        font: 500 16px/24px var(--md-ref-typeface-font-plain, 'Noto Sans', system-ui, sans-serif);
+        color: var(--md-sys-color-on-surface, #1d1b20);
+        margin: 0;
+    }
+
+    .pg-demo-meta {
+        font: 400 12px/16px var(--md-ref-typeface-font-plain, 'Noto Sans', system-ui, sans-serif);
+        color: var(--md-sys-color-on-surface-variant, #49454f);
+    }
+
+    .pg-demo-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-height: 260px;
+    }
+
+    .pg-demo-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: var(--md-sys-color-surface, #fff);
+    }
+
+    .pg-demo-row-info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .pg-demo-row-name {
+        font: 500 14px/20px var(--md-ref-typeface-font-plain, 'Noto Sans', system-ui, sans-serif);
+        color: var(--md-sys-color-on-surface, #1d1b20);
+    }
+
+    .pg-demo-row-role {
+        font: 400 12px/16px var(--md-ref-typeface-font-plain, 'Noto Sans', system-ui, sans-serif);
+        color: var(--md-sys-color-on-surface-variant, #49454f);
+    }
+
+    .pg-demo-row-id {
+        font: 500 12px/16px var(--md-ref-typeface-font-plain, 'Noto Sans', system-ui, sans-serif);
+        color: var(--md-sys-color-primary, #6750a4);
+    }
+
+    .pg-demo-footer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        padding-top: 8px;
+        border-top: 1px solid var(--md-sys-color-outline-variant, #cac4d0);
+    }
+</style>
+
+<div class="pg-demo-shell" id="pg-interactive-root">
+    <div class="pg-demo-header">
+        <h3 class="pg-demo-title">Team Directory (Live Paging)</h3>
+        <span class="pg-demo-meta" id="pg-interactive-status">Page 1</span>
+    </div>
+
+    <div class="pg-demo-list" id="pg-interactive-list"></div>
+
+    <div class="pg-demo-footer">
+        <mdc-pagination
+            id="pg-interactive-main"
+            total-items="42"
+            page-size="5"
+            page-size-options="5,10,20"
+            page="1"
+            show-edges
+            show-range
+            show-page-size
+            show-quick-jumper
+        ></mdc-pagination>
+
+        <mdc-pagination
+            id="pg-interactive-dots"
+            variant="dots"
+            total-items="42"
+            page-size="5"
+            page="1"
+        ></mdc-pagination>
+    </div>
+</div>
+
+<script type="module">
+    const rootNode = document.currentScript?.getRootNode?.() ?? document
+    const find = (id) =>
+        (rootNode instanceof ShadowRoot ? rootNode.getElementById(id) : null) ??
+        document.getElementById(id)
+
+    const listEl = find('pg-interactive-list')
+    const statusEl = find('pg-interactive-status')
+    const mainPager = find('pg-interactive-main')
+    const dotsPager = find('pg-interactive-dots')
+
+    const roles = ['Android Engineer', 'Design Systems', 'Product Designer', 'Web Platform', 'QA Lead']
+    const names = [
+        'Kai Orion', 'Ada Lovelace', 'Grace Hopper', 'Alan Turing', 'Margaret Hamilton',
+        'Linus Torvalds', 'Tim Berners-Lee', 'Barbara Liskov', 'Donald Knuth', 'Ken Thompson',
+        '张三', '李四', '王五', '赵六',
+    ]
+
+    const dataset = Array.from({ length: 42 }, (_, index) => ({
+        id: index + 1,
+        name: `${names[index % names.length]} #${index + 1}`,
+        role: roles[index % roles.length],
+    }))
+
+    function renderPage(page, pageSize) {
+        if (!listEl || !statusEl) return
+        const totalPages = Math.ceil(dataset.length / pageSize)
+        const start = (page - 1) * pageSize
+        const slice = dataset.slice(start, start + pageSize)
+
+        statusEl.textContent = `Page ${page} / ${totalPages} · Showing #${start + 1}–#${start + slice.length}`
+        listEl.innerHTML = ''
+
+        for (const item of slice) {
+            const row = document.createElement('div')
+            row.className = 'pg-demo-row'
+
+            const avatar = document.createElement('mdc-avatar')
+            avatar.size = 'small'
+            avatar.name = item.name.replace(/ #\d+$/, '')
+            avatar.autoColor = true
+
+            const info = document.createElement('div')
+            info.className = 'pg-demo-row-info'
+
+            const nameEl = document.createElement('span')
+            nameEl.className = 'pg-demo-row-name'
+            nameEl.textContent = item.name
+
+            const roleEl = document.createElement('span')
+            roleEl.className = 'pg-demo-row-role'
+            roleEl.textContent = item.role
+
+            const idEl = document.createElement('span')
+            idEl.className = 'pg-demo-row-id'
+            idEl.textContent = `#${String(item.id).padStart(2, '0')}`
+
+            info.append(nameEl, roleEl)
+            row.append(avatar, info, idEl)
+            listEl.appendChild(row)
+        }
+    }
+
+    mainPager?.addEventListener('page-change', (e) => {
+        const { page, pageSize } = e.detail
+        if (dotsPager) dotsPager.page = page
+        renderPage(page, pageSize)
+    })
+
+    mainPager?.addEventListener('page-size-change', (e) => {
+        const { page, pageSize } = e.detail
+        if (dotsPager) {
+            dotsPager.pageSize = pageSize
+            dotsPager.page = page
+        }
+        renderPage(page, pageSize)
+    })
+
+    dotsPager?.addEventListener('page-change', (e) => {
+        const { page, pageSize } = e.detail
+        if (mainPager) mainPager.page = page
+        renderPage(page, pageSize)
+    })
+
+    renderPage(1, 5)
+</script>
