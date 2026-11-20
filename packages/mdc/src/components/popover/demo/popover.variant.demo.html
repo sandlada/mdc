@@ -1,0 +1,35 @@
+<div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center;">
+    <mdc-popover variant="standard" arrow closable>
+        <mdc-button slot="trigger" variant="filled">
+            <mdc-icon slot="icon">tune</mdc-icon>
+            Filter Settings
+        </mdc-button>
+        <span slot="header">Display Filters</span>
+        <div style="display: flex; flex-direction: column; gap: 8px; min-width: 240px;">
+            <label style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                <span>Show archived items</span>
+                <mdc-switch></mdc-switch>
+            </label>
+            <label style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                <span>Compact density</span>
+                <mdc-switch selected></mdc-switch>
+            </label>
+        </div>
+        <div slot="footer">
+            <mdc-button variant="text">Reset</mdc-button>
+            <mdc-button variant="filled">Apply</mdc-button>
+        </div>
+    </mdc-popover>
+
+    <mdc-popover variant="outlined" placement="right" arrow>
+        <mdc-button slot="trigger" variant="outlined">Outlined Info</mdc-button>
+        <span slot="header">Workspace Quota</span>
+        <p style="margin: 0; max-width: 240px;">12.4 GB of 15 GB used across shared project assets.</p>
+    </mdc-popover>
+
+    <mdc-popover variant="vibrant" placement="top" arrow>
+        <mdc-button slot="trigger" variant="tonal">Expressive Tip</mdc-button>
+        <span slot="header">New Feature</span>
+        <p style="margin: 0; max-width: 240px;">Long-press or right-click any card to open contextual actions.</p>
+    </mdc-popover>
+</div>

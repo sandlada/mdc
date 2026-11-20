@@ -1,0 +1,32 @@
+<mdc-context-menu id="demo-context-menu-vibrant" variant="vibrant">
+    <mdc-card variant="filled" style="max-width: 380px; cursor: context-menu;">
+        <div style="padding: 20px; display: flex; align-items: center; gap: 16px;">
+            <mdc-icon style="--mdc-icon-size: 28px;">palette</mdc-icon>
+            <div>
+                <div style="font-weight: 500; font-size: 16px;">Vibrant Expressive Surface</div>
+                <div style="font-size: 13px; opacity: 0.72;">Right-click, long-press, or press Shift+F10</div>
+            </div>
+        </div>
+    </mdc-card>
+</mdc-context-menu>
+
+<script type="module">
+    const menu = document.getElementById('demo-context-menu-vibrant')
+    menu.items = [
+        { id: 'lbl-actions', type: 'label', label: 'Sort Order' },
+        { id: 'sort-name', type: 'radio', label: 'Name (A–Z)', checked: true, group: 'sort' },
+        { id: 'sort-date', type: 'radio', label: 'Last modified', checked: false, group: 'sort' },
+        { type: 'divider' },
+        { id: 'duplicate', label: 'Duplicate', icon: 'file_copy', shortcut: 'Ctrl+D' },
+        {
+            id: 'more',
+            type: 'submenu',
+            label: 'More options',
+            icon: 'more_horiz',
+            children: [
+                { id: 'inspect', label: 'Inspect tokens', icon: 'code' },
+                { id: 'history', label: 'Version history', icon: 'history' },
+            ],
+        },
+    ]
+</script>

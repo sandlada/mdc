@@ -1,0 +1,36 @@
+<mdc-context-menu id="demo-context-menu">
+    <mdc-card variant="outlined" style="max-width: 380px; cursor: context-menu;">
+        <div style="padding: 20px; display: flex; align-items: center; gap: 16px;">
+            <mdc-icon style="--mdc-icon-size: 28px; color: var(--md-sys-color-primary);">description</mdc-icon>
+            <div>
+                <div style="font-weight: 500; font-size: 16px;">Q4_Architecture_Spec.pdf</div>
+                <div style="font-size: 13px; opacity: 0.72;">Right-click, long-press (touch), or press Shift+F10</div>
+            </div>
+        </div>
+    </mdc-card>
+</mdc-context-menu>
+
+<script type="module">
+    const menu = document.getElementById('demo-context-menu')
+    menu.items = [
+        { id: 'open', label: 'Open preview', icon: 'visibility', shortcut: 'Enter' },
+        { id: 'copy', label: 'Copy link', icon: 'content_copy', shortcut: 'Ctrl+C' },
+        { id: 'rename', label: 'Rename', icon: 'edit', shortcut: 'F2' },
+        { type: 'divider' },
+        { id: 'pin', type: 'checkbox', label: 'Pin to workspace', checked: true },
+        { id: 'offline', type: 'checkbox', label: 'Available offline', checked: false },
+        { type: 'divider' },
+        {
+            id: 'share',
+            type: 'submenu',
+            label: 'Share & export',
+            icon: 'share',
+            children: [
+                { id: 'share-team', label: 'Share with team', icon: 'group' },
+                { id: 'export-md', label: 'Export Markdown', icon: 'download' },
+            ],
+        },
+        { type: 'divider' },
+        { id: 'delete', label: 'Move to trash', icon: 'delete', destructive: true, shortcut: 'Del' },
+    ]
+</script>
