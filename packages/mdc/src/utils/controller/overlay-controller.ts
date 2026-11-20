@@ -339,6 +339,10 @@ export class OverlayController implements ReactiveController {
         surface.style.position = 'fixed'
         surface.style.left = `${Math.round(result.x)}px`
         surface.style.top = `${Math.round(result.y)}px`
+        surface.style.right = 'auto'
+        surface.style.bottom = 'auto'
+        surface.style.transform = 'none'
+        surface.style.margin = '0'
         surface.dataset['placement'] = resolvedPlacement
         this.options.onResolvedPlacementChange?.(resolvedPlacement)
 

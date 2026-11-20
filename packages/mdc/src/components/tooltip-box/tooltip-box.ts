@@ -213,6 +213,9 @@ export class MDCTooltipBox extends composeMixin(
     protected override firstUpdated(): void {
         this.syncTooltipCaret()
         this.syncAriaDescribedBy()
+        if (!this.open && this.tooltipElement) {
+            this.tooltipElement.style.setProperty('visibility', 'hidden')
+        }
     }
 
     protected override updated(changedProperties: PropertyValues<this>): void {
