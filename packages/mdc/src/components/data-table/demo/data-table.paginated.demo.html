@@ -1,0 +1,27 @@
+<mdc-data-table
+    id="dt-paginated"
+    title="Paginated Desserts"
+    paginated
+    page="1"
+    page-size="3"
+    page-size-options="3,5,10"
+></mdc-data-table>
+<script type="module">
+    const el = document.getElementById('dt-paginated')
+    if (el) {
+        el.columns = [
+            { key: 'name', label: 'Dessert', sortable: true },
+            { key: 'calories', label: 'Calories', numeric: true, sortable: true },
+            { key: 'carbs', label: 'Carbs (g)', numeric: true },
+        ]
+        el.rows = [
+            { id: '1', name: 'Frozen yogurt', calories: 159, carbs: 24 },
+            { id: '2', name: 'Ice cream sandwich', calories: 237, carbs: 37 },
+            { id: '3', name: 'Eclair', calories: 262, carbs: 24 },
+            { id: '4', name: 'Cupcake', calories: 305, carbs: 67 },
+            { id: '5', name: 'Gingerbread', calories: 356, carbs: 49 },
+            { id: '6', name: 'Jelly bean', calories: 375, carbs: 94 },
+            { id: '7', name: 'Lollipop', calories: 392, carbs: 98 },
+        ]
+    }
+</script>

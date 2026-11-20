@@ -1,0 +1,20 @@
+<mdc-data-table id="dt-small" size="small" title="Small (Compact)"></mdc-data-table>
+<mdc-data-table id="dt-medium" size="medium" title="Medium (Standard)"></mdc-data-table>
+<mdc-data-table id="dt-large" size="large" title="Large (Comfortable)"></mdc-data-table>
+<script type="module">
+    const columns = [
+        { key: 'name', label: 'Dessert' },
+        { key: 'calories', label: 'Calories', numeric: true },
+    ]
+    const rows = [
+        { id: '1', name: 'Frozen yogurt', calories: 159 },
+        { id: '2', name: 'Eclair', calories: 262 },
+    ]
+    for (const id of ['dt-small', 'dt-medium', 'dt-large']) {
+        const el = document.getElementById(id)
+        if (el) {
+            el.columns = columns
+            el.rows = rows
+        }
+    }
+</script>

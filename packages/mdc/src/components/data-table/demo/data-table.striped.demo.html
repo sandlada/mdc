@@ -1,0 +1,17 @@
+<mdc-data-table id="dt-striped" striped title="Striped Rows"></mdc-data-table>
+<script type="module">
+    const el = document.getElementById('dt-striped')
+    if (el) {
+        el.columns = [
+            { key: 'name', label: 'Dessert' },
+            { key: 'calories', label: 'Calories', numeric: true },
+            { key: 'fat', label: 'Fat (g)', numeric: true },
+        ]
+        el.rows = [
+            { id: '1', name: 'Frozen yogurt', calories: 159, fat: 6.0 },
+            { id: '2', name: 'Ice cream sandwich', calories: 237, fat: 9.0 },
+            { id: '3', name: 'Eclair', calories: 262, fat: 16.0 },
+            { id: '4', name: 'Cupcake', calories: 305, fat: 3.7 },
+        ]
+    }
+</script>

@@ -1,0 +1,28 @@
+<mdc-data-table
+    id="dt-sticky"
+    title="Sticky Header & Pinned Columns"
+    sticky-header
+    max-height="240px"
+></mdc-data-table>
+<script type="module">
+    const el = document.getElementById('dt-sticky')
+    if (el) {
+        el.columns = [
+            { key: 'name', label: 'Dessert', sticky: 'start', minWidth: '180px' },
+            { key: 'calories', label: 'Calories', numeric: true, minWidth: '120px' },
+            { key: 'fat', label: 'Fat (g)', numeric: true, minWidth: '120px' },
+            { key: 'carbs', label: 'Carbs (g)', numeric: true, minWidth: '120px' },
+            { key: 'protein', label: 'Protein (g)', numeric: true, minWidth: '120px' },
+            { key: 'sodium', label: 'Sodium (mg)', numeric: true, sticky: 'end', minWidth: '120px' },
+        ]
+        el.rows = Array.from({ length: 12 }, (_, i) => ({
+            id: String(i + 1),
+            name: `Dessert Item #${i + 1}`,
+            calories: 150 + i * 25,
+            fat: (4 + i * 1.2).toFixed(1),
+            carbs: 20 + i * 5,
+            protein: (3 + i * 0.6).toFixed(1),
+            sodium: 60 + i * 15,
+        }))
+    }
+</script>

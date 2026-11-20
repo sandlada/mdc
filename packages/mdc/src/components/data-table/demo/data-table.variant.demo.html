@@ -1,0 +1,21 @@
+<mdc-data-table id="dt-outlined" variant="outlined" title="Outlined"></mdc-data-table>
+<mdc-data-table id="dt-filled" variant="filled" title="Filled"></mdc-data-table>
+<mdc-data-table id="dt-elevated" variant="elevated" title="Elevated"></mdc-data-table>
+<script type="module">
+    const columns = [
+        { key: 'name', label: 'Dessert', sortable: true },
+        { key: 'calories', label: 'Calories', numeric: true, sortable: true },
+        { key: 'fat', label: 'Fat (g)', numeric: true },
+    ]
+    const rows = [
+        { id: '1', name: 'Frozen yogurt', calories: 159, fat: 6.0 },
+        { id: '2', name: 'Ice cream sandwich', calories: 237, fat: 9.0 },
+    ]
+    for (const id of ['dt-outlined', 'dt-filled', 'dt-elevated']) {
+        const el = document.getElementById(id)
+        if (el) {
+            el.columns = columns
+            el.rows = rows
+        }
+    }
+</script>

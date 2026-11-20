@@ -115,6 +115,11 @@
             "import": "./build/components/chip/index.js",
             "default": "./build/components/chip/index.js"
         },
+        "./components/data-table/index": {
+            "types": "./build/components/data-table/index.d.ts",
+            "import": "./build/components/data-table/index.js",
+            "default": "./build/components/data-table/index.js"
+        },
         "./components/date-picker/index": {
             "types": "./build/components/date-picker/index.d.ts",
             "import": "./build/components/date-picker/index.js",

@@ -1,0 +1,28 @@
+<mdc-data-table id="dt-single" selection-mode="single" title="Single Selection"></mdc-data-table>
+<mdc-data-table id="dt-multiple" selection-mode="multiple" row-selectable title="Multiple Selection">
+    <mdc-icon-button slot="selection-actions" aria-label="Archive">
+        <mdc-icon name="archive"></mdc-icon>
+    </mdc-icon-button>
+    <mdc-icon-button slot="selection-actions" aria-label="Delete">
+        <mdc-icon name="delete"></mdc-icon>
+    </mdc-icon-button>
+</mdc-data-table>
+<script type="module">
+    const columns = [
+        { key: 'name', label: 'Dessert' },
+        { key: 'calories', label: 'Calories', numeric: true },
+        { key: 'fat', label: 'Fat (g)', numeric: true },
+    ]
+    const rows = [
+        { id: '1', name: 'Frozen yogurt', calories: 159, fat: 6.0 },
+        { id: '2', name: 'Ice cream sandwich', calories: 237, fat: 9.0 },
+        { id: '3', name: 'Eclair', calories: 262, fat: 16.0 },
+    ]
+    for (const id of ['dt-single', 'dt-multiple']) {
+        const el = document.getElementById(id)
+        if (el) {
+            el.columns = columns
+            el.rows = rows
+        }
+    }
+</script>

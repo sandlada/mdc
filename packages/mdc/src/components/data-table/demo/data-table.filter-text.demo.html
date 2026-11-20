@@ -1,0 +1,31 @@
+<mdc-data-table id="dt-filter" title="Filterable Desserts" paginated page-size="5">
+    <mdc-text-field
+        id="dt-filter-input"
+        slot="header-actions"
+        variant="outlined"
+        label="Search"
+        placeholder="Type to filter..."
+    ></mdc-text-field>
+</mdc-data-table>
+<script type="module">
+    const table = document.getElementById('dt-filter')
+    const input = document.getElementById('dt-filter-input')
+    if (table) {
+        table.columns = [
+            { key: 'name', label: 'Dessert', sortable: true },
+            { key: 'category', label: 'Category', sortable: true },
+            { key: 'calories', label: 'Calories', numeric: true, sortable: true },
+        ]
+        table.rows = [
+            { id: '1', name: 'Frozen yogurt', category: 'Dairy', calories: 159 },
+            { id: '2', name: 'Ice cream sandwich', category: 'Dairy', calories: 237 },
+            { id: '3', name: 'Eclair', category: 'Pastry', calories: 262 },
+            { id: '4', name: 'Cupcake', category: 'Bakery', calories: 305 },
+            { id: '5', name: 'Gingerbread', category: 'Bakery', calories: 356 },
+            { id: '6', name: 'Macaron', category: 'Pastry', calories: 210 },
+        ]
+        input?.addEventListener('input', (e) => {
+            table.filterText = e.target.value ?? ''
+        })
+    }
+</script>

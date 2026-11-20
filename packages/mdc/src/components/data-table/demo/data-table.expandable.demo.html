@@ -1,0 +1,23 @@
+<mdc-data-table id="dt-expandable" expandable title="Expandable Detail Rows"></mdc-data-table>
+<script type="module">
+    import { html } from 'lit'
+
+    const el = document.getElementById('dt-expandable')
+    if (el) {
+        el.columns = [
+            { key: 'name', label: 'Dessert', sortable: true },
+            { key: 'calories', label: 'Calories', numeric: true, sortable: true },
+            { key: 'origin', label: 'Origin' },
+        ]
+        el.rows = [
+            { id: '1', name: 'Frozen yogurt', calories: 159, origin: 'USA', notes: 'Low-fat probiotic dairy dessert.' },
+            { id: '2', name: 'Eclair', calories: 262, origin: 'France', notes: 'Oblong choux pastry filled with cream and topped with icing.' },
+            { id: '3', name: 'Tiramisu', calories: 310, origin: 'Italy', notes: 'Coffee-flavoured dessert with mascarpone and ladyfingers.' },
+        ]
+        el.renderExpandedRow = (row) => html`
+            <div>
+                <strong>${row.name}</strong> — ${row.notes}
+            </div>
+        `
+    }
+</script>

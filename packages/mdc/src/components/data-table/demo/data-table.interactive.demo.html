@@ -1,0 +1,38 @@
+<mdc-data-table
+    id="dt-interactive"
+    title="Nutrition"
+    selection-mode="multiple"
+    row-selectable
+    paginated
+    page-size="5"
+    sticky-header
+>
+    <mdc-icon-button slot="header-actions" aria-label="Filter list">
+        <mdc-icon name="filter_list"></mdc-icon>
+    </mdc-icon-button>
+    <mdc-icon-button slot="selection-actions" aria-label="Delete selected">
+        <mdc-icon name="delete"></mdc-icon>
+    </mdc-icon-button>
+</mdc-data-table>
+<script type="module">
+    const el = document.getElementById('dt-interactive')
+    if (el) {
+        el.columns = [
+            { key: 'name', label: 'Dessert (100g serving)', sortable: true },
+            { key: 'calories', label: 'Calories', numeric: true, sortable: true },
+            { key: 'fat', label: 'Fat (g)', numeric: true, sortable: true, format: (v) => Number(v).toFixed(1) },
+            { key: 'carbs', label: 'Carbs (g)', numeric: true, sortable: true },
+            { key: 'protein', label: 'Protein (g)', numeric: true, sortable: true, format: (v) => Number(v).toFixed(1) },
+        ]
+        el.rows = [
+            { id: '1', name: 'Frozen yogurt', calories: 159, fat: 6.0, carbs: 24, protein: 4.0 },
+            { id: '2', name: 'Ice cream sandwich', calories: 237, fat: 9.0, carbs: 37, protein: 4.3 },
+            { id: '3', name: 'Eclair', calories: 262, fat: 16.0, carbs: 24, protein: 6.0 },
+            { id: '4', name: 'Cupcake', calories: 305, fat: 3.7, carbs: 67, protein: 4.3 },
+            { id: '5', name: 'Gingerbread', calories: 356, fat: 16.0, carbs: 49, protein: 3.9 },
+            { id: '6', name: 'Jelly bean', calories: 375, fat: 0.0, carbs: 94, protein: 0.0 },
+            { id: '7', name: 'Lollipop', calories: 392, fat: 0.2, carbs: 98, protein: 0.0 },
+            { id: '8', name: 'Honeycomb', calories: 408, fat: 3.2, carbs: 87, protein: 6.5 },
+        ]
+    }
+</script>
