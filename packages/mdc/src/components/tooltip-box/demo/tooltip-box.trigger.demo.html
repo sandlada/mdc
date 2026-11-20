@@ -1,20 +1,20 @@
 <mdc-tooltip-box>
-    <mdc-button variant="filled">Auto trigger (default: hover + focus + long-press)</mdc-button>
+    <mdc-button variant="filled"><span>Auto trigger (default: hover + focus + long-press)</span></mdc-button>
     <mdc-tooltip slot="tooltip">Shows on hover, keyboard focus, or touch long-press</mdc-tooltip>
 </mdc-tooltip-box>
 
 <mdc-tooltip-box trigger="hover">
-    <mdc-button variant="outlined">Hover only</mdc-button>
+    <mdc-button variant="outlined"><span>Hover only</span></mdc-button>
     <mdc-tooltip slot="tooltip">Shows on pointer enter, hides on pointer leave</mdc-tooltip>
 </mdc-tooltip-box>
 
 <mdc-tooltip-box trigger="focus">
-    <mdc-button variant="outlined">Focus only</mdc-button>
+    <mdc-button variant="outlined"><span>Focus only</span></mdc-button>
     <mdc-tooltip slot="tooltip">Shows on focus in, hides on focus out. Tab to this button.</mdc-tooltip>
 </mdc-tooltip-box>
 
 <mdc-tooltip-box trigger="click" persistent>
-    <mdc-button variant="tonal">Click + Persistent</mdc-button>
+    <mdc-button variant="tonal"><span>Click + Persistent</span></mdc-button>
     <mdc-tooltip slot="tooltip" rich>
         <span slot="headline">Persistent Tooltip</span>
         <span>Stays open until you press Escape or click outside.</span>
@@ -22,7 +22,7 @@
 </mdc-tooltip-box>
 
 <mdc-tooltip-box trigger="manual" id="manual-tooltip-box">
-    <mdc-button variant="filled" id="manual-btn">Manual trigger</mdc-button>
+    <mdc-button variant="filled" id="manual-btn"><span>Manual trigger</span></mdc-button>
     <mdc-tooltip slot="tooltip">Controlled via JavaScript</mdc-tooltip>
 </mdc-tooltip-box>
 

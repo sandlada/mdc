@@ -2,7 +2,7 @@
     <mdc-popover variant="standard" arrow closable>
         <mdc-button slot="trigger" variant="filled">
             <mdc-icon slot="icon">tune</mdc-icon>
-            Filter Settings
+            <span>Filter Settings</span>
         </mdc-button>
         <span slot="header">Display Filters</span>
         <div style="display: flex; flex-direction: column; gap: 8px; min-width: 240px;">
@@ -16,19 +16,19 @@
             </label>
         </div>
         <div slot="footer">
-            <mdc-button variant="text">Reset</mdc-button>
-            <mdc-button variant="filled">Apply</mdc-button>
+            <mdc-button variant="text"><span>Reset</span></mdc-button>
+            <mdc-button variant="filled"><span>Apply</span></mdc-button>
         </div>
     </mdc-popover>
 
     <mdc-popover variant="outlined" placement="right" arrow>
-        <mdc-button slot="trigger" variant="outlined">Outlined Info</mdc-button>
+        <mdc-button slot="trigger" variant="outlined"><span>Outlined Info</span></mdc-button>
         <span slot="header">Workspace Quota</span>
         <p style="margin: 0; max-width: 240px;">12.4 GB of 15 GB used across shared project assets.</p>
     </mdc-popover>
 
     <mdc-popover variant="vibrant" placement="top" arrow>
-        <mdc-button slot="trigger" variant="tonal">Expressive Tip</mdc-button>
+        <mdc-button slot="trigger" variant="tonal"><span>Expressive Tip</span></mdc-button>
         <span slot="header">New Feature</span>
         <p style="margin: 0; max-width: 240px;">Long-press or right-click any card to open contextual actions.</p>
     </mdc-popover>

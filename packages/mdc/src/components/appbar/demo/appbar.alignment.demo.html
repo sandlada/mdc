@@ -2,8 +2,8 @@
     <!-- Interactive WAAPI Alignment Switcher -->
     <div style="display: flex; flex-direction: column; gap: 12px;">
         <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-            <mdc-button variant="outlined" onclick="this.getRootNode().querySelector('#demo-alignment-live').alignment = 'start'">Alignment: Start</mdc-button>
-            <mdc-button variant="outlined" onclick="this.getRootNode().querySelector('#demo-alignment-live').alignment = 'center'">Alignment: Center</mdc-button>
+            <mdc-button variant="outlined" onclick="this.getRootNode().querySelector('#demo-alignment-live').alignment = 'start'"><span>Alignment: Start</span></mdc-button>
+            <mdc-button variant="outlined" onclick="this.getRootNode().querySelector('#demo-alignment-live').alignment = 'center'"><span>Alignment: Center</span></mdc-button>
         </div>
         <mdc-appbar id="demo-alignment-live" alignment="start" headline="Animated Alignment" subtitle="Toggle start and center alignment">
             <mdc-icon-button slot="leading"><mdc-icon>arrow_back</mdc-icon></mdc-icon-button>
