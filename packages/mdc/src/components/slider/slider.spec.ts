@@ -271,4 +271,45 @@ describe('MDCSlider', () => {
         expect(fd.get('low')).toBe('10')
         expect(fd.get('high')).toBe('90')
     })
+
+    it('enforces minSeparation in willUpdate, keyboard navigation, and step snapping', () => {
+        const slider = createTestableSlider()
+        slider.type = SliderType.Range
+        slider.min = 0
+        slider.max = 100
+        slider.step = 10
+        slider.minSeparation = 15
+        slider.valueStart = 40
+        slider.valueEnd = 50
+        slider.willUpdate(new Map())
+        // 50 - 15 = 35 -> snapped down to 30 on step=10
+        expect(slider.valueStart).toBe(30)
+        expect(slider.valueEnd).toBe(50)
+
+        const onStartKey = slider.handleThumbKeyDown('start')
+        onStartKey(fakeKeyEvent('ArrowRight'))
+        expect(slider.valueStart).toBe(30)
+
+        onStartKey(fakeKeyEvent('End'))
+        expect(slider.valueStart).toBe(30)
+
+        const onEndKey = slider.handleThumbKeyDown('end')
+        onEndKey(fakeKeyEvent('Home'))
+        // 30 + 15 = 45 -> snapped up to 50 on step=10
+        expect(slider.valueEnd).toBe(50)
+    })
+
+    it('supports values tuple getter/setter and throws on invalid tuple', () => {
+        const slider = createTestableSlider()
+        slider.type = SliderType.Range
+        slider.values = [25, 75]
+        slider.willUpdate(new Map())
+        expect(slider.values).toEqual([25, 75])
+        expect(slider.valueStart).toBe(25)
+        expect(slider.valueEnd).toBe(75)
+
+        expect(() => {
+            slider.values = [10] as unknown as [number, number]
+        }).toThrow()
+    })
 })

@@ -393,10 +393,8 @@ export const SliderStyles = [
             transform: translate(-50%, 50%);
         }
 
-        .thumb.pressed {
-            z-index: 1;
-        }
-
+        .thumb.hovered,
+        .thumb.pressed,
         .thumb.focused {
             z-index: 1;
         }

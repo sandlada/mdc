@@ -61,6 +61,7 @@ export interface IMDCSliderAttributes {
     value: number
     valueStart: number
     valueEnd: number
+    minSeparation: number
 
     type: SliderType
     size: SliderSize

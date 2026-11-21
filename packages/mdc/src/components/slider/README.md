@@ -20,7 +20,11 @@ Material Design 3 `slider` component (`mdc-slider`).
 | `min` | `—` | `0` |
 | `max` | `—` | `100` |
 | `step` | `—` | `1` |
-| `get` | `—` | `—` |
+| `value` | `number` | `0` |
+| `valueStart` | `number` | `0` |
+| `valueEnd` | `number` | `100` |
+| `minSeparation` | `number` | `0` |
+| `values` | `[number, number]` | `[0, 100]` |
 | `type` | `SliderType` | `SliderType.Standard` |
 | `size` | `SliderSize` | `SliderSize.ExtraSmall` |
 | `direction` | `SliderDirection` | `SliderDirection.Horizontal` |

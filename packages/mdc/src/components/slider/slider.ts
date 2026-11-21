@@ -177,6 +177,20 @@ export class MDCSlider extends composeMixin(
         this.requestUpdate('valueEnd', prev)
     }
 
+    @property({ type: Number, attribute: 'min-separation' })
+    public minSeparation = 0
+
+    public get values(): [number, number] {
+        return [this._valueStart, this._valueEnd]
+    }
+    public set values(next: [number, number]) {
+        if (!Array.isArray(next) || next.length < 2 || !Number.isFinite(next[0]) || !Number.isFinite(next[1])) {
+            throw new Error('mdc-slider: values must be a finite [start, end] tuple.')
+        }
+        this.valueStart = next[0]
+        this.valueEnd = next[1]
+    }
+
     @property({ type: String, reflect: true })
     public type: SliderType = SliderType.Standard
 
@@ -303,13 +317,53 @@ export class MDCSlider extends composeMixin(
     }
 
     public override focus(options?: FocusOptions) {
-        const target = this.thumbEndElement ?? this.thumbStartElement
+        const target = this.thumbStartElement ?? this.thumbEndElement
         target?.focus(options)
     }
 
-    protected override willUpdate(changed: PropertyValues) {
+    private getSafeBounds(): { safeMin: number; safeMax: number } {
         const safeMin = Number.isFinite(this.min) ? this.min : 0
         const safeMax = Number.isFinite(this.max) ? Math.max(safeMin, this.max) : safeMin
+        return { safeMin, safeMax }
+    }
+
+    private getEffectiveMinSeparation(safeMin: number, safeMax: number): number {
+        const raw = Number.isFinite(this.minSeparation) ? Math.max(0, this.minSeparation) : 0
+        return Math.min(raw, Math.max(0, safeMax - safeMin))
+    }
+
+    private snapRangeBound(safeMin: number, safeMax: number, limit: number, direction: 'floor' | 'ceil'): number {
+        if (this.step <= 0 || !Number.isFinite(this.step)) {
+            return clamp(safeMin, safeMax)(limit)
+        }
+        const snap = snapValue(safeMin, safeMax, this.step)
+        const steps = direction === 'floor'
+            ? Math.floor((limit - safeMin) / this.step + 1e-9)
+            : Math.ceil((limit - safeMin) / this.step - 1e-9)
+        let candidate = snap(safeMin + steps * this.step)
+        if (direction === 'floor' && candidate > limit + 1e-9) {
+            candidate = snap(safeMin + (steps - 1) * this.step)
+        } else if (direction === 'ceil' && candidate < limit - 1e-9) {
+            candidate = snap(safeMin + (steps + 1) * this.step)
+        }
+        return clamp(safeMin, safeMax)(candidate)
+    }
+
+    private normalizeRangeValues(safeMin: number, safeMax: number) {
+        const snap = snapValue(safeMin, safeMax, this.step)
+        const minSep = this.getEffectiveMinSeparation(safeMin, safeMax)
+        this._valueStart = snap(this._valueStart)
+        this._valueEnd = snap(this._valueEnd)
+        if (this._valueEnd - this._valueStart < minSep) {
+            this._valueStart = this.snapRangeBound(safeMin, safeMax, this._valueEnd - minSep, 'floor')
+            if (this._valueEnd - this._valueStart < minSep) {
+                this._valueEnd = this.snapRangeBound(safeMin, safeMax, this._valueStart + minSep, 'ceil')
+            }
+        }
+    }
+
+    protected override willUpdate(changed: PropertyValues) {
+        const { safeMin, safeMax } = this.getSafeBounds()
         const snap = snapValue(safeMin, safeMax, this.step)
 
         if (!this._initialized) {
@@ -339,11 +393,7 @@ export class MDCSlider extends composeMixin(
         }
 
         this._value = snap(this._value)
-        this._valueStart = snap(this._valueStart)
-        this._valueEnd = snap(this._valueEnd)
-        if (this._valueStart > this._valueEnd) {
-            this._valueStart = this._valueEnd
-        }
+        this.normalizeRangeValues(safeMin, safeMax)
 
         if (changed.has('direction') && this.containerElement) {
             const rect = this.containerElement.getBoundingClientRect()
@@ -438,18 +488,20 @@ export class MDCSlider extends composeMixin(
     }
 
     private applyThumbValue(thumb: ThumbId, rawValue: number): boolean {
-        const safeMin = Math.min(this.min, this.max)
-        const safeMax = Math.max(this.min, this.max)
+        const { safeMin, safeMax } = this.getSafeBounds()
         const snapped = snapValue(safeMin, safeMax, this.step)(rawValue)
 
         if (this.type === SliderType.Range) {
+            const minSep = this.getEffectiveMinSeparation(safeMin, safeMax)
             if (thumb === 'start') {
-                const nextStart = Math.min(snapped, this._valueEnd)
+                const maxAllowed = this.snapRangeBound(safeMin, safeMax, this._valueEnd - minSep, 'floor')
+                const nextStart = Math.min(snapped, maxAllowed)
                 if (nextStart === this._valueStart) return false
                 this.valueStart = nextStart
                 return true
             }
-            const nextEnd = Math.max(snapped, this._valueStart)
+            const minAllowed = this.snapRangeBound(safeMin, safeMax, this._valueStart + minSep, 'ceil')
+            const nextEnd = Math.max(snapped, minAllowed)
             if (nextEnd === this._valueEnd) return false
             this.valueEnd = nextEnd
             return true
@@ -497,16 +549,34 @@ export class MDCSlider extends composeMixin(
             const startCenter = this.thumbCenterPx(startVf, effectiveLength)
             const endCenter = this.thumbCenterPx(endVf, effectiveLength)
 
-            if (this._valueStart === this._valueEnd && Math.abs(pointerPx - startCenter) <= 12) {
+            if (this._valueStart === this._valueEnd && Math.abs(pointerPx - startCenter) <= TouchTargetRadius) {
                 this.pendingCoincidentDrag = { anchorClientPos: this.pointerClientCoord(event) }
-                const fallbackThumb: ThumbId = this._valueEnd >= this.max ? 'start' : 'end'
+                const fallbackThumb: ThumbId =
+                    this._valueEnd >= this.max
+                        ? 'start'
+                        : (this._valueStart <= this.min ? 'end' : (this.focusedThumb ?? 'end'))
                 this.pressedThumb = fallbackThumb
                 this.hoveredThumb = fallbackThumb
+                const fallbackEl = fallbackThumb === 'start' ? this.thumbStartElement : this.thumbEndElement
+                fallbackEl?.focus({ preventScroll: true })
                 return
             }
 
-            const targetThumb: ThumbId =
-                Math.abs(pointerPx - startCenter) <= Math.abs(pointerPx - endCenter) ? 'start' : 'end'
+            const distStart = Math.abs(pointerPx - startCenter)
+            const distEnd = Math.abs(pointerPx - endCenter)
+            let targetThumb: ThumbId
+            if (Math.abs(distStart - distEnd) < 0.5) {
+                if (clickedValue > this._valueEnd) {
+                    targetThumb = 'end'
+                } else if (clickedValue < this._valueStart) {
+                    targetThumb = 'start'
+                } else {
+                    targetThumb = this.focusedThumb ?? 'start'
+                }
+            } else {
+                targetThumb = distStart < distEnd ? 'start' : 'end'
+            }
+
             this.pressedThumb = targetThumb
             this.hoveredThumb = targetThumb
             const thumbEl = targetThumb === 'start' ? this.thumbStartElement : this.thumbEndElement
@@ -577,7 +647,9 @@ export class MDCSlider extends composeMixin(
             const startVf = toVisualFraction(this.reversed)(valueToFraction(this.min, this.max)(this._valueStart))
             const startCenter = this.thumbCenterPx(startVf, length)
             const distStart = Math.abs(pointerPx - startCenter)
-            if (distStart <= TouchTargetRadius && distStart <= distEnd) {
+            if (Math.abs(distStart - distEnd) < 0.5 && distStart <= TouchTargetRadius) {
+                this.hoveredThumb = this.focusedThumb ?? 'start'
+            } else if (distStart <= TouchTargetRadius && distStart <= distEnd) {
                 this.hoveredThumb = 'start'
             } else if (distEnd <= TouchTargetRadius) {
                 this.hoveredThumb = 'end'
@@ -668,12 +740,22 @@ export class MDCSlider extends composeMixin(
             case 'PageDown':
                 nextVal = currentVal - (isVertical ? vDir : hDir) * bigDelta
                 break
-            case 'Home':
-                nextVal = this.type === SliderType.Range && thumb === 'end' ? this._valueStart : this.min
+            case 'Home': {
+                const { safeMin, safeMax } = this.getSafeBounds()
+                const minSep = this.getEffectiveMinSeparation(safeMin, safeMax)
+                nextVal = this.type === SliderType.Range && thumb === 'end'
+                    ? this.snapRangeBound(safeMin, safeMax, this._valueStart + minSep, 'ceil')
+                    : safeMin
                 break
-            case 'End':
-                nextVal = this.type === SliderType.Range && thumb === 'start' ? this._valueEnd : this.max
+            }
+            case 'End': {
+                const { safeMin, safeMax } = this.getSafeBounds()
+                const minSep = this.getEffectiveMinSeparation(safeMin, safeMax)
+                nextVal = this.type === SliderType.Range && thumb === 'start'
+                    ? this.snapRangeBound(safeMin, safeMax, this._valueEnd - minSep, 'floor')
+                    : safeMax
                 break
+            }
             default:
                 return
         }
@@ -793,6 +875,15 @@ export class MDCSlider extends composeMixin(
             }
         }
 
+        const { safeMin, safeMax } = this.getSafeBounds()
+        const minSep = this.getEffectiveMinSeparation(safeMin, safeMax)
+        const startAriaMax = isRange
+            ? this.snapRangeBound(safeMin, safeMax, this._valueEnd - minSep, 'floor')
+            : safeMax
+        const endAriaMin = isRange
+            ? this.snapRangeBound(safeMin, safeMax, this._valueStart + minSep, 'ceil')
+            : safeMin
+
         const handleCenters = isRange ? [startHandleCenterPx, endHandleCenterPx] : [endHandleCenterPx]
         const tickMarks = this.ticks
             ? computeTicks({
@@ -805,7 +896,7 @@ export class MDCSlider extends composeMixin(
                   handleCenters,
                   trackLength: length,
                   edgeInset: EdgeInset,
-                  handleHalf: endHandleHalf,
+                  handleHalf: isRange ? Math.max(startHandleHalf, endHandleHalf) : endHandleHalf,
                   gap: ThumbTrackGap,
                   tickRadius: TickRadius,
                   hideStartEdge: showStartStop,
@@ -844,8 +935,8 @@ export class MDCSlider extends composeMixin(
                         thumb: 'start',
                         vf: startVf,
                         value: this._valueStart,
-                        ariaMin: this.min,
-                        ariaMax: this._valueEnd,
+                        ariaMin: safeMin,
+                        ariaMax: startAriaMax,
                         label: this.formatThumbLabel(this._valueStart, this.valueLabelStart),
                     }),
                 )}
@@ -853,8 +944,8 @@ export class MDCSlider extends composeMixin(
                     thumb: 'end',
                     vf: endVf,
                     value: isRange ? this._valueEnd : this._value,
-                    ariaMin: isRange ? this._valueStart : this.min,
-                    ariaMax: this.max,
+                    ariaMin: endAriaMin,
+                    ariaMax: safeMax,
                     label: this.formatThumbLabel(
                         isRange ? this._valueEnd : this._value,
                         isRange ? this.valueLabelEnd : this.valueLabel,
@@ -1003,8 +1094,7 @@ export class MDCSlider extends composeMixin(
     }
 
     public override formResetCallback() {
-        const safeMin = Math.min(this.min, this.max)
-        const safeMax = Math.max(this.min, this.max)
+        const { safeMin, safeMax } = this.getSafeBounds()
         const snap = snapValue(safeMin, safeMax, this.step)
 
         if (this.type === SliderType.Range) {
@@ -1012,6 +1102,7 @@ export class MDCSlider extends composeMixin(
             const attrEnd = this.getAttribute('default-value-end') ?? this.getAttribute('value-end')
             this._valueStart = attrStart !== null ? snap(Number(attrStart)) : snap(safeMin + (safeMax - safeMin) / 3)
             this._valueEnd = attrEnd !== null ? snap(Number(attrEnd)) : snap(safeMin + (2 * (safeMax - safeMin)) / 3)
+            this.normalizeRangeValues(safeMin, safeMax)
             this.requestUpdate()
             return
         }
