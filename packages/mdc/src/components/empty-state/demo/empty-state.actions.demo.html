@@ -1,0 +1,13 @@
+<mdc-empty-state>
+    <mdc-icon slot="illustration" name="search_off" aria-hidden="true"></mdc-icon>
+    <h3 slot="headline">No matching results</h3>
+    <p slot="supporting-text">Clear your filters to show all projects.</p>
+    <mdc-button slot="actions" variant="filled" onclick="
+        const emptyState = this.closest('mdc-empty-state')
+        const results = emptyState.nextElementSibling
+        results.hidden = false
+        emptyState.hidden = true
+        results.focus()
+    ">Clear filters</mdc-button>
+</mdc-empty-state>
+<p hidden tabindex="-1">Showing all projects.</p>

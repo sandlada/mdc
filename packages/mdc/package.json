@@ -168,6 +168,11 @@
             "import": "./build/components/elevation/index.js",
             "default": "./build/components/elevation/index.js"
         },
+        "./components/empty-state/index": {
+            "types": "./build/components/empty-state/index.d.ts",
+            "import": "./build/components/empty-state/index.js",
+            "default": "./build/components/empty-state/index.js"
+        },
         "./components/expressive-progress-indicator/index": {
             "types": "./build/components/expressive-progress-indicator/index.d.ts",
             "import": "./build/components/expressive-progress-indicator/index.js",
