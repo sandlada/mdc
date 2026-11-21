@@ -5,7 +5,7 @@
  */
 import { customElement, property } from 'lit/decorators.js'
 import { Internals } from '../../utils/behaviors/element-internals'
-import { setupFormSubmitter, type FormSubmitter, type FormSubmitterType } from '../../utils/controller/form-submitter'
+import { setupFormSubmitter, type FormSubmitter, type FormSubmitterType } from '../../utils/form'
 import { BaseButton } from './button.base'
 import { ButtonStyles } from './button.style'
 

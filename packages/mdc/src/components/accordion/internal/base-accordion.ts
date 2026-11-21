@@ -10,7 +10,7 @@ import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
 import {
     ExpansionGroupController,
     type IExpansionGroupHost,
-} from '../../../utils/controller/expansion-controller'
+} from '../../../utils/expansion'
 import {
     AccordionChangeEvent,
     AccordionMode,

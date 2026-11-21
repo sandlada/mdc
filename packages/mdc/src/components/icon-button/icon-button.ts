@@ -5,7 +5,7 @@
  */
 import { customElement, property } from 'lit/decorators.js'
 import { Internals } from '../../utils/behaviors/element-internals'
-import { setupFormSubmitter, type FormSubmitter, type FormSubmitterType } from '../../utils/controller/form-submitter'
+import { setupFormSubmitter, type FormSubmitter, type FormSubmitterType } from '../../utils/form'
 import { BaseMDCIconButton } from './base-icon-button'
 
 declare global {

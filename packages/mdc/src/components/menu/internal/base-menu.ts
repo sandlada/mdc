@@ -32,10 +32,11 @@ import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
 import {
     findNearestAncestorOverlayId,
+    getOverlayTree,
+    type OverlayTreeManager,
     isOutsideComposedPath,
     OverlayIdAttribute,
-} from '../../../utils/controller/overlay-controller'
-import { DefaultOverlayTree } from '../../../utils/controller/overlay-tree'
+} from '../../../utils/overlay'
 import { mixinElevationOptions } from '../../elevation/elevation-options.mixin'
 import type {
     IMDCMenu,
@@ -140,7 +141,8 @@ export abstract class BaseMenu extends composeMixin(
     /** Generation guard: a stale show/hide never emits its completion event. */
     private lifecycle = 0
     private cleanupAutoUpdate: (() => void) | null = null
-    private dismissAttached = false
+    private dismissDocument: Document | null = null
+    private overlayTree: OverlayTreeManager | null = null
     private returnFocusElement: HTMLElement | null = null
     private typeaheadBuffer = ''
     private typeaheadTimer: ReturnType<typeof setTimeout> | null = null
@@ -174,12 +176,24 @@ export abstract class BaseMenu extends composeMixin(
 
     public override connectedCallback(): void {
         super.connectedCallback()
+        if (this.ownerDocument) {
+            this.setAttribute(OverlayIdAttribute, this.overlayId)
+            this.overlayTree = getOverlayTree(this.ownerDocument)
+            this.overlayTree.register(this.overlayId, {
+                parentId: findNearestAncestorOverlayId(this, this.overlayId),
+                getSurface: () => this.surfaceElement,
+                onClose: () => this.hide(),
+            })
+        }
         if (this.open) {
             this.syncOpenSideEffects(false)
         }
     }
 
     public override disconnectedCallback(): void {
+        ++this.lifecycle
+        this.overlayTree?.unregister(this.overlayId)
+        this.overlayTree = null
         this.stopPositionTracking()
         this.detachDismissListeners()
         this.clearTypeaheadTimer()
@@ -292,15 +306,11 @@ export abstract class BaseMenu extends composeMixin(
         }
         this.rememberReturnFocus()
         this.open = true
-        if (typeof document !== 'undefined') {
-            this.setAttribute?.(OverlayIdAttribute, this.overlayId)
-            DefaultOverlayTree.register(this.overlayId, {
-                parentId: findNearestAncestorOverlayId(this, this.overlayId),
-                getSurface: () => this.surfaceElement,
-                onClose: () => this.hide(),
-            })
-            await DefaultOverlayTree.markOpen(this.overlayId)
+        if (this.overlayTree) {
+            this.overlayTree.setParent(this.overlayId, findNearestAncestorOverlayId(this, this.overlayId))
+            await this.overlayTree.markOpen(this.overlayId)
         }
+        if (generation !== this.lifecycle) return
         if (this.isConnected) {
             await this.updateComplete
         }
@@ -356,9 +366,10 @@ export abstract class BaseMenu extends composeMixin(
         // attribute is removed. `allow-discrete` keeps the surface rendered
         // until the transition ends (dialog.base idiom).
         this.closeOpenSubmenus()
-        if (typeof document !== 'undefined') {
-            await DefaultOverlayTree.markClosed(this.overlayId, 'programmatic')
+        if (this.overlayTree) {
+            await this.overlayTree.markClosed(this.overlayId, 'programmatic')
         }
+        if (generation !== this.lifecycle) return
         this.open = false
         this.stopPositionTracking()
         this.detachDismissListeners()
@@ -500,6 +511,16 @@ export abstract class BaseMenu extends composeMixin(
     }
 
     private syncOpenSideEffects(restart: boolean): void {
+        const tree = this.overlayTree
+        const registered = tree?.snapshot.get(this.overlayId)
+        if (tree && registered && registered.open !== this.open) {
+            if (this.open) {
+                tree.setParent(this.overlayId, findNearestAncestorOverlayId(this, this.overlayId))
+                void tree.markOpen(this.overlayId)
+            } else {
+                void tree.markClosed(this.overlayId)
+            }
+        }
         if (!this.open) {
             this.closeOpenSubmenus()
             this.stopPositionTracking()
@@ -547,25 +568,21 @@ export abstract class BaseMenu extends composeMixin(
     }
 
     private attachDismissListeners(): void {
-        if (this.dismissAttached || typeof document === 'undefined') {
-            return
-        }
+        if (this.dismissDocument || !this.isConnected) return
+        const document = this.ownerDocument
         document.addEventListener('pointerdown', this.handleDocumentPointerdown, true)
         document.addEventListener('keydown', this.handleDocumentKeydown, true)
-        this.dismissAttached = true
+        this.dismissDocument = document
     }
 
     private detachDismissListeners(): void {
-        if (!this.dismissAttached || typeof document === 'undefined') {
-            return
-        }
-        document.removeEventListener('pointerdown', this.handleDocumentPointerdown, true)
-        document.removeEventListener('keydown', this.handleDocumentKeydown, true)
-        this.dismissAttached = false
+        this.dismissDocument?.removeEventListener('pointerdown', this.handleDocumentPointerdown, true)
+        this.dismissDocument?.removeEventListener('keydown', this.handleDocumentKeydown, true)
+        this.dismissDocument = null
     }
 
     private rememberReturnFocus(): void {
-        const active = typeof document === 'undefined' ? null : document.activeElement
+        const active = this.ownerDocument?.activeElement
         this.returnFocusElement = isHTMLElement(active) ? active : null
     }
 
@@ -733,9 +750,7 @@ export abstract class BaseMenu extends composeMixin(
             return
         }
         const path = typeof event.composedPath === 'function' ? event.composedPath() : []
-        const descendants = typeof document !== 'undefined'
-            ? DefaultOverlayTree.getOpenDescendantSurfaces(this.overlayId)
-            : []
+        const descendants = this.overlayTree?.getOpenDescendantSurfaces(this.overlayId) ?? []
         if (!isOutsideComposedPath(path, [this, ...descendants])) {
             return
         }
@@ -747,7 +762,7 @@ export abstract class BaseMenu extends composeMixin(
             if (this.isEventFromOpenDescendant(event)) {
                 return
             }
-            const deepest = typeof document !== 'undefined' ? DefaultOverlayTree.getDeepestActiveLeafId() : null
+            const deepest = this.overlayTree?.getDeepestActiveLeafId()
             if (deepest && deepest !== this.overlayId) {
                 return
             }
@@ -762,7 +777,7 @@ export abstract class BaseMenu extends composeMixin(
                 if (this.isEventFromOpenDescendant(event)) {
                     return
                 }
-                const deepest = typeof document !== 'undefined' ? DefaultOverlayTree.getDeepestActiveLeafId() : null
+                const deepest = this.overlayTree?.getDeepestActiveLeafId()
                 if (deepest && deepest !== this.overlayId) {
                     return
                 }

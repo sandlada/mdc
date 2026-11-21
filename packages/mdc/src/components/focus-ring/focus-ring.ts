@@ -7,7 +7,7 @@ import { ContextConsumer } from '@lit/context'
 import { isServer, LitElement, type PropertyValues } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { GlobalMDCContext, type GlobalMDCContextFocusRingConfig } from '../../utils/context-provider'
-import { AttachableController } from '../../utils/controller/attachable-controller'
+import { AttachableController } from '../../utils/attachment'
 import type { IFocusRing } from './focus-ring.interface'
 import { FocusRingStyle } from './focus-ring.style'
 

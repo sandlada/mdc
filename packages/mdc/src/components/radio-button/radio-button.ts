@@ -11,9 +11,9 @@ import { CreateValidator, GetValidityAnchor, mixinConstraintValidation } from '.
 import { Internals, mixinElementInternals } from '../../utils/behaviors/element-internals'
 import { RadioValidator } from '../../utils/behaviors/validators/radio-validator'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
-import { SelectionController } from '../../utils/controller/selection-controller'
+import { SelectionController } from '../../utils/selection'
 import { isActivationClick } from '../../utils/event/form-label-activation'
-import { GetFormState, GetFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
+import { GetFormState, GetFormValue, mixinFormAssociated } from '../../utils/form'
 import { mixinFocusRingOptions } from '../focus-ring/focus-ring-options.mixin'
 import { mixinRippleOptions } from '../ripple/ripple-options.mixin'
 import { RadioButtonStyle } from './radio-button.style'
@@ -110,7 +110,6 @@ export class RadioButton extends composeMixin(
 
     constructor() {
         super()
-        this.addController(this.selectionController)
         if (!isServer) {
             installKeyboardModalityTracking()
             this[Internals].role = 'radio'

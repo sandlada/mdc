@@ -7,8 +7,7 @@ import { html, isServer, nothing } from 'lit'
 import { property, query, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import '../../icon/icon'
-import { MeasuredDimensionController } from '../../../utils/controller/measured-dimension-controller'
-import { OpacityTransitionController } from '../../../utils/controller/opacity-transition-controller'
+import { MeasuredDimensionController, OpacityTransitionController } from '../../../utils/motion'
 import { BaseFab } from './base-fab'
 /**
  * Extended Fab components provide an icon and an label (optional).

@@ -24,7 +24,7 @@
  */
 import { html, isServer, LitElement, nothing, type PropertyValues, type TemplateResult } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
-import { SelectionController } from '../../utils/controller/selection-controller'
+import { SelectionController } from '../../utils/selection'
 import {
     GlobalNavigationStateStore,
     type NavigationEventTrigger,
@@ -38,7 +38,7 @@ import { mixinFocusRingOptions } from '../focus-ring/focus-ring-options.mixin'
 import { mixinElementInternals } from '../../utils/behaviors/element-internals'
 import { mixinDelegatesAria } from '../../utils/aria/delegate'
 import { CreateValidator, GetValidityAnchor, mixinConstraintValidation } from '../../utils/behaviors/constraint-validation'
-import { GetFormState, GetFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
+import { GetFormState, GetFormValue, mixinFormAssociated } from '../../utils/form'
 import { RadioValidator } from '../../utils/behaviors/validators/radio-validator'
 import { NavigationTabStyles } from './navigation-tab.style'
 import { classMap } from 'lit/directives/class-map.js'

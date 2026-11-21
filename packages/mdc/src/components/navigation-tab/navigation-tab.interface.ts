@@ -1,5 +1,5 @@
 import type { LitElement } from 'lit'
-import type { FormAssociated } from '../../utils/form/form-associated'
+import type { FormAssociated } from '../../utils/form'
 
 export const NavigationTabVariant = {
     BarVertical: 'bar-vertical',

@@ -58,6 +58,8 @@ const input = collectEntries(srcDir)
 
 export default defineConfig({
     input,
+    // Resolve Lit through the consumer's browser or server export conditions.
+    external: [/^lit(?:\/|$)/, /^@lit\//],
     output: {
         dir: 'build',
         format: 'esm',

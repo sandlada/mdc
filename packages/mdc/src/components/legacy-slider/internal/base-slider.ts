@@ -24,7 +24,7 @@ import { SliderValidator } from '../../../utils/behaviors/validators/slider-vali
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
 import { dispatchActivationClick, isActivationClick } from '../../../utils/event/form-label-activation'
 import { redispatchEvent } from '../../../utils/event/redispatch-event'
-import { GetFormState, GetFormValue, mixinFormAssociated } from '../../../utils/form/form-associated'
+import { GetFormState, GetFormValue, mixinFormAssociated } from '../../../utils/form'
 import type { MDCRipple } from '../../ripple/ripple'
 
 export interface IMDCSliderAttributes {

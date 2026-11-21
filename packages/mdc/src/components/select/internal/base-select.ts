@@ -21,7 +21,7 @@ import {
     GetFormState,
     GetFormValue,
     mixinFormAssociated,
-} from '../../../utils/form/form-associated'
+} from '../../../utils/form'
 import { mixinElevationOptions } from '../../elevation/elevation-options.mixin'
 import '../../field/field'
 import type { MDCField } from '../../field/field'

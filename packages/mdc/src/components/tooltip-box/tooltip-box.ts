@@ -12,8 +12,8 @@ import {
     OverlayController,
     OverlayDismissReasons,
     type OverlayPlacements,
-} from '../../utils/controller/overlay-controller'
-import { TriggerController, TriggerKinds } from '../../utils/controller/trigger-controller'
+} from '../../utils/overlay'
+import { TriggerController, TriggerKinds } from '../../utils/trigger'
 import {
     TooltipBoxHiddenEvent,
     TooltipBoxHidingEvent,

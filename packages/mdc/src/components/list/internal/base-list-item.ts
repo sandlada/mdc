@@ -22,7 +22,7 @@ import { classMap } from 'lit/directives/class-map.js'
 import type { AriaMixinStrict } from '../../../utils/aria/aria'
 import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
-import { ExpansionController } from '../../../utils/controller/expansion-controller'
+import { ExpansionController } from '../../../utils/expansion'
 import { mixinFocusRingOptions } from '../../focus-ring/focus-ring-options.mixin'
 import { mixinRippleOptions } from '../../ripple/ripple-options.mixin'
 import {

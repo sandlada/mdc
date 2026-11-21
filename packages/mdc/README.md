@@ -26,6 +26,25 @@ Written by Lit Framework, relying on the cross-framework capabilities of Lit and
 npm i @sandlada/mdc
 ```
 
+## Controller utility imports
+
+Replace imports from `@sandlada/mdc/utils/controller` with the entry point for each behavior.
+
+| Symbols | Package subpath |
+| --- | --- |
+| `AttachableController`, `IAttachable` | `@sandlada/mdc/utils/attachment` |
+| `TriggerController`, `TriggerKinds` | `@sandlada/mdc/utils/trigger` |
+| `OverlayController`, `OverlayTreeManager`, overlay placement and dismissal types | `@sandlada/mdc/utils/overlay` |
+| `SelectionController` | `@sandlada/mdc/utils/selection` |
+| `ExpansionController`, `ExpansionGroupController` | `@sandlada/mdc/utils/expansion` |
+| `MeasuredDimensionController`, `OpacityTransitionController` | `@sandlada/mdc/utils/motion` |
+| `EdgeSlideController`, `Placement` | `@sandlada/mdc/utils/edge-slide` |
+| `setupFormSubmitter`, `FormSubmitter`, `FormSubmitterType` | `@sandlada/mdc/utils/form` |
+
+- Replace `DefaultOverlayTree` with `getOverlayTree(element.ownerDocument)`. Use the manager's `snapshot`, `getOpenDescendantSurfaces()`, and `getDeepestActiveLeafId()` for tree queries. Coordinate validation now runs through `overlay.showAt(x, y)`.
+- Update selection options through `controller.configure(options)`.
+- Replace `MeasuredContentWidthController` with `MeasuredDimensionController` using the same target, dimension, duration, and easing. Create `OpacityTransitionController` with the same target, duration, and easing when the old `opacity` option was enabled or omitted.
+
 ## :ledger: Offcial Website & Documents
 
 For more information about MDC, please visit [mdc.sandlada.com](https://mdc.sandlada.com).

@@ -6,7 +6,7 @@
 
 import type { LitElement } from 'lit'
 import type { IMixinFocusRingOption } from '../focus-ring/focus-ring-options.mixin'
-import type { FormAssociated } from '../../utils/form/form-associated'
+import type { FormAssociated } from '../../utils/form'
 
 /**
  * Slider orientation.

@@ -12,8 +12,8 @@ import { Internals } from '../../utils/behaviors/element-internals'
 import { CheckboxValidator } from '../../utils/behaviors/validators/checkbox-validator'
 import { RadioValidator } from '../../utils/behaviors/validators/radio-validator'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
-import { SelectionController } from '../../utils/controller/selection-controller'
-import { GetFormState, GetFormValue, mixinFormAssociated } from '../../utils/form/form-associated'
+import { SelectionController } from '../../utils/selection'
+import { GetFormState, GetFormValue, mixinFormAssociated } from '../../utils/form'
 import { BaseMDCIconButton } from './base-icon-button'
 
 declare global {

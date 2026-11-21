@@ -25,7 +25,7 @@ import {
     GetFormState,
     GetFormValue,
     mixinFormAssociated,
-} from '../../../utils/form/form-associated'
+} from '../../../utils/form'
 import { mixinFocusRingOptions } from '../../focus-ring/focus-ring-options.mixin'
 import type { MDCField } from '../../field/field'
 import '../../field/field'

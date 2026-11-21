@@ -5,3 +5,4 @@
  */
 
 export * from './form-associated'
+export { setupFormSubmitter, type FormSubmitter, type FormSubmitterType } from './form-submitter'

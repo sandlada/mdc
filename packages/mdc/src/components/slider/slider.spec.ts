@@ -14,7 +14,7 @@ import {
     toVisualFraction,
     valueToFraction,
 } from './internal/slider-math'
-import { GetFormValue } from '../../utils/form/form-associated'
+import { GetFormValue } from '../../utils/form'
 
 type SliderInternalMethods = {
     willUpdate(changed: Map<PropertyKey, unknown>): void

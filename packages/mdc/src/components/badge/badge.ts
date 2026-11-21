@@ -17,9 +17,8 @@ import { customElement, property, query } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import { mixinDelegatesAria } from '../../utils/aria/delegate'
 import { mixinElementInternals } from '../../utils/behaviors/element-internals'
-import { OpacityTransitionController } from '../../utils/controller/opacity-transition-controller'
+import { OpacityTransitionController, MeasuredDimensionController } from '../../utils/motion'
 import { BadgeStyles } from './badge.style'
-import { MeasuredDimensionController } from '../../utils/controller/measured-dimension-controller'
 import { Duration } from '@sandlada/mdk'
 import {
     cancelBadgeAnimations,

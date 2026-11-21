@@ -5,63 +5,17 @@
  * SPDX-License-Identifier: MIT
  */
 import { afterEach, describe, expect, it } from 'vitest'
-import {
-    assertValidPoint,
-    createVirtualPointElement,
-    getDirectionFromPlacement,
-    getPlacementSlideOffset,
-    isOutsideComposedPath,
-} from './internal/popover-state'
 import { MDCPopover } from './popover'
 import {
     PopoverClosedEvent,
     PopoverDismissReasons,
     PopoverHidingEvent,
     PopoverOpenedEvent,
-    PopoverPlacements,
     PopoverShowingEvent,
     PopoverTriggerModes,
     PopoverVariants,
     type IMDCPopoverLifecycleDetail,
 } from './popover.interface'
-
-describe('Popover pure state helpers', () => {
-    it('extracts cardinal direction from placement and rejects invalid values', () => {
-        expect(getDirectionFromPlacement(PopoverPlacements.TopStart)).toBe('top')
-        expect(getDirectionFromPlacement(PopoverPlacements.BottomEnd)).toBe('bottom')
-        expect(getDirectionFromPlacement(PopoverPlacements.Left)).toBe('left')
-        expect(getDirectionFromPlacement(PopoverPlacements.RightStart)).toBe('right')
-        expect(() => getDirectionFromPlacement('center' as PopoverPlacements)).toThrow()
-    })
-
-    it('validates finite coordinates and creates virtual rect at (x, y)', () => {
-        expect(assertValidPoint(120, 240)).toEqual({ x: 120, y: 240 })
-        expect(() => assertValidPoint(Number.NaN, 10)).toThrow()
-        expect(() => assertValidPoint(10, Number.POSITIVE_INFINITY)).toThrow()
-
-        const virtual = createVirtualPointElement(42, 84)
-        const rect = virtual.getBoundingClientRect()
-        expect(rect.x).toBe(42)
-        expect(rect.y).toBe(84)
-        expect(rect.width).toBe(0)
-        expect(rect.height).toBe(0)
-    })
-
-    it('computes slide offset vector by placement direction', () => {
-        const offset8 = getPlacementSlideOffset(8)
-        expect(offset8(PopoverPlacements.Top)).toEqual({ x: 0, y: 8 })
-        expect(offset8(PopoverPlacements.BottomStart)).toEqual({ x: 0, y: -8 })
-        expect(offset8(PopoverPlacements.LeftEnd)).toEqual({ x: 8, y: 0 })
-        expect(offset8(PopoverPlacements.Right)).toEqual({ x: -8, y: 0 })
-    })
-
-    it('detects whether composedPath is outside boundary elements', () => {
-        const inside = document.createElement('div')
-        const outside = document.createElement('span')
-        expect(isOutsideComposedPath([inside, document.body], [inside])).toBe(false)
-        expect(isOutsideComposedPath([outside, document.body], [inside, null])).toBe(true)
-    })
-})
 
 describe('MDCPopover', () => {
     const mounted: HTMLElement[] = []

@@ -9,7 +9,7 @@
  *
  * The show/close / scroll-driven auto-hide logic has been extracted into the
  * standalone {@link EdgeSlideController} at
- * `src/utils/controller/edge-slide-controller.ts`.
+ * `src/utils/edge-slide.ts`.
  */
 import { BaseNavigationContainer } from '../../navigation/internal/base-navigation-container'
 import { mixinDelegatesAria } from '../../../utils/aria/delegate'

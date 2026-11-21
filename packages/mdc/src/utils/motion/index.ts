@@ -13,3 +13,5 @@ export {
     type IPresenceSnapshot,
     type IScaleFadeTransitionOptions,
 } from './presence-motion'
+export { MeasuredDimensionController, type MeasuredDimensionOptions } from './measured-dimension-controller'
+export { OpacityTransitionController, type OpacityTransitionOptions } from './opacity-transition-controller'

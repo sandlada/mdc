@@ -382,6 +382,66 @@
             "import": "./build/components/wavy-progress-indicator/index.js",
             "default": "./build/components/wavy-progress-indicator/index.js"
         },
+        "./utils/attachment": {
+            "types": "./build/utils/attachment/index.d.ts",
+            "import": "./build/utils/attachment/index.js",
+            "default": "./build/utils/attachment/index.js"
+        },
+        "./utils/edge-slide": {
+            "types": "./build/utils/edge-slide/index.d.ts",
+            "import": "./build/utils/edge-slide/index.js",
+            "default": "./build/utils/edge-slide/index.js"
+        },
+        "./utils/expansion": {
+            "types": "./build/utils/expansion/index.d.ts",
+            "import": "./build/utils/expansion/index.js",
+            "default": "./build/utils/expansion/index.js"
+        },
+        "./utils/form": {
+            "types": "./build/utils/form/index.d.ts",
+            "import": "./build/utils/form/index.js",
+            "default": "./build/utils/form/index.js"
+        },
+        "./utils/motion": {
+            "types": "./build/utils/motion/index.d.ts",
+            "import": "./build/utils/motion/index.js",
+            "default": "./build/utils/motion/index.js"
+        },
+        "./utils/overlay": {
+            "types": "./build/utils/overlay/index.d.ts",
+            "import": "./build/utils/overlay/index.js",
+            "default": "./build/utils/overlay/index.js"
+        },
+        "./utils/selection": {
+            "types": "./build/utils/selection/index.d.ts",
+            "import": "./build/utils/selection/index.js",
+            "default": "./build/utils/selection/index.js"
+        },
+        "./utils/trigger": {
+            "types": "./build/utils/trigger/index.d.ts",
+            "import": "./build/utils/trigger/index.js",
+            "default": "./build/utils/trigger/index.js"
+        },
+        "./utils/attachment/*": null,
+        "./build/utils/attachment/*": null,
+        "./utils/edge-slide/*": null,
+        "./build/utils/edge-slide/*": null,
+        "./utils/expansion/*": null,
+        "./build/utils/expansion/*": null,
+        "./utils/form/*": null,
+        "./build/utils/form/*": null,
+        "./utils/motion/*": null,
+        "./build/utils/motion/*": null,
+        "./utils/overlay/*": null,
+        "./build/utils/overlay/*": null,
+        "./utils/selection/*": null,
+        "./build/utils/selection/*": null,
+        "./utils/trigger/*": null,
+        "./build/utils/trigger/*": null,
+        "./utils/controller/*": null,
+        "./build/utils/controller/*": null,
+        "./utils/controller": null,
+        "./src/utils/*": null,
         "./utils/*": {
             "types": "./build/utils/*/index.d.ts",
             "import": "./build/utils/*/index.js",

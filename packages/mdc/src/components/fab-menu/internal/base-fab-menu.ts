@@ -14,11 +14,11 @@ import { mixinElementInternals } from '../../../utils/behaviors/element-internal
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
 import {
     findNearestAncestorOverlayId,
+    getOverlayTree,
     isOutsideComposedPath,
     OverlayIdAttribute,
-} from '../../../utils/controller/overlay-controller'
-import { DefaultOverlayTree } from '../../../utils/controller/overlay-tree'
-import { cancelTrackedAnimations, isReducedMotion } from '../../../utils/motion/presence-motion'
+} from '../../../utils/overlay'
+import { cancelTrackedAnimations, isReducedMotion } from '../../../utils/motion'
 import { mixinElevationOptions } from '../../elevation/elevation-options.mixin'
 import { mixinFocusRingOptions } from '../../focus-ring/focus-ring-options.mixin'
 import { mixinRippleOptions } from '../../ripple/ripple-options.mixin'
@@ -121,6 +121,7 @@ export abstract class BaseFabMenu extends composeMixin(
 
     private readonly overlayId = `mdc-fab-menu-${++NextFabMenuOverlayUid}`
 
+    private overlayDocument: Document | null = null
     private isConnectedPromiseResolve!: () => void
     private isConnectedPromise = this.createConnectedPromise()
 
@@ -143,15 +144,18 @@ export abstract class BaseFabMenu extends composeMixin(
         super.connectedCallback()
         this.isConnectedPromiseResolve()
         this.itemsCollapsed = !this.isExpanded
-        if (typeof document !== 'undefined') {
-            this.setAttribute(OverlayIdAttribute, this.overlayId)
-            DefaultOverlayTree.register(this.overlayId, {
-                parentId: findNearestAncestorOverlayId(this, this.overlayId),
-                getSurface: () => this.itemsContainerElement,
-                onClose: () => this.close(),
-            })
-            document.addEventListener('pointerdown', this.handleOutsidePointerDown)
-        }
+        const document = this.ownerDocument
+        if (!document) return
+        this.overlayDocument = document
+        this.setAttribute(OverlayIdAttribute, this.overlayId)
+        const tree = getOverlayTree(document)
+        tree.register(this.overlayId, {
+            parentId: findNearestAncestorOverlayId(this, this.overlayId),
+            getSurface: () => this.itemsContainerElement,
+            onClose: () => this.close(),
+        })
+        if (this.isExpanded) void tree.markOpen(this.overlayId)
+        document.addEventListener('pointerdown', this.handleOutsidePointerDown)
     }
 
     public override disconnectedCallback(): void {
@@ -159,9 +163,11 @@ export abstract class BaseFabMenu extends composeMixin(
         ++this.generation
         cancelTrackedAnimations(this.activeAnimations)
         this.isConnectedPromise = this.createConnectedPromise()
-        if (typeof document !== 'undefined') {
-            DefaultOverlayTree.unregister(this.overlayId)
+        const document = this.overlayDocument
+        if (document) {
+            getOverlayTree(document).unregister(this.overlayId)
             document.removeEventListener('pointerdown', this.handleOutsidePointerDown)
+            this.overlayDocument = null
         }
     }
 
@@ -188,8 +194,9 @@ export abstract class BaseFabMenu extends composeMixin(
         this.isExpanded = true
         this.requestUpdate('expanded', false)
         this.dispatchExpandedChange(true)
-        await DefaultOverlayTree.markOpen(this.overlayId)
-        await this.runShowTransition()
+        const generation = this.generation
+        if (this.overlayDocument) await getOverlayTree(this.overlayDocument).markOpen(this.overlayId)
+        if (generation === this.generation && this.isExpanded) await this.runShowTransition()
     }
 
     public async close(): Promise<void> {
@@ -200,7 +207,9 @@ export abstract class BaseFabMenu extends composeMixin(
         if (preventClose) {
             return
         }
-        await DefaultOverlayTree.markClosed(this.overlayId, 'programmatic')
+        const generation = this.generation
+        if (this.overlayDocument) await getOverlayTree(this.overlayDocument).markClosed(this.overlayId)
+        if (generation !== this.generation) return
         this.isExpanded = false
         this.requestUpdate('expanded', true)
         this.dispatchExpandedChange(false)
@@ -296,7 +305,7 @@ export abstract class BaseFabMenu extends composeMixin(
         if (!this.isExpanded) {
             return
         }
-        const boundaries = [this, ...DefaultOverlayTree.getOpenDescendantSurfaces(this.overlayId)]
+        const boundaries = [this, ...getOverlayTree(this.ownerDocument).getOpenDescendantSurfaces(this.overlayId)]
         if (isOutsideComposedPath(e.composedPath(), boundaries)) {
             void this.close()
         }
@@ -308,7 +317,7 @@ export abstract class BaseFabMenu extends composeMixin(
         }
 
         if (e.key === 'Escape') {
-            const deepest = DefaultOverlayTree.getDeepestActiveLeafId()
+            const deepest = getOverlayTree(this.ownerDocument).getDeepestActiveLeafId()
             if (deepest && deepest !== this.overlayId) {
                 return
             }
@@ -365,7 +374,7 @@ export abstract class BaseFabMenu extends composeMixin(
         let active: Element | null =
             root instanceof Document || root instanceof ShadowRoot
                 ? root.activeElement
-                : document.activeElement
+                : this.ownerDocument.activeElement
         while (active?.shadowRoot?.activeElement) {
             active = active.shadowRoot.activeElement
         }
