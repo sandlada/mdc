@@ -297,6 +297,11 @@
             "import": "./build/components/select/index.js",
             "default": "./build/components/select/index.js"
         },
+        "./components/shape/index": {
+            "types": "./build/components/shape/index.d.ts",
+            "import": "./build/components/shape/index.js",
+            "default": "./build/components/shape/index.js"
+        },
         "./components/side-sheet/index": {
             "types": "./build/components/side-sheet/index.d.ts",
             "import": "./build/components/side-sheet/index.js",

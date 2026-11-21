@@ -1,0 +1,95 @@
+<div style="display: flex; flex-direction: column; gap: 16px; width: 100%; max-width: 440px;">
+    <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: center;">
+        <mdc-shape
+            id="param-star"
+            shape="star"
+            sides="6"
+            inner-radius="0.55"
+            corner-radius="0.12"
+            smoothing="0.4"
+            variant="filled"
+            color="primary"
+            style="width: 96px; height: 96px;"
+        ></mdc-shape>
+
+        <mdc-shape
+            id="param-polygon"
+            shape="polygon"
+            sides="5"
+            corner-radius="0.2"
+            smoothing="0.5"
+            variant="tonal"
+            color="secondary"
+            style="width: 96px; height: 96px;"
+        ></mdc-shape>
+
+        <mdc-shape
+            id="param-pill-star"
+            shape="pill-star"
+            sides="8"
+            inner-radius="0.72"
+            corner-radius="0.08"
+            aspect-ratio="1.8"
+            fit="fill"
+            variant="outlined"
+            color="tertiary"
+            style="width: 144px; height: 80px;"
+        ></mdc-shape>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
+        <label style="display: flex; align-items: center; gap: 12px;">
+            <span style="width: 110px;">Sides (<code id="param-sides-val">6</code>)</span>
+            <input
+                type="range"
+                min="3"
+                max="12"
+                step="1"
+                value="6"
+                style="flex: 1;"
+                oninput="
+                    const r = this.getRootNode();
+                    const v = Number(this.value);
+                    r.querySelector('#param-star').sides = v;
+                    r.querySelector('#param-polygon').sides = v;
+                    r.querySelector('#param-sides-val').textContent = String(v);
+                "
+            />
+        </label>
+        <label style="display: flex; align-items: center; gap: 12px;">
+            <span style="width: 110px;">Inner Radius (<code id="param-ir-val">0.55</code>)</span>
+            <input
+                type="range"
+                min="0.2"
+                max="0.9"
+                step="0.05"
+                value="0.55"
+                style="flex: 1;"
+                oninput="
+                    const r = this.getRootNode();
+                    const v = Number(this.value);
+                    r.querySelector('#param-star').innerRadius = v;
+                    r.querySelector('#param-ir-val').textContent = v.toFixed(2);
+                "
+            />
+        </label>
+        <label style="display: flex; align-items: center; gap: 12px;">
+            <span style="width: 110px;">Rounding (<code id="param-cr-val">0.12</code>)</span>
+            <input
+                type="range"
+                min="0"
+                max="0.45"
+                step="0.02"
+                value="0.12"
+                style="flex: 1;"
+                oninput="
+                    const r = this.getRootNode();
+                    const v = Number(this.value);
+                    r.querySelector('#param-star').cornerRadius = v;
+                    r.querySelector('#param-polygon').cornerRadius = v;
+                    r.querySelector('#param-cr-val').textContent = v.toFixed(2);
+                "
+            />
+        </label>
+    </div>
+</div>

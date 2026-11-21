@@ -1,0 +1,58 @@
+<div style="display: flex; flex-direction: column; gap: 20px; width: 100%;">
+    <div style="display: flex; align-items: center; gap: 24px; flex-wrap: wrap;">
+        <mdc-shape
+            id="gallery-hero"
+            shape="circle"
+            variant="tonal"
+            color="primary"
+            motion-scheme="expressive"
+            motion-speed="fast"
+            style="width: 112px; height: 112px;"
+        ></mdc-shape>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+            <div style="font-weight: 600;">35 Jetpack Compose MaterialShapes</div>
+            <div style="font-size: 13px; opacity: 0.78;">
+                Click any shape below to morph with an underdamped Expressive spring:
+                <code id="gallery-active-name">circle</code>
+            </div>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 10px;">
+        <mdc-shape interactive shape="circle" variant="surface" size="medium" title="circle" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'circle'; r.querySelector('#gallery-active-name').textContent = 'circle';"></mdc-shape>
+        <mdc-shape interactive shape="square" variant="surface" size="medium" title="square" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'square'; r.querySelector('#gallery-active-name').textContent = 'square';"></mdc-shape>
+        <mdc-shape interactive shape="slanted" variant="surface" size="medium" title="slanted" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'slanted'; r.querySelector('#gallery-active-name').textContent = 'slanted';"></mdc-shape>
+        <mdc-shape interactive shape="arch" variant="surface" size="medium" title="arch" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'arch'; r.querySelector('#gallery-active-name').textContent = 'arch';"></mdc-shape>
+        <mdc-shape interactive shape="fan" variant="surface" size="medium" title="fan" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'fan'; r.querySelector('#gallery-active-name').textContent = 'fan';"></mdc-shape>
+        <mdc-shape interactive shape="arrow" variant="surface" size="medium" title="arrow" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'arrow'; r.querySelector('#gallery-active-name').textContent = 'arrow';"></mdc-shape>
+        <mdc-shape interactive shape="semi-circle" variant="surface" size="medium" title="semi-circle" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'semi-circle'; r.querySelector('#gallery-active-name').textContent = 'semi-circle';"></mdc-shape>
+        <mdc-shape interactive shape="oval" variant="surface" size="medium" title="oval" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'oval'; r.querySelector('#gallery-active-name').textContent = 'oval';"></mdc-shape>
+        <mdc-shape interactive shape="pill" variant="surface" size="medium" title="pill" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'pill'; r.querySelector('#gallery-active-name').textContent = 'pill';"></mdc-shape>
+        <mdc-shape interactive shape="triangle" variant="surface" size="medium" title="triangle" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'triangle'; r.querySelector('#gallery-active-name').textContent = 'triangle';"></mdc-shape>
+        <mdc-shape interactive shape="diamond" variant="surface" size="medium" title="diamond" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'diamond'; r.querySelector('#gallery-active-name').textContent = 'diamond';"></mdc-shape>
+        <mdc-shape interactive shape="clam-shell" variant="surface" size="medium" title="clam-shell" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'clam-shell'; r.querySelector('#gallery-active-name').textContent = 'clam-shell';"></mdc-shape>
+        <mdc-shape interactive shape="pentagon" variant="surface" size="medium" title="pentagon" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'pentagon'; r.querySelector('#gallery-active-name').textContent = 'pentagon';"></mdc-shape>
+        <mdc-shape interactive shape="gem" variant="surface" size="medium" title="gem" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'gem'; r.querySelector('#gallery-active-name').textContent = 'gem';"></mdc-shape>
+        <mdc-shape interactive shape="sunny" variant="surface" size="medium" title="sunny" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'sunny'; r.querySelector('#gallery-active-name').textContent = 'sunny';"></mdc-shape>
+        <mdc-shape interactive shape="very-sunny" variant="surface" size="medium" title="very-sunny" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'very-sunny'; r.querySelector('#gallery-active-name').textContent = 'very-sunny';"></mdc-shape>
+        <mdc-shape interactive shape="cookie-4-sided" variant="surface" size="medium" title="cookie-4-sided" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'cookie-4-sided'; r.querySelector('#gallery-active-name').textContent = 'cookie-4-sided';"></mdc-shape>
+        <mdc-shape interactive shape="cookie-6-sided" variant="surface" size="medium" title="cookie-6-sided" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'cookie-6-sided'; r.querySelector('#gallery-active-name').textContent = 'cookie-6-sided';"></mdc-shape>
+        <mdc-shape interactive shape="cookie-7-sided" variant="surface" size="medium" title="cookie-7-sided" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'cookie-7-sided'; r.querySelector('#gallery-active-name').textContent = 'cookie-7-sided';"></mdc-shape>
+        <mdc-shape interactive shape="cookie-9-sided" variant="surface" size="medium" title="cookie-9-sided" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'cookie-9-sided'; r.querySelector('#gallery-active-name').textContent = 'cookie-9-sided';"></mdc-shape>
+        <mdc-shape interactive shape="cookie-12-sided" variant="surface" size="medium" title="cookie-12-sided" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'cookie-12-sided'; r.querySelector('#gallery-active-name').textContent = 'cookie-12-sided';"></mdc-shape>
+        <mdc-shape interactive shape="ghostish" variant="surface" size="medium" title="ghostish" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'ghostish'; r.querySelector('#gallery-active-name').textContent = 'ghostish';"></mdc-shape>
+        <mdc-shape interactive shape="clover-4-leaf" variant="surface" size="medium" title="clover-4-leaf" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'clover-4-leaf'; r.querySelector('#gallery-active-name').textContent = 'clover-4-leaf';"></mdc-shape>
+        <mdc-shape interactive shape="clover-8-leaf" variant="surface" size="medium" title="clover-8-leaf" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'clover-8-leaf'; r.querySelector('#gallery-active-name').textContent = 'clover-8-leaf';"></mdc-shape>
+        <mdc-shape interactive shape="burst" variant="surface" size="medium" title="burst" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'burst'; r.querySelector('#gallery-active-name').textContent = 'burst';"></mdc-shape>
+        <mdc-shape interactive shape="soft-burst" variant="surface" size="medium" title="soft-burst" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'soft-burst'; r.querySelector('#gallery-active-name').textContent = 'soft-burst';"></mdc-shape>
+        <mdc-shape interactive shape="boom" variant="surface" size="medium" title="boom" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'boom'; r.querySelector('#gallery-active-name').textContent = 'boom';"></mdc-shape>
+        <mdc-shape interactive shape="soft-boom" variant="surface" size="medium" title="soft-boom" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'soft-boom'; r.querySelector('#gallery-active-name').textContent = 'soft-boom';"></mdc-shape>
+        <mdc-shape interactive shape="flower" variant="surface" size="medium" title="flower" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'flower'; r.querySelector('#gallery-active-name').textContent = 'flower';"></mdc-shape>
+        <mdc-shape interactive shape="puffy" variant="surface" size="medium" title="puffy" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'puffy'; r.querySelector('#gallery-active-name').textContent = 'puffy';"></mdc-shape>
+        <mdc-shape interactive shape="puffy-diamond" variant="surface" size="medium" title="puffy-diamond" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'puffy-diamond'; r.querySelector('#gallery-active-name').textContent = 'puffy-diamond';"></mdc-shape>
+        <mdc-shape interactive shape="pixel-circle" variant="surface" size="medium" title="pixel-circle" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'pixel-circle'; r.querySelector('#gallery-active-name').textContent = 'pixel-circle';"></mdc-shape>
+        <mdc-shape interactive shape="pixel-triangle" variant="surface" size="medium" title="pixel-triangle" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'pixel-triangle'; r.querySelector('#gallery-active-name').textContent = 'pixel-triangle';"></mdc-shape>
+        <mdc-shape interactive shape="bun" variant="surface" size="medium" title="bun" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'bun'; r.querySelector('#gallery-active-name').textContent = 'bun';"></mdc-shape>
+        <mdc-shape interactive shape="heart" variant="surface" size="medium" title="heart" onclick="const r = this.getRootNode(); r.querySelector('#gallery-hero').shape = 'heart'; r.querySelector('#gallery-active-name').textContent = 'heart';"></mdc-shape>
+    </div>
+</div>

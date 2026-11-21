@@ -1,0 +1,41 @@
+<div style="display: flex; flex-direction: column; gap: 16px; width: 100%; max-width: 420px;">
+    <div style="display: flex; align-items: center; gap: 24px;">
+        <mdc-shape
+            id="scrub-shape"
+            shape="circle"
+            morph-to="heart"
+            progress="0.5"
+            variant="filled"
+            color="error"
+            style="width: 96px; height: 96px;"
+        ></mdc-shape>
+        <mdc-shape
+            id="scrub-shape-2"
+            shape="square"
+            morph-to="soft-burst"
+            progress="0.5"
+            variant="tonal"
+            color="tertiary"
+            style="width: 96px; height: 96px;"
+        ></mdc-shape>
+    </div>
+
+    <label style="display: flex; align-items: center; gap: 12px; font-size: 13px;">
+        <span>Progress (<code id="scrub-val">0.50</code>)</span>
+        <input
+            type="range"
+            min="-0.15"
+            max="1.15"
+            step="0.01"
+            value="0.5"
+            style="flex: 1;"
+            oninput="
+                const r = this.getRootNode();
+                const v = Number(this.value);
+                r.querySelector('#scrub-shape').progress = v;
+                r.querySelector('#scrub-shape-2').progress = v;
+                r.querySelector('#scrub-val').textContent = v.toFixed(2);
+            "
+        />
+    </label>
+</div>
