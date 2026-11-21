@@ -32,8 +32,8 @@ const FlatTokenString = StringifyPanel(FlatExpansionPanelDefinition)
 // ─── Easings ────────────────────────────────────────────────────────────────
 
 const EmphasizedDecelerateEasing = unsafeCSS(Easing.EmphasizedDecelerate.ToCSSValue())
-const EmphasizedAccelerateEasing = unsafeCSS(Easing.EmphasizedAccelerate.ToCSSValue())
 const StandardEasing = unsafeCSS(Easing.Standard.ToCSSValue())
+const StandardDecelerateEasing = unsafeCSS(Easing.StandardDecelerate.ToCSSValue())
 
 // ─── Sub-component Token Overrides ──────────────────────────────────────────
 
@@ -415,8 +415,8 @@ const PanelBase = css`
         @media (prefers-reduced-motion: no-preference) {
             :host(:not([quick])) .collapse {
                 transition:
-                    grid-template-rows 250ms ${EmphasizedAccelerateEasing},
-                    opacity 180ms ${EmphasizedAccelerateEasing},
+                    grid-template-rows 250ms ${StandardDecelerateEasing},
+                    opacity 180ms ${StandardDecelerateEasing},
                     visibility 250ms allow-discrete;
             }
 

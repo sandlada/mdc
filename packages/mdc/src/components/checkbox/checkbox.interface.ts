@@ -24,9 +24,10 @@ import type { FormAssociated } from '../../utils/form'
  * behavior). When `tristate` is set, user toggling instead walks the full
  * Flutter cycle — unchecked → checked → indeterminate → unchecked.
  *
- * State transitions animate with MD3 Emphasized easings (350ms enter /
- * 150ms exit) driven by `prev-*` class markers, and the whole box flips with
- * a vertical 45° flip rather than a simple opacity cross-fade.
+ * State transitions use Emphasized Decelerate for entry (350ms) and Standard
+ * Decelerate for the 150ms stroke retraction. When a checkmark or dash clears,
+ * its long stroke retracts as the fill opens from the center and gives way to
+ * the outline.
  *
  * @fires input {Event} — Dispatched when the user toggles the box (bubbles
  *     and is composed, mirroring the native checkbox). Also fires from the

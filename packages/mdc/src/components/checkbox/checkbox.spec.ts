@@ -26,7 +26,7 @@ describe('MDCCheckbox', () => {
         expect(html).toContain('<div')
     })
 
-    it('delays exit opacity fade-out until scale shrink is underway and resets delay on enter', () => {
+    it('delays exit opacity fade-out and resets the delay on entry', () => {
         const cssText = CheckboxStyles.cssText
         expect(cssText).toContain('transition-delay: 0ms, 100ms;')
         expect(cssText).toContain('transition-duration: 150ms, 50ms;')

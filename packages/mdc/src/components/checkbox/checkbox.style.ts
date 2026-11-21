@@ -13,9 +13,9 @@ import { overrideTokens } from '../../utils/style'
 
 const TokenString = stringifyTokens('--mdc-checkbox')(CheckboxDefinition)
 
-// MD3 checkbox motion: 350ms enter / 150ms exit with Emphasized easings.
-const EmphasizedAccelerate = unsafeCSS(Easing.EmphasizedAccelerate.ToCSSValue())
 const EmphasizedDecelerate = unsafeCSS(Easing.EmphasizedDecelerate.ToCSSValue())
+const Standard = unsafeCSS(Easing.Standard.ToCSSValue())
+const StandardDecelerate = unsafeCSS(Easing.StandardDecelerate.ToCSSValue())
 
 const rippleStyles = (state: 'selected' | 'unselected') => overrideTokens<typeof RippleDefinition>('--mdc-ripple')({
     'enabled-hovered-color': `var(--_hovered-state-layer-color-${state})`,
@@ -80,6 +80,7 @@ export const CheckboxStyles = css`
             }
 
             .container {
+                --_unselected-outline-width: var(--_enabled-outline-width-unselected);
                 display: flex;
                 height: 100%;
                 place-content: center;
@@ -108,7 +109,7 @@ export const CheckboxStyles = css`
             .outline {
                 border-color: var(--_enabled-outline-color-unselected);
                 border-style: solid;
-                border-width: var(--_enabled-outline-width-unselected);
+                border-width: var(--_unselected-outline-width);
                 box-sizing: border-box;
             }
             .selected .outline {
@@ -118,6 +119,12 @@ export const CheckboxStyles = css`
 
             .background {
                 background-color: var(--_enabled-container-color-selected);
+                /* Subtract the content box. Padding keeps the opening closed
+                   until deselection, without resizing the outer box. */
+                padding: 50%;
+                mask-image: linear-gradient(white 0 0), linear-gradient(white 0 0);
+                mask-clip: no-clip, content-box;
+                mask-composite: exclude;
             }
 
             /* 48px touch target. Covers the box plus its margin so hover,
@@ -141,7 +148,7 @@ export const CheckboxStyles = css`
                 width: 100%;
             }
 
-            /* Background and icon fade in/out with a scale transition. */
+            /* Fade the fill and icon between selected and unselected states. */
             .background,
             .icon {
                 opacity: 0; /* Fade out */
@@ -149,7 +156,7 @@ export const CheckboxStyles = css`
                 transition-duration: 150ms, 50ms; /* Exit duration for scale and opacity. */
                 transition-property: transform, opacity;
                 /* Exit easing for scale, linear for opacity. */
-                transition-timing-function: ${EmphasizedAccelerate}, linear;
+                transition-timing-function: ${StandardDecelerate}, linear;
                 transform: scale(0.6); /* Scale from 100% to 60%. */
             }
             .selected :is(.background, .icon) {
@@ -158,6 +165,21 @@ export const CheckboxStyles = css`
                 transition-duration: 350ms, 50ms; /* Enter duration for scale and opacity. */
                 transition-timing-function: ${EmphasizedDecelerate}, linear;
                 transform: scale(1);
+            }
+            :where(.prev-checked, .prev-indeterminate).unselected {
+                :is(.background, .icon) {
+                    transform: scale(1);
+                }
+                .background {
+                    padding: var(--_unselected-outline-width);
+                    transition:
+                        transform 150ms ${StandardDecelerate},
+                        opacity 75ms linear 75ms,
+                        padding 130ms ${Standard} 20ms;
+                }
+                .mark.long {
+                    width: 0;
+                }
             }
 
             .icon {
@@ -180,9 +202,9 @@ export const CheckboxStyles = css`
             }
             .mark {
                 animation-duration: 150ms;
-                animation-timing-function: ${EmphasizedAccelerate};
+                animation-timing-function: ${StandardDecelerate};
                 transition-duration: 150ms;
-                transition-timing-function: ${EmphasizedAccelerate};
+                transition-timing-function: ${StandardDecelerate};
             }
             .selected .mark {
                 animation-duration: 350ms;
@@ -203,8 +225,7 @@ export const CheckboxStyles = css`
                 /* Right triangle with X,Y legs of 4dp: √(4² + 4²) */
                 height: 5.656854249492381px;
             }
-            .checked .mark.long,
-            .prev-checked.unselected .mark.long {
+            .checked .mark.long {
                 /* Right triangle with X,Y legs of 8dp: √(8² + 8²) */
                 width: 11.313708498984761px;
             }
@@ -230,18 +251,26 @@ export const CheckboxStyles = css`
                 }
             }
 
+            /* Share the active outline width with the opening in the fill. */
+            :host(:hover) .unselected {
+                --_unselected-outline-width: var(--_hovered-outline-width-unselected);
+            }
+            :host(:focus-within) .unselected {
+                --_unselected-outline-width: var(--_focused-outline-width-unselected);
+            }
+            :host(:active) .unselected {
+                --_unselected-outline-width: var(--_pressed-outline-width-unselected);
+            }
+
             /* Unselected outline colors across interaction states. */
             :host(:hover) .unselected .outline {
                 border-color: var(--_hovered-outline-color-unselected);
-                border-width: var(--_hovered-outline-width-unselected);
             }
             :host(:focus-within) .unselected .outline {
                 border-color: var(--_focused-outline-color-unselected);
-                border-width: var(--_focused-outline-width-unselected);
             }
             :host(:active) .unselected .outline {
                 border-color: var(--_pressed-outline-color-unselected);
-                border-width: var(--_pressed-outline-width-unselected);
             }
 
             /* Container and icon colors across interaction states. */
@@ -310,9 +339,11 @@ export const CheckboxStyles = css`
                 transition-delay: 0s;
                 transition-duration: 0s;
             }
+            .disabled {
+                --_unselected-outline-width: var(--_disabled-outline-width-unselected);
+            }
             .disabled .outline {
                 border-color: var(--_disabled-outline-color-unselected);
-                border-width: var(--_disabled-outline-width-unselected);
                 opacity: var(--_disabled-container-opacity-unselected);
             }
             .selected.disabled .outline {
