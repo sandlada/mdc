@@ -3,7 +3,7 @@
  * Copyright 2025 Kai-Orion & Sandlada
  * SPDX-License-Identifier: MIT
  */
-import { html, isServer, LitElement, nothing, type TemplateResult } from 'lit'
+import { html, isServer, LitElement, nothing, type PropertyValues, type TemplateResult } from 'lit'
 import { property, query, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import type { AriaMixinStrict } from '../../utils/aria/aria'
@@ -57,11 +57,11 @@ import { mixinRippleOptions } from '../ripple/ripple-options.mixin'
  * ```
  *
  * @see
- * When passing in a tag, make sure your tag is an HTMLElement and not a text node:
+ * The default slot accepts text or HTML elements as the button label.
  *
  * ```html
  * <mdc-button>
- *     <span>Delete</span>
+ *     Delete
  *     <mdc-icon slot="icon">delete</mdc-icon>
  * </mdc-button>
  * ```
@@ -108,6 +108,9 @@ export abstract class BaseButton extends composeMixin(
     protected readonly buttonElement!: HTMLElement | null
     @query('.label')
     protected readonly labelElement!: HTMLElement | null
+    @query('.label > slot')
+    private readonly labelSlot!: HTMLSlotElement | null
+    private labelTextObserver: MutationObserver | null = null
 
     protected readonly sizeController = new MeasuredDimensionController(this, { target: () => this.labelElement })
     protected readonly opacityController = new OpacityTransitionController(this, { target: () => this.labelElement })
@@ -123,6 +126,31 @@ export abstract class BaseButton extends composeMixin(
             return
         }
         this.addEventListener('click', this.handleClick.bind(this))
+    }
+
+    public override connectedCallback(): void {
+        super.connectedCallback()
+        this.syncLabelSlot()
+    }
+
+    public override disconnectedCallback(): void {
+        this.labelTextObserver?.disconnect()
+        super.disconnectedCallback()
+    }
+
+    protected override willUpdate(changedProperties: PropertyValues<this>): void {
+        super.willUpdate(changedProperties)
+        if (!this.hasUpdated) {
+            // The default slot does not exist until the first render.
+            this.updateLabelPresence(Array.from(this.childNodes).filter((node) =>
+                node.nodeType !== Node.ELEMENT_NODE || !(node as Element).getAttribute('slot'),
+            ))
+        }
+    }
+
+    protected override firstUpdated(changedProperties: PropertyValues<this>): void {
+        super.firstUpdated(changedProperties)
+        this.syncLabelSlot()
     }
 
     protected getRenderClasses() {
@@ -191,7 +219,7 @@ export abstract class BaseButton extends composeMixin(
     protected renderLabel() {
         return html`
             <span class="label">
-                <slot @slotchange=${this.handleLabelSlotChange}></slot>
+                <slot @slotchange=${this.syncLabelSlot}></slot>
             </span>
         `
     }
@@ -226,8 +254,32 @@ export abstract class BaseButton extends composeMixin(
         this.hasIcon = (e.target as HTMLSlotElement).assignedElements().length > 0
     }
 
-    private handleLabelSlotChange(e: Event) {
-        this.hasLabel = (e.target as HTMLSlotElement).assignedElements().length > 0
+    private syncLabelSlot(): void {
+        const slot = this.labelSlot
+        if (!slot || !this.isConnected) {
+            return
+        }
+
+        const nodes = slot.assignedNodes()
+        this.updateLabelPresence(nodes)
+
+        this.labelTextObserver?.disconnect()
+        for (const node of nodes) {
+            if (node.nodeType === Node.TEXT_NODE) {
+                // Editing a text node in place does not dispatch slotchange.
+                this.labelTextObserver ??= new MutationObserver(() =>
+                    this.updateLabelPresence(this.labelSlot?.assignedNodes() ?? []),
+                )
+                this.labelTextObserver.observe(node, { characterData: true })
+            }
+        }
+    }
+
+    private updateLabelPresence(nodes: Node[]): void {
+        this.hasLabel = nodes.some((node) =>
+            node.nodeType === Node.ELEMENT_NODE ||
+            (node.nodeType === Node.TEXT_NODE && !!node.textContent?.trim()),
+        )
     }
 
 }

@@ -25,7 +25,7 @@ declare global {
  * ```html
  * <a tabindex="-1" href="#a">
  *      <mdc-button shape="square">
- *          <span>Link Button</span>
+ *          Link Button
  *     </mdc-button>
  * </a>
  * ```
