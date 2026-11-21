@@ -1,0 +1,33 @@
+<div style="display: flex; flex-direction: column; gap: 24px; max-width: 640px;">
+    <mdc-accordion variant="outlined">
+        <mdc-expansion-panel headline="Outlined Panel" supporting-text="Default Material 3 outlined style" icon="palette" expanded>
+            <p style="margin: 0;">Outlined panels use a 1px hairline border on a surface background.</p>
+        </mdc-expansion-panel>
+        <mdc-expansion-panel headline="Second Outlined Panel" supporting-text="With footer actions" icon="settings">
+            <p style="margin: 0;">Configure your workspace preferences and notification rules here.</p>
+            <mdc-button slot="actions" variant="text">Cancel</mdc-button>
+            <mdc-button slot="actions" variant="text">Save</mdc-button>
+        </mdc-expansion-panel>
+    </mdc-accordion>
+
+    <mdc-accordion variant="elevated">
+        <mdc-expansion-panel headline="Elevated Panel" supporting-text="Surface Container Low with shadow" icon="layers">
+            <p style="margin: 0;">Elevated panels lift from Level 1 to Level 2 elevation when expanded.</p>
+        </mdc-expansion-panel>
+    </mdc-accordion>
+
+    <mdc-accordion variant="filled">
+        <mdc-expansion-panel headline="Filled Panel" supporting-text="Tonal surface container" icon="inbox">
+            <p style="margin: 0;">Filled panels use tonal surface container contrast without borders.</p>
+        </mdc-expansion-panel>
+    </mdc-accordion>
+
+    <mdc-accordion variant="flat" connected>
+        <mdc-expansion-panel headline="Flat Row 1" supporting-text="Android ExpandableListView style" icon="wifi">
+            <p style="margin: 0;">Connected to Wi-Fi network.</p>
+        </mdc-expansion-panel>
+        <mdc-expansion-panel headline="Flat Row 2" supporting-text="Bluetooth & devices" icon="bluetooth">
+            <p style="margin: 0;">No paired devices nearby.</p>
+        </mdc-expansion-panel>
+    </mdc-accordion>
+</div>

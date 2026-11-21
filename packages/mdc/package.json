@@ -60,6 +60,11 @@
         "README.md"
     ],
     "exports": {
+        "./components/accordion/index": {
+            "types": "./build/components/accordion/index.d.ts",
+            "import": "./build/components/accordion/index.js",
+            "default": "./build/components/accordion/index.js"
+        },
         "./components/appbar/index": {
             "types": "./build/components/appbar/index.d.ts",
             "import": "./build/components/appbar/index.js",

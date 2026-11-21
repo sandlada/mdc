@@ -22,6 +22,7 @@ import { classMap } from 'lit/directives/class-map.js'
 import type { AriaMixinStrict } from '../../../utils/aria/aria'
 import { mixinDelegatesAria } from '../../../utils/aria/delegate'
 import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
+import { ExpansionController } from '../../../utils/controller/expansion-controller'
 import { mixinFocusRingOptions } from '../../focus-ring/focus-ring-options.mixin'
 import { mixinRippleOptions } from '../../ripple/ripple-options.mixin'
 import {
@@ -190,6 +191,12 @@ export abstract class BaseListItem extends composeMixin(
     private readonly assignedChildren!: IMDCListItem[]
     @queryAssignedNodes({ flatten: true })
     private readonly assignedDefaultNodes!: Node[]
+    @query('.children-collapse')
+    private readonly childrenCollapseElement!: HTMLElement | null
+
+    private readonly expansionController = new ExpansionController(this, {
+        getCollapseElement: () => this.childrenCollapseElement,
+    })
 
     private cachedChildItems: IMDCListItem[] = []
     private cachedSwipeStartWidth = 0
@@ -448,6 +455,7 @@ export abstract class BaseListItem extends composeMixin(
                 class="children-collapse ${this.hasChildren ? 'has-children' : ''}"
                 ?inert=${!this.expanded}
                 aria-hidden=${!this.expanded ? 'true' : 'false'}
+                @transitionend=${this.expansionController.handleTransitionEnd}
             >
                 <div class="children" role=${this.selectionMode !== 'none' ? 'group' : 'list'}>
                     <slot name="children" @slotchange=${this.handleChildrenSlotChange}></slot>
@@ -1048,7 +1056,7 @@ export abstract class BaseListItem extends composeMixin(
             return
         }
         if (this.isExpandable) {
-            this.expanded = !this.expanded
+            this.expansionController.requestToggle()
             this.dispatchEvent(new CustomEvent<IMDCListItemExpandChangeDetail>(
                 ListItemExpandChangeEvent,
                 {

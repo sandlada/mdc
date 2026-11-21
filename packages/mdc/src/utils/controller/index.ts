@@ -6,6 +6,7 @@
 
 export * from './attachable-controller'
 export * from './edge-slide-controller'
+export * from './expansion-controller'
 export * from './form-submitter'
 export * from './measured-content-width-controller'
 export * from './measured-dimension-controller'
