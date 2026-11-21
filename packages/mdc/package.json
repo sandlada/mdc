@@ -75,6 +75,11 @@
             "import": "./build/components/badge/index.js",
             "default": "./build/components/badge/index.js"
         },
+        "./components/banner/index": {
+            "types": "./build/components/banner/index.d.ts",
+            "import": "./build/components/banner/index.js",
+            "default": "./build/components/banner/index.js"
+        },
         "./components/bottom-appbar/index": {
             "types": "./build/components/bottom-appbar/index.d.ts",
             "import": "./build/components/bottom-appbar/index.js",

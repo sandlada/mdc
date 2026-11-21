@@ -1,0 +1,30 @@
+<div style="display: flex; flex-direction: column; gap: 12px;">
+    <div>
+        <mdc-button id="banner-toggle-btn" variant="tonal">Toggle Banner</mdc-button>
+    </div>
+    <div style="border: 1px solid var(--md-sys-color-outline-variant, #ccc); border-radius: 8px; overflow: hidden;">
+        <mdc-banner
+            id="demo-interactive-banner"
+            open
+            icon="wifi_off"
+            variant="error-container"
+            primary-action="Reconnect"
+            secondary-action="Dismiss"
+            dismiss-on-action
+        >
+            No internet connection. Reconnect to continue syncing your workspace.
+        </mdc-banner>
+        <div style="padding: 16px;">
+            Page content below the banner shifts smoothly when the banner expands or collapses.
+        </div>
+    </div>
+</div>
+<script type="module">
+    const root = document.currentScript?.getRootNode?.() ?? document
+    const btn = root.getElementById?.('banner-toggle-btn') ?? document.getElementById('banner-toggle-btn')
+    const banner = root.getElementById?.('demo-interactive-banner') ?? document.getElementById('demo-interactive-banner')
+    btn?.addEventListener('click', () => {
+        if (!banner) return
+        banner.open = !banner.open
+    })
+</script>
