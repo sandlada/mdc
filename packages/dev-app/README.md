@@ -57,10 +57,12 @@ Demo snippets live next to the component in `packages/mdc/src/components/{name}/
 
 ## Sidebar sections
 
-The sidebar (`shared/docs-sidebar.ts`, grouped in `shared/docs-manifest.ts`) has
-two sections in order: **Base Components** (`BaseComponentOrder`: divider,
-elevation, focus-ring, ripple, badge, icon, typography), and **Components**
-(everything else).
+The sidebar has three sections in order: **Base Components**, **Components**,
+and **Testing**. `shared/docs-manifest.ts` defines the base component order and
+the component families that appear as collapsible groups under **Components**.
+The sidebar opens the current page's group on initial load and when the active
+page changes. Each group can also be toggled independently. **Testing** links
+to Form QA.
 
 ## Responsive sidebar
 

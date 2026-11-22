@@ -5,9 +5,16 @@
  */
 
 import { LitElement, css, html, nothing } from 'lit'
-import { customElement, property, query } from 'lit/decorators.js'
+import { customElement, property, query, state } from 'lit/decorators.js'
 import { Easing } from '@sandlada/mdk'
-import { BaseComponents, Components, RegularComponents, type ComponentEntry } from './docs-manifest.js'
+import {
+    BaseComponents,
+    ComponentGroupByName,
+    ComponentNavigation,
+    Components,
+    type ComponentEntry,
+    type ComponentGroup,
+} from './docs-manifest.js'
 
 /**
  * Cancelable event fired when the sidebar requests to close
@@ -125,22 +132,31 @@ export class DocsSidebar extends LitElement {
         section:first-child h2 {
             margin-top: 4px;
         }
-        a {
+        a, .group-toggle {
             all: unset;
             box-sizing: border-box;
-            height: 40px;
+            height: 32px;
             margin-right: 8px;
-            padding-inline: 12px;
+            padding-inline: 26px 11px;
+            border: 1px solid transparent;
             border-radius: 0 999px 999px 0;
-            transition: background-color 0.15s ease;
             display: inline-flex;
             align-items: center;
             cursor: pointer;
         }
-        a:hover {
+        @media (prefers-reduced-motion: no-preference) {
+            a, .group-toggle {
+                transition: background-color 0.15s ease;
+            }
+        }
+        a:hover, .group-toggle:hover {
             background: var(--md-sys-color-surface-container-high);
         }
-        a.active {
+        a:focus-visible, .group-toggle:focus-visible {
+            outline: 2px solid var(--md-sys-color-primary);
+            outline-offset: -2px;
+        }
+        a[aria-current='page'] {
             background: var(--md-sys-color-primary-container);
         }
         a > span {
@@ -150,13 +166,47 @@ export class DocsSidebar extends LitElement {
             -webkit-box-orient: vertical;
             -webkit-line-clamp: 1;
             user-select: none;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 400;
+            line-height: 1;
             color: var(--md-sys-color-on-surface);
         }
-        a.active > span {
-            font-weight: 500;
+        a[aria-current='page'] > span {
             color: var(--md-sys-color-on-primary-container);
+        }
+        .group-toggle {
+            position: relative;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 1;
+            color: var(--md-sys-color-on-surface);
+        }
+        .group-toggle::before {
+            content: '';
+            position: absolute;
+            inset-inline-start: 11px;
+            inset-block: 0;
+            margin-block: auto;
+            inline-size: 8px;
+            block-size: 6px;
+            background-color: currentColor;
+            clip-path: polygon(0 0, 50% 60%, 100% 0, 100% 35%, 50% 100%, 0 35%);
+            rotate: -90deg;
+        }
+        .group-toggle:dir(rtl)::before {
+            rotate: 90deg;
+        }
+        .group-toggle[aria-expanded='true']::before {
+            rotate: 0deg;
+        }
+        .group-links:not([hidden]) {
+            display: flex;
+            flex-direction: column;
+        }
+        @media (prefers-contrast: more) {
+            .group-toggle, a[aria-current='page'] {
+                border: 1px solid currentColor;
+            }
         }
         @media (forced-colors: active) {
             .scrim {
@@ -165,6 +215,17 @@ export class DocsSidebar extends LitElement {
             }
             .panel {
                 border-right: 1px solid CanvasText;
+            }
+            .group-toggle, a[aria-current='page'] {
+                border: 1px solid ButtonText;
+            }
+            .group-toggle::before {
+                forced-color-adjust: none;
+                background-color: ButtonText;
+            }
+            a:hover, .group-toggle:hover, a:focus-visible, .group-toggle:focus-visible {
+                outline: 2px solid Highlight;
+                outline-offset: -2px;
             }
         }
     `
@@ -177,6 +238,9 @@ export class DocsSidebar extends LitElement {
 
     @property({ type: Boolean, reflect: true })
     public modal: boolean = false
+
+    @state()
+    private openGroups = new Set<string>()
 
     @query('dialog')
     private declare readonly dialogEl: HTMLDialogElement | null
@@ -210,15 +274,17 @@ export class DocsSidebar extends LitElement {
                     <nav>
                         <section aria-label="Base Components">
                             <h3>Base Components</h3>
-                            ${this.renderLinks(BaseComponents)}
+                            ${BaseComponents.map((entry) => this.renderLink(entry))}
                         </section>
                         <section aria-label="Components">
                             <h3>Components</h3>
-                            ${this.renderLinks(RegularComponents)}
+                            ${ComponentNavigation.map((item) => 'entries' in item
+                                ? this.renderGroup(item)
+                                : this.renderLink(item))}
                         </section>
                         <section aria-label="Testing">
                             <h3>Testing</h3>
-                            <a href="/form-qa.html" class=${this.active === 'form-qa' ? 'active' : ''}
+                            <a href="/form-qa.html"
                                 aria-current=${this.active === 'form-qa' ? 'page' : nothing}>
                                 <span>Form QA</span>
                             </a>
@@ -227,6 +293,15 @@ export class DocsSidebar extends LitElement {
                 </div>
             </dialog>
         `
+    }
+
+    protected override willUpdate(changed: Map<string, unknown>): void {
+        if (changed.has('active')) {
+            const group = ComponentGroupByName.get(this.active)
+            if (group !== undefined) {
+                this.openGroups.add(group.id)
+            }
+        }
     }
 
     protected override updated(changed: Map<string, unknown>): void {
@@ -241,16 +316,41 @@ export class DocsSidebar extends LitElement {
         super.disconnectedCallback()
     }
 
-    private renderLinks(entries: ComponentEntry[]) {
-        return entries.map((c) => html`
+    private renderGroup(group: ComponentGroup) {
+        const open = this.openGroups.has(group.id)
+        const linksId = `group-${group.id}`
+        return html`
+            <button
+                type="button"
+                class="group-toggle"
+                aria-expanded=${open ? 'true' : 'false'}
+                aria-controls=${linksId}
+                @click=${() => this.toggleGroup(group.id)}
+            >${group.label}</button>
+            <div id=${linksId} class="group-links" ?hidden=${!open}>
+                ${group.entries.map((entry) => this.renderLink(entry))}
+            </div>
+        `
+    }
+
+    private toggleGroup(id: string): void {
+        const openGroups = new Set(this.openGroups)
+        if (!openGroups.delete(id)) {
+            openGroups.add(id)
+        }
+        this.openGroups = openGroups
+    }
+
+    private renderLink(entry: ComponentEntry) {
+        return html`
             <a
-                href="/components/${c.name}/"
-                class=${c.name === this.active ? 'active' : ''}
-                @click=${(e: MouseEvent) => this.handleLinkClick(e, c)}
+                href=${entry.href}
+                aria-current=${entry.name === this.active ? 'page' : nothing}
+                @click=${(event: MouseEvent) => this.handleLinkClick(event, entry)}
             >
-                <span>${c.label}</span>
+                <span>${entry.label}</span>
             </a>
-        `)
+        `
     }
 
     private handleLinkClick(event: MouseEvent, entry: ComponentEntry): void {
