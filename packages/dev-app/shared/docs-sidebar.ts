@@ -216,6 +216,13 @@ export class DocsSidebar extends LitElement {
                             <h3>Components</h3>
                             ${this.renderLinks(RegularComponents)}
                         </section>
+                        <section aria-label="Testing">
+                            <h3>Testing</h3>
+                            <a href="/form-qa.html" class=${this.active === 'form-qa' ? 'active' : ''}
+                                aria-current=${this.active === 'form-qa' ? 'page' : nothing}>
+                                <span>Form QA</span>
+                            </a>
+                        </section>
                     </nav>
                 </div>
             </dialog>

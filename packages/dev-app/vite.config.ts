@@ -175,7 +175,10 @@ function mdcDevAppPlugin(devAppRoot: string, componentsRoot: string): Plugin {
 
 // Collect every components/*/index.html + the root index.html for Vite MPA mode.
 function collectHtmlInputs(devAppRoot: string): Record<string, string> {
-    const inputs: Record<string, string> = { main: join(devAppRoot, 'index.html') }
+    const inputs: Record<string, string> = {
+        main: join(devAppRoot, 'index.html'),
+        'form-qa': join(devAppRoot, 'form-qa.html'),
+    }
     const compsDir = join(devAppRoot, 'components')
     for (const name of readdirSync(compsDir)) {
         const file = join(compsDir, name, 'index.html')

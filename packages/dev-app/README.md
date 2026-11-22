@@ -35,6 +35,17 @@ packages/dev-app/
 └── vite.config.ts                # MPA mode + @sandlada/mdc alias
 ```
 
+## Form QA
+
+Open **Form QA** in the sidebar or visit `/form-qa.html` in the dev server or production preview. The inspector edits the selected sample in place. **Restore example** recreates that sample with its original markup. **Reset** applies the owning form's reset behavior. The event log shows the submitted data in order, including repeated names.
+
+The page reproduces these MDC submitter defects in Chromium. Reload before each sequence.
+
+| Reproduction | Expected | Observed |
+| --- | --- | --- |
+| Click **MDC submit**, then **Icon submit**. | The second submission contains only `action = icon-submit`. | The second submission also contains `action = button-submit`. |
+| Clear **Email**, click **External submit A**, enter a valid address, then click **Native submit**. | The successful submission identifies `button#qa-native-submit`. | The successful submission identifies `mdc-button#qa-external-submit`. |
+
 ## Adding a new component page
 
 1. Add the component to `src/all.ts` (uncomment).

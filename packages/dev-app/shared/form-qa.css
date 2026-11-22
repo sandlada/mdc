@@ -1,0 +1,123 @@
+/**
+ * @license
+ * Copyright 2026 Kai-Orion & Sandlada
+ * SPDX-License-Identifier: MIT
+ */
+
+.form-qa {
+    max-inline-size: 90rem;
+    margin-inline: auto;
+}
+
+.form-qa :is(h1, h2, h3, p, pre, ol) {
+    margin: 0;
+}
+
+.form-qa nav {
+    margin-block: 1rem;
+}
+
+.form-qa a {
+    color: var(--md-sys-color-primary);
+}
+
+.qa-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(17rem, 2fr);
+    align-items: start;
+    gap: 1rem;
+}
+
+.qa-stack {
+    display: grid;
+    gap: .875rem;
+    min-inline-size: 0;
+}
+
+.qa-panel {
+    padding: 1rem;
+    border: 1px solid var(--md-sys-color-outline);
+    border-radius: .75rem;
+    background: var(--md-sys-color-surface-container-low);
+}
+
+.qa-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+    gap: .75rem;
+}
+
+.qa-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .75rem;
+}
+
+.form-qa fieldset {
+    min-inline-size: 0;
+    margin: 0;
+    border: 1px solid var(--md-sys-color-outline);
+    border-radius: .5rem;
+}
+
+.qa-preset {
+    display: grid;
+    align-content: start;
+    justify-items: start;
+    gap: .5rem;
+}
+
+.qa-preset > small {
+    overflow-wrap: anywhere;
+}
+
+.qa-preset :is(mdc-slider, mdc-legacy-slider, mdc-text-field, mdc-select) {
+    inline-size: 100%;
+}
+
+.qa-field {
+    display: grid;
+    gap: .25rem;
+    align-content: start;
+}
+
+.qa-field input:not([type="checkbox"]), .qa-field select, #qa-example {
+    min-inline-size: 0;
+    inline-size: 100%;
+}
+
+.form-qa :is(button, input:not([type="checkbox"]), select) {
+    min-block-size: 2rem;
+    font: inherit;
+}
+
+.form-qa :is(a, button, input, select):focus-visible {
+    outline: 2px solid var(--md-sys-color-primary);
+    outline-offset: 2px;
+}
+
+.form-qa pre {
+    padding: .5rem;
+    background: var(--md-sys-color-surface-container);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+#qa-events {
+    display: grid;
+    gap: .5rem;
+    padding-inline-start: 2rem;
+}
+
+@media (width < 76rem) {
+    .qa-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (forced-colors: active) {
+    .form-qa :is(a, button, input, select):focus-visible {
+        outline-color: Highlight;
+    }
+}

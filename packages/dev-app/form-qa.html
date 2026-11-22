@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Form QA — MDC Docs</title>
+    <link rel="stylesheet" href="/shared/styles.css" />
+    <link rel="stylesheet" href="/shared/form-qa.css" />
+    <script type="module" src="/shared/form-qa.ts"></script>
+</head>
+<body>
+    <mdc-docs-shell active="form-qa" pageTitle="Form QA">
+        <div class="form-qa">
+            <h1>Form QA</h1>
+            <nav aria-label="Form QA sections" class="qa-actions">
+                <a href="#qa-primary">Form A</a>
+                <a href="#qa-secondary">Form B</a>
+                <a href="#qa-external">External controls</a>
+                <a href="#qa-inspector">Inspector</a>
+            </nav>
+            <div class="qa-layout">
+                <div class="qa-stack">
+                    <form id="qa-primary" aria-labelledby="qa-primary-title" class="qa-panel qa-stack">
+                        <h2 id="qa-primary-title">Form A</h2>
+                        <h3>Submit, reset and button types</h3>
+                        <div id="qa-inside-buttons" class="qa-actions"></div>
+                        <h3>Checked and selected state</h3>
+                        <p>Current state applies on load. The default attributes take effect when the owning form resets.</p>
+                        <div id="qa-states" class="qa-stack"></div>
+                        <h3>Values and validation</h3>
+                        <p>Clear Email to test a blocked submit, then enter a valid address and submit again.</p>
+                        <div id="qa-values" class="qa-grid"></div>
+                    </form>
+                    <form id="qa-secondary" aria-labelledby="qa-secondary-title" class="qa-panel qa-stack">
+                        <h2 id="qa-secondary-title">Form B</h2>
+                        <p>Use the inspector to move a control here from Form A.</p>
+                        <div id="qa-secondary-values" class="qa-grid"></div>
+                        <div class="qa-actions">
+                            <button type="button" id="qa-request-submit-b">Request submit B</button>
+                            <button type="button" id="qa-reset-b">Reset B via API</button>
+                        </div>
+                    </form>
+                    <section id="qa-external" class="qa-panel qa-stack" aria-labelledby="qa-external-title">
+                        <h2 id="qa-external-title">External controls</h2>
+                        <p>Click External checkbox label to test activation and focus via <code>for</code>.</p>
+                        <div id="qa-external-examples" class="qa-actions"></div>
+                    </section>
+                </div>
+                <div class="qa-stack">
+                    <section id="qa-inspector" class="qa-panel qa-stack" aria-labelledby="qa-inspector-title">
+                        <h2 id="qa-inspector-title">Inspector</h2>
+                        <label for="qa-example">Example</label>
+                        <select id="qa-example"></select>
+                        <div id="qa-attributes" class="qa-grid" role="group" aria-label="Example attributes"></div>
+                        <button type="button" id="qa-restore">Restore example</button>
+                        <pre id="qa-state" aria-label="Control state"></pre>
+                    </section>
+                    <section class="qa-panel qa-stack" aria-labelledby="qa-data-title">
+                        <h2 id="qa-data-title">Current FormData</h2>
+                        <h3>Form A</h3>
+                        <pre id="qa-primary-data" aria-label="Form A data"></pre>
+                        <h3>Form B</h3>
+                        <pre id="qa-secondary-data" aria-label="Form B data"></pre>
+                    </section>
+                    <section class="qa-panel qa-stack" aria-labelledby="qa-events-title">
+                        <h2 id="qa-events-title">Event log</h2>
+                        <div class="qa-actions"><button type="button" id="qa-clear">Clear log</button></div>
+                        <p id="qa-status" role="status"></p>
+                        <ol id="qa-events" aria-label="Form events"></ol>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </mdc-docs-shell>
+</body>
+</html>
