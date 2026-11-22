@@ -1,0 +1,74 @@
+<style>
+    #pane-editor { margin-block-start: 1rem; }
+    #pane-editor::part(pane) { border-radius: 20px; background: var(--md-sys-color-surface-container); }
+    #pane-editor input[data-caption] { box-sizing: border-box; display: block; inline-size: 100%; font: inherit; }
+    #pane-editor output { display: block; border-block-start: 1px solid var(--md-sys-color-outline-variant); padding-block-start: 12px; overflow-wrap: anywhere; }
+    #pane-editor h3 { margin-block: 0 1rem; }
+    #pane-editor [slot='main-divider'] {
+        display: grid;
+        place-items: center;
+        inline-size: 16px;
+        block-size: 36px;
+        border: 1px solid var(--md-sys-color-outline);
+        border-radius: 8px;
+        color: var(--md-sys-color-on-secondary-container);
+        background: var(--md-sys-color-secondary-container);
+    }
+</style>
+<label>Maximum editor width <input id="editor-width" type="range" min="360" max="1280" value="840"></label>
+<label><input id="editor-reflow" type="checkbox"> Simulate tabletop fold</label>
+<div>
+    <mdc-pane-scaffold id="pane-editor" pattern="supporting-pane" back-navigation-behavior="pop-until-current-destination-change" resizable animate-panes style="inline-size: min(100%, 840px); block-size: 18rem">
+        <article slot="main" style="padding: 16px">
+            <h3>Caption editor</h3>
+            <p><label>Caption <input data-caption value="a walk through the river district"></label></p>
+            <p><output data-preview>a walk through the river district</output></p>
+            <button type="button" data-tools>Show editing tools</button>
+        </article>
+        <aside slot="supporting" style="padding: 16px">
+            <button type="button" data-back disabled>Back</button>
+            <h3>Editing tools</h3>
+            <label><input type="checkbox" data-capitalize> Capitalize the first letter</label>
+        </aside>
+        <span slot="main-divider">⋮</span>
+    </mdc-pane-scaffold>
+</div>
+<script>
+    const editor = root.querySelector('#pane-editor')
+    const width = editor.getRootNode().querySelector('#editor-width')
+    const reflow = editor.getRootNode().querySelector('#editor-reflow')
+    const back = editor.querySelector('[data-back]')
+    const caption = editor.querySelector('[data-caption]')
+    const capitalize = editor.querySelector('[data-capitalize]')
+    const preview = editor.querySelector('[data-preview]')
+    editor.expansionAnchors = [
+        { id: 'tools-only', type: 'proportion', value: 0 },
+        { id: 'tools-wide', type: 'offset-from-start', value: 300 },
+        { id: 'equal', type: 'proportion', value: 0.5 },
+        { id: 'editor-wide', type: 'offset-from-end', value: 260 },
+        { id: 'editor-only', type: 'proportion', value: 1 },
+    ]
+    editor.initialExpansionAnchor = 'editor-wide'
+    const updatePreview = () => {
+        preview.value = capitalize.checked
+            ? caption.value.replace(/^./u, letter => letter.toLocaleUpperCase())
+            : caption.value
+    }
+    const setLayout = () => {
+        editor.style.inlineSize = 'min(100%, ' + width.value + 'px)'
+        editor.style.blockSize = reflow.checked ? '28rem' : '18rem'
+        editor.layoutDirective = reflow.checked ? {
+            maxHorizontalPartitions: 1,
+            maxVerticalPartitions: 2,
+            horizontalExcludedBounds: [{ left: 0, right: editor.clientWidth, top: 248, bottom: 280 }],
+        } : undefined
+    }
+    editor.adaptStrategies = { supporting: { type: 'reflow', reflowUnder: 'main' } }
+    width.addEventListener('input', setLayout)
+    reflow.addEventListener('change', setLayout)
+    caption.addEventListener('input', updatePreview)
+    capitalize.addEventListener('change', updatePreview)
+    editor.querySelector('[data-tools]').addEventListener('click', () => editor.navigateTo('supporting'))
+    back.addEventListener('click', () => editor.goBack())
+    editor.addEventListener('pane-change', () => { back.disabled = !editor.canGoBack })
+</script>

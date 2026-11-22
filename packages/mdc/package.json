@@ -258,6 +258,11 @@
             "import": "./build/components/on-this-page/index.js",
             "default": "./build/components/on-this-page/index.js"
         },
+        "./components/pane-scaffold/index": {
+            "types": "./build/components/pane-scaffold/index.d.ts",
+            "import": "./build/components/pane-scaffold/index.js",
+            "default": "./build/components/pane-scaffold/index.js"
+        },
         "./components/pagination/index": {
             "types": "./build/components/pagination/index.d.ts",
             "import": "./build/components/pagination/index.js",

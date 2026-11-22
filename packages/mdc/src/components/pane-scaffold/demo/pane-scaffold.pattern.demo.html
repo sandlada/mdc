@@ -1,0 +1,329 @@
+<style>
+    .inbox-demo {
+        color: var(--md-sys-color-on-surface);
+        background: var(--md-sys-color-surface);
+    }
+    .inbox-preview {
+        box-sizing: border-box;
+        inline-size: 100%;
+        block-size: 100%;
+        max-inline-size: none;
+        max-block-size: none;
+        margin: 0;
+        border: 0;
+        color: var(--md-sys-color-on-surface);
+        background: var(--md-sys-color-surface);
+        padding: clamp(12px, 2vi, 24px);
+        overflow: auto;
+    }
+
+    .inbox-toolbar, .inbox-controls, .inbox-message-heading {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px 16px;
+    }
+    .inbox-toolbar { justify-content: space-between; }
+    .inbox-controls { margin-block: 8px 16px; }
+    .inbox-controls label { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; }
+    .inbox-demo input[type=range] { max-inline-size: 100%; }
+    .inbox-demo input { accent-color: var(--md-sys-color-primary); }
+    .inbox-demo output, .inbox-secondary { color: var(--md-sys-color-on-surface-variant); }
+    #pane-inbox {
+        --inbox-max-width: 1440px;
+        inline-size: min(100%, var(--inbox-max-width));
+        block-size: 29rem;
+        margin-inline: auto;
+    }
+    .inbox-preview #pane-inbox { block-size: max(22rem, calc(100dvb - 9rem)); }
+    #pane-inbox::part(pane) { container-type: inline-size; border-radius: 20px; background: var(--md-sys-color-surface-container); }
+    #pane-inbox::part(pane-detail) { background: var(--md-sys-color-surface-container-low); }
+    #pane-inbox nav, #pane-inbox article, #pane-inbox aside { padding: clamp(12px, 3cqi, 24px); }
+    #pane-inbox [hidden] { display: none; }
+    #pane-inbox h3 { margin-block: 0 16px; font-size: 1.375rem; }
+    #pane-inbox [data-subject] { font-size: clamp(1.375rem, 5cqi, 2.25rem); line-height: 1.15; }
+    #pane-inbox [data-mail] {
+        inline-size: 100%;
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 8px;
+        margin-block-end: 4px;
+        font: inherit;
+        text-align: start;
+        color: inherit;
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: 14px;
+        cursor: pointer;
+    }
+    #pane-inbox [data-mail]:hover { border-color: var(--md-sys-color-outline); }
+    #pane-inbox [data-mail][aria-pressed=true] {
+        background: var(--md-sys-color-secondary-container);
+        color: var(--md-sys-color-on-secondary-container);
+    }
+    #pane-inbox [data-mail] strong, #pane-inbox [data-mail] small { display: block; overflow-wrap: anywhere; }
+    #pane-inbox [data-mail] time { font-size: .75rem; align-self: start; }
+    .inbox-avatar {
+        display: grid;
+        place-items: center;
+        inline-size: 2rem;
+        block-size: 2rem;
+        border-radius: 50%;
+        background: var(--md-sys-color-tertiary-container);
+        color: var(--md-sys-color-on-tertiary-container);
+        font-size: .75rem;
+        font-weight: 600;
+    }
+    .inbox-message-heading { padding-block-end: 16px; border-block-end: 1px solid var(--md-sys-color-outline-variant); }
+    .inbox-message-stack { position: relative; }
+    .inbox-previous-message {
+        position: absolute;
+        inset: 0;
+        overflow: clip;
+        background: var(--md-sys-color-surface-container-low);
+        clip-path: inset(0 var(--inbox-preview-inset) 0 0);
+        pointer-events: none;
+    }
+    .inbox-previous-message:dir(rtl) { clip-path: inset(0 0 0 var(--inbox-preview-inset)); }
+    @media (prefers-reduced-motion: reduce) {
+        .inbox-previous-message:dir(ltr), .inbox-previous-message:dir(rtl) { clip-path: none; }
+    }
+    #pane-inbox [data-message] { max-inline-size: 58ch; white-space: pre-line; line-height: 1.65; }
+    #pane-inbox [data-file] { font-weight: 600; overflow-wrap: anywhere; }
+    .inbox-attachment-shade {
+        background: linear-gradient(to bottom,
+            color-mix(in srgb, var(--md-sys-color-scrim) 20%, transparent),
+            color-mix(in srgb, var(--md-sys-color-scrim) 48%, transparent));
+    }
+    @media (prefers-reduced-transparency: reduce) {
+        .inbox-attachment-shade { background: var(--md-sys-color-scrim); }
+    }
+    @media (forced-colors: active) {
+        #pane-inbox [data-mail][aria-pressed=true] { border-color: Highlight; }
+    }
+</style>
+<div class="inbox-embed">
+<section class="inbox-demo" aria-label="Fieldwork inbox">
+    <div class="inbox-toolbar">
+        <output id="inbox-layout" aria-live="off"></output>
+        <mdc-button id="inbox-fullscreen" variant="outlined">Open full-width preview</mdc-button>
+    </div>
+    <div class="inbox-controls">
+        <label>Maximum width <input id="inbox-width" type="range" min="360" max="1440" value="1440"></label>
+        <label><input id="inbox-hinge" type="checkbox"> Simulate hinge</label>
+        <label><input id="inbox-levitate" type="checkbox"> Float attachments</label>
+        <label>Preview back <input id="inbox-back-preview" type="range" min="0" max="100" value="0" disabled></label>
+        <mdc-button id="inbox-cancel-preview" variant="text" disabled>Cancel preview</mdc-button>
+        <mdc-button id="inbox-commit-back" variant="text" disabled>Go back</mdc-button>
+        <output id="inbox-preview-target" role="status"></output>
+    </div>
+    <mdc-pane-scaffold id="pane-inbox" pattern="list-detail" resizable animate-panes>
+        <nav slot="list" aria-label="Inbox">
+            <h3>Fieldwork inbox</h3>
+            <button type="button" data-mail="A" aria-pressed="false">
+                <span class="inbox-avatar" aria-hidden="true">MC</span>
+                <span><small>Mina Chen</small><strong>River survey map</strong></span><time datetime="09:14">09:14</time>
+            </button>
+            <button type="button" data-mail="B" aria-pressed="false">
+                <span class="inbox-avatar" aria-hidden="true">OR</span>
+                <span><small>Owen Ruiz</small><strong>Friday print proof</strong></span><time datetime="08:42">08:42</time>
+            </button>
+            <button type="button" data-mail="C" aria-pressed="false">
+                <span class="inbox-avatar" aria-hidden="true">AP</span>
+                <span><small>Ada Park</small><strong>Trail access notice</strong></span><time datetime="08:05">08:05</time>
+            </button>
+        </nav>
+        <article slot="detail">
+            <mdc-button variant="text" data-back disabled>Back</mdc-button>
+            <div class="inbox-message-stack">
+                <div data-current-message>
+                    <h3 data-subject>Choose a message</h3>
+                    <div class="inbox-message-heading" data-sender-row hidden>
+                        <span class="inbox-avatar" data-avatar aria-hidden="true"></span>
+                        <span><strong data-sender></strong><br><span class="inbox-secondary">To Fieldwork team</span></span>
+                    </div>
+                    <p data-message>Open a message to read the field notes and view the attached file.</p>
+                    <mdc-button variant="filled-tonal" data-attachments disabled>View attachment</mdc-button>
+                </div>
+                <div class="inbox-previous-message" inert aria-hidden="true" hidden>
+                    <h3 data-subject></h3>
+                    <div class="inbox-message-heading" data-sender-row>
+                        <span class="inbox-avatar" data-avatar></span>
+                        <span><strong data-sender></strong><br><span class="inbox-secondary">To Fieldwork team</span></span>
+                    </div>
+                    <p data-message></p>
+                </div>
+            </div>
+        </article>
+        <aside slot="extra">
+            <mdc-button variant="text" data-back disabled>Back</mdc-button>
+            <h3>Attachment</h3>
+            <p data-file hidden></p>
+            <p class="inbox-secondary" data-file-description>Choose a message to see its attachment.</p>
+        </aside>
+        <div slot="extra-scrim" class="inbox-attachment-shade"></div>
+    </mdc-pane-scaffold>
+</section>
+</div>
+<dialog class="inbox-preview" aria-label="Full-width inbox preview"></dialog>
+<script>
+    const { resolvePaneScaffoldScene } = demoImports
+    const inbox = root.querySelector('#pane-inbox')
+    const demo = inbox.closest('.inbox-demo')
+    const previewButton = demo.querySelector('#inbox-fullscreen')
+    const width = demo.querySelector('#inbox-width')
+    const hinge = demo.querySelector('#inbox-hinge')
+    const levitate = demo.querySelector('#inbox-levitate')
+    const layoutOutput = demo.querySelector('#inbox-layout')
+    const previewTarget = demo.querySelector('#inbox-preview-target')
+    const backPreview = demo.querySelector('#inbox-back-preview')
+    const cancelPreview = demo.querySelector('#inbox-cancel-preview')
+    const commitBack = demo.querySelector('#inbox-commit-back')
+    const attach = inbox.querySelector('[data-attachments]')
+    const currentMessage = inbox.querySelector('[data-current-message]')
+    const previousMessage = inbox.querySelector('.inbox-previous-message')
+    const messages = {
+        A: {
+            subject: 'River survey map', sender: 'Mina Chen', initials: 'MC',
+            body: 'The revised survey map is ready. The walk now starts at the east footbridge, where the path stays dry after rain.\n\nPlease check that the blue assembly marker is easy to spot from the path before we send the map to the volunteer team.',
+            file: 'river-survey-map.pdf', description: 'PDF · 2.4 MB · Revised route, assembly point and survey stops.',
+        },
+        B: {
+            subject: 'Friday print proof', sender: 'Owen Ruiz', initials: 'OR',
+            body: 'The printer sent the proof for Friday’s field guide. I shifted the map so the legend clears the fold, but the east-bank caption still needs a final read.\n\nIf the margins and captions look right, we can release the file by noon.',
+            file: 'field-guide-proof.pdf', description: 'PDF · 4.1 MB · Final captions, fold position and crop marks.',
+        },
+        C: {
+            subject: 'Trail access notice', sender: 'Ada Park', initials: 'AP',
+            body: 'The lower trail will be closed while the crew repairs the boardwalk. Visitors can still reach the survey route through the north gate.\n\nPlease use the attached notice at the meeting point until the boardwalk reopens.',
+            file: 'trail-access-notice.pdf', description: 'PDF · 820 KB · North gate directions and closure details.',
+        },
+    }
+    const paneNames = { list: 'Inbox', detail: 'Message', extra: 'Attachment' }
+    const preferredWidths = { list: 280, detail: 720, extra: 248 }
+    const route = (role, key, options = {}) => ({ key, pane: { pattern: 'list-detail', sceneKey: 'fieldwork', role, ...options } })
+    let routes = [route('list', 'inbox', { hasDetailPlaceholder: true })]
+    const embed = demo.parentElement
+    const previewDialog = demo.getRootNode().querySelector('.inbox-preview')
+    previewButton.addEventListener('click', () => {
+        if (previewDialog.open) {
+            previewDialog.close()
+            return
+        }
+        previewDialog.moveBefore(demo, null)
+        previewButton.textContent = 'Close full-width preview'
+        previewDialog.showModal()
+    })
+    previewDialog.addEventListener('close', () => {
+        embed.moveBefore(demo, null)
+        previewButton.textContent = 'Open full-width preview'
+        previewButton.focus()
+    })
+    width.addEventListener('input', () => {
+        inbox.style.setProperty('--inbox-max-width', width.value + 'px')
+        width.setAttribute('aria-valuetext', width.value + ' pixels maximum')
+    })
+    const updateScene = () => {
+        const { width, height } = inbox.getBoundingClientRect()
+        const hingeStart = (width - 36) / 2
+        const excludedBounds = hinge.checked && hingeStart > 0
+            ? [{ left: hingeStart, right: hingeStart + 36, top: 0, bottom: height }]
+            : []
+        const adaptStrategies = levitate.checked
+            ? {
+                extra: {
+                    type: 'levitate', alignment: 'block-end-inline-end', scrim: true, label: 'Attachment',
+                    resize: { dockedEdge: 'inline-end', minSize: 260, maxSize: 640, label: 'Resize attachment' },
+                },
+            }
+            : {}
+        inbox.applyScene(resolvePaneScaffoldScene({
+            width, height, shouldHandleSinglePaneLayout: true,
+            backNavigationBehavior: 'pop-until-content-change',
+            layoutDirective: { preferredWidths, excludedBounds }, adaptStrategies,
+        })(routes))
+    }
+    const openRoute = (role, key) => {
+        const current = routes.at(-1)
+        if (current.pane.role === role && current.key === key) return
+        routes = [...routes, route(role, key)]
+        updateScene()
+    }
+    hinge.addEventListener('change', updateScene)
+    levitate.addEventListener('change', updateScene)
+    inbox.addEventListener('pane-scene-back-request', ({ detail: { previousEntries } }) => {
+        routes = previousEntries
+        updateScene()
+    })
+    for (const button of inbox.querySelectorAll('[data-mail]')) {
+        button.addEventListener('click', () => openRoute('detail', button.dataset.mail))
+    }
+    const backButtons = [...inbox.querySelectorAll('[data-back]'), commitBack]
+    for (const button of backButtons) button.addEventListener('click', () => {
+        if (inbox.backPreview) void inbox.commitBackPreview()
+        else inbox.goBack()
+    })
+    attach.addEventListener('click', () => openRoute('extra', inbox.currentDestination.contentKey))
+    const syncLayout = () => {
+        const { expandedPanes, levitatedPane } = inbox.currentScaffoldValue
+        const labels = expandedPanes.map(role => paneNames[role])
+        if (levitatedPane) labels.push(paneNames[levitatedPane] + ' (floating)')
+        layoutOutput.value = Math.round(inbox.getBoundingClientRect().width) + ' px | ' + labels.join(' · ')
+    }
+    const renderMessage = (panel, mail) => {
+        panel.querySelector('[data-subject]').textContent = mail?.subject ?? 'Choose a message'
+        panel.querySelector('[data-sender-row]').hidden = !mail
+        panel.querySelector('[data-sender]').textContent = mail?.sender ?? ''
+        panel.querySelector('[data-avatar]').textContent = mail?.initials ?? ''
+        panel.querySelector('[data-message]').textContent = mail?.body ?? 'Open a message to read the field notes and view the attached file.'
+    }
+    const syncBack = () => {
+        backPreview.disabled = !inbox.canPreviewBack()
+        const preview = inbox.backPreview
+        cancelPreview.disabled = !preview
+        backPreview.value = String(Math.round((preview?.progress ?? 0) * 100))
+        const target = preview?.target.destination
+        const subject = target && messages[target.contentKey]?.subject
+        previewTarget.value = target ? 'Back to ' + (subject ? paneNames[target.pane] + ' — ' + subject : paneNames[target.pane]) : ''
+        const current = inbox.currentDestination
+        const previousMail = current.pane === 'detail' && target?.pane === 'detail' && current.contentKey !== target.contentKey
+            ? messages[target.contentKey] : undefined
+        previousMessage.hidden = !previousMail
+        if (previousMail) {
+            renderMessage(previousMessage, previousMail)
+            previousMessage.style.setProperty('--inbox-preview-inset', (1 - preview.progress) * 100 + '%')
+        }
+        for (const button of backButtons) button.disabled = !inbox.canGoBack
+    }
+    backPreview.addEventListener('input', () => {
+        inbox.seekBack(Number(backPreview.value) / 100)
+    })
+    cancelPreview.addEventListener('click', () => {
+        backPreview.focus()
+        void inbox.cancelBackPreview()
+    })
+    inbox.addEventListener('pane-back-preview-change', syncBack)
+    inbox.addEventListener('pane-layout-change', () => {
+        syncLayout()
+        syncBack()
+    })
+    inbox.addEventListener('pane-change', ({ detail: { destination } }) => {
+        syncBack()
+        const mail = messages[destination.contentKey]
+        renderMessage(currentMessage, mail)
+        inbox.querySelector('[data-file]').hidden = !mail
+        inbox.querySelector('[data-file]').textContent = mail?.file ?? ''
+        inbox.querySelector('[data-file-description]').textContent = mail?.description ?? 'Choose a message to see its attachment.'
+        for (const button of inbox.querySelectorAll('[data-mail]')) {
+            button.setAttribute('aria-pressed', String(button.dataset.mail === destination.contentKey))
+        }
+        attach.disabled = !mail
+    })
+    updateScene()
+    new ResizeObserver(() => {
+        updateScene()
+        void inbox.updateComplete.then(syncLayout)
+    }).observe(inbox)
+</script>

@@ -7,10 +7,13 @@
 import { LitElement, html, css } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { ContextProvider } from '@lit/context'
+import { resolvePaneScaffoldScene } from '@sandlada/mdc/components/pane-scaffold/index'
 import { getDemo, listDemos, loadDemos } from './demo-loader.js'
 import { Components } from './docs-manifest.js'
 import { DocsPageTitleContext } from './contexts/index.js'
 import './docs-shell.js'
+
+const DemoImports = Object.freeze({ resolvePaneScaffoldScene })
 
 /**
  * `<mdc-docs-page component="button">` wraps a component showcase page.
@@ -190,7 +193,7 @@ export class DocsPage extends LitElement {
                 const scriptBody = s.textContent || ''
                 if (!scriptBody.trim()) return
 
-                const runner = new Function('root', 'document', `
+                const runner = new Function('root', 'document', 'demoImports', `
                     const customDocument = new Proxy(document, {
                         get(target, prop) {
                             if (prop === 'getElementById') {
@@ -213,7 +216,7 @@ export class DocsPage extends LitElement {
                         ${scriptBody}
                     })(customDocument);
                 `)
-                runner(root, document)
+                runner(root, document, DemoImports)
             } catch (err) {
                 console.error('Error executing demo script:', err)
             }
