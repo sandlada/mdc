@@ -6,7 +6,6 @@
 import { html, isServer, LitElement, type PropertyValues } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
-import { mixinDelegatesAria } from '../../utils/aria/delegate'
 import { CreateValidator, GetValidityAnchor, mixinConstraintValidation } from '../../utils/behaviors/constraint-validation'
 import { Internals, mixinElementInternals } from '../../utils/behaviors/element-internals'
 import { RadioValidator } from '../../utils/behaviors/validators/radio-validator'
@@ -64,7 +63,6 @@ function installKeyboardModalityTracking() {
  */
 @customElement('mdc-radio-button')
 export class RadioButton extends composeMixin(
-    mixinDelegatesAria,
     mixinConstraintValidation,
     mixinFormAssociated,
     mixinElementInternals,
@@ -120,20 +118,11 @@ export class RadioButton extends composeMixin(
         }
     }
 
-    public override connectedCallback(): void {
-        super.connectedCallback()
-        // Apply the `default-checked` attribute as the initial `checked`
-        // state, mirroring native HTML `defaultChecked` semantics. Runs
-        // before `formStateRestoreCallback` so a restored form value can
-        // still override the default.
-        if (this.hasAttribute('default-checked')) {
-            this.checked = true
-        }
-    }
-
     protected override updated(_changedProperties: PropertyValues): void {
         super.updated(_changedProperties)
         this[Internals].ariaChecked = String(this.checked)
+        this[Internals].ariaDisabled = String(this.disabled)
+        this[Internals].ariaRequired = String(this.required)
     }
 
     protected getRenderClasses() {
@@ -150,24 +139,16 @@ export class RadioButton extends composeMixin(
                 ${this.renderRipple()}
                 ${this.renderFocusRing()}
 
-                <svg class="icon" viewBox="0 0 20 20">
+                <svg class="icon" viewBox="0 0 20 20" aria-hidden="true">
                     <circle class="outer" cx="10" cy="10" r="9" />
                     <circle class="inner" cx="10" cy="10" r="9" />
                 </svg>
 
-                <input
+                <span
                     class="touch-target"
-                    role="button"
-                    type="radio"
-                    tabindex="-1"
-                    .checked=${this.checked}
-                    ?disabled=${this.disabled}
-                    ?required=${this.required}
-                    aria-checked=${this.checked}
-                    aria-disabled=${this.disabled}
-                    aria-required=${this.required}
+                    aria-hidden="true"
                     @click=${this.handleClick}
-                />
+                ></span>
             </div>
         `
     }

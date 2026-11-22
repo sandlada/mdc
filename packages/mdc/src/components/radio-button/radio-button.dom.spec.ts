@@ -18,10 +18,7 @@ describe('mdc-radio-button (DOM)', () => {
         el.addEventListener('change', onChange)
 
         expect(el.checked).toBe(false)
-        const input = el.shadowRoot?.querySelector('input')
-        expect(input).not.toBeNull()
-
-        input?.click()
+        el.click()
         await el.updateComplete
 
         expect(el.checked).toBe(true)
@@ -33,9 +30,8 @@ describe('mdc-radio-button (DOM)', () => {
         const onChange = vi.fn()
         el.addEventListener('change', onChange)
 
-        const input = el.shadowRoot?.querySelector('input')
-        expect(input?.disabled).toBe(true)
-        input?.click()
+        expect(el.disabled).toBe(true)
+        el.click()
         await el.updateComplete
 
         expect(el.checked).toBe(false)

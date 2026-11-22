@@ -14,11 +14,14 @@
         "build:docs": "pnpm --filter @sandlada/mdc-docs run build",
         "preview:docs": "pnpm --filter @sandlada/mdc-docs run preview",
         "test": "pnpm --filter @sandlada/mdc run test",
+        "test:a11y": "playwright test",
         "test:all": "pnpm --filter @sandlada/mdc run test && pnpm --filter @sandlada/dev-app run --if-present test",
         "build:all": "pnpm --filter @sandlada/mdc run build && pnpm --filter @sandlada/dev-app run build",
         "build:dts:all": "pnpm --filter @sandlada/mdc run build:dts && pnpm --filter @sandlada/dev-app run --if-present build:dts"
     },
     "devDependencies": {
+        "@axe-core/playwright": "^4.14.0",
+        "@playwright/test": "^1.65.1",
         "typescript": "~7.0.2",
         "wrangler": "^4.151.2"
     }

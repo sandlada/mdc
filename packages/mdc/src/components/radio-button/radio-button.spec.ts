@@ -17,10 +17,11 @@ describe('RadioButton', () => {
         expect(radio.type).toBe('radio')
     })
 
-    it('exposes an input root in render output', () => {
+    it('renders a non-interactive touch target', () => {
         const radio = new RadioButton()
         const rendered = (radio as unknown as { render(): { strings: unknown } }).render()
         const html = Array.from(rendered.strings as string[]).join('')
-        expect(html).toContain('<input')
+        expect(html).toContain('class="touch-target"')
+        expect(html).not.toContain('<input')
     })
 })

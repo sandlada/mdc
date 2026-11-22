@@ -135,11 +135,14 @@ describe('mdc-select (DOM)', () => {
 
         expect(el.open).toBe(true)
         expect(el.options[0].active).toBe(true)
+        expect(trigger.ariaActiveDescendantElement).toBe(el.options[0])
+        expect(el.options[0].shadowRoot?.querySelector('.container')?.getAttribute('tabindex')).toBe('-1')
 
         // ArrowDown skips disabled index 1 and activates index 2
         trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
         await el.updateComplete
         expect(el.options[2].active).toBe(true)
+        expect(trigger.ariaActiveDescendantElement).toBe(el.options[2])
 
         // Enter selects index 2 and closes
         trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
@@ -148,6 +151,7 @@ describe('mdc-select (DOM)', () => {
 
         expect(el.value).toBe('c')
         expect(el.open).toBe(false)
+        expect(trigger.ariaActiveDescendantElement).toBeNull()
 
         // Re-open and press Escape without changing value
         trigger.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))

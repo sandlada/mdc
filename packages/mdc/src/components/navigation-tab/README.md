@@ -2,6 +2,8 @@
 
 Material Design 3 `navigation-tab` component (`mdc-navigation-tab`).
 
+Use `checked` for the initial state and `default-checked` for the state after a form reset. Provide both to start and reset checked.
+
 ## Variants & Options
 
 - **`NavigationTabVariant`**: `bar-vertical`, `bar-horizontal`, `bar-xr-vertical`, `rail-vertical`, `rail-horizontal`, `rail-round`, `rail-xr-vertical`, `rail-xr-round`, `drawer`, `drawer-horizontal`

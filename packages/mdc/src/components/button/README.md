@@ -5,6 +5,8 @@
 - mdc-button
 - mdc-toggle-button
 
+For `mdc-toggle-button`, use `checked` for the initial state and `default-checked` for the state after a form reset. Provide both to start and reset checked.
+
 The default slot accepts plain text or HTML elements as the button label.
 
 ```html

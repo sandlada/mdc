@@ -519,6 +519,9 @@ export abstract class BaseSelect extends composeMixin(
     private readonly handleSlotChange = (): void => {
         const opts = this.options
         this.propagateColorStyleToOptions()
+        if (this.open) {
+            this.setInitialActiveOption()
+        }
 
         if (!this.hasInitializedOptions) {
             this.hasInitializedOptions = true
@@ -635,6 +638,9 @@ export abstract class BaseSelect extends composeMixin(
     private setActiveIndex(index: number): void {
         const opts = this.options
         this.activeIndex = index
+        if (this.triggerElement) {
+            this.triggerElement.ariaActiveDescendantElement = opts[index] ?? null
+        }
         for (let i = 0; i < opts.length; i++) {
             opts[i].active = i === index
         }
@@ -642,6 +648,9 @@ export abstract class BaseSelect extends composeMixin(
 
     private clearActiveOption(): void {
         this.activeIndex = -1
+        if (this.triggerElement) {
+            this.triggerElement.ariaActiveDescendantElement = null
+        }
         for (const option of this.options) {
             option.active = false
         }

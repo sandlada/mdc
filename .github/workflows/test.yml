@@ -35,3 +35,9 @@ jobs:
 
       - name: Run tests
         run: pnpm run test:all
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run accessibility tests
+        run: pnpm run test:a11y

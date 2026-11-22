@@ -12,6 +12,21 @@ import './checkbox'
 import type { MDCCheckbox } from './checkbox'
 
 describe('mdc-checkbox (DOM)', () => {
+    it('uses default-checked only when reset', async () => {
+        const el = await fixture<MDCCheckbox>(html`<mdc-checkbox default-checked></mdc-checkbox>`)
+        expect(el.checked).toBe(false)
+        el.formResetCallback()
+        await el.updateComplete
+        expect(el.checked).toBe(true)
+        el.remove()
+        document.body.append(el)
+        await el.updateComplete
+        expect(el.checked).toBe(true)
+        el.removeAttribute('default-checked')
+        el.formResetCallback()
+        await el.updateComplete
+        expect(el.checked).toBe(false)
+    })
     it('toggles checked state on click and dispatches change event', async () => {
         const el = await fixture<MDCCheckbox>(html`<mdc-checkbox></mdc-checkbox>`)
         const onChange = vi.fn()

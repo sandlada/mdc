@@ -170,6 +170,7 @@ export abstract class BaseTabs extends LitElement implements IMDCTabs {
         event.preventDefault()
         if (!target.disabled && (ctrlKey || metaKey || this.autoActivate)) {
             void this.activateTab(target, true)
+            target.focus()
         } else {
             this.updateRovingTabindex(target)
             target.focus()

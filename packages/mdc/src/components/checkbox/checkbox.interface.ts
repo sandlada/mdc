@@ -41,9 +41,8 @@ import type { FormAssociated } from '../../utils/form'
  */
 export interface ICheckbox extends LitElement, FormAssociated, IMixinRippleOptions, IMixinFocusRingOption {
     /**
-     * Whether the box is selected. Reflects to the `checked` attribute so the
-     * initial value can also be set declaratively with the `default-checked`
-     * attribute, which seeds the state before form restoration.
+     * Whether the box is selected. Reflects to the `checked` attribute.
+     * The `default-checked` attribute determines the state after form reset.
      */
     checked: boolean
     /**

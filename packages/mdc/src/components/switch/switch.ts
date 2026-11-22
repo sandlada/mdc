@@ -6,6 +6,8 @@
 import { html, isServer, LitElement, nothing, type PropertyValues } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
+import type { AriaMixinStrict } from '../../utils/aria/aria'
+import { mixinDelegatesAria } from '../../utils/aria/delegate'
 import { CreateValidator, GetValidityAnchor, mixinConstraintValidation } from '../../utils/behaviors/constraint-validation'
 import { mixinElementInternals } from '../../utils/behaviors/element-internals'
 import { CheckboxValidator } from '../../utils/behaviors/validators/checkbox-validator'
@@ -58,6 +60,7 @@ function installKeyboardModalityTracking() {
  */
 @customElement('mdc-switch')
 export class MDCSwitch extends composeMixin(
+    mixinDelegatesAria,
     mixinConstraintValidation,
     mixinFormAssociated,
     mixinElementInternals,
@@ -117,8 +120,6 @@ export class MDCSwitch extends composeMixin(
         if (isServer) {
             return
         }
-        this.setAttribute('role', 'switch')
-
         this.addEventListener('click', this.handleClick.bind(this))
         installKeyboardModalityTracking()
         this.addEventListener('focusin', this.handleFocusIn.bind(this))
@@ -126,17 +127,6 @@ export class MDCSwitch extends composeMixin(
         this.addEventListener('keydown', this.handleVisualKeyDown.bind(this))
         this.addEventListener('pointerenter', this.handlePointerEnter.bind(this))
         this.addEventListener('pointerleave', this.handlePointerLeave.bind(this))
-    }
-
-    public override connectedCallback(): void {
-        super.connectedCallback()
-        // Apply the `default-selected` attribute as the initial `selected`
-        // state, mirroring native HTML `defaultSelected` semantics. Runs
-        // before `formStateRestoreCallback` so a restored form value can
-        // still override the default.
-        if (this.hasAttribute('default-selected')) {
-            this.selected = true
-        }
     }
 
     protected getRenderClasses() {
@@ -173,16 +163,18 @@ export class MDCSwitch extends composeMixin(
     }
 
     protected renderInput() {
+        const { ariaLabel, ariaInvalid } = this as AriaMixinStrict
         return html`
             <input
                 id="input"
                 class="touch input"
                 .checked=${this.selected}
                 type="checkbox"
+                role="switch"
                 .disabled=${this.disabled}
                 .required=${this.required}
-                tabindex="0"
-                aria-hidden="true"
+                aria-label=${ariaLabel || nothing}
+                aria-invalid=${ariaInvalid || nothing}
                 @input=${this.handleInput}
                 @change=${this.handleChange}
             />
@@ -277,10 +269,11 @@ export class MDCSwitch extends composeMixin(
 
     protected override updated(changedProperties: PropertyValues): void {
         super.updated(changedProperties)
-        this.setAttribute('aria-checked', String(this.selected))
-        this.setAttribute('aria-disabled', String(this.disabled))
-        this.setAttribute('aria-required', String(this.required))
-
+        const { ariaLabel } = this as AriaMixinStrict
+        const labels = this.labels
+        this.inputElement.ariaLabelledByElements = !ariaLabel && labels?.length
+            ? Array.from(labels).filter((label): label is Element => label instanceof Element)
+            : null
         if (this.disabled) {
             this.clearKeyboardVisuals()
 

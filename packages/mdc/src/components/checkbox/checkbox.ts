@@ -101,17 +101,6 @@ export class MDCCheckbox extends composeMixin(
         this.addEventListener('click', this.handleHostClick)
     }
 
-    public override connectedCallback(): void {
-        super.connectedCallback()
-        // Apply the `default-checked` attribute as the initial `checked`
-        // state, mirroring native HTML `defaultChecked` semantics. Runs
-        // before `formStateRestoreCallback` so a restored form value can
-        // still override the default.
-        if (this.hasAttribute('default-checked')) {
-            this.checked = true
-        }
-    }
-
     protected override update(changedProperties: PropertyValues<this>): void {
         if (
             changedProperties.has('checked') ||
@@ -159,6 +148,17 @@ export class MDCCheckbox extends composeMixin(
                 </svg>
             </div>
         `
+    }
+
+    protected override updated(changedProperties: PropertyValues): void {
+        super.updated(changedProperties)
+        const { ariaLabel } = this as AriaMixinStrict
+        const labels = this.labels
+        if (this.inputElement) {
+            this.inputElement.ariaLabelledByElements = !ariaLabel && labels?.length
+                ? Array.from(labels).filter((label): label is Element => label instanceof Element)
+                : null
+        }
     }
 
     private renderInput() {

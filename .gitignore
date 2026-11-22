@@ -87,3 +87,5 @@ docs/.superpowers
 opencode.json
 
 coverage/
+test-results/
+playwright-report/

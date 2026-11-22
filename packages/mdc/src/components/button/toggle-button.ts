@@ -6,7 +6,6 @@
 import { isServer, type PropertyValues } from "lit"
 import { customElement, property } from "lit/decorators.js"
 import { CreateValidator, GetValidityAnchor, mixinConstraintValidation } from '../../utils/behaviors/constraint-validation'
-import { Internals } from '../../utils/behaviors/element-internals'
 import { CheckboxValidator } from '../../utils/behaviors/validators/checkbox-validator'
 import { RadioValidator } from '../../utils/behaviors/validators/radio-validator'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
@@ -87,21 +86,6 @@ export class MDCTogglableButton extends composeMixin(
         if (isServer) {
             return
         }
-        if (!this.hasAttribute('tabindex')) {
-            this.tabIndex = 0
-        }
-        this[Internals].role = this.type
-    }
-
-    public override connectedCallback(): void {
-        super.connectedCallback()
-        // Apply the `default-checked` attribute as the initial `checked`
-        // state, mirroring native HTML `defaultChecked` semantics. Runs
-        // before `formStateRestoreCallback` so a restored form value can
-        // still override the default.
-        if (this.hasAttribute('default-checked')) {
-            this.checked = true
-        }
     }
 
     protected override willUpdate(changedProperties: PropertyValues<this>): void {
@@ -115,15 +99,12 @@ export class MDCTogglableButton extends composeMixin(
                 preventSelectionDuringInitialFocus: isCheckbox,
                 preventSelectionDuringSwitching: isCheckbox,
             })
-            this[Internals].role = this.type
-        }
-        if (changedProperties.has('checked')) {
-            this[Internals].ariaChecked = String(this.checked)
-        }
-        if (changedProperties.has('required')) {
-            this[Internals].ariaRequired = String(this.required)
         }
     }
+
+    protected override renderButtonRole(): string { return this.type }
+    protected override renderButtonChecked(): string { return String(this.checked) }
+    protected override renderButtonRequired(): string { return String(this.required) }
 
     protected override getRenderClasses() {
         return ({

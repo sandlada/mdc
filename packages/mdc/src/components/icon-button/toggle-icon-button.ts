@@ -8,7 +8,6 @@ import { customElement, property, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import type { AriaMixinStrict } from '../../utils/aria/aria'
 import { CreateValidator, GetValidityAnchor, mixinConstraintValidation } from '../../utils/behaviors/constraint-validation'
-import { Internals } from '../../utils/behaviors/element-internals'
 import { CheckboxValidator } from '../../utils/behaviors/validators/checkbox-validator'
 import { RadioValidator } from '../../utils/behaviors/validators/radio-validator'
 import { composeMixin } from '../../utils/compose-mixin/compose-mixin'
@@ -87,21 +86,6 @@ export class MDCToggleIconButton extends composeMixin(
         if(isServer) {
             return
         }
-        if (!this.hasAttribute('tabindex')) {
-            this.tabIndex = 0
-        }
-        this[Internals].role = this.type
-    }
-
-    public override connectedCallback(): void {
-        super.connectedCallback()
-        // Apply the `default-checked` attribute as the initial `checked`
-        // state, mirroring native HTML `defaultChecked` semantics. Runs
-        // before `formStateRestoreCallback` so a restored form value can
-        // still override the default.
-        if (this.hasAttribute('default-checked')) {
-            this.checked = true
-        }
     }
 
     protected override willUpdate(changedProperties: PropertyValues<this>): void {
@@ -116,10 +100,6 @@ export class MDCToggleIconButton extends composeMixin(
                 preventSelectionDuringSwitching: isCheckbox,
                 dispatchNavigationClick: !isCheckbox,
             })
-            this[Internals].role = this.type
-        }
-        if (changedProperties.has('checked')) {
-            this[Internals].ariaChecked = String(this.checked)
         }
     }
 
@@ -145,6 +125,9 @@ export class MDCToggleIconButton extends composeMixin(
             <button
                 class="${classMap(this.getRenderClasses())}"
                 id="button"
+                role=${this.type}
+                aria-checked=${String(this.checked)}
+                aria-required=${String(this.required)}
                 ?disabled=${this.disabled}
                 aria-disabled=${this.disabled}
                 aria-label=${ariaLabel || nothing}
@@ -179,20 +162,7 @@ export class MDCToggleIconButton extends composeMixin(
     }
 
     protected override renderTouchTarget() {
-        return html`
-            <input
-                id="input-as-touch-target"
-                class="touch-target"
-                role="button"
-                .checked=${this.checked}
-                ?required=${this.required}
-                ?disabled=${this.disabled}
-                aria-checked=${this.checked}
-                aria-required=${this.required}
-                aria-disabled=${this.disabled}
-                tabindex="-1"
-            />
-        `
+        return super.renderTouchTarget()
     }
 
     @state()

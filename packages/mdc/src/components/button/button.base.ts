@@ -171,6 +171,9 @@ export abstract class BaseButton extends composeMixin(
         return html`
             <button
                 class="${classMap(this.getRenderClasses())}"
+                role=${this.renderButtonRole()}
+                aria-checked=${this.renderButtonChecked()}
+                aria-required=${this.renderButtonRequired()}
                 ?disabled=${this.disabled}
                 aria-disabled=${this.disabled}
                 aria-label=${ariaLabel || nothing}
@@ -187,6 +190,10 @@ export abstract class BaseButton extends composeMixin(
             </button>
         `
     }
+
+    protected renderButtonRole(): string | typeof nothing { return nothing }
+    protected renderButtonChecked(): string | typeof nothing { return nothing }
+    protected renderButtonRequired(): string | typeof nothing { return nothing }
 
     protected renderBackground() {
         return html`

@@ -242,14 +242,6 @@ export class MDCNavigationTab extends composeMixin(
         super.connectedCallback()
         if (isServer) return
 
-        // Apply the `default-checked` attribute as the initial `checked`
-        // state, mirroring native HTML `defaultChecked` semantics. Runs
-        // before `formStateRestoreCallback` so a restored form value can
-        // still override the default.
-        if (this.hasAttribute('default-checked') || this.defaultChecked) {
-            this.checked = true
-        }
-
         // Only direct text nodes name the tab. A slotted
         // `<mdc-icon>settings</mdc-icon>` carries the icon name as text and
         // must not turn an icon-only destination into a labelled one.
@@ -340,9 +332,6 @@ export class MDCNavigationTab extends composeMixin(
             }
         }
 
-        if (changedProperties.has('defaultChecked') && this.defaultChecked) {
-            this.checked = true
-        }
 
         if (!isServer && this.isConnected) {
             if (changedProperties.has('navigationScope')) {

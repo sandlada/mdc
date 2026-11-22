@@ -149,7 +149,7 @@ export abstract class BaseSelectOption extends composeMixin(
         return html`
             <div
                 class=${classMap(this.getRenderClasses())}
-                tabindex=${this.disabled ? -1 : 0}
+                tabindex="-1"
                 @click=${this.handleClick}
                 @keydown=${this.handleKeydown}
             >
