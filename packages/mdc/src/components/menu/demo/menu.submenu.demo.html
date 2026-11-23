@@ -42,3 +42,42 @@
         </mdc-menu-submenu>
     </mdc-menu>
 </div>
+
+<div class="demo-column">
+    <span class="demo-caption">Deeply nested submenus — 10 levels of recursive `mdc-menu-submenu` nesting:</span>
+    <mdc-menu label="10-level nested submenu">
+        <mdc-button variant="outlined" slot="trigger"><span>Open 10-level menu</span></mdc-button>
+        <mdc-menu-item type="button">Root item</mdc-menu-item>
+        <mdc-menu-submenu label="Level 1" placement="right-start">
+            <mdc-menu-item type="button">Level 1 item</mdc-menu-item>
+            <mdc-menu-submenu label="Level 2" placement="right-start">
+                <mdc-menu-item type="button">Level 2 item</mdc-menu-item>
+                <mdc-menu-submenu label="Level 3" placement="right-start">
+                    <mdc-menu-item type="button">Level 3 item</mdc-menu-item>
+                    <mdc-menu-submenu label="Level 4" placement="right-start">
+                        <mdc-menu-item type="button">Level 4 item</mdc-menu-item>
+                        <mdc-menu-submenu label="Level 5" placement="right-start">
+                            <mdc-menu-item type="button">Level 5 item</mdc-menu-item>
+                            <mdc-menu-submenu label="Level 6" placement="right-start">
+                                <mdc-menu-item type="button">Level 6 item</mdc-menu-item>
+                                <mdc-menu-submenu label="Level 7" placement="right-start">
+                                    <mdc-menu-item type="button">Level 7 item</mdc-menu-item>
+                                    <mdc-menu-submenu label="Level 8" placement="right-start">
+                                        <mdc-menu-item type="button">Level 8 item</mdc-menu-item>
+                                        <mdc-menu-submenu label="Level 9" placement="right-start">
+                                            <mdc-menu-item type="button">Level 9 item</mdc-menu-item>
+                                            <mdc-menu-submenu label="Level 10" placement="right-start">
+                                                <mdc-menu-item type="button">Level 10 item A</mdc-menu-item>
+                                                <mdc-menu-item type="button">Level 10 item B</mdc-menu-item>
+                                            </mdc-menu-submenu>
+                                        </mdc-menu-submenu>
+                                    </mdc-menu-submenu>
+                                </mdc-menu-submenu>
+                            </mdc-menu-submenu>
+                        </mdc-menu-submenu>
+                    </mdc-menu-submenu>
+                </mdc-menu-submenu>
+            </mdc-menu-submenu>
+        </mdc-menu-submenu>
+    </mdc-menu>
+</div>

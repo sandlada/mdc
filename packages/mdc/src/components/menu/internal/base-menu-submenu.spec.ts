@@ -310,6 +310,52 @@ describe('MDCMenuSubmenu cascade', () => {
         await submenu.hide()
         expect(submenu.ariaExpandedState()).toBe('false')
     })
+
+    it('opens on trigger click and stays open when clicked while already open or opening via hover', async () => {
+        const submenu = new TestMenuSubmenu()
+        const triggerClick = (): void => {
+            (submenu as unknown as { handleTriggerClick(): void })['handleTriggerClick']()
+        }
+
+        // Click while closed opens immediately and cancels pending hover open
+        submenu.scheduleOpen()
+        triggerClick()
+        expect(submenu.open).toBe(true)
+
+        // Click while already open (e.g. opened by hover) keeps it open
+        triggerClick()
+        expect(submenu.open).toBe(true)
+
+        // Click while a hover close is pending cancels the close and keeps it open
+        submenu.scheduleClose()
+        triggerClick()
+        vi.advanceTimersByTime(1000)
+        expect(submenu.open).toBe(true)
+    })
+
+    it('does not auto-close on pointerleave while focus is within the submenu', async () => {
+        const submenu = new TestMenuSubmenu()
+        let focused = false
+        Object.defineProperty(submenu, 'matches', {
+            value: (selector: string) => selector === ':focus-within' && focused,
+            configurable: true,
+        })
+
+        await submenu.show()
+        focused = true
+        submenu.scheduleClose()
+        vi.advanceTimersByTime(1000)
+        expect(submenu.open).toBe(true)
+
+        // Focus entering cancels an already-pending hover close
+        focused = false
+        submenu.scheduleClose()
+        vi.advanceTimersByTime(100)
+        focused = true
+        ;(submenu as unknown as { handleHostFocusIn(): void })['handleHostFocusIn']()
+        vi.advanceTimersByTime(1000)
+        expect(submenu.open).toBe(true)
+    })
 })
 
 describe('resolveSubmenuKeyAction', () => {

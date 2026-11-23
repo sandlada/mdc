@@ -206,6 +206,7 @@ export abstract class BaseMenuSubmenu extends composeMixin(
         super.connectedCallback()
         this.addEventListener('pointerenter', this.handleHostPointerEnter)
         this.addEventListener('pointerleave', this.handleHostPointerLeave)
+        this.addEventListener('focusin', this.handleHostFocusIn)
         this.addEventListener('keydown', this.handleHostKeydown)
     }
 
@@ -214,6 +215,7 @@ export abstract class BaseMenuSubmenu extends composeMixin(
         this.stopPositionTracking()
         this.removeEventListener('pointerenter', this.handleHostPointerEnter)
         this.removeEventListener('pointerleave', this.handleHostPointerLeave)
+        this.removeEventListener('focusin', this.handleHostFocusIn)
         this.removeEventListener('keydown', this.handleHostKeydown)
         super.disconnectedCallback()
     }
@@ -462,17 +464,20 @@ export abstract class BaseMenuSubmenu extends composeMixin(
 
     /**
      * Starts (or re-arms) the hover-intent close timer: cancels a pending
-     * open and closes after `closeDelay` ms.
+     * open and closes after `closeDelay` ms, unless focus is currently within
+     * the submenu (e.g. trigger clicked or child item focused).
      */
     public scheduleClose(): void {
         this.clearTimer(this.openTimer)
         this.openTimer = undefined
-        if (!this.open || this.closeTimer !== undefined) {
+        if (!this.open || this.closeTimer !== undefined || this.hasFocusWithin()) {
             return
         }
         this.closeTimer = setTimeout(() => {
             this.closeTimer = undefined
-            void this.hide()
+            if (!this.hasFocusWithin()) {
+                void this.hide()
+            }
         }, this.closeDelay)
     }
 
@@ -552,12 +557,28 @@ export abstract class BaseMenuSubmenu extends composeMixin(
             node !== this && isMenuSubmenuNode(node) && (node as IMDCMenuSubmenu).open)
     }
 
+    protected hasFocusWithin(): boolean {
+        try {
+            if (typeof this.matches === 'function' && this.matches(':focus-within')) {
+                return true
+            }
+        } catch {
+            // Ignore environments where :focus-within is unsupported.
+        }
+        return this.shadowRoot?.activeElement != null
+    }
+
     protected readonly handleHostPointerEnter = (): void => {
         this.scheduleOpen()
     }
 
     protected readonly handleHostPointerLeave = (): void => {
         this.scheduleClose()
+    }
+
+    protected readonly handleHostFocusIn = (): void => {
+        this.clearTimer(this.closeTimer)
+        this.closeTimer = undefined
     }
 
     protected readonly handleHostKeydown = (event: KeyboardEvent): void => {
@@ -737,9 +758,8 @@ export abstract class BaseMenuSubmenu extends composeMixin(
         if (this.disabled) {
             return
         }
-        if (this.open) {
-            void this.hide()
-        } else {
+        this.cancelHoverTimers()
+        if (!this.open) {
             void this.show()
         }
     }
