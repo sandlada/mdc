@@ -6,10 +6,18 @@
 
 import { renderDemo } from './demo-viewer'
 
-const Source = document.getElementById('playground-source')
-const Stage = document.getElementById('playground-stage')
+const initPlayground = (): void => {
+    const Source = document.getElementById('playground-source')
+    const Stage = document.getElementById('playground-stage')
 
-if (Source instanceof HTMLTextAreaElement && Stage instanceof HTMLElement) {
+    if (!(Source instanceof HTMLTextAreaElement) || !(Stage instanceof HTMLElement)) {
+        return
+    }
+    if (Source.dataset.bound === 'true') {
+        return
+    }
+    Source.dataset.bound = 'true'
+
     let timer: number | undefined
     const update = (): void => {
         renderDemo(Stage, Source.value)
@@ -20,3 +28,5 @@ if (Source instanceof HTMLTextAreaElement && Stage instanceof HTMLElement) {
     })
     update()
 }
+
+document.addEventListener('astro:page-load', initPlayground)

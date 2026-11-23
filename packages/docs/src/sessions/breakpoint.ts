@@ -11,6 +11,16 @@ import type { BreakpointObserverInstance } from '@sandlada/breakpoint'
 export const BreakpointObserverToken = 'breakpoint:observer'
 
 let Observer: BreakpointObserverInstance | undefined
+let ActiveBreakpoints: string[] = []
+
+/**
+ * Re-apply the latest width breakpoint attributes onto `documentElement`.
+ * Used after Astro `ClientRouter` swaps root attributes.
+ */
+export function syncBreakpointAttributes(): void {
+    Object.keys(DEFAULT_WIDTH_BREAKPOINTS).forEach((name) => document.documentElement.removeAttribute(name))
+    ActiveBreakpoints.forEach((attr) => document.documentElement.setAttribute(attr, ``))
+}
 
 /**
  * Lazily create the single width breakpoint observer for the document root and
@@ -29,8 +39,8 @@ export function getBreakpointObserver(): BreakpointObserverInstance {
     })
 
     Observer.activeWidthBreakpoints$.subscribe((state) => {
-        Object.keys(DEFAULT_WIDTH_BREAKPOINTS).forEach((name) => document.documentElement.removeAttribute(name))
-        state.forEach((attr) => document.documentElement.setAttribute(attr, ``))
+        ActiveBreakpoints = [...state]
+        syncBreakpointAttributes()
     })
 
     return Observer

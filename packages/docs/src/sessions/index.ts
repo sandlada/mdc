@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-export { BreakpointObserverToken as BREAKPOINT_OBSERVER_TOKEN, getBreakpointObserver } from './breakpoint'
+export { BreakpointObserverToken as BREAKPOINT_OBSERVER_TOKEN, getBreakpointObserver, syncBreakpointAttributes } from './breakpoint'
 export {
     createDrawerSession,
     DrawerSessionToken as DRAWER_SESSION_TOKEN,

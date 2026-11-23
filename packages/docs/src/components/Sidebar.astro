@@ -85,77 +85,108 @@ const activeGroupId = active ? ComponentGroupByName.get(active)?.id : undefined;
 <span class="scrim" aria-hidden="true"></span>
 
 <script>
-    document.querySelectorAll<HTMLButtonElement>('#drawer .group-toggle').forEach((btn) => {
-        btn.addEventListener('click', () => {
-            const expanded = btn.getAttribute('aria-expanded') === 'true';
-            const next = !expanded;
-            btn.setAttribute('aria-expanded', String(next));
-            const controlsId = btn.getAttribute('aria-controls');
-            if (controlsId) {
-                const panel = document.getElementById(controlsId);
-                if (panel) {
-                    panel.hidden = !next;
-                }
-            }
-        });
-    });
-
     import { inject } from '@sandlada/document-context';
 
-    const observer = inject('breakpoint:observer')(document.documentElement);
-    const drawer = inject('drawer:session')(document.documentElement);
+    const normalizePath = (path: string) => (path.endsWith('/') ? path : `${path}/`);
 
-    let lastIsModal: boolean | null = null;
-    let breakpointSynced = false;
-    const clearQuick = () => drawer.update(() => ({ iSQuick: false }));
-    const clearQuickAfterPaint = () => requestAnimationFrame(() => requestAnimationFrame(clearQuick));
-    const tryClearQuick = () => {
-        if (!breakpointSynced) return;
-        if (document.readyState !== 'complete') return;
-        clearQuickAfterPaint();
+    const syncActiveSidebarLink = (drawerEl: HTMLElement) => {
+        const currentPath = normalizePath(window.location.pathname);
+
+        drawerEl.querySelectorAll<HTMLAnchorElement>('a.tab').forEach((link) => {
+            const linkPath = normalizePath(new URL(link.href, window.location.origin).pathname);
+            if (linkPath === currentPath) {
+                link.setAttribute('aria-current', 'page');
+                const groupPanel = link.parentElement;
+                if (groupPanel?.classList.contains('group-links') && groupPanel.hidden) {
+                    groupPanel.hidden = false;
+                    const toggle = drawerEl.querySelector<HTMLButtonElement>(`.group-toggle[aria-controls="${groupPanel.id}"]`);
+                    toggle?.setAttribute('aria-expanded', 'true');
+                }
+            } else {
+                link.removeAttribute('aria-current');
+            }
+        });
     };
 
-    observer.activeWidthBreakpoints$.subscribe((breakpoints) => {
-        const nextIsModal = breakpoints.includes('compact') || breakpoints.includes('medium');
-        if (nextIsModal === lastIsModal) return;
-        lastIsModal = nextIsModal;
-        drawer.update(() => ({ isModal: nextIsModal, isOpen: !nextIsModal }));
-        breakpointSynced = true;
-        tryClearQuick();
-    });
+    const initSidebar = () => {
+        const drawerEl = document.querySelector<HTMLElement>('#drawer');
+        if (!drawerEl) return;
 
-    drawer.subscribe((state) => {
-        const drawer = document.querySelector('#drawer') as HTMLElement;
+        const drawer = inject('drawer:session')(document.documentElement);
 
-        if (state.isModal) {
-            drawer?.classList.add('modal');
-        } else {
-            drawer?.classList.remove('modal');
+        syncActiveSidebarLink(drawerEl);
+
+        // 移动端抽屉打开时点击导航跳转后自动收起
+        if (drawer.value.isModal && drawer.value.isOpen) {
+            drawer.update(() => ({ isOpen: false }));
         }
 
-        if (state.isOpen) {
-            drawer?.classList.add('open');
+        if (drawerEl.dataset.bound === 'true') return;
+        drawerEl.dataset.bound = 'true';
+
+        drawerEl.querySelectorAll<HTMLButtonElement>('.group-toggle').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const expanded = btn.getAttribute('aria-expanded') === 'true';
+                const next = !expanded;
+                btn.setAttribute('aria-expanded', String(next));
+                const controlsId = btn.getAttribute('aria-controls');
+                if (controlsId) {
+                    const panel = document.getElementById(controlsId);
+                    if (panel) {
+                        panel.hidden = !next;
+                    }
+                }
+            });
+        });
+
+        const observer = inject('breakpoint:observer')(document.documentElement);
+
+        let lastIsModal: boolean | null = null;
+        let breakpointSynced = false;
+        const clearQuick = () => drawer.update(() => ({ iSQuick: false }));
+        const clearQuickAfterPaint = () => requestAnimationFrame(() => requestAnimationFrame(clearQuick));
+        const tryClearQuick = () => {
+            if (!breakpointSynced) return;
+            if (document.readyState !== 'complete') return;
+            clearQuickAfterPaint();
+        };
+
+        const unsubBreakpoint = observer.activeWidthBreakpoints$.subscribe((breakpoints) => {
+            if (!drawerEl.isConnected) {
+                unsubBreakpoint();
+                return;
+            }
+            const nextIsModal = breakpoints.includes('compact') || breakpoints.includes('medium');
+            if (nextIsModal === lastIsModal) return;
+            lastIsModal = nextIsModal;
+            drawer.update(() => ({ isModal: nextIsModal, isOpen: !nextIsModal }));
+            breakpointSynced = true;
+            tryClearQuick();
+        });
+
+        const unsubDrawer = drawer.subscribe((state) => {
+            if (!drawerEl.isConnected) {
+                unsubDrawer();
+                return;
+            }
+            drawerEl.classList.toggle('modal', state.isModal);
+            drawerEl.classList.toggle('open', state.isOpen);
+            drawerEl.classList.toggle('quick', state.iSQuick);
+        });
+
+        const scrim = document.querySelector<HTMLElement>('#drawer+.scrim');
+        scrim?.addEventListener('click', () => {
+            drawer.update(() => ({ isOpen: false }));
+        });
+
+        if (document.readyState === 'complete') {
+            tryClearQuick();
         } else {
-            drawer?.classList.remove('open');
+            window.addEventListener('load', tryClearQuick, { once: true });
         }
+    };
 
-        if (state.iSQuick) {
-            drawer?.classList.add('quick');
-        } else {
-            drawer?.classList.remove('quick');
-        }
-    });
-
-    const scrim = document.querySelector(`#drawer+.scrim`) as HTMLElement;
-    scrim.addEventListener('click', () => {
-        drawer.update((state) => ({ isOpen: false }));
-    });
-
-    if (document.readyState === 'complete') {
-        tryClearQuick();
-    } else {
-        window.addEventListener('load', tryClearQuick, { once: true });
-    }
+    document.addEventListener('astro:page-load', initSidebar);
 </script>
 
 <style>

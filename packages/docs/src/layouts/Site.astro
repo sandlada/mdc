@@ -4,6 +4,7 @@
  * registers the library and the demo viewer.
  */
 import '@fontsource-variable/google-sans-code';
+import { ClientRouter } from 'astro:transitions';
 import 'material-symbols/index.css';
 import '../styles/global.css';
 import '../styles/shiki.css';
@@ -84,12 +85,13 @@ const jsonLdBlocks = [...(jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) :
         {jsonLdBlocks.map((block) => (
             <script type="application/ld+json" set:html={JSON.stringify(block)} />
         ))}
+        <ClientRouter />
         <slot name="head" />
 
         <!-- Init Sessions -->
         <script>
             import { inject } from '@sandlada/document-context';
-            import { getBreakpointObserver, mountMainSession } from '../sessions';
+            import { getBreakpointObserver, mountMainSession, syncBreakpointAttributes } from '../sessions';
 
             // 单一主 session 挂载到 documentElement，子 session 以 scoped provider
             // 形式暴露，消费者通过 inject('...:session') 解析。
@@ -105,6 +107,12 @@ const jsonLdBlocks = [...(jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) :
             const theme = inject('theme:session')(document.documentElement);
             theme.subscribe((state) => {
                 document.documentElement.toggleAttribute('dark', state.isDark);
+            });
+
+            // ClientRouter 每次 swap 会用新文档的 <html> 属性覆盖根节点，需立即恢复主题与断点属性。
+            document.addEventListener('astro:after-swap', () => {
+                document.documentElement.toggleAttribute('dark', theme.value.isDark);
+                syncBreakpointAttributes();
             });
         </script>
     </head>

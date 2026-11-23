@@ -30,44 +30,38 @@ const { title, active, ...seo } = Astro.props;
 
 <Site title={title} {...seo}>
     <div class="docs-layout quick" id="docs-layout">
-        <div class="header-contents-wrapper">
+        <div class="header-contents-wrapper" transition:persist="docs-header" transition:name="docs-header" transition:animate="none">
             <Header />
         </div>
-        <aside class="docs-sidebar">
+        <aside class="docs-sidebar" transition:persist="docs-sidebar" transition:name="docs-sidebar" transition:animate="none">
             <Sidebar active={active} />
         </aside>
         <main class="docs-main markdown-scope">
             <slot />
-            <Footer />
+            <div transition:persist="docs-footer" transition:name="docs-footer" transition:animate="none">
+                <Footer />
+            </div>
         </main>
     </div>
 </Site>
 
 <script>
     import { inject } from '@sandlada/document-context';
+    import type { DrawerState } from '../sessions';
 
-    const layout = document.querySelector(`#docs-layout`);
     const drawer = inject('drawer:session')(document.documentElement);
 
-    drawer.subscribe((state) => {
-        if (!state.isOpen) {
-            layout?.classList.add('drawer-hidden');
-        } else {
-            layout?.classList.remove('drawer-hidden');
-        }
+    const syncDocsLayout = (state: DrawerState) => {
+        const layout = document.querySelector('#docs-layout');
+        if (!layout) return;
 
-        if (state.isModal) {
-            layout?.classList.add('docs-main-full-span');
-        } else {
-            layout?.classList.remove('docs-main-full-span');
-        }
+        layout.classList.toggle('drawer-hidden', !state.isOpen);
+        layout.classList.toggle('docs-main-full-span', state.isModal);
+        layout.classList.toggle('quick', state.iSQuick);
+    };
 
-        if (state.iSQuick) {
-            layout?.classList.add('quick');
-        } else {
-            layout?.classList.remove('quick');
-        }
-    });
+    drawer.subscribe(syncDocsLayout);
+    document.addEventListener('astro:after-swap', () => syncDocsLayout(drawer.value));
 </script>
 
 <style>

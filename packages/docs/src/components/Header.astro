@@ -29,12 +29,20 @@ const { hideMenuToggleButton = false } = Astro.props;
 <script>
     import { inject } from '@sandlada/document-context';
 
-    document.addEventListener('DOMContentLoaded', () => {
-        const iconOpen = document.querySelector('#drawer-toggle-button-icon-menu');
-        const iconClose = document.querySelector('#drawer-toggle-button-icon-menu-open');
+    const initHeader = () => {
+        const header = document.querySelector<HTMLElement>('header.header');
+        if (!header || header.dataset.bound === 'true') return;
+        header.dataset.bound = 'true';
+
+        const iconOpen = header.querySelector('#drawer-toggle-button-icon-menu');
+        const iconClose = header.querySelector('#drawer-toggle-button-icon-menu-open');
         const drawer = inject('drawer:session')(document.documentElement);
 
-        drawer.subscribe((state) => {
+        const unsubDrawer = drawer.subscribe((state) => {
+            if (!header.isConnected) {
+                unsubDrawer();
+                return;
+            }
             if ([iconOpen?.classList.contains('opacity-0'), iconClose?.classList.contains('opacity-0')].includes(true)) {
                 iconOpen?.classList.remove('opacity-0');
                 iconClose?.classList.remove('opacity-0');
@@ -49,20 +57,24 @@ const { hideMenuToggleButton = false } = Astro.props;
             }
         });
 
-        const menuToggle = document.querySelector('#drawer-toggle-button');
+        const menuToggle = header.querySelector('#drawer-toggle-button');
         menuToggle?.addEventListener('click', () => {
             drawer.update((state) => ({ isOpen: !state.isOpen }));
         });
 
         const theme = inject('theme:session')(document.documentElement);
-        const themeToggle = document.querySelector(`#theme-toggle-button`) as HTMLElement;
-        const themeToggleLightIcon = document.querySelector(`#theme-toggle-button>#theme-toggle-button-icon-light-mode`);
-        const themeToggleDarkIcon = document.querySelector(`#theme-toggle-button>#theme-toggle-button-icon-dark-mode`);
-        themeToggle.addEventListener('click', () => {
+        const themeToggle = header.querySelector('#theme-toggle-button') as HTMLElement | null;
+        const themeToggleLightIcon = header.querySelector('#theme-toggle-button>#theme-toggle-button-icon-light-mode');
+        const themeToggleDarkIcon = header.querySelector('#theme-toggle-button>#theme-toggle-button-icon-dark-mode');
+        themeToggle?.addEventListener('click', () => {
             theme.update((state) => ({ isDark: !state.isDark }));
         });
 
-        theme.subscribe((state) => {
+        const unsubTheme = theme.subscribe((state) => {
+            if (!header.isConnected) {
+                unsubTheme();
+                return;
+            }
             if ([themeToggleLightIcon?.classList.contains('opacity-0'), themeToggleDarkIcon?.classList.contains('opacity-0')].includes(true)) {
                 themeToggleLightIcon?.classList.remove('opacity-0');
                 themeToggleDarkIcon?.classList.remove('opacity-0');
@@ -76,7 +88,9 @@ const { hideMenuToggleButton = false } = Astro.props;
                 themeToggleDarkIcon?.classList.remove('hidden');
             }
         });
-    });
+    };
+
+    document.addEventListener('astro:page-load', initHeader);
 </script>
 
 <style>
