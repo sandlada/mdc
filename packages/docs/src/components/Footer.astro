@@ -1,0 +1,125 @@
+---
+/**
+ * Site footer ported from https://sandlada.com/ with Sandlada linking to https://sandlada.com/.
+ */
+---
+
+<footer class="website-footer">
+    <div class="footer-container">
+        <section class="follow-us-part" aria-label="Social links">
+            <a
+                href="https://github.com/sandlada"
+                target="_blank"
+                rel="noopener"
+                aria-label="Open the GitHub organization of the Sandlada team in a new tab"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                        d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm2.218 18.616c-.354.069-.468-.149-.468-.336v-1.921c0-.653-.229-1.079-.481-1.296 1.56-.173 3.198-.765 3.198-3.454 0-.765-.273-1.389-.721-1.879.072-.177.312-.889-.069-1.853 0 0-.587-.188-1.923.717-.561-.154-1.159-.231-1.754-.234-.595.003-1.193.08-1.753.235-1.337-.905-1.925-.717-1.925-.717-.379.964-.14 1.676-.067 1.852-.448.49-.722 1.114-.722 1.879 0 2.682 1.634 3.282 3.189 3.459-.2.175-.381.483-.444.936-.4.179-1.413.488-2.037-.582 0 0-.37-.672-1.073-.722 0 0-.683-.009-.048.426 0 0 .46.215.777 1.024 0 0 .405 1.25 2.353.826v1.303c0 .185-.113.402-.462.337-2.782-.925-4.788-3.549-4.788-6.641 0-3.867 3.135-7 7-7s7 3.133 7 7c0 3.091-2.003 5.715-4.782 6.641z"
+                    ></path>
+                </svg>
+            </a>
+            <a
+                href="https://www.npmjs.com/org/sandlada"
+                target="_blank"
+                rel="noopener"
+                aria-label="Open the npm organization of the Sandlada team in a new tab"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 1024 1024" aria-hidden="true">
+                    <circle cx="512" cy="512" r="512" fill="currentColor"></circle>
+                    <path
+                        d="M407.26 599.29h69.83v-34.92h69.83V424.71H407.26zm69.83-139.66H512v69.83h-34.91zm97.76-34.91v139.65h69.83V459.63h34.91v104.74h34.91V459.63h34.91v104.74h34.91V424.71zM239.67 564.37h69.83V459.63h34.91v104.74h34.91V424.71H239.67z"
+                        fill="var(--md-sys-color-surface)"
+                    ></path>
+                </svg>
+            </a>
+        </section>
+
+        <section class="develop-information" aria-label="Credits">
+            <a
+                class="wordmark-link"
+                href="https://sandlada.com/"
+                target="_blank"
+                rel="noopener"
+                aria-label="Open the Sandlada website in a new tab"
+            >
+                <span class="wordmark">Sandlada</span>
+            </a>
+            <a
+                class="wordmark-link"
+                href="https://github.com/kai-orion"
+                target="_blank"
+                rel="noopener"
+                aria-label="Open the GitHub profile of Kai Orion in a new tab"
+            >
+                <span class="wordmark">Kai Orion</span>
+            </a>
+        </section>
+    </div>
+</footer>
+
+<style>
+    .website-footer {
+        margin-top: 64px;
+        padding-top: 32px;
+        border-top: 1px solid var(--md-sys-color-outline-variant);
+    }
+
+    .footer-container {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+    }
+
+    .follow-us-part {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+
+        a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--md-sys-color-on-surface);
+            border-radius: 50%;
+            transition: color 150ms ease, transform 150ms ease;
+
+            &:hover,
+            &:focus-visible {
+                color: var(--md-sys-color-primary);
+                transform: translateY(-2px);
+            }
+        }
+
+        svg {
+            fill: currentColor;
+            display: block;
+        }
+    }
+
+    .develop-information {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+    }
+
+    .wordmark-link {
+        color: var(--md-sys-color-on-surface);
+        text-decoration: none;
+        transition: color 150ms ease;
+
+        &:hover,
+        &:focus-visible {
+            color: var(--md-sys-color-primary);
+        }
+    }
+
+    .wordmark {
+        font-family: 'Pirata One', serif;
+        font-size: 1.75rem;
+        line-height: 1;
+        letter-spacing: 0.02em;
+    }
+</style>

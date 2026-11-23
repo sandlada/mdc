@@ -78,6 +78,9 @@ const jsonLdBlocks = [...(jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) :
         <meta name="twitter:image:alt" content={ogImageAlt} />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/favicon.svg" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Pirata+One&display=swap" rel="stylesheet" />
         {jsonLdBlocks.map((block) => (
             <script type="application/ld+json" set:html={JSON.stringify(block)} />
         ))}

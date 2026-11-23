@@ -17,9 +17,19 @@ const { hasReadme } = Astro.props;
 ---
 
 <div class="component-tabs" data-has-readme={hasReadme ? 'true' : undefined}>
-    <mdc-tabs active-tab-index="0">
-        {hasReadme && <mdc-tab id="tab-readme" aria-controls="panel-readme">README</mdc-tab>}
-        <mdc-tab id="tab-demo" aria-controls="panel-demo">Demo</mdc-tab>
+    <mdc-tabs class="docs-tabs" mode="scrollable" variant="secondary" active-tab-index="0" label="Component sections">
+        {
+            hasReadme && (
+                <mdc-tab id="tab-readme" variant="secondary" aria-controls="panel-readme">
+                    <mdc-icon slot="icon">description</mdc-icon>
+                    <span>README</span>
+                </mdc-tab>
+            )
+        }
+        <mdc-tab id="tab-demo" variant="secondary" aria-controls="panel-demo">
+            <mdc-icon slot="icon">widgets</mdc-icon>
+            <span>Demo</span>
+        </mdc-tab>
     </mdc-tabs>
 
     {
@@ -38,6 +48,76 @@ const { hasReadme } = Astro.props;
 <style>
     .component-tabs {
         margin-top: 24px;
+    }
+
+    .docs-tabs {
+        width: 100%;
+        --mdc-tabs-scrollable-edge-padding: 0px;
+        --mdc-tab-container-height: 44px;
+        --mdc-tab-with-icon-and-label-text-container-height: 44px;
+        --mdc-tab-container-inline-leading-space: 16px;
+        --mdc-tab-container-inline-trailing-space: 16px;
+        --mdc-tab-icon-size: 18px;
+        --mdc-tab-spacing-between-icon-and-label: 8px;
+        --mdc-tab-label-font: var(--global-font);
+        --mdc-tab-label-size: 0.875rem;
+        --mdc-tab-label-leading: 1.25rem;
+        --mdc-tab-label-weight: 500;
+        --mdc-tab-label-tracking: 0;
+        --mdc-tab-enabled-label-color-selected: var(--md-sys-color-primary);
+        --mdc-tab-hovered-label-color-selected: var(--md-sys-color-primary);
+        --mdc-tab-focused-label-color-selected: var(--md-sys-color-primary);
+        --mdc-tab-pressed-label-color-selected: var(--md-sys-color-primary);
+        --mdc-tab-enabled-icon-color-selected: var(--md-sys-color-primary);
+        --mdc-tab-hovered-icon-color-selected: var(--md-sys-color-primary);
+        --mdc-tab-focused-icon-color-selected: var(--md-sys-color-primary);
+        --mdc-tab-pressed-icon-color-selected: var(--md-sys-color-primary);
+    }
+
+    .docs-tabs:not(:defined) {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        border-bottom: 1px solid var(--md-sys-color-outline-variant);
+    }
+
+    .docs-tabs mdc-tab:not(:defined) {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        height: 44px;
+        padding-inline: 16px;
+        font-family: var(--global-font);
+        font-size: 0.875rem;
+        font-weight: 500;
+        line-height: 1.25rem;
+        color: var(--md-sys-color-on-surface-variant);
+    }
+
+    .docs-tabs mdc-tab:not(:defined):first-child {
+        color: var(--md-sys-color-primary);
+    }
+
+    .docs-tabs mdc-tab:not(:defined):first-child::after {
+        content: '';
+        position: absolute;
+        inset-inline: 0;
+        inset-block-end: -1px;
+        height: 2px;
+        background: var(--md-sys-color-primary);
+    }
+
+    .docs-tabs mdc-icon:not(:defined) {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        height: 18px;
+        overflow: hidden;
+        font-size: 18px;
+        line-height: 1;
+        opacity: 0;
     }
 
     .tab-panel {

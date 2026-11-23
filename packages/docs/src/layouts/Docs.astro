@@ -2,6 +2,7 @@
 /**
  * Docs page shell: base document + component sidebar.
  */
+import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import Sidebar from '../components/Sidebar.astro';
 import Site from './Site.astro';
@@ -37,6 +38,7 @@ const { title, active, ...seo } = Astro.props;
         </aside>
         <main class="docs-main markdown-scope">
             <slot />
+            <Footer />
         </main>
     </div>
 </Site>

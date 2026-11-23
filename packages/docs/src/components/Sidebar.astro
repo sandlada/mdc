@@ -2,13 +2,14 @@
 /**
  * Component navigation, grouped into Base Components and Components.
  */
-import { BaseComponents, RegularComponents } from '../lib/registry';
+import { BaseComponents, ComponentGroupByName, ComponentNavigation } from '../lib/registry';
 
 interface Props {
     active?: string;
 }
 
 const { active } = Astro.props;
+const activeGroupId = active ? ComponentGroupByName.get(active)?.id : undefined;
 ---
 
 <nav class="drawer open quick" id="drawer">
@@ -33,28 +34,50 @@ const { active } = Astro.props;
                 </a>
             </div>
             <div class="group">
+                <mdc-divider inset class="group-divider"></mdc-divider>
                 <h3 class="header">Base Components</h3>
-                {
-                    BaseComponents.map((entry) => (
-                        <a class="tab" href={`/components/${entry.name}/`} aria-current={active === entry.name ? 'page' : undefined}>
-                            <span class="label">{entry.label}</span>
-                            <mdc-ripple />
-                            <mdc-focus-ring />
-                        </a>
-                    ))
-                }
+                {BaseComponents.map((entry) => (
+                    <a class="tab" href={`/components/${entry.name}/`} aria-current={active === entry.name ? 'page' : undefined}>
+                        <span class="label">{entry.label}</span>
+                        <mdc-ripple />
+                        <mdc-focus-ring />
+                    </a>
+                ))}
             </div>
             <div class="group">
+                <mdc-divider inset class="group-divider"></mdc-divider>
                 <h3 class="header">Components</h3>
-                {
-                    RegularComponents.map((entry) => (
-                        <a class="tab" href={`/components/${entry.name}/`} aria-current={active === entry.name ? 'page' : undefined}>
-                            <span class="label">{entry.label}</span>
+                {ComponentNavigation.map((item) => {
+                    if ('entries' in item) {
+                        const open = activeGroupId === item.id;
+                        const linksId = `group-${item.id}`;
+                        return (
+                            <>
+                                <button type="button" class="tab group-toggle" aria-expanded={open ? 'true' : 'false'} aria-controls={linksId}>
+                                    <span class="label">{item.label}</span>
+                                    <mdc-ripple />
+                                    <mdc-focus-ring />
+                                </button>
+                                <div id={linksId} class="group-links" hidden={!open}>
+                                    {item.entries.map((entry) => (
+                                        <a class="tab" href={`/components/${entry.name}/`} aria-current={active === entry.name ? 'page' : undefined}>
+                                            <span class="label">{entry.label}</span>
+                                            <mdc-ripple />
+                                            <mdc-focus-ring />
+                                        </a>
+                                    ))}
+                                </div>
+                            </>
+                        );
+                    }
+                    return (
+                        <a class="tab" href={`/components/${item.name}/`} aria-current={active === item.name ? 'page' : undefined}>
+                            <span class="label">{item.label}</span>
                             <mdc-ripple />
                             <mdc-focus-ring />
                         </a>
-                    ))
-                }
+                    );
+                })}
             </div>
         </div>
     </div>
@@ -62,6 +85,21 @@ const { active } = Astro.props;
 <span class="scrim" aria-hidden="true"></span>
 
 <script>
+    document.querySelectorAll<HTMLButtonElement>('#drawer .group-toggle').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const expanded = btn.getAttribute('aria-expanded') === 'true';
+            const next = !expanded;
+            btn.setAttribute('aria-expanded', String(next));
+            const controlsId = btn.getAttribute('aria-controls');
+            if (controlsId) {
+                const panel = document.getElementById(controlsId);
+                if (panel) {
+                    panel.hidden = !next;
+                }
+            }
+        });
+    });
+
     import { inject } from '@sandlada/document-context';
 
     const observer = inject('breakpoint:observer')(document.documentElement);
@@ -286,12 +324,56 @@ const { active } = Astro.props;
         margin-block-end: 48px;
     }
 
+    .group-divider {
+        margin-block-start: 16px;
+    }
+
     .header {
-        @apply title-medium;
-        padding-inline: 16px;
+        @apply label-small;
+        padding-inline: 32px 16px;
         margin-block-start: 24px;
-        margin-block-end: 12px;
+        margin-block-end: 8px;
         color: var(--md-sys-color-on-surface-variant);
+    }
+
+    .group-divider + .header {
+        margin-block-start: 16px;
+    }
+
+    .group-toggle {
+        background: none;
+        border: none;
+        cursor: pointer;
+        text-align: start;
+        user-select: none;
+    }
+    .group-toggle::before {
+        content: '';
+        position: absolute;
+        inset-inline-start: 16px;
+        inset-block: 0;
+        margin-block: auto;
+        inline-size: 8px;
+        block-size: 6px;
+        background-color: currentColor;
+        clip-path: polygon(0 0, 50% 60%, 100% 0, 100% 35%, 50% 100%, 0 35%);
+        rotate: -90deg;
+        transition: rotate 200ms cubic-bezier(0.2, 0, 0, 1);
+    }
+    .group-toggle:dir(rtl)::before {
+        rotate: 90deg;
+    }
+    .group-toggle[aria-expanded='true']::before {
+        rotate: 0deg;
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .group-toggle::before {
+            transition: none;
+        }
+    }
+    .group-links:not([hidden]) {
+        display: flex;
+        flex-direction: column;
     }
 
     .tab {
@@ -300,7 +382,7 @@ const { active } = Astro.props;
         display: inline-flex;
         align-items: center;
         height: 40px;
-        padding-inline: 16px;
+        padding-inline: 32px 16px;
         margin-inline-end: 16px;
         border-start-start-radius: 0px;
         border-start-end-radius: 20px;
