@@ -89,3 +89,4 @@ packages/mdc/src/components/{name}/
   9. 帶 `gap` 的 flex／grid 容器若包裹可選 `<slot name="...">`（如前導圖示），未傳入屬性且無 slotted 子節點時須以 `@slotchange` + `?hidden` 搭配 `[hidden] { display: none; }` 隱藏包裹元素，避免空容器佔用 `gap` 造成左右內距不對稱。
   10. `expandPadding` / `expandMargin` 僅接受 CSS 邏輯鍵（`all`、`block`、`inline`、`blockStart`、`blockEnd`、`inlineStart`、`inlineEnd`），並生成 `--_*-inline-start` 等變數；誤用 `top`/`bottom`/`start`/`end` 會拋出 `object cannot be empty` 錯誤。
   11. `*.dom.spec.ts` 檔頭須加 `// @vitest-environment happy-dom`；透過 `innerHTML` 解析的容器元件除了在 `connectedCallback`／`slotchange` 收集子元件外，亦應在 `willUpdate` 檢查補收，確保首幀即完整渲染。
+  12. 測量元件自然尺寸做 WAAPI 寬高動畫時，須以 `getBoundingClientRect()[dimension]`（保留亞像素精度）取代整數取整的 `scrollWidth`/`scrollHeight`（否則低於實際寬度 `0.1–0.5px` 會觸發 `text-overflow: ellipsis`）；緩存初始尺寸時應於 `document.fonts.ready`（無運行中動畫時）靜默刷新，避免字體晚載入導致首次狀態切換誤動畫；橫向寬度動畫期間應暫時將目標元素 `style.textOverflow` 設為 `'clip'` 並於結束／取消時還原，防止動畫中閃現省略號。

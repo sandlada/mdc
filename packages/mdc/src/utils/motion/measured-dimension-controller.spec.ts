@@ -94,7 +94,7 @@ describe('MeasuredDimensionController', () => {
 
     it('first update only records the size', () => {
         const c = Setup()
-        size.scrollWidth = 200
+        size.rectWidth = 200
         c.hostUpdated()
         expect(target.animate).not.toHaveBeenCalled()
     })
@@ -102,7 +102,7 @@ describe('MeasuredDimensionController', () => {
     it('animates width from previous natural size to new natural size', () => {
         const c = Setup()
         c.hostUpdated()
-        size.scrollWidth = 160
+        size.rectWidth = 160
         c.hostUpdated()
         expect(target.animate).toHaveBeenCalledTimes(1)
         const [frames_, opts] = target.animate.mock.calls[0]
@@ -114,10 +114,10 @@ describe('MeasuredDimensionController', () => {
         expect(opts).toEqual({ duration: 300, easing: 'cubic-bezier(0.2, 0, 0.2, 1)', fill: 'none' })
     })
 
-    it('supports height dimension and reads scrollHeight', () => {
+    it('supports height dimension and reads rectHeight', () => {
         const c = Setup({ dimension: 'height', duration: 50, easing: 'linear' })
         c.hostUpdated()
-        size.scrollHeight = 60
+        size.rectHeight = 60
         c.hostUpdated()
         const [frames_, opts] = target.animate.mock.calls[0]
         expect(frames_[0]).toEqual({ height: '20px', offset: 0 })
@@ -128,7 +128,7 @@ describe('MeasuredDimensionController', () => {
     it('ignores changes smaller than 1px', () => {
         const c = Setup()
         c.hostUpdated()
-        size.scrollWidth = 100.5
+        size.rectWidth = 100.5
         c.hostUpdated()
         expect(target.animate).not.toHaveBeenCalled()
     })
@@ -136,7 +136,7 @@ describe('MeasuredDimensionController', () => {
     it('does not animate on a change of exactly 1px boundary below threshold, does at 1px', () => {
         const c = Setup()
         c.hostUpdated()
-        size.scrollWidth = 101
+        size.rectWidth = 101
         c.hostUpdated()
         expect(target.animate).toHaveBeenCalledTimes(1)
     })
@@ -144,10 +144,14 @@ describe('MeasuredDimensionController', () => {
     it('interrupts a running animation starting from the live rect size', () => {
         const c = Setup()
         c.hostUpdated()
-        size.scrollWidth = 200
+        size.rectWidth = 200
         c.hostUpdated()
         size.rectWidth = 140
-        size.scrollWidth = 50
+        const origCancel = animations[0].cancel
+        animations[0].cancel = vi.fn(() => {
+            size.rectWidth = 50
+            return origCancel()
+        })
         c.hostUpdated()
         expect(animations[0].cancel).toHaveBeenCalledTimes(1)
         const frames_ = target.animate.mock.calls[1][0]
@@ -167,7 +171,7 @@ describe('MeasuredDimensionController', () => {
     it('light DOM mutation measures on next frame, coalescing bursts', async () => {
         const c = Setup()
         c.hostUpdated()
-        size.scrollWidth = 180
+        size.rectWidth = 180
         host.append(document.createElement('i'))
         host.append(document.createElement('i'))
         await new Promise((r) => setTimeout(r))
@@ -183,7 +187,7 @@ describe('MeasuredDimensionController', () => {
         dimension.hostUpdated()
         opacity.hostUpdated()
 
-        size.scrollWidth = 180
+        size.rectWidth = 180
         host.append(document.createElement('i'))
         await new Promise((resolve) => setTimeout(resolve))
         expect(frames.filter(Boolean)).toHaveLength(1)
@@ -205,7 +209,7 @@ describe('MeasuredDimensionController', () => {
     it('hostUpdated skips while a mutation frame is pending', async () => {
         const c = Setup()
         c.hostUpdated()
-        size.scrollWidth = 180
+        size.rectWidth = 180
         host.append(document.createElement('i'))
         await new Promise((r) => setTimeout(r))
         c.hostUpdated()
@@ -225,7 +229,7 @@ describe('MeasuredDimensionController', () => {
     it('disconnect cancels animation and frame, and stops observing', async () => {
         const c = Setup()
         c.hostUpdated()
-        size.scrollWidth = 180
+        size.rectWidth = 180
         c.hostUpdated()
         host.append(document.createElement('i'))
         await new Promise((r) => setTimeout(r))
@@ -243,7 +247,7 @@ describe('MeasuredDimensionController', () => {
         c.hostUpdated()
         c.hostDisconnected()
         c.hostConnected()
-        size.scrollWidth = 500
+        size.rectWidth = 500
         c.hostUpdated()
         expect(target.animate).not.toHaveBeenCalled()
     })
@@ -251,14 +255,76 @@ describe('MeasuredDimensionController', () => {
     it('finished animation is cleared (later change measures from natural size, no cancel)', async () => {
         const c = Setup()
         c.hostUpdated()
-        size.scrollWidth = 150
+        size.rectWidth = 150
         c.hostUpdated()
         animations[0].finish()
         await Promise.resolve()
         await Promise.resolve()
-        size.scrollWidth = 90
+        size.rectWidth = 90
         c.hostUpdated()
         expect(animations[0].cancel).not.toHaveBeenCalled()
         expect(target.animate.mock.calls[1][0][0]).toEqual({ width: '150px', offset: 0 })
+    })
+
+    it('preserves subpixel rect measurements without integer truncation', () => {
+        const c = Setup()
+        size.rectWidth = 100.4
+        size.scrollWidth = 100
+        c.hostUpdated()
+        size.rectWidth = 160.35
+        size.scrollWidth = 160
+        c.hostUpdated()
+        expect(target.animate).toHaveBeenCalledTimes(1)
+        const [frames_] = target.animate.mock.calls[0]
+        expect(frames_).toEqual([
+            { width: '100.4px', offset: 0 },
+            { width: '100.4px', offset: 0.15 },
+            { width: '160.35px', offset: 1 },
+        ])
+    })
+
+    it('temporarily forces textOverflow to clip during width animation and restores it on finish', async () => {
+        target.style.textOverflow = 'ellipsis'
+        const c = Setup()
+        c.hostUpdated()
+        size.rectWidth = 160
+        c.hostUpdated()
+        expect(target.style.textOverflow).toBe('clip')
+        animations[0].finish()
+        await Promise.resolve()
+        await Promise.resolve()
+        expect(target.style.textOverflow).toBe('ellipsis')
+    })
+
+    it('restores textOverflow immediately when animation is cancelled on disconnect', () => {
+        const c = Setup()
+        c.hostUpdated()
+        size.rectWidth = 160
+        c.hostUpdated()
+        expect(target.style.textOverflow).toBe('clip')
+        c.hostDisconnected()
+        expect(target.style.textOverflow).toBe('')
+    })
+
+    it('refreshes naturalSize silently when document.fonts.ready resolves', async () => {
+        let resolveFonts!: () => void
+        const ready = new Promise<void>((res) => { resolveFonts = res })
+        Object.defineProperty(document, 'fonts', {
+            configurable: true,
+            value: { status: 'loading', ready },
+        })
+        try {
+            const c = Setup()
+            size.rectWidth = 48
+            c.hostUpdated()
+            size.rectWidth = 52
+            resolveFonts()
+            await ready
+            await Promise.resolve()
+            c.hostUpdated()
+            expect(target.animate).not.toHaveBeenCalled()
+        } finally {
+            delete (document as { fonts?: unknown }).fonts
+        }
     })
 })

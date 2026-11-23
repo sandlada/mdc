@@ -72,6 +72,7 @@ export class MeasuredDimensionController implements ReactiveController {
     private content: IContentChanges | null = null
     private element: HTMLElement | null = null
     private naturalSize = 0
+    private restoreTextOverflow: (() => void) | null = null
 
     private readonly host: ReactiveControllerHost & Element
 
@@ -94,12 +95,20 @@ export class MeasuredDimensionController implements ReactiveController {
         this.content = subscribeToContentChanges(() => {
             if (this.element) this.syncTarget(false)
         })(this.host)
+        const fonts = this.host.ownerDocument.fonts
+        if (fonts && fonts.status !== 'loaded') {
+            void fonts.ready.then(() => {
+                if (this.content && this.element && !this.motion.active) {
+                    this.naturalSize = this.readNaturalSize(this.element)
+                }
+            })
+        }
     }
 
     public hostDisconnected(): void {
         this.content?.unsubscribe()
         this.content = null
-        this.motion.cancel()
+        this.clearMotion()
         this.element = null
     }
 
@@ -110,7 +119,7 @@ export class MeasuredDimensionController implements ReactiveController {
     private syncTarget(defer: boolean): void {
         const target = this.options.target()
         if (target !== this.element) {
-            this.motion.cancel()
+            this.clearMotion()
             this.element = target
             if (target) this.naturalSize = this.readNaturalSize(target)
             return
@@ -120,7 +129,7 @@ export class MeasuredDimensionController implements ReactiveController {
 
     private measure(target: HTMLElement): void {
         if (isContentMotionReduced(target)) {
-            this.motion.cancel()
+            this.clearMotion()
             this.naturalSize = this.readNaturalSize(target)
             return
         }
@@ -129,21 +138,45 @@ export class MeasuredDimensionController implements ReactiveController {
         let fromSize = this.naturalSize
         if (this.motion.active) {
             fromSize = target.getBoundingClientRect()[dimension]
-            this.motion.cancel()
+            this.clearMotion()
         }
 
         const toSize = this.readNaturalSize(target)
         this.naturalSize = toSize
         if (Math.abs(fromSize - toSize) < 1) return
 
-        this.motion.play(target, [
+        const keyframes: Keyframe[] = [
             { [dimension]: `${fromSize}px`, offset: 0 },
             { [dimension]: `${fromSize}px`, offset: 0.15 },
             { [dimension]: `${toSize}px`, offset: 1 },
-        ], { duration, easing, fill: 'none' })
+        ]
+        const animationOptions: KeyframeAnimationOptions = { duration, easing, fill: 'none' }
+
+        if (dimension === 'width') {
+            const prevTextOverflow = target.style.textOverflow
+            target.style.textOverflow = 'clip'
+            const restore = () => {
+                if (this.restoreTextOverflow === restore) {
+                    target.style.textOverflow = prevTextOverflow
+                    this.restoreTextOverflow = null
+                }
+            }
+            this.restoreTextOverflow = restore
+            const animation = this.motion.play(target, keyframes, animationOptions)
+            void animation.finished.then(restore, restore)
+            return
+        }
+
+        this.motion.play(target, keyframes, animationOptions)
+    }
+
+    private clearMotion(): void {
+        this.motion.cancel()
+        this.restoreTextOverflow?.()
+        this.restoreTextOverflow = null
     }
 
     private readNaturalSize(target: HTMLElement): number {
-        return this.options.dimension === 'width' ? target.scrollWidth : target.scrollHeight
+        return target.getBoundingClientRect()[this.options.dimension]
     }
 }

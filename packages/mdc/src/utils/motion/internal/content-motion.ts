@@ -20,7 +20,7 @@ export class ContentMotion {
         animation?.cancel()
     }
 
-    public play(target: HTMLElement, keyframes: Keyframe[], options: KeyframeAnimationOptions): void {
+    public play(target: HTMLElement, keyframes: Keyframe[], options: KeyframeAnimationOptions): Animation {
         this.cancel()
         const animation = target.animate(keyframes, options)
         this.current = animation
@@ -32,5 +32,6 @@ export class ContentMotion {
             clear()
             if ((error as DOMException | null)?.name !== 'AbortError') throw error
         })
+        return animation
     }
 }
