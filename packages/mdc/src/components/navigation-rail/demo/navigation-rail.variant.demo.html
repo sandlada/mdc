@@ -244,7 +244,8 @@
         </mdc-navigation-rail>
 
         <script>
-            const rail = document.querySelector(`#jkgwrui4y198y42`)
+            const root = document.currentScript?.getRootNode?.() ?? document
+            const rail = root.getElementById?.('jkgwrui4y198y42') ?? document.querySelector(`#jkgwrui4y198y42`)
 
             rail.addEventListener('change', (e) => {
                 console.log(e.currentTarget);

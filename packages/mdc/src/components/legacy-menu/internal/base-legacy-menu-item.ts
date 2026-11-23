@@ -26,7 +26,7 @@ import { composeMixin } from '../../../utils/compose-mixin/compose-mixin'
 import { mixinFocusRingOptions } from '../../focus-ring/focus-ring-options.mixin'
 import { mixinRippleOptions } from '../../ripple/ripple-options.mixin'
 import {
-    LEGACY_MENU_REQUEST_ACTIVATION_EVENT,
+    LegacyMenuRequestActivationEvent,
     type IMDCLegacyMenuItem,
     type IMDCLegacyMenuItemActivatedDetail,
     type IMDCLegacyMenuItemRequestActivationDetail,
@@ -361,7 +361,7 @@ export abstract class BaseLegacyMenuItem extends composeMixin(
             this.selected = true
         }
         this.dispatchEvent(new CustomEvent<IMDCLegacyMenuItemRequestActivationDetail>(
-            LEGACY_MENU_REQUEST_ACTIVATION_EVENT,
+            LegacyMenuRequestActivationEvent,
             {
                 detail: { item: this },
                 bubbles: true,

@@ -12,11 +12,11 @@ import type { LitElement } from 'lit'
  * color style (e.g. `vibrant`) must throw via `assertLegacyMenuVariant` —
  * never fall back silently.
  */
-export type LegacyMenuColorStyle = 'standard'
+export const LegacyMenuColorStyle = {
+    Standard: 'standard',
+} as const
 
-export const LEGACY_MENU_COLOR_STYLE = {
-    STANDARD: 'standard',
-} as const satisfies Record<string, LegacyMenuColorStyle>
+export type LegacyMenuColorStyle = (typeof LegacyMenuColorStyle)[keyof typeof LegacyMenuColorStyle]
 
 /**
  * Layout of an `mdc-legacy-menu`.
@@ -26,11 +26,11 @@ export const LEGACY_MENU_COLOR_STYLE = {
  * fall back silently. On web, grouped content is expressed with divider and
  * label slots inside a single standard surface.
  */
-export type LegacyMenuLayout = 'standard'
+export const LegacyMenuLayout = {
+    Standard: 'standard',
+} as const
 
-export const LEGACY_MENU_LAYOUT = {
-    STANDARD: 'standard',
-} as const satisfies Record<string, LegacyMenuLayout>
+export type LegacyMenuLayout = (typeof LegacyMenuLayout)[keyof typeof LegacyMenuLayout]
 
 /**
  * Placement of the legacy menu surface relative to its anchor.
@@ -50,27 +50,27 @@ export type LegacyMenuPlacement =
  * - `link`   — native `<a>` root, navigates to `href`. Forced automatically
  *              when `href` is set, and never disabled.
  */
-export type LegacyMenuItemType = 'text' | 'button' | 'link'
+export const LegacyMenuItemType = {
+    Text  : 'text',
+    Button: 'button',
+    Link  : 'link',
+} as const
 
-export const LEGACY_MENU_ITEM_TYPE = {
-    TEXT  : 'text',
-    BUTTON: 'button',
-    LINK  : 'link',
-} as const satisfies Record<string, LegacyMenuItemType>
+export type LegacyMenuItemType = (typeof LegacyMenuItemType)[keyof typeof LegacyMenuItemType]
 
 /**
  * Element names of the legacy menu trio, used to discover slotted children.
  */
-export const LEGACY_MENU_ELEMENT          = 'mdc-legacy-menu'
-export const LEGACY_MENU_ITEM_ELEMENT     = 'mdc-legacy-menu-item'
-export const LEGACY_MENU_SUBMENU_ELEMENT  = 'mdc-legacy-menu-submenu'
+export const LegacyMenuElement        = 'mdc-legacy-menu'
+export const LegacyMenuItemElement    = 'mdc-legacy-menu-item'
+export const LegacyMenuSubmenuElement = 'mdc-legacy-menu-submenu'
 
 /**
  * Dispatched (bubbles + composed) when a button / link item is activated
  * (clicked or Enter / Space). The menu listens and promotes the activating
  * item to the roving tabindex slot.
  */
-export const LEGACY_MENU_REQUEST_ACTIVATION_EVENT = 'request-activation'
+export const LegacyMenuRequestActivationEvent = 'request-activation'
 
 export interface IMDCLegacyMenuAttributes {
     /** Whether the menu surface is open. */

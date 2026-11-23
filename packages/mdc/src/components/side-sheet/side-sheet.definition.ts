@@ -83,7 +83,7 @@ const SharedStructural = {
 
     // Headline typography
     'enabled-headline-font'                    : Typescale.TitleLarge.Font,
-    'enabled-headline-line-height'             : Typescale.TitleLarge.LineHeight,
+    'enabled-headline-leading'                 : Typescale.TitleLarge.LineHeight,
     'enabled-headline-size'                    : Typescale.TitleLarge.FontSize,
     'enabled-headline-tracking'                : Typescale.TitleLarge.Tracking,
     'enabled-headline-weight'                  : Typescale.TitleLarge.FontWeight,

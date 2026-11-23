@@ -45,7 +45,7 @@ export const OnThisPageStyles = css`
         font-family: var(--_enabled-caption-font);
         font-size: var(--_enabled-caption-size);
         font-weight: var(--_enabled-caption-weight);
-        line-height: var(--_enabled-caption-line-height);
+        line-height: var(--_enabled-caption-leading);
         letter-spacing: var(--_enabled-caption-tracking);
         color: var(--_enabled-caption-color);
     }
@@ -55,7 +55,7 @@ export const OnThisPageStyles = css`
         font-family: var(--_enabled-headline-font);
         font-size: var(--_enabled-headline-size);
         font-weight: var(--_enabled-headline-weight);
-        line-height: var(--_enabled-headline-line-height);
+        line-height: var(--_enabled-headline-leading);
         letter-spacing: var(--_enabled-headline-tracking);
         color: var(--_enabled-headline-color);
         word-break: break-word;

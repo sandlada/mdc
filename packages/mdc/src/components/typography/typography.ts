@@ -6,7 +6,7 @@
 import { html, LitElement } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import type { ITypography, TypographyVariant } from './typography.interface'
-import { TypographyStyles } from './typography.styles'
+import { TypographyStyles } from './typography.style'
 
 declare global {
     interface HTMLElementTagNameMap {

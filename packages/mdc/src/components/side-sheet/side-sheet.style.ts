@@ -363,7 +363,7 @@ export const SideSheetBaseStyles = css`
         font-family: var(--_enabled-headline-font);
         font-size: var(--_enabled-headline-size);
         font-weight: var(--_enabled-headline-weight);
-        line-height: var(--_enabled-headline-line-height);
+        line-height: var(--_enabled-headline-leading);
         letter-spacing: var(--_enabled-headline-tracking);
     }
 

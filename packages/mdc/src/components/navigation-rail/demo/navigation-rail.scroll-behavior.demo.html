@@ -46,8 +46,11 @@
 </div>
 
 <script>
-    const rail = document.getElementById('nr-imperative');
-    document.getElementById('nr-show-btn')?.addEventListener('click', () => rail?.showRail());
-    document.getElementById('nr-hide-btn')?.addEventListener('click', () => rail?.hideRail());
-    document.getElementById('nr-toggle-btn')?.addEventListener('click', () => rail?.toggleRail());
+    const root = document.currentScript?.getRootNode?.() ?? document
+    const byId = (id) => root.getElementById?.(id) ?? document.getElementById(id)
+
+    const rail = byId('nr-imperative');
+    byId('nr-show-btn')?.addEventListener('click', () => rail?.showRail());
+    byId('nr-hide-btn')?.addEventListener('click', () => rail?.hideRail());
+    byId('nr-toggle-btn')?.addEventListener('click', () => rail?.toggleRail());
 </script>

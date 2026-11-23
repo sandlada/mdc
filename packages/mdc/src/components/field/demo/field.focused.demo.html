@@ -31,11 +31,14 @@
 </div>
 
 <script type="module">
-    const button = document.getElementById('toggle-focus')
+    const root = document.currentScript?.getRootNode?.() ?? document
+    const byId = (id) => root.getElementById?.(id) ?? document.getElementById(id)
+
+    const button = byId('toggle-focus')
     const fields = [
-        document.getElementById('f1'),
-        document.getElementById('f2'),
-        document.getElementById('f3'),
+        byId('f1'),
+        byId('f2'),
+        byId('f3'),
     ]
     button?.addEventListener('click', () => {
         for (const field of fields) {

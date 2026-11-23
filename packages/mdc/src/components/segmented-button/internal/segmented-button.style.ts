@@ -110,7 +110,7 @@ const Shared = css`
         font-size: var(--_label-size);
         font-weight: var(--_label-weight);
         letter-spacing: var(--_label-tracking);
-        line-height: var(--_label-line-height);
+        line-height: var(--_label-leading);
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;

@@ -23,7 +23,8 @@
 </div>
 
 <script type="module">
-    const host = document.getElementById('remove-demo')
+    const root = document.currentScript?.getRootNode?.() ?? document
+    const host = root.getElementById?.('remove-demo') ?? document.getElementById('remove-demo')
     host?.addEventListener('chip-close', (e) => {
         e.detail.chip.remove()
     })

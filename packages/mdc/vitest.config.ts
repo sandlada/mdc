@@ -14,11 +14,17 @@ export default defineConfig({
         coverage: {
             provider: 'v8',
             reporter: ['text-summary', 'text', 'json-summary'],
-            include: ['src/utils/**/*.ts'],
+            include: ['src/utils/**/*.ts', 'src/components/**/*.ts'],
             exclude: [
-                'src/utils/**/*.spec.ts',
+                'src/**/*.spec.ts',
+                'src/**/*.test.ts',
+                'src/**/*fakes.ts',
+                'src/**/index.ts',
+                'src/**/demo/**',
+                'src/**/*.style.ts',
+                'src/**/*.interface.ts',
+                'src/**/*.definition.ts',
                 'src/utils/testing/**',
-                'src/utils/**/index.ts',
             ],
             thresholds: {
                 'src/utils/**': {

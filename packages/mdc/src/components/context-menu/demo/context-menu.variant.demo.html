@@ -11,7 +11,8 @@
 </mdc-context-menu>
 
 <script type="module">
-    const menu = document.getElementById('demo-context-menu-vibrant')
+    const root = document.currentScript?.getRootNode?.() ?? document
+    const menu = root.getElementById?.('demo-context-menu-vibrant') ?? document.getElementById('demo-context-menu-vibrant')
     menu.items = [
         { id: 'lbl-actions', type: 'label', label: 'Sort Order' },
         { id: 'sort-name', type: 'radio', label: 'Name (A–Z)', checked: true, group: 'sort' },

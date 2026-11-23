@@ -11,7 +11,8 @@
 </mdc-context-menu>
 
 <script type="module">
-    const menu = document.getElementById('demo-context-menu')
+    const root = document.currentScript?.getRootNode?.() ?? document
+    const menu = root.getElementById?.('demo-context-menu') ?? document.getElementById('demo-context-menu')
     menu.items = [
         { id: 'open', label: 'Open preview', icon: 'visibility', shortcut: 'Enter' },
         { id: 'copy', label: 'Copy link', icon: 'content_copy', shortcut: 'Ctrl+C' },

@@ -80,8 +80,11 @@
     </div>
 </div>
 <script>
-    const mediumBar = document.getElementById('appbar-scrub-medium')
-    const mediumStatus = document.getElementById('medium-scrub-status')
+    const root = document.currentScript?.getRootNode?.() ?? document
+    const byId = (id) => root.getElementById?.(id) ?? document.getElementById(id)
+
+    const mediumBar = byId('appbar-scrub-medium')
+    const mediumStatus = byId('medium-scrub-status')
     if (mediumBar && mediumStatus) {
         mediumBar.addEventListener('scroll-state-change', (e) => {
             const { progress, collapsed } = e.detail
@@ -89,8 +92,8 @@
         })
     }
 
-    const largeBar = document.getElementById('appbar-scrub-large')
-    const largeStatus = document.getElementById('large-scrub-status')
+    const largeBar = byId('appbar-scrub-large')
+    const largeStatus = byId('large-scrub-status')
     if (largeBar && largeStatus) {
         largeBar.addEventListener('scroll-state-change', (e) => {
             const { progress, collapsed } = e.detail

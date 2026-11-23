@@ -15,7 +15,8 @@
     </mdc-icon-button>
 </mdc-data-table>
 <script type="module">
-    const el = document.getElementById('dt-interactive')
+    const root = document.currentScript?.getRootNode?.() ?? document
+    const el = root.getElementById?.('dt-interactive') ?? document.getElementById('dt-interactive')
     if (el) {
         el.columns = [
             { key: 'name', label: 'Dessert (100g serving)', sortable: true },

@@ -27,8 +27,8 @@ import { html, isServer, LitElement, nothing, type PropertyValues, type Template
 import { property, query, queryAssignedElements } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import {
-    LEGACY_MENU_ITEM_ELEMENT,
-    LEGACY_MENU_SUBMENU_ELEMENT,
+    LegacyMenuItemElement,
+    LegacyMenuSubmenuElement,
     type IMDCLegacyMenu,
     type IMDCLegacyMenuItem,
     type IMDCLegacyMenuSelectDetail,
@@ -694,7 +694,7 @@ export abstract class BaseLegacyMenu extends LitElement implements IMDCLegacyMen
         if (typeof this.querySelectorAll !== 'function') {
             return []
         }
-        const submenus = Array.from(this.querySelectorAll(LEGACY_MENU_SUBMENU_ELEMENT)) as unknown as IMDCLegacyMenuSubmenu[]
+        const submenus = Array.from(this.querySelectorAll(LegacyMenuSubmenuElement)) as unknown as IMDCLegacyMenuSubmenu[]
         const closing: Promise<void>[] = []
         for (const submenu of submenus) {
             if (submenu.open) {
@@ -782,15 +782,15 @@ export abstract class BaseLegacyMenu extends LitElement implements IMDCLegacyMen
             return
         }
         if (item.radio) {
-            const itemSubmenu = (item as HTMLElement).closest?.(LEGACY_MENU_SUBMENU_ELEMENT)
+            const itemSubmenu = (item as HTMLElement).closest?.(LegacyMenuSubmenuElement)
             const itemContainer = itemSubmenu ?? this
             if (typeof itemContainer.querySelectorAll === 'function') {
-                const radios = itemContainer.querySelectorAll<IMDCLegacyMenuItem>(LEGACY_MENU_ITEM_ELEMENT)
+                const radios = itemContainer.querySelectorAll<IMDCLegacyMenuItem>(LegacyMenuItemElement)
                 const itemRadioGroup = (item as { name?: string }).name ?? (item as HTMLElement).getAttribute?.('name') ?? ''
                 for (const radioItem of radios) {
                     if (radioItem !== item && radioItem.radio) {
                         if (typeof (radioItem as HTMLElement).closest === 'function') {
-                            const sibSubmenu = (radioItem as HTMLElement).closest(LEGACY_MENU_SUBMENU_ELEMENT)
+                            const sibSubmenu = (radioItem as HTMLElement).closest(LegacyMenuSubmenuElement)
                             if (itemSubmenu ? sibSubmenu !== itemSubmenu : Boolean(sibSubmenu)) {
                                 continue
                             }
@@ -857,7 +857,7 @@ export abstract class BaseLegacyMenu extends LitElement implements IMDCLegacyMen
         if (typeof this.querySelectorAll !== 'function') {
             return
         }
-        const submenus = Array.from(this.querySelectorAll(LEGACY_MENU_SUBMENU_ELEMENT)) as unknown as (HTMLElement & IMDCLegacyMenuSubmenu)[]
+        const submenus = Array.from(this.querySelectorAll(LegacyMenuSubmenuElement)) as unknown as (HTMLElement & IMDCLegacyMenuSubmenu)[]
         for (const submenu of submenus) {
             if (submenu !== target && !submenu.contains(target) && submenu.open) {
                 void submenu.hide()
@@ -884,7 +884,7 @@ export abstract class BaseLegacyMenu extends LitElement implements IMDCLegacyMen
         if (typeof this.querySelectorAll !== 'function') {
             return
         }
-        const submenus = Array.from(this.querySelectorAll(LEGACY_MENU_SUBMENU_ELEMENT)) as unknown as IMDCLegacyMenuSubmenu[]
+        const submenus = Array.from(this.querySelectorAll(LegacyMenuSubmenuElement)) as unknown as IMDCLegacyMenuSubmenu[]
         for (const submenu of submenus) {
             if (submenu.open) {
                 void submenu.reposition()

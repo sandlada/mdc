@@ -105,7 +105,7 @@ const getLabelStyles = () => {
             font-size: var(--_${s}-label-size);
             font-weight: var(--_${s}-label-weight);
             letter-spacing: var(--_${s}-label-tracking);
-            line-height: var(--_${s}-label-line-height);
+            line-height: var(--_${s}-label-leading);
         }
     `)
     return css`

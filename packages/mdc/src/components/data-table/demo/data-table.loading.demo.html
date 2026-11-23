@@ -1,11 +1,13 @@
 <mdc-data-table id="dt-loading" loading title="Loading State"></mdc-data-table>
 <mdc-data-table id="dt-empty" title="Empty State" empty-text="No matching desserts found."></mdc-data-table>
 <script type="module">
+    const root = document.currentScript?.getRootNode?.() ?? document
+    const byId = (id) => root.getElementById?.(id) ?? document.getElementById(id)
     const columns = [
         { key: 'name', label: 'Dessert' },
         { key: 'calories', label: 'Calories', numeric: true },
     ]
-    const loadingEl = document.getElementById('dt-loading')
+    const loadingEl = byId('dt-loading')
     if (loadingEl) {
         loadingEl.columns = columns
         loadingEl.rows = [
@@ -13,7 +15,7 @@
             { id: '2', name: 'Eclair', calories: 262 },
         ]
     }
-    const emptyEl = document.getElementById('dt-empty')
+    const emptyEl = byId('dt-empty')
     if (emptyEl) {
         emptyEl.columns = columns
         emptyEl.rows = []

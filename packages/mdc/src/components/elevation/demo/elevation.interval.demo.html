@@ -31,8 +31,11 @@
 
 <script>
     (() => {
-        const elevation = document.getElementById('interval-elevation')
-        const valDisplay = document.getElementById('elevation-interval-val')
+        const root = document.currentScript?.getRootNode?.() ?? document
+        const byId = (id) => root.getElementById?.(id) ?? document.getElementById(id)
+
+        const elevation = byId('interval-elevation')
+        const valDisplay = byId('elevation-interval-val')
 
         setInterval(() => {
             if (!elevation) return

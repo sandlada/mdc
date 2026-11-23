@@ -23,7 +23,7 @@ import { createStyleDefinition } from '../../utils/style'
 export const OutlinedSegmentedButtonDefinition = createStyleDefinition({
     // Label — `label-large`
     'label-font'              : Typescale.LabelLarge.Font,
-    'label-line-height'       : Typescale.LabelLarge.LineHeight,
+    'label-leading'           : Typescale.LabelLarge.LineHeight,
     'label-size'              : Typescale.LabelLarge.FontSize,
     'label-tracking'          : Typescale.LabelLarge.Tracking,
     'label-weight'            : Typescale.LabelLarge.FontWeight,

@@ -5,7 +5,8 @@
     max-height="240px"
 ></mdc-data-table>
 <script type="module">
-    const el = document.getElementById('dt-sticky')
+    const root = document.currentScript?.getRootNode?.() ?? document
+    const el = root.getElementById?.('dt-sticky') ?? document.getElementById('dt-sticky')
     if (el) {
         el.columns = [
             { key: 'name', label: 'Dessert', sticky: 'start', minWidth: '180px' },

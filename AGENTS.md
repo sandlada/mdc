@@ -75,7 +75,7 @@ packages/mdc/src/components/{name}/
 ## 5. 構建、提交與避坑
 
 - 指令（根目錄執行）：`pnpm run build` / `pnpm run build:dts` / `pnpm test`；細節見 `package.json`。
-- 入口：`mdc/all`（全量自動註冊）、`definitions`（手動註冊）、`utils`、`mdc/*` 子路徑；token 層經 `src/utils/style` 本地引用，禁外部包。
+- 入口：`utils`、`mdc/*` 子路徑；token 層經 `src/utils/style` 本地引用，禁外部包。
 - 提交 / 分支：`{type}: {message}`（`feat | chore | docs | refactor | fix | ai | test | extension`，可加範圍如 `feat(button)`）；分支 `type/name`。
 - 避坑：
   1. 動畫用即時 Chrome CDP + 真實延時驗證；headless `--virtual-time-budget` 會凍結 `@layer` 陰影樹動畫。

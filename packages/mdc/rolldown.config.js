@@ -8,10 +8,9 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 /**
  * Build-time WIP exclusions. NOTE: intentionally not mirrored with the
- * tsconfig exclude list (which additionally skips dock-layout /
- * draggable-modal / popup-controller from .d.ts emit) — those directories
- * still ship .js and must compile cleanly. Paths use the OS separator so
- * they match the relative paths returned by Node's fs APIs.
+ * tsconfig exclude list — those directories still ship .js and must compile
+ * cleanly. Paths use the OS separator so they match the relative paths
+ * returned by Node's fs APIs.
  */
 const WIP_DIRS = []
 const WIP_SUFFIX = '-old'

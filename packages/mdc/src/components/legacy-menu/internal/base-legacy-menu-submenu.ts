@@ -31,7 +31,7 @@ import type { IMDCLegacyMenuSubmenu, LegacyMenuPlacement } from '../legacy-menu.
 import { LegacyMenuSubmenuStyles } from '../legacy-menu-submenu.style'
 
 /** Tag name of the legacy submenu element (used for descendant lookup). */
-export const LEGACY_MENU_SUBMENU_ELEMENT = 'mdc-legacy-menu-submenu'
+export const LegacyMenuSubmenuElement = 'mdc-legacy-menu-submenu'
 
 /** Gap in pixels between the trigger and the nested surface (legacy-container idiom). */
 const POSITION_OFFSET = 6
@@ -543,7 +543,7 @@ export abstract class BaseLegacyMenuSubmenu extends composeMixin(
         if (typeof this.querySelectorAll !== 'function') {
             return []
         }
-        return Array.from(this.querySelectorAll(LEGACY_MENU_SUBMENU_ELEMENT)) as unknown as LegacyMenuSubmenuNested[]
+        return Array.from(this.querySelectorAll(LegacyMenuSubmenuElement)) as unknown as LegacyMenuSubmenuNested[]
     }
 
     /** Focusable nested children in document order; overridable for testing. */
@@ -552,7 +552,7 @@ export abstract class BaseLegacyMenuSubmenu extends composeMixin(
             return []
         }
         const items = Array.from(this.querySelectorAll(NESTED_CHILD_SELECTOR)) as unknown as (HTMLElement & LegacyMenuSubmenuFocusableChild)[]
-        return items.filter((el) => el.parentElement?.closest(LEGACY_MENU_SUBMENU_ELEMENT) === (this as unknown))
+        return items.filter((el) => el.parentElement?.closest(LegacyMenuSubmenuElement) === (this as unknown))
     }
 
     /** Closes every open nested submenu descendant (recursive via `hide`). */

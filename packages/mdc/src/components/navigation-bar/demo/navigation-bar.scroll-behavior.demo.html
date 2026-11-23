@@ -55,8 +55,11 @@
 </div>
 
 <script>
-    const bar = document.getElementById('nb-imperative');
-    document.getElementById('nb-show-btn')?.addEventListener('click', () => bar?.show());
-    document.getElementById('nb-hide-btn')?.addEventListener('click', () => bar?.hide());
-    document.getElementById('nb-toggle-btn')?.addEventListener('click', () => bar?.toggle());
+    const root = document.currentScript?.getRootNode?.() ?? document
+    const byId = (id) => root.getElementById?.(id) ?? document.getElementById(id)
+
+    const bar = byId('nb-imperative');
+    byId('nb-show-btn')?.addEventListener('click', () => bar?.show());
+    byId('nb-hide-btn')?.addEventListener('click', () => bar?.hide());
+    byId('nb-toggle-btn')?.addEventListener('click', () => bar?.toggle());
 </script>

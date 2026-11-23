@@ -8,8 +8,10 @@
     ></mdc-text-field>
 </mdc-data-table>
 <script type="module">
-    const table = document.getElementById('dt-filter')
-    const input = document.getElementById('dt-filter-input')
+    const root = document.currentScript?.getRootNode?.() ?? document
+    const byId = (id) => root.getElementById?.(id) ?? document.getElementById(id)
+    const table = byId('dt-filter')
+    const input = byId('dt-filter-input')
     if (table) {
         table.columns = [
             { key: 'name', label: 'Dessert', sortable: true },

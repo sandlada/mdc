@@ -24,14 +24,14 @@ export const OnThisPageDefinition = createStyleDefinition({
     'enabled-caption-font'                                  : Typescale.LabelMedium.Font,
     'enabled-caption-size'                                  : Typescale.LabelMedium.FontSize,
     'enabled-caption-weight'                                : Typescale.LabelMedium.FontWeight,
-    'enabled-caption-line-height'                           : Typescale.LabelMedium.LineHeight,
+    'enabled-caption-leading'                               : Typescale.LabelMedium.LineHeight,
     'enabled-caption-tracking'                              : Typescale.LabelMedium.Tracking,
     'enabled-caption-color'                                 : Color.OnSurfaceVariant,
 
     'enabled-headline-font'                                 : Typescale.HeadlineSmall.Font,
     'enabled-headline-size'                                 : Typescale.HeadlineSmall.FontSize,
     'enabled-headline-weight'                               : Typescale.HeadlineSmall.FontWeight,
-    'enabled-headline-line-height'                          : Typescale.HeadlineSmall.LineHeight,
+    'enabled-headline-leading'                              : Typescale.HeadlineSmall.LineHeight,
     'enabled-headline-tracking'                             : Typescale.HeadlineSmall.Tracking,
     'enabled-headline-color'                                : Color.OnSurface,
 
@@ -62,7 +62,7 @@ export const OnThisPageItemDefinition = createStyleDefinition({
 
     'enabled-label-font'                                    : Typescale.BodyMedium.Font,
     'enabled-label-size'                                    : Typescale.BodyMedium.FontSize,
-    'enabled-label-line-height'                             : Typescale.BodyMedium.LineHeight,
+    'enabled-label-leading'                                 : Typescale.BodyMedium.LineHeight,
     'enabled-label-weight'                                  : Typescale.BodyMedium.FontWeight,
     'enabled-label-tracking'                                : Typescale.BodyMedium.Tracking,
     'enabled-label-opacity'                                 : '1',

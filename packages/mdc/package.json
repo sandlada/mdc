@@ -155,10 +155,6 @@
             "import": "./build/components/divider/index.js",
             "default": "./build/components/divider/index.js"
         },
-        "./components/dock-layout/index": {
-            "import": "./build/components/dock-layout/index.js",
-            "default": "./build/components/dock-layout/index.js"
-        },
         "./components/draggable-modal/index": {
             "import": "./build/components/draggable-modal/index.js",
             "default": "./build/components/draggable-modal/index.js"

@@ -84,13 +84,16 @@
 
 <script>
     (() => {
+        const root = document.currentScript?.getRootNode?.() ?? document
+        const byId = (id) => root.getElementById?.(id) ?? document.getElementById(id)
+
         let current = 0
         let step = 1
 
-        const badgeAuto = document.getElementById('interval-badge-auto')
-        const badgeLarge = document.getElementById('interval-badge-large')
-        const badgeMax = document.getElementById('interval-badge-max')
-        const valDisplay = document.getElementById('badge-interval-val')
+        const badgeAuto = byId('interval-badge-auto')
+        const badgeLarge = byId('interval-badge-large')
+        const badgeMax = byId('interval-badge-max')
+        const valDisplay = byId('badge-interval-val')
 
         setInterval(() => {
             current += step

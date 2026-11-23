@@ -436,29 +436,32 @@
     let speedMs = 2500
 
     // DOM Elements
-    const badgeEl = document.getElementById('state-badge')
-    const nameEl = document.getElementById('state-name')
-    const descEl = document.getElementById('state-desc')
-    const selectEl = document.getElementById('state-select')
-    const speedSelectEl = document.getElementById('speed-select')
-    const propsInspectorEl = document.getElementById('props-inspector')
-    const timelineBarEl = document.getElementById('timeline-bar')
+    const root = document.currentScript?.getRootNode?.() ?? document
+    const byId = (id) => root.getElementById?.(id) ?? document.getElementById(id)
 
-    const btnToggle = document.getElementById('btn-toggle')
-    const btnPrev = document.getElementById('btn-prev')
-    const btnNext = document.getElementById('btn-next')
+    const badgeEl = byId('state-badge')
+    const nameEl = byId('state-name')
+    const descEl = byId('state-desc')
+    const selectEl = byId('state-select')
+    const speedSelectEl = byId('speed-select')
+    const propsInspectorEl = byId('props-inspector')
+    const timelineBarEl = byId('timeline-bar')
+
+    const btnToggle = byId('btn-toggle')
+    const btnPrev = byId('btn-prev')
+    const btnNext = byId('btn-next')
 
     const fields = [
-        document.getElementById('field-filled'),
-        document.getElementById('field-outlined'),
-        document.getElementById('field-suffix'),
-        document.getElementById('field-textarea'),
+        byId('field-filled'),
+        byId('field-outlined'),
+        byId('field-suffix'),
+        byId('field-textarea'),
     ]
 
-    const inputFilled = document.getElementById('input-filled')
-    const inputOutlined = document.getElementById('input-outlined')
-    const inputSuffix = document.getElementById('input-suffix')
-    const inputTextarea = document.getElementById('input-textarea')
+    const inputFilled = byId('input-filled')
+    const inputOutlined = byId('input-outlined')
+    const inputSuffix = byId('input-suffix')
+    const inputTextarea = byId('input-textarea')
 
     // Populate dropdown options
     stateSteps.forEach((s, idx) => {

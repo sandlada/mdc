@@ -42,6 +42,5 @@
     ],
     "exclude": [
         "./src/**/*-old/*",
-        "./src/**/dock-layout/*",
     ]
 }

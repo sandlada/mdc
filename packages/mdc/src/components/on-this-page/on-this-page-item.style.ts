@@ -72,7 +72,7 @@ export const OnThisPageItemStyles = css`
     .label {
         font-family: var(--_enabled-label-font);
         font-size: var(--_enabled-label-size);
-        line-height: var(--_enabled-label-line-height);
+        line-height: var(--_enabled-label-leading);
         font-weight: var(--_enabled-label-weight);
         letter-spacing: var(--_enabled-label-tracking);
         opacity: var(--_enabled-label-opacity);

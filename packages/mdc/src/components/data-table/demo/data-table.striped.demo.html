@@ -1,6 +1,7 @@
 <mdc-data-table id="dt-striped" striped title="Striped Rows"></mdc-data-table>
 <script type="module">
-    const el = document.getElementById('dt-striped')
+    const root = document.currentScript?.getRootNode?.() ?? document
+    const el = root.getElementById?.('dt-striped') ?? document.getElementById('dt-striped')
     if (el) {
         el.columns = [
             { key: 'name', label: 'Dessert' },

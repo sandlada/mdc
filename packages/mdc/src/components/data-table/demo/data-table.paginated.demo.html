@@ -7,7 +7,8 @@
     page-size-options="3,5,10"
 ></mdc-data-table>
 <script type="module">
-    const el = document.getElementById('dt-paginated')
+    const root = document.currentScript?.getRootNode?.() ?? document
+    const el = root.getElementById?.('dt-paginated') ?? document.getElementById('dt-paginated')
     if (el) {
         el.columns = [
             { key: 'name', label: 'Dessert', sortable: true },

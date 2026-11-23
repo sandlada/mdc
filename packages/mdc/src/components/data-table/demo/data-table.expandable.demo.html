@@ -2,7 +2,8 @@
 <script type="module">
     import { html } from 'lit'
 
-    const el = document.getElementById('dt-expandable')
+    const root = document.currentScript?.getRootNode?.() ?? document
+    const el = root.getElementById?.('dt-expandable') ?? document.getElementById('dt-expandable')
     if (el) {
         el.columns = [
             { key: 'name', label: 'Dessert', sortable: true },

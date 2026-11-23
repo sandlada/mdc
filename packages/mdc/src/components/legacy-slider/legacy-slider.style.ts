@@ -1,8 +1,8 @@
 import { Duration, Easing, Shape } from '@sandlada/mdk'
 import { css, unsafeCSS } from 'lit'
-import { ElevationDefinition } from '../../elevation/elevation.definition'
-import { LegacyLegacySliderDefinitionVersion2 } from '../legacy-slider.definition'
-import { overrideTokens, stringifyTokens } from '../../../utils/style'
+import { ElevationDefinition } from '../elevation/elevation.definition'
+import { LegacyLegacySliderDefinitionVersion2 } from './legacy-slider.definition'
+import { overrideTokens, stringifyTokens } from '../../utils/style'
 
 const TokensStringified = stringifyTokens('--mdc-legacy-slider')(LegacyLegacySliderDefinitionVersion2)
 
@@ -282,7 +282,7 @@ export const LegacySliderStyles = [
             color: var(--_enabled-label-text-color);
             font-family: var(--_label-text-font);
             font-size: var(--_label-text-size);
-            line-height: var(--_label-text-line-height);
+            line-height: var(--_label-text-leading);
             font-weight: var(--_label-text-weight);
 
             inset-block-end: 100%;

@@ -18,8 +18,9 @@
         { id: '2', name: 'Ice cream sandwich', calories: 237, fat: 9.0 },
         { id: '3', name: 'Eclair', calories: 262, fat: 16.0 },
     ]
+    const root = document.currentScript?.getRootNode?.() ?? document
     for (const id of ['dt-single', 'dt-multiple']) {
-        const el = document.getElementById(id)
+        const el = root.getElementById?.(id) ?? document.getElementById(id)
         if (el) {
             el.columns = columns
             el.rows = rows

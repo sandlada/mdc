@@ -88,7 +88,7 @@ function sized(
         [`${s}-leading-button-min-width`] : p.minWidth,
         [`${s}-trailing-button-min-width`]: p.minWidth,
         [`${s}-label-font`]               : p.label.Font,
-        [`${s}-label-line-height`]        : p.label.LineHeight,
+        [`${s}-label-leading`]            : p.label.LineHeight,
         [`${s}-label-size`]               : p.label.FontSize,
         [`${s}-label-tracking`]           : p.label.Tracking,
         [`${s}-label-weight`]             : p.label.FontWeight,

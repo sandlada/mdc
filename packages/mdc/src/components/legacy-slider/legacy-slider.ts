@@ -6,7 +6,7 @@
 
 import { customElement } from 'lit/decorators.js'
 import { BaseSlider } from './internal/base-slider'
-import { LegacySliderStyles } from './internal/legacy-slider.styles'
+import { LegacySliderStyles } from './legacy-slider.style'
 
 declare global {
     interface HTMLElementTagNameMap {
