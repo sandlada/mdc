@@ -5,3 +5,10 @@
  */
 export { subscribeToContentChanges, type IContentChanges } from './content-changes'
 export { ContentMotion, isContentMotionReduced } from './content-motion'
+export {
+    evaluateWatch,
+    hasWatchedValueChanged,
+    readTargetContent,
+    type WatchInput,
+    type WatchSource,
+} from './content-observer'

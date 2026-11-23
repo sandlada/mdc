@@ -36,7 +36,11 @@ export abstract class BaseExtendedFab extends BaseFab {
         super()
         if(isServer) return
         new MeasuredDimensionController(this, { target: () => this.labelElement })
-        new OpacityTransitionController(this, { target: () => this.labelElement })
+        new OpacityTransitionController(this, {
+            target: () => this.labelElement,
+            watch: ['extended', 'hasLabel'],
+            observeContent: true,
+        })
     }
 
     protected override render(): unknown {

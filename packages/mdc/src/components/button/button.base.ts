@@ -113,7 +113,11 @@ export abstract class BaseButton extends composeMixin(
     private labelTextObserver: MutationObserver | null = null
 
     protected readonly sizeController = new MeasuredDimensionController(this, { target: () => this.labelElement })
-    protected readonly opacityController = new OpacityTransitionController(this, { target: () => this.labelElement })
+    protected readonly opacityController = new OpacityTransitionController(this, {
+        target: () => this.labelElement,
+        watch: 'hasLabel',
+        observeContent: true,
+    })
 
     // With delegatesFocus:true, the host receives :focus-visible on keyboard
     // navigation while focusin from the inner <button> bubbles to the host.

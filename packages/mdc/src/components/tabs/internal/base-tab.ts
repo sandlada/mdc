@@ -108,13 +108,17 @@ export abstract class BaseTab
     protected readonly labelWidthController = new MeasuredDimensionController(this, {
         target: () => this.labelElement,
     })
-    /** Fades the label when its content changes. */
+    /** Fades the label when its visibility or text content changes. */
     protected readonly labelOpacityController = new OpacityTransitionController(this, {
         target: () => this.labelElement,
+        watch: [() => !this.iconOnly, 'label'],
+        observeContent: true,
     })
     /** Fades the icon when the icon slot content changes. */
     protected readonly iconOpacityController = new OpacityTransitionController(this, {
         target: () => this.iconElement,
+        watch: 'hasIcon',
+        observeContent: true,
     })
 
     /** Ripple / focus ring track pointer & focus on the host. */

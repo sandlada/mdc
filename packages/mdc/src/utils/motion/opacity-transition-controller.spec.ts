@@ -6,7 +6,7 @@
 // @vitest-environment happy-dom
 import type { ReactiveController } from 'lit'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { OpacityTransitionController } from './opacity-transition-controller'
+import { OpacityTransitionController, type OpacityTransitionOptions } from './opacity-transition-controller'
 
 // Vitest resolves lit's `node` export where `isServer` is true; force browser.
 vi.mock('lit', async (importOriginal) => ({
@@ -16,6 +16,12 @@ vi.mock('lit', async (importOriginal) => ({
 
 class Host extends HTMLElement {
     public controllers: ReactiveController[] = []
+    public hasLabel = false
+    public extended = false
+    public selected = false
+    public variant = 'filter'
+    public disabled = false
+
     public addController(c: ReactiveController) {
         this.controllers.push(c)
     }
@@ -51,7 +57,11 @@ describe('OpacityTransitionController', () => {
         pending.forEach((cb) => cb?.(0))
     }
 
-    const Setup = (options: { duration?: number; easing?: string } = {}) => {
+    const Setup = (
+        options: Partial<Omit<OpacityTransitionOptions<Host>, 'target'>> & {
+            target?: () => HTMLElement | null
+        } = {},
+    ) => {
         const controller = new OpacityTransitionController(host, {
             target: () => target,
             ...options,
@@ -73,6 +83,7 @@ describe('OpacityTransitionController', () => {
         })
         host = new Host()
         target = document.createElement('div') as never
+        target.textContent = 'Initial'
         target.animate = vi.fn(() => {
             const a = FakeAnimation()
             animations.push(a)
@@ -92,9 +103,19 @@ describe('OpacityTransitionController', () => {
         expect(target.animate).not.toHaveBeenCalled()
     })
 
-    it('animates on subsequent renders with default options', () => {
+    it('does not animate on unrelated hostUpdated() when content and watched fields are unchanged', () => {
         const c = Setup()
         c.hostUpdated()
+        host.disabled = true
+        c.hostUpdated()
+        c.hostUpdated()
+        expect(target.animate).not.toHaveBeenCalled()
+    })
+
+    it('animates when target text content changes with default options', () => {
+        const c = Setup()
+        c.hostUpdated()
+        target.textContent = 'Updated'
         c.hostUpdated()
         expect(target.animate).toHaveBeenCalledTimes(1)
         const [keyframes, opts] = target.animate.mock.calls[0]
@@ -109,6 +130,7 @@ describe('OpacityTransitionController', () => {
     it('honors custom duration and easing', () => {
         const c = Setup({ duration: 100, easing: 'linear' })
         c.hostUpdated()
+        target.textContent = 'Changed'
         c.hostUpdated()
         expect(target.animate.mock.calls[0][1]).toMatchObject({ duration: 100, easing: 'linear' })
     })
@@ -121,22 +143,124 @@ describe('OpacityTransitionController', () => {
         expect(target.animate).not.toHaveBeenCalled()
     })
 
+    it('animates when target transitions from null on first render to an element on watch change', () => {
+        let currentTarget: HTMLElement | null = null
+        const c = Setup({
+            target: () => currentTarget,
+            watch: 'selected',
+        })
+        c.hostUpdated()
+        expect(target.animate).not.toHaveBeenCalled()
+
+        host.selected = true
+        currentTarget = target
+        c.hostUpdated()
+        expect(target.animate).toHaveBeenCalledTimes(1)
+    })
+
+    it('supports single-field watch via getter and property key', () => {
+        const getterCtrl = Setup({ watch: () => host.hasLabel })
+        getterCtrl.hostUpdated()
+        host.disabled = true
+        getterCtrl.hostUpdated()
+        expect(target.animate).not.toHaveBeenCalled()
+
+        host.hasLabel = true
+        getterCtrl.hostUpdated()
+        expect(target.animate).toHaveBeenCalledTimes(1)
+
+        const keyCtrl = Setup({ watch: 'extended' })
+        keyCtrl.hostUpdated()
+        host.disabled = false
+        keyCtrl.hostUpdated()
+        expect(target.animate).toHaveBeenCalledTimes(1)
+
+        host.extended = true
+        keyCtrl.hostUpdated()
+        expect(target.animate).toHaveBeenCalledTimes(2)
+    })
+
+    it('supports multi-field tuple getter and mixed watch arrays without false positives', () => {
+        const c = Setup({
+            watch: ['hasLabel', () => [host.extended, host.variant]],
+        })
+        c.hostUpdated()
+
+        // Unrelated property change, new array instances with same values
+        host.disabled = true
+        c.hostUpdated()
+        expect(target.animate).not.toHaveBeenCalled()
+
+        // Property key field changes
+        host.hasLabel = true
+        c.hostUpdated()
+        expect(target.animate).toHaveBeenCalledTimes(1)
+
+        // Nested tuple element changes
+        host.variant = 'assist'
+        c.hostUpdated()
+        expect(target.animate).toHaveBeenCalledTimes(2)
+    })
+
+    it('supports mixing watch with observeContent: true', () => {
+        const c = Setup({
+            watch: 'hasLabel',
+            observeContent: true,
+        })
+        c.hostUpdated()
+
+        // Unrelated update
+        host.disabled = true
+        c.hostUpdated()
+        expect(target.animate).not.toHaveBeenCalled()
+
+        // Watched field changes
+        host.hasLabel = true
+        c.hostUpdated()
+        expect(target.animate).toHaveBeenCalledTimes(1)
+
+        // Target content changes while watched field stays the same
+        target.textContent = 'New label'
+        c.hostUpdated()
+        expect(target.animate).toHaveBeenCalledTimes(2)
+    })
+
     it('cancels the in-flight animation when a new one starts', () => {
         const c = Setup()
         c.hostUpdated()
+        target.textContent = 'First'
         c.hostUpdated()
+        target.textContent = 'Second'
         c.hostUpdated()
         expect(target.animate).toHaveBeenCalledTimes(2)
         expect(animations[0].cancel).toHaveBeenCalledTimes(1)
         expect(animations[1].cancel).not.toHaveBeenCalled()
     })
 
-    it('light DOM mutation animates on next frame (coalesced)', async () => {
+    it('light DOM slotted text mutation animates on next frame (coalesced), ignoring unrelated slots', async () => {
+        const shadow = host.attachShadow({ mode: 'open' })
+        target.textContent = ''
+        const defaultSlot = document.createElement('slot')
+        const iconSlot = document.createElement('slot')
+        iconSlot.name = 'icon'
+        target.append(defaultSlot)
+        shadow.append(target, iconSlot)
+
         const c = Setup()
         c.hostUpdated()
-        host.append(document.createElement('span'))
-        host.append(document.createElement('span'))
-        await Promise.resolve()
+
+        // Mutating an unrelated named slot should NOT animate target
+        const icon = document.createElement('span')
+        icon.setAttribute('slot', 'icon')
+        icon.textContent = 'home'
+        host.append(icon)
+        await new Promise((r) => setTimeout(r))
+        Flush()
+        expect(target.animate).not.toHaveBeenCalled()
+
+        // Mutating the default slot inside target SHOULD animate once (coalesced)
+        host.append(document.createTextNode('Hello'))
+        host.append(document.createTextNode(' World'))
         await new Promise((r) => setTimeout(r))
         expect(frames.filter(Boolean)).toHaveLength(1)
         Flush()
@@ -144,9 +268,14 @@ describe('OpacityTransitionController', () => {
     })
 
     it('hostUpdated defers to a pending mutation frame', async () => {
+        const shadow = host.attachShadow({ mode: 'open' })
+        target.textContent = ''
+        target.append(document.createElement('slot'))
+        shadow.append(target)
+
         const c = Setup()
         c.hostUpdated()
-        host.append(document.createElement('i'))
+        host.append(document.createTextNode('Deferred'))
         await new Promise((r) => setTimeout(r))
         c.hostUpdated()
         expect(target.animate).not.toHaveBeenCalled()
@@ -156,7 +285,7 @@ describe('OpacityTransitionController', () => {
 
     it('mutation before first render does not animate', async () => {
         Setup()
-        host.append(document.createElement('i'))
+        host.append(document.createTextNode('Early'))
         await new Promise((r) => setTimeout(r))
         Flush()
         expect(target.animate).not.toHaveBeenCalled()
@@ -165,6 +294,7 @@ describe('OpacityTransitionController', () => {
     it('disconnect cancels animation, pending frame and stops observing', async () => {
         const c = Setup()
         c.hostUpdated()
+        target.textContent = 'Trigger'
         c.hostUpdated()
         host.append(document.createElement('i'))
         await new Promise((r) => setTimeout(r))
@@ -189,6 +319,7 @@ describe('OpacityTransitionController', () => {
     it('finished animation is cleared and not cancelled afterwards', async () => {
         const c = Setup()
         c.hostUpdated()
+        target.textContent = 'Done'
         c.hostUpdated()
         animations[0].finish()
         await Promise.resolve()

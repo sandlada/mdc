@@ -15,3 +15,4 @@ export {
 } from './presence-motion'
 export { MeasuredDimensionController, type MeasuredDimensionOptions } from './measured-dimension-controller'
 export { OpacityTransitionController, type OpacityTransitionOptions } from './opacity-transition-controller'
+export type { WatchInput, WatchSource } from './internal'

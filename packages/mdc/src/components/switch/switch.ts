@@ -101,6 +101,7 @@ export class MDCSwitch extends composeMixin(
 
     private readonly opacityController = new OpacityTransitionController(this, {
         target: () => this.handleElement,
+        watch: ['selected', 'hideSelectedIcon', 'showUnselectedIcon'],
         duration: 250,
     })
 

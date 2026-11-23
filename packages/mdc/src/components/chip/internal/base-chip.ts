@@ -136,20 +136,27 @@ export abstract class BaseChip extends composeMixin(
     @query('.trailing-icon')
     protected readonly removeIconElement!: HTMLElement | null
 
-    private suppressIconOpacity = false
-
     protected readonly iconOpacityController = new OpacityTransitionController(this, {
         target: () => this.opacityTargetForIcon,
+        watch: () => [
+            this.hasIcon,
+            this.hasAvatar,
+            this.showFilterCheckmark,
+            this.selected,
+            this.normalizedVariant,
+        ],
         duration: 200,
     })
 
     protected readonly checkmarkOpacityController = new OpacityTransitionController(this, {
         target: () => this.opacityTargetForCheckmark,
+        watch: () => [this.showFilterCheckmark, this.animState === 'deselecting'],
         duration: 200,
     })
 
     protected readonly trailingIconOpacityController = new OpacityTransitionController(this, {
         target: () => this.opacityTargetForTrailingIcon,
+        watch: () => [this.hasTrailingRemoveAction, this.hasTrailingIcon],
         duration: 200,
     })
 
@@ -205,7 +212,7 @@ export abstract class BaseChip extends composeMixin(
         if (!this.hasUpdated) {
             return this.iconElement
         }
-        if (this.suppressIconOpacity || this.isReducedMotion()) {
+        if (this.isReducedMotion()) {
             return null
         }
         if (!this.hasIcon || this.hasAvatar || this.showFilterCheckmark) {
@@ -218,7 +225,7 @@ export abstract class BaseChip extends composeMixin(
         if (!this.hasUpdated) {
             return this.checkmarkElement
         }
-        if (this.suppressIconOpacity || this.isReducedMotion()) {
+        if (this.isReducedMotion()) {
             return null
         }
         if (!this.showFilterCheckmark || this.animState === 'deselecting') {
@@ -231,7 +238,7 @@ export abstract class BaseChip extends composeMixin(
         if (!this.hasUpdated) {
             return this.hasTrailingRemoveAction ? this.removeIconElement : this.staticTrailingIconElement
         }
-        if (this.suppressIconOpacity || this.isReducedMotion()) {
+        if (this.isReducedMotion()) {
             return null
         }
         if (this.hasTrailingRemoveAction) {
@@ -257,22 +264,6 @@ export abstract class BaseChip extends composeMixin(
     protected override willUpdate(changedProperties: PropertyValues<this>): void {
         super.willUpdate(changedProperties)
 
-        const changed = changedProperties as Map<PropertyKey, unknown>
-        const hasIconTransitionChange =
-            changed.has('selected') ||
-            changed.has('variant') ||
-            changed.has('hasIcon') ||
-            changed.has('hasAvatar') ||
-            changed.has('hasAssignedAvatar') ||
-            changed.has('avatar') ||
-            changed.has('hasTrailingIcon') ||
-            changed.has('hasSelectedIcon') ||
-            changed.has('hideCheckmark') ||
-            changed.has('noRemove') ||
-            changed.has('removeOnly')
-
-        this.suppressIconOpacity = !hasIconTransitionChange
-
         if (changedProperties.has('selected')) {
             const prevSelected = changedProperties.get('selected') as boolean | undefined
             const canAnimateFilter =
@@ -292,12 +283,6 @@ export abstract class BaseChip extends composeMixin(
 
     protected override updated(changedProperties: PropertyValues<this>): void {
         super.updated(changedProperties)
-
-        if (!isServer && this.suppressIconOpacity) {
-            queueMicrotask(() => {
-                this.suppressIconOpacity = false
-            })
-        }
 
         if (
             !isServer &&

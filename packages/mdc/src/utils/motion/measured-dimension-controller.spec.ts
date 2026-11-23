@@ -181,6 +181,10 @@ describe('MeasuredDimensionController', () => {
     })
 
     it('shares a content frame with opacity and releases only its own animation', async () => {
+        const shadow = host.attachShadow({ mode: 'open' })
+        target.append(document.createElement('slot'))
+        shadow.append(target)
+
         const dimension = Setup()
         const opacity = new OpacityTransitionController(host, { target: () => target })
         opacity.hostConnected()
@@ -188,7 +192,7 @@ describe('MeasuredDimensionController', () => {
         opacity.hostUpdated()
 
         size.rectWidth = 180
-        host.append(document.createElement('i'))
+        host.append(document.createTextNode('First'))
         await new Promise((resolve) => setTimeout(resolve))
         expect(frames.filter(Boolean)).toHaveLength(1)
         Flush()
@@ -198,7 +202,7 @@ describe('MeasuredDimensionController', () => {
         expect(animations[0].cancel).toHaveBeenCalledOnce()
         expect(animations[1].cancel).not.toHaveBeenCalled()
 
-        host.append(document.createElement('b'))
+        host.append(document.createTextNode('Second'))
         await new Promise((resolve) => setTimeout(resolve))
         Flush()
         expect(target.animate).toHaveBeenCalledTimes(3)
@@ -326,5 +330,26 @@ describe('MeasuredDimensionController', () => {
         } finally {
             delete (document as { fonts?: unknown }).fonts
         }
+    })
+
+    it('gates measurement when watch is provided (including mixed multi-field watch)', () => {
+        const statefulHost = host as Host & { sizeKey: string; extended: boolean }
+        statefulHost.sizeKey = 'small'
+        statefulHost.extended = false
+
+        const c = Setup({
+            watch: ['sizeKey', () => statefulHost.extended],
+        })
+        c.hostUpdated()
+
+        // Size changed in DOM, but watched fields did not change -> skip measurement
+        size.rectWidth = 160
+        c.hostUpdated()
+        expect(target.animate).not.toHaveBeenCalled()
+
+        // Watched field changes -> measures and animates
+        statefulHost.extended = true
+        c.hostUpdated()
+        expect(target.animate).toHaveBeenCalledTimes(1)
     })
 })

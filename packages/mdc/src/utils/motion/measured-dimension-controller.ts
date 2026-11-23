@@ -4,12 +4,21 @@
  * SPDX-License-Identifier: MIT
  */
 import { isServer, type ReactiveController, type ReactiveControllerHost } from 'lit'
-import { ContentMotion, isContentMotionReduced, subscribeToContentChanges, type IContentChanges } from './internal'
+import {
+    ContentMotion,
+    evaluateWatch,
+    hasWatchedValueChanged,
+    isContentMotionReduced,
+    readTargetContent,
+    subscribeToContentChanges,
+    type IContentChanges,
+    type WatchInput,
+} from './internal'
 
 /**
  * Configuration options for {@link MeasuredDimensionController}.
  */
-export interface MeasuredDimensionOptions {
+export interface MeasuredDimensionOptions<THost extends object = object> {
     /**
      * Returns the target element whose natural size is observed and animated.
      * May return `null` before the element has been rendered.
@@ -21,6 +30,28 @@ export interface MeasuredDimensionOptions {
      * @default 'width'
      */
     dimension?: 'width' | 'height'
+
+    /**
+     * Optional watch source(s) evaluated across updates. Accepts a getter
+     * function (returning a value or tuple), a host property name, or a mixed
+     * array of both.
+     *
+     * When provided, measurement and animation only run when a watched value
+     * changes (or when {@link observeContent} is also `true` and `target`'s
+     * content changes), avoiding unnecessary layout reads on unrelated updates.
+     *
+     * When omitted, measurement runs on host updates and content changes,
+     * animating whenever the measured dimension changes by at least 1px.
+     */
+    watch?: WatchInput<THost>
+
+    /**
+     * When {@link watch} is provided, whether to also trigger measurement when
+     * `target`'s rendered content changes.
+     *
+     * @default false when `watch` is provided
+     */
+    observeContent?: boolean
 
     /**
      * Animation duration in milliseconds.
@@ -48,6 +79,8 @@ export interface MeasuredDimensionOptions {
  * - **Lit re-renders** (e.g. `size`, `hasIcon`, `hasLabel` class changes):
  *   detected via `hostUpdated()`. Skipped when a mutation rAF is already
  *   pending to avoid animating twice for the same visual change.
+ * - **Optional `watch` / `observeContent`**: narrows measurement to specific
+ *   reactive fields or target content changes.
  *
  * ### Animation
  * Uses the Web Animations API (`element.animate()`) instead of inline CSS
@@ -66,19 +99,27 @@ export interface MeasuredDimensionOptions {
  * })
  * ```
  */
-export class MeasuredDimensionController implements ReactiveController {
-    private readonly options: Required<MeasuredDimensionOptions>
+export class MeasuredDimensionController<
+    THost extends ReactiveControllerHost & Element = ReactiveControllerHost & Element,
+> implements ReactiveController {
+    private readonly options: MeasuredDimensionOptions<THost> & {
+        dimension: 'width' | 'height'
+        duration: number
+        easing: string
+    }
     private readonly motion = new ContentMotion()
     private content: IContentChanges | null = null
     private element: HTMLElement | null = null
     private naturalSize = 0
+    private lastWatched: unknown = undefined
+    private lastContent: string | null = null
     private restoreTextOverflow: (() => void) | null = null
 
-    private readonly host: ReactiveControllerHost & Element
+    private readonly host: THost
 
     public constructor(
-        host: ReactiveControllerHost & Element,
-        options: MeasuredDimensionOptions,
+        host: THost,
+        options: MeasuredDimensionOptions<THost>,
     ) {
         this.host = host
         this.options = {
@@ -110,6 +151,8 @@ export class MeasuredDimensionController implements ReactiveController {
         this.content = null
         this.clearMotion()
         this.element = null
+        this.lastWatched = undefined
+        this.lastContent = null
     }
 
     public hostUpdated(): void {
@@ -121,10 +164,49 @@ export class MeasuredDimensionController implements ReactiveController {
         if (target !== this.element) {
             this.clearMotion()
             this.element = target
-            if (target) this.naturalSize = this.readNaturalSize(target)
+            if (target) {
+                this.naturalSize = this.readNaturalSize(target)
+                this.captureSnapshot(target)
+            } else {
+                this.lastWatched = undefined
+                this.lastContent = null
+            }
             return
         }
-        if (target && !defer) this.measure(target)
+        if (target && !defer && this.shouldMeasure(target)) {
+            this.measure(target)
+        }
+    }
+
+    private captureSnapshot(target: HTMLElement): void {
+        if (this.options.watch !== undefined) {
+            this.lastWatched = evaluateWatch(this.host, this.options.watch)
+        }
+        if (this.options.observeContent) {
+            this.lastContent = readTargetContent(target)
+        }
+    }
+
+    private shouldMeasure(target: HTMLElement): boolean {
+        const hasFilter = this.options.watch !== undefined || this.options.observeContent !== undefined
+        if (!hasFilter) return true
+
+        let changed = false
+        if (this.options.watch !== undefined) {
+            const nextWatched = evaluateWatch(this.host, this.options.watch)
+            if (hasWatchedValueChanged(this.lastWatched, nextWatched)) {
+                this.lastWatched = nextWatched
+                changed = true
+            }
+        }
+        if (this.options.observeContent) {
+            const nextContent = readTargetContent(target)
+            if (this.lastContent !== nextContent) {
+                this.lastContent = nextContent
+                changed = true
+            }
+        }
+        return changed
     }
 
     private measure(target: HTMLElement): void {

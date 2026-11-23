@@ -138,6 +138,7 @@ export class MDCBadge extends composeMixin(
         this,
         {
             target: () => this.labelElement,
+            watch: 'displayText',
         }
     )
     private readonly measuredDimensionController = new MeasuredDimensionController(
